@@ -51,6 +51,11 @@ class MappingManager(private val context: ModContext) : Manager {
                 }
                 Logger.error("Failed to load cached mappings", it)
             }
+
+            if (snapBuildNumber != currentBuildNumber) {
+                context.bridgeClient.deleteFile(FileAccessRequest.FileType.MAPPINGS)
+                context.softRestartApp()
+            }
             return
         }
         refresh()
@@ -147,8 +152,6 @@ class MappingManager(private val context: ModContext) : Manager {
         if (mappings.containsKey(key)) {
             return mappings[key]!!
         }
-        Logger.xposedLog("Mapping not found deleting cache")
-        context.bridgeClient.deleteFile(FileAccessRequest.FileType.MAPPINGS)
         throw Exception("No mapping found for $key")
     }
 
