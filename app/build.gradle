@@ -1,0 +1,74 @@
+plugins {
+    id 'com.android.application'
+    id 'org.jetbrains.kotlin.android'
+}
+
+def appVersionName = "0.0.1"
+def appVersionCode = 1
+
+android {
+    compileSdk 32
+
+    defaultConfig {
+        applicationId "me.rhunk.snapenhance"
+        minSdk 29
+        targetSdk 32
+        versionCode appVersionCode
+        versionName appVersionName
+        multiDexEnabled true
+    }
+
+    buildTypes {
+        release {
+            minifyEnabled true
+            shrinkResources true
+            proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
+        }
+    }
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_1_8
+        targetCompatibility JavaVersion.VERSION_1_8
+    }
+
+    //keep arm64-v8a native libs
+    packagingOptions {
+        exclude "META-INF/**"
+        exclude 'lib/x86/**'
+        exclude 'lib/x86_64/**'
+        exclude 'lib/armeabi-v7a/**'
+    }
+
+    kotlinOptions {
+        jvmTarget = '1.8'
+    }
+}
+
+afterEvaluate {
+    //auto install for debug purpose
+    getTasks().getByPath(":app:assembleDebug").doLast {
+        try {
+            println "Killing Snapchat"
+            exec {
+                commandLine "adb", "shell", "am", "force-stop", "com.snapchat.android"
+            }
+            println "Installing debug build"
+            exec() {
+                commandLine "adb", "install", "-r", "-d", "${buildDir}/outputs/apk/debug/app-debug.apk"
+            }
+            println "Starting Snapchat"
+            exec {
+                commandLine "adb", "shell", "am", "start", "com.snapchat.android"
+            }
+        } catch (Throwable t) {
+            println "Failed to install debug build"
+            t.printStackTrace()
+        }
+    }
+}
+
+dependencies {
+    implementation 'org.jetbrains.kotlinx:kotlinx-coroutines-android:1.6.1'
+    compileOnly files('libs/LSPosed-api-1.0-SNAPSHOT.jar')
+    implementation 'com.google.code.gson:gson:2.10.1'
+    implementation 'com.arthenica:ffmpeg-kit-min-gpl:5.1'
+}

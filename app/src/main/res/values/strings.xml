@@ -1,0 +1,33 @@
+<resources>
+    <string name="app_name" translatable="false">Snap Enhance</string>
+    <string name="property.save_folder">Save folder</string>
+    <string name="property.prevent_read_receipts">Prevent read receipts</string>
+    <string name="property.hide_bitmoji_presence">Hide Bitmoji presence</string>
+    <string name="property.show_message_content">Show message content</string>
+    <string name="property.message_logger">Message logger</string>
+    <string name="property.media_downloader_feature">Media downloader feature</string>
+    <string name="property.download_stories">Download stories</string>
+    <string name="property.download_public_stories">Download public stories</string>
+    <string name="property.download_spotlight">Download spotlight</string>
+    <string name="property.overlay_merge">Overlay merge</string>
+    <string name="property.download_inchat_snaps">Download in chat snaps</string>
+    <string name="property.disable_metrics">Disable metrics</string>
+    <string name="property.prevent_screenshot">Prevent screenshot</string>
+    <string name="property.anonymous_story_view">Anonymous story view</string>
+    <string name="property.hide_typing_notification">Hide typing notification</string>
+    <string name="property.menu_slot_id">Menu slot id</string>
+    <string name="property.message_preview_length">Message preview length</string>
+    <string name="property.auto_save">Auto save</string>
+    <string name="property.external_media_as_snap">External media as snap</string>
+    <string name="property.conversation_export">Conversation export</string>
+    <string name="property.snapchat_plus">Snapchat Plus</string>
+    <string name="property.remove_voice_record_button">Remove voice record button</string>
+    <string name="property.remove_stickers_button">Remove stickers button</string>
+    <string name="property.remove_cognac_button">Remove cognac button</string>
+    <string name="property.remove_callbuttons">Remove call buttons</string>
+    <string name="property.long_snap_sending">Long snap sending</string>
+    <string name="property.block_ads">Block ads</string>
+    <string name="property.streakexpirationinfo">Streak Expiration Info</string>
+    <string name="property.new_map_ui">New map ui</string>
+    <string name="property.use_download_manager">Use download manager</string>
+</resources>
