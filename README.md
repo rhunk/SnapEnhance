@@ -23,6 +23,6 @@ The project is currently in development, so expect bugs and crashes. Feel free t
 - ad blocker
 
 ## todo
-- [] localization
-- [] ui improvements
-- [] snap splitting
+- localization
+- ui improvements
+- snap splitting
