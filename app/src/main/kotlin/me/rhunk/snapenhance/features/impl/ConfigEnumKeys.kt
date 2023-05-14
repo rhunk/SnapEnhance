@@ -26,7 +26,7 @@ class ConfigEnumKeys : Feature("Config enum keys", loadParams = FeatureLoadParam
 
         enumClass.enumConstants.forEach { enum ->
             enumDataField.get(enum)?.let { enumData ->
-                val key = objectDataField.get(enumData)!!.toString()
+                val key = enum.toString()
                 val value = AtomicReference(objectDataField.get(enumData))
                 callback(key, value)
                 enumData.setObjectField(objectDataField.name, value.get())
