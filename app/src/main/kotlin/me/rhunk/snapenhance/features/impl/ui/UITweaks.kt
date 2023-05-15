@@ -45,7 +45,7 @@ class UITweaks : Feature("UITweaks", loadParams = FeatureLoadParams.ACTIVITY_CRE
             if (chatInputBarSticker == viewId && context.config.bool(ConfigProperty.REMOVE_STICKERS_BUTTON)) {
                 view.visibility = View.GONE
             }
-            if (context.config.bool(ConfigProperty.REMOVE_CALLBUTTONS)) {
+            if (context.config.bool(ConfigProperty.REMOVE_CALL_BUTTONS)) {
                 if (viewId == callButton1 || viewId == callButton2) {
                     if (view.visibility == View.GONE) return@hook
                     Hooker.ephemeralHookObjectMethod(View::class.java, view, "setVisibility", HookStage.BEFORE) { param ->

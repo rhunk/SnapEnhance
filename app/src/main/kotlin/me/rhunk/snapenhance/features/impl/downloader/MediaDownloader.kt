@@ -84,7 +84,7 @@ class MediaDownloader : Feature("MediaDownloader", loadParams = FeatureLoadParam
                 )
                 onDownloadComplete()
             } catch (e: Throwable) {
-                Logger.xposedLog(e)
+                xposedLog(e)
                 context.longToast("Failed to save file: " + e.message)
                 return false
             }
@@ -135,7 +135,7 @@ class MediaDownloader : Feature("MediaDownloader", loadParams = FeatureLoadParam
         if (fFmpegSession.returnCode.value != 0) {
             mergedFile.delete()
             context.longToast("Failed to merge video and overlay. See logs for more details.")
-            Logger.xposedLog(fFmpegSession.output)
+            xposedLog(fFmpegSession.output)
             return null
         }
         val mergedFileData: ByteArray = FileInputStream(mergedFile).readBytes()
@@ -285,11 +285,18 @@ class MediaDownloader : Feature("MediaDownloader", loadParams = FeatureLoadParam
         }
     }
 
+    private fun canAutoDownload(): Boolean {
+        return context.config.bool(ConfigProperty.AUTO_DOWNLOAD_SNAPS) ||
+                context.config.bool(ConfigProperty.AUTO_DOWNLOAD_STORIES) ||
+                context.config.bool(ConfigProperty.AUTO_DOWNLOAD_PUBLIC_STORIES) ||
+                context.config.bool(ConfigProperty.AUTO_DOWNLOAD_SPOTLIGHT)
+    }
+
     override fun asyncOnActivityCreate() {
         val operaViewerControllerClass: Class<*> = context.mappings.getMappedClass("OperaPageViewController", "Class")
 
         val onOperaViewStateCallback: (HookAdapter) -> Unit = onOperaViewStateCallback@{ param ->
-            if (!context.config.bool(ConfigProperty.MEDIA_DOWNLOADER)) return@onOperaViewStateCallback
+            if (!canAutoDownload()) return@onOperaViewStateCallback
 
             val viewState = (param.thisObject() as Any).getObjectField(context.mappings.getMappedValue("OperaPageViewController", "viewStateField")).toString()
             if (viewState != "FULLY_DISPLAYED") {
@@ -317,7 +324,7 @@ class MediaDownloader : Feature("MediaDownloader", loadParams = FeatureLoadParam
                 try {
                     handleOperaMedia(mediaParamMap, mediaInfoMap, false)
                 } catch (e: Throwable) {
-                    Logger.xposedLog(e)
+                    xposedLog(e)
                     context.longToast(e.message!!)
                 }
             }
@@ -390,7 +397,7 @@ class MediaDownloader : Feature("MediaDownloader", loadParams = FeatureLoadParam
                     }
                 }
                 if (videoData == null || overlayData == null) {
-                    Logger.xposedLog("Invalid data in zip file")
+                    xposedLog("Invalid data in zip file")
                     return
                 }
                 val mergedVideo = mergeOverlay(videoData, overlayData, isPreviewMode)

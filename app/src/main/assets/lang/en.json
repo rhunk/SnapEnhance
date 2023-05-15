@@ -1,0 +1,76 @@
+{
+    "category": {
+        "general": "General",
+        "spy": "Spy",
+        "media_download": "Media Downloader",
+        "privacy": "Privacy",
+        "ui": "UI",
+        "extras": "Extras",
+        "tweaks": "Tweaks",
+        "experimental": "Experimental"
+    },
+   
+    "property": {
+        "save_folder": "Save Folder",
+        "prevent_read_receipts": "Prevent Read Receipts",
+        "hide_bitmoji_presence": "Hide Bitmoji Presence",
+        "show_message_content": "Show Message Content",
+        "message_logger": "Message Logger",
+        "auto_download_snaps": "Auto Download Snaps",
+        "auto_download_stories": "Auto Download Stories",
+        "auto_download_public_stories": "Auto Download Public Stories",
+        "auto_download_spotlight": "Auto Download Spotlight",
+        "overlay_merge": "Snap Image Overlay Merge",
+        "download_inchat_snaps": "Download Inchat Snaps",
+        "anti_auto_download_button": "Anti Auto Download Button",
+        "disable_metrics": "Disable Metrics",
+        "prevent_screenshots": "Prevent Screenshots",
+        "prevent_status_notifications": "Prevent Status Notifications (Screenrecord, media save)",
+        "anonymous_story_view": "Anonymous Story View",
+        "hide_typing_notification": "Hide Typing Notification",
+        "menu_slot_id": "Friend Menu Slot ID",
+        "message_preview_length": "Message Preview Length",
+        "auto_save": "Auto Save",
+        "snapchat_plus": "Snapchat Plus",
+        "remove_voice_record_button": "Remove Voice Record Button",
+        "remove_stickers_button": "Remove Stickers Button",
+        "remove_cognac_button": "Remove Cognac Button",
+        "remove_call_buttons": "Remove Call Buttons",
+        "long_snap_sending": "Long Snap Sending",
+        "block_ads": "Block Ads",
+        "streak_expiration_info": "Show Streak Expiration Info",
+        "new_map_ui": "New Map UI",
+        "use_download_manager": "Use Android Download Manager"
+    },
+   
+
+    "friend_menu_option": {
+        "preview": "Preview",
+        "stealth_mode": "Stealth Mode",
+        "anti_auto_download": "Anti Auto Download"
+    },
+
+    "message_context_menu_option": {
+        "download": "Download",
+        "preview": "Preview"
+    },
+
+    "modal_option": {
+        "profile_info": "Profile Info",
+        "close": "Close"
+    },
+
+    "conversation_preview": {
+        "streak_expiration": "expires in %s days %s hours %s minutes",
+        "title": "Preview",
+        "unknown_user": "Unknown User"
+    },
+
+    "profile_info": {
+        "title": "Profile Info",
+        "username": "Username",
+        "display_name": "Display Name",
+        "added_date": "Added Date",
+        "birthday": "Birthday : {month} {day}"
+    }
+}

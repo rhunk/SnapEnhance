@@ -10,6 +10,7 @@ import me.rhunk.snapenhance.Logger
 import me.rhunk.snapenhance.bridge.common.BridgeMessageType
 import me.rhunk.snapenhance.bridge.common.impl.*
 import java.io.File
+import java.util.*
 
 class BridgeService : Service() {
     companion object {
@@ -112,9 +113,13 @@ class BridgeService : Service() {
     }
 
     private fun handleLocaleRequest(msg: LocaleRequest, reply: (Message) -> Unit) {
-        val locale = resources.configuration.locales[0]
-        Logger.log("Locale: ${locale.language}_${locale.country}")
-        TODO()
+        val deviceLocale = Locale.getDefault().language
+        val compatibleLocale = resources.assets.list("lang")?.find { it.startsWith(deviceLocale) }?.substring(0, 2) ?: "en"
+
+        resources.assets.open("lang/$compatibleLocale.json").use { inputStream ->
+            val json = inputStream.bufferedReader().use { it.readText() }
+            reply(LocaleResult(compatibleLocale, json.toByteArray(Charsets.UTF_8)).toMessage(BridgeMessageType.LOCALE_RESULT.value))
+        }
     }
 
     private fun handleDownloadContent(msg: DownloadContentRequest, reply: (Message) -> Unit) {

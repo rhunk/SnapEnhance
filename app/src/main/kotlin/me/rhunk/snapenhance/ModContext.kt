@@ -89,6 +89,12 @@ class ModContext {
         exitProcess(0)
     }
 
+    fun crash(message: String, throwable: Throwable? = null) {
+        Logger.xposedLog(message, throwable)
+        longToast(message)
+        delayForceCloseApp(100)
+    }
+
     fun delayForceCloseApp(delay: Long) = Handler(Looper.getMainLooper()).postDelayed({
         forceCloseApp()
     }, delay)

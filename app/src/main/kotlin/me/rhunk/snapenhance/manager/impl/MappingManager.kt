@@ -44,9 +44,7 @@ class MappingManager(private val context: ModContext) : Manager {
             runCatching {
                 loadCached()
             }.onFailure {
-                context.shortToast("Failed to load cached mappings ${it.message}")
-                Logger.xposedLog(it)
-                context.delayForceCloseApp(1000)
+                context.crash("Failed to load cached mappings ${it.message}", it)
             }
 
             if (snapBuildNumber != currentBuildNumber) {
@@ -60,9 +58,7 @@ class MappingManager(private val context: ModContext) : Manager {
         }.onSuccess {
             context.shortToast("Generated mappings for build $snapBuildNumber")
         }.onFailure {
-            context.shortToast("Failed to generate mappings ${it.message}")
-            Logger.xposedLog(it)
-            context.delayForceCloseApp(1000)
+            context.crash("Failed to generate mappings ${it.message}", it)
         }
     }
 

@@ -64,15 +64,15 @@ class FriendFeedInfoMenu : AbstractMenu() {
             val birthday = Calendar.getInstance()
             birthday[Calendar.MONTH] = (profile.birthday shr 32).toInt() - 1
             val message: String = """
-                ${context.translation.get("info.username")}: ${profile.username}
-                ${context.translation.get("info.display_name")}: ${profile.displayName}
-                ${context.translation.get("info.added_date")}: ${formatDate(addedTimestamp)}
+                ${context.translation.get("profile_info.username")}: ${profile.username}
+                ${context.translation.get("profile_info.display_name")}: ${profile.displayName}
+                ${context.translation.get("profile_info.added_date")}: ${formatDate(addedTimestamp)}
                 ${birthday.getDisplayName(
                     Calendar.MONTH,
                     Calendar.LONG,
-                    context.translation.getLocale()
+                    context.translation.locale
                 )?.let {
-                    context.translation.get("info.birthday")
+                    context.translation.get("profile_info.birthday")
                         .replace("{month}", it)
                         .replace("{day}", profile.birthday.toInt().toString())
                 }
@@ -120,7 +120,7 @@ class FriendFeedInfoMenu : AbstractMenu() {
                 }
             }
 
-            var displayUsername = sender?.displayName ?: sender?.usernameForSorting?: "Unknown user"
+            var displayUsername = sender?.displayName ?: sender?.usernameForSorting?: context.translation.get("conversation_preview.unknown_user")
 
             if (displayUsername.length > 12) {
                 displayUsername = displayUsername.substring(0, 13) + "... "
@@ -136,7 +136,7 @@ class FriendFeedInfoMenu : AbstractMenu() {
             val timeSecondDiff = ((it.streakExpirationTimestamp - System.currentTimeMillis()) / 1000 / 60).toInt()
             messageBuilder.append("\n\n")
                 .append("\uD83D\uDD25 ") //fire emoji
-                .append(context.translation.get("streak_expiration").format(
+                .append(context.translation.get("conversation_preview.streak_expiration").format(
                     timeSecondDiff / 60 / 24,
                     timeSecondDiff / 60 % 24,
                     timeSecondDiff % 60
@@ -145,13 +145,13 @@ class FriendFeedInfoMenu : AbstractMenu() {
 
         //alert dialog
         val builder = AlertDialog.Builder(context.mainActivity)
-        builder.setTitle(context.translation.get("preview"))
+        builder.setTitle(context.translation.get("conversation_preview.title"))
         builder.setMessage(messageBuilder.toString())
         builder.setPositiveButton(
             "OK"
         ) { dialog: DialogInterface, _: Int -> dialog.dismiss() }
         targetPerson?.let {
-            builder.setNegativeButton(context.translation.get("profile_info")) {_, _ ->
+            builder.setNegativeButton(context.translation.get("modal_option.profile_info")) {_, _ ->
                 context.executeAsync {
                     showProfileInfo(it)
                 }
@@ -175,7 +175,7 @@ class FriendFeedInfoMenu : AbstractMenu() {
 
         //preview button
         val previewButton = Button(viewModel.context)
-        previewButton.text = context.translation.get("preview")
+        previewButton.text = context.translation.get("friend_menu_option.preview")
         applyTheme(viewModel, previewButton)
         val finalFocusedConversationTargetUser = focusedConversationTargetUser
         previewButton.setOnClickListener { v: View? ->
@@ -188,7 +188,7 @@ class FriendFeedInfoMenu : AbstractMenu() {
 
         //stealth switch
         val stealthSwitch = Switch(viewModel.context)
-        stealthSwitch.text = context.translation.get("stealth_mode")
+        stealthSwitch.text = context.translation.get("friend_menu_option.stealth_mode")
         stealthSwitch.isChecked = context.feature(StealthMode::class).isStealth(conversationId)
         applyTheme(viewModel, stealthSwitch)
         stealthSwitch.setOnCheckedChangeListener { _: CompoundButton?, isChecked: Boolean ->
@@ -202,7 +202,7 @@ class FriendFeedInfoMenu : AbstractMenu() {
             val userId = context.database.getFriendFeedInfoByConversationId(conversationId)?.friendUserId ?: return
 
             val antiAutoDownload = Switch(viewModel.context)
-            antiAutoDownload.text = context.translation.get("anti_auto_download")
+            antiAutoDownload.text = context.translation.get("friend_menu_option.anti_auto_download")
             antiAutoDownload.isChecked = context.feature(AntiAutoDownload::class).isUserIgnored(userId)
             applyTheme(viewModel, antiAutoDownload)
             antiAutoDownload.setOnCheckedChangeListener { _: CompoundButton?, isChecked: Boolean ->

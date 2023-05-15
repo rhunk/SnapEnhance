@@ -47,7 +47,7 @@ class ConfigEnumKeys : Feature("Config enum keys", loadParams = FeatureLoadParam
             }
         }
 
-        if (context.config.bool(ConfigProperty.STREAKEXPIRATIONINFO)) {
+        if (context.config.bool(ConfigProperty.STREAK_EXPIRATION_INFO)) {
             hookAllEnums(context.mappings.getMappedClass("enums", "FRIENDS_FEED")) { key, atomicValue ->
                 if (key == "STREAK_EXPIRATION_INFO") atomicValue.set(true)
             }

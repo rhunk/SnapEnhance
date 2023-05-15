@@ -53,11 +53,12 @@ class BridgeClient(
             BridgeMessageType.FILE_ACCESS_RESULT -> FileAccessResult()
             BridgeMessageType.DOWNLOAD_CONTENT_RESULT -> DownloadContentResult()
             BridgeMessageType.MESSAGE_LOGGER_RESULT -> MessageLoggerResult()
+            BridgeMessageType.LOCALE_RESULT -> LocaleResult()
             else -> {
-                log("Unknown message type: ${msg.what}")
-                null
+                future.completeExceptionally(IllegalStateException("Unknown message type: ${msg.what}"))
+                return
             }
-        } ?: return
+        }
 
         with(message) {
             read(msg.data)
@@ -218,6 +219,16 @@ class BridgeClient(
             MessageLoggerRequest(MessageLoggerRequest.Action.ADD, id, message),
             MessageLoggerResult::class
         )
+    }
+
+    fun fetchTranslations(): LocaleResult {
+        sendMessage(
+            BridgeMessageType.LOCALE_REQUEST,
+            LocaleRequest(),
+            LocaleResult::class
+        ).run {
+            return this
+        }
     }
 
     override fun onServiceConnected(name: ComponentName, service: IBinder) {
