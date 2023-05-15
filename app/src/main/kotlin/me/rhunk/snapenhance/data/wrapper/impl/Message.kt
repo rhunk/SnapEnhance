@@ -10,5 +10,5 @@ class Message(obj: Any) : AbstractWrapper(obj) {
     val messageContent get() = MessageContent(instance.getObjectField("mMessageContent"))
     val messageDescriptor get() = MessageDescriptor(instance.getObjectField("mDescriptor"))
     val messageMetadata get() = MessageMetadata(instance.getObjectField("mMetadata"))
-    val messageState get() = getEnumValue("mMessageState", MessageState.COMMITTED)
+    val messageState get() = getEnumValue("mState", MessageState.COMMITTED)
 }
