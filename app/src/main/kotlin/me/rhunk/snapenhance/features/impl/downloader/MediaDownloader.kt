@@ -7,7 +7,6 @@ import android.media.MediaScannerConnection
 import android.net.Uri
 import android.widget.ImageView
 import com.arthenica.ffmpegkit.FFmpegKit
-import de.robv.android.xposed.XposedBridge
 import me.rhunk.snapenhance.Constants
 import me.rhunk.snapenhance.Constants.ARROYO_URL_KEY_PROTO_PATH
 import me.rhunk.snapenhance.Logger

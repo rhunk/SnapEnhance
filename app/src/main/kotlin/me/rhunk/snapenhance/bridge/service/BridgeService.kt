@@ -32,7 +32,7 @@ class BridgeService : Service() {
                 runCatching {
                     this@BridgeService.handleMessage(msg)
                 }.onFailure {
-                    Logger.error("Failed to handle message", it)
+                    Logger.xposedLog("Failed to handle message", it)
                 }
             }
         }).binder
@@ -75,7 +75,7 @@ class BridgeService : Service() {
                 }
             }
 
-            else -> Logger.error("Unknown message type: " + msg.what)
+            else -> Logger.xposedLog("Unknown message type: " + msg.what)
         }
     }
 
@@ -103,7 +103,7 @@ class BridgeService : Service() {
                 reply(MessageLoggerResult(state, message).toMessage(BridgeMessageType.MESSAGE_LOGGER_RESULT.value))
             }
             else -> {
-                Logger.error(Exception("Unknown message logger action: ${msg.action}"))
+                Logger.xposedLog(Exception("Unknown message logger action: ${msg.action}"))
             }
         }
 

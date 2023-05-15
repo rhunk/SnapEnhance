@@ -18,7 +18,6 @@ import me.rhunk.snapenhance.mapping.impl.EnumMapper
 import me.rhunk.snapenhance.mapping.impl.OperaPageViewControllerMapper
 import me.rhunk.snapenhance.mapping.impl.PlusSubscriptionMapper
 import me.rhunk.snapenhance.util.getObjectField
-import java.io.FileNotFoundException
 import java.nio.charset.StandardCharsets
 import java.util.concurrent.ConcurrentHashMap
 
@@ -45,11 +44,9 @@ class MappingManager(private val context: ModContext) : Manager {
             runCatching {
                 loadCached()
             }.onFailure {
-                if (it is FileNotFoundException) {
-                    Logger.xposedLog(it)
-                    context.forceCloseApp()
-                }
-                Logger.error("Failed to load cached mappings", it)
+                context.shortToast("Failed to load cached mappings ${it.message}")
+                Logger.xposedLog(it)
+                context.delayForceCloseApp(1000)
             }
 
             if (snapBuildNumber != currentBuildNumber) {
@@ -58,7 +55,15 @@ class MappingManager(private val context: ModContext) : Manager {
             }
             return
         }
-        refresh()
+        runCatching {
+            refresh()
+        }.onSuccess {
+            context.shortToast("Generated mappings for build $snapBuildNumber")
+        }.onFailure {
+            context.shortToast("Failed to generate mappings ${it.message}")
+            Logger.xposedLog(it)
+            context.delayForceCloseApp(1000)
+        }
     }
 
     private fun loadCached() {
@@ -96,7 +101,7 @@ class MappingManager(private val context: ModContext) : Manager {
                 runCatching {
                     mapper.useClasses(context.androidContext.classLoader, classes, mappings)
                 }.onFailure {
-                    Logger.error("Failed to execute mapper ${mapper.javaClass.simpleName}", it)
+                    Logger.xposedLog("Failed to execute mapper ${mapper.javaClass.simpleName}", it)
                 }
             }.also { jobs.add(it) }
         }
@@ -105,7 +110,6 @@ class MappingManager(private val context: ModContext) : Manager {
 
     @Suppress("UNCHECKED_CAST", "DEPRECATION")
     private fun refresh() {
-        context.shortToast("Loading mappings (this may take a while)")
         val classes: MutableList<Class<*>> = ArrayList()
 
         val classLoader = context.androidContext.classLoader

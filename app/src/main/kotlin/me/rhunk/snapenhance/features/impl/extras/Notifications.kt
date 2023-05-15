@@ -127,7 +127,7 @@ class Notifications : Feature("Notifications", loadParams = FeatureLoadParams.IN
                             sendNotificationData(notificationData.copy(id = System.nanoTime().toInt(), notification = notificationBuilder.build()))
                             return@onEach
                         }.onFailure {
-                            Logger.error("Failed to send preview notification", it)
+                            Logger.xposedLog("Failed to send preview notification", it)
                         }
                     }
                 }

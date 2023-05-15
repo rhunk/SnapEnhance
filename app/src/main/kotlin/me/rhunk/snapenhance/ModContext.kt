@@ -89,6 +89,10 @@ class ModContext {
         exitProcess(0)
     }
 
+    fun delayForceCloseApp(delay: Long) = Handler(Looper.getMainLooper()).postDelayed({
+        forceCloseApp()
+    }, delay)
+
     fun forceCloseApp() {
         Process.killProcess(Process.myPid())
         exitProcess(1)

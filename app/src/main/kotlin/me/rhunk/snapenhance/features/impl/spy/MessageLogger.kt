@@ -9,7 +9,6 @@ import me.rhunk.snapenhance.features.Feature
 import me.rhunk.snapenhance.features.FeatureLoadParams
 import me.rhunk.snapenhance.hook.HookStage
 import me.rhunk.snapenhance.hook.Hooker
-import me.rhunk.snapenhance.util.getObjectField
 
 class MessageLogger : Feature("MessageLogger", loadParams = FeatureLoadParams.INIT_SYNC) {
     private val messageCache = mutableMapOf<Long, String>()

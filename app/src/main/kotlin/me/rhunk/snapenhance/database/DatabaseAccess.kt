@@ -2,7 +2,6 @@ package me.rhunk.snapenhance.database
 
 import android.annotation.SuppressLint
 import android.database.sqlite.SQLiteDatabase
-import de.robv.android.xposed.XposedBridge
 import me.rhunk.snapenhance.Logger
 import me.rhunk.snapenhance.ModContext
 import me.rhunk.snapenhance.database.objects.*

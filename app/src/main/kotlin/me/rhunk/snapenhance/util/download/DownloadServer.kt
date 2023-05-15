@@ -1,6 +1,5 @@
 package me.rhunk.snapenhance.util.download
 
-import de.robv.android.xposed.XposedBridge
 import me.rhunk.snapenhance.Logger
 import me.rhunk.snapenhance.Logger.debug
 import me.rhunk.snapenhance.ModContext
