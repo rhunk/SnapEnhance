@@ -120,7 +120,7 @@ class FriendFeedInfoMenu : AbstractMenu() {
                 }
             }
 
-            var displayUsername = sender?.displayName ?: "Unknown user"
+            var displayUsername = sender?.displayName ?: sender?.usernameForSorting?: "Unknown user"
 
             if (displayUsername.length > 12) {
                 displayUsername = displayUsername.substring(0, 13) + "... "
