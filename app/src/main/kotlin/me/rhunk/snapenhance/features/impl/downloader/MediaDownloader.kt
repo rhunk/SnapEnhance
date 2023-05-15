@@ -241,10 +241,16 @@ class MediaDownloader : Feature("MediaDownloader", loadParams = FeatureLoadParam
         forceDownload: Boolean
     ) {
         //messages
-        if (paramMap.containsKey("MESSAGE_ID")) {
+        if (paramMap.containsKey("MESSAGE_ID") &&
+            (forceDownload || context.config.bool(ConfigProperty.AUTO_DOWNLOAD_SNAPS))) {
             val id = paramMap["MESSAGE_ID"].toString()
             val messageId = id.substring(id.lastIndexOf(":") + 1).toLong()
             val senderId: String = context.database.getConversationMessageFromId(messageId)!!.sender_id!!
+
+            if (context.feature(AntiAutoDownload::class).isUserIgnored(senderId)) {
+                return
+            }
+
             val author = context.database.getFriendInfo(senderId)!!.usernameForSorting!!
             downloadOperaMedia(mediaInfoMap, author)
             return
@@ -255,7 +261,7 @@ class MediaDownloader : Feature("MediaDownloader", loadParams = FeatureLoadParam
             if (paramMap.containsKey("PLAYLIST_V2_GROUP")) paramMap["PLAYLIST_V2_GROUP"].toString() else null
         if (playlistV2Group != null &&
             playlistV2Group.contains("storyUserId=") &&
-            (forceDownload || context.config.bool(ConfigProperty.DOWNLOAD_STORIES))
+            (forceDownload || context.config.bool(ConfigProperty.AUTO_DOWNLOAD_STORIES))
         ) {
             val storyIdStartIndex = playlistV2Group.indexOf("storyUserId=") + 12
             val storyUserId = playlistV2Group.substring(storyIdStartIndex, playlistV2Group.indexOf(",", storyIdStartIndex))
@@ -266,7 +272,7 @@ class MediaDownloader : Feature("MediaDownloader", loadParams = FeatureLoadParam
         val snapSource = paramMap["SNAP_SOURCE"].toString()
 
         //public stories
-        if (snapSource == "PUBLIC_USER" && (forceDownload || context.config.bool(ConfigProperty.DOWNLOAD_PUBLIC_STORIES))) {
+        if (snapSource == "PUBLIC_USER" && (forceDownload || context.config.bool(ConfigProperty.AUTO_DOWNLOAD_PUBLIC_STORIES))) {
             val userDisplayName = (if (paramMap.containsKey("USER_DISPLAY_NAME")) paramMap["USER_DISPLAY_NAME"].toString() else "").replace(
                     "[^\\x00-\\x7F]".toRegex(),
                     "")
@@ -274,7 +280,7 @@ class MediaDownloader : Feature("MediaDownloader", loadParams = FeatureLoadParam
         }
 
         //spotlight
-        if (snapSource == "SINGLE_SNAP_STORY" && (forceDownload || context.config.bool(ConfigProperty.DOWNLOAD_SPOTLIGHT))) {
+        if (snapSource == "SINGLE_SNAP_STORY" && (forceDownload || context.config.bool(ConfigProperty.AUTO_DOWNLOAD_SPOTLIGHT))) {
             downloadOperaMedia(mediaInfoMap, "Spotlight")
         }
     }
@@ -283,6 +289,8 @@ class MediaDownloader : Feature("MediaDownloader", loadParams = FeatureLoadParam
         val operaViewerControllerClass: Class<*> = context.mappings.getMappedClass("OperaPageViewController", "Class")
 
         val onOperaViewStateCallback: (HookAdapter) -> Unit = onOperaViewStateCallback@{ param ->
+            if (!context.config.bool(ConfigProperty.MEDIA_DOWNLOADER)) return@onOperaViewStateCallback
+
             val viewState = (param.thisObject() as Any).getObjectField(context.mappings.getMappedValue("OperaPageViewController", "viewStateField")).toString()
             if (viewState != "FULLY_DISPLAYED") {
                 return@onOperaViewStateCallback
@@ -304,7 +312,6 @@ class MediaDownloader : Feature("MediaDownloader", loadParams = FeatureLoadParam
             }
             lastSeenMapParams = mediaParamMap
             lastSeenMediaInfoMap = mediaInfoMap
-            if (!context.config.bool(ConfigProperty.MEDIA_DOWNLOADER_FEATURE)) return@onOperaViewStateCallback
 
             context.executeAsync {
                 try {

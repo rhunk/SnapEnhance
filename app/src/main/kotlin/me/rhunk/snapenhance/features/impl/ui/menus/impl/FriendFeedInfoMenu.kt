@@ -20,6 +20,7 @@ import me.rhunk.snapenhance.database.objects.ConversationMessage
 import me.rhunk.snapenhance.database.objects.FriendInfo
 import me.rhunk.snapenhance.database.objects.UserConversationLink
 import me.rhunk.snapenhance.features.impl.Messaging
+import me.rhunk.snapenhance.features.impl.downloader.AntiAutoDownload
 import me.rhunk.snapenhance.features.impl.spy.StealthMode
 import me.rhunk.snapenhance.features.impl.ui.menus.AbstractMenu
 import me.rhunk.snapenhance.features.impl.ui.menus.ViewAppearanceHelper.applyTheme
@@ -185,16 +186,6 @@ class FriendFeedInfoMenu : AbstractMenu() {
             )
         }
 
-        //export conversation
-        /*val exportButton = Button(viewModel.context)
-        exportButton.setText(context.translation.get("conversation_export"))
-        applyTheme(viewModel, exportButton)
-        exportButton.setOnClickListener { event: View? ->
-            conversationExport.exportConversation(
-                SnapUUID(conversationId)
-            )
-        }*/
-
         //stealth switch
         val stealthSwitch = Switch(viewModel.context)
         stealthSwitch.text = context.translation.get("stealth_mode")
@@ -207,23 +198,21 @@ class FriendFeedInfoMenu : AbstractMenu() {
             )
         }
 
-        /*//click to delete switch
-        val clickToDeleteSwitch = Switch(viewModel.context)
-        clickToDeleteSwitch.setText(context.translation.get("click_to_delete"))
-        clickToDeleteSwitch.isChecked = clickToDelete.isClickToDelete(conversationId)
-        applyTheme(viewModel, clickToDeleteSwitch)
-        clickToDeleteSwitch.setOnCheckedChangeListener { buttonView: CompoundButton?, isChecked: Boolean ->
-            clickToDelete.setClickToDelete(
-                conversationId,
-                isChecked
-            )
-        }*/
-       /* if (configManager.getBoolean(ConfigCategory.EXTRAS, "conversation_export")
-                .isState()
-        ) viewConsumer.accept(exportButton)
-        if (configManager.getBoolean(ConfigCategory.PRIVACY, "click_to_delete")
-                .isState()
-        ) viewConsumer.accept(clickToDeleteSwitch)*/
+        if (context.config.bool(ConfigProperty.ANTI_DOWNLOAD_BUTTON)) {
+            val userId = context.database.getFriendFeedInfoByConversationId(conversationId)?.friendUserId ?: return
+
+            val antiAutoDownload = Switch(viewModel.context)
+            antiAutoDownload.text = context.translation.get("anti_auto_download")
+            antiAutoDownload.isChecked = context.feature(AntiAutoDownload::class).isUserIgnored(userId)
+            applyTheme(viewModel, antiAutoDownload)
+            antiAutoDownload.setOnCheckedChangeListener { _: CompoundButton?, isChecked: Boolean ->
+                context.feature(AntiAutoDownload::class).setUserIgnored(
+                    userId,
+                    isChecked
+                )
+            }
+            viewConsumer(antiAutoDownload)
+        }
         viewConsumer(stealthSwitch)
         viewConsumer(previewButton)
     }

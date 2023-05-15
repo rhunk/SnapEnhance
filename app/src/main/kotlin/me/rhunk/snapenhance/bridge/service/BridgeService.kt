@@ -17,6 +17,7 @@ class BridgeService : Service() {
         const val MAPPINGS_FILE = "mappings.json"
         const val STEALTH_FILE = "stealth.txt"
         const val MESSAGE_LOGGER_DATABASE = "message_logger"
+        const val ANTI_AUTO_DOWNLOAD_FILE = "anti_auto_download.txt"
     }
 
     lateinit var messageLoggerDatabase: SQLiteDatabase
@@ -144,6 +145,7 @@ class BridgeService : Service() {
             FileAccessRequest.FileType.CONFIG -> CONFIG_FILE
             FileAccessRequest.FileType.MAPPINGS -> MAPPINGS_FILE
             FileAccessRequest.FileType.STEALTH -> STEALTH_FILE
+            FileAccessRequest.FileType.ANTI_AUTO_DOWNLOAD -> ANTI_AUTO_DOWNLOAD_FILE
             else -> throw Exception("Unknown file type: " + msg.fileType)
         }.let { File(filesDir, it) }
 

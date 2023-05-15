@@ -6,6 +6,7 @@ import me.rhunk.snapenhance.features.Feature
 import me.rhunk.snapenhance.features.FeatureLoadParams
 import me.rhunk.snapenhance.features.impl.ConfigEnumKeys
 import me.rhunk.snapenhance.features.impl.Messaging
+import me.rhunk.snapenhance.features.impl.downloader.AntiAutoDownload
 import me.rhunk.snapenhance.features.impl.downloader.MediaDownloader
 import me.rhunk.snapenhance.features.impl.extras.AutoSave
 import me.rhunk.snapenhance.features.impl.extras.Notifications
@@ -56,6 +57,7 @@ class FeatureManager(private val context: ModContext) : Manager {
         register(AutoSave::class)
         register(UITweaks::class)
         register(ConfigEnumKeys::class)
+        register(AntiAutoDownload::class)
 
         initializeFeatures()
     }

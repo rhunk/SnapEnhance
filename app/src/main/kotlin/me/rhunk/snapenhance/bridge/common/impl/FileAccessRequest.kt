@@ -22,7 +22,7 @@ class FileAccessRequest(
     }
 
     enum class FileType(val value: Int) {
-        CONFIG(0), MAPPINGS(1), STEALTH(2);
+        CONFIG(0), MAPPINGS(1), STEALTH(2), ANTI_AUTO_DOWNLOAD(3);
 
         companion object {
             fun fromValue(value: Int): FileType? {

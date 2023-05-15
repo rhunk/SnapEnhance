@@ -37,27 +37,33 @@ enum class ConfigProperty(
     ),
     MESSAGE_LOGGER("message_logger", "description.message_logger", ConfigCategory.SPY, false),
 
-    MEDIA_DOWNLOADER_FEATURE(
-        "media_downloader_feature",
-        "description.media_downloader_feature",
+    MEDIA_DOWNLOADER(
+        "media_downloader",
+        "description.media_downloader",
         ConfigCategory.MEDIA_DOWNLOADER,
         true
     ),
-    DOWNLOAD_STORIES(
-        "download_stories",
-        "description.download_stories",
+    AUTO_DOWNLOAD_SNAPS(
+        "auto_download_snaps",
+        "description.auto_download_snaps",
+        ConfigCategory.MEDIA_DOWNLOADER,
+        true
+    ),
+    AUTO_DOWNLOAD_STORIES(
+        "auto_download_stories",
+        "description.auto_download_stories",
         ConfigCategory.MEDIA_DOWNLOADER,
         false
     ),
-    DOWNLOAD_PUBLIC_STORIES(
-        "download_public_stories",
-        "description.download_public_stories",
+    AUTO_DOWNLOAD_PUBLIC_STORIES(
+        "auto_download_public_stories",
+        "description.auto_download_public_stories",
         ConfigCategory.MEDIA_DOWNLOADER,
         false
     ),
-    DOWNLOAD_SPOTLIGHT(
-        "download_spotlight",
-        "description.download_spotlight",
+    AUTO_DOWNLOAD_SPOTLIGHT(
+        "auto_download_spotlight",
+        "description.auto_download_spotlight",
         ConfigCategory.MEDIA_DOWNLOADER,
         false
     ),
@@ -72,6 +78,12 @@ enum class ConfigProperty(
         "description.download_inchat_snaps",
         ConfigCategory.MEDIA_DOWNLOADER,
         true
+    ),
+    ANTI_DOWNLOAD_BUTTON(
+        "anti_download_button",
+        "description.anti_download_button",
+        ConfigCategory.MEDIA_DOWNLOADER,
+        false
     ),
 
     DISABLE_METRICS("disable_metrics", "description.disable_metrics", ConfigCategory.PRIVACY, true),
