@@ -35,7 +35,7 @@ class SettingsMenu : AbstractMenu() {
 
             val input = EditText(viewModel.context)
             input.inputType = InputType.TYPE_CLASS_TEXT
-            input.setText(context.config.string(property))
+            input.setText(context.config.get(property).toString())
 
             builder.setView(input)
             builder.setPositiveButton("OK") { _, _ ->
