@@ -23,7 +23,7 @@ abstract class AbstractWrapper(
 
     @Suppress("UNCHECKED_CAST")
     fun setEnumValue(fieldName: String, value: Enum<*>) {
-        val type = instance!!.javaClass.fields.find { it.name == fieldName }?.type as Class<out Enum<*>>
+        val type = instance!!.javaClass.declaredFields.find { it.name == fieldName }?.type as Class<out Enum<*>>
         XposedHelpers.setObjectField(instance, fieldName, java.lang.Enum.valueOf(type, value.name))
     }
 }
