@@ -95,7 +95,7 @@ class Notifications : Feature("Notifications", loadParams = FeatureLoadParams.IN
                 }
                 ContentType.SNAP -> {
                     //serialize the message content into a json object
-                    val serializedMessageContent = context.gson.toJsonTree(snapMessage.messageContent.instance()).asJsonObject
+                    val serializedMessageContent = context.gson.toJsonTree(snapMessage.messageContent.instanceNonNull()).asJsonObject
                     val mediaReferences = serializedMessageContent["mRemoteMediaReferences"]
                         .asJsonArray.map { it.asJsonObject["mMediaReferences"].asJsonArray }
                         .flatten()
@@ -169,7 +169,7 @@ class Notifications : Feature("Notifications", loadParams = FeatureLoadParams.IN
                     Logger.xposedLog("Failed to fetch message ${param.arg(0) as Any}")
                 }.build()
 
-            fetchConversationWithMessagesMethod.invoke(conversationManager, SnapUUID.fromString(conversationId).instance(), callback)
+            fetchConversationWithMessagesMethod.invoke(conversationManager, SnapUUID.fromString(conversationId).instanceNonNull(), callback)
             it.setResult(null)
         }
     }

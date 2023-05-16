@@ -10,7 +10,7 @@ import javax.crypto.CipherOutputStream
 import javax.crypto.spec.IvParameterSpec
 import javax.crypto.spec.SecretKeySpec
 
-class EncryptionWrapper(instance: Any) : AbstractWrapper(instance) {
+class EncryptionWrapper(instance: Any?) : AbstractWrapper(instance) {
     fun decrypt(data: ByteArray?): ByteArray {
         return newCipher(Cipher.DECRYPT_MODE).doFinal(data)
     }
@@ -30,12 +30,12 @@ class EncryptionWrapper(instance: Any) : AbstractWrapper(instance) {
      * @return the field
      */
     private fun searchByteArrayField(arrayLength: Int): Field {
-        return instance::class.java.fields.first { f ->
+        return instanceNonNull()::class.java.fields.first { f ->
             try {
                 if (!f.type.isArray || f.type
                         .componentType != Byte::class.javaPrimitiveType
                 ) return@first false
-                return@first (f.get(instance) as ByteArray).size == arrayLength
+                return@first (f.get(instanceNonNull()) as ByteArray).size == arrayLength
             } catch (e: Exception) {
                 return@first false
             }

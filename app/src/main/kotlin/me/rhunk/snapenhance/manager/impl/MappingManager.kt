@@ -109,16 +109,17 @@ class MappingManager(private val context: ModContext) : Manager {
         val classes: MutableList<Class<*>> = ArrayList()
 
         val classLoader = context.androidContext.classLoader
-        val dexPathList = classLoader.getObjectField("pathList")
+        val dexPathList = classLoader.getObjectField("pathList")!!
         val dexElements = dexPathList.getObjectField("dexElements") as Array<Any>
 
         dexElements.forEach { dexElement: Any ->
-            val dexFile = dexElement.getObjectField("dexFile") as DexFile
-            dexFile.entries().toList().forEach fileList@{ className ->
-                //ignore classes without a dot in them
-                if (className.contains(".") && !className.startsWith("com.snap")) return@fileList
-                runCatching {
-                    classLoader.loadClass(className)?.let { classes.add(it) }
+            (dexElement.getObjectField("dexFile") as DexFile?)?.apply {
+                entries().toList().forEach fileList@{ className ->
+                    //ignore classes without a dot in them
+                    if (className.contains(".") && !className.startsWith("com.snap")) return@fileList
+                    runCatching {
+                        classLoader.loadClass(className)?.let { classes.add(it) }
+                    }
                 }
             }
         }

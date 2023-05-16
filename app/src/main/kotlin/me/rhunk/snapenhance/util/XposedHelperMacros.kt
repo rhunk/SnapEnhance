@@ -2,7 +2,7 @@ package me.rhunk.snapenhance.util
 
 import de.robv.android.xposed.XposedHelpers
 
-fun Any.getObjectField(fieldName: String): Any {
+fun Any.getObjectField(fieldName: String): Any? {
     return XposedHelpers.getObjectField(this, fieldName)
 }
 

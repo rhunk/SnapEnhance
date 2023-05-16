@@ -44,7 +44,7 @@ class AutoSave : Feature("Auto Save", loadParams = FeatureLoadParams.ACTIVITY_CR
         runCatching {
             updateMessageMethod.invoke(
                 context.feature(Messaging::class).conversationManager,
-                conversationId.instance(),
+                conversationId.instanceNonNull(),
                 messageId,
                 context.classCache.messageUpdateEnum.enumConstants.first { it.toString() == "SAVE" },
                 callback
@@ -84,7 +84,7 @@ class AutoSave : Feature("Auto Save", loadParams = FeatureLoadParams.ACTIVITY_CR
             HookStage.BEFORE,
             { context.config.bool(ConfigProperty.AUTO_SAVE) && canSave()}
         ) { param ->
-            val conversationId = SnapUUID(param.arg<Any>(0).getObjectField("mConversationId"))
+            val conversationId = SnapUUID(param.arg<Any>(0).getObjectField("mConversationId")!!)
             val messages = param.arg<List<Any>>(1).map { Message(it) }
             messages.forEach {
                 if (!canSaveMessage(it)) return@forEach
@@ -119,7 +119,7 @@ class AutoSave : Feature("Auto Save", loadParams = FeatureLoadParams.ACTIVITY_CR
             val callback = CallbackBuilder(fetchConversationWithMessagesCallbackClass).build()
             runCatching {
                 fetchConversationWithMessagesPaginatedMethod.invoke(
-                    messaging.conversationManager, messaging.lastOpenedConversationUUID!!.instance(),
+                    messaging.conversationManager, messaging.lastOpenedConversationUUID!!.instanceNonNull(),
                     Long.MAX_VALUE,
                     3,
                     callback
