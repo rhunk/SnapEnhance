@@ -296,7 +296,6 @@ class MediaDownloader : Feature("MediaDownloader", loadParams = FeatureLoadParam
         val operaViewerControllerClass: Class<*> = context.mappings.getMappedClass("OperaPageViewController", "Class")
 
         val onOperaViewStateCallback: (HookAdapter) -> Unit = onOperaViewStateCallback@{ param ->
-            if (!canAutoDownload()) return@onOperaViewStateCallback
 
             val viewState = (param.thisObject() as Any).getObjectField(context.mappings.getMappedValue("OperaPageViewController", "viewStateField")).toString()
             if (viewState != "FULLY_DISPLAYED") {
@@ -319,6 +318,8 @@ class MediaDownloader : Feature("MediaDownloader", loadParams = FeatureLoadParam
             }
             lastSeenMapParams = mediaParamMap
             lastSeenMediaInfoMap = mediaInfoMap
+
+            if (!canAutoDownload()) return@onOperaViewStateCallback
 
             context.executeAsync {
                 try {

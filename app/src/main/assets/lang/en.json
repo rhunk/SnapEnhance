@@ -55,6 +55,10 @@
         "preview": "Preview"
     },
 
+    "opera_context_menu": {
+        "download": "Download Media"
+    },
+
     "modal_option": {
         "profile_info": "Profile Info",
         "close": "Close"
