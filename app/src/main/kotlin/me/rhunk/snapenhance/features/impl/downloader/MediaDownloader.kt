@@ -9,7 +9,6 @@ import android.widget.ImageView
 import com.arthenica.ffmpegkit.FFmpegKit
 import me.rhunk.snapenhance.Constants
 import me.rhunk.snapenhance.Constants.ARROYO_URL_KEY_PROTO_PATH
-import me.rhunk.snapenhance.Logger
 import me.rhunk.snapenhance.Logger.xposedLog
 import me.rhunk.snapenhance.config.ConfigProperty
 import me.rhunk.snapenhance.data.ContentType

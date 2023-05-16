@@ -6,7 +6,7 @@ fun Any.getObjectField(fieldName: String): Any? {
     return XposedHelpers.getObjectField(this, fieldName)
 }
 
-fun Any.setObjectField(fieldName: String, value: Any) {
+fun Any.setObjectField(fieldName: String, value: Any?) {
     XposedHelpers.setObjectField(this, fieldName, value)
 }
 

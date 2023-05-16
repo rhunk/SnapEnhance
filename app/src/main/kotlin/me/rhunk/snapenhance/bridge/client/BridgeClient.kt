@@ -7,7 +7,6 @@ import android.content.Intent
 import android.content.ServiceConnection
 import android.os.*
 import me.rhunk.snapenhance.BuildConfig
-import me.rhunk.snapenhance.Logger.log
 import me.rhunk.snapenhance.Logger.xposedLog
 import me.rhunk.snapenhance.ModContext
 import me.rhunk.snapenhance.bridge.common.BridgeMessage

@@ -114,6 +114,12 @@ enum class ConfigProperty(
         20
     ),
 
+    EXTERNAL_MEDIA_AS_SNAP(
+        "property.external_media_as_snap",
+        "description.external_media_as_snap",
+        ConfigCategory.EXTRAS,
+        false
+    ),
     AUTO_SAVE("property.auto_save", "description.auto_save", ConfigCategory.EXTRAS, false),
     SNAPCHAT_PLUS("property.snapchat_plus", "description.snapchat_plus", ConfigCategory.EXTRAS, false),
 
