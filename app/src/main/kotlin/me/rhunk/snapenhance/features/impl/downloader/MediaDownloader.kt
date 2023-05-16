@@ -247,7 +247,7 @@ class MediaDownloader : Feature("MediaDownloader", loadParams = FeatureLoadParam
             val messageId = id.substring(id.lastIndexOf(":") + 1).toLong()
             val senderId: String = context.database.getConversationMessageFromId(messageId)!!.sender_id!!
 
-            if (context.feature(AntiAutoDownload::class).isUserIgnored(senderId)) {
+            if (!forceDownload && context.feature(AntiAutoDownload::class).isUserIgnored(senderId)) {
                 return
             }
 
