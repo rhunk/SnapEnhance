@@ -34,7 +34,7 @@ class BridgeService : Service() {
                 runCatching {
                     this@BridgeService.handleMessage(msg)
                 }.onFailure {
-                    Logger.xposedLog("Failed to handle message", it)
+                    Logger.error("Failed to handle message", it)
                 }
             }
         }).binder
@@ -77,7 +77,7 @@ class BridgeService : Service() {
                 }
             }
 
-            else -> Logger.xposedLog("Unknown message type: " + msg.what)
+            else -> Logger.log("Unknown message type: " + msg.what)
         }
     }
 
@@ -105,7 +105,7 @@ class BridgeService : Service() {
                 reply(MessageLoggerResult(state, message).toMessage(BridgeMessageType.MESSAGE_LOGGER_RESULT.value))
             }
             else -> {
-                Logger.xposedLog(Exception("Unknown message logger action: ${msg.action}"))
+                Logger.log(Exception("Unknown message logger action: ${msg.action}"))
             }
         }
 
@@ -113,8 +113,8 @@ class BridgeService : Service() {
     }
 
     private fun handleLocaleRequest(msg: LocaleRequest, reply: (Message) -> Unit) {
-        val deviceLocale = Locale.getDefault().language
-        val compatibleLocale = resources.assets.list("lang")?.find { it.startsWith(deviceLocale) }?.substring(0, 2) ?: "en"
+        val deviceLocale = Locale.getDefault().toString()
+        val compatibleLocale = resources.assets.list("lang")?.find { it.startsWith(deviceLocale) }?.substring(0, 5) ?: "en_US"
 
         resources.assets.open("lang/$compatibleLocale.json").use { inputStream ->
             val json = inputStream.bufferedReader().use { it.readText() }
