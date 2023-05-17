@@ -12,9 +12,10 @@ class MainActivity : Activity() {
             finish()
             return
         }
-        val intent = packageManager.getLaunchIntentForPackage(Constants.SNAPCHAT_PACKAGE_NAME)
-        intent!!.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
-        startActivity(intent)
+        packageManager.getLaunchIntentForPackage(Constants.SNAPCHAT_PACKAGE_NAME)?.apply {
+            addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+            startActivity(this)
+        }
         finish()
     }
 }
