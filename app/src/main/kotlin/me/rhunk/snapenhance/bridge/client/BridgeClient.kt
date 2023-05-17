@@ -241,8 +241,6 @@ class BridgeClient(
     }
 
     override fun onServiceDisconnected(name: ComponentName) {
-        context.longToast("Bridge service disconnected")
-        Thread.sleep(1000)
         exitProcess(0)
     }
 }

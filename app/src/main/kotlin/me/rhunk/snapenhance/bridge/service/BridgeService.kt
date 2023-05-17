@@ -40,7 +40,6 @@ class BridgeService : Service() {
         }).binder
     }
 
-
     private fun handleMessage(msg: Message) {
         val replyMessenger = msg.replyTo
         when (BridgeMessageType.fromValue(msg.what)) {
