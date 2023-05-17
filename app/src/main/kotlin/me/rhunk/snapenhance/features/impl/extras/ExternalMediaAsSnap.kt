@@ -9,7 +9,7 @@ import me.rhunk.snapenhance.hook.HookStage
 import me.rhunk.snapenhance.hook.Hooker
 import me.rhunk.snapenhance.util.protobuf.ProtoWriter
 
-class ExternalMediaAsSnap : Feature("External Media As Snap", loadParams = FeatureLoadParams.ACTIVITY_CREATE_SYNC) {
+class ExternalMediaAsSnap : Feature("External Media As Snap", loadParams = FeatureLoadParams.INIT_SYNC) {
     private val redSnapProto: ByteArray by lazy {
         ProtoWriter().apply {
             write(11, 5) {
@@ -29,7 +29,7 @@ class ExternalMediaAsSnap : Feature("External Media As Snap", loadParams = Featu
         }.toByteArray()
     }
 
-    override fun onActivityCreate() {
+    override fun init() {
         Hooker.hook(context.classCache.conversationManager, "sendMessageWithContent", HookStage.BEFORE, {
             context.config.bool(ConfigProperty.EXTERNAL_MEDIA_AS_SNAP)
         }) { param ->
