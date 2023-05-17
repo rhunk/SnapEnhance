@@ -1,0 +1,81 @@
+{
+    "category": {
+        "general": "Allgemein",
+        "spy": "Spy",
+        "media_download": "Media Downloader",
+        "privacy": "Privatsphäre",
+        "ui": "UI",
+        "extras": "Extras",
+        "tweaks": "Tweaks",
+        "experimental": "Experimentell"
+    },
+
+    "property": {
+        "save_folder": "Speicherverzeichnis",
+        "prevent_read_receipts": "Lesebestätigung verhindern",
+        "hide_bitmoji_presence": "Bitmoji Präsenz verhindern",
+        "show_message_content": "Nachrichteninhalt anzeigen",
+        "message_logger": "Message Logger",
+        "auto_download_snaps": "Auto Download Snaps",
+        "auto_download_stories": "Auto Download Stories",
+        "auto_download_public_stories": "Auto Download Öffentliche Stories",
+        "auto_download_spotlight": "Auto Download Spotlight",
+        "overlay_merge": "Zusammenfügen von Snap und Overlay Content",
+        "download_inchat_snaps": "Download Snaps im Chat",
+        "anti_auto_download_button": "Anti Auto Download Button",
+        "disable_metrics": "Metriken deaktivieren",
+        "prevent_screenshot_notifications": "Screenshot Benachrichtigungen verhindern",
+        "prevent_status_notifications": "Status Notifications verhindern (Gespeichert in die Kamerarolle, Verpasste Anrufe)",
+        "anonymous_story_view": "Anonymes anschauen von Stories",
+        "hide_typing_notification": "Schreiben Benachrichtigung verstecken",
+        "menu_slot_id": "Freundes Menü Slot ID",
+        "message_preview_length": "Nachrichtenvorschau Länge",
+        "external_media_as_snap": "Externe Medien, als Snap",
+        "auto_save": "Automatisch speichern",
+        "snapchat_plus": "Snapchat Plus",
+        "remove_voice_record_button": "Entfernen des Voice Record Button",
+        "remove_stickers_button": "Entfernen des Sticker Button",
+        "remove_cognac_button": "Entfernen des Cognac Button",
+        "remove_call_buttons": "Entfernen des Anruf Button",
+        "long_snap_sending": "Lange Snaps senden",
+        "block_ads": "Werbung blockieren",
+        "streak_expiration_info": "Anzeigen, wann der Streak ausläuft",
+        "new_map_ui": "Neue Map UI",
+        "use_download_manager": "Android Download Manager benutzen"
+    },
+
+
+    "friend_menu_option": {
+        "preview": "Vorschau",
+        "stealth_mode": "Tarnmodus",
+        "anti_auto_download": "Anti Auto Download"
+    },
+
+    "message_context_menu_option": {
+        "download": "Download",
+        "preview": "Vorschau"
+    },
+
+    "opera_context_menu": {
+        "download": "Medien Download"
+    },
+
+    "modal_option": {
+        "profile_info": "Profilinformationen",
+        "close": "Close"
+    },
+
+    "conversation_preview": {
+        "streak_expiration": "läuft aus in %s Tagen, %s Stunden und %s minutes",
+        "title": "Vorschau",
+        "unknown_user": "Unbekannter Nutzer"
+    },
+
+    "profile_info": {
+        "title": "Profilinformationen",
+        "username": "Nutzername",
+        "display_name": "Anzeigename",
+        "added_date": "Hinzugefügt Datum",
+        "birthday": "Geburtstag : {day} {month} "
+    }
+}
