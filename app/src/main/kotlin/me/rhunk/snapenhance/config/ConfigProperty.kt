@@ -81,9 +81,9 @@ enum class ConfigProperty(
     ),
 
     DISABLE_METRICS("property.disable_metrics", "description.disable_metrics", ConfigCategory.PRIVACY, true),
-    PREVENT_SCREENSHOTS(
-        "property.prevent_screenshots",
-        "description.prevent_screenshots",
+    PREVENT_SCREENSHOT_NOTIFICATIONS(
+        "property.prevent_screenshot_notifications",
+        "description.prevent_screenshot_notifications",
         ConfigCategory.PRIVACY,
         true
     ),

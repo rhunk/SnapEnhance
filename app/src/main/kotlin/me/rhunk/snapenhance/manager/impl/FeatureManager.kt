@@ -13,8 +13,11 @@ import me.rhunk.snapenhance.features.impl.extras.ExternalMediaAsSnap
 import me.rhunk.snapenhance.features.impl.extras.Notifications
 import me.rhunk.snapenhance.features.impl.extras.SnapchatPlus
 import me.rhunk.snapenhance.features.impl.privacy.DisableMetrics
-import me.rhunk.snapenhance.features.impl.privacy.PreventScreenshotDetections
-import me.rhunk.snapenhance.features.impl.spy.*
+import me.rhunk.snapenhance.features.impl.privacy.PreventMessageSending
+import me.rhunk.snapenhance.features.impl.spy.AnonymousStoryViewing
+import me.rhunk.snapenhance.features.impl.spy.MessageLogger
+import me.rhunk.snapenhance.features.impl.spy.PreventReadReceipts
+import me.rhunk.snapenhance.features.impl.spy.StealthMode
 import me.rhunk.snapenhance.features.impl.ui.UITweaks
 import me.rhunk.snapenhance.features.impl.ui.menus.MenuViewInjector
 import me.rhunk.snapenhance.manager.Manager
@@ -52,8 +55,7 @@ class FeatureManager(private val context: ModContext) : Manager {
         register(MessageLogger::class)
         register(SnapchatPlus::class)
         register(DisableMetrics::class)
-        register(PreventScreenshotDetections::class)
-        register(PreventStatusNotifications::class)
+        register(PreventMessageSending::class)
         register(Notifications::class)
         register(AutoSave::class)
         register(UITweaks::class)
