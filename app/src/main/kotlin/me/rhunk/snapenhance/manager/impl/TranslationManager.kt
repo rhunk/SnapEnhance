@@ -14,7 +14,7 @@ class TranslationManager(
 
     override fun init() {
         val messageLocaleResult = context.bridgeClient.fetchTranslations();
-        locale = Locale(messageLocaleResult.locale!!)
+        locale = messageLocaleResult.locale?.split("_")?.let { Locale(it[0], it[1]) } ?: Locale.getDefault()
 
         val translations = JsonParser.parseString(messageLocaleResult.content?.toString(Charsets.UTF_8)).asJsonObject
         if (translations == null || translations.isJsonNull) {

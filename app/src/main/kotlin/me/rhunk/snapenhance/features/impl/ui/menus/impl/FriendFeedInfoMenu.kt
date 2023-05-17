@@ -61,6 +61,7 @@ class FriendFeedInfoMenu : AbstractMenu() {
             val builder = AlertDialog.Builder(context.mainActivity)
             builder.setIcon(finalIcon)
             builder.setTitle(profile.displayName)
+
             val birthday = Calendar.getInstance()
             birthday[Calendar.MONTH] = (profile.birthday shr 32).toInt() - 1
             val message: String = """
