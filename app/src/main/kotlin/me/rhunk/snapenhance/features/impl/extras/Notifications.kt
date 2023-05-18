@@ -27,8 +27,9 @@ import me.rhunk.snapenhance.util.download.CdnDownloader
 import me.rhunk.snapenhance.util.protobuf.ProtoReader
 
 class Notifications : Feature("Notifications", loadParams = FeatureLoadParams.INIT_SYNC) {
-    private val notificationDataQueue = mutableMapOf<Long, NotificationData>()
-    private val cachedNotifications = mutableMapOf<String, MutableList<String>>()
+    private val notificationDataQueue = mutableMapOf<Long, NotificationData>() // messageId => notification
+    private val cachedMessages = mutableMapOf<String, MutableList<String>>() // conversationId => cached messages
+    private val notificationIdMap = mutableMapOf<Int, String>() // notificationId => conversationId
 
     private val notifyAsUserMethod by lazy {
         XposedHelpers.findMethodExact(
@@ -38,6 +39,10 @@ class Notifications : Feature("Notifications", loadParams = FeatureLoadParams.IN
             Notification::class.java,
             UserHandle::class.java
         )
+    }
+
+    private val cancelAsUserMethod by lazy {
+        XposedHelpers.findMethodExact(NotificationManager::class.java, "cancelAsUser", String::class.java, Int::class.javaPrimitiveType, UserHandle::class.java)
     }
 
     private val fetchConversationWithMessagesMethod by lazy {
@@ -57,7 +62,7 @@ class Notifications : Feature("Notifications", loadParams = FeatureLoadParams.IN
 
     private fun computeNotificationText(conversationId: String): String {
         val messageBuilder = StringBuilder()
-        cachedNotifications.computeIfAbsent(conversationId) { mutableListOf() }.forEach {
+        cachedMessages.computeIfAbsent(conversationId) { mutableListOf() }.forEach {
             if (messageBuilder.isNotEmpty()) messageBuilder.append("\n")
             messageBuilder.append(it)
         }
@@ -65,9 +70,12 @@ class Notifications : Feature("Notifications", loadParams = FeatureLoadParams.IN
     }
 
     private fun fetchMessagesResult(conversationId: String, messages: List<Message>) {
-        val sendNotificationData = { it: NotificationData ->
+        val sendNotificationData = { notificationData: NotificationData, forceCreate: Boolean  ->
+            val notificationId = if (forceCreate) System.nanoTime().toInt() else notificationData.id
+            notificationIdMap.computeIfAbsent(notificationId) { conversationId }
+
             XposedBridge.invokeOriginalMethod(notifyAsUserMethod, notificationManager, arrayOf(
-                it.tag, it.id, it.notification, it.userHandle
+                notificationData.tag, if (forceCreate) System.nanoTime().toInt() else notificationData.id, notificationData.notification, notificationData.userHandle
             ))
         }
 
@@ -79,7 +87,7 @@ class Notifications : Feature("Notifications", loadParams = FeatureLoadParams.IN
             val contentData = snapMessage.messageContent.content
 
             val formatUsername: (String) -> String = { "$senderUsername: $it" }
-            val notificationCache = cachedNotifications.let { it.computeIfAbsent(conversationId) { mutableListOf() } }
+            val notificationCache = cachedMessages.let { it.computeIfAbsent(conversationId) { mutableListOf() } }
             val appendNotifications: () -> Unit = { setNotificationText(notificationData, computeNotificationText(conversationId))}
 
             when (contentType) {
@@ -93,7 +101,7 @@ class Notifications : Feature("Notifications", loadParams = FeatureLoadParams.IN
                     }
                     appendNotifications()
                 }
-                ContentType.SNAP -> {
+                ContentType.SNAP, ContentType.EXTERNAL_MEDIA-> {
                     //serialize the message content into a json object
                     val serializedMessageContent = context.gson.toJsonTree(snapMessage.messageContent.instanceNonNull()).asJsonObject
                     val mediaReferences = serializedMessageContent["mRemoteMediaReferences"]
@@ -107,7 +115,13 @@ class Notifications : Feature("Notifications", loadParams = FeatureLoadParams.IN
                         runCatching {
                             //download the media
                             var mediaInputStream = CdnDownloader.downloadWithDefaultEndpoints(urlKey)!!
-                            val mediaInfo = ProtoReader(contentData).readPath(*Constants.MESSAGE_SNAP_ENCRYPTION_PROTO_PATH) ?: return@runCatching
+                            val mediaInfo = ProtoReader(contentData).let {
+                                if (contentType == ContentType.EXTERNAL_MEDIA)
+                                    return@let it.readPath(*Constants.MESSAGE_EXTERNAL_MEDIA_ENCRYPTION_PROTO_PATH)
+                                else
+                                    return@let it.readPath(*Constants.MESSAGE_SNAP_ENCRYPTION_PROTO_PATH)
+                            }?: return@runCatching
+
                             //decrypt if necessary
                             if (mediaInfo.exists(Constants.ARROYO_ENCRYPTION_PROTO_INDEX)) {
                                 mediaInputStream = EncryptionUtils.decryptInputStream(mediaInputStream, false, mediaInfo, Constants.ARROYO_ENCRYPTION_PROTO_INDEX)
@@ -124,7 +138,7 @@ class Notifications : Feature("Notifications", loadParams = FeatureLoadParams.IN
                             notificationBuilder.setLargeIcon(bitmapPreview)
                             notificationBuilder.style = Notification.BigPictureStyle().bigPicture(bitmapPreview).bigLargeIcon(null as Bitmap?)
 
-                            sendNotificationData(notificationData.copy(id = System.nanoTime().toInt(), notification = notificationBuilder.build()))
+                            sendNotificationData(notificationData.copy(notification = notificationBuilder.build()), true)
                             return@onEach
                         }.onFailure {
                             Logger.xposedLog("Failed to send preview notification", it)
@@ -136,7 +150,7 @@ class Notifications : Feature("Notifications", loadParams = FeatureLoadParams.IN
                 }
             }
 
-            sendNotificationData(notificationData)
+            sendNotificationData(notificationData, false)
         }.clear()
     }
 
@@ -146,10 +160,7 @@ class Notifications : Feature("Notifications", loadParams = FeatureLoadParams.IN
         Hooker.hook(notifyAsUserMethod, HookStage.BEFORE, { context.config.bool(ConfigProperty.SHOW_MESSAGE_CONTENT) }) {
             val notificationData = NotificationData(it.argNullable(0), it.arg(1), it.arg(2), it.arg(3))
 
-            if (!notificationData.notification.extras.containsKey("system_notification_extras")) {
-                return@hook
-            }
-            val extras: Bundle = notificationData.notification.extras.getBundle("system_notification_extras")!!
+            val extras: Bundle = notificationData.notification.extras.getBundle("system_notification_extras")?: return@hook
 
             val messageId = extras.getString("message_id")!!
             val notificationType = extras.getString("notification_type")!!
@@ -171,6 +182,13 @@ class Notifications : Feature("Notifications", loadParams = FeatureLoadParams.IN
 
             fetchConversationWithMessagesMethod.invoke(conversationManager, SnapUUID.fromString(conversationId).instanceNonNull(), callback)
             it.setResult(null)
+        }
+
+        Hooker.hook(cancelAsUserMethod, HookStage.BEFORE) { param ->
+            val notificationId = param.arg<Int>(1)
+            notificationIdMap[notificationId]?.let {
+                cachedMessages[it]?.clear()
+            }
         }
     }
 
