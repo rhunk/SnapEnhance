@@ -36,7 +36,7 @@ jobs:
       uses: actions/upload-artifact@v3.1.2
       with:
         name: app-armv7-release
-        path: app/build/outputs/apk/arvm7/release/*.apk
+        path: app/build/outputs/apk/armv7/release/*.apk
     - name: Upload prod
       uses: actions/upload-artifact@v3.1.2
       with:
