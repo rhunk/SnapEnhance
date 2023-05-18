@@ -83,6 +83,14 @@ class BridgeService : Service() {
     private fun handleMessageLoggerRequest(msg: MessageLoggerRequest, reply: (Message) -> Unit) {
         when (msg.action) {
             MessageLoggerRequest.Action.ADD  -> {
+                //check if message already exists
+                val cursor = messageLoggerDatabase.rawQuery("SELECT message_id FROM messages WHERE message_id = ?", arrayOf(msg.messageId.toString()))
+                val state = cursor.moveToFirst()
+                cursor.close()
+                if (state) {
+                    reply(MessageLoggerResult(false).toMessage(BridgeMessageType.MESSAGE_LOGGER_RESULT.value))
+                    return
+                }
                 messageLoggerDatabase.insert("messages", null, ContentValues().apply {
                     put("message_id", msg.messageId)
                     put("serialized_message", msg.message)
