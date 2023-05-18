@@ -369,7 +369,7 @@ class MediaDownloader : Feature("MediaDownloader", loadParams = FeatureLoadParam
 
         //download the message content
         try {
-            var inputStream: InputStream = CdnDownloader.downloadWithDefaultEndpoints(urlKey) ?: return
+            var inputStream: InputStream = CdnDownloader.downloadWithDefaultEndpoints(urlKey) ?: throw FileNotFoundException("Unable to get $urlKey from cdn list. Check the logs for more info")
             inputStream = EncryptionUtils.decryptInputStreamFromArroyo(
                 inputStream,
                 contentType,
@@ -436,8 +436,6 @@ class MediaDownloader : Feature("MediaDownloader", loadParams = FeatureLoadParam
                 return
             }
             downloadMediaContent(mediaData, mediaData.contentHashCode(), messageAuthor, fileType)
-        } catch (e: FileNotFoundException) {
-            context.shortToast("Unable to get $urlKey from cdn list. Check the logs for more info")
         } catch (e: Throwable) {
             context.shortToast("Failed to download " + e.message)
             xposedLog(e)

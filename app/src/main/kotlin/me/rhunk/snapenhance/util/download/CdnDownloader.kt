@@ -1,6 +1,8 @@
 package me.rhunk.snapenhance.util.download
 
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
+import kotlinx.coroutines.joinAll
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 import me.rhunk.snapenhance.Constants
@@ -19,6 +21,7 @@ object CdnDownloader {
     const val CF_ST_CDN_I = "https://cf-st.sc-cdn.net/i/"
     const val CF_ST_CDN_J = "https://cf-st.sc-cdn.net/j/"
     const val CF_ST_CDN_C = "https://cf-st.sc-cdn.net/c/"
+    const val CF_ST_CDN_A = "https://cf-st.sc-cdn.net/a/"
     const val CF_ST_CDN_AA = "https://cf-st.sc-cdn.net/aa/"
 
     private val keyCache: MutableMap<String, String> = mutableMapOf()
@@ -36,17 +39,16 @@ object CdnDownloader {
         var inputStream: InputStream? = null
 
         endpoints.forEach {
-            launch {
+            launch(Dispatchers.IO) {
                 val url = it + key
-                val result = queryRemoteContent(url)
-                if (result != null) {
+                queryRemoteContent(url)?.let { result ->
                     keyCache[key] = url
                     inputStream = result
                     jobs.forEach { it.cancel() }
                 }
             }.also { jobs.add(it) }
         }
-        jobs.forEach { it.join() }
+        jobs.joinAll()
         inputStream
     }
 
@@ -75,6 +77,7 @@ object CdnDownloader {
             CF_ST_CDN_I,
             CF_ST_CDN_C,
             CF_ST_CDN_J,
+            CF_ST_CDN_A,
             CF_ST_CDN_AA,
             CF_ST_CDN_G,
             CF_ST_CDN_D
