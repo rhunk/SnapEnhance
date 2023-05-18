@@ -369,7 +369,6 @@ class MediaDownloader : Feature("MediaDownloader", loadParams = FeatureLoadParam
 
         //download the message content
         try {
-            context.shortToast("Retriving message media")
             var inputStream: InputStream = CdnDownloader.downloadWithDefaultEndpoints(urlKey) ?: return
             inputStream = EncryptionUtils.decryptInputStreamFromArroyo(
                 inputStream,
@@ -427,7 +426,7 @@ class MediaDownloader : Feature("MediaDownloader", loadParams = FeatureLoadParam
                     ) { dialog: DialogInterface, _: Int -> dialog.dismiss() }
                     context.runOnUiThread { builder.show() }
                 }.onFailure {
-                    context.shortToast("Failed to create preview: ${it.message}")
+                    context.shortToast("Failed to create preview: $it")
                     xposedLog(it)
                 }
                 return
