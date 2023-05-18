@@ -1,10 +1,13 @@
+import groovy.json.JsonSlurper
+
 plugins {
     id 'com.android.application'
     id 'org.jetbrains.kotlin.android'
 }
 
-def appVersionName = "0.0.1"
+def appVersionName = "0.1.0"
 def appVersionCode = 1
+def lspatchReleaseUrl = "https://api.github.com/repos/LSPosed/LSPatch/releases/latest"
 
 android {
     compileSdk 33
@@ -31,12 +34,33 @@ android {
         targetCompatibility JavaVersion.VERSION_1_8
     }
 
-    //keep arm64-v8a native libs
-    packagingOptions {
-        exclude "META-INF/**"
-        exclude 'lib/x86/**'
-        exclude 'lib/x86_64/**'
-        exclude 'lib/armeabi-v7a/**'
+    applicationVariants.configureEach { variant ->
+        variant.outputs.configureEach {
+            outputFileName = "app-${appVersionName}-${variant.flavorName}.apk"
+        }
+    }
+
+    flavorDimensions "release"
+
+    productFlavors {
+        armv8 {
+            ndk {
+                abiFilters "arm64-v8a"
+            }
+            dimension "release"
+        }
+        armv7 {
+            ndk {
+                abiFilters "armeabi-v7a"
+            }
+            dimension "release"
+        }
+        prod {
+            ndk {
+                abiFilter("none")
+            }
+            dimension "release"
+        }
     }
 
     kotlinOptions {
@@ -46,6 +70,48 @@ android {
 }
 
 afterEvaluate {
+    getTasks().getByPath(":app:assembleProdRelease").doLast {
+        def apkReleaseFile = android.applicationVariants.find { it.buildType.name == "release" && it.flavorName == "prod" }.outputs[0].outputFile
+
+        //download the target apk
+        println "Downloading target apk"
+        def targetApkFile = new File("${buildDir}/${apkReleaseFile.name}")
+        try {
+            def targetApkUrl = project.property("targetApkUrl")
+            targetApkFile.withOutputStream { out ->
+                new URL(targetApkUrl).withInputStream { input ->
+                    out << input
+                }
+            }
+        } catch (Throwable ignored) {
+            println "No target apk url provided"
+            return
+        }
+
+        //download the latest lspatch jar
+        def connection = new URL(lspatchReleaseUrl).openConnection()
+        def json = new JsonSlurper().parseText(connection.getInputStream().getText())
+        def downloadUrl = json.assets[0].browser_download_url
+        println "Downloading LSPatch from ${downloadUrl}"
+
+        def lspatchJarfile = new File("${buildDir}/lspatch.jar")
+        lspatchJarfile.withOutputStream { out ->
+            new URL(downloadUrl).withInputStream { input ->
+                out << input
+            }
+        }
+
+        println "Executing LSPatch"
+        exec {
+            commandLine "java", "-jar", lspatchJarfile.absolutePath,
+                    targetApkFile.absolutePath,
+                    "--force", "-l", "2", "-m",
+                    apkReleaseFile.absolutePath,
+                    "-o",
+                    "${buildDir}/outputs/apk/lspatch/release/"
+        }
+    }
+
     //auto install for debug purpose
     getTasks().getByPath(":app:assembleDebug").doLast {
         try {
