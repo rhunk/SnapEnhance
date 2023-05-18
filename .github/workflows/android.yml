@@ -27,8 +27,23 @@ jobs:
       run: ./gradlew clean
     - name: Build with Gradle
       run: ./gradlew assembleRelease -PtargetApkUrl=${{ secrets.TARGET_APK_URL }}
-    - name: Upload debug artifacts
+    - name: Upload armv8
       uses: actions/upload-artifact@v3.1.2
       with:
-        name: app-debug
-        path: app/build/outputs/apk/**/release/*.apk
+        name: app-armv8-release
+        path: app/build/outputs/apk/armv8/release/*.apk
+    - name: Upload armv7
+      uses: actions/upload-artifact@v3.1.2
+      with:
+        name: app-armv7-release
+        path: app/build/outputs/apk/arvm7/release/*.apk
+    - name: Upload prod
+      uses: actions/upload-artifact@v3.1.2
+      with:
+        name: app-prod-release
+        path: app/build/outputs/apk/prod/release/*.apk
+    - name: Upload lspatch
+      uses: actions/upload-artifact@v3.1.2
+      with:
+        name: app-lspatch-release
+        path: app/build/outputs/apk/lspatch/release/*.apk
