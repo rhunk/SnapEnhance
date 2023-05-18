@@ -119,8 +119,8 @@ class MenuViewInjector : Feature("MenuViewInjector", loadParams = FeatureLoadPar
 
                 settingMenu.inject(viewGroup, originalAddView)
                 viewGroup.addOnAttachStateChangeListener(object: View.OnAttachStateChangeListener {
-                    override fun onViewAttachedToWindow(v: View?) {}
-                    override fun onViewDetachedFromWindow(v: View?) {
+                    override fun onViewAttachedToWindow(v: View) {}
+                    override fun onViewDetachedFromWindow(v: View) {
                         context.config.writeConfig()
                     }
                 })

@@ -7,12 +7,13 @@ def appVersionName = "0.0.1"
 def appVersionCode = 1
 
 android {
-    compileSdk 32
+    compileSdk 33
+    buildToolsVersion = "33.0.2"
 
     defaultConfig {
         applicationId "me.rhunk.snapenhance"
         minSdk 29
-        targetSdk 32
+        targetSdk 33
         versionCode appVersionCode
         versionName appVersionName
         multiDexEnabled true
@@ -41,6 +42,7 @@ android {
     kotlinOptions {
         jvmTarget = '1.8'
     }
+    namespace 'me.rhunk.snapenhance'
 }
 
 afterEvaluate {
