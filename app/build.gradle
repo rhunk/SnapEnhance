@@ -44,6 +44,7 @@ android {
 
     productFlavors {
         armv8 {
+            getIsDefault().set(true)
             ndk {
                 abiFilters "arm64-v8a"
             }
@@ -113,7 +114,8 @@ afterEvaluate {
     }
 
     //auto install for debug purpose
-    getTasks().getByPath(":app:assembleDebug").doLast {
+    getTasks().getByPath(":app:assembleArmv8Debug").doLast {
+        def apkDebugFile = android.applicationVariants.find { it.buildType.name == "debug" && it.flavorName == "armv8" }.outputs[0].outputFile
         try {
             println "Killing Snapchat"
             exec {
@@ -121,7 +123,7 @@ afterEvaluate {
             }
             println "Installing debug build"
             exec() {
-                commandLine "adb", "install", "-r", "-d", "${buildDir}/outputs/apk/debug/app-debug.apk"
+                commandLine "adb", "install", "-r", "-d", apkDebugFile.absolutePath
             }
             println "Starting Snapchat"
             exec {
