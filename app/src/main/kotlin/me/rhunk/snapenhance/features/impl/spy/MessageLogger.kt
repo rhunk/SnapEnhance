@@ -51,6 +51,10 @@ class MessageLogger : Feature("MessageLogger", loadParams = FeatureLoadParams.IN
                     }
                 }
 
+                //set the message state to CANCELING for visibility
+                if (message.messageContent.contentType != ContentType.SNAP && message.messageContent.contentType != ContentType.EXTERNAL_MEDIA) {
+                    message.messageState = MessageState.CANCELING
+                }
                 removedMessages.add(messageId)
                 return@hookConstructor
             }
