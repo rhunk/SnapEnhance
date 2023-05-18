@@ -1,5 +1,6 @@
 package me.rhunk.snapenhance.bridge.service
 
+import android.annotation.SuppressLint
 import android.app.DownloadManager
 import android.app.Service
 import android.content.*
@@ -62,7 +63,7 @@ class BridgeService : Service() {
             BridgeMessageType.LOCALE_REQUEST -> {
                 with(LocaleRequest()) {
                     read(msg.data)
-                    handleLocaleRequest(this) { message ->
+                    handleLocaleRequest { message ->
                         replyMessenger.send(message)
                     }
                 }
@@ -119,7 +120,7 @@ class BridgeService : Service() {
         reply(MessageLoggerResult(true).toMessage(BridgeMessageType.MESSAGE_LOGGER_RESULT.value))
     }
 
-    private fun handleLocaleRequest(msg: LocaleRequest, reply: (Message) -> Unit) {
+    private fun handleLocaleRequest(reply: (Message) -> Unit) {
         val deviceLocale = Locale.getDefault().toString()
         val compatibleLocale = resources.assets.list("lang")?.find { it.startsWith(deviceLocale) }?.substring(0, 5) ?: "en_US"
 
@@ -129,6 +130,7 @@ class BridgeService : Service() {
         }
     }
 
+    @SuppressLint("UnspecifiedRegisterReceiverFlag")
     private fun handleDownloadContent(msg: DownloadContentRequest, reply: (Message) -> Unit) {
         if (!msg.url!!.startsWith("http://127.0.0.1:")) return
 

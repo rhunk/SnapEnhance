@@ -179,7 +179,7 @@ class FriendFeedInfoMenu : AbstractMenu() {
         previewButton.text = context.translation.get("friend_menu_option.preview")
         applyTheme(viewModel, previewButton)
         val finalFocusedConversationTargetUser = focusedConversationTargetUser
-        previewButton.setOnClickListener { v: View? ->
+        previewButton.setOnClickListener {
             showPreview(
                 finalFocusedConversationTargetUser,
                 conversationId,

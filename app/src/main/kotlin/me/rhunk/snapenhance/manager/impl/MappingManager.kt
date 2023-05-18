@@ -3,7 +3,6 @@ package me.rhunk.snapenhance.manager.impl
 import com.google.gson.JsonElement
 import com.google.gson.JsonObject
 import com.google.gson.JsonParser
-import dalvik.system.DexFile
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
@@ -33,6 +32,7 @@ class MappingManager(private val context: ModContext) : Manager {
     private val mappings = ConcurrentHashMap<String, Any>()
     private var snapBuildNumber = 0
 
+    @Suppress("deprecation")
     override fun init() {
         val currentBuildNumber = context.androidContext.packageManager.getPackageInfo(
             Constants.SNAPCHAT_PACKAGE_NAME,
@@ -113,7 +113,7 @@ class MappingManager(private val context: ModContext) : Manager {
         val dexElements = dexPathList.getObjectField("dexElements") as Array<Any>
 
         dexElements.forEach { dexElement: Any ->
-            (dexElement.getObjectField("dexFile") as DexFile?)?.apply {
+            (dexElement.getObjectField("dexFile") as dalvik.system.DexFile?)?.apply {
                 entries().toList().forEach fileList@{ className ->
                     //ignore classes without a dot in them
                     if (className.contains(".") && !className.startsWith("com.snap")) return@fileList

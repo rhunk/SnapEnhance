@@ -101,11 +101,9 @@ class SettingsMenu : AbstractMenu() {
     }
 
     @SuppressLint("SetTextI18n")
+    @Suppress("deprecation")
     fun inject(viewModel: View, addView: (View) -> Unit) {
-        val packageInfo = viewModel.context.packageManager.getPackageInfo(
-            Constants.SNAPCHAT_PACKAGE_NAME,
-            0
-        )
+        val packageInfo = viewModel.context.packageManager.getPackageInfo(Constants.SNAPCHAT_PACKAGE_NAME, 0)
         val versionTextBuilder = StringBuilder()
         versionTextBuilder.append("SnapEnhance ").append(BuildConfig.VERSION_NAME)
             .append(" by rhunk")

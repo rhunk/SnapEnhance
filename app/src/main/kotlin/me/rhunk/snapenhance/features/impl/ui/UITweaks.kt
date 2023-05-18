@@ -1,5 +1,6 @@
 package me.rhunk.snapenhance.features.impl.ui
 
+import android.annotation.SuppressLint
 import android.view.View
 import android.view.ViewGroup
 import me.rhunk.snapenhance.Constants
@@ -10,6 +11,7 @@ import me.rhunk.snapenhance.hook.HookStage
 import me.rhunk.snapenhance.hook.Hooker
 
 class UITweaks : Feature("UITweaks", loadParams = FeatureLoadParams.ACTIVITY_CREATE_SYNC) {
+    @SuppressLint("DiscouragedApi")
     override fun onActivityCreate() {
         val resources = context.resources
 
@@ -24,6 +26,10 @@ class UITweaks : Feature("UITweaks", loadParams = FeatureLoadParams.ACTIVITY_CRE
         Hooker.hook(View::class.java, "setVisibility", HookStage.BEFORE) { methodParam ->
             val viewId = (methodParam.thisObject() as View).id
             if (viewId == chatNoteRecordButton && context.config.bool(ConfigProperty.REMOVE_VOICE_RECORD_BUTTON)) {
+                methodParam.setArg(0, View.GONE)
+            }
+            if (viewId == callButton1 || viewId == callButton2) {
+                if (!context.config.bool(ConfigProperty.REMOVE_CALL_BUTTONS)) return@hook
                 methodParam.setArg(0, View.GONE)
             }
         }
@@ -45,16 +51,13 @@ class UITweaks : Feature("UITweaks", loadParams = FeatureLoadParams.ACTIVITY_CRE
             if (chatInputBarSticker == viewId && context.config.bool(ConfigProperty.REMOVE_STICKERS_BUTTON)) {
                 view.visibility = View.GONE
             }
-            if (context.config.bool(ConfigProperty.REMOVE_CALL_BUTTONS)) {
-                if (viewId == callButton1 || viewId == callButton2) {
-                    if (view.visibility == View.GONE) return@hook
-                    Hooker.ephemeralHookObjectMethod(View::class.java, view, "setVisibility", HookStage.BEFORE) { param ->
-                        param.setArg(0, View.GONE)
-                    }
-                }
-                if (viewId == callButtonsStub) {
-                    param.setResult(null)
-                }
+            if (viewId == callButton1 || viewId == callButton2) {
+                if (!context.config.bool(ConfigProperty.REMOVE_CALL_BUTTONS)) return@hook
+                if (view.visibility == View.GONE) return@hook
+            }
+            if (viewId == callButtonsStub) {
+                if (!context.config.bool(ConfigProperty.REMOVE_CALL_BUTTONS)) return@hook
+                param.setResult(null)
             }
         }
     }
