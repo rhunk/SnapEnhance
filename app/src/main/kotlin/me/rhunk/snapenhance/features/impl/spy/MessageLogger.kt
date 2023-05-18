@@ -37,7 +37,7 @@ class MessageLogger : Feature("MessageLogger", loadParams = FeatureLoadParams.IN
                 val messageJsonObject = JsonParser.parseString(deletedMessage).asJsonObject
 
                 //if the message is a snap make it playable
-                if (messageJsonObject["mMessageContent"].asJsonObject["mContentType"].asString == "SNAP") {
+                if (messageJsonObject["mMessageContent"]?.asJsonObject?.get("mContentType")?.asString == "SNAP") {
                     messageJsonObject["mMetadata"].asJsonObject.addProperty("mPlayableSnapState", "PLAYABLE")
                 }
 
