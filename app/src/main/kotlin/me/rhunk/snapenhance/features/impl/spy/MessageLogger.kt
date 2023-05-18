@@ -42,12 +42,12 @@ class MessageLogger : Feature("MessageLogger", loadParams = FeatureLoadParams.IN
                 }
 
                 //serialize all properties of messageJsonObject and put in the message object
-                message.javaClass.declaredFields.forEach { field ->
+                message.instanceNonNull().javaClass.declaredFields.forEach { field ->
                     field.isAccessible = true
                     val fieldName = field.name
                     val fieldValue = messageJsonObject[fieldName]
                     if (fieldValue != null) {
-                        field.set(message, context.gson.fromJson(fieldValue, field.type))
+                        field.set(message.instanceNonNull(), context.gson.fromJson(fieldValue, field.type))
                     }
                 }
 
@@ -56,7 +56,7 @@ class MessageLogger : Feature("MessageLogger", loadParams = FeatureLoadParams.IN
             }
 
             if (!messageCache.containsKey(messageId)) {
-                val serializedMessage = context.gson.toJson(message)
+                val serializedMessage = context.gson.toJson(message.instanceNonNull())
                 messageCache[messageId] = serializedMessage
                 context.bridgeClient.addMessageLoggerMessage(messageId, serializedMessage.toByteArray(Charsets.UTF_8))
             }
