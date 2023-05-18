@@ -415,7 +415,11 @@ class MediaDownloader : Feature("MediaDownloader", loadParams = FeatureLoadParam
             }
             if (isPreviewMode) {
                 runCatching {
-                    val bitmap: Bitmap = PreviewUtils.createPreview(mediaData, fileType.isVideo)!!
+                    val bitmap: Bitmap? = PreviewUtils.createPreview(mediaData, fileType.isVideo)
+                    if (bitmap == null) {
+                        context.shortToast("Failed to create preview")
+                        return
+                    }
                     val builder = AlertDialog.Builder(context.mainActivity)
                     builder.setTitle("Preview")
                     val imageView = ImageView(builder.context)
