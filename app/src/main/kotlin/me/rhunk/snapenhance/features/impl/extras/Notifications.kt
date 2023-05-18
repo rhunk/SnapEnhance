@@ -162,14 +162,14 @@ class Notifications : Feature("Notifications", loadParams = FeatureLoadParams.IN
 
             val extras: Bundle = notificationData.notification.extras.getBundle("system_notification_extras")?: return@hook
 
-            val messageId = extras.getString("message_id")!!
-            val notificationType = extras.getString("notification_type")!!
-            val conversationId = extras.getString("conversation_id")!!
+            val messageId = extras.getString("message_id") ?: return@hook
+            val notificationType = extras.getString("notification_type") ?: return@hook
+            val conversationId = extras.getString("conversation_id") ?: return@hook
 
             if (!notificationType.endsWith("CHAT") && !notificationType.endsWith("SNAP")) return@hook
 
             val conversationManager: Any = context.feature(Messaging::class).conversationManager
-            notificationDataQueue[messageId.toLong()] =  notificationData
+            notificationDataQueue[messageId.toLong()] = notificationData
 
             val callback = CallbackBuilder(fetchConversationWithMessagesCallback)
                 .override("onFetchConversationWithMessagesComplete") { param ->
