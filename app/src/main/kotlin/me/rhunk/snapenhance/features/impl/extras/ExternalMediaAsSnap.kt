@@ -7,6 +7,7 @@ import me.rhunk.snapenhance.features.Feature
 import me.rhunk.snapenhance.features.FeatureLoadParams
 import me.rhunk.snapenhance.hook.HookStage
 import me.rhunk.snapenhance.hook.Hooker
+import me.rhunk.snapenhance.util.protobuf.ProtoReader
 import me.rhunk.snapenhance.util.protobuf.ProtoWriter
 
 class ExternalMediaAsSnap : Feature("External Media As Snap", loadParams = FeatureLoadParams.INIT_SYNC) {
@@ -36,6 +37,8 @@ class ExternalMediaAsSnap : Feature("External Media As Snap", loadParams = Featu
             val localMessageContent = MessageContent(param.arg(1))
 
             if (localMessageContent.contentType != ContentType.EXTERNAL_MEDIA) return@hook
+            //story replies
+            if (ProtoReader(localMessageContent.content).exists(7)) return@hook
 
             localMessageContent.contentType = ContentType.SNAP
             localMessageContent.content = redSnapProto
