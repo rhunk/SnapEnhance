@@ -24,8 +24,9 @@ import me.rhunk.snapenhance.hook.HookAdapter
 import me.rhunk.snapenhance.hook.HookStage
 import me.rhunk.snapenhance.hook.Hooker
 import me.rhunk.snapenhance.util.EncryptionUtils
+import me.rhunk.snapenhance.util.MediaDownloaderHelper
+import me.rhunk.snapenhance.util.MediaType
 import me.rhunk.snapenhance.util.PreviewUtils
-import me.rhunk.snapenhance.util.download.CdnDownloader
 import me.rhunk.snapenhance.util.getObjectField
 import me.rhunk.snapenhance.util.protobuf.ProtoReader
 import java.io.*
@@ -34,14 +35,10 @@ import java.net.URL
 import java.nio.file.Paths
 import java.util.*
 import java.util.concurrent.atomic.AtomicReference
-import java.util.zip.ZipInputStream
 import javax.crypto.Cipher
 import javax.crypto.CipherInputStream
 import kotlin.io.path.inputStream
 
-enum class MediaType {
-    ORIGINAL, OVERLAY
-}
 
 class MediaDownloader : Feature("MediaDownloader", loadParams = FeatureLoadParams.ACTIVITY_CREATE_ASYNC) {
     private var lastSeenMediaInfoMap: MutableMap<MediaType, MediaInfo>? = null
@@ -98,50 +95,6 @@ class MediaDownloader : Feature("MediaDownloader", loadParams = FeatureLoadParam
         }
         return true
     }
-
-
-    private fun mergeOverlay(original: ByteArray, overlay: ByteArray, isPreviewMode: Boolean): ByteArray? {
-        context.longToast("Merging current media with overlay. This may take a while.")
-        val originalFileType = FileType.fromByteArray(original)
-        val overlayFileType = FileType.fromByteArray(overlay)
-        //merge files
-        val mergedFile = File.createTempFile("merged", "." + originalFileType.fileExtension)
-        val tempVideoFile = File.createTempFile("original", "." + originalFileType.fileExtension).also {
-            with(FileOutputStream(it)) {
-                write(original)
-                close()
-            }
-        }
-        val tempOverlayFile = File.createTempFile("overlay", "." + overlayFileType.fileExtension).also {
-            with(FileOutputStream(it)) {
-                write(overlay)
-                close()
-            }
-        }
-
-        //TODO: improve ffmpeg speed
-        val fFmpegSession = FFmpegKit.execute(
-            "-y -i " +
-                    tempVideoFile.absolutePath +
-                    " -i " +
-                    tempOverlayFile.absolutePath +
-                    " -filter_complex \"[0]scale2ref[img][vid];[img]setsar=1[img];[vid]nullsink; [img][1]overlay=(W-w)/2:(H-h)/2,scale=2*trunc(iw*sar/2):2*trunc(ih/2)\" -c:v libx264 -q:v 13 -c:a copy " +
-                    "  -threads 6 ${(if (isPreviewMode) "-frames:v 1" else "")} " +
-                    mergedFile.absolutePath
-        )
-        tempVideoFile.delete()
-        tempOverlayFile.delete()
-        if (fFmpegSession.returnCode.value != 0) {
-            mergedFile.delete()
-            context.longToast("Failed to merge video and overlay. See logs for more details.")
-            xposedLog(fFmpegSession.output)
-            return null
-        }
-        val mergedFileData: ByteArray = FileInputStream(mergedFile).readBytes()
-        mergedFile.delete()
-        return mergedFileData
-    }
-
     private fun queryMediaData(mediaInfo: MediaInfo): ByteArray {
         val mediaUri = Uri.parse(mediaInfo.uri)
         val mediaInputStream = AtomicReference<InputStream>()
@@ -206,7 +159,7 @@ class MediaDownloader : Feature("MediaDownloader", loadParams = FeatureLoadParam
             }
             val overlayMediaInfo = mediaInfoMap[MediaType.OVERLAY]!!
             val overlayContent: ByteArray = queryMediaData(overlayMediaInfo)
-            mediaContent = mergeOverlay(mediaContent, overlayContent, false)
+            mediaContent = MediaDownloaderHelper.mergeOverlay(mediaContent, overlayContent, false)
         }
         val fileType = FileType.fromByteArray(mediaContent!!)
         downloadMediaContent(mediaContent, hash, author, fileType)
@@ -369,53 +322,15 @@ class MediaDownloader : Feature("MediaDownloader", loadParams = FeatureLoadParam
 
         //download the message content
         try {
-            var inputStream: InputStream = CdnDownloader.downloadWithDefaultEndpoints(urlKey) ?: throw FileNotFoundException("Unable to get $urlKey from cdn list. Check the logs for more info")
-            inputStream = EncryptionUtils.decryptInputStreamFromArroyo(
-                inputStream,
-                contentType,
-                messageReader
-            )
+            context.longToast("Querying $urlKey. It might take a while...")
+            val downloadedMedia = MediaDownloaderHelper.downloadMediaFromKey(urlKey, canMergeOverlay(), isPreviewMode) {
+                EncryptionUtils.decryptInputStreamFromArroyo(it, contentType, messageReader)
+            }[MediaType.ORIGINAL] ?: throw Exception("Failed to download media for key $urlKey")
+            val fileType = FileType.fromByteArray(downloadedMedia)
 
-            var mediaData: ByteArray = inputStream.readBytes()
-            var fileType = FileType.fromByteArray(mediaData)
-            val isZipFile = fileType == FileType.ZIP
-
-            //videos with overlay are packed in a zip file
-            //there are 2 files in the zip file, the video (webm) and the overlay (png)
-            if (isZipFile) {
-                var videoData: ByteArray? = null
-                var overlayData: ByteArray? = null
-                val zipInputStream = ZipInputStream(ByteArrayInputStream(mediaData))
-                while (zipInputStream.nextEntry != null) {
-                    val zipEntryData: ByteArray = zipInputStream.readBytes()
-                    val entryFileType = FileType.fromByteArray(zipEntryData)
-                    if (entryFileType.isVideo) {
-                        videoData = zipEntryData
-                    } else if (entryFileType.isImage) {
-                        overlayData = zipEntryData
-                    }
-                }
-                if (videoData == null || overlayData == null) {
-                    xposedLog("Invalid data in zip file")
-                    return
-                }
-                val mergedVideo = mergeOverlay(videoData, overlayData, isPreviewMode)
-                val videoFileType = FileType.fromByteArray(videoData)
-                if (!isPreviewMode) {
-                    downloadMediaContent(
-                        mergedVideo!!,
-                        Arrays.hashCode(videoData),
-                        messageAuthor,
-                        videoFileType
-                    )
-                    return
-                }
-                mediaData = mergedVideo!!
-                fileType = videoFileType
-            }
             if (isPreviewMode) {
                 runCatching {
-                    val bitmap: Bitmap? = PreviewUtils.createPreview(mediaData, fileType.isVideo)
+                    val bitmap: Bitmap? = PreviewUtils.createPreview(downloadedMedia, fileType.isVideo)
                     if (bitmap == null) {
                         context.shortToast("Failed to create preview")
                         return
@@ -435,9 +350,9 @@ class MediaDownloader : Feature("MediaDownloader", loadParams = FeatureLoadParam
                 }
                 return
             }
-            downloadMediaContent(mediaData, mediaData.contentHashCode(), messageAuthor, fileType)
+            downloadMediaContent(downloadedMedia, downloadedMedia.contentHashCode(), messageAuthor, fileType)
         } catch (e: Throwable) {
-            context.shortToast("Failed to download " + e.message)
+            context.longToast("Failed to download " + e.message)
             xposedLog(e)
         }
     }

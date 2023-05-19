@@ -22,8 +22,9 @@ import me.rhunk.snapenhance.hook.HookStage
 import me.rhunk.snapenhance.hook.Hooker
 import me.rhunk.snapenhance.util.CallbackBuilder
 import me.rhunk.snapenhance.util.EncryptionUtils
+import me.rhunk.snapenhance.util.MediaDownloaderHelper
+import me.rhunk.snapenhance.util.MediaType
 import me.rhunk.snapenhance.util.PreviewUtils
-import me.rhunk.snapenhance.util.download.CdnDownloader
 import me.rhunk.snapenhance.util.protobuf.ProtoReader
 
 class Notifications : Feature("Notifications", loadParams = FeatureLoadParams.INIT_SYNC) {
@@ -114,7 +115,6 @@ class Notifications : Feature("Notifications", loadParams = FeatureLoadParams.IN
                         val urlKey = ProtoReader(mediaContent).getString(2, 2) ?: return@forEach
                         runCatching {
                             //download the media
-                            var mediaInputStream = CdnDownloader.downloadWithDefaultEndpoints(urlKey)!!
                             val mediaInfo = ProtoReader(contentData).let {
                                 if (contentType == ContentType.EXTERNAL_MEDIA)
                                     return@let it.readPath(*Constants.MESSAGE_EXTERNAL_MEDIA_ENCRYPTION_PROTO_PATH)
@@ -122,14 +122,13 @@ class Notifications : Feature("Notifications", loadParams = FeatureLoadParams.IN
                                     return@let it.readPath(*Constants.MESSAGE_SNAP_ENCRYPTION_PROTO_PATH)
                             }?: return@runCatching
 
-                            //decrypt if necessary
-                            if (mediaInfo.exists(Constants.ARROYO_ENCRYPTION_PROTO_INDEX)) {
-                                mediaInputStream = EncryptionUtils.decryptInputStream(mediaInputStream, false, mediaInfo, Constants.ARROYO_ENCRYPTION_PROTO_INDEX)
-                            }
+                            val downloadedMedia = MediaDownloaderHelper.downloadMediaFromKey(urlKey, mergeOverlay = false, isPreviewMode = false) {
+                                if (mediaInfo.exists(Constants.ARROYO_ENCRYPTION_PROTO_INDEX))
+                                    EncryptionUtils.decryptInputStream(it, false, mediaInfo, Constants.ARROYO_ENCRYPTION_PROTO_INDEX)
+                                else it
+                            }[MediaType.ORIGINAL] ?: throw Throwable("Failed to download media from key $urlKey")
 
-                            val mediaByteArray = mediaInputStream.readBytes()
-                            val bitmapPreview = PreviewUtils.createPreview(mediaByteArray, mediaType == MediaReferenceType.VIDEO)!!
-
+                            val bitmapPreview = PreviewUtils.createPreview(downloadedMedia, mediaType == MediaReferenceType.VIDEO)!!
                             val notificationBuilder = XposedHelpers.newInstance(
                                 Notification.Builder::class.java,
                                 context.androidContext,
