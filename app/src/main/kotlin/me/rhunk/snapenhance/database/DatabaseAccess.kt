@@ -36,6 +36,10 @@ class DatabaseAccess(private val context: ModContext) : Manager {
         )!!
     }
 
+    fun hasArroyo(): Boolean {
+        return arroyoDatabase.exists()
+    }
+
     private fun <T> safeDatabaseOperation(
         database: SQLiteDatabase,
         query: (SQLiteDatabase) -> T?

@@ -10,11 +10,17 @@ import me.rhunk.snapenhance.features.FeatureLoadParams
 import me.rhunk.snapenhance.hook.HookStage
 import me.rhunk.snapenhance.hook.Hooker
 
-class MessageLogger : Feature("MessageLogger", loadParams = FeatureLoadParams.INIT_SYNC) {
+class MessageLogger : Feature("MessageLogger", loadParams = FeatureLoadParams.INIT_SYNC or FeatureLoadParams.ACTIVITY_CREATE_SYNC) {
     private val messageCache = mutableMapOf<Long, String>()
     private val removedMessages = linkedSetOf<Long>()
 
     fun isMessageRemoved(messageId: Long) = removedMessages.contains(messageId)
+
+    override fun onActivityCreate() {
+        if (!context.database.hasArroyo()) {
+            context.bridgeClient.clearMessageLogger()
+        }
+    }
 
     //FIXME: message disappears when the conversation is set to delete on view
     override fun init() {

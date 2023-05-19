@@ -220,6 +220,14 @@ class BridgeClient(
         )
     }
 
+    fun clearMessageLogger() {
+        sendMessage(
+            BridgeMessageType.MESSAGE_LOGGER_REQUEST,
+            MessageLoggerRequest(MessageLoggerRequest.Action.CLEAR, 0),
+            MessageLoggerResult::class
+        )
+    }
+
     fun fetchTranslations(): LocaleResult {
         sendMessage(
             BridgeMessageType.LOCALE_REQUEST,
