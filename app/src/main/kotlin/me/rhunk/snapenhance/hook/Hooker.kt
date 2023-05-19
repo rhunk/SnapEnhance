@@ -9,20 +9,18 @@ object Hooker {
         stage: HookStage,
         consumer: (HookAdapter) -> Unit,
         filter: ((HookAdapter) -> Boolean) = { true }
-    ) = object : XC_MethodHook() {
-        override fun beforeHookedMethod(param: MethodHookParam<*>) {
-            if (stage != HookStage.BEFORE) return
-            with(HookAdapter(param)) {
-                if (!filter(this)) return
-                consumer(this)
-            }
+    ): XC_MethodHook {
+        val callEvent = { param: XC_MethodHook.MethodHookParam<*> ->
+            HookAdapter(param).takeIf(filter)?.also(consumer)
         }
 
-        override fun afterHookedMethod(param: MethodHookParam<*>) {
-            if (stage != HookStage.AFTER) return
-            with(HookAdapter(param)) {
-                if (!filter(this)) return
-                consumer(this)
+        return if (stage == HookStage.BEFORE) object : XC_MethodHook() {
+            override fun beforeHookedMethod(param: MethodHookParam<*>) {
+                callEvent(param)
+            }
+        } else object : XC_MethodHook() {
+            override fun afterHookedMethod(param: MethodHookParam<*>) {
+                callEvent(param)
             }
         }
     }
@@ -32,7 +30,7 @@ object Hooker {
         methodName: String,
         stage: HookStage,
         consumer: (HookAdapter) -> Unit
-    ): Set<XC_MethodHook.Unhook> = XposedBridge.hookAllMethods(clazz, methodName, newMethodHook(stage, consumer))
+    ): Set<XC_MethodHook.Unhook> = hook(clazz, methodName, stage, { true }, consumer)
 
     fun hook(
         clazz: Class<*>,
@@ -47,7 +45,7 @@ object Hooker {
         stage: HookStage,
         consumer: (HookAdapter) -> Unit
     ): XC_MethodHook.Unhook {
-        return XposedBridge.hookMethod(member, newMethodHook(stage, consumer))
+        return hook(member, stage, { true }, consumer)
     }
 
     fun hook(
