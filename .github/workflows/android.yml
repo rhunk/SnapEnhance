@@ -28,24 +28,24 @@ jobs:
     - name: Get keystore from secrets and decode base64
       run: echo ${{ secrets.JAVA_KEYSTORE_DATA }} | base64 --decode > $GITHUB_WORKSPACE/signing.jks
     - name: Build with Gradle
-      run: ./gradlew assembleRelease -PtargetApkUrl=${{ secrets.TARGET_APK_URL }} -Pandroid.injected.signing.store.file="$GITHUB_WORKSPACE/signing.jks" -Pandroid.injected.signing.store.password="${{ secrets.KEYSTORE_PASSWORD }}" -Pandroid.injected.signing.key.alias="${{ secrets.KEY_ALIAS }}" -Pandroid.injected.signing.key.password="${{ secrets.KEY_PASSWORD }}"
+      run: ./gradlew assembleDebug -PtargetApkUrl=${{ secrets.TARGET_APK_URL }} -Pandroid.injected.signing.store.file="$GITHUB_WORKSPACE/signing.jks" -Pandroid.injected.signing.store.password="${{ secrets.KEYSTORE_PASSWORD }}" -Pandroid.injected.signing.key.alias="${{ secrets.KEY_ALIAS }}" -Pandroid.injected.signing.key.password="${{ secrets.KEY_PASSWORD }}"
     - name: Upload armv8
       uses: actions/upload-artifact@v3.1.2
       with:
         name: app-armv8-release
-        path: app/build/outputs/apk/armv8/release/*.apk
+        path: app/build/outputs/apk/armv8/debug/*.apk
     - name: Upload armv7
       uses: actions/upload-artifact@v3.1.2
       with:
         name: app-armv7-release
-        path: app/build/outputs/apk/armv7/release/*.apk
+        path: app/build/outputs/apk/armv7/debug/*.apk
     - name: Upload prod
       uses: actions/upload-artifact@v3.1.2
       with:
         name: app-prod-release
-        path: app/build/outputs/apk/prod/release/*.apk
+        path: app/build/outputs/apk/prod/debug/*.apk
     - name: Upload lspatch
       uses: actions/upload-artifact@v3.1.2
       with:
         name: app-lspatch-release
-        path: app/build/outputs/apk/lspatch/release/*.apk
+        path: app/build/outputs/apk/lspatch/debug/*.apk

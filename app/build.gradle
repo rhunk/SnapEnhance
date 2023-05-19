@@ -71,7 +71,7 @@ android {
 }
 
 afterEvaluate {
-    getTasks().getByPath(":app:assembleProdRelease").doLast {
+    getTasks().getByPath(":app:assembleProdDebug").doLast {
         def apkReleaseFile = android.applicationVariants.find { it.buildType.name == "release" && it.flavorName == "prod" }.outputs[0].outputFile
 
         //download the target apk
@@ -109,7 +109,7 @@ afterEvaluate {
                     "--force", "-l", "2", "-m",
                     apkReleaseFile.absolutePath,
                     "-o",
-                    "${buildDir}/outputs/apk/lspatch/release/"
+                    "${buildDir}/outputs/apk/lspatch/debug/"
         }
     }
 
