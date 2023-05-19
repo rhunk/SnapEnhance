@@ -8,17 +8,18 @@ import android.view.Gravity
 import android.view.View
 import android.widget.Switch
 import android.widget.TextView
+import me.rhunk.snapenhance.Constants
 
 object ViewAppearanceHelper {
     fun applyIndentation(view: TextView) {
         view.setPadding(70, 0, 55, 0)
     }
 
-    @SuppressLint("UseSwitchCompatOrMaterialCode", "RtlHardcoded")
+    @SuppressLint("UseSwitchCompatOrMaterialCode", "RtlHardcoded", "DiscouragedApi")
     fun applyTheme(viewModel: View, view: TextView) {
         //remove the shadow
         view.setBackgroundColor(0x00000000)
-        view.setTextColor(viewModel.resources.getColor(android.R.color.white, null))
+        view.setTextColor(viewModel.resources.getColor(viewModel.resources.getIdentifier("sig_color_text_primary_light", "color", Constants.SNAPCHAT_PACKAGE_NAME), null))
         view.setShadowLayer(0f, 0f, 0f, 0)
         view.outlineProvider = null
         view.gravity = Gravity.LEFT or Gravity.CENTER_VERTICAL
