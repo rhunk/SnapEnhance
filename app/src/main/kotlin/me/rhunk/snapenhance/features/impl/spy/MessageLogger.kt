@@ -66,9 +66,15 @@ class MessageLogger : Feature("MessageLogger", loadParams = FeatureLoadParams.IN
             }
 
             if (!messageCache.containsKey(messageId)) {
-                val serializedMessage = context.gson.toJson(message.instanceNonNull())
-                messageCache[messageId] = serializedMessage
-                context.bridgeClient.addMessageLoggerMessage(messageId, serializedMessage.toByteArray(Charsets.UTF_8))
+                context.executeAsync {
+                    val storedMessage = context.bridgeClient.getMessageLoggerMessage(messageId)?.toString(Charsets.UTF_8)
+                    if (storedMessage == null) {
+                        messageCache[messageId] = context.gson.toJson(message.instanceNonNull())
+                        context.bridgeClient.addMessageLoggerMessage(messageId, messageCache[messageId]!!.toByteArray(Charsets.UTF_8))
+                        return@executeAsync
+                    }
+                    messageCache[messageId] = storedMessage
+                }
             }
         }
     }
