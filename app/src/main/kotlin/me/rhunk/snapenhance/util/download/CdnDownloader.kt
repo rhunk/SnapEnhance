@@ -21,6 +21,7 @@ object CdnDownloader {
     const val CF_ST_CDN_I = "https://cf-st.sc-cdn.net/i/"
     const val CF_ST_CDN_J = "https://cf-st.sc-cdn.net/j/"
     const val CF_ST_CDN_C = "https://cf-st.sc-cdn.net/c/"
+    const val CF_ST_CDN_M = "https://cf-st.sc-cdn.net/m/"
     const val CF_ST_CDN_A = "https://cf-st.sc-cdn.net/a/"
     const val CF_ST_CDN_AA = "https://cf-st.sc-cdn.net/aa/"
 
@@ -77,6 +78,7 @@ object CdnDownloader {
             CF_ST_CDN_I,
             CF_ST_CDN_C,
             CF_ST_CDN_J,
+            CF_ST_CDN_M,
             CF_ST_CDN_A,
             CF_ST_CDN_AA,
             CF_ST_CDN_G,
