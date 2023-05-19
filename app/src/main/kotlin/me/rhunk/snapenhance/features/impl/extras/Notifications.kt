@@ -142,7 +142,7 @@ class Notifications : Feature("Notifications", loadParams = FeatureLoadParams.IN
                             return@onEach
                         }.onFailure {
                             Logger.xposedLog("Failed to send preview notification", it)
-                            Logger.debug("urlKey: $urlKey")
+                            Logger.xposedLog("urlKey: $urlKey")
                         }
                     }
                 }

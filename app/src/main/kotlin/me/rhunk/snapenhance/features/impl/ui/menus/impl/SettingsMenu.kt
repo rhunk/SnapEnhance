@@ -127,5 +127,16 @@ class SettingsMenu : AbstractMenu() {
                 addView(createPropertyView(viewModel, it.key))
             }
         }
+
+        //actions
+        context.actionManager.getActions().forEach {
+            val button = Button(viewModel.context)
+            button.text = context.translation.get(it.nameKey)
+            button.setOnClickListener { _ ->
+                it.run()
+            }
+            ViewAppearanceHelper.applyTheme(viewModel, button)
+            addView(button)
+        }
     }
 }

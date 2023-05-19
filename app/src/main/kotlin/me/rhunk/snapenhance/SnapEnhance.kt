@@ -60,6 +60,7 @@ class SnapEnhance {
     private fun onActivityCreate() {
         with(appContext) {
             features.onActivityCreate()
+            actionManager.init()
         }
     }
 }

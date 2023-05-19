@@ -13,6 +13,7 @@ import com.google.gson.GsonBuilder
 import me.rhunk.snapenhance.bridge.client.BridgeClient
 import me.rhunk.snapenhance.database.DatabaseAccess
 import me.rhunk.snapenhance.features.Feature
+import me.rhunk.snapenhance.manager.impl.ActionManager
 import me.rhunk.snapenhance.manager.impl.ConfigManager
 import me.rhunk.snapenhance.manager.impl.FeatureManager
 import me.rhunk.snapenhance.manager.impl.MappingManager
@@ -36,6 +37,7 @@ class ModContext {
     val features = FeatureManager(this)
     val mappings = MappingManager(this)
     val config = ConfigManager(this)
+    val actionManager = ActionManager(this)
     val database = DatabaseAccess(this)
     val downloadServer = DownloadServer(this)
     val classCache get() = SnapEnhance.classCache
@@ -86,7 +88,14 @@ class ModContext {
     }
 
     fun softRestartApp() {
-        exitProcess(0)
+        val intent: Intent? = androidContext.packageManager.getLaunchIntentForPackage(
+            Constants.SNAPCHAT_PACKAGE_NAME
+        )
+        intent?.let {
+            val mainIntent = Intent.makeRestartActivityTask(intent.component)
+            androidContext.startActivity(mainIntent)
+        }
+        exitProcess(1)
     }
 
     fun crash(message: String, throwable: Throwable? = null) {
