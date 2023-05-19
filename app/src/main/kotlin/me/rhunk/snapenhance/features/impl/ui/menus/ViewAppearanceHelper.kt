@@ -18,7 +18,7 @@ object ViewAppearanceHelper {
     fun applyTheme(viewModel: View, view: TextView) {
         //remove the shadow
         view.setBackgroundColor(0x00000000)
-        view.setTextColor(Color.parseColor("#000000"))
+        view.setTextColor(viewModel.resources.getColor(android.R.color.white, null))
         view.setShadowLayer(0f, 0f, 0f, 0)
         view.outlineProvider = null
         view.gravity = Gravity.LEFT or Gravity.CENTER_VERTICAL
