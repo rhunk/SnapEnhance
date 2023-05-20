@@ -72,7 +72,7 @@ android {
 
 afterEvaluate {
     getTasks().getByPath(":app:assembleProdDebug").doLast {
-        def apkReleaseFile = android.applicationVariants.find { it.buildType.name == "release" && it.flavorName == "prod" }.outputs[0].outputFile
+        def apkReleaseFile = android.applicationVariants.find { it.buildType.name == "debug" && it.flavorName == "prod" }.outputs[0].outputFile
 
         //download the target apk
         println "Downloading target apk"
