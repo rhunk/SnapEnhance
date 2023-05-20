@@ -36,14 +36,10 @@ object ViewAppearanceHelper {
             view.setBackgroundColor(0)
         }
         if (view is Switch) {
-            //set the switch color to blue
             val colorStateList = ColorStateList(
-                arrayOf(
-                    intArrayOf(-android.R.attr.state_checked), intArrayOf(
-                        android.R.attr.state_checked
-                    )
+                arrayOf(intArrayOf(-android.R.attr.state_checked), intArrayOf(android.R.attr.state_checked)
                 ), intArrayOf(
-                    Color.parseColor("#000000"),
+                    Color.parseColor("#3d3d3d"),
                     Color.parseColor("#2196F3")
                 )
             )
