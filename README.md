@@ -1,6 +1,11 @@
+<div align="center">
+  <img src="https://raw.githubusercontent.com/rhunk/SnapEnhance/main/app/src/main/res/mipmap-xxxhdpi/launcher_icon_foreground.png" height="250" />
+  
 # Snap Enhance
-A xposed mod to enhance the Snapchat experience. <br/>
+A xposed mod to enhance the Snapchat experience. <br/><br/>
 The project is currently in development, so expect bugs and crashes. If you find any bug, please report on [telegram](https://t.me/snapenhance) or make a pull request.
+</div>
+
 
 ### About the license
 The GNU GPL v3 license is a free, open source software license that gives users the right to modify, share, or redistribute the software.<br/>
