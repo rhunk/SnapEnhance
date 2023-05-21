@@ -1,6 +1,11 @@
 # Snap Enhance
 A xposed mod to enhance the Snapchat experience. <br/>
-The project is currently in development, so expect bugs and crashes. Feel free to open an issue if you find any bug.
+The project is currently in development, so expect bugs and crashes. If you find any bug, please report on [telegram](https://t.me/snapenhance) or make a pull request.
+
+### About the license
+The GNU GPL v3 license is a free, open source software license that gives users the right to modify, share, or redistribute the software.<br/>
+The user agrees to make the source code of the software freely available, in addition to any modifications, additions, or derivatives made. <br/>
+If the software is redistributed, it must remain under the same GPLv3 license and any modifications must be clearly marked as such.<br/>
 
 ## Features
 <details open>
@@ -49,8 +54,3 @@ You can also download the latest build from the [actions](https://github.com/rhu
 - BCH: qpu57a05kqljjadvpgjc6t894apprvth9slvlj4vpj
 - Bitcoin: bc1qaqnfn6mauzhmx0e6kkenh2wh4r6js0vh5vel92
 - ETH: 0x0760987491e9de53A73fd87F092Bd432a227Ee92
-
-## About the license
-The GNU GPL v3 license is a free, open source software license that gives users the right to modify, share, or redistribute the software.<br/>
-The user agrees to make the source code of the software freely available, in addition to any modifications, additions, or derivatives made. <br/>
-If the software is redistributed, it must remain under the same GPLv3 license and any modifications must be clearly marked as such.<br/>
