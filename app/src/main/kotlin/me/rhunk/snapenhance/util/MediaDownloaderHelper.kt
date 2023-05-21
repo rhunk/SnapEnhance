@@ -49,6 +49,32 @@ object MediaDownloaderHelper {
         return mapOf(MediaType.ORIGINAL to content)
     }
 
+    fun downloadDashChapter(playlistXmlData: String, startTime: Long, duration: Long?): ByteArray {
+        val outputFile = File.createTempFile("output", ".mp4")
+        val playlistFile = File.createTempFile("playlist", ".mpd").also {
+            with(FileOutputStream(it)) {
+                write(playlistXmlData.toByteArray(Charsets.UTF_8))
+                close()
+            }
+        }
+
+        val ffmpegSession = FFmpegKit.execute(
+            "-y -i " +
+                    playlistFile.absolutePath +
+                    " -ss '${startTime}ms'" +
+                    (if (duration != null) " -t '${duration}ms'" else "") +
+                    " -c:v libx264 -threads 6 -q:v 13 " + outputFile.absolutePath
+        )
+
+        playlistFile.delete()
+        if (!ffmpegSession.returnCode.isValueSuccess) {
+            throw Exception(ffmpegSession.output)
+        }
+        val outputData = FileInputStream(outputFile).readBytes()
+        outputFile.delete()
+        return outputData
+    }
+
     fun mergeOverlay(original: ByteArray, overlay: ByteArray, isPreviewMode: Boolean): ByteArray {
         val originalFileType = FileType.fromByteArray(original)
         val overlayFileType = FileType.fromByteArray(overlay)

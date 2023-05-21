@@ -14,6 +14,8 @@ import me.rhunk.snapenhance.config.ConfigProperty
 import me.rhunk.snapenhance.data.ContentType
 import me.rhunk.snapenhance.data.FileType
 import me.rhunk.snapenhance.data.wrapper.impl.media.MediaInfo
+import me.rhunk.snapenhance.data.wrapper.impl.media.dash.LongformVideoPlaylistItem
+import me.rhunk.snapenhance.data.wrapper.impl.media.dash.SnapPlaylistItem
 import me.rhunk.snapenhance.data.wrapper.impl.media.opera.Layer
 import me.rhunk.snapenhance.data.wrapper.impl.media.opera.ParamMap
 import me.rhunk.snapenhance.features.Feature
@@ -27,32 +29,37 @@ import me.rhunk.snapenhance.util.EncryptionUtils
 import me.rhunk.snapenhance.util.MediaDownloaderHelper
 import me.rhunk.snapenhance.util.MediaType
 import me.rhunk.snapenhance.util.PreviewUtils
+import me.rhunk.snapenhance.util.download.CdnDownloader
 import me.rhunk.snapenhance.util.getObjectField
 import me.rhunk.snapenhance.util.protobuf.ProtoReader
-import java.io.*
+import java.io.ByteArrayOutputStream
+import java.io.File
+import java.io.FileOutputStream
+import java.io.InputStream
 import java.net.HttpURLConnection
 import java.net.URL
 import java.nio.file.Paths
-import java.util.*
+import java.util.Arrays
 import java.util.concurrent.atomic.AtomicReference
 import javax.crypto.Cipher
 import javax.crypto.CipherInputStream
+import javax.xml.parsers.DocumentBuilderFactory
+import javax.xml.transform.TransformerFactory
+import javax.xml.transform.dom.DOMSource
+import javax.xml.transform.stream.StreamResult
 import kotlin.io.path.inputStream
 
 
 class MediaDownloader : Feature("MediaDownloader", loadParams = FeatureLoadParams.ACTIVITY_CREATE_ASYNC) {
     private var lastSeenMediaInfoMap: MutableMap<MediaType, MediaInfo>? = null
     private var lastSeenMapParams: ParamMap? = null
-    private var isFFmpegPresent: Boolean? = null
+    private val isFFmpegPresent by lazy {
+        runCatching { FFmpegKit.execute("-version") }.isSuccess
+    }
 
     private fun canMergeOverlay(): Boolean {
         if (!context.config.bool(ConfigProperty.OVERLAY_MERGE)) return false
-        if (isFFmpegPresent != null) {
-            return isFFmpegPresent!!
-        }
-        //check if ffmpeg is correctly installed
-        isFFmpegPresent = runCatching { FFmpegKit.execute("-version") }.isSuccess
-        return isFFmpegPresent!!
+        return isFFmpegPresent
     }
 
     private fun createNewFilePath(hash: Int, author: String, fileType: FileType): String? {
@@ -229,11 +236,62 @@ class MediaDownloader : Feature("MediaDownloader", loadParams = FeatureLoadParam
                     "[^\\x00-\\x7F]".toRegex(),
                     "")
             downloadOperaMedia(mediaInfoMap, "Public-Stories/$userDisplayName")
+            return
         }
 
         //spotlight
         if (snapSource == "SINGLE_SNAP_STORY" && (forceDownload || context.config.bool(ConfigProperty.AUTO_DOWNLOAD_SPOTLIGHT))) {
             downloadOperaMedia(mediaInfoMap, "Spotlight")
+            return
+        }
+
+        //stories with mpeg dash media
+        //TODO: option to download multiple chapters
+        if (paramMap.containsKey("SNAP_PLAYLIST_ITEM") && forceDownload) {
+            if (!isFFmpegPresent) {
+                context.shortToast("Can't download media. ffmpeg was not found")
+                return
+            }
+
+            val storyName = paramMap["STORY_NAME"].toString().replace(
+                "[^\\x00-\\x7F]".toRegex(),
+                "")
+
+            //get the position of the media in the playlist and the duration
+            val snapItem = SnapPlaylistItem(paramMap["SNAP_PLAYLIST_ITEM"]!!)
+            val snapChapterList = LongformVideoPlaylistItem(paramMap["LONGFORM_VIDEO_PLAYLIST_ITEM"]!!).chapters
+            if (snapChapterList.isEmpty()) {
+                context.shortToast("No chapters found")
+                return
+            }
+            val snapChapter = snapChapterList.first { it.snapId == snapItem.snapId }
+            val nextChapter = snapChapterList.getOrNull(snapChapterList.indexOf(snapChapter) + 1)
+
+            //add 100ms to the start time to prevent the video from starting too early
+            val snapChapterTimestamp = snapChapter.startTimeMs.plus(100)
+            val duration = nextChapter?.startTimeMs?.minus(snapChapterTimestamp) ?: 0
+
+            //get the mpd playlist and append the cdn url to baseurl nodes
+            val playlistUrl = paramMap["MEDIA_ID"].toString().let { it.substring(it.indexOf("https://cf-st.sc-cdn.net")) }
+            val playlistXml = DocumentBuilderFactory.newInstance().newDocumentBuilder().parse(URL(playlistUrl).openStream())
+            val baseUrlNodeList = playlistXml.getElementsByTagName("BaseURL")
+            for (i in 0 until baseUrlNodeList.length) {
+                val baseUrlNode = baseUrlNodeList.item(i)
+                val baseUrl = baseUrlNode.textContent
+                baseUrlNode.textContent = "${CdnDownloader.CF_ST_CDN_D}$baseUrl"
+            }
+
+            val xmlData = ByteArrayOutputStream()
+            TransformerFactory.newInstance().newTransformer().transform(DOMSource(playlistXml), StreamResult(xmlData))
+            runCatching {
+                context.shortToast("Downloading dash media. This might take a while...")
+                val downloadedMedia = MediaDownloaderHelper.downloadDashChapter(xmlData.toByteArray().toString(Charsets.UTF_8), snapChapterTimestamp, duration)
+                downloadMediaContent(downloadedMedia, downloadedMedia.contentHashCode(), "Pro-Stories/${storyName}", FileType.fromByteArray(downloadedMedia))
+            }.onFailure {
+                context.longToast("Failed to download media: ${it.message}")
+                xposedLog(it)
+            }
+            return
         }
     }
 
