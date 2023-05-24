@@ -45,6 +45,11 @@ class UITweaks : Feature("UITweaks", loadParams = FeatureLoadParams.ACTIVITY_CRE
             val view: View = param.arg(0)
             val viewId = view.id
 
+            if (viewId == chatNoteRecordButton && context.config.bool(ConfigProperty.REMOVE_VOICE_RECORD_BUTTON)) {
+                view.isEnabled = false
+                view.setWillNotDraw(true)
+            }
+
             if (chatInputBarCognac == viewId && context.config.bool(ConfigProperty.REMOVE_COGNAC_BUTTON)) {
                 view.visibility = View.GONE
             }
