@@ -10,19 +10,25 @@ class SnapchatPlus: Feature("SnapchatPlus", loadParams = FeatureLoadParams.ACTIV
     override fun asyncOnActivityCreate() {
         if (!context.config.bool(ConfigProperty.SNAPCHAT_PLUS)) return
 
-        Hooker.hookConstructor(context.mappings.getMappedClass("SubscriptionInfoClass"), HookStage.BEFORE) { param ->
+        val subscriptionInfoMembers = context.mappings.getMappedMap("SubscriptionInfoClassMembers")
+
+        Hooker.hookConstructor(context.mappings.getMappedClass("SubscriptionInfoClass"), HookStage.AFTER) { param ->
+            val getField = { key: String ->  param.thisObject<Any>().javaClass.declaredFields.first {it.name == (subscriptionInfoMembers[key] as String)}.also { it.isAccessible = true }}
+
+            val subscriptionStatusField = getField("status")
+            val isSubscribedField = getField("isSubscribed")
+            val startTimeMsField = getField("startTimeMs")
+            val expireTimeMsField = getField("expireTimeMs")
+
             //check if the user is already premium
-            if (param.arg(0) as Int == 2) {
+            if ((subscriptionStatusField[param.thisObject()] as Double).toInt() == 2) {
                 return@hookConstructor
             }
-            //subscription info tier
-            param.setArg(0, 2)
-            //subscription status
-            param.setArg(1, 2)
-            //subscription time
-            param.setArg(2, System.currentTimeMillis() - 7776000000L)
-            //expiration time
-            param.setArg(3, System.currentTimeMillis() + 15552000000L)
+
+            isSubscribedField.set(param.thisObject(), true)
+            startTimeMsField.set(param.thisObject(), (System.currentTimeMillis() - 7776000000L).toDouble())
+            expireTimeMsField.set(param.thisObject(), (System.currentTimeMillis() + 15552000000L).toDouble())
+            subscriptionStatusField.set(param.thisObject(), 2.toDouble())
         }
     }
 }
