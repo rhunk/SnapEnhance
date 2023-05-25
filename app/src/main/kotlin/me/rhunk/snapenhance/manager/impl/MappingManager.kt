@@ -119,6 +119,8 @@ class MappingManager(private val context: ModContext) : Manager {
                     if (className.contains(".") && !className.startsWith("com.snap")) return@fileList
                     runCatching {
                         classLoader.loadClass(className)?.let { classes.add(it) }
+                    }.onFailure {
+                        Logger.debug("Failed to load class $className")
                     }
                 }
             }
