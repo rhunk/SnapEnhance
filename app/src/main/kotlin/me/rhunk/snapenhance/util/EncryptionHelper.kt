@@ -4,7 +4,7 @@ import me.rhunk.snapenhance.Constants
 import me.rhunk.snapenhance.data.ContentType
 import me.rhunk.snapenhance.util.protobuf.ProtoReader
 import java.io.InputStream
-import java.util.*
+import java.util.Base64
 import javax.crypto.Cipher
 import javax.crypto.CipherInputStream
 import javax.crypto.spec.IvParameterSpec

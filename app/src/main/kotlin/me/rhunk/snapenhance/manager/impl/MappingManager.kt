@@ -9,7 +9,7 @@ import kotlinx.coroutines.runBlocking
 import me.rhunk.snapenhance.Constants
 import me.rhunk.snapenhance.Logger
 import me.rhunk.snapenhance.ModContext
-import me.rhunk.snapenhance.bridge.common.impl.FileAccessRequest
+import me.rhunk.snapenhance.bridge.common.impl.file.BridgeFileType
 import me.rhunk.snapenhance.manager.Manager
 import me.rhunk.snapenhance.mapping.Mapper
 import me.rhunk.snapenhance.mapping.impl.CallbackMapper
@@ -40,7 +40,7 @@ class MappingManager(private val context: ModContext) : Manager {
         ).longVersionCode.toInt()
         snapBuildNumber = currentBuildNumber
 
-        if (context.bridgeClient.isFileExists(FileAccessRequest.FileType.MAPPINGS)) {
+        if (context.bridgeClient.isFileExists(BridgeFileType.MAPPINGS)) {
             runCatching {
                 loadCached()
             }.onFailure {
@@ -48,7 +48,7 @@ class MappingManager(private val context: ModContext) : Manager {
             }
 
             if (snapBuildNumber != currentBuildNumber) {
-                context.bridgeClient.deleteFile(FileAccessRequest.FileType.MAPPINGS)
+                context.bridgeClient.deleteFile(BridgeFileType.MAPPINGS)
                 context.softRestartApp()
             }
             return
@@ -63,13 +63,13 @@ class MappingManager(private val context: ModContext) : Manager {
     }
 
     private fun loadCached() {
-        if (!context.bridgeClient.isFileExists(FileAccessRequest.FileType.MAPPINGS)) {
+        if (!context.bridgeClient.isFileExists(BridgeFileType.MAPPINGS)) {
             Logger.xposedLog("Mappings file does not exist")
             return
         }
         val mappingsObject = JsonParser.parseString(
             String(
-                context.bridgeClient.readFile(FileAccessRequest.FileType.MAPPINGS),
+                context.bridgeClient.readFile(BridgeFileType.MAPPINGS),
                 StandardCharsets.UTF_8
             )
         ).asJsonObject.also {
@@ -146,7 +146,7 @@ class MappingManager(private val context: ModContext) : Manager {
         }
 
         context.bridgeClient.writeFile(
-            FileAccessRequest.FileType.MAPPINGS,
+            BridgeFileType.MAPPINGS,
             mappingsObject.toString().toByteArray()
         )
     }

@@ -2,7 +2,8 @@ package me.rhunk.snapenhance.util
 
 import java.lang.reflect.Field
 import java.lang.reflect.Method
-import java.util.*
+import java.util.Arrays
+import java.util.Objects
 
 object ReflectionHelper {
     /**

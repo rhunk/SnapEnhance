@@ -1,8 +1,13 @@
 package me.rhunk.snapenhance
 
+import android.annotation.SuppressLint
 import android.app.Activity
 import android.app.Application
 import android.content.Context
+import android.os.Build
+import me.rhunk.snapenhance.bridge.AbstractBridgeClient
+import me.rhunk.snapenhance.bridge.client.RootBridgeClient
+import me.rhunk.snapenhance.bridge.client.ServiceBridgeClient
 import me.rhunk.snapenhance.data.SnapClassCache
 import me.rhunk.snapenhance.hook.HookStage
 import me.rhunk.snapenhance.hook.Hooker
@@ -17,21 +22,26 @@ class SnapEnhance {
     private val appContext = ModContext()
 
     init {
+
         Hooker.hook(Application::class.java, "attach", HookStage.BEFORE) { param ->
             appContext.androidContext = param.arg<Context>(0).also {
                 classLoader = it.classLoader
             }
+            appContext.bridgeClient = provideBridgeClient()
 
-            appContext.bridgeClient.start { bridgeResult ->
-                if (!bridgeResult) {
-                    Logger.xposedLog("Cannot connect to bridge service")
-                    appContext.restartApp()
-                    return@start
-                }
-                runCatching {
-                    init()
-                }.onFailure {
-                    Logger.xposedLog("Failed to initialize", it)
+            appContext.bridgeClient.apply {
+                this.context = appContext
+                start { bridgeResult ->
+                    if (!bridgeResult) {
+                        Logger.xposedLog("Cannot connect to bridge service")
+                        appContext.restartApp()
+                        return@start
+                    }
+                    runCatching {
+                        init()
+                    }.onFailure {
+                        Logger.xposedLog("Failed to initialize", it)
+                    }
                 }
             }
         }
@@ -44,6 +54,15 @@ class SnapEnhance {
             if (isMainActivityNotNull) return@hook
             onActivityCreate()
         }
+    }
+
+    @SuppressLint("ObsoleteSdkInt")
+    private fun provideBridgeClient(): AbstractBridgeClient {
+        //unsafe way for Android 9 devices
+        if (Build.VERSION.SDK_INT <= Build.VERSION_CODES.P) {
+            return RootBridgeClient()
+        }
+        return ServiceBridgeClient()
     }
 
     private fun init() {

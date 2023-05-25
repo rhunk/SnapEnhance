@@ -4,31 +4,29 @@ import android.annotation.SuppressLint
 import android.app.DownloadManager
 import android.app.Service
 import android.content.*
-import android.database.sqlite.SQLiteDatabase
 import android.net.Uri
 import android.os.*
 import me.rhunk.snapenhance.Logger
+import me.rhunk.snapenhance.bridge.MessageLoggerWrapper
 import me.rhunk.snapenhance.bridge.common.BridgeMessageType
 import me.rhunk.snapenhance.bridge.common.impl.*
+import me.rhunk.snapenhance.bridge.common.impl.download.DownloadContentRequest
+import me.rhunk.snapenhance.bridge.common.impl.download.DownloadContentResult
+import me.rhunk.snapenhance.bridge.common.impl.file.BridgeFileType
+import me.rhunk.snapenhance.bridge.common.impl.file.FileAccessRequest
+import me.rhunk.snapenhance.bridge.common.impl.file.FileAccessResult
+import me.rhunk.snapenhance.bridge.common.impl.locale.LocaleRequest
+import me.rhunk.snapenhance.bridge.common.impl.locale.LocaleResult
+import me.rhunk.snapenhance.bridge.common.impl.messagelogger.MessageLoggerRequest
+import me.rhunk.snapenhance.bridge.common.impl.messagelogger.MessageLoggerResult
 import java.io.File
 import java.util.*
 
 class BridgeService : Service() {
-    companion object {
-        const val CONFIG_FILE = "config.json"
-        const val MAPPINGS_FILE = "mappings.json"
-        const val STEALTH_FILE = "stealth.txt"
-        const val MESSAGE_LOGGER_DATABASE = "message_logger"
-        const val ANTI_AUTO_DOWNLOAD_FILE = "anti_auto_download.txt"
-    }
-
-    lateinit var messageLoggerDatabase: SQLiteDatabase
+    private lateinit var messageLoggerWrapper: MessageLoggerWrapper
 
     override fun onBind(intent: Intent): IBinder {
-        with(openOrCreateDatabase(MESSAGE_LOGGER_DATABASE, Context.MODE_PRIVATE, null)) {
-            messageLoggerDatabase = this
-            execSQL("CREATE TABLE IF NOT EXISTS messages (message_id INTEGER PRIMARY KEY, serialized_message BLOB)")
-        }
+        messageLoggerWrapper = MessageLoggerWrapper(getDatabasePath(BridgeFileType.MESSAGE_LOGGER_DATABASE.fileName)).also { it.init() }
 
         return Messenger(object : Handler(Looper.getMainLooper()) {
             override fun handleMessage(msg: Message) {
@@ -84,33 +82,16 @@ class BridgeService : Service() {
     private fun handleMessageLoggerRequest(msg: MessageLoggerRequest, reply: (Message) -> Unit) {
         when (msg.action) {
             MessageLoggerRequest.Action.ADD  -> {
-                //check if message already exists
-                val cursor = messageLoggerDatabase.rawQuery("SELECT message_id FROM messages WHERE message_id = ?", arrayOf(msg.messageId.toString()))
-                val state = cursor.moveToFirst()
-                cursor.close()
-                if (state) {
-                    reply(MessageLoggerResult(false).toMessage(BridgeMessageType.MESSAGE_LOGGER_RESULT.value))
-                    return
-                }
-                messageLoggerDatabase.insert("messages", null, ContentValues().apply {
-                    put("message_id", msg.messageId)
-                    put("serialized_message", msg.message)
-                })
+                val isSuccess = messageLoggerWrapper.addMessage(msg.messageId!!, msg.message!!)
+                reply(MessageLoggerResult(isSuccess).toMessage(BridgeMessageType.MESSAGE_LOGGER_RESULT.value))
+                return
             }
             MessageLoggerRequest.Action.CLEAR -> {
-                messageLoggerDatabase.execSQL("DELETE FROM messages")
+                messageLoggerWrapper.clearMessages()
             }
             MessageLoggerRequest.Action.GET -> {
-                val messageId = msg.messageId
-                val cursor = messageLoggerDatabase.rawQuery("SELECT serialized_message FROM messages WHERE message_id = ?", arrayOf(messageId.toString()))
-                val state = cursor.moveToFirst()
-                val message: ByteArray? = if (state) {
-                    cursor.getBlob(0)
-                } else {
-                    null
-                }
-                cursor.close()
-                reply(MessageLoggerResult(state, message).toMessage(BridgeMessageType.MESSAGE_LOGGER_RESULT.value))
+                val (state, messageData) = messageLoggerWrapper.getMessage(msg.messageId!!)
+                reply(MessageLoggerResult(state, messageData).toMessage(BridgeMessageType.MESSAGE_LOGGER_RESULT.value))
             }
             else -> {
                 Logger.log(Exception("Unknown message logger action: ${msg.action}"))
@@ -155,38 +136,37 @@ class BridgeService : Service() {
     }
 
     private fun handleFileAccess(msg: FileAccessRequest, reply: (Message) -> Unit) {
-        val file = when (msg.fileType) {
-            FileAccessRequest.FileType.CONFIG -> CONFIG_FILE
-            FileAccessRequest.FileType.MAPPINGS -> MAPPINGS_FILE
-            FileAccessRequest.FileType.STEALTH -> STEALTH_FILE
-            FileAccessRequest.FileType.ANTI_AUTO_DOWNLOAD -> ANTI_AUTO_DOWNLOAD_FILE
-            else -> throw Exception("Unknown file type: " + msg.fileType)
-        }.let { File(filesDir, it) }
+        val fileFolder = if (msg.fileType!!.isDatabase) {
+            File(dataDir, "databases")
+        } else {
+            File(filesDir.absolutePath)
+        }
+        val requestFile =  File(fileFolder, msg.fileType!!.fileName)
 
         val result: FileAccessResult = when (msg.action) {
             FileAccessRequest.FileAccessAction.READ -> {
-                if (!file.exists()) {
+                if (!requestFile.exists()) {
                     FileAccessResult(false, null)
                 } else {
-                    FileAccessResult(true, file.readBytes())
+                    FileAccessResult(true, requestFile.readBytes())
                 }
             }
             FileAccessRequest.FileAccessAction.WRITE -> {
-                if (!file.exists()) {
-                    file.createNewFile()
+                if (!requestFile.exists()) {
+                    requestFile.createNewFile()
                 }
-                file.writeBytes(msg.content!!)
+                requestFile.writeBytes(msg.content!!)
                 FileAccessResult(true, null)
             }
             FileAccessRequest.FileAccessAction.DELETE -> {
-                if (!file.exists()) {
+                if (!requestFile.exists()) {
                     FileAccessResult(false, null)
                 } else {
-                    file.delete()
+                    requestFile.delete()
                     FileAccessResult(true, null)
                 }
             }
-            FileAccessRequest.FileAccessAction.EXISTS -> FileAccessResult(file.exists(), null)
+            FileAccessRequest.FileAccessAction.EXISTS -> FileAccessResult(requestFile.exists(), null)
             else -> throw Exception("Unknown action: " + msg.action)
         }
 

@@ -4,7 +4,7 @@ import com.google.gson.JsonParser
 import me.rhunk.snapenhance.Logger
 import me.rhunk.snapenhance.ModContext
 import me.rhunk.snapenhance.manager.Manager
-import java.util.*
+import java.util.Locale
 
 class TranslationManager(
     private val context: ModContext

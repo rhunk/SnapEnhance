@@ -1,11 +1,11 @@
-package me.rhunk.snapenhance.bridge.common.impl
+package me.rhunk.snapenhance.bridge.common.impl.file
 
 import android.os.Bundle
 import me.rhunk.snapenhance.bridge.common.BridgeMessage
 
 class FileAccessRequest(
     var action: FileAccessAction? = null,
-    var fileType: FileType? = null,
+    var fileType: BridgeFileType? = null,
     var content: ByteArray? = null
 ) : BridgeMessage() {
 
@@ -17,18 +17,8 @@ class FileAccessRequest(
 
     override fun read(bundle: Bundle) {
         action = FileAccessAction.fromValue(bundle.getInt("action"))
-        fileType = FileType.fromValue(bundle.getInt("fileType"))
+        fileType = BridgeFileType.fromValue(bundle.getInt("fileType"))
         content = bundle.getByteArray("content")
-    }
-
-    enum class FileType(val value: Int) {
-        CONFIG(0), MAPPINGS(1), STEALTH(2), ANTI_AUTO_DOWNLOAD(3);
-
-        companion object {
-            fun fromValue(value: Int): FileType? {
-                return values().firstOrNull { it.value == value }
-            }
-        }
     }
 
     enum class FileAccessAction(val value: Int) {

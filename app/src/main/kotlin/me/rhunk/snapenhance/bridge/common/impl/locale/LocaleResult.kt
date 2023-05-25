@@ -1,4 +1,4 @@
-package me.rhunk.snapenhance.bridge.common.impl
+package me.rhunk.snapenhance.bridge.common.impl.locale
 
 import android.os.Bundle
 import me.rhunk.snapenhance.bridge.common.BridgeMessage

@@ -3,7 +3,7 @@ package me.rhunk.snapenhance.manager.impl
 import com.google.gson.JsonObject
 import me.rhunk.snapenhance.Logger
 import me.rhunk.snapenhance.ModContext
-import me.rhunk.snapenhance.bridge.common.impl.FileAccessRequest
+import me.rhunk.snapenhance.bridge.common.impl.file.BridgeFileType
 import me.rhunk.snapenhance.config.ConfigAccessor
 import me.rhunk.snapenhance.config.ConfigProperty
 import me.rhunk.snapenhance.manager.Manager
@@ -22,7 +22,7 @@ class ConfigManager(
             set(key, key.defaultValue)
         }
 
-        if (!context.bridgeClient.isFileExists(FileAccessRequest.FileType.CONFIG)) {
+        if (!context.bridgeClient.isFileExists(BridgeFileType.CONFIG)) {
             writeConfig()
             return
         }
@@ -37,7 +37,7 @@ class ConfigManager(
 
     private fun loadConfig() {
         val configContent = context.bridgeClient.createAndReadFile(
-            FileAccessRequest.FileType.CONFIG,
+            BridgeFileType.CONFIG,
             "{}".toByteArray(Charsets.UTF_8)
         )
         val configObject: JsonObject = context.gson.fromJson(
@@ -56,7 +56,7 @@ class ConfigManager(
             configObject.add(key.name, context.gson.toJsonTree(get(key)))
         }
         context.bridgeClient.writeFile(
-            FileAccessRequest.FileType.CONFIG,
+            BridgeFileType.CONFIG,
             context.gson.toJson(configObject).toByteArray(Charsets.UTF_8)
         )
     }

@@ -9,7 +9,7 @@ import me.rhunk.snapenhance.hook.HookAdapter
 import me.rhunk.snapenhance.hook.HookStage
 import me.rhunk.snapenhance.hook.Hooker
 import java.nio.charset.StandardCharsets
-import java.util.*
+import java.util.Base64
 
 class DisableMetrics : Feature("DisableMetrics", loadParams = FeatureLoadParams.INIT_SYNC) {
     override fun init() {

@@ -5,13 +5,26 @@ import android.content.ComponentName
 import android.content.Context
 import android.content.Intent
 import android.content.ServiceConnection
-import android.os.*
+import android.os.Bundle
+import android.os.Handler
+import android.os.HandlerThread
+import android.os.IBinder
+import android.os.Message
+import android.os.Messenger
 import me.rhunk.snapenhance.BuildConfig
 import me.rhunk.snapenhance.Logger.xposedLog
-import me.rhunk.snapenhance.ModContext
+import me.rhunk.snapenhance.bridge.AbstractBridgeClient
 import me.rhunk.snapenhance.bridge.common.BridgeMessage
 import me.rhunk.snapenhance.bridge.common.BridgeMessageType
-import me.rhunk.snapenhance.bridge.common.impl.*
+import me.rhunk.snapenhance.bridge.common.impl.download.DownloadContentRequest
+import me.rhunk.snapenhance.bridge.common.impl.download.DownloadContentResult
+import me.rhunk.snapenhance.bridge.common.impl.file.BridgeFileType
+import me.rhunk.snapenhance.bridge.common.impl.file.FileAccessRequest
+import me.rhunk.snapenhance.bridge.common.impl.file.FileAccessResult
+import me.rhunk.snapenhance.bridge.common.impl.locale.LocaleRequest
+import me.rhunk.snapenhance.bridge.common.impl.locale.LocaleResult
+import me.rhunk.snapenhance.bridge.common.impl.messagelogger.MessageLoggerRequest
+import me.rhunk.snapenhance.bridge.common.impl.messagelogger.MessageLoggerResult
 import me.rhunk.snapenhance.bridge.service.BridgeService
 import java.util.concurrent.CompletableFuture
 import java.util.concurrent.Executors
@@ -19,15 +32,13 @@ import kotlin.reflect.KClass
 import kotlin.system.exitProcess
 
 
-class BridgeClient(
-    private val context: ModContext
-) : ServiceConnection {
+class ServiceBridgeClient: AbstractBridgeClient(), ServiceConnection {
     private val handlerThread = HandlerThread("BridgeClient")
 
     private lateinit var messenger: Messenger
     private lateinit var future: CompletableFuture<Boolean>
 
-    fun start(callback: (Boolean) -> Unit = {}) {
+    override fun start(callback: (Boolean) -> Unit) {
         this.future = CompletableFuture()
         this.handlerThread.start()
 
@@ -38,7 +49,7 @@ class BridgeClient(
                 intent,
                 Context.BIND_AUTO_CREATE,
                 Executors.newSingleThreadExecutor(),
-                this@BridgeClient
+                this@ServiceBridgeClient
             )
         }
         callback(future.get())
@@ -92,15 +103,8 @@ class BridgeClient(
         return future.get() as T
     }
 
-    /**
-     * Create a file if it doesn't exist, and read it
-     *
-     * @param fileType       the type of file to create and read
-     * @param defaultContent the default content to write to the file if it doesn't exist
-     * @return the content of the file
-     */
-    fun createAndReadFile(
-        fileType: FileAccessRequest.FileType,
+    override fun createAndReadFile(
+        fileType: BridgeFileType,
         defaultContent: ByteArray
     ): ByteArray {
         sendMessage(
@@ -116,13 +120,7 @@ class BridgeClient(
         }
     }
 
-    /**
-     * Read a file
-     *
-     * @param fileType the type of file to read
-     * @return the content of the file
-     */
-    fun readFile(fileType: FileAccessRequest.FileType): ByteArray {
+    override fun readFile(fileType: BridgeFileType): ByteArray {
         sendMessage(
             BridgeMessageType.FILE_ACCESS_REQUEST,
             FileAccessRequest(FileAccessRequest.FileAccessAction.READ, fileType, null),
@@ -132,15 +130,8 @@ class BridgeClient(
         }
     }
 
-    /**
-     * Write a file
-     *
-     * @param fileType the type of file to write
-     * @param content  the content to write to the file
-     * @return true if the file was written successfully
-     */
-    fun writeFile(
-        fileType: FileAccessRequest.FileType,
+    override fun writeFile(
+        fileType: BridgeFileType,
         content: ByteArray?
     ): Boolean {
         sendMessage(
@@ -152,13 +143,7 @@ class BridgeClient(
         }
     }
 
-    /**
-     * Delete a file
-     *
-     * @param fileType the type of file to delete
-     * @return true if the file was deleted successfully
-     */
-    fun deleteFile(fileType: FileAccessRequest.FileType): Boolean {
+    override fun deleteFile(fileType: BridgeFileType): Boolean {
         sendMessage(
             BridgeMessageType.FILE_ACCESS_REQUEST,
             FileAccessRequest(FileAccessRequest.FileAccessAction.DELETE, fileType, null),
@@ -168,14 +153,8 @@ class BridgeClient(
         }
     }
 
-    /**
-     * Check if a file exists
-     *
-     * @param fileType the type of file to check
-     * @return true if the file exists
-     */
 
-    fun isFileExists(fileType: FileAccessRequest.FileType): Boolean {
+    override fun isFileExists(fileType: BridgeFileType): Boolean {
         sendMessage(
             BridgeMessageType.FILE_ACCESS_REQUEST,
             FileAccessRequest(FileAccessRequest.FileAccessAction.EXISTS, fileType, null),
@@ -185,14 +164,7 @@ class BridgeClient(
         }
     }
 
-    /**
-     * Download content from a URL and save it to a file
-     *
-     * @param url  the URL to download content from
-     * @param path the path to save the content to
-     * @return true if the content was downloaded successfully
-     */
-    fun downloadContent(url: String, path: String): Boolean {
+    override fun downloadContent(url: String, path: String): Boolean {
         sendMessage(
             BridgeMessageType.DOWNLOAD_CONTENT_REQUEST,
             DownloadContentRequest(url, path),
@@ -202,7 +174,7 @@ class BridgeClient(
         }
     }
 
-    fun getMessageLoggerMessage(id: Long): ByteArray? {
+    override fun getMessageLoggerMessage(id: Long): ByteArray? {
         sendMessage(
             BridgeMessageType.MESSAGE_LOGGER_REQUEST,
             MessageLoggerRequest(MessageLoggerRequest.Action.GET, id),
@@ -212,7 +184,7 @@ class BridgeClient(
         }
     }
 
-    fun addMessageLoggerMessage(id: Long, message: ByteArray) {
+    override fun addMessageLoggerMessage(id: Long, message: ByteArray) {
         sendMessage(
             BridgeMessageType.MESSAGE_LOGGER_REQUEST,
             MessageLoggerRequest(MessageLoggerRequest.Action.ADD, id, message),
@@ -220,7 +192,7 @@ class BridgeClient(
         )
     }
 
-    fun clearMessageLogger() {
+    override fun clearMessageLogger() {
         sendMessage(
             BridgeMessageType.MESSAGE_LOGGER_REQUEST,
             MessageLoggerRequest(MessageLoggerRequest.Action.CLEAR, 0),
@@ -228,7 +200,7 @@ class BridgeClient(
         )
     }
 
-    fun fetchTranslations(): LocaleResult {
+    override fun fetchTranslations(): LocaleResult {
         sendMessage(
             BridgeMessageType.LOCALE_REQUEST,
             LocaleRequest(),

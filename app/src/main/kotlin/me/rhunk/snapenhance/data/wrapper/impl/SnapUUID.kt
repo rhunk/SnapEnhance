@@ -4,7 +4,7 @@ import me.rhunk.snapenhance.SnapEnhance
 import me.rhunk.snapenhance.data.wrapper.AbstractWrapper
 import me.rhunk.snapenhance.util.getObjectField
 import java.nio.ByteBuffer
-import java.util.*
+import java.util.UUID
 
 class SnapUUID(obj: Any?) : AbstractWrapper(obj) {
     private val uuidString by lazy { toUUID().toString() }

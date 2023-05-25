@@ -3,7 +3,7 @@ package me.rhunk.snapenhance.mapping.impl
 import me.rhunk.snapenhance.Logger.debug
 import me.rhunk.snapenhance.mapping.Mapper
 import java.lang.reflect.Method
-import java.util.*
+import java.util.Objects
 
 
 class EnumMapper : Mapper() {
