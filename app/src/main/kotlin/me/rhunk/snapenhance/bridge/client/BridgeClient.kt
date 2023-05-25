@@ -32,13 +32,13 @@ class BridgeClient(
         this.handlerThread.start()
 
         with(context.androidContext) {
-            val intent = Intent()
-                .setClassName(BuildConfig.APPLICATION_ID, BridgeService::class.java.name)
+            val intent = Intent().apply {
+                setClassName(BuildConfig.APPLICATION_ID, BridgeService::class.java.name)
+            }
             bindService(
                 intent,
-                Context.BIND_AUTO_CREATE,
-                Executors.newSingleThreadExecutor(),
-                this@BridgeClient
+                this@BridgeClient,
+                Context.BIND_AUTO_CREATE
             )
         }
         callback(future.get())
