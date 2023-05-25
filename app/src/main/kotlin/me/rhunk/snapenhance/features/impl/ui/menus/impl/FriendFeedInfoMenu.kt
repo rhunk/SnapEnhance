@@ -21,6 +21,7 @@ import me.rhunk.snapenhance.database.objects.FriendInfo
 import me.rhunk.snapenhance.database.objects.UserConversationLink
 import me.rhunk.snapenhance.features.impl.Messaging
 import me.rhunk.snapenhance.features.impl.downloader.AntiAutoDownload
+import me.rhunk.snapenhance.features.impl.extras.AntiAutoSave
 import me.rhunk.snapenhance.features.impl.spy.StealthMode
 import me.rhunk.snapenhance.features.impl.ui.menus.AbstractMenu
 import me.rhunk.snapenhance.features.impl.ui.menus.ViewAppearanceHelper.applyTheme
@@ -163,6 +164,17 @@ class FriendFeedInfoMenu : AbstractMenu() {
         builder.show()
     }
 
+    private fun createToggleFeature(viewModel: View, viewConsumer: ((View) -> Unit), text: String, isChecked: () -> Boolean, toggle: (Boolean) -> Unit) {
+        val switch = Switch(viewModel.context)
+        switch.text = context.translation.get(text)
+        switch.isChecked = isChecked()
+        applyTheme(viewModel, switch)
+        switch.setOnCheckedChangeListener { _: CompoundButton?, isChecked: Boolean ->
+            toggle(isChecked)
+        }
+        viewConsumer(switch)
+    }
+
     @SuppressLint("SetTextI18n", "UseSwitchCompatOrMaterialCode", "DefaultLocale")
     fun inject(viewModel: View, viewConsumer: ((View) -> Unit)) {
         val messaging = context.feature(Messaging::class)
@@ -201,21 +213,27 @@ class FriendFeedInfoMenu : AbstractMenu() {
             )
         }
 
-        if (context.config.bool(ConfigProperty.ANTI_DOWNLOAD_BUTTON)) {
-            val userId = context.database.getFriendFeedInfoByConversationId(conversationId)?.friendUserId ?: return
-
-            val antiAutoDownload = Switch(viewModel.context)
-            antiAutoDownload.text = context.translation.get("friend_menu_option.anti_auto_download")
-            antiAutoDownload.isChecked = context.feature(AntiAutoDownload::class).isUserIgnored(userId)
-            applyTheme(viewModel, antiAutoDownload)
-            antiAutoDownload.setOnCheckedChangeListener { _: CompoundButton?, isChecked: Boolean ->
-                context.feature(AntiAutoDownload::class).setUserIgnored(
-                    userId,
-                    isChecked
+        run {
+            val userId = context.database.getFriendFeedInfoByConversationId(conversationId)?.friendUserId ?: return@run
+            if (context.config.bool(ConfigProperty.ANTI_DOWNLOAD_BUTTON)) {
+                createToggleFeature(viewModel,
+                    viewConsumer,
+                    "friend_menu_option.anti_auto_download",
+                    { context.feature(AntiAutoDownload::class).isUserIgnored(userId) },
+                    { context.feature(AntiAutoDownload::class).setUserIgnored(userId, it) }
                 )
             }
-            viewConsumer(antiAutoDownload)
+
+            if (context.config.bool(ConfigProperty.ANTI_AUTO_SAVE)) {
+                createToggleFeature(viewModel,
+                    viewConsumer,
+                    "friend_menu_option.anti_auto_save",
+                    { context.feature(AntiAutoSave::class).isConversationIgnored(conversationId) },
+                    { context.feature(AntiAutoSave::class).setConversationIgnored(conversationId, it) }
+                )
+            }
         }
+
         viewConsumer(stealthSwitch)
         viewConsumer(previewButton)
     }

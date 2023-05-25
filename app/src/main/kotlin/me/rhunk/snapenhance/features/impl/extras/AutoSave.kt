@@ -71,7 +71,10 @@ class AutoSave : Feature("Auto Save", loadParams = FeatureLoadParams.ACTIVITY_CR
 
     private fun canSave(): Boolean {
         with(context.feature(Messaging::class)) {
-            if (lastOpenedConversationUUID == null || context.feature(StealthMode::class).isStealth(lastOpenedConversationUUID.toString())) return@canSave false
+            if (lastOpenedConversationUUID == null) return@canSave false
+            val conversation = lastOpenedConversationUUID.toString()
+            if (context.feature(StealthMode::class).isStealth(conversation)) return@canSave false
+            if (context.feature(AntiAutoSave::class).isConversationIgnored(conversation)) return@canSave false
         }
         return true
     }

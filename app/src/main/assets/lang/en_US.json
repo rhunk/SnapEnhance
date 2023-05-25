@@ -9,6 +9,10 @@
         "tweaks": "Tweaks",
         "experimental": "Experimental"
     },
+
+    "action": {
+        "clean_cache": "Clean Cache"
+    },
    
     "property": {
         "save_folder": "Save Folder",
@@ -32,6 +36,7 @@
         "message_preview_length": "Message Preview Length",
         "external_media_as_snap": "External Media As Snap",
         "auto_save": "Auto Save",
+        "anti_auto_save": "Anti Auto Save Button",
         "snapchat_plus": "Snapchat Plus",
         "remove_voice_record_button": "Remove Voice Record Button",
         "remove_stickers_button": "Remove Stickers Button",
@@ -48,7 +53,8 @@
     "friend_menu_option": {
         "preview": "Preview",
         "stealth_mode": "Stealth Mode",
-        "anti_auto_download": "Anti Auto Download"
+        "anti_auto_download": "Anti Auto Download",
+        "anti_auto_save": "Anti Auto Save"
     },
 
     "message_context_menu_option": {

@@ -121,6 +121,7 @@ enum class ConfigProperty(
         false
     ),
     AUTO_SAVE("property.auto_save", "description.auto_save", ConfigCategory.EXTRAS, false),
+    ANTI_AUTO_SAVE("property.anti_auto_save", "description.anti_auto_save", ConfigCategory.EXTRAS, false),
     SNAPCHAT_PLUS("property.snapchat_plus", "description.snapchat_plus", ConfigCategory.EXTRAS, false),
 
     REMOVE_VOICE_RECORD_BUTTON(
