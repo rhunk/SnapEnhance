@@ -21,7 +21,6 @@ class MediaQualityLevelOverride : Feature("MediaQualityLevelOverride", loadParam
                 context.longToast("Invalid media quality level: ${context.config.state(ConfigProperty.MEDIA_QUALITY_LEVEL)}")
                 return@hook
             }
-            Logger.debug("set media compression level to $currentCompressionLevel")
             param.setResult(currentCompressionLevel)
         }
     }
