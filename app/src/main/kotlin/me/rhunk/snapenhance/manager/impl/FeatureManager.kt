@@ -13,6 +13,7 @@ import me.rhunk.snapenhance.features.impl.extras.AutoSave
 import me.rhunk.snapenhance.features.impl.extras.ExternalMediaAsSnap
 import me.rhunk.snapenhance.features.impl.extras.Notifications
 import me.rhunk.snapenhance.features.impl.extras.SnapchatPlus
+import me.rhunk.snapenhance.features.impl.extras.UnlimitedSnapViewTime
 import me.rhunk.snapenhance.features.impl.privacy.DisableMetrics
 import me.rhunk.snapenhance.features.impl.privacy.PreventMessageSending
 import me.rhunk.snapenhance.features.impl.spy.AnonymousStoryViewing
@@ -64,6 +65,7 @@ class FeatureManager(private val context: ModContext) : Manager {
         register(AntiAutoDownload::class)
         register(ExternalMediaAsSnap::class)
         register(AntiAutoSave::class)
+        register(UnlimitedSnapViewTime::class)
 
         initializeFeatures()
     }

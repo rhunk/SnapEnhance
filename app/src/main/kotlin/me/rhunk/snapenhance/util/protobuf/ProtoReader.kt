@@ -113,6 +113,14 @@ class ProtoReader(private val buffer: ByteArray) {
         }
     }
 
+    fun list(reader: (id: Int, data: ByteArray) -> Unit) {
+        values.forEach { (id, wires) ->
+            wires.forEachIndexed { index, _ ->
+                reader(id, wires[index].value as ByteArray)
+            }
+        }
+    }
+
     fun eachExists(id: Int, reader: ProtoReader.(index: Int) -> Unit) {
         if (!exists(id)) {
             return

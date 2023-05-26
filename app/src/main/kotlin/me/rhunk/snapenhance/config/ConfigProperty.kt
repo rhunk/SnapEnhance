@@ -36,6 +36,7 @@ enum class ConfigProperty(
         false
     ),
     MESSAGE_LOGGER("property.message_logger", "description.message_logger", ConfigCategory.SPY, false),
+    UNLIMITED_SNAP_VIEW_TIME("property.unlimited_snap_view_time", "description.unlimited_snap_view_time", ConfigCategory.SPY, false),
 
     AUTO_DOWNLOAD_SNAPS(
         "property.auto_download_snaps",
