@@ -9,6 +9,7 @@ import me.rhunk.snapenhance.features.FeatureLoadParams
 import me.rhunk.snapenhance.hook.HookStage
 import me.rhunk.snapenhance.hook.Hooker
 import me.rhunk.snapenhance.util.protobuf.ProtoEditor
+import me.rhunk.snapenhance.util.protobuf.ProtoReader
 
 class UnlimitedSnapViewTime :
     Feature("UnlimitedSnapViewTime", loadParams = FeatureLoadParams.ACTIVITY_CREATE_SYNC) {
@@ -20,12 +21,15 @@ class UnlimitedSnapViewTime :
             if (message.messageState != MessageState.COMMITTED) return@hookConstructor
             if (message.messageContent.contentType != ContentType.SNAP) return@hookConstructor
 
-            message.messageContent.content = ProtoEditor(message.messageContent.content).apply {
-                edit(11, 5, 2) {
-                    writeConstant(5, 0)
-                    writeBuffer(6, byteArrayOf())
-                }
-            }.toByteArray()
+            with(message.messageContent) {
+                val hasSound = ProtoReader(this.content).getInt(11, 5, 2, 5)!!
+                this.content = ProtoEditor(this.content).apply {
+                    edit(11, 5, 2) {
+                        writeConstant(5, hasSound)
+                        writeBuffer(6, byteArrayOf())
+                    }
+                }.toByteArray()
+            }
         }
     }
 }
