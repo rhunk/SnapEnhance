@@ -43,7 +43,7 @@
         "remove_stickers_button": "Remove Stickers Button",
         "remove_cognac_button": "Remove Cognac Button",
         "remove_call_buttons": "Remove Call Buttons",
-        "long_snap_sending": "Long Snap Sending",
+        "disable_snap_splitting": "Disable Snap Splitting",
         "block_ads": "Block Ads",
         "streak_expiration_info": "Show Streak Expiration Info",
         "new_map_ui": "New Map UI",

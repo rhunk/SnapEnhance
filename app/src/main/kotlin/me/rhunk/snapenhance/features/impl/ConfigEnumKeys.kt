@@ -42,7 +42,7 @@ class ConfigEnumKeys : Feature("Config enum keys", loadParams = FeatureLoadParam
 
         hookAllEnums(context.mappings.getMappedClass("enums", "ARROYO")) { key, set ->
             if (key == "ENABLE_LONG_SNAP_SENDING") {
-                if (context.config.bool(ConfigProperty.LONG_SNAP_SENDING)) set(true)
+                if (context.config.bool(ConfigProperty.DISABLE_SNAP_SPLITTING)) set(true)
             }
         }
 

@@ -149,9 +149,9 @@ enum class ConfigProperty(
         ConfigCategory.TWEAKS,
         false
     ),
-    LONG_SNAP_SENDING(
-        "property.long_snap_sending",
-        "description.long_snap_sending",
+    DISABLE_SNAP_SPLITTING(
+        "property.disable_snap_splitting",
+        "description.disable_snap_splitting",
         ConfigCategory.TWEAKS,
         false
     ),
