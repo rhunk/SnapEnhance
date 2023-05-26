@@ -11,7 +11,8 @@
     },
 
     "action": {
-        "clean_cache": "Clean Cache"
+        "clean_cache": "Clean Cache",
+        "clear_message_logger": "Clear Message Logger"
     },
    
     "property": {

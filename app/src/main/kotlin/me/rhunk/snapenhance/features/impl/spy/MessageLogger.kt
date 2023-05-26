@@ -13,6 +13,7 @@ import me.rhunk.snapenhance.hook.Hooker
 class MessageLogger : Feature("MessageLogger", loadParams = FeatureLoadParams.INIT_SYNC or FeatureLoadParams.ACTIVITY_CREATE_SYNC) {
     private val messageCache = mutableMapOf<Long, String>()
     private val removedMessages = linkedSetOf<Long>()
+    private val myUserId by lazy { context.database.getMyUserId() }
 
     fun isMessageRemoved(messageId: Long) = removedMessages.contains(messageId)
 
@@ -33,6 +34,7 @@ class MessageLogger : Feature("MessageLogger", loadParams = FeatureLoadParams.IN
             val messageState = message.messageState
 
             if (messageState != MessageState.COMMITTED) return@hookConstructor
+
 
             if (contentType == ContentType.STATUS) {
                 //query the deleted message
@@ -64,6 +66,9 @@ class MessageLogger : Feature("MessageLogger", loadParams = FeatureLoadParams.IN
                 removedMessages.add(messageId)
                 return@hookConstructor
             }
+
+            //exclude messages sent by me
+            if (message.senderId.toString() == myUserId) return@hookConstructor
 
             if (!messageCache.containsKey(messageId)) {
                 context.executeAsync {

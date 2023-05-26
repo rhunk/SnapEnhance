@@ -3,6 +3,7 @@ package me.rhunk.snapenhance.manager.impl
 import me.rhunk.snapenhance.ModContext
 import me.rhunk.snapenhance.action.AbstractAction
 import me.rhunk.snapenhance.action.impl.CleanCache
+import me.rhunk.snapenhance.action.impl.ClearMessageLogger
 import me.rhunk.snapenhance.manager.Manager
 import kotlin.reflect.KClass
 
@@ -18,6 +19,7 @@ class ActionManager(
     }
     override fun init() {
         load(CleanCache::class)
+        load(ClearMessageLogger::class)
 
         actions.values.forEach(AbstractAction::init)
     }
