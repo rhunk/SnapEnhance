@@ -11,6 +11,10 @@ import android.widget.TextView
 import me.rhunk.snapenhance.BuildConfig
 import me.rhunk.snapenhance.Constants
 import me.rhunk.snapenhance.config.ConfigProperty
+import me.rhunk.snapenhance.config.impl.ConfigIntegerValue
+import me.rhunk.snapenhance.config.impl.ConfigStateListValue
+import me.rhunk.snapenhance.config.impl.ConfigStateValue
+import me.rhunk.snapenhance.config.impl.ConfigStringValue
 import me.rhunk.snapenhance.features.impl.ui.menus.AbstractMenu
 import me.rhunk.snapenhance.features.impl.ui.menus.ViewAppearanceHelper
 
@@ -35,7 +39,7 @@ class SettingsMenu : AbstractMenu() {
 
             val input = EditText(viewModel.context)
             input.inputType = InputType.TYPE_CLASS_TEXT
-            input.setText(context.config.get(property).toString())
+            input.setText(property.valueContainer.value().toString())
 
             builder.setView(input)
             builder.setPositiveButton("OK") { _, _ ->
@@ -46,34 +50,26 @@ class SettingsMenu : AbstractMenu() {
             builder.show()
         }
 
-        val resultView: View = when (property.defaultValue) {
-            is String -> {
+        val resultView: View = when (property.valueContainer) {
+            is ConfigStringValue -> {
                 val textView = TextView(viewModel.context)
-                updateButtonText(textView, context.config.string(property))
+                updateButtonText(textView, property.valueContainer.value)
                 ViewAppearanceHelper.applyTheme(viewModel, textView)
                 textView.setOnClickListener {
                     textEditor { value ->
-                        context.config.set(property, value)
+                        property.valueContainer.value = value
                         updateButtonText(textView, value)
                     }
                 }
                 textView
             }
-            is Number -> {
+            is ConfigIntegerValue -> {
                 val button = Button(viewModel.context)
-                updateButtonText(button, context.config.get(property).toString())
+                updateButtonText(button, property.valueContainer.value.toString())
                 button.setOnClickListener {
                     textEditor { value ->
                         runCatching {
-                            context.config.set(property, when (property.defaultValue) {
-                                is Int -> value.toInt()
-                                is Double -> value.toDouble()
-                                is Float -> value.toFloat()
-                                is Long -> value.toLong()
-                                is Short -> value.toShort()
-                                is Byte -> value.toByte()
-                                else -> throw IllegalArgumentException()
-                            })
+                            property.valueContainer.value = value.toInt()
                             updateButtonText(button, value)
                         }.onFailure {
                             context.shortToast("Invalid value")
@@ -83,15 +79,43 @@ class SettingsMenu : AbstractMenu() {
                 ViewAppearanceHelper.applyTheme(viewModel, button)
                 button
             }
-            is Boolean -> {
+            is ConfigStateValue -> {
                 val switch = Switch(viewModel.context)
                 switch.text = context.translation.get(property.nameKey)
-                switch.isChecked = context.config.bool(property)
+                switch.isChecked = property.valueContainer.value
                 switch.setOnCheckedChangeListener { _, isChecked ->
-                    context.config.set(property, isChecked)
+                    property.valueContainer.value = isChecked
                 }
                 ViewAppearanceHelper.applyTheme(viewModel, switch)
                 switch
+            }
+            is ConfigStateListValue -> {
+                val button = Button(viewModel.context)
+                updateButtonText(button, property.valueContainer.toString())
+
+                button.setOnClickListener {_ ->
+                    val builder = AlertDialog.Builder(viewModel.context)
+                    builder.setTitle(context.translation.get(property.nameKey))
+
+                    val sortedStates = property.valueContainer.states.toSortedMap()
+
+                    builder.setMultiChoiceItems(
+                        sortedStates.toSortedMap().map { context.translation.get("option." + property.nameKey + "." +it.key) }.toTypedArray(),
+                        sortedStates.map { it.value }.toBooleanArray()
+                    ) { _, which, isChecked ->
+                        sortedStates.keys.toList()[which].let { key ->
+                            property.valueContainer.states[key] = isChecked
+                        }
+                    }
+
+                    builder.setPositiveButton("OK") { _, _ ->
+                        updateButtonText(button, property.valueContainer.toString())
+                    }
+
+                    builder.show()
+                }
+                ViewAppearanceHelper.applyTheme(viewModel, button)
+                button
             }
             else -> {
                 TextView(viewModel.context)

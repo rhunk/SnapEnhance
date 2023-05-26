@@ -154,17 +154,35 @@ class Notifications : Feature("Notifications", loadParams = FeatureLoadParams.IN
         }.clear()
     }
 
+    private fun shouldIgnoreNotification(type: String): Boolean {
+        Logger.debug("notification type: $type")
+        val states = context.config.options(ConfigProperty.NOTIFICATION_FILTER)
+
+        states["snap"]?.let { if (type.endsWith("SNAP") && it) return true }
+        states["chat"]?.let { if (type.endsWith("CHAT") && it) return true }
+        states["typing"]?.let { if (type.endsWith("TYPING") && it) return true }
+
+        return false
+    }
+
     override fun init() {
         val fetchConversationWithMessagesCallback = context.mappings.getMappedClass("callbacks", "FetchConversationWithMessagesCallback")
 
-        Hooker.hook(notifyAsUserMethod, HookStage.BEFORE, { context.config.bool(ConfigProperty.SHOW_MESSAGE_CONTENT) }) {
-            val notificationData = NotificationData(it.argNullable(0), it.arg(1), it.arg(2), it.arg(3))
+        Hooker.hook(notifyAsUserMethod, HookStage.BEFORE) { param ->
+            val notificationData = NotificationData(param.argNullable(0), param.arg(1), param.arg(2), param.arg(3))
 
             val extras: Bundle = notificationData.notification.extras.getBundle("system_notification_extras")?: return@hook
 
             val messageId = extras.getString("message_id") ?: return@hook
             val notificationType = extras.getString("notification_type") ?: return@hook
             val conversationId = extras.getString("conversation_id") ?: return@hook
+
+            if (shouldIgnoreNotification(notificationType)) {
+                param.setResult(null)
+                return@hook
+            }
+
+            if (!context.config.bool(ConfigProperty.SHOW_MESSAGE_CONTENT_IN_NOTIFICATIONS)) return@hook
 
             if (!notificationType.endsWith("CHAT") && !notificationType.endsWith("SNAP")) return@hook
 
@@ -181,7 +199,7 @@ class Notifications : Feature("Notifications", loadParams = FeatureLoadParams.IN
                 }.build()
 
             fetchConversationWithMessagesMethod.invoke(conversationManager, SnapUUID.fromString(conversationId).instanceNonNull(), callback)
-            it.setResult(null)
+            param.setResult(null)
         }
 
         Hooker.hook(cancelAsUserMethod, HookStage.BEFORE) { param ->

@@ -10,16 +10,12 @@ import me.rhunk.snapenhance.manager.Manager
 import java.nio.charset.StandardCharsets
 
 class ConfigManager(
-    private val context: ModContext,
-    config: MutableMap<ConfigProperty, Any?> = mutableMapOf()
-) : ConfigAccessor(config), Manager {
-
-    private val propertyList = ConfigProperty.sortedByCategory()
+    private val context: ModContext
+) : ConfigAccessor(), Manager {
 
     override fun init() {
-        //generate default config
-        propertyList.forEach { key ->
-            set(key, key.defaultValue)
+        ConfigProperty.sortedByCategory().forEach { key ->
+            set(key, key.valueContainer)
         }
 
         if (!context.bridgeClient.isFileExists(BridgeFileType.CONFIG)) {
@@ -44,16 +40,15 @@ class ConfigManager(
             String(configContent, StandardCharsets.UTF_8),
             JsonObject::class.java
         )
-        propertyList.forEach { key ->
-            val value = context.gson.fromJson(configObject.get(key.name), key.defaultValue.javaClass) ?: key.defaultValue
-            set(key, value)
+        entries().forEach { (key, value) ->
+            value.read(configObject.get(key.name)?.asString ?: value.write())
         }
     }
 
     fun writeConfig() {
         val configObject = JsonObject()
-        propertyList.forEach { key ->
-            configObject.add(key.name, context.gson.toJsonTree(get(key)))
+        entries().forEach { (key, value) ->
+            configObject.addProperty(key.name, value.write())
         }
         context.bridgeClient.writeFile(
             BridgeFileType.CONFIG,

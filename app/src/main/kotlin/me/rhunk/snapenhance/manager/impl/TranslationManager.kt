@@ -1,5 +1,6 @@
 package me.rhunk.snapenhance.manager.impl
 
+import com.google.gson.JsonObject
 import com.google.gson.JsonParser
 import me.rhunk.snapenhance.Logger
 import me.rhunk.snapenhance.ModContext
@@ -22,15 +23,17 @@ class TranslationManager(
             return
         }
 
-        translations.asJsonObject.entrySet().forEach {
-            if (it.value.isJsonPrimitive) {
-                translationMap[it.key] = it.value.asString
-            }
-            if (!it.value.isJsonObject) return@forEach
-            it.value.asJsonObject.entrySet().forEach { entry ->
-                translationMap["${it.key}.${entry.key}"] = entry.value.asString
+        fun scanObject(jsonObject: JsonObject, prefix: String = "") {
+            jsonObject.entrySet().forEach {
+                if (it.value.isJsonPrimitive) {
+                    translationMap["$prefix${it.key}"] = it.value.asString
+                }
+                if (!it.value.isJsonObject) return@forEach
+                scanObject(it.value.asJsonObject, "$prefix${it.key}.")
             }
         }
+
+        scanObject(translations)
     }
 
 

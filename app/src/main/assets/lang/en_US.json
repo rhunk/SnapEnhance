@@ -18,7 +18,8 @@
         "save_folder": "Save Folder",
         "prevent_read_receipts": "Prevent Read Receipts",
         "hide_bitmoji_presence": "Hide Bitmoji Presence",
-        "show_message_content": "Show Message Content",
+        "show_message_content_in_notifications": "Show Message Content In Notifications",
+        "notification_filter": "Notification Filter",
         "message_logger": "Message Logger",
         "unlimited_snap_view_time": "Unlimited Snap View Time",
         "auto_download_snaps": "Auto Download Snaps",
@@ -49,7 +50,16 @@
         "new_map_ui": "New Map UI",
         "use_download_manager": "Use Android Download Manager"
     },
-   
+
+    "option": {
+        "property": {
+            "notification_filter": {
+                "chat": "Chat",
+                "snap": "Snap",
+                "typing": "Typing"
+            }
+        }
+    },
 
     "friend_menu_option": {
         "preview": "Preview",
