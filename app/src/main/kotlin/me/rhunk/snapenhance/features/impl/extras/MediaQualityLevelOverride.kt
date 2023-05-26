@@ -11,10 +11,6 @@ class MediaQualityLevelOverride : Feature("MediaQualityLevelOverride", loadParam
     override fun init() {
         val enumQualityLevel = context.mappings.getMappedClass("enums", "QualityLevel")
 
-        Hooker.hookConstructor(context.androidContext.classLoader.loadClass("hfj"), HookStage.AFTER) {
-            Logger.log(it.thisObject())
-        }
-
         Hooker.hook(context.mappings.getMappedClass("MediaQualityLevelProvider"),
             context.mappings.getMappedValue("MediaQualityLevelProviderMethod"),
             HookStage.BEFORE,

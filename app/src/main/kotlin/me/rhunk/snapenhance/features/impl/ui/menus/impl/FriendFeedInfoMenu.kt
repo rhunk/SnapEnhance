@@ -169,8 +169,8 @@ class FriendFeedInfoMenu : AbstractMenu() {
         switch.text = context.translation.get(text)
         switch.isChecked = isChecked()
         applyTheme(viewModel, switch)
-        switch.setOnCheckedChangeListener { _: CompoundButton?, isChecked: Boolean ->
-            toggle(isChecked)
+        switch.setOnCheckedChangeListener { _: CompoundButton?, checked: Boolean ->
+            toggle(checked)
         }
         viewConsumer(switch)
     }

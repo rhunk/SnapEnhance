@@ -190,12 +190,12 @@ class Notifications : Feature("Notifications", loadParams = FeatureLoadParams.IN
             notificationDataQueue[messageId.toLong()] = notificationData
 
             val callback = CallbackBuilder(fetchConversationWithMessagesCallback)
-                .override("onFetchConversationWithMessagesComplete") { param ->
-                    val messageList = (param.arg(1) as List<Any>).map { msg -> Message(msg) }
+                .override("onFetchConversationWithMessagesComplete") { callbackParam ->
+                    val messageList = (callbackParam.arg(1) as List<Any>).map { msg -> Message(msg) }
                     fetchMessagesResult(conversationId, messageList)
                 }
-                .override("onError") { param ->
-                    Logger.xposedLog("Failed to fetch message ${param.arg(0) as Any}")
+                .override("onError") {
+                    Logger.xposedLog("Failed to fetch message ${it.arg(0) as Any}")
                 }.build()
 
             fetchConversationWithMessagesMethod.invoke(conversationManager, SnapUUID.fromString(conversationId).instanceNonNull(), callback)

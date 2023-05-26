@@ -47,9 +47,9 @@ enum class ConfigProperty(
         ConfigStateListValue(
             listOf("snap", "chat", "typing"),
             mutableMapOf(
-                "snap" to true,
-                "chat" to true,
-                "typing" to true
+                "snap" to false,
+                "chat" to false,
+                "typing" to false
             )
         )
     ),
