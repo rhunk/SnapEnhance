@@ -77,6 +77,10 @@ class RootBridgeClient : AbstractBridgeClient() {
         messageLoggerWrapper.addMessage(id, message)
     }
 
+    override fun deleteMessageLoggerMessage(id: Long) {
+        messageLoggerWrapper.deleteMessage(id)
+    }
+
     override fun clearMessageLogger() {
         messageLoggerWrapper.clearMessages()
     }

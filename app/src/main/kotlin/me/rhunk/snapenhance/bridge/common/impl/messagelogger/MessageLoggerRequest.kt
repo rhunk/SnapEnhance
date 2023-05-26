@@ -24,6 +24,7 @@ class MessageLoggerRequest(
     enum class Action {
         ADD,
         GET,
-        CLEAR
+        CLEAR,
+        DELETE
     }
 }

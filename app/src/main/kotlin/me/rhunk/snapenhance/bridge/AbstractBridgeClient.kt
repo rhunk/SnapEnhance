@@ -82,6 +82,13 @@ abstract class AbstractBridgeClient {
     abstract fun addMessageLoggerMessage(id: Long, message: ByteArray)
 
     /**
+     * Delete a message from the message logger database
+     *
+     * @param id the ID of the message logger message
+     */
+    abstract fun deleteMessageLoggerMessage(id: Long)
+
+    /**
      * Clear the message logger database
      */
     abstract fun clearMessageLogger()

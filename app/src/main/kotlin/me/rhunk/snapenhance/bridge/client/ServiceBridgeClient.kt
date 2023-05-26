@@ -192,6 +192,14 @@ class ServiceBridgeClient: AbstractBridgeClient(), ServiceConnection {
         )
     }
 
+    override fun deleteMessageLoggerMessage(id: Long) {
+        sendMessage(
+            BridgeMessageType.MESSAGE_LOGGER_REQUEST,
+            MessageLoggerRequest(MessageLoggerRequest.Action.DELETE, id),
+            MessageLoggerResult::class
+        )
+    }
+
     override fun clearMessageLogger() {
         sendMessage(
             BridgeMessageType.MESSAGE_LOGGER_REQUEST,

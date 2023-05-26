@@ -15,6 +15,10 @@ class MessageLoggerWrapper(
         database.execSQL("CREATE TABLE IF NOT EXISTS messages (message_id INTEGER PRIMARY KEY, serialized_message BLOB)")
     }
 
+    fun deleteMessage(messageId: Long) {
+        database.execSQL("DELETE FROM messages WHERE message_id = ?", arrayOf(messageId.toString()))
+    }
+
     fun addMessage(messageId: Long, serializedMessage: ByteArray): Boolean {
         val cursor = database.rawQuery("SELECT message_id FROM messages WHERE message_id = ?", arrayOf(messageId.toString()))
         val state = cursor.moveToFirst()

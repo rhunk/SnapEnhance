@@ -14,6 +14,7 @@ import android.view.ViewGroup.MarginLayoutParams
 import android.widget.Button
 import me.rhunk.snapenhance.Constants.VIEW_INJECTED_CODE
 import me.rhunk.snapenhance.config.ConfigProperty
+import me.rhunk.snapenhance.features.impl.Messaging
 import me.rhunk.snapenhance.features.impl.downloader.MediaDownloader
 import me.rhunk.snapenhance.features.impl.ui.menus.AbstractMenu
 
@@ -86,6 +87,18 @@ class ChatActionMenu : AbstractMenu() {
             parent.addView(downloadButton)
         }
 
-        //TODO: delete logged message button
+        //delete logged message button
+        if (context.config.bool(ConfigProperty.MESSAGE_LOGGER)) {
+            val downloadButton = Button(viewGroup.context)
+            applyButtonTheme(parent, downloadButton)
+            downloadButton.text = "Deleted logged message"
+            downloadButton.setOnClickListener {
+                closeActionMenu()
+                context.executeAsync {
+                    context.bridgeClient.deleteMessageLoggerMessage(context.feature(Messaging::class).lastFocusedMessageId)
+                }
+            }
+            parent.addView(downloadButton)
+        }
     }
 }

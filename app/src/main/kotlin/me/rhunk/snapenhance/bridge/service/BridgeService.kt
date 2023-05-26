@@ -89,6 +89,9 @@ class BridgeService : Service() {
             MessageLoggerRequest.Action.CLEAR -> {
                 messageLoggerWrapper.clearMessages()
             }
+            MessageLoggerRequest.Action.DELETE -> {
+                messageLoggerWrapper.deleteMessage(msg.messageId!!)
+            }
             MessageLoggerRequest.Action.GET -> {
                 val (state, messageData) = messageLoggerWrapper.getMessage(msg.messageId!!)
                 reply(MessageLoggerResult(state, messageData).toMessage(BridgeMessageType.MESSAGE_LOGGER_RESULT.value))
