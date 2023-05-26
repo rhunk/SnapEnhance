@@ -173,6 +173,12 @@ enum class ConfigProperty(
         ConfigCategory.TWEAKS,
         ConfigStateValue(false)
     ),
+    DISABLE_VIDEO_LENGTH_RESTRICTION(
+        "property.disable_video_length_restriction",
+        "description.disable_video_length_restriction",
+        ConfigCategory.TWEAKS,
+        ConfigStateValue(false)
+    ),
     BLOCK_ADS("property.block_ads", "description.block_ads", ConfigCategory.TWEAKS, ConfigStateValue(false)),
     STREAK_EXPIRATION_INFO(
         "property.streak_expiration_info",

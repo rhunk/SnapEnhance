@@ -14,6 +14,7 @@ import me.rhunk.snapenhance.manager.Manager
 import me.rhunk.snapenhance.mapping.Mapper
 import me.rhunk.snapenhance.mapping.impl.CallbackMapper
 import me.rhunk.snapenhance.mapping.impl.EnumMapper
+import me.rhunk.snapenhance.mapping.impl.GridMediaItemMapper
 import me.rhunk.snapenhance.mapping.impl.OperaPageViewControllerMapper
 import me.rhunk.snapenhance.mapping.impl.PlusSubscriptionMapper
 import me.rhunk.snapenhance.util.getObjectField
@@ -27,6 +28,7 @@ class MappingManager(private val context: ModContext) : Manager {
         add(EnumMapper())
         add(OperaPageViewControllerMapper())
         add(PlusSubscriptionMapper())
+        add(GridMediaItemMapper())
     }
 
     private val mappings = ConcurrentHashMap<String, Any>()
