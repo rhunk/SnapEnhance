@@ -3,6 +3,7 @@ package me.rhunk.snapenhance.config
 import android.os.Environment
 import me.rhunk.snapenhance.config.impl.ConfigIntegerValue
 import me.rhunk.snapenhance.config.impl.ConfigStateListValue
+import me.rhunk.snapenhance.config.impl.ConfigStateSelection
 import me.rhunk.snapenhance.config.impl.ConfigStateValue
 import me.rhunk.snapenhance.config.impl.ConfigStringValue
 import java.io.File
@@ -143,6 +144,33 @@ enum class ConfigProperty(
     ANTI_AUTO_SAVE("property.anti_auto_save", "description.anti_auto_save", ConfigCategory.EXTRAS, ConfigStateValue(false)),
     SNAPCHAT_PLUS("property.snapchat_plus", "description.snapchat_plus", ConfigCategory.EXTRAS, ConfigStateValue(false)),
 
+    DISABLE_SNAP_SPLITTING(
+        "property.disable_snap_splitting",
+        "description.disable_snap_splitting",
+        ConfigCategory.TWEAKS,
+        ConfigStateValue(false)
+    ),
+    DISABLE_VIDEO_LENGTH_RESTRICTION(
+        "property.disable_video_length_restriction",
+        "description.disable_video_length_restriction",
+        ConfigCategory.TWEAKS,
+        ConfigStateValue(false)
+    ),
+    OVERRIDE_MEDIA_QUALITY(
+        "property.override_media_quality",
+        "description.override_media_quality",
+        ConfigCategory.TWEAKS,
+        ConfigStateValue(false)
+    ),
+    MEDIA_QUALITY_LEVEL(
+        "property.media_quality_level",
+        "description.media_quality_level",
+        ConfigCategory.TWEAKS,
+        ConfigStateSelection(
+            listOf("LEVEL_NONE", "LEVEL_1", "LEVEL_2", "LEVEL_3", "LEVEL_4", "LEVEL_5", "LEVEL_6", "LEVEL_7", "LEVEL_MAX"),
+            "LEVEL_NONE"
+        )
+    ),
     REMOVE_VOICE_RECORD_BUTTON(
         "property.remove_voice_record_button",
         "description.remove_voice_record_button",
@@ -164,18 +192,6 @@ enum class ConfigProperty(
     REMOVE_CALL_BUTTONS(
         "property.remove_call_buttons",
         "description.remove_call_buttons",
-        ConfigCategory.TWEAKS,
-        ConfigStateValue(false)
-    ),
-    DISABLE_SNAP_SPLITTING(
-        "property.disable_snap_splitting",
-        "description.disable_snap_splitting",
-        ConfigCategory.TWEAKS,
-        ConfigStateValue(false)
-    ),
-    DISABLE_VIDEO_LENGTH_RESTRICTION(
-        "property.disable_video_length_restriction",
-        "description.disable_video_length_restriction",
         ConfigCategory.TWEAKS,
         ConfigStateValue(false)
     ),

@@ -10,6 +10,7 @@ import me.rhunk.snapenhance.features.impl.downloader.AntiAutoDownload
 import me.rhunk.snapenhance.features.impl.downloader.MediaDownloader
 import me.rhunk.snapenhance.features.impl.extras.AntiAutoSave
 import me.rhunk.snapenhance.features.impl.extras.AutoSave
+import me.rhunk.snapenhance.features.impl.extras.MediaQualityLevelOverride
 import me.rhunk.snapenhance.features.impl.extras.DisableVideoLengthRestriction
 import me.rhunk.snapenhance.features.impl.extras.ExternalMediaAsSnap
 import me.rhunk.snapenhance.features.impl.extras.Notifications
@@ -68,6 +69,7 @@ class FeatureManager(private val context: ModContext) : Manager {
         register(AntiAutoSave::class)
         register(UnlimitedSnapViewTime::class)
         register(DisableVideoLengthRestriction::class)
+        register(MediaQualityLevelOverride::class)
 
         initializeFeatures()
     }
@@ -80,6 +82,7 @@ class FeatureManager(private val context: ModContext) : Manager {
                     action(feature)
                 }.onFailure {
                     Logger.xposedLog("Failed to init feature ${feature.nameKey}", it)
+                    context.longToast("Failed to init feature ${feature.nameKey}")
                 }
             }
             if (!isAsync) {

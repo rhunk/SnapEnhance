@@ -12,7 +12,8 @@
 
     "action": {
         "clean_cache": "Clean Cache",
-        "clear_message_logger": "Clear Message Logger"
+        "clear_message_logger": "Clear Message Logger",
+        "refresh_mappings": "Refresh Mappings"
     },
    
     "property": {
@@ -41,11 +42,14 @@
         "auto_save": "Auto Save",
         "anti_auto_save": "Anti Auto Save Button",
         "snapchat_plus": "Snapchat Plus",
+        "disable_snap_splitting": "Disable Snap Splitting",
+        "disable_video_length_restriction": "Disable Video Length Restriction",
+        "override_media_quality": "Override Media Quality",
+        "media_quality_level": "Media Quality Level",
         "remove_voice_record_button": "Remove Voice Record Button",
         "remove_stickers_button": "Remove Stickers Button",
         "remove_cognac_button": "Remove Cognac Button",
         "remove_call_buttons": "Remove Call Buttons",
-        "disable_snap_splitting": "Disable Snap Splitting",
         "block_ads": "Block Ads",
         "streak_expiration_info": "Show Streak Expiration Info",
         "new_map_ui": "New Map UI",
