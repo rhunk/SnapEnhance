@@ -13,6 +13,7 @@ import me.rhunk.snapenhance.Constants
 import me.rhunk.snapenhance.config.ConfigProperty
 import me.rhunk.snapenhance.config.impl.ConfigIntegerValue
 import me.rhunk.snapenhance.config.impl.ConfigStateListValue
+import me.rhunk.snapenhance.config.impl.ConfigStateSelection
 import me.rhunk.snapenhance.config.impl.ConfigStateValue
 import me.rhunk.snapenhance.config.impl.ConfigStringValue
 import me.rhunk.snapenhance.features.impl.ui.menus.AbstractMenu
@@ -88,6 +89,30 @@ class SettingsMenu : AbstractMenu() {
                 }
                 ViewAppearanceHelper.applyTheme(viewModel, switch)
                 switch
+            }
+            is ConfigStateSelection -> {
+                val button = Button(viewModel.context)
+                updateButtonText(button, property.valueContainer.value())
+
+                button.setOnClickListener {_ ->
+                    val builder = AlertDialog.Builder(viewModel.context)
+                    builder.setTitle(context.translation.get(property.nameKey))
+
+                    builder.setSingleChoiceItems(
+                        property.valueContainer.keys().toTypedArray(),
+                        property.valueContainer.keys().indexOf(property.valueContainer.value())
+                    ) { _, which ->
+                        property.valueContainer.value(property.valueContainer.keys()[which])
+                    }
+
+                    builder.setPositiveButton("OK") { _, _ ->
+                        updateButtonText(button, property.valueContainer.value())
+                    }
+
+                    builder.show()
+                }
+                ViewAppearanceHelper.applyTheme(viewModel, button)
+                button
             }
             is ConfigStateListValue -> {
                 val button = Button(viewModel.context)

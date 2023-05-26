@@ -44,6 +44,10 @@ open class ConfigAccessor(
         return get(key).value() as Map<String, Boolean>
     }
 
+    fun state(key: ConfigProperty): String {
+        return get(key).value() as String
+    }
+
     fun get(key: ConfigProperty): ConfigValue<*> {
         return configMap[key]!!
     }
