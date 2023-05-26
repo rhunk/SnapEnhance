@@ -5,7 +5,7 @@ plugins {
     id 'org.jetbrains.kotlin.android'
 }
 
-def appVersionName = "0.1.0"
+def appVersionName = "0.1.1"
 def appVersionCode = 1
 def lspatchReleaseUrl = "https://api.github.com/repos/LSPosed/LSPatch/releases/latest"
 
