@@ -12,7 +12,7 @@ import me.rhunk.snapenhance.features.impl.downloader.MediaDownloader
 import me.rhunk.snapenhance.features.impl.extras.AntiAutoSave
 import me.rhunk.snapenhance.features.impl.extras.AutoSave
 import me.rhunk.snapenhance.features.impl.extras.DisableVideoLengthRestriction
-import me.rhunk.snapenhance.features.impl.extras.ExternalMediaAsSnap
+import me.rhunk.snapenhance.features.impl.extras.GalleryMediaSendOverride
 import me.rhunk.snapenhance.features.impl.extras.MediaQualityLevelOverride
 import me.rhunk.snapenhance.features.impl.extras.Notifications
 import me.rhunk.snapenhance.features.impl.extras.SnapchatPlus
@@ -66,7 +66,7 @@ class FeatureManager(private val context: ModContext) : Manager {
         register(UITweaks::class)
         register(ConfigEnumKeys::class)
         register(AntiAutoDownload::class)
-        register(ExternalMediaAsSnap::class)
+        register(GalleryMediaSendOverride::class)
         register(AntiAutoSave::class)
         register(UnlimitedSnapViewTime::class)
         register(DisableVideoLengthRestriction::class)

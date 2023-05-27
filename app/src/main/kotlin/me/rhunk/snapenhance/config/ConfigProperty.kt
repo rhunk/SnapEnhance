@@ -134,11 +134,14 @@ enum class ConfigProperty(
         ConfigIntegerValue(20)
     ),
 
-    EXTERNAL_MEDIA_AS_SNAP(
-        "property.external_media_as_snap",
-        "description.external_media_as_snap",
+    GALLERY_MEDIA_SEND_OVERRIDE(
+        "property.gallery_media_send_override",
+        "description.gallery_media_send_override",
         ConfigCategory.EXTRAS,
-        ConfigStateValue(false)
+        ConfigStateSelection(
+            listOf("OFF", "NOTE", "SNAP"),
+            "OFF"
+        )
     ),
     AUTO_SAVE("property.auto_save", "description.auto_save", ConfigCategory.EXTRAS, ConfigStateValue(false)),
     ANTI_AUTO_SAVE("property.anti_auto_save", "description.anti_auto_save", ConfigCategory.EXTRAS, ConfigStateValue(false)),
