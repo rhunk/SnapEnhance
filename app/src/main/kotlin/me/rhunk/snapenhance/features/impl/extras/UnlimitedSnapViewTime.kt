@@ -22,10 +22,11 @@ class UnlimitedSnapViewTime :
             if (message.messageContent.contentType != ContentType.SNAP) return@hookConstructor
 
             with(message.messageContent) {
-                val hasSound = ProtoReader(this.content).getInt(11, 5, 2, 5)!!
                 this.content = ProtoEditor(this.content).apply {
                     edit(11, 5, 2) {
-                        writeConstant(5, hasSound)
+                        ProtoReader(this@with.content).getInt(11, 5, 2, 5)?.let {
+                            writeConstant(5, it)
+                        }
                         writeBuffer(6, byteArrayOf())
                     }
                 }.toByteArray()
