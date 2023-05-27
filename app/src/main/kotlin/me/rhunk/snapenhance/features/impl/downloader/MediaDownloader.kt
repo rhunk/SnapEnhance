@@ -143,10 +143,7 @@ class MediaDownloader : Feature("MediaDownloader", loadParams = FeatureLoadParam
     fun downloadLastOperaMediaAsync() {
         if (lastSeenMapParams == null || lastSeenMediaInfoMap == null) return
         context.executeAsync {
-            handleOperaMedia(
-                lastSeenMapParams!!,
-                lastSeenMediaInfoMap!!, true
-            )
+            handleOperaMedia(lastSeenMapParams!!, lastSeenMediaInfoMap!!, true)
         }
     }
 
@@ -224,14 +221,15 @@ class MediaDownloader : Feature("MediaDownloader", loadParams = FeatureLoadParam
         ) {
             val storyIdStartIndex = playlistV2Group.indexOf("storyUserId=") + 12
             val storyUserId = playlistV2Group.substring(storyIdStartIndex, playlistV2Group.indexOf(",", storyIdStartIndex))
-            val author = context.database.getFriendInfo(storyUserId)
+            val author = context.database.getFriendInfo(if (storyUserId == "null") context.database.getMyUserId()!! else storyUserId)
             downloadOperaMedia(mediaInfoMap, author!!.usernameForSorting!!)
             return
         }
         val snapSource = paramMap["SNAP_SOURCE"].toString()
 
         //public stories
-        if (snapSource == "PUBLIC_USER" && (forceDownload || context.config.bool(ConfigProperty.AUTO_DOWNLOAD_PUBLIC_STORIES))) {
+        if ((snapSource == "PUBLIC_USER" || snapSource == "SAVED_STORY") &&
+            (forceDownload || context.config.bool(ConfigProperty.AUTO_DOWNLOAD_PUBLIC_STORIES))) {
             val userDisplayName = (if (paramMap.containsKey("USER_DISPLAY_NAME")) paramMap["USER_DISPLAY_NAME"].toString() else "").replace(
                     "[^\\x00-\\x7F]".toRegex(),
                     "")
@@ -247,7 +245,7 @@ class MediaDownloader : Feature("MediaDownloader", loadParams = FeatureLoadParam
 
         //stories with mpeg dash media
         //TODO: option to download multiple chapters
-        if (paramMap.containsKey("SNAP_PLAYLIST_ITEM") && forceDownload) {
+        if (paramMap.containsKey("LONGFORM_VIDEO_PLAYLIST_ITEM") && forceDownload) {
             if (!isFFmpegPresent) {
                 context.shortToast("Can't download media. ffmpeg was not found")
                 return
@@ -293,6 +291,12 @@ class MediaDownloader : Feature("MediaDownloader", loadParams = FeatureLoadParam
             }
             return
         }
+
+        context.longToast("Download not implemented. Please report this issue!")
+        xposedLog("download not implemented issue:")
+        xposedLog("paramMap: ${paramMap.concurrentHashMap}")
+        xposedLog("mediaInfoMap: $mediaInfoMap")
+        xposedLog("forceDownload: $forceDownload")
     }
 
     private fun canAutoDownload(): Boolean {
