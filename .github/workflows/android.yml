@@ -44,8 +44,3 @@ jobs:
       with:
         name: app-prod-release
         path: app/build/outputs/apk/prod/debug/*.apk
-    - name: Upload lspatch
-      uses: actions/upload-artifact@v3.1.2
-      with:
-        name: app-lspatch-release
-        path: app/build/outputs/apk/lspatch/debug/*.apk
