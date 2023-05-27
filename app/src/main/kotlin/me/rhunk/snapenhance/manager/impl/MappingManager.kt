@@ -120,7 +120,11 @@ class MappingManager(private val context: ModContext) : Manager {
                     //ignore classes without a dot in them
                     if (className.contains(".") && !className.startsWith("com.snap")) return@fileList
                     runCatching {
-                        classLoader.loadClass(className)?.let { classes.add(it) }
+                        classLoader.loadClass(className)?.let {
+                            //force load fields to avoid ClassNotFoundExceptions when executing mappers
+                            it.declaredFields
+                            classes.add(it)
+                        }
                     }.onFailure {
                         Logger.debug("Failed to load class $className")
                     }
