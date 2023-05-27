@@ -53,7 +53,8 @@
         "block_ads": "Block Ads",
         "streak_expiration_info": "Show Streak Expiration Info",
         "new_map_ui": "New Map UI",
-        "use_download_manager": "Use Android Download Manager"
+        "use_download_manager": "Use Android Download Manager",
+        "meo_passcode_bypass": "My Eyes Only Passcode Bypass"
     },
 
     "option": {

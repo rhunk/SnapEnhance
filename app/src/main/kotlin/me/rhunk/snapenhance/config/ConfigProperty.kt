@@ -209,6 +209,12 @@ enum class ConfigProperty(
         "description.use_download_manager",
         ConfigCategory.EXPERIMENTAL,
         ConfigStateValue(false)
+    ),
+    MEO_PASSCODE_BYPASS(
+    "property.meo_passcode_bypass",
+    "description.meo_passcode_bypass",
+        ConfigCategory.EXPERIMENTAL,
+        ConfigStateValue(false)
     );
 
     companion object {

@@ -5,14 +5,15 @@ import me.rhunk.snapenhance.ModContext
 import me.rhunk.snapenhance.features.Feature
 import me.rhunk.snapenhance.features.FeatureLoadParams
 import me.rhunk.snapenhance.features.impl.ConfigEnumKeys
+import me.rhunk.snapenhance.features.impl.MeoPasscodeBypass
 import me.rhunk.snapenhance.features.impl.Messaging
 import me.rhunk.snapenhance.features.impl.downloader.AntiAutoDownload
 import me.rhunk.snapenhance.features.impl.downloader.MediaDownloader
 import me.rhunk.snapenhance.features.impl.extras.AntiAutoSave
 import me.rhunk.snapenhance.features.impl.extras.AutoSave
-import me.rhunk.snapenhance.features.impl.extras.MediaQualityLevelOverride
 import me.rhunk.snapenhance.features.impl.extras.DisableVideoLengthRestriction
 import me.rhunk.snapenhance.features.impl.extras.ExternalMediaAsSnap
+import me.rhunk.snapenhance.features.impl.extras.MediaQualityLevelOverride
 import me.rhunk.snapenhance.features.impl.extras.Notifications
 import me.rhunk.snapenhance.features.impl.extras.SnapchatPlus
 import me.rhunk.snapenhance.features.impl.extras.UnlimitedSnapViewTime
@@ -70,6 +71,7 @@ class FeatureManager(private val context: ModContext) : Manager {
         register(UnlimitedSnapViewTime::class)
         register(DisableVideoLengthRestriction::class)
         register(MediaQualityLevelOverride::class)
+        register(MeoPasscodeBypass::class)
 
         initializeFeatures()
     }
