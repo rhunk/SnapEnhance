@@ -12,6 +12,7 @@ import me.rhunk.snapenhance.ModContext
 import me.rhunk.snapenhance.bridge.common.impl.file.BridgeFileType
 import me.rhunk.snapenhance.manager.Manager
 import me.rhunk.snapenhance.mapping.Mapper
+import me.rhunk.snapenhance.mapping.impl.BCryptClassMapper
 import me.rhunk.snapenhance.mapping.impl.CallbackMapper
 import me.rhunk.snapenhance.mapping.impl.EnumMapper
 import me.rhunk.snapenhance.mapping.impl.GridMediaItemMapper
@@ -29,6 +30,7 @@ class MappingManager(private val context: ModContext) : Manager {
         add(OperaPageViewControllerMapper())
         add(PlusSubscriptionMapper())
         add(GridMediaItemMapper())
+        add(BCryptClassMapper())
     }
 
     private val mappings = ConcurrentHashMap<String, Any>()

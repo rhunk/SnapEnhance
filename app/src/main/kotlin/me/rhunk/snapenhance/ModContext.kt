@@ -60,6 +60,7 @@ class ModContext {
             runCatching {
                 runnable()
             }.onFailure {
+                longToast("Async task failed " + it.message)
                 Logger.xposedLog("Async task failed", it)
             }
         }

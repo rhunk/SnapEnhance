@@ -6,6 +6,7 @@ import java.lang.reflect.Method
 
 
 class PlusSubscriptionMapper : Mapper() {
+    @Suppress("PLATFORM_CLASS_MAPPED_TO_KOTLIN")
     override fun useClasses(
         classLoader: ClassLoader,
         classes: List<Class<*>>,
@@ -30,8 +31,8 @@ class PlusSubscriptionMapper : Mapper() {
 
         val members = mutableMapOf<String, Any>()
         loadSubscriptionMethod.returnType.declaredFields.forEach { field ->
-            val serializedNameAnnotation = field.declaredAnnotations.first()
-            val propertyName = serializedNameAnnotation.annotationClass.members.first { it.name == "name" }.call(serializedNameAnnotation) as String
+            val serializedNameAnnotation = (field.declaredAnnotations.first() as java.lang.annotation.Annotation)
+            val propertyName = serializedNameAnnotation.annotationType().getDeclaredMethod("name").also { it.isAccessible = true }.invoke(serializedNameAnnotation) as String
             members[propertyName] = field.name
         }
 

@@ -15,7 +15,7 @@ class ParamMap(obj: Any?) : AbstractWrapper(obj) {
         )!!
     }
 
-    private val concurrentHashMap: ConcurrentHashMap<Any, Any>
+    val concurrentHashMap: ConcurrentHashMap<Any, Any>
         get() = instanceNonNull().getObjectField(paramMapField.name) as ConcurrentHashMap<Any, Any>
 
     operator fun get(key: String): Any? {

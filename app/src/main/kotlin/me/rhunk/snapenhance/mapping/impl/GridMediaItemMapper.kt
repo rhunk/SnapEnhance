@@ -10,6 +10,7 @@ class GridMediaItemMapper : Mapper() {
         mappings: MutableMap<String, Any>
     ) {
         for (clazz in classes) {
+            if (clazz.isEnum || clazz.isInterface) continue
             if (clazz.annotations.isEmpty()) continue
             if (!clazz.annotations[0].toString().contains("typeReferences")) continue
             clazz.declaredFields.firstOrNull {
