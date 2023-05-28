@@ -1,4 +1,4 @@
-package me.rhunk.snapenhance.features.impl.extras
+package me.rhunk.snapenhance.features.impl.experiments
 
 import android.annotation.SuppressLint
 import android.app.AlertDialog
@@ -37,7 +37,11 @@ class AppPasscode : Feature("App Passcode", loadParams = FeatureLoadParams.ACTIV
             val alertDialog = prompt.create()
             val textView = EditText(mainActivity)
             textView.setSingleLine()
-            textView.inputType = if (isDigitPasscode) InputType.TYPE_CLASS_NUMBER else InputType.TYPE_CLASS_TEXT
+            textView.inputType = if (isDigitPasscode) {
+                (InputType.TYPE_CLASS_NUMBER or InputType.TYPE_NUMBER_VARIATION_PASSWORD)
+            } else {
+                (InputType.TYPE_CLASS_TEXT or InputType.TYPE_TEXT_VARIATION_PASSWORD)
+            }
             textView.hint = "Code :"
             textView.setPadding(100, 100, 100, 100)
 

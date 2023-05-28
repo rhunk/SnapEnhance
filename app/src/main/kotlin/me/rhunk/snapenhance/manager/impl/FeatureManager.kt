@@ -5,12 +5,12 @@ import me.rhunk.snapenhance.ModContext
 import me.rhunk.snapenhance.features.Feature
 import me.rhunk.snapenhance.features.FeatureLoadParams
 import me.rhunk.snapenhance.features.impl.ConfigEnumKeys
-import me.rhunk.snapenhance.features.impl.MeoPasscodeBypass
+import me.rhunk.snapenhance.features.impl.experiments.MeoPasscodeBypass
 import me.rhunk.snapenhance.features.impl.Messaging
 import me.rhunk.snapenhance.features.impl.downloader.AntiAutoDownload
 import me.rhunk.snapenhance.features.impl.downloader.MediaDownloader
 import me.rhunk.snapenhance.features.impl.extras.AntiAutoSave
-import me.rhunk.snapenhance.features.impl.extras.AppPasscode
+import me.rhunk.snapenhance.features.impl.experiments.AppPasscode
 import me.rhunk.snapenhance.features.impl.extras.AutoSave
 import me.rhunk.snapenhance.features.impl.extras.DisableVideoLengthRestriction
 import me.rhunk.snapenhance.features.impl.extras.GalleryMediaSendOverride
