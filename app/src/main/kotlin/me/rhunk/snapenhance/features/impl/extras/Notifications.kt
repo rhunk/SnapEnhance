@@ -155,8 +155,7 @@ class Notifications : Feature("Notifications", loadParams = FeatureLoadParams.IN
     }
 
     private fun shouldIgnoreNotification(type: String): Boolean {
-        Logger.debug("notification type: $type")
-        val states = context.config.options(ConfigProperty.NOTIFICATION_FILTER)
+        val states = context.config.options(ConfigProperty.NOTIFICATION_BLACKLIST)
 
         states["snap"]?.let { if (type.endsWith("SNAP") && it) return true }
         states["chat"]?.let { if (type.endsWith("CHAT") && it) return true }

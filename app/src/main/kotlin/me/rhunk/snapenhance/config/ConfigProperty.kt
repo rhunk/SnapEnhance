@@ -25,25 +25,25 @@ enum class ConfigProperty(
     PREVENT_READ_RECEIPTS(
         "property.prevent_read_receipts",
         "description.prevent_read_receipts",
-        ConfigCategory.SPY,
+        ConfigCategory.SPYING,
         ConfigStateValue(false)
     ),
     HIDE_BITMOJI_PRESENCE(
         "property.hide_bitmoji_presence",
         "description.hide_bitmoji_presence",
-        ConfigCategory.SPY,
+        ConfigCategory.SPYING,
         ConfigStateValue(false)
     ),
     SHOW_MESSAGE_CONTENT_IN_NOTIFICATIONS(
         "property.show_message_content_in_notifications",
         "description.show_message_content_in_notifications",
-        ConfigCategory.SPY,
+        ConfigCategory.SPYING,
         ConfigStateValue(false)
     ),
-    NOTIFICATION_FILTER(
-        "property.notification_filter",
-        "description.notification_filter",
-        ConfigCategory.SPY,
+    NOTIFICATION_BLACKLIST(
+        "property.notification_blacklist",
+        "description.notification_blacklist",
+        ConfigCategory.SPYING,
         ConfigStateListValue(
             listOf("snap", "chat", "typing"),
             mutableMapOf(
@@ -54,8 +54,8 @@ enum class ConfigProperty(
         )
     ),
 
-    MESSAGE_LOGGER("property.message_logger", "description.message_logger", ConfigCategory.SPY, ConfigStateValue(false)),
-    UNLIMITED_SNAP_VIEW_TIME("property.unlimited_snap_view_time", "description.unlimited_snap_view_time", ConfigCategory.SPY, ConfigStateValue(false)),
+    MESSAGE_LOGGER("property.message_logger", "description.message_logger", ConfigCategory.SPYING, ConfigStateValue(false)),
+    UNLIMITED_SNAP_VIEW_TIME("property.unlimited_snap_view_time", "description.unlimited_snap_view_time", ConfigCategory.SPYING, ConfigStateValue(false)),
 
     AUTO_DOWNLOAD_SNAPS(
         "property.auto_download_snaps",
@@ -134,6 +134,36 @@ enum class ConfigProperty(
         ConfigIntegerValue(20)
     ),
 
+    AUTO_SAVE("property.auto_save", "description.auto_save", ConfigCategory.EXTRAS, ConfigStateValue(false)),
+    ANTI_AUTO_SAVE("property.anti_auto_save", "description.anti_auto_save", ConfigCategory.EXTRAS, ConfigStateValue(false)),
+    SNAPCHAT_PLUS("property.snapchat_plus", "description.snapchat_plus", ConfigCategory.EXTRAS, ConfigStateValue(false)),
+    DISABLE_SNAP_SPLITTING(
+        "property.disable_snap_splitting",
+        "description.disable_snap_splitting",
+        ConfigCategory.EXTRAS,
+        ConfigStateValue(false)
+    ),
+    DISABLE_VIDEO_LENGTH_RESTRICTION(
+        "property.disable_video_length_restriction",
+        "description.disable_video_length_restriction",
+        ConfigCategory.EXTRAS,
+        ConfigStateValue(false)
+    ),
+    OVERRIDE_MEDIA_QUALITY(
+        "property.override_media_quality",
+        "description.override_media_quality",
+        ConfigCategory.EXTRAS,
+        ConfigStateValue(false)
+    ),
+    MEDIA_QUALITY_LEVEL(
+        "property.media_quality_level",
+        "description.media_quality_level",
+        ConfigCategory.EXTRAS,
+        ConfigStateSelection(
+            listOf("LEVEL_NONE", "LEVEL_1", "LEVEL_2", "LEVEL_3", "LEVEL_4", "LEVEL_5", "LEVEL_6", "LEVEL_7", "LEVEL_MAX"),
+            "LEVEL_NONE"
+        )
+    ),
     GALLERY_MEDIA_SEND_OVERRIDE(
         "property.gallery_media_send_override",
         "description.gallery_media_send_override",
@@ -143,37 +173,7 @@ enum class ConfigProperty(
             "OFF"
         )
     ),
-    AUTO_SAVE("property.auto_save", "description.auto_save", ConfigCategory.EXTRAS, ConfigStateValue(false)),
-    ANTI_AUTO_SAVE("property.anti_auto_save", "description.anti_auto_save", ConfigCategory.EXTRAS, ConfigStateValue(false)),
-    SNAPCHAT_PLUS("property.snapchat_plus", "description.snapchat_plus", ConfigCategory.EXTRAS, ConfigStateValue(false)),
 
-    DISABLE_SNAP_SPLITTING(
-        "property.disable_snap_splitting",
-        "description.disable_snap_splitting",
-        ConfigCategory.TWEAKS,
-        ConfigStateValue(false)
-    ),
-    DISABLE_VIDEO_LENGTH_RESTRICTION(
-        "property.disable_video_length_restriction",
-        "description.disable_video_length_restriction",
-        ConfigCategory.TWEAKS,
-        ConfigStateValue(false)
-    ),
-    OVERRIDE_MEDIA_QUALITY(
-        "property.override_media_quality",
-        "description.override_media_quality",
-        ConfigCategory.TWEAKS,
-        ConfigStateValue(false)
-    ),
-    MEDIA_QUALITY_LEVEL(
-        "property.media_quality_level",
-        "description.media_quality_level",
-        ConfigCategory.TWEAKS,
-        ConfigStateSelection(
-            listOf("LEVEL_NONE", "LEVEL_1", "LEVEL_2", "LEVEL_3", "LEVEL_4", "LEVEL_5", "LEVEL_6", "LEVEL_7", "LEVEL_MAX"),
-            "LEVEL_NONE"
-        )
-    ),
     REMOVE_VOICE_RECORD_BUTTON(
         "property.remove_voice_record_button",
         "description.remove_voice_record_button",
@@ -233,10 +233,6 @@ enum class ConfigProperty(
     );
 
     companion object {
-        fun fromNameKey(nameKey: String): ConfigProperty? {
-            return values().find { it.nameKey == nameKey }
-        }
-
         fun sortedByCategory(): List<ConfigProperty> {
             return values().sortedBy { it.category.ordinal }
         }

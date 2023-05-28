@@ -29,14 +29,14 @@ class DisableMetrics : Feature("DisableMetrics", loadParams = FeatureLoadParams.
         Hooker.hook(context.classCache.networkApi, "submit", HookStage.BEFORE, disableMetricsFilter) { param ->
             val httpRequest: Any = param.arg(0)
             val url = XposedHelpers.getObjectField(httpRequest, "mUrl").toString()
-            if (url.contains("resolve?co=")) {
+            /*if (url.contains("resolve?co=")) {
                 val index = url.indexOf("co=")
                 val end = url.lastIndexOf("&")
                 val co = url.substring(index + 3, end)
                 val decoded = Base64.getDecoder().decode(co.toByteArray(StandardCharsets.UTF_8))
                 debug("decoded : " + decoded.toString(Charsets.UTF_8))
                 debug("content: $co")
-            }
+            }*/
             if (url.contains("app-analytics") || url.endsWith("v1/metrics")) {
                 param.setResult(null)
             }

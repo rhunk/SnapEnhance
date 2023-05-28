@@ -21,7 +21,7 @@ import me.rhunk.snapenhance.data.wrapper.impl.media.opera.ParamMap
 import me.rhunk.snapenhance.features.Feature
 import me.rhunk.snapenhance.features.FeatureLoadParams
 import me.rhunk.snapenhance.features.impl.Messaging
-import me.rhunk.snapenhance.features.impl.spy.MessageLogger
+import me.rhunk.snapenhance.features.impl.spying.MessageLogger
 import me.rhunk.snapenhance.hook.HookAdapter
 import me.rhunk.snapenhance.hook.HookStage
 import me.rhunk.snapenhance.hook.Hooker
@@ -62,7 +62,7 @@ class MediaDownloader : Feature("MediaDownloader", loadParams = FeatureLoadParam
         return isFFmpegPresent
     }
 
-    private fun createNewFilePath(hash: Int, author: String, fileType: FileType): String? {
+    private fun createNewFilePath(hash: Int, author: String, fileType: FileType): String {
         val hexHash = Integer.toHexString(hash)
         return author + "/" + hexHash + "." + fileType.fileExtension
     }

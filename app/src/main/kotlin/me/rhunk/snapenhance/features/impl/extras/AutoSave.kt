@@ -8,8 +8,8 @@ import me.rhunk.snapenhance.data.wrapper.impl.SnapUUID
 import me.rhunk.snapenhance.features.Feature
 import me.rhunk.snapenhance.features.FeatureLoadParams
 import me.rhunk.snapenhance.features.impl.Messaging
-import me.rhunk.snapenhance.features.impl.spy.MessageLogger
-import me.rhunk.snapenhance.features.impl.spy.StealthMode
+import me.rhunk.snapenhance.features.impl.spying.MessageLogger
+import me.rhunk.snapenhance.features.impl.spying.StealthMode
 import me.rhunk.snapenhance.hook.HookStage
 import me.rhunk.snapenhance.hook.Hooker
 import me.rhunk.snapenhance.util.CallbackBuilder

@@ -2,9 +2,8 @@ package me.rhunk.snapenhance.features.impl.ui.menus.impl
 
 import android.annotation.SuppressLint
 import android.content.res.Resources
-import android.graphics.BlendMode
-import android.graphics.BlendModeColorFilter
 import android.graphics.Color
+import android.graphics.drawable.ColorDrawable
 import android.os.SystemClock
 import android.util.TypedValue
 import android.view.MotionEvent
@@ -27,7 +26,7 @@ class ChatActionMenu : AbstractMenu() {
     }
 
     private fun applyButtonTheme(parent: View, button: Button) {
-        button.background.colorFilter = BlendModeColorFilter(Color.WHITE, BlendMode.SRC_ATOP)
+        button.background = ColorDrawable(Color.WHITE)
         button.setTextColor(Color.BLACK)
         button.transformationMethod = null
         val margin = TypedValue.applyDimension(

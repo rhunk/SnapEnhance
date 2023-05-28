@@ -20,10 +20,10 @@ import me.rhunk.snapenhance.features.impl.extras.SnapchatPlus
 import me.rhunk.snapenhance.features.impl.extras.UnlimitedSnapViewTime
 import me.rhunk.snapenhance.features.impl.privacy.DisableMetrics
 import me.rhunk.snapenhance.features.impl.privacy.PreventMessageSending
-import me.rhunk.snapenhance.features.impl.spy.AnonymousStoryViewing
-import me.rhunk.snapenhance.features.impl.spy.MessageLogger
-import me.rhunk.snapenhance.features.impl.spy.PreventReadReceipts
-import me.rhunk.snapenhance.features.impl.spy.StealthMode
+import me.rhunk.snapenhance.features.impl.spying.AnonymousStoryViewing
+import me.rhunk.snapenhance.features.impl.spying.MessageLogger
+import me.rhunk.snapenhance.features.impl.spying.PreventReadReceipts
+import me.rhunk.snapenhance.features.impl.spying.StealthMode
 import me.rhunk.snapenhance.features.impl.ui.UITweaks
 import me.rhunk.snapenhance.features.impl.ui.menus.MenuViewInjector
 import me.rhunk.snapenhance.manager.Manager
@@ -37,7 +37,6 @@ class FeatureManager(private val context: ModContext) : Manager {
     private fun register(featureClass: KClass<out Feature>) {
         runCatching {
             with(featureClass.java.newInstance()) {
-                if (loadParams and FeatureLoadParams.NO_INIT != 0) return@with
                 context = this@FeatureManager.context
                 features.add(this)
             }

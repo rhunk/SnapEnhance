@@ -31,7 +31,7 @@ If the software is redistributed, it must remain under the same GPLv3 license an
 </details>
 
 <details open>
-  <summary>Spy</summary>
+  <summary>Spying</summary>
 
   - Anonymous story viewing (other users won't know you viewed their story)
   - Message logger (log all messages sent and received, you will be able to see deleted messages)
@@ -59,3 +59,8 @@ You can also download the latest build from the [actions](https://github.com/rhu
 - BCH: qpu57a05kqljjadvpgjc6t894apprvth9slvlj4vpj
 - Bitcoin: bc1qaqnfn6mauzhmx0e6kkenh2wh4r6js0vh5vel92
 - ETH: 0x0760987491e9de53A73fd87F092Bd432a227Ee92
+
+## Contributors
+- [rathmerdominik](https://github.com/rathmerdominik)
+- [Flole998](https://github.com/Flole998)
+- [authorisation](https://github.com/authorisation/)
