@@ -289,14 +289,7 @@ class MediaDownloader : Feature("MediaDownloader", loadParams = FeatureLoadParam
                 context.longToast("Failed to download media: ${it.message}")
                 xposedLog(it)
             }
-            return
         }
-
-        context.longToast("Download not implemented. Please report this issue!")
-        xposedLog("download not implemented issue:")
-        xposedLog("paramMap: ${paramMap.concurrentHashMap}")
-        xposedLog("mediaInfoMap: $mediaInfoMap")
-        xposedLog("forceDownload: $forceDownload")
     }
 
     private fun canAutoDownload(): Boolean {
