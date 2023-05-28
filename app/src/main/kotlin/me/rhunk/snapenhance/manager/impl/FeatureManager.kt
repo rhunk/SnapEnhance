@@ -10,6 +10,7 @@ import me.rhunk.snapenhance.features.impl.Messaging
 import me.rhunk.snapenhance.features.impl.downloader.AntiAutoDownload
 import me.rhunk.snapenhance.features.impl.downloader.MediaDownloader
 import me.rhunk.snapenhance.features.impl.extras.AntiAutoSave
+import me.rhunk.snapenhance.features.impl.extras.AppPasscode
 import me.rhunk.snapenhance.features.impl.extras.AutoSave
 import me.rhunk.snapenhance.features.impl.extras.DisableVideoLengthRestriction
 import me.rhunk.snapenhance.features.impl.extras.GalleryMediaSendOverride
@@ -72,6 +73,7 @@ class FeatureManager(private val context: ModContext) : Manager {
         register(DisableVideoLengthRestriction::class)
         register(MediaQualityLevelOverride::class)
         register(MeoPasscodeBypass::class)
+        register(AppPasscode::class)
 
         initializeFeatures()
     }

@@ -213,6 +213,18 @@ enum class ConfigProperty(
         ConfigCategory.EXPERIMENTAL,
         ConfigStateValue(false)
     ),
+    APP_PASSCODE(
+        "property.app_passcode",
+        "description.app_passcode",
+        ConfigCategory.EXPERIMENTAL,
+        ConfigStringValue("")
+    ),
+    APP_LOCK_ON_RESUME(
+        "property.app_lock_on_resume",
+        "description.app_lock_on_resume",
+        ConfigCategory.EXPERIMENTAL,
+        ConfigStateValue(false)
+    ),
     MEO_PASSCODE_BYPASS(
     "property.meo_passcode_bypass",
     "description.meo_passcode_bypass",

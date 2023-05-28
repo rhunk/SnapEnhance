@@ -8,10 +8,6 @@ import me.rhunk.snapenhance.Constants
 class MainActivity : Activity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        if (intent.getBooleanExtra("is_from_bridge", false)) {
-            finish()
-            return
-        }
         packageManager.getLaunchIntentForPackage(Constants.SNAPCHAT_PACKAGE_NAME)?.apply {
             addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
             startActivity(this)

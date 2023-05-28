@@ -54,6 +54,8 @@
         "streak_expiration_info": "Show Streak Expiration Info",
         "new_map_ui": "New Map UI",
         "use_download_manager": "Use Android Download Manager",
+        "app_passcode": "Set App Passcode",
+        "app_lock_on_resume": "App Lock On Resume",
         "meo_passcode_bypass": "My Eyes Only Passcode Bypass"
     },
 
