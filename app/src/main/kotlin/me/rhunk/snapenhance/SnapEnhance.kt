@@ -22,7 +22,6 @@ class SnapEnhance {
     private val appContext = ModContext()
 
     init {
-
         Hooker.hook(Application::class.java, "attach", HookStage.BEFORE) { param ->
             appContext.androidContext = param.arg<Context>(0).also {
                 classLoader = it.classLoader

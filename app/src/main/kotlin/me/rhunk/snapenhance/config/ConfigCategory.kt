@@ -4,11 +4,11 @@ enum class ConfigCategory(
     val key: String
 ) {
     GENERAL("category.general"),
-    SPY("category.spy"),
+    SPYING("category.spying"),
     MEDIA_DOWNLOADER("category.media_download"),
     PRIVACY("category.privacy"),
     UI("category.ui"),
-    EXTRAS("category.extras"),
     TWEAKS("category.tweaks"),
-    EXPERIMENTAL("category.experimental");
+    EXPERIMENTAL("category.experimental"),
+    DEBUGGING("category.debugging");
 }

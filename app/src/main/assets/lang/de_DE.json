@@ -1,13 +1,13 @@
 {
     "category": {
         "general": "Allgemein",
-        "spy": "Spy",
+        "spy": "Spying",
         "media_download": "Media Downloader",
         "privacy": "Privatsphäre",
-        "ui": "UI",
+        "ui": "UI Tweaks",
         "extras": "Extras",
         "tweaks": "Tweaks",
-        "experimental": "Experimentell"
+        "debugging": "Debugging"
     },
 
     "property": {

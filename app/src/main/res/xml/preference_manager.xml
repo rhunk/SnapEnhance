@@ -1,0 +1,231 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- FIXME: add i18n support -->
+<PreferenceScreen xmlns:tools="http://schemas.android.com/tools"
+    xmlns:android="http://schemas.android.com/apk/res/android">
+    <PreferenceCategory
+        android:title="General"
+        tools:ignore="TextContrastCheck">
+        <EditTextPreference
+            android:defaultValue="/storage/emulated/0/DCIM/Snapchat"
+            android:key="SAVE_FOLDER"
+            android:selectAllOnFocus="true"
+            android:singleLine="true"
+            android:summary="Select the folder to which images will be downloaded to. By default: /storage/emulated/0/DCIM/Snapchat"
+            android:title="Save Folder"
+            android:visibility="visible" />
+    </PreferenceCategory>
+<PreferenceCategory android:title="Spying 👀">
+    <SwitchPreference
+        android:defaultValue="false"
+        android:key="PREVENT_READ_RECEIPTS"
+        android:summary="Prevent Read receipts from being sent in chat."
+        android:title="Prevent Read receipts" />
+    <SwitchPreference
+        android:defaultValue="false"
+        android:key="HIDE_BITMOJI_PRESENCE"
+        android:summary="Prevent your bitmoji from being seen while in chat."
+        android:title="Hide Bitmoji presence" />
+    <SwitchPreference
+        android:defaultValue="false"
+        android:key="SHOW_MESSAGE_CONTENT_IN_NOTIFICATIONS"
+        android:summary="Show message content in notifications."
+        android:title="Show message content" />
+    <!-- FIXME: Might not work correctly -->
+    <MultiSelectListPreference
+        android:entries="@array/notification_message_sections"
+        android:entryValues="@array/notification_message_values"
+        android:key="NOTIFICATION_FILTER"
+        android:summary="Select the type of messages for which to show notifications. Might not work as expected! 🚫"
+        android:title="Message content whitelist 🚫" />
+    <SwitchPreference
+        android:defaultValue="false"
+        android:key="MESSAGE_LOGGER"
+        android:summary="Prevents messages from being removed from chat."
+        android:title="Message logger" />
+    <SwitchPreference
+        android:defaultValue="false"
+        android:key="UNLIMITED_SNAP_VIEW_TIME"
+        android:summary="Prevent Snaps from automatically closing after a specific amount of time."
+        android:title="Unlimited Snap View time" />
+</PreferenceCategory>
+<PreferenceCategory android:title="Media downloader">
+    <SwitchPreference
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:defaultValue="false"
+        android:key="AUTO_DOWNLOAD_SNAPS"
+        android:summary="Automatically downloads Snaps on viewing."
+        android:title="Auto Download Snaps" />
+    <SwitchPreference
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:defaultValue="false"
+        android:key="AUTO_DOWNLOAD_STORIES"
+        android:summary="Automatically downloads Stories on viewing."
+        android:title="Auto Download Stories" />
+    <SwitchPreference
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:defaultValue="false"
+        android:key="AUTO_DOWNLOAD_PUBLIC_STORIES"
+        android:summary="Automatically downloads Public Stories on viewing."
+        android:title="Auto Download Public Stories" />
+    <SwitchPreference
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:defaultValue="false"
+        android:key="AUTO_DOWNLOAD_SPOTLIGHT"
+        android:summary="Automatically downloads Spotlight videos on viewing."
+        android:title="Auto Download Spotlight" />
+    <SwitchPreference
+        android:defaultValue="false"
+        android:key="OVERLAY_MERGE"
+        android:summary="Merges Snap text or stickers into the downloaded files instead of downloading the raw file. "
+        android:title="Merge Image Overlay" />
+    <SwitchPreference
+        android:defaultValue="false"
+        android:key="DOWNLOAD_INCHAT_SNAPS"
+        android:summary="Automatically downloads snaps that were viewed while being inchat."
+        android:title="Download Inchat Snaps" />
+    <SwitchPreference
+        android:defaultValue="false"
+        android:key="ANTI_DOWNLOAD_BUTTON"
+        android:summary="Adds a button to users profile that blacklists their snaps from being automatically downloaded."
+        android:title="Add Anti Auto Download Button" />
+    <SwitchPreference
+        android:defaultValue="false"
+        android:key="ANTI_AUTO_SAVE"
+        android:summary="Adds a button to users profile that blacklists their chats from being automatically saved."
+        android:title="Add Anti Auto Save Button" />
+</PreferenceCategory>
+<PreferenceCategory android:title="Privacy 🔒">
+    <SwitchPreference
+        android:defaultValue="false"
+        android:key="BLOCK_ADS"
+        android:summary="Blocks Ads from showing in the Snapchat app."
+        android:title="Block Ads" />
+    <SwitchPreference
+        android:defaultValue="false"
+        android:key="DISABLE_METRICS"
+        android:summary="Routes metrics to the localhost IP, preventing them from being sent to Snapchat."
+        android:title="Nullroute metrics" />
+    <SwitchPreference
+        android:defaultValue="false"
+        android:key="PREVENT_SCREENSHOT_NOTIFICATIONS"
+        android:summary="Prevents screenshot notifications from being sent."
+        android:title="Prevent Screenshot notification" />
+    <SwitchPreference
+        android:defaultValue="false"
+        android:key="PREVENT_STATUS_NOTIFICATIONS"
+        android:summary="No fucking idea what this is supposed to do."
+        android:title="Prevent status notifications" />
+    <SwitchPreference
+        android:defaultValue="false"
+        android:key="ANONYMOUS_STORY_VIEW"
+        android:summary="Prevents Read receipts from being sent upon looking at a story."
+        android:title="Anonymous Story view" />
+    <SwitchPreference
+        android:defaultValue="false"
+        android:key="HIDE_TYPING_NOTIFICATION"
+        android:summary="Prevents typing notifications from being sent."
+        android:title="Prevent Typing notifications" />
+</PreferenceCategory>
+<PreferenceCategory android:title="UI Tweaks 🧪">
+    <MultiSelectListPreference
+        android:entries="@array/ui_hide_tweaks_sections"
+        android:entryValues="@array/ui_hide_values"
+        android:iconSpaceReserved="false"
+        android:key="hide_ui_elements"
+        android:summary="Hides selected UI Elements"
+        android:title="Hide UI Elements" />
+    <EditTextPreference
+        android:defaultValue="1"
+        android:key="MENU_SLOT_ID"
+        android:selectAllOnFocus="true"
+        android:singleLine="true"
+        android:summary="Position of the element in the context menu. By default: 1"
+        android:title="Friend menu slot ID" />
+    <EditTextPreference
+        android:defaultValue="20"
+        android:key="MESSAGE_PREVIEW_LENGTH"
+        android:selectAllOnFocus="true"
+        android:singleLine="true"
+        android:summary="Specifies how many messages to show in the preview. By default: 20"
+        android:title="Message Preview length" />
+    <SwitchPreference
+        android:defaultValue="false"
+        android:key="NEW_MAP_UI"
+        android:summary="Enables the hidden new Map UI. Experimental"
+        android:title="Enable experimental Map UI" />
+    <SwitchPreference
+        android:defaultValue="false"
+        android:key="STREAK_EXPIRATION_INFO"
+        android:summary="Shows when a specific Streak would expire."
+        android:title="Show Streak Expiration" />
+</PreferenceCategory>
+<PreferenceCategory android:title="Tweaks">
+    <SwitchPreference
+        android:defaultValue="false"
+        android:key="EXTERNAL_MEDIA_AS_SNAP"
+        android:summary="Sends external media (ex. Camera Roll) as a live snap."
+        android:title="Send External media as snap" />
+    <SwitchPreference
+        android:defaultValue="false"
+        android:key="AUTO_SAVE"
+        android:summary="Automatically saves messages sent in chat."
+        android:title="Auto Save Messages" />
+    <SwitchPreference
+        android:defaultValue="false"
+        android:key="SNAPCHAT_PLUS"
+        android:summary="Spoofs Snapchat Plus subscriber status. WARNING: only client-sided features are working!"
+        android:title="Snapchat Plus" />
+    <SwitchPreference
+        android:defaultValue="false"
+        android:key="DISABLE_VIDEO_LENGTH_RESTRICTION"
+        android:summary="Disable the maximum amount of time a Video Snap can be."
+        android:title="Disable Snap length restriction" />
+    <SwitchPreference
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:defaultValue="false"
+        android:key="DISABLE_SNAP_SPLITTING"
+        android:summary="Prevents Snaps from being split upon sending."
+        android:title="Prevent Snap Splitting" />
+</PreferenceCategory>
+    <PreferenceCategory android:title="Experimental"
+        tools:ignore="TextContrastCheck">
+        <SwitchPreference
+            android:defaultValue="false"
+            android:key="USE_DOWNLOAD_MANAGER"
+            android:summary="Enables the Android Download Manager."
+            android:title="Enable Android Download Manager" />
+        <SwitchPreference
+            android:defaultValue="false"
+            android:key="OVERRIDE_MEDIA_QUALITY"
+            android:summary="Override Snapchat's Media Quality"
+            android:title="Override Media Quality" />
+        <MultiSelectListPreference
+            android:entries="@array/media_quality"
+            android:entryValues="@array/media_quality_values"
+            android:iconSpaceReserved="false"
+            android:key="MEDIA_QUALITY_LEVEL"
+            android:summary="Select the Level of quality to be shown"
+            android:title="Hide UI Elements" />
+        <SwitchPreference
+            android:defaultValue="false"
+            android:key="MEO_PASSCODE_BYPASS"
+            android:summary="Bypasses My Eyes Only Passcode requirement"
+            android:title="My Eyes Only Passcode Bypass" />
+    </PreferenceCategory>
+    <PreferenceCategory android:title="Debugging"
+        tools:ignore="TextContrastCheck">
+        <Preference
+            android:key="CLEAR_CACHE"
+            android:summary="Clears temporary cache, useful if something isn't working how it's supposed to."
+            android:title="Clear cache" />
+        <Preference
+            android:key="CLEAR_MAPPINGS"
+            android:summary="Refreshes mappings, useful if something isn't working how it's supposed to."
+            android:title="Refresh mappings" />
+    </PreferenceCategory>
+</PreferenceScreen>

@@ -17,33 +17,32 @@ enum class ConfigProperty(
     SAVE_FOLDER(
         "property.save_folder", "description.save_folder", ConfigCategory.GENERAL,
         ConfigStringValue(File(
-            Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DCIM).absolutePath + "/Snapchat",
-            "SnapEnhance"
+            Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DCIM).absolutePath + "/Snapchat"
         ).absolutePath)
     ),
 
     PREVENT_READ_RECEIPTS(
         "property.prevent_read_receipts",
         "description.prevent_read_receipts",
-        ConfigCategory.SPY,
+        ConfigCategory.SPYING,
         ConfigStateValue(false)
     ),
     HIDE_BITMOJI_PRESENCE(
         "property.hide_bitmoji_presence",
         "description.hide_bitmoji_presence",
-        ConfigCategory.SPY,
+        ConfigCategory.SPYING,
         ConfigStateValue(false)
     ),
     SHOW_MESSAGE_CONTENT_IN_NOTIFICATIONS(
         "property.show_message_content_in_notifications",
         "description.show_message_content_in_notifications",
-        ConfigCategory.SPY,
+        ConfigCategory.SPYING,
         ConfigStateValue(false)
     ),
     NOTIFICATION_FILTER(
         "property.notification_filter",
         "description.notification_filter",
-        ConfigCategory.SPY,
+        ConfigCategory.SPYING,
         ConfigStateListValue(
             listOf("snap", "chat", "typing"),
             mutableMapOf(
@@ -54,8 +53,8 @@ enum class ConfigProperty(
         )
     ),
 
-    MESSAGE_LOGGER("property.message_logger", "description.message_logger", ConfigCategory.SPY, ConfigStateValue(false)),
-    UNLIMITED_SNAP_VIEW_TIME("property.unlimited_snap_view_time", "description.unlimited_snap_view_time", ConfigCategory.SPY, ConfigStateValue(false)),
+    MESSAGE_LOGGER("property.message_logger", "description.message_logger", ConfigCategory.SPYING, ConfigStateValue(false)),
+    UNLIMITED_SNAP_VIEW_TIME("property.unlimited_snap_view_time", "description.unlimited_snap_view_time", ConfigCategory.SPYING, ConfigStateValue(false)),
 
     AUTO_DOWNLOAD_SNAPS(
         "property.auto_download_snaps",
@@ -137,12 +136,12 @@ enum class ConfigProperty(
     EXTERNAL_MEDIA_AS_SNAP(
         "property.external_media_as_snap",
         "description.external_media_as_snap",
-        ConfigCategory.EXTRAS,
+        ConfigCategory.TWEAKS,
         ConfigStateValue(false)
     ),
-    AUTO_SAVE("property.auto_save", "description.auto_save", ConfigCategory.EXTRAS, ConfigStateValue(false)),
-    ANTI_AUTO_SAVE("property.anti_auto_save", "description.anti_auto_save", ConfigCategory.EXTRAS, ConfigStateValue(false)),
-    SNAPCHAT_PLUS("property.snapchat_plus", "description.snapchat_plus", ConfigCategory.EXTRAS, ConfigStateValue(false)),
+    AUTO_SAVE("property.auto_save", "description.auto_save", ConfigCategory.TWEAKS, ConfigStateValue(false)),
+    ANTI_AUTO_SAVE("property.anti_auto_save", "description.anti_auto_save", ConfigCategory.TWEAKS, ConfigStateValue(false)),
+    SNAPCHAT_PLUS("property.snapchat_plus", "description.snapchat_plus", ConfigCategory.TWEAKS, ConfigStateValue(false)),
 
     DISABLE_SNAP_SPLITTING(
         "property.disable_snap_splitting",
@@ -159,15 +158,15 @@ enum class ConfigProperty(
     OVERRIDE_MEDIA_QUALITY(
         "property.override_media_quality",
         "description.override_media_quality",
-        ConfigCategory.TWEAKS,
+        ConfigCategory.EXPERIMENTAL,
         ConfigStateValue(false)
     ),
     MEDIA_QUALITY_LEVEL(
         "property.media_quality_level",
         "description.media_quality_level",
-        ConfigCategory.TWEAKS,
+        ConfigCategory.EXPERIMENTAL,
         ConfigStateSelection(
-            listOf("LEVEL_NONE", "LEVEL_1", "LEVEL_2", "LEVEL_3", "LEVEL_4", "LEVEL_5", "LEVEL_6", "LEVEL_7", "LEVEL_MAX"),
+            listOf("LEVEL_NONE", "LEVEL_1", "LEVEL_2", "LEVEL_3", "LEVEL_4", "LEVEL_5", "LEVEL_6", "LEVEL_7", "LEVEL_8"),
             "LEVEL_NONE"
         )
     ),

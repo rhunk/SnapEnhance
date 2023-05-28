@@ -22,7 +22,7 @@ import me.rhunk.snapenhance.database.objects.UserConversationLink
 import me.rhunk.snapenhance.features.impl.Messaging
 import me.rhunk.snapenhance.features.impl.downloader.AntiAutoDownload
 import me.rhunk.snapenhance.features.impl.extras.AntiAutoSave
-import me.rhunk.snapenhance.features.impl.spy.StealthMode
+import me.rhunk.snapenhance.features.impl.spying.StealthMode
 import me.rhunk.snapenhance.features.impl.ui.menus.AbstractMenu
 import me.rhunk.snapenhance.features.impl.ui.menus.ViewAppearanceHelper.applyTheme
 import java.net.HttpURLConnection
@@ -97,7 +97,7 @@ class FriendFeedInfoMenu : AbstractMenu() {
             context.config.int(ConfigProperty.MESSAGE_PREVIEW_LENGTH)
         )?.reversed()
 
-        if (messages == null || messages.isEmpty()) {
+        if (messages.isNullOrEmpty()) {
             Toast.makeText(androidCtx, "No messages found", Toast.LENGTH_SHORT).show()
             return
         }
@@ -151,9 +151,12 @@ class FriendFeedInfoMenu : AbstractMenu() {
         val builder = AlertDialog.Builder(context.mainActivity)
         builder.setTitle(context.translation.get("conversation_preview.title"))
         builder.setMessage(messageBuilder.toString())
-        builder.setPositiveButton(
-            "OK"
-        ) { dialog: DialogInterface, _: Int -> dialog.dismiss() }
+        builder.setPositiveButton("OK" ) {
+                dialog: DialogInterface, _: Int -> dialog.dismiss()
+        }
+        builder.setNeutralButton("Export chat history") {
+                dialog: DialogInterface, _: Int -> dialog.dismiss()
+        }
         targetPerson?.let {
             builder.setNegativeButton(context.translation.get("modal_option.profile_info")) {_, _ ->
                 context.executeAsync {

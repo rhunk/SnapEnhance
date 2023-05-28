@@ -32,10 +32,9 @@
         </service>
 
         <activity
-            android:theme="@android:style/Theme.NoDisplay"
-            android:name=".bridge.service.MainActivity"
+            android:name="me.rhunk.snapenhance.bridge.service.SettingsActivity"
             android:exported="true"
-            android:excludeFromRecents="true">
+            tools:ignore="ExportedPreferenceActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />

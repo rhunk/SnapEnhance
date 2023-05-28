@@ -3,4 +3,47 @@
     <string-array name="sc_scope">
         <item>com.snapchat.android</item>
     </string-array>
+    <string-array name="notification_message_sections">
+        <item>Snap</item>
+        <item>Chat</item>
+        <item>Typing</item>
+    </string-array>
+    <string-array name="notification_message_values">
+        <item>snap_content</item>
+        <item>chat_content</item>
+        <item>typing_content</item>
+    </string-array>
+    <string-array name="ui_hide_tweaks_sections">
+        <item>Voice Record button</item>
+        <item>Stickers button</item>
+        <item>Cognac button</item>
+        <item>Call button</item>
+    </string-array>
+    <string-array name="ui_hide_values">
+        <item>REMOVE_VOICE_RECORD_BUTTON</item>
+        <item>REMOVE_STICKERS_BUTTON</item>
+        <item>REMOVE_COGNAC_BUTTON</item>
+        <item>REMOVE_CALL_BUTTONS</item>
+    </string-array>
+    <string-array name="media_quality">
+        <item>1</item>
+        <item>2</item>
+        <item>3</item>
+        <item>4</item>
+        <item>5</item>
+        <item>6</item>
+        <item>7</item>
+        <item>8</item>
+    </string-array>
+    <string-array name="media_quality_values">
+        <item>LEVEL_NONE</item>
+        <item>LEVEL_1</item>
+        <item>LEVEL_2</item>
+        <item>LEVEL_3</item>
+        <item>LEVEL_4</item>
+        <item>LEVEL_5</item>
+        <item>LEVEL_6</item>
+        <item>LEVEL_7</item>
+        <item>LEVEL_8</item>
+    </string-array>
 </resources>

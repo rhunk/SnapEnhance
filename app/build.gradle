@@ -5,7 +5,7 @@ plugins {
     id 'org.jetbrains.kotlin.android'
 }
 
-def appVersionName = "0.1.1"
+def appVersionName = "0.5.0"
 def appVersionCode = 1
 def lspatchReleaseUrl = "https://api.github.com/repos/LSPosed/LSPatch/releases/latest"
 
@@ -15,7 +15,7 @@ android {
 
     defaultConfig {
         applicationId "me.rhunk.snapenhance"
-        minSdk 28
+        minSdk 29
         targetSdk 33
         versionCode appVersionCode
         versionName appVersionName
@@ -73,44 +73,6 @@ android {
 afterEvaluate {
     getTasks().getByPath(":app:assembleProdDebug").doLast {
         def apkReleaseFile = android.applicationVariants.find { it.buildType.name == "debug" && it.flavorName == "prod" }.outputs[0].outputFile
-
-        //download the target apk
-        println "Downloading target apk"
-        def targetApkFile = new File("${buildDir}/${apkReleaseFile.name}")
-        try {
-            def targetApkUrl = project.property("targetApkUrl")
-            targetApkFile.withOutputStream { out ->
-                new URL(targetApkUrl).withInputStream { input ->
-                    out << input
-                }
-            }
-        } catch (Throwable ignored) {
-            println "No target apk url provided"
-            return
-        }
-
-        //download the latest lspatch jar
-        def connection = new URL(lspatchReleaseUrl).openConnection()
-        def json = new JsonSlurper().parseText(connection.getInputStream().getText())
-        def downloadUrl = json.assets[0].browser_download_url
-        println "Downloading LSPatch from ${downloadUrl}"
-
-        def lspatchJarfile = new File("${buildDir}/lspatch.jar")
-        lspatchJarfile.withOutputStream { out ->
-            new URL(downloadUrl).withInputStream { input ->
-                out << input
-            }
-        }
-
-        println "Executing LSPatch"
-        exec {
-            commandLine "java", "-jar", lspatchJarfile.absolutePath,
-                    targetApkFile.absolutePath,
-                    "--force", "-l", "2", "-m",
-                    apkReleaseFile.absolutePath,
-                    "-o",
-                    "${buildDir}/outputs/apk/lspatch/debug/"
-        }
     }
 
     //auto install for debug purpose

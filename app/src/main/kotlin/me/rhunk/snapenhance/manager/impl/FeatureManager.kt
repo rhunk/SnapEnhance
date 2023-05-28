@@ -19,10 +19,10 @@ import me.rhunk.snapenhance.features.impl.extras.SnapchatPlus
 import me.rhunk.snapenhance.features.impl.extras.UnlimitedSnapViewTime
 import me.rhunk.snapenhance.features.impl.privacy.DisableMetrics
 import me.rhunk.snapenhance.features.impl.privacy.PreventMessageSending
-import me.rhunk.snapenhance.features.impl.spy.AnonymousStoryViewing
-import me.rhunk.snapenhance.features.impl.spy.MessageLogger
-import me.rhunk.snapenhance.features.impl.spy.PreventReadReceipts
-import me.rhunk.snapenhance.features.impl.spy.StealthMode
+import me.rhunk.snapenhance.features.impl.spying.AnonymousStoryViewing
+import me.rhunk.snapenhance.features.impl.spying.MessageLogger
+import me.rhunk.snapenhance.features.impl.spying.PreventReadReceipts
+import me.rhunk.snapenhance.features.impl.spying.StealthMode
 import me.rhunk.snapenhance.features.impl.ui.UITweaks
 import me.rhunk.snapenhance.features.impl.ui.menus.MenuViewInjector
 import me.rhunk.snapenhance.manager.Manager

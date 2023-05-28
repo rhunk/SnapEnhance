@@ -21,7 +21,7 @@ import me.rhunk.snapenhance.data.wrapper.impl.media.opera.ParamMap
 import me.rhunk.snapenhance.features.Feature
 import me.rhunk.snapenhance.features.FeatureLoadParams
 import me.rhunk.snapenhance.features.impl.Messaging
-import me.rhunk.snapenhance.features.impl.spy.MessageLogger
+import me.rhunk.snapenhance.features.impl.spying.MessageLogger
 import me.rhunk.snapenhance.hook.HookAdapter
 import me.rhunk.snapenhance.hook.HookStage
 import me.rhunk.snapenhance.hook.Hooker
@@ -69,11 +69,11 @@ class MediaDownloader : Feature("MediaDownloader", loadParams = FeatureLoadParam
 
     private fun downloadFile(outputFile: File, content: ByteArray): Boolean {
         val onDownloadComplete = {
-                context.shortToast(
-                    "Saved to " + outputFile.absolutePath.replace(context.config.string(ConfigProperty.SAVE_FOLDER), "")
-                        .substring(1)
-                )
-            }
+            context.shortToast(
+                "Saved to " + outputFile.absolutePath.replace(context.config.string(ConfigProperty.SAVE_FOLDER), "")
+                    .substring(1)
+            )
+        }
         if (!context.config.bool(ConfigProperty.USE_DOWNLOAD_MANAGER)) {
             try {
                 val fos = FileOutputStream(outputFile)
@@ -231,8 +231,8 @@ class MediaDownloader : Feature("MediaDownloader", loadParams = FeatureLoadParam
         if ((snapSource == "PUBLIC_USER" || snapSource == "SAVED_STORY") &&
             (forceDownload || context.config.bool(ConfigProperty.AUTO_DOWNLOAD_PUBLIC_STORIES))) {
             val userDisplayName = (if (paramMap.containsKey("USER_DISPLAY_NAME")) paramMap["USER_DISPLAY_NAME"].toString() else "").replace(
-                    "[^\\x00-\\x7F]".toRegex(),
-                    "")
+                "[^\\x00-\\x7F]".toRegex(),
+                "")
             downloadOperaMedia(mediaInfoMap, "Public-Stories/$userDisplayName")
             return
         }

@@ -4,12 +4,11 @@ import android.annotation.SuppressLint
 import android.app.AlertDialog
 import android.text.InputType
 import android.view.View
+import android.view.ViewGroup
 import android.widget.Button
 import android.widget.EditText
 import android.widget.Switch
 import android.widget.TextView
-import me.rhunk.snapenhance.BuildConfig
-import me.rhunk.snapenhance.Constants
 import me.rhunk.snapenhance.config.ConfigProperty
 import me.rhunk.snapenhance.config.impl.ConfigIntegerValue
 import me.rhunk.snapenhance.config.impl.ConfigStateListValue
@@ -152,40 +151,6 @@ class SettingsMenu : AbstractMenu() {
     @SuppressLint("SetTextI18n")
     @Suppress("deprecation")
     fun inject(viewModel: View, addView: (View) -> Unit) {
-        val packageInfo = viewModel.context.packageManager.getPackageInfo(Constants.SNAPCHAT_PACKAGE_NAME, 0)
-        val versionTextBuilder = StringBuilder()
-        versionTextBuilder.append("SnapEnhance ").append(BuildConfig.VERSION_NAME)
-            .append(" by rhunk")
-        if (BuildConfig.DEBUG) {
-            versionTextBuilder.append("\n").append("Snapchat ").append(packageInfo.versionName)
-                .append(" (").append(packageInfo.longVersionCode).append(")")
-        }
-        val titleText = TextView(viewModel.context)
-        titleText.text = versionTextBuilder.toString()
-        ViewAppearanceHelper.applyTheme(viewModel, titleText)
-        titleText.textSize = 18f
-        titleText.minHeight = 80 * versionTextBuilder.chars().filter { ch: Int -> ch == '\n'.code }
-                .count().coerceAtLeast(2).toInt()
-        addView(titleText)
-
-        context.config.entries().groupBy {
-            it.key.category
-        }.forEach { (category, value) ->
-            addView(createCategoryTitle(viewModel, category.key))
-            value.forEach {
-                addView(createPropertyView(viewModel, it.key))
-            }
-        }
-
-        //actions
-        context.actionManager.getActions().forEach {
-            val button = Button(viewModel.context)
-            button.text = context.translation.get(it.nameKey)
-            button.setOnClickListener { _ ->
-                it.run()
-            }
-            ViewAppearanceHelper.applyTheme(viewModel, button)
-            addView(button)
-        }
+        addView(createCategoryTitle(viewModel, "SnapEnhanced"))
     }
 }

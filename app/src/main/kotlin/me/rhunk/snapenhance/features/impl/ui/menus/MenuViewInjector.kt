@@ -48,7 +48,6 @@ class MenuViewInjector : Feature("MenuViewInjector", loadParams = FeatureLoadPar
             Int::class.javaPrimitiveType,
             ViewGroup.LayoutParams::class.java
         )
-
         //catch the card view instance in the action drawer
         Hooker.hook(
             LinearLayout::class.java.getConstructor(
@@ -97,34 +96,28 @@ class MenuViewInjector : Feature("MenuViewInjector", loadParams = FeatureLoadPar
             //TODO : preview group chats
             if (viewGroup !is LinearLayout) return@hook
             if (viewGroup.getTag(VIEW_DRAWER) == null) return@hook
-            val itemStringInterface =childView.javaClass.declaredFields.filter { field: Field ->
-                        !field.type.isPrimitive && Modifier.isAbstract(
-                            field.type.modifiers
-                        )
+            val itemStringInterface = childView.javaClass.declaredFields.filter { field: Field ->
+                !field.type.isPrimitive && Modifier.isAbstract(
+                    field.type.modifiers
+                )
+            }
+                .map { field: Field ->
+                    try {
+                        field.isAccessible = true
+                        return@map field[childView]
+                    } catch (e: IllegalAccessException) {
+                        e.printStackTrace()
                     }
-                    .map { field: Field ->
-                        try {
-                            field.isAccessible = true
-                            return@map field[childView]
-                        } catch (e: IllegalAccessException) {
-                            e.printStackTrace()
-                        }
-                        null
-                    }.firstOrNull()
-
+                    null
+                }.firstOrNull()
             //the 3 dot button shows a menu which contains the first item as a Plain object
             //FIXME: better way to detect the 3 dot button
-           if (viewGroup.getChildCount() == 0 && itemStringInterface != null && itemStringInterface.toString().startsWith("Plain(primaryText=")) {
+            //FIXME: find a proper way to removing context menu items
+            if (viewGroup.getChildCount() == 0 && itemStringInterface != null && itemStringInterface.toString().startsWith("Plain(primaryText=")) {
                 if (wasInjectedView(viewGroup)) return@hook
-
                 settingMenu.inject(viewGroup, originalAddView)
-                viewGroup.addOnAttachStateChangeListener(object: View.OnAttachStateChangeListener {
-                    override fun onViewAttachedToWindow(v: View) {}
-                    override fun onViewDetachedFromWindow(v: View) {
-                        context.config.writeConfig()
-                    }
-                })
                 return@hook
+
             }
             if (context.feature(Messaging::class).lastFetchConversationUserUUID == null) return@hook
 
@@ -133,7 +126,7 @@ class MenuViewInjector : Feature("MenuViewInjector", loadParams = FeatureLoadPar
 
             friendFeedInfoMenu.inject(viewGroup, originalAddView)
             childView.setTag(VIEW_DRAWER, null)
+
         }
     }
-
 }

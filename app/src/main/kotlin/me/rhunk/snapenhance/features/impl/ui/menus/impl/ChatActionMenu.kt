@@ -27,7 +27,7 @@ class ChatActionMenu : AbstractMenu() {
     }
 
     private fun applyButtonTheme(parent: View, button: Button) {
-        button.background.colorFilter = BlendModeColorFilter(Color.WHITE, BlendMode.SRC_ATOP)
+        button.background.colorFilter = BlendModeColorFilter(Color.WHITE, BlendMode.SRC_ATOP) //SUPPORTS OVER 29 API ONLY!
         button.setTextColor(Color.BLACK)
         button.transformationMethod = null
         val margin = TypedValue.applyDimension(

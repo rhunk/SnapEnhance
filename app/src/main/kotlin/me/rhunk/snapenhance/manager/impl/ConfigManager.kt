@@ -19,19 +19,19 @@ class ConfigManager(
         }
 
         if (!context.bridgeClient.isFileExists(BridgeFileType.CONFIG)) {
-            writeConfig()
+            writeConfig(context)
             return
         }
 
         runCatching {
-            loadConfig()
+            loadConfig(context)
         }.onFailure {
             Logger.xposedLog("Failed to load config", it)
-            writeConfig()
+            writeConfig(context)
         }
     }
 
-    private fun loadConfig() {
+    private fun loadConfig(modContext: ModContext) {
         val configContent = context.bridgeClient.createAndReadFile(
             BridgeFileType.CONFIG,
             "{}".toByteArray(Charsets.UTF_8)
@@ -45,7 +45,7 @@ class ConfigManager(
         }
     }
 
-    fun writeConfig() {
+    fun writeConfig(modContext: ModContext) {
         val configObject = JsonObject()
         entries().forEach { (key, value) ->
             configObject.addProperty(key.name, value.write())
