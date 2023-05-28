@@ -46,4 +46,9 @@
         <item>LEVEL_7</item>
         <item>LEVEL_8</item>
     </string-array>
+    <string-array name="gallery_override_values">
+        <item>OFF</item>
+        <item>SNAP</item>
+        <item>NOTE</item>
+    </string-array>
 </resources>

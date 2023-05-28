@@ -164,11 +164,13 @@
         android:title="Show Streak Expiration" />
 </PreferenceCategory>
 <PreferenceCategory android:title="Tweaks">
-    <SwitchPreference
-        android:defaultValue="false"
-        android:key="EXTERNAL_MEDIA_AS_SNAP"
-        android:summary="Sends external media (ex. Camera Roll) as a live snap."
-        android:title="Send External media as snap" />
+    <ListPreference
+        android:defaultValue="OFF"
+        android:entries="@array/gallery_override_values"
+        android:entryValues="@array/gallery_override_values"
+        android:summary="Sends external media (ex. Camera Roll) as a live snap or Audio note."
+        android:key="GALLERY_MEDIA_SEND_OVERRIDE"
+        android:title="External Media Override" />
     <SwitchPreference
         android:defaultValue="false"
         android:key="AUTO_SAVE"

@@ -38,7 +38,6 @@ class SettingsActivity : PreferenceActivity(), Preference.OnPreferenceChangeList
         "MESSAGE_PREVIEW_LENGTH",
         "NEW_MAP_UI",
         "STREAK_EXPIRATION_INFO",
-        "EXTERNAL_MEDIA_AS_SNAP",
         "AUTO_SAVE",
         "SNAPCHAT_PLUS",
         "DISABLE_VIDEO_LENGTH_RESTRICTION",
@@ -46,7 +45,9 @@ class SettingsActivity : PreferenceActivity(), Preference.OnPreferenceChangeList
         "USE_DOWNLOAD_MANAGER",
         "OVERRIDE_MEDIA_QUALITY",
         "MEDIA_QUALITY_LEVEL",
-        "MEO_PASSCODE_BYPASS"
+        "MEO_PASSCODE_BYPASS",
+        "GALLERY_MEDIA_SEND_OVERRIDE",
+        "gallery_override_values"
     )
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -68,8 +69,9 @@ class SettingsActivity : PreferenceActivity(), Preference.OnPreferenceChangeList
             val selectedElements = newValue as Set<String>
             updateHideUIElements(selectedElements)
         } else if (preference.key == "SAVE_FOLDER") {
-            val value = newValue.toString()
-            updateSaveFolder(value)
+            updateJsonString("SAVE_FOLDER", newValue.toString())
+        } else if (preference.key == "GALLERY_MEDIA_SEND_OVERRIDE" || preference.key == "gallery_override_values") {
+            updateJsonString("GALLERY_MEDIA_SEND_OVERRIDE", newValue.toString())
         } else {
             val value = newValue.toString()
             File(filesDir, "config.json").writeText(updateJsonValue(File(filesDir, "config.json").readText(), preference.key, value))
@@ -77,8 +79,8 @@ class SettingsActivity : PreferenceActivity(), Preference.OnPreferenceChangeList
         return true
     }
 
-    private fun updateSaveFolder(value: String) {
-        val updatedConfigJson = updateJsonValue(File(filesDir, "config.json").readText(), "SAVE_FOLDER", value)
+    private fun updateJsonString(key: String, value: String) {
+        val updatedConfigJson = updateJsonValue(File(filesDir, "config.json").readText(), key, value)
         File(filesDir, "config.json").writeText(updatedConfigJson)
     }
 

@@ -136,7 +136,7 @@ enum class ConfigProperty(
 	GALLERY_MEDIA_SEND_OVERRIDE(
 		"property.gallery_media_send_override",
         "description.gallery_media_send_override",
-		ConfigCategory.EXTRAS,
+		ConfigCategory.TWEAKS,
         ConfigStateSelection(
             listOf("OFF", "NOTE", "SNAP"),
             "OFF"
