@@ -377,7 +377,7 @@ class MediaDownloader : Feature("MediaDownloader", loadParams = FeatureLoadParam
 
         //download the message content
         try {
-            context.longToast("Querying $urlKey. It might take a while...")
+            context.shortToast("Querying $urlKey")
             val downloadedMedia = MediaDownloaderHelper.downloadMediaFromKey(urlKey, canMergeOverlay(), isPreviewMode) {
                 EncryptionUtils.decryptInputStreamFromArroyo(it, contentType, messageReader)
             }[MediaType.ORIGINAL] ?: throw Exception("Failed to download media for key $urlKey")
