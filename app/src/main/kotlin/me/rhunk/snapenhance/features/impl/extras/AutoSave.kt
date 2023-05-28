@@ -3,6 +3,7 @@ package me.rhunk.snapenhance.features.impl.extras
 import me.rhunk.snapenhance.Logger
 import me.rhunk.snapenhance.config.ConfigProperty
 import me.rhunk.snapenhance.data.ContentType
+import me.rhunk.snapenhance.data.MessageState
 import me.rhunk.snapenhance.data.wrapper.impl.Message
 import me.rhunk.snapenhance.data.wrapper.impl.SnapUUID
 import me.rhunk.snapenhance.features.Feature
@@ -35,6 +36,7 @@ class AutoSave : Feature("Auto Save", loadParams = FeatureLoadParams.ACTIVITY_CR
     private fun saveMessage(conversationId: SnapUUID, message: Message) {
         val messageId = message.messageDescriptor.messageId
         if (messageLogger.isMessageRemoved(messageId)) return
+        if (message.messageState != MessageState.COMMITTED) return
 
         val callback = CallbackBuilder(callbackClass)
             .override("onError") {
