@@ -29,7 +29,7 @@
         "auto_download_stories": "Auto Download Stories",
         "auto_download_public_stories": "Auto Download Public Stories",
         "auto_download_spotlight": "Auto Download Spotlight",
-        "overlay_merge": "Snap Image Overlay Merge",
+        "download_options": "Download Options",
         "download_inchat_snaps": "Download Inchat Snaps",
         "anti_auto_download_button": "Anti Auto Download Button",
         "disable_metrics": "Disable Metrics",
@@ -62,6 +62,13 @@
 
     "option": {
         "property": {
+            "download_options": {
+                "format_user_folder": "Create folder for each user",
+                "format_hash": "Add a unique hash to the file path",
+                "format_username": "Add the username to the file path",
+                "format_date_time": "Add the date and time to the file path",
+                "merge_overlay": "Merge Snap Image Overlays"
+            },
             "notification_blacklist": {
                 "chat": "Chat",
                 "snap": "Snap",

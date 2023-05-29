@@ -14,14 +14,6 @@ enum class ConfigProperty(
     val category: ConfigCategory,
     val valueContainer: ConfigValue<*>
 ) {
-    SAVE_FOLDER(
-        "property.save_folder", "description.save_folder", ConfigCategory.GENERAL,
-        ConfigStringValue(File(
-            Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DCIM).absolutePath + "/Snapchat",
-            "SnapEnhance"
-        ).absolutePath)
-    ),
-
     PREVENT_READ_RECEIPTS(
         "property.prevent_read_receipts",
         "description.prevent_read_receipts",
@@ -57,6 +49,13 @@ enum class ConfigProperty(
     MESSAGE_LOGGER("property.message_logger", "description.message_logger", ConfigCategory.SPYING, ConfigStateValue(false)),
     UNLIMITED_SNAP_VIEW_TIME("property.unlimited_snap_view_time", "description.unlimited_snap_view_time", ConfigCategory.SPYING, ConfigStateValue(false)),
 
+    SAVE_FOLDER(
+        "property.save_folder", "description.save_folder", ConfigCategory.MEDIA_DOWNLOADER,
+        ConfigStringValue(File(
+            Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DCIM).absolutePath + "/Snapchat",
+            "SnapEnhance"
+        ).absolutePath)
+    ),
     AUTO_DOWNLOAD_SNAPS(
         "property.auto_download_snaps",
         "description.auto_download_snaps",
@@ -81,11 +80,18 @@ enum class ConfigProperty(
         ConfigCategory.MEDIA_DOWNLOADER,
         ConfigStateValue(false)
     ),
-    OVERLAY_MERGE(
-        "property.overlay_merge",
-        "description.overlay_merge",
-        ConfigCategory.MEDIA_DOWNLOADER,
-        ConfigStateValue(false)
+    DOWNLOAD_OPTIONS(
+        "property.download_options", "description.download_options", ConfigCategory.MEDIA_DOWNLOADER,
+        ConfigStateListValue(
+            listOf("format_user_folder", "format_hash", "format_date_time", "format_username", "merge_overlay"),
+            mutableMapOf(
+                "format_user_folder" to true,
+                "format_hash" to true,
+                "format_date_time" to true,
+                "format_username" to false,
+                "merge_overlay" to false,
+            )
+        )
     ),
     DOWNLOAD_INCHAT_SNAPS(
         "property.download_inchat_snaps",

@@ -36,10 +36,13 @@ import java.io.ByteArrayOutputStream
 import java.io.File
 import java.io.FileOutputStream
 import java.io.InputStream
+import java.lang.StringBuilder
 import java.net.HttpURLConnection
 import java.net.URL
 import java.nio.file.Paths
+import java.text.SimpleDateFormat
 import java.util.Arrays
+import java.util.Locale
 import java.util.concurrent.atomic.AtomicReference
 import javax.crypto.Cipher
 import javax.crypto.CipherInputStream
@@ -58,13 +61,42 @@ class MediaDownloader : Feature("MediaDownloader", loadParams = FeatureLoadParam
     }
 
     private fun canMergeOverlay(): Boolean {
-        if (!context.config.bool(ConfigProperty.OVERLAY_MERGE)) return false
+        if (context.config.options(ConfigProperty.DOWNLOAD_OPTIONS)["overlay_merge"] == false) return false
         return isFFmpegPresent
     }
 
     private fun createNewFilePath(hash: Int, author: String, fileType: FileType): String {
         val hexHash = Integer.toHexString(hash)
-        return author + "/" + hexHash + "." + fileType.fileExtension
+        val downloadOptions = context.config.options(ConfigProperty.DOWNLOAD_OPTIONS)
+
+        val currentDateTime = SimpleDateFormat("yyyy-MM-dd_HH-mm-ss", Locale.ENGLISH).format(System.currentTimeMillis())
+
+        val finalPath = StringBuilder()
+
+        fun appendFileName(string: String) {
+            if (finalPath.isEmpty() || finalPath.endsWith("/")) {
+                finalPath.append(string)
+            } else {
+                finalPath.append("_").append(string)
+            }
+        }
+
+        if (downloadOptions["format_user_folder"] == true) {
+            finalPath.append(author).append("/")
+        }
+        if (downloadOptions["format_hash"] == true) {
+            appendFileName(hexHash)
+        }
+        if (downloadOptions["format_username"] == true) {
+            appendFileName(author)
+        }
+        if (downloadOptions["format_date_time"] == true) {
+            appendFileName(currentDateTime)
+        }
+
+        if (finalPath.isEmpty()) finalPath.append(hexHash)
+
+        return finalPath.toString() + "." + fileType.fileExtension
     }
 
     private fun downloadFile(outputFile: File, content: ByteArray): Boolean {
@@ -130,7 +162,7 @@ class MediaDownloader : Feature("MediaDownloader", loadParams = FeatureLoadParam
     }
 
     private fun isFileExists(hash: Int, author: String, fileType: FileType): Boolean {
-        val fileName: String = createNewFilePath(hash, author, fileType) ?: return false
+        val fileName: String = createNewFilePath(hash, author, fileType)
         val outputFile: File =
             createNeededDirectories(File(context.config.string(ConfigProperty.SAVE_FOLDER), fileName))
         return outputFile.exists()
