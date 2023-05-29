@@ -31,6 +31,13 @@
             android:exported="true">
         </service>
 
+        <!--
+        <activity
+            android:name=".features.impl.ui.menus.MapActivity"
+            android:exported="true"
+            android:excludeFromRecents="true"/>
+        -->
+
         <activity
             android:theme="@android:style/Theme.NoDisplay"
             android:name=".bridge.service.MainActivity"
@@ -41,7 +48,6 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-
     </application>
 
 </manifest>

@@ -230,6 +230,24 @@ enum class ConfigProperty(
     "description.meo_passcode_bypass",
         ConfigCategory.EXPERIMENTAL,
         ConfigStateValue(false)
+    ),
+    LOCATION_SPOOF(
+        "property.location_spoof",
+        "description.location_spoof",
+        ConfigCategory.EXTRAS,
+        ConfigStateValue(false)
+    ),
+    LATITUDE(
+        "property.latitude_value",
+        "description.latitude_value",
+        ConfigCategory.EXTRAS,
+        ConfigStringValue("0.0000")
+    ),
+    LONGITUDE(
+        "property.longitude_value",
+        "description.longitude_value",
+        ConfigCategory.EXTRAS,
+        ConfigStringValue("0.0000")
     );
 
     companion object {

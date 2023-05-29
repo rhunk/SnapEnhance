@@ -22,6 +22,7 @@ class ActionManager(
         load(CleanCache::class)
         load(ClearMessageLogger::class)
         load(RefreshMappings::class)
+        //load(OpenMap::class) TODO: Finish this
 
         actions.values.forEach(AbstractAction::init)
     }

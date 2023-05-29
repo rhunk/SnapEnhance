@@ -143,4 +143,5 @@ dependencies {
     compileOnly files('libs/LSPosed-api-1.0-SNAPSHOT.jar')
     implementation 'com.google.code.gson:gson:2.10.1'
     implementation 'com.arthenica:ffmpeg-kit-full-gpl:5.1.LTS'
+    implementation 'org.osmdroid:osmdroid-android:6.1.16'
 }
