@@ -73,5 +73,6 @@ class OperaPageViewControllerMapper : Mapper() {
             }.name
 
         mappings["OperaPageViewController"] = members
+        return
     }
 }
