@@ -97,7 +97,7 @@ class SettingsMenu : AbstractMenu() {
             }
             is ConfigStateSelection -> {
                 val button = Button(viewModel.context)
-                updateButtonText(button, property.valueContainer.value())
+                updateStateSelectionText(button, property.valueContainer.value())
 
                 button.setOnClickListener {_ ->
                     val builder = AlertDialog.Builder(viewModel.context)
@@ -111,7 +111,7 @@ class SettingsMenu : AbstractMenu() {
                     }
 
                     builder.setPositiveButton("OK") { _, _ ->
-                        updateButtonText(button, property.valueContainer.value())
+                        updateStateSelectionText(button, property.valueContainer.value())
                     }
 
                     builder.show()
