@@ -1,5 +1,6 @@
 package me.rhunk.snapenhance.features.impl.extras
 
+import android.content.Intent
 import me.rhunk.snapenhance.config.ConfigProperty
 import me.rhunk.snapenhance.features.Feature
 import me.rhunk.snapenhance.features.FeatureLoadParams
@@ -8,6 +9,21 @@ import me.rhunk.snapenhance.hook.Hooker
 
 class LocationSpoofer: Feature("LocationSpoof", loadParams = FeatureLoadParams.ACTIVITY_CREATE_ASYNC) {
     override fun asyncOnActivityCreate() {
+        Hooker.hook(context.mainActivity!!.javaClass, "onActivityResult", HookStage.BEFORE) { param ->
+            val intent = param.argNullable<Intent>(2) ?: return@hook
+            val bundle = intent.getBundleExtra("location") ?: return@hook
+            param.setResult(null)
+            val latitude = bundle.getFloat("latitude")
+            val longitude = bundle.getFloat("longitude")
+
+            with(context.config) {
+                get(ConfigProperty.LATITUDE).read(latitude.toString())
+                get(ConfigProperty.LONGITUDE).read(longitude.toString())
+                writeConfig()
+            }
+            context.longToast("Location set to $latitude, $longitude")
+        }
+
         if (!context.config.bool(ConfigProperty.LOCATION_SPOOF)) return
         val locationClass = android.location.Location::class.java
         val locationManagerClass = android.location.LocationManager::class.java
