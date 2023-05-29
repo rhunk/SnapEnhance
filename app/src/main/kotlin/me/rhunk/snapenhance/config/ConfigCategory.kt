@@ -10,5 +10,6 @@ enum class ConfigCategory(
     UI("category.ui"),
     EXTRAS("category.extras"),
     TWEAKS("category.tweaks"),
+    LOCATION_SPOOF("category.location_spoof"),
     EXPERIMENTAL("category.experimental");
 }

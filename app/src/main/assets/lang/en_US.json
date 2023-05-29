@@ -7,6 +7,7 @@
         "ui": "UI",
         "extras": "Extras",
         "tweaks": "Tweaks",
+        "location_spoof": "Location Spoof",
         "experimental": "Experimental",
         "debugging": "Debugging"
     },
@@ -14,7 +15,8 @@
     "action": {
         "clean_cache": "Clean Cache",
         "clear_message_logger": "Clear Message Logger",
-        "refresh_mappings": "Refresh Mappings"
+        "refresh_mappings": "Refresh Mappings",
+        "open_map": "Pick a location on the map"
     },
    
     "property": {
@@ -57,7 +59,10 @@
         "use_download_manager": "Use Android Download Manager",
         "app_passcode": "Set App Passcode",
         "app_lock_on_resume": "App Lock On Resume",
-        "meo_passcode_bypass": "My Eyes Only Passcode Bypass"
+        "meo_passcode_bypass": "My Eyes Only Passcode Bypass",
+        "location_spoof": "Snapmap Location Spoofer",
+        "latitude_value": "Latitude",
+        "longitude_value": "Longitude"
     },
 
     "option": {

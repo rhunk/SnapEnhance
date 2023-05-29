@@ -41,7 +41,10 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-
+        <activity
+            android:name=".features.impl.ui.menus.MapActivity"
+            android:exported="true"
+            android:excludeFromRecents="true" />
     </application>
 
 </manifest>

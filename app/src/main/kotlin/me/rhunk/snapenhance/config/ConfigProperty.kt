@@ -213,6 +213,25 @@ enum class ConfigProperty(
     ),
     NEW_MAP_UI("property.new_map_ui", "description.new_map_ui", ConfigCategory.TWEAKS, ConfigStateValue(false)),
 
+    LOCATION_SPOOF(
+        "property.location_spoof",
+        "description.location_spoof",
+        ConfigCategory.LOCATION_SPOOF,
+        ConfigStateValue(false)
+    ),
+    LATITUDE(
+        "property.latitude_value",
+        "description.latitude_value",
+        ConfigCategory.LOCATION_SPOOF,
+        ConfigStringValue("0.0000")
+    ),
+    LONGITUDE(
+        "property.longitude_value",
+        "description.longitude_value",
+        ConfigCategory.LOCATION_SPOOF,
+        ConfigStringValue("0.0000")
+    ),
+
     USE_DOWNLOAD_MANAGER(
         "property.use_download_manager",
         "description.use_download_manager",

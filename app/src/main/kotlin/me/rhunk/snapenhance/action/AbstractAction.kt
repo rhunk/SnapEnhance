@@ -1,10 +1,12 @@
 package me.rhunk.snapenhance.action
 
 import me.rhunk.snapenhance.ModContext
+import me.rhunk.snapenhance.config.ConfigProperty
 import java.io.File
 
 abstract class AbstractAction(
-    val nameKey: String
+    val nameKey: String,
+    val dependsOnProperty: ConfigProperty? = null,
 ) {
     lateinit var context: ModContext
 

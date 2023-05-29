@@ -173,25 +173,33 @@ class SettingsMenu : AbstractMenu() {
                 .count().coerceAtLeast(2).toInt()
         addView(titleText)
 
+        val actions = context.actionManager.getActions().map {
+            Pair(it) {
+                val button = Button(viewModel.context)
+                button.text = context.translation.get(it.nameKey)
+                button.setOnClickListener { _ ->
+                    it.run()
+                }
+                ViewAppearanceHelper.applyTheme(viewModel, button)
+                button
+            }
+        }
+
         context.config.entries().groupBy {
             it.key.category
         }.forEach { (category, value) ->
             addView(createCategoryTitle(viewModel, category.key))
             value.forEach {
                 addView(createPropertyView(viewModel, it.key))
+                actions.find { pair -> pair.first.dependsOnProperty == it.key }?.let { pair ->
+                    addView(pair.second())
+                }
             }
         }
 
         addView(createCategoryTitle(viewModel, "category.debugging"))
-
-        context.actionManager.getActions().forEach {
-            val button = Button(viewModel.context)
-            button.text = context.translation.get(it.nameKey)
-            button.setOnClickListener { _ ->
-                it.run()
-            }
-            ViewAppearanceHelper.applyTheme(viewModel, button)
-            addView(button)
+        actions.filter { it.first.dependsOnProperty == null }.forEach {
+            addView(it.second())
         }
     }
 }
