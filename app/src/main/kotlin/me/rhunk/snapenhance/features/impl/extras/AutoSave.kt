@@ -3,13 +3,14 @@ package me.rhunk.snapenhance.features.impl.extras
 import me.rhunk.snapenhance.Logger
 import me.rhunk.snapenhance.config.ConfigProperty
 import me.rhunk.snapenhance.data.ContentType
+import me.rhunk.snapenhance.data.MessageState
 import me.rhunk.snapenhance.data.wrapper.impl.Message
 import me.rhunk.snapenhance.data.wrapper.impl.SnapUUID
 import me.rhunk.snapenhance.features.Feature
 import me.rhunk.snapenhance.features.FeatureLoadParams
 import me.rhunk.snapenhance.features.impl.Messaging
-import me.rhunk.snapenhance.features.impl.spy.MessageLogger
-import me.rhunk.snapenhance.features.impl.spy.StealthMode
+import me.rhunk.snapenhance.features.impl.spying.MessageLogger
+import me.rhunk.snapenhance.features.impl.spying.StealthMode
 import me.rhunk.snapenhance.hook.HookStage
 import me.rhunk.snapenhance.hook.Hooker
 import me.rhunk.snapenhance.util.CallbackBuilder
@@ -35,6 +36,7 @@ class AutoSave : Feature("Auto Save", loadParams = FeatureLoadParams.ACTIVITY_CR
     private fun saveMessage(conversationId: SnapUUID, message: Message) {
         val messageId = message.messageDescriptor.messageId
         if (messageLogger.isMessageRemoved(messageId)) return
+        if (message.messageState != MessageState.COMMITTED) return
 
         val callback = CallbackBuilder(callbackClass)
             .override("onError") {

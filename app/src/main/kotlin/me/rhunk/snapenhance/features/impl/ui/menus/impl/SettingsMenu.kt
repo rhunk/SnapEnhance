@@ -2,6 +2,7 @@ package me.rhunk.snapenhance.features.impl.ui.menus.impl
 
 import android.annotation.SuppressLint
 import android.app.AlertDialog
+import android.graphics.Typeface
 import android.text.InputType
 import android.view.View
 import android.widget.Button
@@ -24,7 +25,8 @@ class SettingsMenu : AbstractMenu() {
         val categoryText = TextView(viewModel.context)
         categoryText.text = context.translation.get(key)
         ViewAppearanceHelper.applyTheme(viewModel, categoryText)
-        categoryText.textSize = 18f
+        categoryText.textSize = 20f
+        categoryText.typeface = categoryText.typeface?.let { Typeface.create(it, Typeface.BOLD) }
         return categoryText
     }
 
@@ -32,6 +34,9 @@ class SettingsMenu : AbstractMenu() {
     private fun createPropertyView(viewModel: View, property: ConfigProperty): View {
         val updateButtonText: (TextView, String) -> Unit = { textView, text ->
             textView.text = "${context.translation.get(property.nameKey)} $text"
+        }
+        val updateStateSelectionText: (TextView, String) -> Unit = { textView, text ->
+            updateButtonText(textView, text.let { if (it.isEmpty()) "(empty)" else ": $it" })
         }
 
         val textEditor: ((String) -> Unit) -> Unit = { updateValue ->
@@ -92,7 +97,7 @@ class SettingsMenu : AbstractMenu() {
             }
             is ConfigStateSelection -> {
                 val button = Button(viewModel.context)
-                updateButtonText(button, property.valueContainer.value())
+                updateStateSelectionText(button, property.valueContainer.value())
 
                 button.setOnClickListener {_ ->
                     val builder = AlertDialog.Builder(viewModel.context)
@@ -106,7 +111,7 @@ class SettingsMenu : AbstractMenu() {
                     }
 
                     builder.setPositiveButton("OK") { _, _ ->
-                        updateButtonText(button, property.valueContainer.value())
+                        updateStateSelectionText(button, property.valueContainer.value())
                     }
 
                     builder.show()
@@ -116,7 +121,7 @@ class SettingsMenu : AbstractMenu() {
             }
             is ConfigStateListValue -> {
                 val button = Button(viewModel.context)
-                updateButtonText(button, property.valueContainer.toString())
+                updateStateSelectionText(button, property.valueContainer.toString())
 
                 button.setOnClickListener {_ ->
                     val builder = AlertDialog.Builder(viewModel.context)
@@ -134,7 +139,7 @@ class SettingsMenu : AbstractMenu() {
                     }
 
                     builder.setPositiveButton("OK") { _, _ ->
-                        updateButtonText(button, property.valueContainer.toString())
+                        updateStateSelectionText(button, property.valueContainer.toString())
                     }
 
                     builder.show()
@@ -177,7 +182,8 @@ class SettingsMenu : AbstractMenu() {
             }
         }
 
-        //actions
+        addView(createCategoryTitle(viewModel, "category.debugging"))
+
         context.actionManager.getActions().forEach {
             val button = Button(viewModel.context)
             button.text = context.translation.get(it.nameKey)

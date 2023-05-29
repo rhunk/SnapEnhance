@@ -49,6 +49,9 @@ class EnumMapper : Mapper() {
             }
         }
 
+        debug("found " + enumMappings.size + " enums")
+        mappings["enums"] = enumMappings
+
         //find the media quality level provider
         for (clazz in classes) {
             if (!Modifier.isAbstract(clazz.modifiers)) continue
@@ -56,11 +59,9 @@ class EnumMapper : Mapper() {
             clazz.methods.firstOrNull { it.returnType == enumQualityLevel }?.let {
                 mappings["MediaQualityLevelProvider"] = clazz.name
                 mappings["MediaQualityLevelProviderMethod"] = it.name
-                Logger.debug("found MediaQualityLevelProvider: ${clazz.name}.${it.name}")
+                debug("found MediaQualityLevelProvider: ${clazz.name}.${it.name}")
+                return
             }
         }
-
-        debug("found " + enumMappings.size + " enums")
-        mappings["enums"] = enumMappings
     }
 }

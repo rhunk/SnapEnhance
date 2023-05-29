@@ -14,36 +14,28 @@ enum class ConfigProperty(
     val category: ConfigCategory,
     val valueContainer: ConfigValue<*>
 ) {
-    SAVE_FOLDER(
-        "property.save_folder", "description.save_folder", ConfigCategory.GENERAL,
-        ConfigStringValue(File(
-            Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DCIM).absolutePath + "/Snapchat",
-            "SnapEnhance"
-        ).absolutePath)
-    ),
-
     PREVENT_READ_RECEIPTS(
         "property.prevent_read_receipts",
         "description.prevent_read_receipts",
-        ConfigCategory.SPY,
+        ConfigCategory.SPYING,
         ConfigStateValue(false)
     ),
     HIDE_BITMOJI_PRESENCE(
         "property.hide_bitmoji_presence",
         "description.hide_bitmoji_presence",
-        ConfigCategory.SPY,
+        ConfigCategory.SPYING,
         ConfigStateValue(false)
     ),
     SHOW_MESSAGE_CONTENT_IN_NOTIFICATIONS(
         "property.show_message_content_in_notifications",
         "description.show_message_content_in_notifications",
-        ConfigCategory.SPY,
+        ConfigCategory.SPYING,
         ConfigStateValue(false)
     ),
-    NOTIFICATION_FILTER(
-        "property.notification_filter",
-        "description.notification_filter",
-        ConfigCategory.SPY,
+    NOTIFICATION_BLACKLIST(
+        "property.notification_blacklist",
+        "description.notification_blacklist",
+        ConfigCategory.SPYING,
         ConfigStateListValue(
             listOf("snap", "chat", "typing"),
             mutableMapOf(
@@ -54,9 +46,16 @@ enum class ConfigProperty(
         )
     ),
 
-    MESSAGE_LOGGER("property.message_logger", "description.message_logger", ConfigCategory.SPY, ConfigStateValue(false)),
-    UNLIMITED_SNAP_VIEW_TIME("property.unlimited_snap_view_time", "description.unlimited_snap_view_time", ConfigCategory.SPY, ConfigStateValue(false)),
+    MESSAGE_LOGGER("property.message_logger", "description.message_logger", ConfigCategory.SPYING, ConfigStateValue(false)),
+    UNLIMITED_SNAP_VIEW_TIME("property.unlimited_snap_view_time", "description.unlimited_snap_view_time", ConfigCategory.SPYING, ConfigStateValue(false)),
 
+    SAVE_FOLDER(
+        "property.save_folder", "description.save_folder", ConfigCategory.MEDIA_DOWNLOADER,
+        ConfigStringValue(File(
+            Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DCIM).absolutePath + "/Snapchat",
+            "SnapEnhance"
+        ).absolutePath)
+    ),
     AUTO_DOWNLOAD_SNAPS(
         "property.auto_download_snaps",
         "description.auto_download_snaps",
@@ -81,11 +80,18 @@ enum class ConfigProperty(
         ConfigCategory.MEDIA_DOWNLOADER,
         ConfigStateValue(false)
     ),
-    OVERLAY_MERGE(
-        "property.overlay_merge",
-        "description.overlay_merge",
-        ConfigCategory.MEDIA_DOWNLOADER,
-        ConfigStateValue(false)
+    DOWNLOAD_OPTIONS(
+        "property.download_options", "description.download_options", ConfigCategory.MEDIA_DOWNLOADER,
+        ConfigStateListValue(
+            listOf("format_user_folder", "format_hash", "format_date_time", "format_username", "merge_overlay"),
+            mutableMapOf(
+                "format_user_folder" to true,
+                "format_hash" to true,
+                "format_date_time" to true,
+                "format_username" to false,
+                "merge_overlay" to false,
+            )
+        )
     ),
     DOWNLOAD_INCHAT_SNAPS(
         "property.download_inchat_snaps",
@@ -134,46 +140,46 @@ enum class ConfigProperty(
         ConfigIntegerValue(20)
     ),
 
-    GALLERY_MEDIA_SEND_OVERRIDE(
-        "property.gallery_media_send_override",
-        "description.gallery_media_send_override",
-        ConfigCategory.EXTRAS,
-        ConfigStateSelection(
-            listOf("OFF", "NOTE", "SNAP"),
-            "OFF"
-        )
-    ),
     AUTO_SAVE("property.auto_save", "description.auto_save", ConfigCategory.EXTRAS, ConfigStateValue(false)),
     ANTI_AUTO_SAVE("property.anti_auto_save", "description.anti_auto_save", ConfigCategory.EXTRAS, ConfigStateValue(false)),
     SNAPCHAT_PLUS("property.snapchat_plus", "description.snapchat_plus", ConfigCategory.EXTRAS, ConfigStateValue(false)),
-
     DISABLE_SNAP_SPLITTING(
         "property.disable_snap_splitting",
         "description.disable_snap_splitting",
-        ConfigCategory.TWEAKS,
+        ConfigCategory.EXTRAS,
         ConfigStateValue(false)
     ),
     DISABLE_VIDEO_LENGTH_RESTRICTION(
         "property.disable_video_length_restriction",
         "description.disable_video_length_restriction",
-        ConfigCategory.TWEAKS,
+        ConfigCategory.EXTRAS,
         ConfigStateValue(false)
     ),
     OVERRIDE_MEDIA_QUALITY(
         "property.override_media_quality",
         "description.override_media_quality",
-        ConfigCategory.TWEAKS,
+        ConfigCategory.EXTRAS,
         ConfigStateValue(false)
     ),
     MEDIA_QUALITY_LEVEL(
         "property.media_quality_level",
         "description.media_quality_level",
-        ConfigCategory.TWEAKS,
+        ConfigCategory.EXTRAS,
         ConfigStateSelection(
             listOf("LEVEL_NONE", "LEVEL_1", "LEVEL_2", "LEVEL_3", "LEVEL_4", "LEVEL_5", "LEVEL_6", "LEVEL_7", "LEVEL_MAX"),
             "LEVEL_NONE"
         )
     ),
+    GALLERY_MEDIA_SEND_OVERRIDE(
+        "property.gallery_media_send_override",
+        "description.gallery_media_send_override",
+        ConfigCategory.EXTRAS,
+        ConfigStateSelection(
+            listOf("OFF", "NOTE", "SNAP", "LIVE_SNAP"),
+            "OFF"
+        )
+    ),
+
     REMOVE_VOICE_RECORD_BUTTON(
         "property.remove_voice_record_button",
         "description.remove_voice_record_button",
@@ -251,10 +257,6 @@ enum class ConfigProperty(
     );
 
     companion object {
-        fun fromNameKey(nameKey: String): ConfigProperty? {
-            return values().find { it.nameKey == nameKey }
-        }
-
         fun sortedByCategory(): List<ConfigProperty> {
             return values().sortedBy { it.category.ordinal }
         }

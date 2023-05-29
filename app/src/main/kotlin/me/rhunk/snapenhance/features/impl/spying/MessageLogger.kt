@@ -1,4 +1,4 @@
-package me.rhunk.snapenhance.features.impl.spy
+package me.rhunk.snapenhance.features.impl.spying
 
 import com.google.gson.JsonParser
 import me.rhunk.snapenhance.config.ConfigProperty

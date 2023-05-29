@@ -1,4 +1,4 @@
-package me.rhunk.snapenhance.features.impl.spy
+package me.rhunk.snapenhance.features.impl.spying
 
 import me.rhunk.snapenhance.config.ConfigProperty
 import me.rhunk.snapenhance.features.Feature

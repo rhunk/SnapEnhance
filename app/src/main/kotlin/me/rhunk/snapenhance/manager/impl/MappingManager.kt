@@ -17,6 +17,7 @@ import me.rhunk.snapenhance.mapping.impl.CallbackMapper
 import me.rhunk.snapenhance.mapping.impl.EnumMapper
 import me.rhunk.snapenhance.mapping.impl.GridMediaItemMapper
 import me.rhunk.snapenhance.mapping.impl.OperaPageViewControllerMapper
+import me.rhunk.snapenhance.mapping.impl.PlatformAnalyticsCreatorMapper
 import me.rhunk.snapenhance.mapping.impl.PlusSubscriptionMapper
 import me.rhunk.snapenhance.util.getObjectField
 import java.nio.charset.StandardCharsets
@@ -31,6 +32,7 @@ class MappingManager(private val context: ModContext) : Manager {
         add(PlusSubscriptionMapper())
         add(GridMediaItemMapper())
         add(BCryptClassMapper())
+        add(PlatformAnalyticsCreatorMapper())
     }
 
     private val mappings = ConcurrentHashMap<String, Any>()
