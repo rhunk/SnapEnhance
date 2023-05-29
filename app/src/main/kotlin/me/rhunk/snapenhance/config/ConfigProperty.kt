@@ -169,7 +169,7 @@ enum class ConfigProperty(
         "description.gallery_media_send_override",
         ConfigCategory.EXTRAS,
         ConfigStateSelection(
-            listOf("OFF", "NOTE", "SNAP"),
+            listOf("OFF", "NOTE", "SNAP", "LIVE_SNAP"),
             "OFF"
         )
     ),

@@ -11,6 +11,7 @@ import android.widget.Toast
 import com.google.gson.Gson
 import com.google.gson.GsonBuilder
 import me.rhunk.snapenhance.bridge.AbstractBridgeClient
+import me.rhunk.snapenhance.data.MessageSender
 import me.rhunk.snapenhance.database.DatabaseAccess
 import me.rhunk.snapenhance.features.Feature
 import me.rhunk.snapenhance.manager.impl.ActionManager
@@ -40,6 +41,7 @@ class ModContext {
     val actionManager = ActionManager(this)
     val database = DatabaseAccess(this)
     val downloadServer = DownloadServer(this)
+    val messageSender = MessageSender(this)
     val classCache get() = SnapEnhance.classCache
     val resources: Resources get() = androidContext.resources
 

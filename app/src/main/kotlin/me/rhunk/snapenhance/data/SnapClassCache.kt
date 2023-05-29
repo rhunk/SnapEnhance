@@ -12,6 +12,8 @@ class SnapClassCache (
     val messageUpdateEnum by lazy { findClass("com.snapchat.client.messaging.MessageUpdate") }
     val unifiedGrpcService by lazy { findClass("com.snapchat.client.grpc.UnifiedGrpcService\$CppProxy") }
     val networkApi by lazy { findClass("com.snapchat.client.network_api.NetworkApi\$CppProxy") }
+    val messageDestinations by lazy { findClass("com.snapchat.client.messaging.MessageDestinations") }
+    val localMessageContent by lazy { findClass("com.snapchat.client.messaging.LocalMessageContent") }
 
     private fun findClass(className: String): Class<*> {
         return try {

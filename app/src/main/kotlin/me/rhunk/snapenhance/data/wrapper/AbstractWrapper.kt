@@ -1,10 +1,17 @@
 package me.rhunk.snapenhance.data.wrapper
 
 import de.robv.android.xposed.XposedHelpers
+import me.rhunk.snapenhance.util.CallbackBuilder
 
 abstract class AbstractWrapper(
     protected var instance: Any?
 ) {
+    companion object {
+        fun newEmptyInstance(clazz: Class<*>): Any {
+            return CallbackBuilder.createEmptyObject(clazz.constructors[0]) ?: throw NullPointerException()
+        }
+    }
+
     fun instanceNonNull(): Any = instance!!
     fun isPresent(): Boolean = instance == null
 

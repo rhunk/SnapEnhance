@@ -1,15 +1,12 @@
 package me.rhunk.snapenhance.features.impl.privacy
 
 import de.robv.android.xposed.XposedHelpers
-import me.rhunk.snapenhance.Logger.debug
 import me.rhunk.snapenhance.config.ConfigProperty
 import me.rhunk.snapenhance.features.Feature
 import me.rhunk.snapenhance.features.FeatureLoadParams
 import me.rhunk.snapenhance.hook.HookAdapter
 import me.rhunk.snapenhance.hook.HookStage
 import me.rhunk.snapenhance.hook.Hooker
-import java.nio.charset.StandardCharsets
-import java.util.Base64
 
 class DisableMetrics : Feature("DisableMetrics", loadParams = FeatureLoadParams.INIT_SYNC) {
     override fun init() {
