@@ -1,5 +1,4 @@
 name: Android CI
-
 on:
   push:
     branches: [ "main" ]
@@ -7,11 +6,9 @@ on:
       - '**/README.md'
   pull_request:
     branches: [ "main" ]
-
 jobs:
   build:
     runs-on: ubuntu-latest
-
     steps:
     - uses: actions/checkout@v3
     - name: set up JDK 17
@@ -20,15 +17,12 @@ jobs:
         java-version: '17'
         distribution: 'temurin'
         cache: gradle
-
     - name: Grant execute permission for gradlew
       run: chmod +x gradlew
     - name: Clean Gradle Cache
       run: ./gradlew clean
-    - name: Get keystore from secrets and decode base64
-      run: echo ${{ secrets.JAVA_KEYSTORE_DATA }} | base64 --decode > $GITHUB_WORKSPACE/signing.jks
     - name: Build with Gradle
-      run: ./gradlew assembleDebug -PtargetApkUrl=${{ secrets.TARGET_APK_URL }} -Pandroid.injected.signing.store.file="$GITHUB_WORKSPACE/signing.jks" -Pandroid.injected.signing.store.password="${{ secrets.KEYSTORE_PASSWORD }}" -Pandroid.injected.signing.key.alias="${{ secrets.KEY_ALIAS }}" -Pandroid.injected.signing.key.password="${{ secrets.KEY_PASSWORD }}"
+      run: ./gradlew assembleDebug
     - name: Upload armv8
       uses: actions/upload-artifact@v3.1.2
       with:
@@ -44,8 +38,3 @@ jobs:
       with:
         name: app-prod-release
         path: app/build/outputs/apk/prod/debug/*.apk
-    - name: Upload lspatch
-      uses: actions/upload-artifact@v3.1.2
-      with:
-        name: app-lspatch-release
-        path: app/build/outputs/apk/lspatch/debug/*.apk
