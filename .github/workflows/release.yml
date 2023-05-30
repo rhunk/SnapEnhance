@@ -56,8 +56,10 @@ jobs:
           path: ${{ steps.sign_armv8_app.outputs.signedReleaseFile }}
 
       - name: Generate Version
-        run: ./gradlew getVersion
-
+        run: | 
+          ./gradlew getVersion
+          cat app/build/version.txt
+        
       - name: Set Version to Environment
         id: version-env
         run: echo "version=$(cat app/build/version.txt)" >> $GITHUB_ENV
@@ -70,4 +72,4 @@ jobs:
           files: |
             ${{ steps.sign_armv7_app.outputs.signedReleaseFile }}
             ${{ steps.sign_armv8_app.outputs.signedReleaseFile }}
-          automatic_release_tag: v${{ steps.version-env.outputs.version }}
+          automatic_release_tag: v${{ env.version }}
