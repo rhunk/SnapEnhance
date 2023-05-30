@@ -58,7 +58,6 @@ jobs:
       - name: Generate Version
         run: | 
           ./gradlew getVersion
-          cat app/build/version.txt
         
       - name: Set Version to Environment
         id: version-env
@@ -67,7 +66,7 @@ jobs:
       - name: Publish APK
         uses: marvinpinto/action-automatic-releases@latest
         with:
-          repo_token: "${{ secrets.RELEASE_SECRET_TOKEN }}"
+          repo_token: "${{ secrets.GITHUB_TOKEN }}"
           prerelease: false
           files: |
             ${{ steps.sign_armv7_app.outputs.signedReleaseFile }}
