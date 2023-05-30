@@ -30,7 +30,7 @@ body:
     id: screenshot
     attributes:
       label: "Screenshots"
-      description: If applicable, add screenshots to help explain your problem.
+      description: If applicable, add screenshots to help explain your problem
       value: |
         ![DESCRIPTION](LINK.png)
       render: bash
@@ -40,7 +40,7 @@ body:
     id: logs
     attributes:
       label: "Logs"
-      description: Please copy and paste any relevant log output if available.
+      description: Please copy and paste any relevant log output if available
       render: bash
     validations:
       required: false
