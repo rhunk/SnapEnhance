@@ -82,7 +82,7 @@ class BridgeService : Service() {
     private fun handleMessageLoggerRequest(msg: MessageLoggerRequest, reply: (Message) -> Unit) {
         when (msg.action) {
             MessageLoggerRequest.Action.ADD  -> {
-                val isSuccess = messageLoggerWrapper.addMessage(msg.messageId!!, msg.message!!)
+                val isSuccess = messageLoggerWrapper.addMessage(msg.conversationId!!, msg.messageId!!, msg.message!!)
                 reply(MessageLoggerResult(isSuccess).toMessage(BridgeMessageType.MESSAGE_LOGGER_RESULT.value))
                 return
             }
@@ -90,10 +90,10 @@ class BridgeService : Service() {
                 messageLoggerWrapper.clearMessages()
             }
             MessageLoggerRequest.Action.DELETE -> {
-                messageLoggerWrapper.deleteMessage(msg.messageId!!)
+                messageLoggerWrapper.deleteMessage(msg.conversationId!!, msg.messageId!!)
             }
             MessageLoggerRequest.Action.GET -> {
-                val (state, messageData) = messageLoggerWrapper.getMessage(msg.messageId!!)
+                val (state, messageData) = messageLoggerWrapper.getMessage(msg.conversationId!!, msg.messageId!!)
                 reply(MessageLoggerResult(state, messageData).toMessage(BridgeMessageType.MESSAGE_LOGGER_RESULT.value))
             }
             else -> {

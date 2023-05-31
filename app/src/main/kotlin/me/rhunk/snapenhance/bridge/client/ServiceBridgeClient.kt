@@ -1,10 +1,12 @@
 package me.rhunk.snapenhance.bridge.client
 
 
+import android.annotation.TargetApi
 import android.content.ComponentName
 import android.content.Context
 import android.content.Intent
 import android.content.ServiceConnection
+import android.os.Build
 import android.os.Bundle
 import android.os.Handler
 import android.os.HandlerThread
@@ -38,6 +40,7 @@ class ServiceBridgeClient: AbstractBridgeClient(), ServiceConnection {
     private lateinit var messenger: Messenger
     private lateinit var future: CompletableFuture<Boolean>
 
+    @TargetApi(Build.VERSION_CODES.Q)
     override fun start(callback: (Boolean) -> Unit) {
         this.future = CompletableFuture()
         this.handlerThread.start()
@@ -174,28 +177,28 @@ class ServiceBridgeClient: AbstractBridgeClient(), ServiceConnection {
         }
     }
 
-    override fun getMessageLoggerMessage(id: Long): ByteArray? {
+    override fun getMessageLoggerMessage(conversationId: String, id: Long): ByteArray? {
         sendMessage(
             BridgeMessageType.MESSAGE_LOGGER_REQUEST,
-            MessageLoggerRequest(MessageLoggerRequest.Action.GET, id),
+            MessageLoggerRequest(MessageLoggerRequest.Action.GET, conversationId, id),
             MessageLoggerResult::class
         ).run {
             return message
         }
     }
 
-    override fun addMessageLoggerMessage(id: Long, message: ByteArray) {
+    override fun addMessageLoggerMessage(conversationId: String,id: Long, message: ByteArray) {
         sendMessage(
             BridgeMessageType.MESSAGE_LOGGER_REQUEST,
-            MessageLoggerRequest(MessageLoggerRequest.Action.ADD, id, message),
+            MessageLoggerRequest(MessageLoggerRequest.Action.ADD, conversationId, id, message),
             MessageLoggerResult::class
         )
     }
 
-    override fun deleteMessageLoggerMessage(id: Long) {
+    override fun deleteMessageLoggerMessage(conversationId: String,id: Long) {
         sendMessage(
             BridgeMessageType.MESSAGE_LOGGER_REQUEST,
-            MessageLoggerRequest(MessageLoggerRequest.Action.DELETE, id),
+            MessageLoggerRequest(MessageLoggerRequest.Action.DELETE, conversationId, id),
             MessageLoggerResult::class
         )
     }
@@ -203,7 +206,7 @@ class ServiceBridgeClient: AbstractBridgeClient(), ServiceConnection {
     override fun clearMessageLogger() {
         sendMessage(
             BridgeMessageType.MESSAGE_LOGGER_REQUEST,
-            MessageLoggerRequest(MessageLoggerRequest.Action.CLEAR, 0),
+            MessageLoggerRequest(MessageLoggerRequest.Action.CLEAR),
             MessageLoggerResult::class
         )
     }

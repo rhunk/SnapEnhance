@@ -12,33 +12,30 @@ class MessageLoggerWrapper(
 
     fun init() {
         database = SQLiteDatabase.openDatabase(databaseFile.absolutePath, null, SQLiteDatabase.CREATE_IF_NECESSARY or SQLiteDatabase.OPEN_READWRITE)
-        database.execSQL("CREATE TABLE IF NOT EXISTS messages (message_id INTEGER PRIMARY KEY, serialized_message BLOB)")
+        database.execSQL("CREATE TABLE IF NOT EXISTS messages (id INTEGER PRIMARY KEY, conversation_id VARCHAR, message_id BIGINT, message_data BLOB)")
     }
 
-    fun deleteMessage(messageId: Long) {
-        database.execSQL("DELETE FROM messages WHERE message_id = ?", arrayOf(messageId.toString()))
+    fun deleteMessage(conversationId: String, messageId: Long) {
+        database.execSQL("DELETE FROM messages WHERE conversation_id = ? AND message_id = ?", arrayOf(conversationId, messageId.toString()))
     }
 
-    fun addMessage(messageId: Long, serializedMessage: ByteArray): Boolean {
-        val cursor = database.rawQuery("SELECT message_id FROM messages WHERE message_id = ?", arrayOf(messageId.toString()))
+    fun addMessage(conversationId: String, messageId: Long, serializedMessage: ByteArray): Boolean {
+        val cursor = database.rawQuery("SELECT message_id FROM messages WHERE conversation_id = ? AND message_id = ?", arrayOf(conversationId, messageId.toString()))
         val state = cursor.moveToFirst()
         cursor.close()
         if (state) {
             return false
         }
         database.insert("messages", null, ContentValues().apply {
+            put("conversation_id", conversationId)
             put("message_id", messageId)
-            put("serialized_message", serializedMessage)
+            put("message_data", serializedMessage)
         })
         return true
     }
 
-    fun clearMessages() {
-        database.execSQL("DELETE FROM messages")
-    }
-
-    fun getMessage(messageId: Long): Pair<Boolean, ByteArray?> {
-        val cursor = database.rawQuery("SELECT serialized_message FROM messages WHERE message_id = ?", arrayOf(messageId.toString()))
+    fun getMessage(conversationId: String, messageId: Long): Pair<Boolean, ByteArray?> {
+        val cursor = database.rawQuery("SELECT message_data FROM messages WHERE conversation_id = ? AND message_id = ?", arrayOf(conversationId, messageId.toString()))
         val state = cursor.moveToFirst()
         val message: ByteArray? = if (state) {
             cursor.getBlob(0)
@@ -47,5 +44,9 @@ class MessageLoggerWrapper(
         }
         cursor.close()
         return Pair(state, message)
+    }
+
+    fun clearMessages() {
+        database.execSQL("DELETE FROM messages")
     }
 }

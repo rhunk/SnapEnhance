@@ -10,14 +10,19 @@ import me.rhunk.snapenhance.features.FeatureLoadParams
 import me.rhunk.snapenhance.hook.HookStage
 import me.rhunk.snapenhance.hook.Hooker
 
-class MessageLogger : Feature("MessageLogger", loadParams = FeatureLoadParams.INIT_SYNC or FeatureLoadParams.ACTIVITY_CREATE_SYNC) {
+class MessageLogger : Feature("MessageLogger", loadParams = FeatureLoadParams.INIT_SYNC or FeatureLoadParams.ACTIVITY_CREATE_ASYNC) {
     private val messageCache = mutableMapOf<Long, String>()
     private val removedMessages = linkedSetOf<Long>()
     private val myUserId by lazy { context.database.getMyUserId() }
 
     fun isMessageRemoved(messageId: Long) = removedMessages.contains(messageId)
 
-    override fun onActivityCreate() {
+    fun deleteMessage(conversationId: String, messageId: Long) {
+        messageCache.remove(messageId)
+        context.bridgeClient.deleteMessageLoggerMessage(conversationId, messageId)
+    }
+
+    override fun asyncOnActivityCreate() {
         if (!context.database.hasArroyo()) {
             context.bridgeClient.clearMessageLogger()
         }
@@ -31,15 +36,15 @@ class MessageLogger : Feature("MessageLogger", loadParams = FeatureLoadParams.IN
             val message = Message(it.thisObject())
             val messageId = message.messageDescriptor.messageId
             val contentType = message.messageContent.contentType
+            val conversationId = message.messageDescriptor.conversationId.toString()
             val messageState = message.messageState
 
             if (messageState != MessageState.COMMITTED) return@hookConstructor
 
-
             if (contentType == ContentType.STATUS) {
                 //query the deleted message
                 val deletedMessage: String = if (messageCache.containsKey(messageId)) messageCache[messageId] else {
-                    context.bridgeClient.getMessageLoggerMessage(messageId)?.toString(Charsets.UTF_8)
+                    context.bridgeClient.getMessageLoggerMessage(conversationId, messageId)?.toString(Charsets.UTF_8)
                 } ?: return@hookConstructor
 
                 val messageJsonObject = JsonParser.parseString(deletedMessage).asJsonObject
@@ -72,10 +77,10 @@ class MessageLogger : Feature("MessageLogger", loadParams = FeatureLoadParams.IN
 
             if (!messageCache.containsKey(messageId)) {
                 context.executeAsync {
-                    val storedMessage = context.bridgeClient.getMessageLoggerMessage(messageId)?.toString(Charsets.UTF_8)
+                    val storedMessage = context.bridgeClient.getMessageLoggerMessage(conversationId, messageId)?.toString(Charsets.UTF_8)
                     if (storedMessage == null) {
                         messageCache[messageId] = context.gson.toJson(message.instanceNonNull())
-                        context.bridgeClient.addMessageLoggerMessage(messageId, messageCache[messageId]!!.toByteArray(Charsets.UTF_8))
+                        context.bridgeClient.addMessageLoggerMessage(conversationId, messageId, messageCache[messageId]!!.toByteArray(Charsets.UTF_8))
                         return@executeAsync
                     }
                     messageCache[messageId] = storedMessage

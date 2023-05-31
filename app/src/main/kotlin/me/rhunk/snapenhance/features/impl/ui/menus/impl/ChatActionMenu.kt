@@ -15,6 +15,7 @@ import me.rhunk.snapenhance.Constants.VIEW_INJECTED_CODE
 import me.rhunk.snapenhance.config.ConfigProperty
 import me.rhunk.snapenhance.features.impl.Messaging
 import me.rhunk.snapenhance.features.impl.downloader.MediaDownloader
+import me.rhunk.snapenhance.features.impl.spying.MessageLogger
 import me.rhunk.snapenhance.features.impl.ui.menus.AbstractMenu
 
 
@@ -94,7 +95,9 @@ class ChatActionMenu : AbstractMenu() {
             downloadButton.setOnClickListener {
                 closeActionMenu()
                 context.executeAsync {
-                    context.bridgeClient.deleteMessageLoggerMessage(context.feature(Messaging::class).lastFocusedMessageId)
+                    with(context.feature(Messaging::class)) {
+                        context.feature(MessageLogger::class).deleteMessage(lastOpenedConversationUUID.toString(), lastFocusedMessageId)
+                    }
                 }
             }
             parent.addView(downloadButton)

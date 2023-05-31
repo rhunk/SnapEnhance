@@ -71,7 +71,7 @@ abstract class AbstractBridgeClient {
      * @param id the ID of the message logger message
      * @return the content of the message
      */
-    abstract fun getMessageLoggerMessage(id: Long): ByteArray?
+    abstract fun getMessageLoggerMessage(conversationId: String, id: Long): ByteArray?
 
     /**
      * Add a message to the message logger database
@@ -79,14 +79,14 @@ abstract class AbstractBridgeClient {
      * @param id      the ID of the message logger message
      * @param message the content of the message
      */
-    abstract fun addMessageLoggerMessage(id: Long, message: ByteArray)
+    abstract fun addMessageLoggerMessage(conversationId: String, id: Long, message: ByteArray)
 
     /**
      * Delete a message from the message logger database
      *
      * @param id the ID of the message logger message
      */
-    abstract fun deleteMessageLoggerMessage(id: Long)
+    abstract fun deleteMessageLoggerMessage(conversationId: String, id: Long)
 
     /**
      * Clear the message logger database

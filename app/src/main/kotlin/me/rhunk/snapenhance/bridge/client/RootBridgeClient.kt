@@ -65,20 +65,20 @@ class RootBridgeClient : AbstractBridgeClient() {
         return true
     }
 
-    override fun getMessageLoggerMessage(id: Long): ByteArray? {
-        val (state, messageData) = messageLoggerWrapper.getMessage(id)
+    override fun getMessageLoggerMessage(conversationId: String, id: Long): ByteArray? {
+        val (state, messageData) = messageLoggerWrapper.getMessage(conversationId, id)
         if (state) {
             return messageData
         }
         return null
     }
 
-    override fun addMessageLoggerMessage(id: Long, message: ByteArray) {
-        messageLoggerWrapper.addMessage(id, message)
+    override fun addMessageLoggerMessage(conversationId: String, id: Long, message: ByteArray) {
+        messageLoggerWrapper.addMessage(conversationId, id, message)
     }
 
-    override fun deleteMessageLoggerMessage(id: Long) {
-        messageLoggerWrapper.deleteMessage(id)
+    override fun deleteMessageLoggerMessage(conversationId: String, id: Long) {
+        messageLoggerWrapper.deleteMessage(conversationId, id)
     }
 
     override fun clearMessageLogger() {
