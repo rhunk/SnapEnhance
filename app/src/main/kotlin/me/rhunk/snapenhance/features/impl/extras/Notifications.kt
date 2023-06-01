@@ -103,9 +103,9 @@ class Notifications : Feature("Notifications", loadParams = FeatureLoadParams.IN
             "Reply",
             PendingIntent.getBroadcast(
                 context.androidContext,
-                0,
+                System.nanoTime().toInt(),
                 replyIntent,
-                PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_MUTABLE
+                PendingIntent.FLAG_CANCEL_CURRENT or PendingIntent.FLAG_MUTABLE
             )
         ).addRemoteInput(chatReplyInput).build()
 
