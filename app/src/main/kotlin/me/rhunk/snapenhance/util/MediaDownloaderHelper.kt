@@ -3,7 +3,7 @@ package me.rhunk.snapenhance.util
 import com.arthenica.ffmpegkit.FFmpegKit
 import me.rhunk.snapenhance.Logger
 import me.rhunk.snapenhance.data.FileType
-import me.rhunk.snapenhance.util.download.CdnDownloader
+import me.rhunk.snapenhance.util.download.RemoteMediaResolver
 import java.io.ByteArrayInputStream
 import java.io.File
 import java.io.FileInputStream
@@ -16,9 +16,9 @@ enum class MediaType {
     ORIGINAL, OVERLAY
 }
 object MediaDownloaderHelper {
-    fun downloadMediaFromKey(key: String, mergeOverlay: Boolean, isPreviewMode: Boolean, decryptionCallback: (InputStream) -> InputStream): Map<MediaType, ByteArray> {
-        val inputStream: InputStream = CdnDownloader.downloadWithDefaultEndpoints(key) ?: throw FileNotFoundException("Unable to get $key from cdn list. Check the logs for more info")
-        val content = decryptionCallback(inputStream).readBytes().also { inputStream.close() }
+    fun downloadMediaFromReference(mediaReference: ByteArray, mergeOverlay: Boolean, isPreviewMode: Boolean, decryptionCallback: (InputStream) -> InputStream): Map<MediaType, ByteArray> {
+        val inputStream: InputStream = RemoteMediaResolver.downloadBoltMedia(mediaReference) ?: throw FileNotFoundException("Unable to get media key. Check the logs for more info")
+        val content = decryptionCallback(inputStream).readBytes()
         val fileType = FileType.fromByteArray(content)
         val isZipFile = fileType == FileType.ZIP
 

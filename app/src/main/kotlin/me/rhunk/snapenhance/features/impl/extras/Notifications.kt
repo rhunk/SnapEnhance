@@ -189,9 +189,8 @@ class Notifications : Feature("Notifications", loadParams = FeatureLoadParams.IN
                         .flatten()
 
                     mediaReferences.forEach { media ->
-                        val mediaContent = media.asJsonObject["mContentObject"].asJsonArray.map { it.asByte }.toByteArray()
+                        val protoMediaReference = media.asJsonObject["mContentObject"].asJsonArray.map { it.asByte }.toByteArray()
                         val mediaType = MediaReferenceType.valueOf(media.asJsonObject["mMediaType"].asString)
-                        val urlKey = ProtoReader(mediaContent).getString(2, 2) ?: return@forEach
                         runCatching {
                             //download the media
                             val mediaInfo = ProtoReader(contentData).let {
@@ -201,11 +200,11 @@ class Notifications : Feature("Notifications", loadParams = FeatureLoadParams.IN
                                     return@let it.readPath(*Constants.MESSAGE_SNAP_ENCRYPTION_PROTO_PATH)
                             }?: return@runCatching
 
-                            val downloadedMedia = MediaDownloaderHelper.downloadMediaFromKey(urlKey, mergeOverlay = false, isPreviewMode = false) {
+                            val downloadedMedia = MediaDownloaderHelper.downloadMediaFromReference(protoMediaReference, mergeOverlay = false, isPreviewMode = false) {
                                 if (mediaInfo.exists(Constants.ARROYO_ENCRYPTION_PROTO_INDEX))
                                     EncryptionUtils.decryptInputStream(it, false, mediaInfo, Constants.ARROYO_ENCRYPTION_PROTO_INDEX)
                                 else it
-                            }[MediaType.ORIGINAL] ?: throw Throwable("Failed to download media from key $urlKey")
+                            }[MediaType.ORIGINAL] ?: throw Throwable("Failed to download media")
 
                             val bitmapPreview = PreviewUtils.createPreview(downloadedMedia, mediaType == MediaReferenceType.VIDEO)!!
                             val notificationBuilder = XposedHelpers.newInstance(
@@ -220,7 +219,6 @@ class Notifications : Feature("Notifications", loadParams = FeatureLoadParams.IN
                             return@onEach
                         }.onFailure {
                             Logger.xposedLog("Failed to send preview notification", it)
-                            Logger.xposedLog("urlKey: $urlKey")
                         }
                     }
                 }

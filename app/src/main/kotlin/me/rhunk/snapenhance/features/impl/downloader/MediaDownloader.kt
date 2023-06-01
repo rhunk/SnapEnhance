@@ -29,14 +29,13 @@ import me.rhunk.snapenhance.util.EncryptionUtils
 import me.rhunk.snapenhance.util.MediaDownloaderHelper
 import me.rhunk.snapenhance.util.MediaType
 import me.rhunk.snapenhance.util.PreviewUtils
-import me.rhunk.snapenhance.util.download.CdnDownloader
+import me.rhunk.snapenhance.util.download.RemoteMediaResolver
 import me.rhunk.snapenhance.util.getObjectField
 import me.rhunk.snapenhance.util.protobuf.ProtoReader
 import java.io.ByteArrayOutputStream
 import java.io.File
 import java.io.FileOutputStream
 import java.io.InputStream
-import java.lang.StringBuilder
 import java.net.HttpURLConnection
 import java.net.URL
 import java.nio.file.Paths
@@ -308,7 +307,7 @@ class MediaDownloader : Feature("MediaDownloader", loadParams = FeatureLoadParam
             for (i in 0 until baseUrlNodeList.length) {
                 val baseUrlNode = baseUrlNodeList.item(i)
                 val baseUrl = baseUrlNode.textContent
-                baseUrlNode.textContent = "${CdnDownloader.CF_ST_CDN_D}$baseUrl"
+                baseUrlNode.textContent = "${RemoteMediaResolver.CF_ST_CDN_D}$baseUrl"
             }
 
             val xmlData = ByteArrayOutputStream()
@@ -405,14 +404,13 @@ class MediaDownloader : Feature("MediaDownloader", loadParams = FeatureLoadParam
             return
         }
         val messageReader = ProtoReader(message.message_content!!)
-        val urlKey: String = messageReader.getString(*ARROYO_URL_KEY_PROTO_PATH)!!
+        val urlProto: ByteArray = messageReader.getByteArray(*ARROYO_URL_KEY_PROTO_PATH)!!
 
         //download the message content
         try {
-            context.shortToast("Querying $urlKey")
-            val downloadedMedia = MediaDownloaderHelper.downloadMediaFromKey(urlKey, canMergeOverlay(), isPreviewMode) {
+            val downloadedMedia = MediaDownloaderHelper.downloadMediaFromReference(urlProto, canMergeOverlay(), isPreviewMode) {
                 EncryptionUtils.decryptInputStreamFromArroyo(it, contentType, messageReader)
-            }[MediaType.ORIGINAL] ?: throw Exception("Failed to download media for key $urlKey")
+            }[MediaType.ORIGINAL] ?: throw Exception("Failed to download media")
             val fileType = FileType.fromByteArray(downloadedMedia)
 
             if (isPreviewMode) {

@@ -13,7 +13,7 @@ object Constants {
     val MESSAGE_EXTERNAL_MEDIA_ENCRYPTION_PROTO_PATH = intArrayOf(3, 3, 5, 1, 1)
     val ARROYO_EXTERNAL_MEDIA_ENCRYPTION_PROTO_PATH = intArrayOf(4, 4, 3, 3, 5, 1, 1)
     val ARROYO_STRING_CHAT_MESSAGE_PROTO = intArrayOf(4, 4, 2, 1)
-    val ARROYO_URL_KEY_PROTO_PATH = intArrayOf(4, 5, 1, 3, 2, 2)
+    val ARROYO_URL_KEY_PROTO_PATH = intArrayOf(4, 5, 1, 3)
 
     const val ARROYO_ENCRYPTION_PROTO_INDEX = 19
     const val ARROYO_ENCRYPTION_PROTO_INDEX_V2 = 4

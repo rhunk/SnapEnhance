@@ -1,6 +1,5 @@
 package me.rhunk.snapenhance.mapping.impl
 
-import me.rhunk.snapenhance.Logger
 import me.rhunk.snapenhance.Logger.debug
 import me.rhunk.snapenhance.mapping.Mapper
 import java.lang.reflect.Method

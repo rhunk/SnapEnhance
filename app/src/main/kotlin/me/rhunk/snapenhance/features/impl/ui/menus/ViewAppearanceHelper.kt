@@ -3,7 +3,6 @@ package me.rhunk.snapenhance.features.impl.ui.menus
 import android.annotation.SuppressLint
 import android.content.res.ColorStateList
 import android.graphics.Color
-import android.graphics.Typeface
 import android.view.Gravity
 import android.view.View
 import android.widget.Switch
