@@ -197,7 +197,7 @@ class SettingsMenu : AbstractMenu() {
             }
         }
 
-        addView(createCategoryTitle(viewModel, "category.debugging"))
+        //addView(createCategoryTitle(viewModel, "category.debugging"))
         actions.filter { it.first.dependsOnProperty == null }.forEach {
             addView(it.second())
         }

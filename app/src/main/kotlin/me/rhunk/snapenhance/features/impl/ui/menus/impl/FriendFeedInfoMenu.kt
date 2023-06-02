@@ -21,7 +21,7 @@ import me.rhunk.snapenhance.database.objects.FriendInfo
 import me.rhunk.snapenhance.database.objects.UserConversationLink
 import me.rhunk.snapenhance.features.impl.Messaging
 import me.rhunk.snapenhance.features.impl.downloader.AntiAutoDownload
-import me.rhunk.snapenhance.features.impl.extras.AntiAutoSave
+import me.rhunk.snapenhance.features.impl.tweaks.AntiAutoSave
 import me.rhunk.snapenhance.features.impl.spying.StealthMode
 import me.rhunk.snapenhance.features.impl.ui.menus.AbstractMenu
 import me.rhunk.snapenhance.features.impl.ui.menus.ViewAppearanceHelper.applyTheme
@@ -215,7 +215,7 @@ class FriendFeedInfoMenu : AbstractMenu() {
 
         run {
             val userId = context.database.getFriendFeedInfoByConversationId(conversationId)?.friendUserId ?: return@run
-            if (context.config.bool(ConfigProperty.ANTI_DOWNLOAD_BUTTON)) {
+            if (context.config.bool(ConfigProperty.DOWNLOAD_BLACKLIST)) {
                 createToggleFeature(viewModel,
                     viewConsumer,
                     "friend_menu_option.anti_auto_download",

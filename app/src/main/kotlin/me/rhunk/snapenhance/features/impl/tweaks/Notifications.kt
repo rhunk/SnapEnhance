@@ -1,4 +1,4 @@
-package me.rhunk.snapenhance.features.impl.extras
+package me.rhunk.snapenhance.features.impl.tweaks
 
 import android.app.Notification
 import android.app.NotificationManager

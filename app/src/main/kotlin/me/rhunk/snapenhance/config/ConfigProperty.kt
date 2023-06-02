@@ -14,28 +14,35 @@ enum class ConfigProperty(
     val category: ConfigCategory,
     val valueContainer: ConfigValue<*>
 ) {
+    
+    //SPYING AND PRIVACY
+    MESSAGE_LOGGER("property.message_logger",
+        "description.message_logger",
+        ConfigCategory.SPYING_PRIVACY,
+        ConfigStateValue(false)
+    ),
     PREVENT_READ_RECEIPTS(
         "property.prevent_read_receipts",
         "description.prevent_read_receipts",
-        ConfigCategory.SPYING,
+        ConfigCategory.SPYING_PRIVACY,
         ConfigStateValue(false)
     ),
     HIDE_BITMOJI_PRESENCE(
         "property.hide_bitmoji_presence",
         "description.hide_bitmoji_presence",
-        ConfigCategory.SPYING,
+        ConfigCategory.SPYING_PRIVACY,
         ConfigStateValue(false)
     ),
     SHOW_MESSAGE_CONTENT_IN_NOTIFICATIONS(
         "property.show_message_content_in_notifications",
         "description.show_message_content_in_notifications",
-        ConfigCategory.SPYING,
+        ConfigCategory.SPYING_PRIVACY,
         ConfigStateValue(false)
     ),
     NOTIFICATION_BLACKLIST(
         "property.notification_blacklist",
         "description.notification_blacklist",
-        ConfigCategory.SPYING,
+        ConfigCategory.SPYING_PRIVACY,
         ConfigStateListValue(
             listOf("snap", "chat", "typing"),
             mutableMapOf(
@@ -45,12 +52,49 @@ enum class ConfigProperty(
             )
         )
     ),
-
-    MESSAGE_LOGGER("property.message_logger", "description.message_logger", ConfigCategory.SPYING, ConfigStateValue(false)),
-    UNLIMITED_SNAP_VIEW_TIME("property.unlimited_snap_view_time", "description.unlimited_snap_view_time", ConfigCategory.SPYING, ConfigStateValue(false)),
-
+    DISABLE_METRICS("property.disable_metrics",
+        "description.disable_metrics",
+        ConfigCategory.SPYING_PRIVACY,
+        ConfigStateValue(false)
+    ),
+    BLOCK_ADS("property.block_ads",
+        "description.block_ads",
+        ConfigCategory.SPYING_PRIVACY,
+        ConfigStateValue(false)
+    ),
+    UNLIMITED_SNAP_VIEW_TIME("property.unlimited_snap_view_time",
+        "description.unlimited_snap_view_time",
+        ConfigCategory.SPYING_PRIVACY,
+        ConfigStateValue(false)
+    ),
+    PREVENT_SCREENSHOT_NOTIFICATIONS(
+        "property.prevent_screenshot_notifications",
+        "description.prevent_screenshot_notifications",
+        ConfigCategory.SPYING_PRIVACY,
+        ConfigStateValue(false)
+    ),
+    PREVENT_STATUS_NOTIFICATIONS(
+        "property.prevent_status_notifications",
+        "description.prevent_status_notifications",
+        ConfigCategory.SPYING_PRIVACY,
+        ConfigStateValue(false)
+    ),
+    ANONYMOUS_STORY_VIEW(
+        "property.anonymous_story_view",
+        "description.anonymous_story_view",
+        ConfigCategory.SPYING_PRIVACY,
+        ConfigStateValue(false)
+    ),
+    HIDE_TYPING_NOTIFICATION(
+        "property.hide_typing_notification",
+        "description.hide_typing_notification",
+        ConfigCategory.SPYING_PRIVACY,
+        ConfigStateValue(false)
+    ),
+    
+    //MEDIA MANAGEMENT
     SAVE_FOLDER(
-        "property.save_folder", "description.save_folder", ConfigCategory.MEDIA_DOWNLOADER,
+        "property.save_folder", "description.save_folder", ConfigCategory.MEDIA_MANAGEMENT,
         ConfigStringValue(File(
             Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DCIM).absolutePath + "/Snapchat",
             "SnapEnhance"
@@ -59,29 +103,29 @@ enum class ConfigProperty(
     AUTO_DOWNLOAD_SNAPS(
         "property.auto_download_snaps",
         "description.auto_download_snaps",
-        ConfigCategory.MEDIA_DOWNLOADER,
+        ConfigCategory.MEDIA_MANAGEMENT,
         ConfigStateValue(false)
     ),
     AUTO_DOWNLOAD_STORIES(
         "property.auto_download_stories",
         "description.auto_download_stories",
-        ConfigCategory.MEDIA_DOWNLOADER,
+        ConfigCategory.MEDIA_MANAGEMENT,
         ConfigStateValue(false)
     ),
     AUTO_DOWNLOAD_PUBLIC_STORIES(
         "property.auto_download_public_stories",
         "description.auto_download_public_stories",
-        ConfigCategory.MEDIA_DOWNLOADER,
+        ConfigCategory.MEDIA_MANAGEMENT,
         ConfigStateValue(false)
     ),
     AUTO_DOWNLOAD_SPOTLIGHT(
         "property.auto_download_spotlight",
         "description.auto_download_spotlight",
-        ConfigCategory.MEDIA_DOWNLOADER,
+        ConfigCategory.MEDIA_MANAGEMENT,
         ConfigStateValue(false)
     ),
     DOWNLOAD_OPTIONS(
-        "property.download_options", "description.download_options", ConfigCategory.MEDIA_DOWNLOADER,
+        "property.download_options", "description.download_options", ConfigCategory.MEDIA_MANAGEMENT,
         ConfigStateListValue(
             listOf("format_user_folder", "format_hash", "format_date_time", "format_username", "merge_overlay"),
             mutableMapOf(
@@ -96,164 +140,157 @@ enum class ConfigProperty(
     DOWNLOAD_INCHAT_SNAPS(
         "property.download_inchat_snaps",
         "description.download_inchat_snaps",
-        ConfigCategory.MEDIA_DOWNLOADER,
+        ConfigCategory.MEDIA_MANAGEMENT,
         ConfigStateValue(false)
     ),
-    ANTI_DOWNLOAD_BUTTON(
+    DOWNLOAD_BLACKLIST(
         "property.anti_auto_download_button",
         "description.anti_auto_download_button",
-        ConfigCategory.MEDIA_DOWNLOADER,
+        ConfigCategory.MEDIA_MANAGEMENT,
         ConfigStateValue(false)
-    ),
-
-    DISABLE_METRICS("property.disable_metrics", "description.disable_metrics", ConfigCategory.PRIVACY, ConfigStateValue(false)),
-    PREVENT_SCREENSHOT_NOTIFICATIONS(
-        "property.prevent_screenshot_notifications",
-        "description.prevent_screenshot_notifications",
-        ConfigCategory.PRIVACY,
-        ConfigStateValue(false)
-    ),
-    PREVENT_STATUS_NOTIFICATIONS(
-        "property.prevent_status_notifications",
-        "description.prevent_status_notifications",
-        ConfigCategory.PRIVACY,
-        ConfigStateValue(false)
-    ),
-    ANONYMOUS_STORY_VIEW(
-        "property.anonymous_story_view",
-        "description.anonymous_story_view",
-        ConfigCategory.PRIVACY,
-        ConfigStateValue(false)
-    ),
-    HIDE_TYPING_NOTIFICATION(
-        "property.hide_typing_notification",
-        "description.hide_typing_notification",
-        ConfigCategory.PRIVACY,
-        ConfigStateValue(false)
-    ),
-
-    MENU_SLOT_ID("property.menu_slot_id", "description.menu_slot_id", ConfigCategory.UI, ConfigIntegerValue(1)),
-    MESSAGE_PREVIEW_LENGTH(
-        "property.message_preview_length",
-        "description.message_preview_length",
-        ConfigCategory.UI,
-        ConfigIntegerValue(20)
-    ),
-
-    AUTO_SAVE("property.auto_save", "description.auto_save", ConfigCategory.EXTRAS, ConfigStateValue(false)),
-    ANTI_AUTO_SAVE("property.anti_auto_save", "description.anti_auto_save", ConfigCategory.EXTRAS, ConfigStateValue(false)),
-    SNAPCHAT_PLUS("property.snapchat_plus", "description.snapchat_plus", ConfigCategory.EXTRAS, ConfigStateValue(false)),
-    DISABLE_SNAP_SPLITTING(
-        "property.disable_snap_splitting",
-        "description.disable_snap_splitting",
-        ConfigCategory.EXTRAS,
-        ConfigStateValue(false)
-    ),
-    DISABLE_VIDEO_LENGTH_RESTRICTION(
-        "property.disable_video_length_restriction",
-        "description.disable_video_length_restriction",
-        ConfigCategory.EXTRAS,
-        ConfigStateValue(false)
-    ),
-    OVERRIDE_MEDIA_QUALITY(
-        "property.override_media_quality",
-        "description.override_media_quality",
-        ConfigCategory.EXTRAS,
-        ConfigStateValue(false)
-    ),
-    MEDIA_QUALITY_LEVEL(
-        "property.media_quality_level",
-        "description.media_quality_level",
-        ConfigCategory.EXTRAS,
-        ConfigStateSelection(
-            listOf("LEVEL_NONE", "LEVEL_1", "LEVEL_2", "LEVEL_3", "LEVEL_4", "LEVEL_5", "LEVEL_6", "LEVEL_7", "LEVEL_MAX"),
-            "LEVEL_NONE"
-        )
     ),
     GALLERY_MEDIA_SEND_OVERRIDE(
         "property.gallery_media_send_override",
         "description.gallery_media_send_override",
-        ConfigCategory.EXTRAS,
+        ConfigCategory.MEDIA_MANAGEMENT,
         ConfigStateSelection(
             listOf("OFF", "NOTE", "SNAP", "LIVE_SNAP"),
             "OFF"
         )
     ),
-
+    AUTO_SAVE("property.auto_save",
+        "description.auto_save",
+        ConfigCategory.MEDIA_MANAGEMENT,
+        ConfigStateValue(false)
+    ),
+    ANTI_AUTO_SAVE("property.anti_auto_save",
+        "description.anti_auto_save",
+        ConfigCategory.MEDIA_MANAGEMENT,
+        ConfigStateValue(false)
+    ),
+    
+    OVERRIDE_MEDIA_QUALITY(
+        "property.override_media_quality",
+        "description.override_media_quality",
+        ConfigCategory.MEDIA_MANAGEMENT,
+        ConfigStateValue(false)
+    ),
+    MEDIA_QUALITY_LEVEL(
+        "property.media_quality_level",
+        "description.media_quality_level",
+        ConfigCategory.MEDIA_MANAGEMENT,
+        ConfigStateSelection(
+            listOf("LEVEL_NONE", "LEVEL_1", "LEVEL_2", "LEVEL_3", "LEVEL_4", "LEVEL_5", "LEVEL_6", "LEVEL_7", "LEVEL_MAX"),
+            "LEVEL_NONE"
+        )
+    ),
+    
+    //UI AND TWEAKS
     REMOVE_VOICE_RECORD_BUTTON(
         "property.remove_voice_record_button",
         "description.remove_voice_record_button",
-        ConfigCategory.TWEAKS,
+        ConfigCategory.UI_TWEAKS,
         ConfigStateValue(false)
     ),
     REMOVE_STICKERS_BUTTON(
         "property.remove_stickers_button",
         "description.remove_stickers_button",
-        ConfigCategory.TWEAKS,
+        ConfigCategory.UI_TWEAKS,
         ConfigStateValue(false)
     ),
     REMOVE_COGNAC_BUTTON(
         "property.remove_cognac_button",
         "description.remove_cognac_button",
-        ConfigCategory.TWEAKS,
+        ConfigCategory.UI_TWEAKS,
         ConfigStateValue(false)
     ),
     REMOVE_CALL_BUTTONS(
         "property.remove_call_buttons",
         "description.remove_call_buttons",
-        ConfigCategory.TWEAKS,
+        ConfigCategory.UI_TWEAKS,
         ConfigStateValue(false)
     ),
-    BLOCK_ADS("property.block_ads", "description.block_ads", ConfigCategory.TWEAKS, ConfigStateValue(false)),
     STREAK_EXPIRATION_INFO(
         "property.streak_expiration_info",
         "description.streakexpirationinfo",
-        ConfigCategory.TWEAKS,
+        ConfigCategory.UI_TWEAKS,
         ConfigStateValue(false)
     ),
-    NEW_MAP_UI("property.new_map_ui", "description.new_map_ui", ConfigCategory.TWEAKS, ConfigStateValue(false)),
-
+    DISABLE_SNAP_SPLITTING(
+        "property.disable_snap_splitting",
+        "description.disable_snap_splitting",
+        ConfigCategory.UI_TWEAKS,
+        ConfigStateValue(false)
+    ),
+    DISABLE_VIDEO_LENGTH_RESTRICTION(
+        "property.disable_video_length_restriction",
+        "description.disable_video_length_restriction",
+        ConfigCategory.UI_TWEAKS,
+        ConfigStateValue(false)
+    ),
+    SNAPCHAT_PLUS("property.snapchat_plus",
+        "description.snapchat_plus",
+        ConfigCategory.UI_TWEAKS,
+        ConfigStateValue(false)
+    ),
+    NEW_MAP_UI("property.new_map_ui",
+        "description.new_map_ui",
+        ConfigCategory.UI_TWEAKS,
+        ConfigStateValue(false)
+    ),
     LOCATION_SPOOF(
         "property.location_spoof",
         "description.location_spoof",
-        ConfigCategory.LOCATION_SPOOF,
+        ConfigCategory.UI_TWEAKS,
         ConfigStateValue(false)
     ),
     LATITUDE(
         "property.latitude_value",
         "description.latitude_value",
-        ConfigCategory.LOCATION_SPOOF,
+        ConfigCategory.UI_TWEAKS,
         ConfigStringValue("0.0000")
     ),
     LONGITUDE(
         "property.longitude_value",
         "description.longitude_value",
-        ConfigCategory.LOCATION_SPOOF,
+        ConfigCategory.UI_TWEAKS,
         ConfigStringValue("0.0000")
     ),
-
+    MENU_SLOT_ID("property.menu_slot_id",
+        "description.menu_slot_id",
+        ConfigCategory.UI_TWEAKS,
+        ConfigIntegerValue(1)
+    ),
+    MESSAGE_PREVIEW_LENGTH(
+        "property.message_preview_length",
+        "description.message_preview_length",
+        ConfigCategory.UI_TWEAKS,
+        ConfigIntegerValue(20)
+    ),
+    
+    // EXPERIMENTAL DEBUGGING
     USE_DOWNLOAD_MANAGER(
         "property.use_download_manager",
         "description.use_download_manager",
-        ConfigCategory.EXPERIMENTAL,
+        ConfigCategory.EXPERIMENTAL_DEBUGGING,
         ConfigStateValue(false)
     ),
     APP_PASSCODE(
         "property.app_passcode",
         "description.app_passcode",
-        ConfigCategory.EXPERIMENTAL,
+        ConfigCategory.EXPERIMENTAL_DEBUGGING,
         ConfigStringValue("")
     ),
     APP_LOCK_ON_RESUME(
         "property.app_lock_on_resume",
         "description.app_lock_on_resume",
-        ConfigCategory.EXPERIMENTAL,
+        ConfigCategory.EXPERIMENTAL_DEBUGGING,
         ConfigStateValue(false)
     ),
     MEO_PASSCODE_BYPASS(
     "property.meo_passcode_bypass",
     "description.meo_passcode_bypass",
-        ConfigCategory.EXPERIMENTAL,
+        ConfigCategory.EXPERIMENTAL_DEBUGGING,
         ConfigStateValue(false)
     );
 

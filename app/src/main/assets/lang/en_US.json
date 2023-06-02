@@ -1,15 +1,9 @@
 {
     "category": {
-        "general": "General",
-        "spying": "Spying",
-        "media_download": "Media Downloader",
-        "privacy": "Privacy",
-        "ui": "UI",
-        "extras": "Extras",
-        "tweaks": "Tweaks",
-        "location_spoof": "Location Spoof",
-        "experimental": "Experimental",
-        "debugging": "Debugging"
+        "spying_privacy": "Spying & Privacy",
+        "media_manager": "Media Manager",
+        "ui_tweaks": "UI & Tweaks",
+        "experimental_debugging": "Experimental"
     },
 
     "action": {
