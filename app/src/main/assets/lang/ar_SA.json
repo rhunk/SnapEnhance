@@ -104,7 +104,7 @@
     },
 
     "conversation_preview": {
-        "streak_expiration": "expires in %s days %s hours %s minutes",
+        "streak_expiration": "ينتهي في %s أيام %s ساعات %s دقائق",
         "title": "معاينة",
         "unknown_user": "مستخدم غير معروف"
     },
