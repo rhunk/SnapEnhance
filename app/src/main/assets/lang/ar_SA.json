@@ -1,0 +1,119 @@
+{
+    "category": {
+        "general": "عام",
+        "spying": "التخفي",
+        "media_download": "التحميل",
+        "privacy": "الخصوصية",
+        "ui": "الواجهة",
+        "extras": "إضافات",
+        "tweaks": "أدوات",
+        "location_spoof": "تزييف الموقع",
+        "experimental": "تجريبي",
+        "debugging": "تصحيح"
+    },
+
+    "action": {
+        "clean_cache": "حذف الذاكرة المؤقتة",
+        "clear_message_logger": "حذف الرسائل المحذوفة",
+        "refresh_mappings": "إعادة تحميل الأداة",
+        "open_map": "إختر موقع على الخريطة"
+    },
+   
+    "property": {
+        "save_folder": "مجلد الحفظ",
+        "prevent_read_receipts": "إخفاء مؤشر القراءة",
+        "hide_bitmoji_presence": "إخفاء البتموجي داخل المحادثة",
+        "show_message_content_in_notifications": "إضهار محتوى الرسائل في الإشعارات",
+        "notification_blacklist": "الإشعارات المحظورة",
+        "message_logger": "الرسائل المحذوفة",
+        "unlimited_snap_view_time": "مشاهدة السنابات لمدة غير محدودة",
+        "auto_download_snaps": "تحميل السنابات تلقائيا",
+        "auto_download_stories": "تحميل الستوري تلقائيا",
+        "auto_download_public_stories": "تحميل الستوريات العامة تلقائيا",
+        "auto_download_spotlight": "تحميل مقاطع الأضواء تلقائيا",
+        "download_options": "خيارات التحميل",
+        "download_inchat_snaps": "تحميل السنابات داخل المحادثة",
+        "anti_auto_download_button": "تعطيل زر التحميل",
+        "disable_metrics": "تعطيل تتبع سناب شات",
+        "prevent_screenshot_notifications": "تعطيل إشعار تصوير الشاشة",
+        "prevent_status_notifications": "تعطيل إشعار(الحفظ في ألبوم الصور, المكالمات الفائتة)",
+        "anonymous_story_view": "إخفاء أنك شاهدت الستوري",
+        "hide_typing_notification": "إخفاء إشعار جاري الكتابة",
+        "menu_slot_id": "تحريك خيارات الأصدقاء",
+        "message_preview_length": "عدد الرسائل في المعاينة",
+        "gallery_media_send_override": "إرسال الوسائط كـ",
+        "auto_save": "الحفظ التلقائي",
+        "anti_auto_save": "تعطيل التحميل التلقائي",
+        "snapchat_plus": "تفعيل اشتراك سناب شات بلس",
+        "disable_snap_splitting": "تعطيل تقسيم السنابات",
+        "disable_video_length_restriction": "تعطيل قيود رفع فيديو طويل",
+        "override_media_quality": "تغيير جودة الوسائط",
+        "media_quality_level": "مستوى جودة الوسائط",
+        "remove_voice_record_button": "إخفاء زر تسجيل الصوت",
+        "remove_stickers_button": "إخفاء زر الملصقات",
+        "remove_cognac_button": " إخفاء زر الألعاب",
+        "remove_call_buttons": "إخفاء",
+        "block_ads": "تعطيل الإعلانات",
+        "streak_expiration_info": "إضهار الوقت المتبقي على إنتهاء الستريك",
+        "new_map_ui": "واجهة الخرائط الجديدة",
+        "use_download_manager": "إستخدام التحميل الإفتراضي",
+        "app_passcode": "وضع كلمة مرور للتطبيق",
+        "app_lock_on_resume": "طلب كلمة المرور في كل مرة",
+        "meo_passcode_bypass": "تخطي كلمة مرور 'خاص بي فقط'",
+        "location_spoof": "تزييف الموقع",
+        "latitude_value": "خط العرض",
+        "longitude_value": "خط الطول"
+    },
+
+    "option": {
+        "property": {
+            "download_options": {
+                "format_user_folder": "إنشاء مجلد لكل مستخدم",
+                "format_hash": "إضافة رقم فريد إلى مسار الملف",
+                "format_username": "إضافةاسم المستخدم إلى مسار الملف",
+                "format_date_time": "إضافة الوقت والتاريخ إلى مسار الملف",
+                "merge_overlay": "دمج تراكب الطبقات على الصور عند الحفظ"
+            },
+            "notification_blacklist": {
+                "chat": "المحادثة",
+                "snap": "السنابات",
+                "typing": "الكتابة"
+            }
+        }
+    },
+
+    "friend_menu_option": {
+        "preview": "معاينة",
+        "stealth_mode": "وضع التخفي",
+        "anti_auto_download": "منع التحميل التلقائي",
+        "anti_auto_save": "منع الحفظ التلقائي"
+    },
+
+    "message_context_menu_option": {
+        "download": "تنزيل",
+        "preview": "معاينة"
+    },
+
+    "opera_context_menu": {
+        "download": "تحميل"
+    },
+
+    "modal_option": {
+        "profile_info": "معلومات الحساب",
+        "close": "إغلاق"
+    },
+
+    "conversation_preview": {
+        "streak_expiration": "expires in %s days %s hours %s minutes",
+        "title": "معاينة",
+        "unknown_user": "مستخدم غير معروف"
+    },
+
+    "profile_info": {
+        "title": "معلومات الحساب",
+        "username": "إسم المستخدم",
+        "display_name": "إسم العرض",
+        "added_date": "تاريخ الإضافة",
+        "birthday": "تاريخ الميلاد : {month} {day}"
+    }
+}
