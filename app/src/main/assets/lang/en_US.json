@@ -21,10 +21,7 @@
         "notification_blacklist": "Notification Blacklist",
         "message_logger": "Message Logger",
         "unlimited_snap_view_time": "Unlimited Snap View Time",
-        "auto_download_snaps": "Auto Download Snaps",
-        "auto_download_stories": "Auto Download Stories",
-        "auto_download_public_stories": "Auto Download Public Stories",
-        "auto_download_spotlight": "Auto Download Spotlight",
+        "auto_download_options": "Auto Download Options",
         "download_options": "Download Options",
         "download_inchat_snaps": "Download Inchat Snaps",
         "auto_download_blacklist": "Auto Download Blacklist",
@@ -68,6 +65,12 @@
                 "format_username": "Add the username to the file path",
                 "format_date_time": "Add the date and time to the file path",
                 "merge_overlay": "Merge Snap Image Overlays"
+            },
+            "auto_download_options": {
+                "friend_snaps": "Friend Snaps",
+                "friend_stories": "Friend Stories",
+                "public_stories": "Public Stories",
+                "spotlight": "Spotlight"
             },
             "notification_blacklist": {
                 "chat": "Chat",

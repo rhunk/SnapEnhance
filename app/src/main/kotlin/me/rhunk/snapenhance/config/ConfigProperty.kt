@@ -100,29 +100,17 @@ enum class ConfigProperty(
             "SnapEnhance"
         ).absolutePath)
     ),
-    AUTO_DOWNLOAD_SNAPS(
-        "property.auto_download_snaps",
-        "description.auto_download_snaps",
-        ConfigCategory.MEDIA_MANAGEMENT,
-        ConfigStateValue(false)
-    ),
-    AUTO_DOWNLOAD_STORIES(
-        "property.auto_download_stories",
-        "description.auto_download_stories",
-        ConfigCategory.MEDIA_MANAGEMENT,
-        ConfigStateValue(false)
-    ),
-    AUTO_DOWNLOAD_PUBLIC_STORIES(
-        "property.auto_download_public_stories",
-        "description.auto_download_public_stories",
-        ConfigCategory.MEDIA_MANAGEMENT,
-        ConfigStateValue(false)
-    ),
-    AUTO_DOWNLOAD_SPOTLIGHT(
-        "property.auto_download_spotlight",
-        "description.auto_download_spotlight",
-        ConfigCategory.MEDIA_MANAGEMENT,
-        ConfigStateValue(false)
+    AUTO_DOWNLOAD_OPTIONS(
+        "property.auto_download_options", "description.auto_download_options", ConfigCategory.MEDIA_MANAGEMENT,
+        ConfigStateListValue(
+            listOf("friend_snaps", "friend_stories", "public_stories", "spotlight"),
+            mutableMapOf(
+                "friend_snaps" to false,
+                "friend_stories" to false,
+                "stories" to false,
+                "spotlight" to false
+            )
+        )
     ),
     DOWNLOAD_OPTIONS(
         "property.download_options", "description.download_options", ConfigCategory.MEDIA_MANAGEMENT,
