@@ -1,4 +1,4 @@
-package me.rhunk.snapenhance.features.impl.extras
+package me.rhunk.snapenhance.features.impl.tweaks
 
 import android.app.Notification
 import android.app.NotificationManager
@@ -206,7 +206,7 @@ class Notifications : Feature("Notifications", loadParams = FeatureLoadParams.IN
                                 else it
                             }[MediaType.ORIGINAL] ?: throw Throwable("Failed to download media")
 
-                            val bitmapPreview = PreviewUtils.createPreview(downloadedMedia, mediaType == MediaReferenceType.VIDEO)!!
+                            val bitmapPreview = PreviewUtils.createPreview(downloadedMedia, mediaType.name.contains("VIDEO"))!!
                             val notificationBuilder = XposedHelpers.newInstance(
                                 Notification.Builder::class.java,
                                 context.androidContext,
@@ -227,7 +227,7 @@ class Notifications : Feature("Notifications", loadParams = FeatureLoadParams.IN
                 }
             }
 
-            if (contentType == ContentType.CHAT) {
+            if (contentType == ContentType.CHAT && context.config.options(ConfigProperty.BETTER_NOTIFICATIONS)["reply_button"] == true) {
                 setupNotificationActionButtons(conversationId, notificationData)
             }
 
@@ -264,9 +264,8 @@ class Notifications : Feature("Notifications", loadParams = FeatureLoadParams.IN
                 return@hook
             }
 
-            if (!context.config.bool(ConfigProperty.SHOW_MESSAGE_CONTENT_IN_NOTIFICATIONS)) return@hook
-
-            if (!notificationType.endsWith("CHAT") && !notificationType.endsWith("SNAP")) return@hook
+            if (context.config.options(ConfigProperty.BETTER_NOTIFICATIONS)
+                .filter { it.value }.none { notificationType.endsWith(it.key.uppercase())}) return@hook
 
             val conversationManager: Any = context.feature(Messaging::class).conversationManager
             notificationDataQueue[messageId.toLong()] = notificationData

@@ -13,7 +13,7 @@ class MessageLoggerRequest(
     override fun write(bundle: Bundle) {
         bundle.putString("action", action!!.name)
         bundle.putString("conversationId", conversationId)
-        bundle.putLong("messageId", messageId!!)
+        bundle.putLong("messageId", messageId ?: 0)
         bundle.putByteArray("message", message)
     }
 

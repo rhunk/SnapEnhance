@@ -22,14 +22,15 @@ class UITweaks : Feature("UITweaks", loadParams = FeatureLoadParams.ACTIVITY_CRE
         val chatNoteRecordButton = resources.getIdentifier("chat_note_record_button", "id", Constants.SNAPCHAT_PACKAGE_NAME)
         val chatInputBarSticker = resources.getIdentifier("chat_input_bar_sticker", "id", Constants.SNAPCHAT_PACKAGE_NAME)
         val chatInputBarCognac = resources.getIdentifier("chat_input_bar_cognac", "id", Constants.SNAPCHAT_PACKAGE_NAME)
-
+        val hiddenElements = context.config.options(ConfigProperty.HIDE_UI_ELEMENTS)
+        
         Hooker.hook(View::class.java, "setVisibility", HookStage.BEFORE) { methodParam ->
             val viewId = (methodParam.thisObject() as View).id
-            if (viewId == chatNoteRecordButton && context.config.bool(ConfigProperty.REMOVE_VOICE_RECORD_BUTTON)) {
+            if (viewId == chatNoteRecordButton && hiddenElements["remove_voice_record_button"] == true) {
                 methodParam.setArg(0, View.GONE)
             }
             if (viewId == callButton1 || viewId == callButton2) {
-                if (!context.config.bool(ConfigProperty.REMOVE_CALL_BUTTONS)) return@hook
+                if (hiddenElements["remove_call_buttons"] == false) return@hook
                 methodParam.setArg(0, View.GONE)
             }
         }
@@ -45,23 +46,23 @@ class UITweaks : Feature("UITweaks", loadParams = FeatureLoadParams.ACTIVITY_CRE
             val view: View = param.arg(0)
             val viewId = view.id
 
-            if (viewId == chatNoteRecordButton && context.config.bool(ConfigProperty.REMOVE_VOICE_RECORD_BUTTON)) {
+            if (viewId == chatNoteRecordButton && hiddenElements["remove_voice_record_button"] == true) {
                 view.isEnabled = false
                 view.setWillNotDraw(true)
             }
 
-            if (chatInputBarCognac == viewId && context.config.bool(ConfigProperty.REMOVE_COGNAC_BUTTON)) {
+            if (chatInputBarCognac == viewId && hiddenElements["remove_cognac_button"] == true) {
                 view.visibility = View.GONE
             }
-            if (chatInputBarSticker == viewId && context.config.bool(ConfigProperty.REMOVE_STICKERS_BUTTON)) {
+            if (chatInputBarSticker == viewId && hiddenElements["remove_stickers_button"] == true) {
                 view.visibility = View.GONE
             }
             if (viewId == callButton1 || viewId == callButton2) {
-                if (!context.config.bool(ConfigProperty.REMOVE_CALL_BUTTONS)) return@hook
+                if (hiddenElements["remove_call_buttons"] == false) return@hook
                 if (view.visibility == View.GONE) return@hook
             }
             if (viewId == callButtonsStub) {
-                if (!context.config.bool(ConfigProperty.REMOVE_CALL_BUTTONS)) return@hook
+                if (hiddenElements["remove_call_buttons"] == false) return@hook
                 param.setResult(null)
             }
         }

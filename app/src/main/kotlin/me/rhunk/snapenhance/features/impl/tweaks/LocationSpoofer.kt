@@ -1,4 +1,4 @@
-package me.rhunk.snapenhance.features.impl.extras
+package me.rhunk.snapenhance.features.impl.tweaks
 
 import android.content.Intent
 import me.rhunk.snapenhance.config.ConfigProperty
@@ -17,8 +17,8 @@ class LocationSpoofer: Feature("LocationSpoof", loadParams = FeatureLoadParams.A
             val longitude = bundle.getFloat("longitude")
 
             with(context.config) {
-                get(ConfigProperty.LATITUDE).read(latitude.toString())
-                get(ConfigProperty.LONGITUDE).read(longitude.toString())
+                get(ConfigProperty.LATITUDE).writeFrom(latitude.toString())
+                get(ConfigProperty.LONGITUDE).writeFrom(longitude.toString())
                 writeConfig()
             }
             context.longToast("Location set to $latitude, $longitude")
