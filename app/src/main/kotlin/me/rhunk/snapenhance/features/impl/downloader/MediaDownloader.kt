@@ -60,7 +60,7 @@ class MediaDownloader : Feature("MediaDownloader", loadParams = FeatureLoadParam
     }
 
     private fun canMergeOverlay(): Boolean {
-        if (context.config.options(ConfigProperty.DOWNLOAD_OPTIONS)["overlay_merge"] == false) return false
+        if (context.config.options(ConfigProperty.DOWNLOAD_OPTIONS)["merge_overlay"] == false) return false
         return isFFmpegPresent
     }
 

@@ -144,8 +144,8 @@ enum class ConfigProperty(
         ConfigStateValue(false)
     ),
     DOWNLOAD_BLACKLIST(
-        "property.anti_auto_download_button",
-        "description.anti_auto_download_button",
+        "property.auto_download_blacklist",
+        "description.auto_download_blacklist",
         ConfigCategory.MEDIA_MANAGEMENT,
         ConfigStateValue(false)
     ),
@@ -186,29 +186,19 @@ enum class ConfigProperty(
     ),
     
     //UI AND TWEAKS
-    REMOVE_VOICE_RECORD_BUTTON(
-        "property.remove_voice_record_button",
-        "description.remove_voice_record_button",
+    HIDE_UI_ELEMENTS(
+        "property.hide_ui_elements",
+        "description.hide_ui_elements",
         ConfigCategory.UI_TWEAKS,
-        ConfigStateValue(false)
-    ),
-    REMOVE_STICKERS_BUTTON(
-        "property.remove_stickers_button",
-        "description.remove_stickers_button",
-        ConfigCategory.UI_TWEAKS,
-        ConfigStateValue(false)
-    ),
-    REMOVE_COGNAC_BUTTON(
-        "property.remove_cognac_button",
-        "description.remove_cognac_button",
-        ConfigCategory.UI_TWEAKS,
-        ConfigStateValue(false)
-    ),
-    REMOVE_CALL_BUTTONS(
-        "property.remove_call_buttons",
-        "description.remove_call_buttons",
-        ConfigCategory.UI_TWEAKS,
-        ConfigStateValue(false)
+        ConfigStateListValue(
+            listOf("remove_voice_record_button", "remove_stickers_button", "remove_cognac_button", "remove_call_buttons"),
+            mutableMapOf(
+                "remove_voice_record_button" to false,
+                "remove_stickers_button" to false,
+                "remove_cognac_button" to false,
+                "remove_call_buttons" to false,
+            )
+        )
     ),
     STREAK_EXPIRATION_INFO(
         "property.streak_expiration_info",

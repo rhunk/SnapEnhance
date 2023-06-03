@@ -27,7 +27,7 @@
         "auto_download_spotlight": "Auto Download Spotlight",
         "download_options": "Download Options",
         "download_inchat_snaps": "Download Inchat Snaps",
-        "anti_auto_download_button": "Anti Auto Download Button",
+        "auto_download_blacklist": "Auto Download Blacklist",
         "disable_metrics": "Disable Metrics",
         "prevent_screenshot_notifications": "Prevent Screenshot Notifications",
         "prevent_status_notifications": "Prevent Status Notifications (Save to camera roll, missed calls)",
@@ -56,7 +56,8 @@
         "meo_passcode_bypass": "My Eyes Only Passcode Bypass",
         "location_spoof": "Snapmap Location Spoofer",
         "latitude_value": "Latitude",
-        "longitude_value": "Longitude"
+        "longitude_value": "Longitude",
+        "hide_ui_elements": "Hide UI Elements"
     },
 
     "option": {
@@ -72,6 +73,12 @@
                 "chat": "Chat",
                 "snap": "Snap",
                 "typing": "Typing"
+            },
+            "hide_ui_elements": {
+                "remove_call_buttons": "Remove Call Buttons",
+                "remove_cognac_button": "Remove Cognac Button",
+                "remove_stickers_button": "Remove Stickers Button",
+                "remove_voice_record_button": "Remove Voice Record Button"
             }
         }
     },
