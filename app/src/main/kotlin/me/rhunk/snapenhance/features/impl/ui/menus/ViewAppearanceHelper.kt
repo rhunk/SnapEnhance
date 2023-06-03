@@ -46,7 +46,9 @@ object ViewAppearanceHelper {
         }
         
         if (view is Switch) {
-            //FIXME: switch length is different
+            with(viewModel.resources) {
+                view.switchMinWidth = getDimension(getIdentifier("v11_switch_min_width", "dimen", Constants.SNAPCHAT_PACKAGE_NAME)).toInt()
+            }
             val colorStateList = ColorStateList(
                 arrayOf(intArrayOf(-android.R.attr.state_checked), intArrayOf(android.R.attr.state_checked)
                 ), intArrayOf(

@@ -21,12 +21,14 @@ import me.rhunk.snapenhance.features.impl.ui.menus.AbstractMenu
 import me.rhunk.snapenhance.features.impl.ui.menus.ViewAppearanceHelper
 
 class SettingsMenu : AbstractMenu() {
+    @SuppressLint("ClickableViewAccessibility")
     private fun createCategoryTitle(viewModel: View, key: String): TextView {
         val categoryText = TextView(viewModel.context)
         categoryText.text = context.translation.get(key)
         ViewAppearanceHelper.applyTheme(viewModel, categoryText)
         categoryText.textSize = 20f
         categoryText.typeface = categoryText.typeface?.let { Typeface.create(it, Typeface.BOLD) }
+        categoryText.setOnTouchListener { _, _ -> true }
         return categoryText
     }
 
