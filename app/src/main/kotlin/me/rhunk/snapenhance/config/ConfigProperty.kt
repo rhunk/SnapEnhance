@@ -34,11 +34,18 @@ enum class ConfigProperty(
         ConfigCategory.SPYING_PRIVACY,
         ConfigStateValue(false)
     ),
-    SHOW_MESSAGE_CONTENT_IN_NOTIFICATIONS(
-        "property.show_message_content_in_notifications",
-        "description.show_message_content_in_notifications",
+    BETTER_NOTIFICATIONS(
+        "property.better_notifications",
+        "description.better_notifications",
         ConfigCategory.SPYING_PRIVACY,
-        ConfigStateValue(false)
+        ConfigStateListValue(
+            listOf("snap", "chat", "reply_button"),
+            mutableMapOf(
+                "snap" to false,
+                "chat" to false,
+                "reply_button" to false
+            )
+        )
     ),
     NOTIFICATION_BLACKLIST(
         "property.notification_blacklist",

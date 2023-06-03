@@ -18,6 +18,7 @@
         "prevent_read_receipts": "Prevent Read Receipts",
         "hide_bitmoji_presence": "Hide Bitmoji Presence",
         "show_message_content_in_notifications": "Show Message Content In Notifications",
+        "better_notifications": "Better Notifications",
         "notification_blacklist": "Notification Blacklist",
         "message_logger": "Message Logger",
         "unlimited_snap_view_time": "Unlimited Snap View Time",
@@ -59,6 +60,11 @@
 
     "option": {
         "property": {
+            "better_notifications": {
+                "chat": "Show chat messages",
+                "snap": "Show medias",
+                "reply_button": "Add reply button"
+            },
             "download_options": {
                 "format_user_folder": "Create folder for each user",
                 "format_hash": "Add a unique hash to the file path",
