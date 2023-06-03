@@ -107,7 +107,7 @@ enum class ConfigProperty(
             mutableMapOf(
                 "friend_snaps" to false,
                 "friend_stories" to false,
-                "stories" to false,
+                "public_stories" to false,
                 "spotlight" to false
             )
         )
@@ -125,9 +125,9 @@ enum class ConfigProperty(
             )
         )
     ),
-    DOWNLOAD_INCHAT_SNAPS(
-        "property.download_inchat_snaps",
-        "description.download_inchat_snaps",
+    CHAT_DOWNLOAD_CONTEXT_MENU(
+        "property.chat_download_context_menu",
+        "description.chat_download_context_menu",
         ConfigCategory.MEDIA_MANAGEMENT,
         ConfigStateValue(false)
     ),
@@ -146,10 +146,12 @@ enum class ConfigProperty(
             "OFF"
         )
     ),
-    AUTO_SAVE("property.auto_save",
-        "description.auto_save",
+    AUTO_SAVE_MESSAGES("property.auto_save_messages",
+        "description.auto_save_messages",
         ConfigCategory.MEDIA_MANAGEMENT,
-        ConfigStateValue(false)
+        ConfigStateListValue(
+            listOf("CHAT", "SNAP", "NOTE", "EXTERNAL_MEDIA", "STICKER")
+        )
     ),
     ANTI_AUTO_SAVE("property.anti_auto_save",
         "description.anti_auto_save",
@@ -257,7 +259,7 @@ enum class ConfigProperty(
         "property.app_passcode",
         "description.app_passcode",
         ConfigCategory.EXPERIMENTAL_DEBUGGING,
-        ConfigStringValue("")
+        ConfigStringValue("", isHidden = true)
     ),
     APP_LOCK_ON_RESUME(
         "property.app_lock_on_resume",

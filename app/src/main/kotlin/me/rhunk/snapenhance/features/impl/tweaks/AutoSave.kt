@@ -2,7 +2,6 @@ package me.rhunk.snapenhance.features.impl.tweaks
 
 import me.rhunk.snapenhance.Logger
 import me.rhunk.snapenhance.config.ConfigProperty
-import me.rhunk.snapenhance.data.ContentType
 import me.rhunk.snapenhance.data.MessageState
 import me.rhunk.snapenhance.data.wrapper.impl.Message
 import me.rhunk.snapenhance.data.wrapper.impl.SnapUUID
@@ -61,17 +60,14 @@ class AutoSave : Feature("Auto Save", loadParams = FeatureLoadParams.ACTIVITY_CR
 
     private fun canSaveMessage(message: Message): Boolean {
         if (message.messageMetadata.savedBy.any { uuid -> uuid.toString() == myUserId }) return false
-        //only save chats
-        with(message.messageContent.contentType) {
-            if (this != ContentType.CHAT &&
-                this != ContentType.NOTE &&
-                this != ContentType.STICKER &&
-                this != ContentType.EXTERNAL_MEDIA) return false
-        }
-        return true
+        val contentType = message.messageContent.contentType.toString()
+
+        return context.config.options(ConfigProperty.AUTO_SAVE_MESSAGES).filter { it.value }.any { it.key == contentType }
     }
 
     private fun canSave(): Boolean {
+        if (context.config.options(ConfigProperty.AUTO_SAVE_MESSAGES).none { it.value }) return false
+
         with(context.feature(Messaging::class)) {
             if (lastOpenedConversationUUID == null) return@canSave false
             val conversation = lastOpenedConversationUUID.toString()
@@ -87,7 +83,7 @@ class AutoSave : Feature("Auto Save", loadParams = FeatureLoadParams.ACTIVITY_CR
             context.mappings.getMappedClass("callbacks", "FetchConversationWithMessagesCallback"),
             "onFetchConversationWithMessagesComplete",
             HookStage.BEFORE,
-            { context.config.bool(ConfigProperty.AUTO_SAVE) && canSave()}
+            { canSave() }
         ) { param ->
             val conversationId = SnapUUID(param.arg<Any>(0).getObjectField("mConversationId")!!)
             val messages = param.arg<List<Any>>(1).map { Message(it) }
@@ -104,7 +100,7 @@ class AutoSave : Feature("Auto Save", loadParams = FeatureLoadParams.ACTIVITY_CR
             context.mappings.getMappedClass("callbacks", "FetchMessageCallback"),
             "onFetchMessageComplete",
             HookStage.BEFORE,
-            { context.config.bool(ConfigProperty.AUTO_SAVE) && canSave()}
+            { canSave() }
         ) { param ->
             val message = Message(param.arg(0))
             if (!canSaveMessage(message)) return@hook
@@ -119,7 +115,7 @@ class AutoSave : Feature("Auto Save", loadParams = FeatureLoadParams.ACTIVITY_CR
             context.mappings.getMappedClass("callbacks", "SendMessageCallback"),
             "onSuccess",
             HookStage.BEFORE,
-            { context.config.bool(ConfigProperty.AUTO_SAVE) && canSave()}
+            { canSave() }
         ) {
             val callback = CallbackBuilder(fetchConversationWithMessagesCallbackClass).build()
             runCatching {

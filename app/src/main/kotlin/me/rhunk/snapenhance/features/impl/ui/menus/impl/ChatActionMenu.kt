@@ -64,34 +64,35 @@ class ChatActionMenu : AbstractMenu() {
                 )
             )
         }
-        if (context.config.bool(ConfigProperty.DOWNLOAD_INCHAT_SNAPS)) {
-            val previewButton = Button(viewGroup.context)
-            applyButtonTheme(parent, previewButton)
-            previewButton.text = "Preview"
-            previewButton.setOnClickListener {
-                closeActionMenu()
-                context.executeAsync { context.feature(MediaDownloader::class).onMessageActionMenu(true) }
-            }
-            parent.addView(previewButton)
-        }
+        if (context.config.bool(ConfigProperty.CHAT_DOWNLOAD_CONTEXT_MENU)) {
+            parent.addView(Button(viewGroup.context).apply {
+                applyButtonTheme(parent, this)
+                text = this@ChatActionMenu.context.translation.get("chat_action_menu.preview_button")
+                setOnClickListener {
+                    closeActionMenu()
+                    this@ChatActionMenu.context.executeAsync { this@ChatActionMenu.context.feature(MediaDownloader::class).onMessageActionMenu(true) }
+                }
+            })
 
-        //download snap in chat
-        if (context.config.bool(ConfigProperty.DOWNLOAD_INCHAT_SNAPS)) {
-            val downloadButton = Button(viewGroup.context)
-            applyButtonTheme(parent, downloadButton)
-            downloadButton.text = "Download"
-            downloadButton.setOnClickListener {
-                closeActionMenu()
-                context.executeAsync { context.feature(MediaDownloader::class).onMessageActionMenu(false) }
-            }
-            parent.addView(downloadButton)
+            parent.addView(Button(viewGroup.context).apply {
+                applyButtonTheme(parent, this)
+                text = this@ChatActionMenu.context.translation.get("chat_action_menu.download_button")
+                setOnClickListener {
+                    closeActionMenu()
+                    this@ChatActionMenu.context.executeAsync {
+                        this@ChatActionMenu.context.feature(
+                            MediaDownloader::class
+                        ).onMessageActionMenu(false)
+                    }
+                }
+            })
         }
 
         //delete logged message button
         if (context.config.bool(ConfigProperty.MESSAGE_LOGGER)) {
             val downloadButton = Button(viewGroup.context)
             applyButtonTheme(parent, downloadButton)
-            downloadButton.text = "Deleted logged message"
+            downloadButton.text = context.translation.get("chat_action_menu.delete_logged_message_button")
             downloadButton.setOnClickListener {
                 closeActionMenu()
                 context.executeAsync {

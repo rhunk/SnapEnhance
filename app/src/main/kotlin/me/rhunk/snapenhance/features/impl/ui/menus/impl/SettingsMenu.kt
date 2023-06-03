@@ -33,10 +33,11 @@ class SettingsMenu : AbstractMenu() {
     @SuppressLint("SetTextI18n")
     private fun createPropertyView(viewModel: View, property: ConfigProperty): View {
         val updateButtonText: (TextView, String) -> Unit = { textView, text ->
-            textView.text = "${context.translation.get(property.nameKey)} $text"
+            textView.text = "${context.translation.get(property.nameKey)}${if (text.isEmpty()) "" else ": $text"}"
         }
-        val updateStateSelectionText: (TextView, String) -> Unit = { textView, text ->
-            updateButtonText(textView, text.let { if (it.isEmpty()) "(empty)" else ": $it" })
+
+        val updateLocalizedText: (TextView, String) -> Unit = { textView, value ->
+            updateButtonText(textView, value.let { if (it.isEmpty()) "(empty)" else context.translation.get("option." + property.nameKey + "." + it) })
         }
 
         val textEditor: ((String) -> Unit) -> Unit = { updateValue ->
@@ -59,12 +60,18 @@ class SettingsMenu : AbstractMenu() {
         val resultView: View = when (property.valueContainer) {
             is ConfigStringValue -> {
                 val textView = TextView(viewModel.context)
-                updateButtonText(textView, property.valueContainer.value())
+                updateButtonText(textView, property.valueContainer.let {
+                    if (it.isHidden) it.hiddenValue()
+                    else it.value()
+                })
                 ViewAppearanceHelper.applyTheme(viewModel, textView)
                 textView.setOnClickListener {
                     textEditor { value ->
                         property.valueContainer.writeFrom(value)
-                        updateButtonText(textView, value)
+                        updateButtonText(textView, property.valueContainer.let {
+                            if (it.isHidden) it.hiddenValue()
+                            else it.value()
+                        })
                     }
                 }
                 textView
@@ -97,21 +104,21 @@ class SettingsMenu : AbstractMenu() {
             }
             is ConfigStateSelection -> {
                 val button = Button(viewModel.context)
-                updateStateSelectionText(button, property.valueContainer.value())
+                updateLocalizedText(button, property.valueContainer.value())
 
                 button.setOnClickListener {_ ->
                     val builder = AlertDialog.Builder(viewModel.context)
                     builder.setTitle(context.translation.get(property.nameKey))
 
                     builder.setSingleChoiceItems(
-                        property.valueContainer.keys().toTypedArray(),
+                        property.valueContainer.keys().toTypedArray().map { context.translation.get("option." + property.nameKey + "." + it) }.toTypedArray(),
                         property.valueContainer.keys().indexOf(property.valueContainer.value())
                     ) { _, which ->
                         property.valueContainer.writeFrom(property.valueContainer.keys()[which])
                     }
 
                     builder.setPositiveButton("OK") { _, _ ->
-                        updateStateSelectionText(button, property.valueContainer.value())
+                        updateLocalizedText(button, property.valueContainer.value())
                     }
 
                     builder.show()
@@ -121,7 +128,7 @@ class SettingsMenu : AbstractMenu() {
             }
             is ConfigStateListValue -> {
                 val button = Button(viewModel.context)
-                updateStateSelectionText(button, property.valueContainer.toString())
+                updateButtonText(button, "(${property.valueContainer.value().count { it.value }})")
 
                 button.setOnClickListener {_ ->
                     val builder = AlertDialog.Builder(viewModel.context)
@@ -139,7 +146,7 @@ class SettingsMenu : AbstractMenu() {
                     }
 
                     builder.setPositiveButton("OK") { _, _ ->
-                        updateStateSelectionText(button, property.valueContainer.toString())
+                        updateButtonText(button, "(${property.valueContainer.value().count { it.value }})")
                     }
 
                     builder.show()

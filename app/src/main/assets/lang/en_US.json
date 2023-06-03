@@ -23,7 +23,7 @@
         "unlimited_snap_view_time": "Unlimited Snap View Time",
         "auto_download_options": "Auto Download Options",
         "download_options": "Download Options",
-        "download_inchat_snaps": "Download Inchat Snaps",
+        "chat_download_context_menu": "Enable Chat Download Context Menu",
         "auto_download_blacklist": "Auto Download Blacklist",
         "disable_metrics": "Disable Metrics",
         "prevent_screenshot_notifications": "Prevent Screenshot Notifications",
@@ -33,7 +33,7 @@
         "menu_slot_id": "Friend Menu Slot ID",
         "message_preview_length": "Message Preview Length",
         "gallery_media_send_override": "Gallery Media Send Override",
-        "auto_save": "Auto Save",
+        "auto_save_messages": "Auto Save Messages",
         "anti_auto_save": "Anti Auto Save Button",
         "snapchat_plus": "Snapchat Plus",
         "disable_snap_splitting": "Disable Snap Splitting",
@@ -72,10 +72,34 @@
                 "public_stories": "Public Stories",
                 "spotlight": "Spotlight"
             },
+            "auto_save_messages": {
+                "NOTE": "Audio Note",
+                "CHAT": "Chat",
+                "EXTERNAL_MEDIA": "External Media",
+                "SNAP": "Snap",
+                "STICKER": "Sticker"
+            },
             "notification_blacklist": {
                 "chat": "Chat",
                 "snap": "Snap",
                 "typing": "Typing"
+            },
+            "gallery_media_send_override": {
+                "OFF": "Off",
+                "NOTE": "Audio Note",
+                "SNAP": "Snap",
+                "LIVE_SNAP": "Snap with audio"
+            },
+            "media_quality_level": {
+                "LEVEL_NONE": "Level None",
+                "LEVEL_1": "Level 1",
+                "LEVEL_2": "Level 2",
+                "LEVEL_3": "Level 3",
+                "LEVEL_4": "Level 4",
+                "LEVEL_5": "Level 5",
+                "LEVEL_6": "Level 6",
+                "LEVEL_7": "Level 7",
+                "LEVEL_MAX": "Level Max"
             },
             "hide_ui_elements": {
                 "remove_call_buttons": "Remove Call Buttons",
@@ -96,6 +120,12 @@
     "message_context_menu_option": {
         "download": "Download",
         "preview": "Preview"
+    },
+
+    "chat_action_menu": {
+        "preview_button": "Preview",
+        "download_button": "Download",
+        "delete_logged_message_button": "Delete Logged Message"
     },
 
     "opera_context_menu": {
