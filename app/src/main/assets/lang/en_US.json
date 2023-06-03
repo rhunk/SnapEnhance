@@ -62,7 +62,8 @@
         "meo_passcode_bypass": "My Eyes Only Passcode Bypass",
         "location_spoof": "Snapmap Location Spoofer",
         "latitude_value": "Latitude",
-        "longitude_value": "Longitude"
+        "longitude_value": "Longitude",
+        "device_fingerprint": "Spoof Device Fingerprint"
     },
 
     "option": {

@@ -255,6 +255,12 @@ enum class ConfigProperty(
     "description.meo_passcode_bypass",
         ConfigCategory.EXPERIMENTAL,
         ConfigStateValue(false)
+    ),
+    FINGERPRINT(
+        "property.device_fingerprint",
+        "description.device_fingerprint",
+        ConfigCategory.EXPERIMENTAL,
+        ConfigStringValue("")
     );
 
     companion object {
