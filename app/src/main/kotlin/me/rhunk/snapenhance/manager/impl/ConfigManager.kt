@@ -41,14 +41,14 @@ class ConfigManager(
             JsonObject::class.java
         )
         entries().forEach { (key, value) ->
-            value.read(configObject.get(key.name)?.asString ?: value.write())
+            value.writeFrom(configObject.get(key.name)?.asString ?: value.read())
         }
     }
 
     fun writeConfig() {
         val configObject = JsonObject()
         entries().forEach { (key, value) ->
-            configObject.addProperty(key.name, value.write())
+            configObject.addProperty(key.name, value.read())
         }
         context.bridgeClient.writeFile(
             BridgeFileType.CONFIG,

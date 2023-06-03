@@ -59,11 +59,11 @@ class SettingsMenu : AbstractMenu() {
         val resultView: View = when (property.valueContainer) {
             is ConfigStringValue -> {
                 val textView = TextView(viewModel.context)
-                updateButtonText(textView, property.valueContainer.value)
+                updateButtonText(textView, property.valueContainer.value())
                 ViewAppearanceHelper.applyTheme(viewModel, textView)
                 textView.setOnClickListener {
                     textEditor { value ->
-                        property.valueContainer.value = value
+                        property.valueContainer.writeFrom(value)
                         updateButtonText(textView, value)
                     }
                 }
@@ -71,11 +71,11 @@ class SettingsMenu : AbstractMenu() {
             }
             is ConfigIntegerValue -> {
                 val button = Button(viewModel.context)
-                updateButtonText(button, property.valueContainer.value.toString())
+                updateButtonText(button, property.valueContainer.value().toString())
                 button.setOnClickListener {
                     textEditor { value ->
                         runCatching {
-                            property.valueContainer.value = value.toInt()
+                            property.valueContainer.writeFrom(value)
                             updateButtonText(button, value)
                         }.onFailure {
                             context.shortToast("Invalid value")
@@ -88,9 +88,9 @@ class SettingsMenu : AbstractMenu() {
             is ConfigStateValue -> {
                 val switch = Switch(viewModel.context)
                 switch.text = context.translation.get(property.nameKey)
-                switch.isChecked = property.valueContainer.value
+                switch.isChecked = property.valueContainer.value()
                 switch.setOnCheckedChangeListener { _, isChecked ->
-                    property.valueContainer.value = isChecked
+                    property.valueContainer.writeFrom(isChecked.toString())
                 }
                 ViewAppearanceHelper.applyTheme(viewModel, switch)
                 switch
@@ -107,7 +107,7 @@ class SettingsMenu : AbstractMenu() {
                         property.valueContainer.keys().toTypedArray(),
                         property.valueContainer.keys().indexOf(property.valueContainer.value())
                     ) { _, which ->
-                        property.valueContainer.value(property.valueContainer.keys()[which])
+                        property.valueContainer.writeFrom(property.valueContainer.keys()[which])
                     }
 
                     builder.setPositiveButton("OK") { _, _ ->
@@ -127,14 +127,14 @@ class SettingsMenu : AbstractMenu() {
                     val builder = AlertDialog.Builder(viewModel.context)
                     builder.setTitle(context.translation.get(property.nameKey))
 
-                    val sortedStates = property.valueContainer.states.toSortedMap()
+                    val sortedStates = property.valueContainer.value().toSortedMap()
 
                     builder.setMultiChoiceItems(
                         sortedStates.toSortedMap().map { context.translation.get("option." + property.nameKey + "." +it.key) }.toTypedArray(),
                         sortedStates.map { it.value }.toBooleanArray()
                     ) { _, which, isChecked ->
                         sortedStates.keys.toList()[which].let { key ->
-                            property.valueContainer.states[key] = isChecked
+                            property.valueContainer.setKey(key, isChecked)
                         }
                     }
 
