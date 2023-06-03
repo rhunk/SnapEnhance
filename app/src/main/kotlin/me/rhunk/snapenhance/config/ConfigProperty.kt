@@ -12,7 +12,8 @@ enum class ConfigProperty(
     val nameKey: String,
     val descriptionKey: String,
     val category: ConfigCategory,
-    val valueContainer: ConfigValue<*>
+    val valueContainer: ConfigValue<*>,
+    val shouldAppearInSettings: Boolean = true
 ) {
     
     //SPYING AND PRIVACY
@@ -228,13 +229,15 @@ enum class ConfigProperty(
         "property.latitude_value",
         "description.latitude_value",
         ConfigCategory.UI_TWEAKS,
-        ConfigStringValue("0.0000")
+        ConfigStringValue("0.0000"),
+        shouldAppearInSettings = false
     ),
     LONGITUDE(
         "property.longitude_value",
         "description.longitude_value",
         ConfigCategory.UI_TWEAKS,
-        ConfigStringValue("0.0000")
+        ConfigStringValue("0.0000"),
+        shouldAppearInSettings = false
     ),
     MENU_SLOT_ID("property.menu_slot_id",
         "description.menu_slot_id",

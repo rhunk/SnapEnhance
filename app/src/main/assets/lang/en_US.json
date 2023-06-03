@@ -10,7 +10,7 @@
         "clean_cache": "Clean Cache",
         "clear_message_logger": "Clear Message Logger",
         "refresh_mappings": "Refresh Mappings",
-        "open_map": "Pick a location on the map"
+        "open_map": "Choose location on map"
     },
    
     "property": {

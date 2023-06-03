@@ -196,9 +196,9 @@ class SettingsMenu : AbstractMenu() {
             it.key.category
         }.forEach { (category, value) ->
             addView(createCategoryTitle(viewModel, category.key))
-            value.forEach {
-                addView(createPropertyView(viewModel, it.key))
-                actions.find { pair -> pair.first.dependsOnProperty == it.key }?.let { pair ->
+            value.filter { it.key.shouldAppearInSettings }.forEach { (property, _) ->
+                addView(createPropertyView(viewModel, property))
+                actions.find { pair -> pair.first.dependsOnProperty == property}?.let { pair ->
                     addView(pair.second())
                 }
             }
