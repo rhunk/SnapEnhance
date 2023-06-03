@@ -1,18 +1,25 @@
 package me.rhunk.snapenhance.action.impl
 
 import android.app.AlertDialog
+import android.os.Environment
+import kotlinx.coroutines.DelicateCoroutinesApi
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.Job
+import kotlinx.coroutines.joinAll
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.suspendCancellableCoroutine
 import me.rhunk.snapenhance.Logger
 import me.rhunk.snapenhance.action.AbstractAction
+import me.rhunk.snapenhance.data.ContentType
 import me.rhunk.snapenhance.data.wrapper.impl.Message
 import me.rhunk.snapenhance.data.wrapper.impl.SnapUUID
 import me.rhunk.snapenhance.database.objects.FriendFeedInfo
 import me.rhunk.snapenhance.features.impl.Messaging
 import me.rhunk.snapenhance.util.CallbackBuilder
-import kotlin.concurrent.thread
+import me.rhunk.snapenhance.util.protobuf.ProtoReader
+import java.io.File
+import java.io.FileOutputStream
 
 class ExportChatMessages : AbstractAction("action.export_chat_messages") {
     private val callbackClass by lazy {  context.mappings.getMappedClass("callbacks", "Callback") }
@@ -41,8 +48,9 @@ class ExportChatMessages : AbstractAction("action.export_chat_messages") {
 
     private fun logDialog(message: String) {
         context.runOnUiThread {
-            if (dialogLogs.size > 50) dialogLogs.removeAt(0)
+            if (dialogLogs.size > 20) dialogLogs.removeAt(0)
             dialogLogs.add(message)
+            Logger.debug("dialog: $message")
             currentActionDialog!!.setMessage(dialogLogs.joinToString("\n"))
         }
     }
@@ -76,13 +84,49 @@ class ExportChatMessages : AbstractAction("action.export_chat_messages") {
             .show()
     }
 
+    private fun serializeMessage(message: Message): String {
+        return if (message.messageContent.contentType == ContentType.CHAT) {
+            ProtoReader(message.messageContent.content).getString(2, 1) ?: "Failed to parse message"
+        } else {
+            "Unsupported message type: ${message.messageContent.contentType}"
+        }
+    }
+
+    private fun exportConversationToStorage(friendFeedInfo: FriendFeedInfo, messages: List<Message>) {
+        val conversationParticipants =
+            context.database.getConversationParticipants(friendFeedInfo.key!!)
+                ?.mapNotNull {
+                    context.database.getFriendInfo(it)
+                }?.associateBy { it.userId!! } ?: emptyMap()
+
+        if (conversationParticipants.isEmpty()) {
+            Logger.error("Failed to get conversation participants for ${friendFeedInfo.key}")
+            return
+        }
+
+        val conversationOutput = StringBuilder()
+        conversationOutput.append("Conversation with ${conversationParticipants.values.map { it.displayName }.joinToString(", ")}\n\n")
+
+        messages.sortedBy { it.orderKey }.forEach { message ->
+            val sender: String = conversationParticipants[message.senderId.toString()]?.displayName ?: "Unknown"
+            conversationOutput.append("$sender: ${serializeMessage(message)}\n")
+        }
+
+        val outputPath = File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS), "/conversation_${friendFeedInfo.key}.txt")
+
+        FileOutputStream(outputPath).use {
+            it.write(conversationOutput.toString().toByteArray())
+            logDialog("conversation ${friendFeedInfo.key} exported to ${outputPath.absolutePath}")
+        }
+    }
+
     private suspend fun conversationAction(isEntering: Boolean, conversationId: String, conversationType: String?) = suspendCancellableCoroutine { continuation ->
         val callback = CallbackBuilder(callbackClass)
             .override("onSuccess") { param ->
                 continuation.resumeWith(Result.success(Unit))
             }
             .override("onError") {
-                continuation.resumeWith(Result.failure(Exception("Failed to enter conversation")))
+                continuation.resumeWith(Result.failure(Exception("Failed to ${if (isEntering) "enter" else "exit"} conversation")))
             }.build()
 
         if (isEntering) {
@@ -124,9 +168,9 @@ class ExportChatMessages : AbstractAction("action.export_chat_messages") {
         val callback = CallbackBuilder(fetchConversationWithMessagesCallbackClass)
             .override("onFetchConversationWithMessagesComplete") { param ->
                 val messagesList = param.arg<List<*>>(1).map { Message(it) }
-                val isLastMessage = param.arg<Boolean>(2)
-                continuation.resumeWith(Result.success(Pair(messagesList, isLastMessage)))
+                continuation.resumeWith(Result.success(messagesList))
             }
+            .override("onServerRequest", shouldUnhook = false) {}
             .override("onError") {
                 continuation.resumeWith(Result.failure(Exception("Failed to fetch messages")))
             }.build()
@@ -135,7 +179,7 @@ class ExportChatMessages : AbstractAction("action.export_chat_messages") {
             conversationManagerInstance,
             SnapUUID.fromString(conversationId).instanceNonNull(),
             lastMessageId,
-            100,
+            500,
             callback
         )
     }
@@ -143,47 +187,41 @@ class ExportChatMessages : AbstractAction("action.export_chat_messages") {
     private suspend fun exportFullConversation(conversation: FriendFeedInfo) {
         //first fetch the first message
         val conversationId = conversation.key!!
+        val conversationName = conversation.feedDisplayName ?: conversation.friendDisplayName!!.split("|").firstOrNull() ?: "unknown"
+
         conversationAction(true, conversationId, if (conversation.feedDisplayName != null) "USERCREATEDGROUP" else "ONEONONE")
+
+        logDialog("==> exporting $conversationName")
 
         val foundMessages = fetchMessages(conversationId).toMutableList()
         var lastMessageId = foundMessages.firstOrNull()?.messageDescriptor?.messageId ?: run {
-            Logger.debug("No messages found")
+            logDialog("No messages found")
             return
         }
 
-        Logger.log("initial message list size ${foundMessages.size}")
-
         while (true) {
-            Logger.debug("Fetching messages from $lastMessageId")
-            val (messages, isLast) = fetchMessagesPaginated(conversationId, lastMessageId)
-            Logger.debug("isLast $isLast")
-            if (messages.isEmpty()) {
-                Logger.debug("No more messages")
-                break
-            }
+            logDialog("[$conversationName] fetching $lastMessageId")
+            val messages = fetchMessagesPaginated(conversationId, lastMessageId)
+            if (messages.isEmpty()) break
             foundMessages.addAll(messages)
-            Logger.debug("addAll $lastMessageId => ${messages.size}")
-            messages.lastOrNull()?.let {
+            messages.firstOrNull()?.let {
                 lastMessageId = it.messageDescriptor.messageId
-                Logger.debug("Last message id ${it.messageDescriptor.messageId}")
             }
         }
-
-        foundMessages.forEach {
-            Logger.debug("${it.messageContent.contentType} " + it.messageContent.content.contentToString())
-        }
-        Logger.debug("size ${foundMessages.size}")
+        exportConversationToStorage(conversation, foundMessages)
         conversationAction(false, conversationId, null)
     }
 
+    @OptIn(DelicateCoroutinesApi::class)
     private fun exportChatForConversations(conversations: List<FriendFeedInfo>) {
-
+        dialogLogs.clear()
         val jobs = mutableListOf<Job>()
 
         currentActionDialog = AlertDialog.Builder(context.mainActivity)
             .setTitle("Exporting chats")
             .setCancelable(false)
-            .setNegativeButton("Cancel") { dialog, which ->
+            .setMessage("")
+            .setNegativeButton("Cancel") { dialog, _ ->
                 jobs.forEach { it.cancel() }
                 dialog.dismiss()
             }
@@ -193,17 +231,19 @@ class ExportChatMessages : AbstractAction("action.export_chat_messages") {
 
         currentActionDialog!!.show()
 
-        thread(start = true) {
-            runBlocking {
-                conversations.forEach { conversation ->
-                    jobs.add(launch {
+        GlobalScope.launch(Dispatchers.Main) {
+            conversations.forEach { conversation ->
+                launch {
+                    runCatching {
                         exportFullConversation(conversation)
-                        logDialog("Conversation ${conversation.key} exported")
-                    })
-                }
-                jobs.forEach { it.join() }
-                logDialog("Done!")
+                    }.onFailure {
+                        logDialog("Failed to export conversation ${conversation.key}")
+                        Logger.xposedLog(it)
+                    }
+                }.also { jobs.add(it) }
             }
+            jobs.joinAll()
+            logDialog("Done!")
         }
     }
 }
