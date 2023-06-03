@@ -11,15 +11,14 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.suspendCancellableCoroutine
 import me.rhunk.snapenhance.Logger
 import me.rhunk.snapenhance.action.AbstractAction
-import me.rhunk.snapenhance.data.ContentType
 import me.rhunk.snapenhance.data.wrapper.impl.Message
 import me.rhunk.snapenhance.data.wrapper.impl.SnapUUID
 import me.rhunk.snapenhance.database.objects.FriendFeedInfo
 import me.rhunk.snapenhance.features.impl.Messaging
 import me.rhunk.snapenhance.util.CallbackBuilder
-import me.rhunk.snapenhance.util.protobuf.ProtoReader
+import me.rhunk.snapenhance.util.export.ExportType
+import me.rhunk.snapenhance.util.export.MessageExporter
 import java.io.File
-import java.io.FileOutputStream
 
 class ExportChatMessages : AbstractAction("action.export_chat_messages") {
     private val callbackClass by lazy {  context.mappings.getMappedClass("callbacks", "Callback") }
@@ -84,41 +83,6 @@ class ExportChatMessages : AbstractAction("action.export_chat_messages") {
             .show()
     }
 
-    private fun serializeMessage(message: Message): String {
-        return if (message.messageContent.contentType == ContentType.CHAT) {
-            ProtoReader(message.messageContent.content).getString(2, 1) ?: "Failed to parse message"
-        } else {
-            "Unsupported message type: ${message.messageContent.contentType}"
-        }
-    }
-
-    private fun exportConversationToStorage(friendFeedInfo: FriendFeedInfo, messages: List<Message>) {
-        val conversationParticipants =
-            context.database.getConversationParticipants(friendFeedInfo.key!!)
-                ?.mapNotNull {
-                    context.database.getFriendInfo(it)
-                }?.associateBy { it.userId!! } ?: emptyMap()
-
-        if (conversationParticipants.isEmpty()) {
-            Logger.error("Failed to get conversation participants for ${friendFeedInfo.key}")
-            return
-        }
-
-        val conversationOutput = StringBuilder()
-        conversationOutput.append("Conversation with ${conversationParticipants.values.map { it.displayName }.joinToString(", ")}\n\n")
-
-        messages.sortedBy { it.orderKey }.forEach { message ->
-            val sender: String = conversationParticipants[message.senderId.toString()]?.displayName ?: "Unknown"
-            conversationOutput.append("$sender: ${serializeMessage(message)}\n")
-        }
-
-        val outputPath = File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS), "/conversation_${friendFeedInfo.key}.txt")
-
-        FileOutputStream(outputPath).use {
-            it.write(conversationOutput.toString().toByteArray())
-            logDialog("conversation ${friendFeedInfo.key} exported to ${outputPath.absolutePath}")
-        }
-    }
 
     private suspend fun conversationAction(isEntering: Boolean, conversationId: String, conversationType: String?) = suspendCancellableCoroutine { continuation ->
         val callback = CallbackBuilder(callbackClass)
@@ -193,7 +157,7 @@ class ExportChatMessages : AbstractAction("action.export_chat_messages") {
 
         logDialog("==> exporting $conversationName")
 
-        val foundMessages = fetchMessages(conversationId).toMutableList()
+        val foundMessages = fetchMessagesPaginated(conversationId, Long.MAX_VALUE).toMutableList()
         var lastMessageId = foundMessages.firstOrNull()?.messageDescriptor?.messageId ?: run {
             logDialog("No messages found")
             return
@@ -208,7 +172,15 @@ class ExportChatMessages : AbstractAction("action.export_chat_messages") {
                 lastMessageId = it.messageDescriptor.messageId
             }
         }
-        exportConversationToStorage(conversation, foundMessages)
+
+        MessageExporter(context).also {
+            it.readInfo(
+                conversation,
+                foundMessages,
+                File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS), "snap_export_${conversationName}_${System.currentTimeMillis()}.txt")
+            )
+        }.exportTo(ExportType.JSON)
+
         conversationAction(false, conversationId, null)
     }
 
