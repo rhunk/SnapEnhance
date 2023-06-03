@@ -3,6 +3,7 @@ package me.rhunk.snapenhance.util.export
 import com.google.gson.GsonBuilder
 import com.google.gson.JsonArray
 import com.google.gson.JsonObject
+import me.rhunk.snapenhance.Constants
 import me.rhunk.snapenhance.ModContext
 import me.rhunk.snapenhance.data.ContentType
 import me.rhunk.snapenhance.data.MediaReferenceType
@@ -13,13 +14,18 @@ import me.rhunk.snapenhance.util.protobuf.ProtoReader
 import java.io.File
 import java.io.FileOutputStream
 import java.io.OutputStream
+import java.text.SimpleDateFormat
 import java.util.Base64
+import java.util.Date
+import java.util.Locale
 
 
-enum class ExportType {
-    JSON,
-    CSV,
-    HTML
+enum class ExportFormat(
+    val extension: String,
+){
+    JSON("json"),
+    TEXT("txt"),
+    HTML("html"),
 }
 
 class MessageExporter(
@@ -28,7 +34,6 @@ class MessageExporter(
     companion object {
         private val prettyPrintGson = GsonBuilder().setPrettyPrinting().create()
     }
-
 
     private lateinit var friendFeedInfo: FriendFeedInfo
     private lateinit var conversationParticipants: Map<String, FriendInfo>
@@ -57,6 +62,27 @@ class MessageExporter(
         } else null
     }
 
+    private fun exportText(output: OutputStream) {
+        val writer = output.bufferedWriter()
+        writer.write("Conversation key: ${friendFeedInfo.key}\n")
+        writer.write("Conversation Name: ${friendFeedInfo.feedDisplayName}\n")
+        writer.write("Participants:\n")
+        conversationParticipants.forEach { (userId, friendInfo) ->
+            writer.write("  $userId: ${friendInfo.displayName}\n")
+        }
+
+        writer.write("\nMessages:\n")
+        messages.forEach { message ->
+            val sender = conversationParticipants[message.senderId.toString()]
+            val senderUsername = sender?.usernameForSorting ?: message.senderId.toString()
+            val senderDisplayName = sender?.displayName ?: message.senderId.toString()
+            val messageContent = serializeMessageContent(message) ?: "Failed to parse message"
+            val date = SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.ENGLISH).format(Date(message.messageMetadata.createdAt))
+            writer.write("[$date] - $senderDisplayName (${senderUsername}): $messageContent\n")
+        }
+        writer.flush()
+    }
+
     private fun exportJson(output: OutputStream) {
         val rootObject = JsonObject().apply {
             addProperty("conversationId", friendFeedInfo.key)
@@ -79,9 +105,26 @@ class MessageExporter(
                         addProperty("isSaved", message.messageMetadata.savedBy.isNotEmpty())
                         addProperty("createdTimestamp", message.messageMetadata.createdAt)
                         addProperty("serializedContent", serializeMessageContent(message))
-                        addProperty("rawContent", Base64.getEncoder().encodeToString(message.messageContent.content))
+                        addProperty("rawContent", Base64.getUrlEncoder().encodeToString(message.messageContent.content))
 
                         val messageContentType = message.messageContent.contentType
+
+                        ProtoReader(message.messageContent.content).let {
+                                                if (messageContentType == ContentType.EXTERNAL_MEDIA)
+                                                    return@let it.readPath(*Constants.MESSAGE_EXTERNAL_MEDIA_ENCRYPTION_PROTO_PATH)
+                                                else
+                                                    return@let it.readPath(*Constants.MESSAGE_SNAP_ENCRYPTION_PROTO_PATH)
+                                            }
+                            ?.readPath(Constants.ARROYO_ENCRYPTION_PROTO_INDEX)?.let { reader ->
+                            add("encryption", JsonObject().apply encryption@{
+                                val key = reader.getByteArray(1)!!
+                                val iv = reader.getByteArray(2)!!
+
+                                addProperty("key", Base64.getEncoder().encodeToString(key))
+                                addProperty("iv", Base64.getEncoder().encodeToString(iv))
+                            })
+                        }
+
                         val remoteMediaReferences by lazy {
                             val serializedMessageContent = context.gson.toJsonTree(message.messageContent.instanceNonNull()).asJsonObject
                             serializedMessageContent["mRemoteMediaReferences"]
@@ -100,7 +143,7 @@ class MessageExporter(
                                 val mediaType = MediaReferenceType.valueOf(media.asJsonObject["mMediaType"].asString)
                                 add(JsonObject().apply {
                                     addProperty("mediaType", mediaType.toString())
-                                    addProperty("content", Base64.getEncoder().encodeToString(protoMediaReference))
+                                    addProperty("content", Base64.getUrlEncoder().encodeToString(protoMediaReference))
                                 })
                             }
                         })
@@ -114,12 +157,13 @@ class MessageExporter(
         output.flush()
     }
 
-    fun exportTo(exportType: ExportType) {
+    fun exportTo(exportFormat: ExportFormat) {
         val output = FileOutputStream(outputFile)
 
-        when (exportType) {
-            ExportType.JSON -> exportJson(output)
-            else -> throw Throwable("Unsupported export type: $exportType")
+        when (exportFormat) {
+            ExportFormat.JSON -> exportJson(output)
+            ExportFormat.TEXT -> exportText(output)
+            else -> throw Throwable("Unsupported export type: $exportFormat")
         }
 
         output.close()

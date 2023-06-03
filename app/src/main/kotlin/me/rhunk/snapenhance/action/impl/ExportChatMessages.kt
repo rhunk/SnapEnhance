@@ -16,10 +16,11 @@ import me.rhunk.snapenhance.data.wrapper.impl.SnapUUID
 import me.rhunk.snapenhance.database.objects.FriendFeedInfo
 import me.rhunk.snapenhance.features.impl.Messaging
 import me.rhunk.snapenhance.util.CallbackBuilder
-import me.rhunk.snapenhance.util.export.ExportType
+import me.rhunk.snapenhance.util.export.ExportFormat
 import me.rhunk.snapenhance.util.export.MessageExporter
 import java.io.File
 
+@OptIn(DelicateCoroutinesApi::class)
 class ExportChatMessages : AbstractAction("action.export_chat_messages") {
     private val callbackClass by lazy {  context.mappings.getMappedClass("callbacks", "Callback") }
 
@@ -33,9 +34,6 @@ class ExportChatMessages : AbstractAction("action.export_chat_messages") {
     }
     private val fetchConversationWithMessagesPaginatedMethod by lazy {
         context.classCache.conversationManager.methods.first { it.name == "fetchConversationWithMessagesPaginated" }
-    }
-    private val fetchConversationWithMessagesMethod by lazy {
-        context.classCache.conversationManager.methods.first { it.name == "fetchConversationWithMessages" }
     }
 
     private val conversationManagerInstance by lazy {
@@ -54,39 +52,55 @@ class ExportChatMessages : AbstractAction("action.export_chat_messages") {
         }
     }
 
-    override fun run() {
-        val friendFeedEntries = context.database.getFriendFeed()
-
-        val selectedConversations = mutableListOf<FriendFeedInfo>()
-
-        AlertDialog.Builder(context.mainActivity)
-            .setTitle("Select a conversation")
-            .setMultiChoiceItems(
-                friendFeedEntries.map { it.feedDisplayName ?: it.friendDisplayName!!.split("|").firstOrNull() }.toTypedArray(),
-                BooleanArray(friendFeedEntries.size) { false }
-            ) { _, which, isChecked ->
-                if (isChecked) {
-                    selectedConversations.add(friendFeedEntries[which])
-                } else if (selectedConversations.contains(friendFeedEntries[which])) {
-                    selectedConversations.remove(friendFeedEntries[which])
+    private suspend fun askExportType() = suspendCancellableCoroutine { cont ->
+        context.runOnUiThread {
+            AlertDialog.Builder(context.mainActivity)
+                .setTitle("Select the export format")
+                .setItems(ExportFormat.values().map { it.name }.toTypedArray()) { _, which ->
+                    cont.resumeWith(Result.success(ExportFormat.values()[which]))
                 }
-            }
-            .setNegativeButton("Cancel") { dialog, which ->
-                dialog.dismiss()
-            }
-            .setNeutralButton("Export all") { dialog, which ->
-                exportChatForConversations(friendFeedEntries)
-            }
-            .setPositiveButton("Export") { dialog, which ->
-                exportChatForConversations(selectedConversations)
-            }
-            .show()
+                .setOnCancelListener {
+                    cont.resumeWith(Result.success(null))
+                }
+                .show()
+        }
     }
 
+    override fun run() {
+        GlobalScope.launch(Dispatchers.Main){
+            val exportType = askExportType() ?: return@launch
+
+            val friendFeedEntries = context.database.getFriendFeed()
+            val selectedConversations = mutableListOf<FriendFeedInfo>()
+
+            AlertDialog.Builder(context.mainActivity)
+                .setTitle("Select a conversation")
+                .setMultiChoiceItems(
+                    friendFeedEntries.map { it.feedDisplayName ?: it.friendDisplayName!!.split("|").firstOrNull() }.toTypedArray(),
+                    BooleanArray(friendFeedEntries.size) { false }
+                ) { _, which, isChecked ->
+                    if (isChecked) {
+                        selectedConversations.add(friendFeedEntries[which])
+                    } else if (selectedConversations.contains(friendFeedEntries[which])) {
+                        selectedConversations.remove(friendFeedEntries[which])
+                    }
+                }
+                .setNegativeButton("Cancel") { dialog, _ ->
+                    dialog.dismiss()
+                }
+                .setNeutralButton("Export all") { _, _ ->
+                    exportChatForConversations(exportType, friendFeedEntries)
+                }
+                .setPositiveButton("Export") { _, _ ->
+                    exportChatForConversations(exportType, selectedConversations)
+                }
+                .show()
+        }
+    }
 
     private suspend fun conversationAction(isEntering: Boolean, conversationId: String, conversationType: String?) = suspendCancellableCoroutine { continuation ->
         val callback = CallbackBuilder(callbackClass)
-            .override("onSuccess") { param ->
+            .override("onSuccess") { _ ->
                 continuation.resumeWith(Result.success(Unit))
             }
             .override("onError") {
@@ -110,24 +124,6 @@ class ExportChatMessages : AbstractAction("action.export_chat_messages") {
         }
     }
 
-
-    private suspend fun fetchMessages(conversationId: String) = suspendCancellableCoroutine { continuation ->
-        val callback = CallbackBuilder(fetchConversationWithMessagesCallbackClass)
-            .override("onFetchConversationWithMessagesComplete") { param ->
-                val messagesList = param.arg<List<*>>(1).map { Message(it) }
-                continuation.resumeWith(Result.success(messagesList))
-            }
-            .override("onError") {
-                continuation.resumeWith(Result.failure(Exception("Failed to fetch messages")))
-            }.build()
-
-        fetchConversationWithMessagesMethod.invoke(
-            conversationManagerInstance,
-            SnapUUID.fromString(conversationId).instanceNonNull(),
-            callback
-        )
-    }
-
     private suspend fun fetchMessagesPaginated(conversationId: String, lastMessageId: Long) = suspendCancellableCoroutine { continuation ->
         val callback = CallbackBuilder(fetchConversationWithMessagesCallbackClass)
             .override("onFetchConversationWithMessagesComplete") { param ->
@@ -148,14 +144,14 @@ class ExportChatMessages : AbstractAction("action.export_chat_messages") {
         )
     }
 
-    private suspend fun exportFullConversation(conversation: FriendFeedInfo) {
+    private suspend fun exportFullConversation(exportFormat: ExportFormat, conversation: FriendFeedInfo) {
         //first fetch the first message
         val conversationId = conversation.key!!
-        val conversationName = conversation.feedDisplayName ?: conversation.friendDisplayName!!.split("|").firstOrNull() ?: "unknown"
+        val conversationName = conversation.feedDisplayName ?: conversation.friendDisplayName!!.split("|").lastOrNull() ?: "unknown"
 
         conversationAction(true, conversationId, if (conversation.feedDisplayName != null) "USERCREATEDGROUP" else "ONEONONE")
 
-        logDialog("==> exporting $conversationName")
+        logDialog("exporting $conversationName ...")
 
         val foundMessages = fetchMessagesPaginated(conversationId, Long.MAX_VALUE).toMutableList()
         var lastMessageId = foundMessages.firstOrNull()?.messageDescriptor?.messageId ?: run {
@@ -164,7 +160,7 @@ class ExportChatMessages : AbstractAction("action.export_chat_messages") {
         }
 
         while (true) {
-            logDialog("[$conversationName] fetching $lastMessageId")
+            Logger.debug("[$conversationName] fetching $lastMessageId")
             val messages = fetchMessagesPaginated(conversationId, lastMessageId)
             if (messages.isEmpty()) break
             foundMessages.addAll(messages)
@@ -173,19 +169,27 @@ class ExportChatMessages : AbstractAction("action.export_chat_messages") {
             }
         }
 
+        val outputFile = File(
+            Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS),
+            "SnapEnhance/conversation_${conversationName}_${System.currentTimeMillis()}.${exportFormat.extension}"
+        ).also { it.parentFile?.mkdirs() }
+
+        logDialog("Writing output ...")
         MessageExporter(context).also {
             it.readInfo(
                 conversation,
                 foundMessages,
-                File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS), "snap_export_${conversationName}_${System.currentTimeMillis()}.txt")
+                outputFile
             )
-        }.exportTo(ExportType.JSON)
+        }.exportTo(exportFormat)
 
-        conversationAction(false, conversationId, null)
+        logDialog("\nExported to ${outputFile.absolutePath}\n")
+        runCatching {
+            conversationAction(false, conversationId, null)
+        }
     }
 
-    @OptIn(DelicateCoroutinesApi::class)
-    private fun exportChatForConversations(conversations: List<FriendFeedInfo>) {
+    private fun exportChatForConversations(exportFormat: ExportFormat, conversations: List<FriendFeedInfo>) {
         dialogLogs.clear()
         val jobs = mutableListOf<Job>()
 
@@ -193,13 +197,13 @@ class ExportChatMessages : AbstractAction("action.export_chat_messages") {
             .setTitle("Exporting chats")
             .setCancelable(false)
             .setMessage("")
-            .setNegativeButton("Cancel") { dialog, _ ->
+            .setNegativeButton("Close") { dialog, _ ->
                 jobs.forEach { it.cancel() }
                 dialog.dismiss()
             }
             .create()
 
-        logDialog("Exporting ${conversations.size} conversations")
+        logDialog("Processing ${conversations.size} conversations")
 
         currentActionDialog!!.show()
 
@@ -207,15 +211,16 @@ class ExportChatMessages : AbstractAction("action.export_chat_messages") {
             conversations.forEach { conversation ->
                 launch {
                     runCatching {
-                        exportFullConversation(conversation)
+                        exportFullConversation(exportFormat, conversation)
                     }.onFailure {
                         logDialog("Failed to export conversation ${conversation.key}")
+                        logDialog(it.stackTraceToString())
                         Logger.xposedLog(it)
                     }
                 }.also { jobs.add(it) }
             }
             jobs.joinAll()
-            logDialog("Done!")
+            logDialog("Done! You now can close this dialog")
         }
     }
 }
