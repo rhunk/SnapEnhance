@@ -4,6 +4,7 @@ import me.rhunk.snapenhance.Logger
 import me.rhunk.snapenhance.ModContext
 import me.rhunk.snapenhance.features.Feature
 import me.rhunk.snapenhance.features.FeatureLoadParams
+import me.rhunk.snapenhance.features.impl.AutoUpdater
 import me.rhunk.snapenhance.features.impl.ConfigEnumKeys
 import me.rhunk.snapenhance.features.impl.Messaging
 import me.rhunk.snapenhance.features.impl.downloader.AntiAutoDownload
@@ -75,7 +76,7 @@ class FeatureManager(private val context: ModContext) : Manager {
         register(MeoPasscodeBypass::class)
         register(AppPasscode::class)
         register(LocationSpoofer::class)
-
+        register(AutoUpdater::class)
 
         initializeFeatures()
     }

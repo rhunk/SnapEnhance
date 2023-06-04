@@ -3,6 +3,7 @@
         "spying_privacy": "Spying & Privacy",
         "media_manager": "Media Manager",
         "ui_tweaks": "UI & Tweaks",
+        "updates": "Updates",
         "experimental_debugging": "Experimental"
     },
 
@@ -10,7 +11,8 @@
         "clean_cache": "Clean Cache",
         "clear_message_logger": "Clear Message Logger",
         "refresh_mappings": "Refresh Mappings",
-        "open_map": "Choose location on map"
+        "open_map": "Choose location on map",
+        "check_for_updates": "Check for updates"
     },
    
     "property": {
@@ -55,7 +57,8 @@
         "location_spoof": "Snapmap Location Spoofer",
         "latitude_value": "Latitude",
         "longitude_value": "Longitude",
-        "hide_ui_elements": "Hide UI Elements"
+        "hide_ui_elements": "Hide UI Elements",
+        "auto_updater": "Auto Updater"
     },
 
     "option": {
@@ -112,6 +115,12 @@
                 "remove_cognac_button": "Remove Cognac Button",
                 "remove_stickers_button": "Remove Stickers Button",
                 "remove_voice_record_button": "Remove Voice Record Button"
+            },
+            "auto_updater": {
+                "DISABLED": "Disabled",
+                "EVERY_LAUNCH": "Every Launch",
+                "DAILY": "Daily",
+                "WEEKLY": "Weekly"
             }
         }
     },
@@ -155,5 +164,15 @@
         "display_name": "Display Name",
         "added_date": "Added Date",
         "birthday": "Birthday : {month} {day}"
+    },
+
+    "auto_updater": {
+        "no_update_available": "No Update available!",
+        "dialog_title": "New Update available!",
+        "dialog_message": "There is a new Update for SnapEnhance available! ({version})\n\n{body}",
+        "dialog_positive_button": "Download and Install",
+        "dialog_negative_button": "Cancel",
+        "downloading_toast": "Downloading Update...",
+        "download_manager_notification_title": "Downloading SnapEnhance APK..."
     }
 }

@@ -7,7 +7,8 @@ enum class BridgeFileType(val value: Int, val fileName: String, val isDatabase: 
     MESSAGE_LOGGER_DATABASE(2, "message_logger.db", true),
     STEALTH(3, "stealth.txt"),
     ANTI_AUTO_DOWNLOAD(4, "anti_auto_download.txt"),
-    ANTI_AUTO_SAVE(5, "anti_auto_save.txt");
+    ANTI_AUTO_SAVE(5, "anti_auto_save.txt"),
+    AUTO_UPDATER_TIMESTAMP(6, "auto_updater_timestamp.txt");
 
     companion object {
         fun fromValue(value: Int): BridgeFileType? {

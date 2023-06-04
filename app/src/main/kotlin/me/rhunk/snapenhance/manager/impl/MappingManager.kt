@@ -74,7 +74,7 @@ class MappingManager(private val context: ModContext) : Manager {
 
             val loadingDialog = statusDialogBuilder.show()
 
-            thread(start = true) {
+            context.executeAsync {
                 runCatching {
                     refresh()
                 }.onSuccess {

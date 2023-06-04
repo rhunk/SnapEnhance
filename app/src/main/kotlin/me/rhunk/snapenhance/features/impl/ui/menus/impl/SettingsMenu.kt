@@ -2,11 +2,13 @@ package me.rhunk.snapenhance.features.impl.ui.menus.impl
 
 import android.annotation.SuppressLint
 import android.app.AlertDialog
+import android.graphics.Color
 import android.graphics.Typeface
 import android.text.InputType
 import android.view.View
 import android.widget.Button
 import android.widget.EditText
+import android.widget.LinearLayout
 import android.widget.Switch
 import android.widget.TextView
 import me.rhunk.snapenhance.BuildConfig
@@ -163,6 +165,13 @@ class SettingsMenu : AbstractMenu() {
         return resultView
     }
 
+    private fun newSeparator(thickness: Int, color: Int = Color.BLACK): View {
+        return LinearLayout(context.mainActivity).apply {
+            setPadding(0, 0, 0, thickness)
+            setBackgroundColor(color)
+        }
+    }
+
     @SuppressLint("SetTextI18n")
     @Suppress("deprecation")
     fun inject(viewModel: View, addView: (View) -> Unit) {
@@ -206,9 +215,10 @@ class SettingsMenu : AbstractMenu() {
             }
         }
 
-        //addView(createCategoryTitle(viewModel, "category.debugging"))
         actions.filter { it.first.dependsOnProperty == null }.forEach {
             addView(it.second())
         }
+
+        addView(newSeparator(3, Color.parseColor("#f5f5f5")))
     }
 }

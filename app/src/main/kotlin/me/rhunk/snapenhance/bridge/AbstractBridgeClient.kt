@@ -99,4 +99,16 @@ abstract class AbstractBridgeClient {
      * @return the translations result
      */
     abstract fun fetchTranslations(): LocaleResult
+
+    /**
+     * Get check for updates last time
+     * @return the last time check for updates was done
+     */
+    abstract fun getAutoUpdaterTime(): Long
+
+    /**
+     * Set check for updates last time
+     * @param time the time to set
+     */
+    abstract fun setAutoUpdaterTime(time: Long)
 }

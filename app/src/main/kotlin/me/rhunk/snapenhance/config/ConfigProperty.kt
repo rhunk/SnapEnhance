@@ -257,6 +257,17 @@ enum class ConfigProperty(
         ConfigCategory.UI_TWEAKS,
         ConfigIntegerValue(20)
     ),
+
+    // UPDATES
+    AUTO_UPDATER(
+        "property.auto_updater",
+        "description.auto_updater",
+        ConfigCategory.UPDATES,
+        ConfigStateSelection(
+            listOf("DISABLED", "EVERY_LAUNCH", "DAILY", "WEEKLY"),
+            "DAILY"
+        )
+    ),
     
     // EXPERIMENTAL DEBUGGING
     USE_DOWNLOAD_MANAGER(
