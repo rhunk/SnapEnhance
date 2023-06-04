@@ -6,5 +6,6 @@ enum class ConfigCategory(
     SPYING_PRIVACY("category.spying_privacy"),
     MEDIA_MANAGEMENT("category.media_manager"),
     UI_TWEAKS("category.ui_tweaks"),
+    UPDATES("category.updates"),
     EXPERIMENTAL_DEBUGGING("category.experimental_debugging");
 }
