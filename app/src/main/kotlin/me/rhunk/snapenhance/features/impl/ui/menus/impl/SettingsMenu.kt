@@ -21,22 +21,25 @@ import me.rhunk.snapenhance.features.impl.ui.menus.AbstractMenu
 import me.rhunk.snapenhance.features.impl.ui.menus.ViewAppearanceHelper
 
 class SettingsMenu : AbstractMenu() {
+    @SuppressLint("ClickableViewAccessibility")
     private fun createCategoryTitle(viewModel: View, key: String): TextView {
         val categoryText = TextView(viewModel.context)
         categoryText.text = context.translation.get(key)
         ViewAppearanceHelper.applyTheme(viewModel, categoryText)
         categoryText.textSize = 20f
         categoryText.typeface = categoryText.typeface?.let { Typeface.create(it, Typeface.BOLD) }
+        categoryText.setOnTouchListener { _, _ -> true }
         return categoryText
     }
 
     @SuppressLint("SetTextI18n")
     private fun createPropertyView(viewModel: View, property: ConfigProperty): View {
         val updateButtonText: (TextView, String) -> Unit = { textView, text ->
-            textView.text = "${context.translation.get(property.nameKey)} $text"
+            textView.text = "${context.translation.get(property.nameKey)}${if (text.isEmpty()) "" else ": $text"}"
         }
-        val updateStateSelectionText: (TextView, String) -> Unit = { textView, text ->
-            updateButtonText(textView, text.let { if (it.isEmpty()) "(empty)" else ": $it" })
+
+        val updateLocalizedText: (TextView, String) -> Unit = { textView, value ->
+            updateButtonText(textView, value.let { if (it.isEmpty()) "(empty)" else context.translation.get("option." + property.nameKey + "." + it) })
         }
 
         val textEditor: ((String) -> Unit) -> Unit = { updateValue ->
@@ -59,23 +62,29 @@ class SettingsMenu : AbstractMenu() {
         val resultView: View = when (property.valueContainer) {
             is ConfigStringValue -> {
                 val textView = TextView(viewModel.context)
-                updateButtonText(textView, property.valueContainer.value)
+                updateButtonText(textView, property.valueContainer.let {
+                    if (it.isHidden) it.hiddenValue()
+                    else it.value()
+                })
                 ViewAppearanceHelper.applyTheme(viewModel, textView)
                 textView.setOnClickListener {
                     textEditor { value ->
-                        property.valueContainer.value = value
-                        updateButtonText(textView, value)
+                        property.valueContainer.writeFrom(value)
+                        updateButtonText(textView, property.valueContainer.let {
+                            if (it.isHidden) it.hiddenValue()
+                            else it.value()
+                        })
                     }
                 }
                 textView
             }
             is ConfigIntegerValue -> {
                 val button = Button(viewModel.context)
-                updateButtonText(button, property.valueContainer.value.toString())
+                updateButtonText(button, property.valueContainer.value().toString())
                 button.setOnClickListener {
                     textEditor { value ->
                         runCatching {
-                            property.valueContainer.value = value.toInt()
+                            property.valueContainer.writeFrom(value)
                             updateButtonText(button, value)
                         }.onFailure {
                             context.shortToast("Invalid value")
@@ -88,30 +97,30 @@ class SettingsMenu : AbstractMenu() {
             is ConfigStateValue -> {
                 val switch = Switch(viewModel.context)
                 switch.text = context.translation.get(property.nameKey)
-                switch.isChecked = property.valueContainer.value
+                switch.isChecked = property.valueContainer.value()
                 switch.setOnCheckedChangeListener { _, isChecked ->
-                    property.valueContainer.value = isChecked
+                    property.valueContainer.writeFrom(isChecked.toString())
                 }
                 ViewAppearanceHelper.applyTheme(viewModel, switch)
                 switch
             }
             is ConfigStateSelection -> {
                 val button = Button(viewModel.context)
-                updateStateSelectionText(button, property.valueContainer.value())
+                updateLocalizedText(button, property.valueContainer.value())
 
                 button.setOnClickListener {_ ->
                     val builder = AlertDialog.Builder(viewModel.context)
                     builder.setTitle(context.translation.get(property.nameKey))
 
                     builder.setSingleChoiceItems(
-                        property.valueContainer.keys().toTypedArray(),
+                        property.valueContainer.keys().toTypedArray().map { context.translation.get("option." + property.nameKey + "." + it) }.toTypedArray(),
                         property.valueContainer.keys().indexOf(property.valueContainer.value())
                     ) { _, which ->
-                        property.valueContainer.value(property.valueContainer.keys()[which])
+                        property.valueContainer.writeFrom(property.valueContainer.keys()[which])
                     }
 
                     builder.setPositiveButton("OK") { _, _ ->
-                        updateStateSelectionText(button, property.valueContainer.value())
+                        updateLocalizedText(button, property.valueContainer.value())
                     }
 
                     builder.show()
@@ -121,25 +130,25 @@ class SettingsMenu : AbstractMenu() {
             }
             is ConfigStateListValue -> {
                 val button = Button(viewModel.context)
-                updateStateSelectionText(button, property.valueContainer.toString())
+                updateButtonText(button, "(${property.valueContainer.value().count { it.value }})")
 
                 button.setOnClickListener {_ ->
                     val builder = AlertDialog.Builder(viewModel.context)
                     builder.setTitle(context.translation.get(property.nameKey))
 
-                    val sortedStates = property.valueContainer.states.toSortedMap()
+                    val sortedStates = property.valueContainer.value().toSortedMap()
 
                     builder.setMultiChoiceItems(
                         sortedStates.toSortedMap().map { context.translation.get("option." + property.nameKey + "." +it.key) }.toTypedArray(),
                         sortedStates.map { it.value }.toBooleanArray()
                     ) { _, which, isChecked ->
                         sortedStates.keys.toList()[which].let { key ->
-                            property.valueContainer.states[key] = isChecked
+                            property.valueContainer.setKey(key, isChecked)
                         }
                     }
 
                     builder.setPositiveButton("OK") { _, _ ->
-                        updateStateSelectionText(button, property.valueContainer.toString())
+                        updateButtonText(button, "(${property.valueContainer.value().count { it.value }})")
                     }
 
                     builder.show()
@@ -189,15 +198,15 @@ class SettingsMenu : AbstractMenu() {
             it.key.category
         }.forEach { (category, value) ->
             addView(createCategoryTitle(viewModel, category.key))
-            value.forEach {
-                addView(createPropertyView(viewModel, it.key))
-                actions.find { pair -> pair.first.dependsOnProperty == it.key }?.let { pair ->
+            value.filter { it.key.shouldAppearInSettings }.forEach { (property, _) ->
+                addView(createPropertyView(viewModel, property))
+                actions.find { pair -> pair.first.dependsOnProperty == property}?.let { pair ->
                     addView(pair.second())
                 }
             }
         }
 
-        addView(createCategoryTitle(viewModel, "category.debugging"))
+        //addView(createCategoryTitle(viewModel, "category.debugging"))
         actions.filter { it.first.dependsOnProperty == null }.forEach {
             addView(it.second())
         }

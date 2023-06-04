@@ -13,6 +13,7 @@ import me.rhunk.snapenhance.features.impl.downloader.MediaDownloader
 import me.rhunk.snapenhance.features.impl.ui.menus.AbstractMenu
 import me.rhunk.snapenhance.features.impl.ui.menus.ViewAppearanceHelper.applyTheme
 
+@SuppressLint("DiscouragedApi")
 class OperaContextActionMenu : AbstractMenu() {
     private val contextCardsScrollView by lazy {
         context.resources.getIdentifier("context_cards_scroll_view", "id", Constants.SNAPCHAT_PACKAGE_NAME)
