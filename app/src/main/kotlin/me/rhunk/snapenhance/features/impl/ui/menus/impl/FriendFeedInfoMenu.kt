@@ -45,7 +45,7 @@ class FriendFeedInfoMenu : AbstractMenu() {
         return SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.ENGLISH).format(Date(timestamp))
     }
 
-    fun showProfileInfo(profile: FriendInfo) {
+    private fun showProfileInfo(profile: FriendInfo) {
         var icon: Drawable? = null
         try {
             if (profile.bitmojiSelfieId != null && profile.bitmojiAvatarId != null) {
@@ -90,14 +90,14 @@ class FriendFeedInfoMenu : AbstractMenu() {
         }
     }
 
-    fun showPreview(userId: String?, conversationId: String, androidCtx: Context?) {
+    private fun showPreview(userId: String?, conversationId: String, androidCtx: Context?) {
         //query message
         val messages: List<ConversationMessage>? = context.database.getMessagesFromConversationId(
             conversationId,
             context.config.int(ConfigProperty.MESSAGE_PREVIEW_LENGTH)
         )?.reversed()
 
-        if (messages == null || messages.isEmpty()) {
+        if (messages.isNullOrEmpty()) {
             Toast.makeText(androidCtx, "No messages found", Toast.LENGTH_SHORT).show()
             return
         }
@@ -136,8 +136,8 @@ class FriendFeedInfoMenu : AbstractMenu() {
         val targetPerson: FriendInfo? =
             if (userId == null) null else participants[userId]
 
-        targetPerson?.let {
-            val timeSecondDiff = ((it.streakExpirationTimestamp - System.currentTimeMillis()) / 1000 / 60).toInt()
+        targetPerson?.streakExpirationTimestamp?.takeIf { it > 0 }?.let {
+            val timeSecondDiff = ((it - System.currentTimeMillis()) / 1000 / 60).toInt()
             messageBuilder.append("\n\n")
                 .append("\uD83D\uDD25 ") //fire emoji
                 .append(context.translation.get("conversation_preview.streak_expiration").format(
