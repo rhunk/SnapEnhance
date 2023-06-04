@@ -3,7 +3,7 @@ plugins {
     id 'org.jetbrains.kotlin.android'
 }
 
-def appVersionName = "0.1.2"
+def appVersionName = "1.0.0"
 def appVersionCode = 4
 
 android {
