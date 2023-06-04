@@ -1,9 +1,11 @@
 package me.rhunk.snapenhance.manager.impl
 
+import android.app.AlertDialog
 import com.google.gson.JsonElement
 import com.google.gson.JsonObject
 import com.google.gson.JsonParser
 import kotlinx.coroutines.Job
+import kotlinx.coroutines.joinAll
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 import me.rhunk.snapenhance.Constants
@@ -22,6 +24,7 @@ import me.rhunk.snapenhance.mapping.impl.PlusSubscriptionMapper
 import me.rhunk.snapenhance.util.getObjectField
 import java.nio.charset.StandardCharsets
 import java.util.concurrent.ConcurrentHashMap
+import kotlin.concurrent.thread
 
 @Suppress("UNCHECKED_CAST")
 class MappingManager(private val context: ModContext) : Manager {
@@ -36,6 +39,8 @@ class MappingManager(private val context: ModContext) : Manager {
     }
 
     private val mappings = ConcurrentHashMap<String, Any>()
+    val areMappingsLoaded: Boolean
+        get() = mappings.isNotEmpty()
     private var snapBuildNumber = 0
 
     @Suppress("deprecation")
@@ -59,12 +64,35 @@ class MappingManager(private val context: ModContext) : Manager {
             }
             return
         }
-        runCatching {
-            refresh()
-        }.onSuccess {
-            context.shortToast("Generated mappings for build $snapBuildNumber")
-        }.onFailure {
-            context.crash("Failed to generate mappings ${it.message}", it)
+        context.runOnUiThread {
+            val statusDialogBuilder = AlertDialog.Builder(context.mainActivity)
+                .setMessage("Generating mappings, please wait...")
+                .setCancelable(false)
+                .setView(android.widget.ProgressBar(context.mainActivity).apply {
+                    setPadding(0, 20, 0, 20)
+                })
+
+            val loadingDialog = statusDialogBuilder.show()
+
+            thread(start = true) {
+                runCatching {
+                    refresh()
+                }.onSuccess {
+                    context.shortToast("Generated mappings for build $snapBuildNumber")
+                    context.softRestartApp()
+                }.onFailure {
+                    Logger.error("Failed to generate mappings", it)
+                    context.runOnUiThread {
+                        loadingDialog.dismiss()
+                        statusDialogBuilder.setView(null)
+                        statusDialogBuilder.setMessage("Failed to generate mappings: $it")
+                        statusDialogBuilder.setNegativeButton("Close") { _, _ ->
+                            context.mainActivity!!.finish()
+                        }
+                        statusDialogBuilder.show()
+                    }
+                }
+             }
         }
     }
 
@@ -107,7 +135,7 @@ class MappingManager(private val context: ModContext) : Manager {
                 }
             }.also { jobs.add(it) }
         }
-        jobs.forEach { it.join() }
+        jobs.joinAll()
     }
 
     @Suppress("UNCHECKED_CAST", "DEPRECATION")
