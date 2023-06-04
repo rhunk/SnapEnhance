@@ -15,7 +15,7 @@ import me.rhunk.snapenhance.mapping.Mapper
 import me.rhunk.snapenhance.mapping.impl.BCryptClassMapper
 import me.rhunk.snapenhance.mapping.impl.CallbackMapper
 import me.rhunk.snapenhance.mapping.impl.EnumMapper
-import me.rhunk.snapenhance.mapping.impl.GridMediaItemMapper
+import me.rhunk.snapenhance.mapping.impl.DefaultMediaItemMapper
 import me.rhunk.snapenhance.mapping.impl.OperaPageViewControllerMapper
 import me.rhunk.snapenhance.mapping.impl.PlatformAnalyticsCreatorMapper
 import me.rhunk.snapenhance.mapping.impl.PlusSubscriptionMapper
@@ -30,7 +30,7 @@ class MappingManager(private val context: ModContext) : Manager {
         add(EnumMapper())
         add(OperaPageViewControllerMapper())
         add(PlusSubscriptionMapper())
-        add(GridMediaItemMapper())
+        add(DefaultMediaItemMapper())
         add(BCryptClassMapper())
         add(PlatformAnalyticsCreatorMapper())
     }
