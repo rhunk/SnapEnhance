@@ -113,7 +113,7 @@ class RootBridgeClient : AbstractBridgeClient() {
     }
 
     override fun getAutoUpdaterTime(): Long {
-        readFile(BridgeFileType.ANTI_AUTO_DOWNLOAD).run {
+        readFile(BridgeFileType.AUTO_UPDATER_TIMESTAMP).run {
             return if (isEmpty()) {
                 0
             } else {
