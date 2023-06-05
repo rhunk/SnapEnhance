@@ -5,24 +5,32 @@ import android.app.AlertDialog
 import android.content.Context
 import android.content.DialogInterface
 import android.content.res.Resources
+import android.graphics.Bitmap
 import android.graphics.BitmapFactory
+import android.graphics.Canvas
+import android.graphics.Color
+import android.graphics.Paint
 import android.graphics.drawable.BitmapDrawable
 import android.graphics.drawable.Drawable
+import android.view.Gravity
+import android.view.MotionEvent
 import android.view.View
-import android.widget.Button
+import android.view.ViewGroup
 import android.widget.CompoundButton
+import android.widget.LinearLayout
 import android.widget.Switch
 import android.widget.Toast
 import me.rhunk.snapenhance.Logger
 import me.rhunk.snapenhance.config.ConfigProperty
 import me.rhunk.snapenhance.data.ContentType
+import me.rhunk.snapenhance.data.wrapper.impl.FriendActionButton
 import me.rhunk.snapenhance.database.objects.ConversationMessage
 import me.rhunk.snapenhance.database.objects.FriendInfo
 import me.rhunk.snapenhance.database.objects.UserConversationLink
 import me.rhunk.snapenhance.features.impl.Messaging
 import me.rhunk.snapenhance.features.impl.downloader.AntiAutoDownload
-import me.rhunk.snapenhance.features.impl.extras.AntiAutoSave
 import me.rhunk.snapenhance.features.impl.spying.StealthMode
+import me.rhunk.snapenhance.features.impl.tweaks.AntiAutoSave
 import me.rhunk.snapenhance.features.impl.ui.menus.AbstractMenu
 import me.rhunk.snapenhance.features.impl.ui.menus.ViewAppearanceHelper.applyTheme
 import java.net.HttpURLConnection
@@ -45,7 +53,7 @@ class FriendFeedInfoMenu : AbstractMenu() {
         return SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.ENGLISH).format(Date(timestamp))
     }
 
-    fun showProfileInfo(profile: FriendInfo) {
+    private fun showProfileInfo(profile: FriendInfo) {
         var icon: Drawable? = null
         try {
             if (profile.bitmojiSelfieId != null && profile.bitmojiAvatarId != null) {
@@ -90,14 +98,14 @@ class FriendFeedInfoMenu : AbstractMenu() {
         }
     }
 
-    fun showPreview(userId: String?, conversationId: String, androidCtx: Context?) {
+    private fun showPreview(userId: String?, conversationId: String, androidCtx: Context?) {
         //query message
         val messages: List<ConversationMessage>? = context.database.getMessagesFromConversationId(
             conversationId,
             context.config.int(ConfigProperty.MESSAGE_PREVIEW_LENGTH)
         )?.reversed()
 
-        if (messages == null || messages.isEmpty()) {
+        if (messages.isNullOrEmpty()) {
             Toast.makeText(androidCtx, "No messages found", Toast.LENGTH_SHORT).show()
             return
         }
@@ -136,8 +144,8 @@ class FriendFeedInfoMenu : AbstractMenu() {
         val targetPerson: FriendInfo? =
             if (userId == null) null else participants[userId]
 
-        targetPerson?.let {
-            val timeSecondDiff = ((it.streakExpirationTimestamp - System.currentTimeMillis()) / 1000 / 60).toInt()
+        targetPerson?.streakExpirationTimestamp?.takeIf { it > 0 }?.let {
+            val timeSecondDiff = ((it - System.currentTimeMillis()) / 1000 / 60).toInt()
             messageBuilder.append("\n\n")
                 .append("\uD83D\uDD25 ") //fire emoji
                 .append(context.translation.get("conversation_preview.streak_expiration").format(
@@ -175,7 +183,25 @@ class FriendFeedInfoMenu : AbstractMenu() {
         viewConsumer(switch)
     }
 
-    @SuppressLint("SetTextI18n", "UseSwitchCompatOrMaterialCode", "DefaultLocale")
+    private fun createEmojiDrawable(text: String, width: Int, height: Int, textSize: Float, disabled: Boolean = false): Drawable {
+        val bitmap = Bitmap.createBitmap(width, height, Bitmap.Config.ARGB_8888)
+        val canvas = Canvas(bitmap)
+        val paint = Paint()
+        paint.textSize = textSize
+        paint.color = Color.BLACK
+        paint.textAlign = Paint.Align.CENTER
+        canvas.drawText(text, width / 2f, height.toFloat() - paint.descent(), paint)
+        if (disabled) {
+            paint.color = Color.RED
+            paint.strokeWidth = 5f
+            canvas.drawLine(0f, 0f, width.toFloat(), height.toFloat(), paint)
+        }
+        return BitmapDrawable(context.resources, bitmap)
+    }
+
+    @SuppressLint("SetTextI18n", "UseSwitchCompatOrMaterialCode", "DefaultLocale", "InflateParams",
+        "DiscouragedApi", "ClickableViewAccessibility"
+    )
     fun inject(viewModel: View, viewConsumer: ((View) -> Unit)) {
         val messaging = context.feature(Messaging::class)
         var focusedConversationTargetUser: String? = null
@@ -187,6 +213,84 @@ class FriendFeedInfoMenu : AbstractMenu() {
         } else {
             conversationId = messaging.lastFetchConversationUUID.toString()
         }
+
+        val friendFeedActionBar = LinearLayout(viewModel.context).apply {
+            layoutParams = ViewGroup.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT)
+            orientation = LinearLayout.HORIZONTAL
+            gravity = Gravity.CENTER
+            applyTheme(viewModel, this)
+            setOnTouchListener { _, _ -> true}
+        }
+
+        fun createActionButton(icon: String, isDisabled: Boolean? = null, onClick: (Boolean) -> Unit) {
+            friendFeedActionBar.addView(LinearLayout(viewModel.context).apply {
+                layoutParams = LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.MATCH_PARENT, 1f)
+                gravity = Gravity.CENTER
+                setPadding(0, 20, 0, 20)
+                isClickable = false
+
+                var isLineThrough = isDisabled ?: false
+                FriendActionButton.new(viewModel.context).apply {
+                    fun setLineThrough(value: Boolean) {
+                        setIconDrawable(createEmojiDrawable(icon, 60, 60, 50f, if (isDisabled == null) false else value))
+                    }
+                    setLineThrough(isLineThrough)
+                    instanceNonNull().apply {
+                        layoutParams = LinearLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT).apply {
+                            setMargins(0, 60, 0, 60)
+                        }
+                        setOnClickListener {
+                            isLineThrough = !isLineThrough
+                            onClick(isLineThrough)
+                            setLineThrough(isLineThrough)
+                        }
+                    }
+
+                }.also { addView(it.instanceNonNull()) }
+
+            })
+        }
+
+
+        if (context.config.bool(ConfigProperty.DOWNLOAD_BLACKLIST)) {
+            run {
+                val userId = context.database.getFriendFeedInfoByConversationId(conversationId)?.friendUserId ?: return@run
+                //toolbox
+                createActionButton("\uD83E\uDDF0", isDisabled = !context.feature(AntiAutoDownload::class).isUserIgnored(userId) ) {
+                    context.feature(AntiAutoDownload::class).setUserIgnored(userId, it)
+                }
+            }
+        }
+
+
+        if (context.config.bool(ConfigProperty.ANTI_AUTO_SAVE)) {
+            //diskette
+            createActionButton("\uD83D\uDCBE", isDisabled = !context.feature(AntiAutoSave::class).isConversationIgnored(conversationId) ) {
+                context.feature(AntiAutoSave::class).setConversationIgnored(conversationId, it)
+            }
+        }
+
+
+        //eyes
+        createActionButton("\uD83D\uDC7B", isDisabled = !context.feature(StealthMode::class).isStealth(conversationId)) { isChecked ->
+            context.feature(StealthMode::class).setStealth(
+                conversationId,
+                !isChecked
+            )
+        }
+
+        //user
+        createActionButton("\uD83D\uDC64") {
+            showPreview(
+                focusedConversationTargetUser,
+                conversationId,
+                viewModel.context
+            )
+        }
+
+        viewConsumer(friendFeedActionBar)
+
+        /*
 
         //preview button
         val previewButton = Button(viewModel.context)
@@ -215,7 +319,7 @@ class FriendFeedInfoMenu : AbstractMenu() {
 
         run {
             val userId = context.database.getFriendFeedInfoByConversationId(conversationId)?.friendUserId ?: return@run
-            if (context.config.bool(ConfigProperty.ANTI_DOWNLOAD_BUTTON)) {
+            if (context.config.bool(ConfigProperty.DOWNLOAD_BLACKLIST)) {
                 createToggleFeature(viewModel,
                     viewConsumer,
                     "friend_menu_option.anti_auto_download",
@@ -235,6 +339,6 @@ class FriendFeedInfoMenu : AbstractMenu() {
         }
 
         viewConsumer(stealthSwitch)
-        viewConsumer(previewButton)
+        viewConsumer(previewButton)*/
     }
 }

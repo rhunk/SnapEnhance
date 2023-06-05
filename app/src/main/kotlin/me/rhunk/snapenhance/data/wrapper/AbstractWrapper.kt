@@ -3,8 +3,8 @@ package me.rhunk.snapenhance.data.wrapper
 import de.robv.android.xposed.XposedHelpers
 import me.rhunk.snapenhance.util.CallbackBuilder
 
-abstract class AbstractWrapper(
-    protected var instance: Any?
+abstract class AbstractWrapper<T>(
+    protected var instance: T?
 ) {
     companion object {
         fun newEmptyInstance(clazz: Class<*>): Any {
@@ -12,7 +12,7 @@ abstract class AbstractWrapper(
         }
     }
 
-    fun instanceNonNull(): Any = instance!!
+    fun instanceNonNull() = instance!!
     fun isPresent(): Boolean = instance == null
 
     override fun hashCode(): Int {
