@@ -2,7 +2,7 @@ package me.rhunk.snapenhance.data.wrapper.impl.media.dash
 
 import me.rhunk.snapenhance.data.wrapper.AbstractWrapper
 
-class LongformVideoPlaylistItem(obj: Any?) : AbstractWrapper(obj) {
+class LongformVideoPlaylistItem(obj: Any?) : AbstractWrapper<Any?>(obj) {
     private val chapterList by lazy {
         instanceNonNull().javaClass.declaredFields.first { it.type == List::class.java }
     }

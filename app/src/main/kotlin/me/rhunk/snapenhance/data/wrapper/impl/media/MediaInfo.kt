@@ -6,7 +6,7 @@ import me.rhunk.snapenhance.util.getObjectField
 import java.lang.reflect.Field
 
 
-class MediaInfo(obj: Any?) : AbstractWrapper(obj) {
+class MediaInfo(obj: Any?) : AbstractWrapper<Any?>(obj) {
     val uri: String
         get() {
             val firstStringUriField = instanceNonNull().javaClass.fields.first { f: Field -> f.type == String::class.java }

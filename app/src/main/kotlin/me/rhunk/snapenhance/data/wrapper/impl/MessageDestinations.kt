@@ -4,7 +4,7 @@ import me.rhunk.snapenhance.data.wrapper.AbstractWrapper
 import me.rhunk.snapenhance.util.getObjectField
 import me.rhunk.snapenhance.util.setObjectField
 
-class MessageDestinations(obj: Any) : AbstractWrapper(obj){
+class MessageDestinations(obj: Any) : AbstractWrapper<Any?>(obj){
     var conversations get() = (instanceNonNull().getObjectField("mConversations") as ArrayList<*>).map { SnapUUID(it) }
         set(value) = instanceNonNull().setObjectField("mConversations", value.map { it.instanceNonNull() }.toCollection(ArrayList()))
     var stories get() = instanceNonNull().getObjectField("mStories") as ArrayList<Any>

@@ -5,7 +5,7 @@ import me.rhunk.snapenhance.data.wrapper.AbstractWrapper
 import me.rhunk.snapenhance.util.getObjectField
 import me.rhunk.snapenhance.util.setObjectField
 
-class MessageContent(obj: Any?) : AbstractWrapper(obj) {
+class MessageContent(obj: Any?) : AbstractWrapper<Any?>(obj) {
     var content
         get() = instanceNonNull().getObjectField("mContent") as ByteArray
         set(value) = instanceNonNull().setObjectField("mContent", value)

@@ -139,12 +139,6 @@ enum class ConfigProperty(
         ConfigCategory.MEDIA_MANAGEMENT,
         ConfigStateValue(false)
     ),
-    DOWNLOAD_BLACKLIST(
-        "property.auto_download_blacklist",
-        "description.auto_download_blacklist",
-        ConfigCategory.MEDIA_MANAGEMENT,
-        ConfigStateValue(false)
-    ),
     GALLERY_MEDIA_SEND_OVERRIDE(
         "property.gallery_media_send_override",
         "description.gallery_media_send_override",
@@ -160,11 +154,6 @@ enum class ConfigProperty(
         ConfigStateListValue(
             listOf("CHAT", "SNAP", "NOTE", "EXTERNAL_MEDIA", "STICKER")
         )
-    ),
-    ANTI_AUTO_SAVE("property.anti_auto_save",
-        "description.anti_auto_save",
-        ConfigCategory.MEDIA_MANAGEMENT,
-        ConfigStateValue(false)
     ),
     
     OVERRIDE_MEDIA_QUALITY(
@@ -184,6 +173,25 @@ enum class ConfigProperty(
     ),
     
     //UI AND TWEAKS
+    FRIEND_FEED_MENU(
+        "property.friend_feed_menu_buttons",
+        "description.friend_feed_menu_buttons",
+        ConfigCategory.UI_TWEAKS,
+        ConfigStateListValue(
+            listOf("download_blacklist", "anti_auto_save", "stealth_mode", "conversation_info"),
+            mutableMapOf(
+                "download_blacklist" to false,
+                "anti_auto_save" to false,
+                "stealth_mode" to true,
+                "conversation_info" to true
+            )
+        )
+    ),
+    FRIEND_FEED_MENU_POSITION("property.friend_feed_menu_buttons_position",
+        "description.friend_feed_menu_buttons_position",
+        ConfigCategory.UI_TWEAKS,
+        ConfigIntegerValue(1)
+    ),
     HIDE_UI_ELEMENTS(
         "property.hide_ui_elements",
         "description.hide_ui_elements",
@@ -245,11 +253,6 @@ enum class ConfigProperty(
         ConfigCategory.UI_TWEAKS,
         ConfigStringValue("0.0000"),
         shouldAppearInSettings = false
-    ),
-    MENU_SLOT_ID("property.menu_slot_id",
-        "description.menu_slot_id",
-        ConfigCategory.UI_TWEAKS,
-        ConfigIntegerValue(1)
     ),
     MESSAGE_PREVIEW_LENGTH(
         "property.message_preview_length",

@@ -6,7 +6,7 @@ import me.rhunk.snapenhance.util.getObjectField
 import java.nio.ByteBuffer
 import java.util.UUID
 
-class SnapUUID(obj: Any?) : AbstractWrapper(obj) {
+class SnapUUID(obj: Any?) : AbstractWrapper<Any?>(obj) {
     private val uuidString by lazy { toUUID().toString() }
 
     val bytes: ByteArray get() = instanceNonNull().getObjectField("mId") as ByteArray

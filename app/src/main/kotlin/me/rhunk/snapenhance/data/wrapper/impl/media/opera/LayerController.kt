@@ -6,7 +6,7 @@ import me.rhunk.snapenhance.util.ReflectionHelper
 import java.lang.reflect.Field
 import java.util.concurrent.ConcurrentHashMap
 
-class LayerController(obj: Any?) : AbstractWrapper(obj) {
+class LayerController(obj: Any?) : AbstractWrapper<Any?>(obj) {
     val paramMap: ParamMap
         get() {
             val paramMapField: Field = ReflectionHelper.searchFieldTypeInSuperClasses(

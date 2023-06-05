@@ -4,7 +4,7 @@ import me.rhunk.snapenhance.data.PlayableSnapState
 import me.rhunk.snapenhance.data.wrapper.AbstractWrapper
 import me.rhunk.snapenhance.util.getObjectField
 
-class MessageMetadata(obj: Any?) : AbstractWrapper(obj){
+class MessageMetadata(obj: Any?) : AbstractWrapper<Any?>(obj){
     val createdAt: Long get() = instanceNonNull().getObjectField("mCreatedAt") as Long
     val readAt: Long get() = instanceNonNull().getObjectField("mReadAt") as Long
     var playableSnapState: PlayableSnapState

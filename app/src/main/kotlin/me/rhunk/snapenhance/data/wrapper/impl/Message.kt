@@ -4,7 +4,7 @@ import me.rhunk.snapenhance.data.MessageState
 import me.rhunk.snapenhance.data.wrapper.AbstractWrapper
 import me.rhunk.snapenhance.util.getObjectField
 
-class Message(obj: Any?) : AbstractWrapper(obj) {
+class Message(obj: Any?) : AbstractWrapper<Any?>(obj) {
     val orderKey get() = instanceNonNull().getObjectField("mOrderKey") as Long
     val senderId get() = SnapUUID(instanceNonNull().getObjectField("mSenderId"))
     val messageContent get() = MessageContent(instanceNonNull().getObjectField("mMessageContent"))

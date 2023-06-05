@@ -7,7 +7,7 @@ import java.lang.reflect.Field
 import java.util.concurrent.ConcurrentHashMap
 
 @Suppress("UNCHECKED_CAST")
-class ParamMap(obj: Any?) : AbstractWrapper(obj) {
+class ParamMap(obj: Any?) : AbstractWrapper<Any?>(obj) {
     private val paramMapField: Field by lazy {
         ReflectionHelper.searchFieldTypeInSuperClasses(
             instanceNonNull().javaClass,

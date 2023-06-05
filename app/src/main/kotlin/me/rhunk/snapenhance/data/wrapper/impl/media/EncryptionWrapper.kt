@@ -10,7 +10,7 @@ import javax.crypto.CipherOutputStream
 import javax.crypto.spec.IvParameterSpec
 import javax.crypto.spec.SecretKeySpec
 
-class EncryptionWrapper(instance: Any?) : AbstractWrapper(instance) {
+class EncryptionWrapper(instance: Any?) : AbstractWrapper<Any?>(instance) {
     fun decrypt(data: ByteArray?): ByteArray {
         return newCipher(Cipher.DECRYPT_MODE).doFinal(data)
     }
