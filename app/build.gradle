@@ -3,8 +3,8 @@ plugins {
     id 'org.jetbrains.kotlin.android'
 }
 
-def appVersionName = "1.0.0"
-def appVersionCode = 4
+def appVersionName = "1.0.1"
+def appVersionCode = 5
 
 android {
     compileSdk 33
