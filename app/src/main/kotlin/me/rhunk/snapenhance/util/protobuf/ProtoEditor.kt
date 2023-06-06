@@ -15,19 +15,19 @@ class ProtoEditor(
         }
         val id = path[currentIndex]
         val output = ProtoWriter()
-        val wires = mutableMapOf<Int, ByteArray>()
+        val wires = mutableListOf<Pair<Int, ByteArray>>()
 
         rootReader.list { tag, value ->
             if (tag == id) {
                 val childReader = rootReader.readPath(id)
                 if (childReader == null) {
-                    wires[tag] = value
+                    wires.add(Pair(tag, value))
                     return@list
                 }
-                wires[tag] = writeAtPath(path, currentIndex + 1, childReader, bufferToWrite)
+                wires.add(Pair(tag, writeAtPath(path, currentIndex + 1, childReader, bufferToWrite)))
                 return@list
             }
-            wires[tag] = value
+            wires.add(Pair(tag, value))
         }
 
         wires.forEach { (tag, value) ->
