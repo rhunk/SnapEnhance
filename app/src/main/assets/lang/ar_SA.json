@@ -1,22 +1,18 @@
 {
     "category": {
-        "general": "عام",
-        "spying": "التخفي",
-        "media_download": "التحميل",
-        "privacy": "الخصوصية",
-        "ui": "الواجهة",
-        "extras": "إضافات",
-        "tweaks": "أدوات",
-        "location_spoof": "تزييف الموقع",
-        "experimental": "تجريبي",
-        "debugging": "تصحيح"
+        "spying_privacy": "التخفي و الخصوصية",
+        "media_manager": "إدارة الوسائط",
+        "ui_tweaks": "الواجهة والأدوات",
+        "updates": "التحديثات",
+        "experimental_debugging": "ميزات تجريبية"
     },
 
     "action": {
         "clean_cache": "حذف الذاكرة المؤقتة",
-        "clear_message_logger": "حذف الرسائل المحذوفة",
+        "clear_message_logger": "حذف سجل الرسائل المحذوفة",
         "refresh_mappings": "إعادة تحميل الأداة",
-        "open_map": "إختر موقع على الخريطة"
+        "open_map": "إختر موقع على الخريطة",
+        "check_for_updates": "تحقق من التحديثات"
     },
    
     "property": {
@@ -24,16 +20,14 @@
         "prevent_read_receipts": "إخفاء مؤشر القراءة",
         "hide_bitmoji_presence": "إخفاء البتموجي داخل المحادثة",
         "show_message_content_in_notifications": "إضهار محتوى الرسائل في الإشعارات",
+        "better_notifications": "ميزات إضافية للإشعارات",
         "notification_blacklist": "الإشعارات المحظورة",
         "message_logger": "الرسائل المحذوفة",
         "unlimited_snap_view_time": "مشاهدة السنابات لمدة غير محدودة",
-        "auto_download_snaps": "تحميل السنابات تلقائيا",
-        "auto_download_stories": "تحميل الستوري تلقائيا",
-        "auto_download_public_stories": "تحميل الستوريات العامة تلقائيا",
-        "auto_download_spotlight": "تحميل مقاطع الأضواء تلقائيا",
-        "download_options": "خيارات التحميل",
-        "download_inchat_snaps": "تحميل السنابات داخل المحادثة",
-        "anti_auto_download_button": "تعطيل زر التحميل",
+        "auto_download_options": "حفظ السنابات تلقائيا",
+        "download_options": "خيارات الحفظ",
+        "chat_download_context_menu": "حفظ السنابات داخل المحادثة",
+        "auto_download_blacklist": "الحفظ التلقائي للقائمة السوداء",
         "disable_metrics": "تعطيل تتبع سناب شات",
         "prevent_screenshot_notifications": "تعطيل إشعار تصوير الشاشة",
         "prevent_status_notifications": "تعطيل إشعار(الحفظ في ألبوم الصور, المكالمات الفائتة)",
@@ -42,8 +36,8 @@
         "menu_slot_id": "تحريك خيارات الأصدقاء",
         "message_preview_length": "عدد الرسائل في المعاينة",
         "gallery_media_send_override": "إرسال الوسائط كـ",
-        "auto_save": "الحفظ التلقائي",
-        "anti_auto_save": "تعطيل التحميل التلقائي",
+        "auto_save_messages": "حفظ الرسائل تلقائيا",
+        "anti_auto_save": "تعطيل الحفظ التلقائي",
         "snapchat_plus": "تفعيل اشتراك سناب شات بلس",
         "disable_snap_splitting": "تعطيل تقسيم السنابات",
         "disable_video_length_restriction": "تعطيل قيود رفع فيديو طويل",
@@ -51,33 +45,82 @@
         "media_quality_level": "مستوى جودة الوسائط",
         "remove_voice_record_button": "إخفاء زر تسجيل الصوت",
         "remove_stickers_button": "إخفاء زر الملصقات",
-        "remove_cognac_button": " إخفاء زر الألعاب",
-        "remove_call_buttons": "إخفاء",
+        "remove_cognac_button": "إخفاء زر الترفيه",
+        "remove_call_buttons": "إخفاء زر الإتصال",
         "block_ads": "تعطيل الإعلانات",
         "streak_expiration_info": "إضهار الوقت المتبقي على إنتهاء الستريك",
         "new_map_ui": "واجهة الخرائط الجديدة",
-        "use_download_manager": "إستخدام التحميل الإفتراضي",
-        "app_passcode": "وضع كلمة مرور للتطبيق",
+        "use_download_manager": "إستخدام مدير التنزيل الإفتراضي",
+        "app_passcode": "إنشاء كلمة مرور للتطبيق",
         "app_lock_on_resume": "طلب كلمة المرور في كل مرة",
         "meo_passcode_bypass": "تخطي كلمة مرور 'خاص بي فقط'",
-        "location_spoof": "تزييف الموقع",
+        "location_spoof": "تزييف الموقع في خريطة سناب شات",
         "latitude_value": "خط العرض",
-        "longitude_value": "خط الطول"
+        "longitude_value": "خط الطول",
+        "hide_ui_elements": "إخفاء عناصر الواجهة",
+        "auto_updater": "التحديث التلقائي"
     },
 
     "option": {
         "property": {
+            "better_notifications": {
+                "chat": "إضهار محتوى الرسالة",
+                "snap": "إضهار الوسائط",
+                "reply_button": "إضافة زر للرد"
+            },
             "download_options": {
                 "format_user_folder": "إنشاء مجلد لكل مستخدم",
                 "format_hash": "إضافة رقم فريد إلى مسار الملف",
-                "format_username": "إضافةاسم المستخدم إلى مسار الملف",
+                "format_username": "إضافة اسم المستخدم إلى مسار الملف",
                 "format_date_time": "إضافة الوقت والتاريخ إلى مسار الملف",
                 "merge_overlay": "دمج تراكب الطبقات على الصور عند الحفظ"
             },
+            "auto_download_options": {
+                "friend_snaps": "سنابات الأصدقاء",
+                "friend_stories": "ستوري الأصدقاء",
+                "public_stories": "الستوري العام",
+                "spotlight": "الأضواء"
+            },
+            "auto_save_messages": {
+                "NOTE": "الملاحظات الصوتية",
+                "CHAT": "الدردشة",
+                "EXTERNAL_MEDIA": "الوسائط",
+                "SNAP": "السنابات",
+                "STICKER": "الملصقات"
+            },
             "notification_blacklist": {
-                "chat": "المحادثة",
+                "chat": "الدردشة",
                 "snap": "السنابات",
                 "typing": "الكتابة"
+            },
+            "gallery_media_send_override": {
+                "OFF": "إيقاف",
+                "NOTE": "الملاحظات الصوتية",
+                "SNAP": "السنابات",
+                "LIVE_SNAP": "السنابات مع الصوت"
+            },
+            "media_quality_level": {
+                "LEVEL_NONE": "لاشيء",
+                "LEVEL_1": "المستوى 1",
+                "LEVEL_2": "المستوى 2",
+                "LEVEL_3": "المستوى 3",
+                "LEVEL_4": "المستوى 4",
+                "LEVEL_5": "المستوى 5",
+                "LEVEL_6": "المستوى 6",
+                "LEVEL_7": "المستوى 7",
+                "LEVEL_MAX": "المستوى الأعلى"
+            },
+            "hide_ui_elements": {
+                "remove_call_buttons": "إخفاء أزرار الإتصال",
+                "remove_cognac_button": "إخفاء زر الترفيه",
+                "remove_stickers_button": "إخفاء زر الملصقات",
+                "remove_voice_record_button": "إخفاء زر تسجيل الصوت"
+            },
+            "auto_updater": {
+                "DISABLED": "معطل",
+                "EVERY_LAUNCH": "عند فتح التطبيق",
+                "DAILY": "كل يوم",
+                "WEEKLY": "أسبوعي"
             }
         }
     },
@@ -85,17 +128,23 @@
     "friend_menu_option": {
         "preview": "معاينة",
         "stealth_mode": "وضع التخفي",
-        "anti_auto_download": "منع التحميل التلقائي",
+        "anti_auto_download": "منع الحفظ التلقائي",
         "anti_auto_save": "منع الحفظ التلقائي"
     },
 
     "message_context_menu_option": {
-        "download": "تنزيل",
+        "download": "حفظ",
         "preview": "معاينة"
     },
 
+    "chat_action_menu": {
+        "preview_button": "معاينة",
+        "download_button": "حفظ",
+        "delete_logged_message_button": "حذف سجل الرسائل المحذوفة"
+    },
+
     "opera_context_menu": {
-        "download": "تحميل"
+        "download": "حفظ الوسائط"
     },
 
     "modal_option": {
@@ -115,5 +164,15 @@
         "display_name": "إسم العرض",
         "added_date": "تاريخ الإضافة",
         "birthday": "تاريخ الميلاد : {month} {day}"
+    },
+
+    "auto_updater": {
+        "no_update_available": "لايوجد تحدثات جديدة",
+        "dialog_title": "يتوفر تحديث جديد",
+        "dialog_message": "هناك تحديث جديد لأداة SnapEnhance ({version})\n\n{body}",
+        "dialog_positive_button": "تحميل وتثبيت",
+        "dialog_negative_button": "إلغاء",
+        "downloading_toast": "تنزيل",
+        "download_manager_notification_title": "تنزيل ملف SnapEnhance ..."
     }
 }
