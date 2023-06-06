@@ -13,6 +13,8 @@ import android.os.HandlerThread
 import android.os.IBinder
 import android.os.Message
 import android.os.Messenger
+import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.suspendCancellableCoroutine
 import me.rhunk.snapenhance.BuildConfig
 import me.rhunk.snapenhance.Logger.xposedLog
 import me.rhunk.snapenhance.bridge.AbstractBridgeClient
@@ -25,11 +27,13 @@ import me.rhunk.snapenhance.bridge.common.impl.file.FileAccessRequest
 import me.rhunk.snapenhance.bridge.common.impl.file.FileAccessResult
 import me.rhunk.snapenhance.bridge.common.impl.locale.LocaleRequest
 import me.rhunk.snapenhance.bridge.common.impl.locale.LocaleResult
+import me.rhunk.snapenhance.bridge.common.impl.messagelogger.MessageLoggerListResult
 import me.rhunk.snapenhance.bridge.common.impl.messagelogger.MessageLoggerRequest
 import me.rhunk.snapenhance.bridge.common.impl.messagelogger.MessageLoggerResult
 import me.rhunk.snapenhance.bridge.service.BridgeService
 import java.util.concurrent.CompletableFuture
 import java.util.concurrent.Executors
+import kotlin.coroutines.resume
 import kotlin.reflect.KClass
 import kotlin.system.exitProcess
 
@@ -59,23 +63,20 @@ class ServiceBridgeClient: AbstractBridgeClient(), ServiceConnection {
     }
 
     private fun handleResponseMessage(
-        msg: Message,
-        future: CompletableFuture<BridgeMessage>
-    ) {
+        msg: Message
+    ): BridgeMessage {
         val message: BridgeMessage = when (BridgeMessageType.fromValue(msg.what)) {
             BridgeMessageType.FILE_ACCESS_RESULT -> FileAccessResult()
             BridgeMessageType.DOWNLOAD_CONTENT_RESULT -> DownloadContentResult()
             BridgeMessageType.MESSAGE_LOGGER_RESULT -> MessageLoggerResult()
+            BridgeMessageType.MESSAGE_LOGGER_LIST_RESULT -> MessageLoggerListResult()
             BridgeMessageType.LOCALE_RESULT -> LocaleResult()
-            else -> {
-                future.completeExceptionally(IllegalStateException("Unknown message type: ${msg.what}"))
-                return
-            }
+            else -> throw IllegalStateException("Unknown message type: ${msg.what}")
         }
 
         with(message) {
             read(msg.data)
-            future.complete(this)
+            return this
         }
     }
 
@@ -84,26 +85,31 @@ class ServiceBridgeClient: AbstractBridgeClient(), ServiceConnection {
         messageType: BridgeMessageType,
         message: BridgeMessage,
         resultType: KClass<T>? = null
-    ): T {
-        val future = CompletableFuture<BridgeMessage>()
+    ) = runBlocking {
+        suspendCancellableCoroutine { cancelableContinuation ->
+            val replyMessenger = Messenger(object : Handler(handlerThread.looper) {
+                override fun handleMessage(msg: Message) {
+                    if (cancelableContinuation.isCancelled) return
+                    runCatching {
+                        cancelableContinuation.resume(handleResponseMessage(msg) as T)
+                    }.onFailure {
+                        cancelableContinuation.cancel(it)
+                    }
+                }
+            })
 
-        val replyMessenger = Messenger(object : Handler(handlerThread.looper) {
-            override fun handleMessage(msg: Message) {
-                handleResponseMessage(msg, future)
-            }
-        })
-
-        runCatching {
-            with(Message.obtain()) {
-                what = messageType.value
-                replyTo = replyMessenger
-                data = Bundle()
-                message.write(data)
-                messenger.send(this)
+            runCatching {
+                with(Message.obtain()) {
+                    what = messageType.value
+                    replyTo = replyMessenger
+                    data = Bundle()
+                    message.write(data)
+                    messenger.send(this)
+                }
+            }.onFailure {
+                cancelableContinuation.cancel(it)
             }
         }
-
-        return future.get() as T
     }
 
     override fun createAndReadFile(
@@ -174,6 +180,16 @@ class ServiceBridgeClient: AbstractBridgeClient(), ServiceConnection {
             DownloadContentResult::class
         ).run {
             return state!!
+        }
+    }
+
+    override fun getLoggedMessageIds(conversationId: String, limit: Int): List<Long> {
+        sendMessage(
+            BridgeMessageType.MESSAGE_LOGGER_REQUEST,
+            MessageLoggerRequest(MessageLoggerRequest.Action.LIST_IDS, conversationId, limit.toLong()),
+            MessageLoggerListResult::class
+        ).run {
+            return messages!!
         }
     }
 
