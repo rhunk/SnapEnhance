@@ -115,7 +115,9 @@ class MessageLogger : Feature("MessageLogger",
     }
 
     override fun init() {
-        Hooker.hookConstructor(context.classCache.message, HookStage.AFTER) { param ->
+        Hooker.hookConstructor(context.classCache.message, HookStage.AFTER, {
+            context.config.bool(ConfigProperty.MESSAGE_LOGGER)
+        }) { param ->
             processSnapMessage(param.thisObject())
         }
     }
