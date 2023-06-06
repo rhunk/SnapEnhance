@@ -112,6 +112,20 @@ class RootBridgeClient : AbstractBridgeClient() {
         throw Throwable("Failed to fetch translations for $locale")
     }
 
+    override fun getAutoUpdaterTime(): Long {
+        readFile(BridgeFileType.AUTO_UPDATER_TIMESTAMP).run {
+            return if (isEmpty()) {
+                0
+            } else {
+                String(this).toLong()
+            }
+        }
+    }
+
+    override fun setAutoUpdaterTime(time: Long) {
+        writeFile(BridgeFileType.AUTO_UPDATER_TIMESTAMP, time.toString().toByteArray(Charsets.UTF_8))
+    }
+
     private fun rootOperation(command: String): String {
         val process = Runtime.getRuntime().exec("su -c $command")
         process.waitFor()

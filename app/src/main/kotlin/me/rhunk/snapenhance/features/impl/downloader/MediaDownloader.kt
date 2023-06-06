@@ -60,7 +60,7 @@ class MediaDownloader : Feature("MediaDownloader", loadParams = FeatureLoadParam
     }
 
     private fun canMergeOverlay(): Boolean {
-        if (context.config.options(ConfigProperty.DOWNLOAD_OPTIONS)["overlay_merge"] == false) return false
+        if (context.config.options(ConfigProperty.DOWNLOAD_OPTIONS)["merge_overlay"] == false) return false
         return isFFmpegPresent
     }
 
@@ -228,9 +228,7 @@ class MediaDownloader : Feature("MediaDownloader", loadParams = FeatureLoadParam
         forceDownload: Boolean
     ) {
         //messages
-        if (paramMap.containsKey("MESSAGE_ID") &&
-            (forceDownload || context.config.bool(ConfigProperty.AUTO_DOWNLOAD_SNAPS))) {
-            val id = paramMap["MESSAGE_ID"].toString()
+        paramMap["MESSAGE_ID"]?.toString()?.takeIf { forceDownload || canAutoDownload("friend_snaps") }?.let { id ->
             val messageId = id.substring(id.lastIndexOf(":") + 1).toLong()
             val senderId: String = context.database.getConversationMessageFromId(messageId)!!.sender_id!!
 
@@ -244,23 +242,25 @@ class MediaDownloader : Feature("MediaDownloader", loadParams = FeatureLoadParam
         }
 
         //private stories
-        val playlistV2Group =
-            if (paramMap.containsKey("PLAYLIST_V2_GROUP")) paramMap["PLAYLIST_V2_GROUP"].toString() else null
-        if (playlistV2Group != null &&
-            playlistV2Group.contains("storyUserId=") &&
-            (forceDownload || context.config.bool(ConfigProperty.AUTO_DOWNLOAD_STORIES))
-        ) {
-            val storyIdStartIndex = playlistV2Group.indexOf("storyUserId=") + 12
-            val storyUserId = playlistV2Group.substring(storyIdStartIndex, playlistV2Group.indexOf(",", storyIdStartIndex))
+        paramMap["PLAYLIST_V2_GROUP"]?.toString()?.takeIf {
+            it.contains("storyUserId=") && (forceDownload || canAutoDownload("friend_stories"))
+        }?.let { playlistGroup ->
+            val storyIdStartIndex = playlistGroup.indexOf("storyUserId=") + 12
+            val storyUserId = playlistGroup.substring(
+                storyIdStartIndex,
+                playlistGroup.indexOf(",", storyIdStartIndex)
+            )
             val author = context.database.getFriendInfo(if (storyUserId == "null") context.database.getMyUserId()!! else storyUserId)
+
             downloadOperaMedia(mediaInfoMap, author!!.usernameForSorting!!)
             return
         }
+
         val snapSource = paramMap["SNAP_SOURCE"].toString()
 
         //public stories
         if ((snapSource == "PUBLIC_USER" || snapSource == "SAVED_STORY") &&
-            (forceDownload || context.config.bool(ConfigProperty.AUTO_DOWNLOAD_PUBLIC_STORIES))) {
+            (forceDownload || canAutoDownload("public_stories"))) {
             val userDisplayName = (if (paramMap.containsKey("USER_DISPLAY_NAME")) paramMap["USER_DISPLAY_NAME"].toString() else "").replace(
                     "[^\\x00-\\x7F]".toRegex(),
                     "")
@@ -269,7 +269,7 @@ class MediaDownloader : Feature("MediaDownloader", loadParams = FeatureLoadParam
         }
 
         //spotlight
-        if (snapSource == "SINGLE_SNAP_STORY" && (forceDownload || context.config.bool(ConfigProperty.AUTO_DOWNLOAD_SPOTLIGHT))) {
+        if (snapSource == "SINGLE_SNAP_STORY" && (forceDownload || canAutoDownload("spotlight"))) {
             downloadOperaMedia(mediaInfoMap, "Spotlight")
             return
         }
@@ -323,11 +323,9 @@ class MediaDownloader : Feature("MediaDownloader", loadParams = FeatureLoadParam
         }
     }
 
-    private fun canAutoDownload(): Boolean {
-        return context.config.bool(ConfigProperty.AUTO_DOWNLOAD_SNAPS) ||
-                context.config.bool(ConfigProperty.AUTO_DOWNLOAD_STORIES) ||
-                context.config.bool(ConfigProperty.AUTO_DOWNLOAD_PUBLIC_STORIES) ||
-                context.config.bool(ConfigProperty.AUTO_DOWNLOAD_SPOTLIGHT)
+    private fun canAutoDownload(keyFilter: String? = null): Boolean {
+        val options = context.config.options(ConfigProperty.AUTO_DOWNLOAD_OPTIONS)
+        return options.filter { it.value }.any { keyFilter == null || it.key.contains(keyFilter, true) }
     }
 
     override fun asyncOnActivityCreate() {

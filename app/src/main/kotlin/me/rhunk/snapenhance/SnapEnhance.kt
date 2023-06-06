@@ -11,6 +11,8 @@ import me.rhunk.snapenhance.bridge.client.ServiceBridgeClient
 import me.rhunk.snapenhance.data.SnapClassCache
 import me.rhunk.snapenhance.hook.HookStage
 import me.rhunk.snapenhance.hook.Hooker
+import kotlin.time.ExperimentalTime
+import kotlin.time.measureTime
 
 class SnapEnhance {
     companion object {
@@ -22,7 +24,6 @@ class SnapEnhance {
     private val appContext = ModContext()
 
     init {
-
         Hooker.hook(Application::class.java, "attach", HookStage.BEFORE) { param ->
             appContext.androidContext = param.arg<Context>(0).also {
                 classLoader = it.classLoader
@@ -51,7 +52,7 @@ class SnapEnhance {
             if (!activity.packageName.equals(Constants.SNAPCHAT_PACKAGE_NAME)) return@hook
             val isMainActivityNotNull = appContext.mainActivity != null
             appContext.mainActivity = activity
-            if (isMainActivityNotNull) return@hook
+            if (isMainActivityNotNull || !appContext.mappings.areMappingsLoaded) return@hook
             onActivityCreate()
         }
     }
@@ -65,15 +66,20 @@ class SnapEnhance {
         return ServiceBridgeClient()
     }
 
+    @OptIn(ExperimentalTime::class)
     private fun init() {
-        val time = System.currentTimeMillis()
-        with(appContext) {
-            translation.init()
-            config.init()
-            mappings.init()
-            features.init()
+        measureTime {
+            with(appContext) {
+                translation.init()
+                config.init()
+                mappings.init()
+                //if mappings aren't loaded, we can't initialize features
+                if (!mappings.areMappingsLoaded) return
+                features.init()
+            }
+        }.also { time ->
+            Logger.debug("initialized in $time")
         }
-        Logger.debug("initialized in ${System.currentTimeMillis() - time} ms")
     }
 
     private fun onActivityCreate() {

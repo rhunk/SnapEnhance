@@ -221,6 +221,20 @@ class ServiceBridgeClient: AbstractBridgeClient(), ServiceConnection {
         }
     }
 
+    override fun getAutoUpdaterTime(): Long {
+        createAndReadFile(BridgeFileType.AUTO_UPDATER_TIMESTAMP, "0".toByteArray()).run {
+            return if (isEmpty()) {
+                0
+            } else {
+                String(this).toLong()
+            }
+        }
+    }
+
+    override fun setAutoUpdaterTime(time: Long) {
+        writeFile(BridgeFileType.AUTO_UPDATER_TIMESTAMP, time.toString().toByteArray())
+    }
+
     override fun onServiceConnected(name: ComponentName, service: IBinder) {
         messenger = Messenger(service)
         future.complete(true)

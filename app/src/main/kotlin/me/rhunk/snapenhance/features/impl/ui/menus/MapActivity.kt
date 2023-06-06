@@ -1,10 +1,13 @@
 package me.rhunk.snapenhance.features.impl.ui.menus
 
+import android.annotation.SuppressLint
 import android.app.Activity
+import android.app.AlertDialog
 import android.content.Context
 import android.os.Bundle
 import android.view.MotionEvent
 import android.widget.Button
+import android.widget.EditText
 import me.rhunk.snapenhance.R
 import org.osmdroid.config.Configuration
 import org.osmdroid.tileprovider.tilesource.TileSourceFactory
@@ -20,12 +23,13 @@ class MapActivity : Activity() {
 
     private lateinit var mapView: MapView
 
+    @SuppressLint("MissingInflatedId", "ResourceType")
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
         val contextBundle = intent.extras?.getBundle("location") ?: return
-        val latitude = contextBundle.getDouble("latitude")
-        val longitude = contextBundle.getDouble("longitude")
+        val locationLatitude = contextBundle.getDouble("latitude")
+        val locationLongitude = contextBundle.getDouble("longitude")
 
         Configuration.getInstance().load(applicationContext, getSharedPreferences("osmdroid", Context.MODE_PRIVATE))
 
@@ -35,7 +39,7 @@ class MapActivity : Activity() {
         mapView.setMultiTouchControls(true);
         mapView.setTileSource(TileSourceFactory.MAPNIK)
 
-        val startPoint = GeoPoint(latitude, longitude)
+        val startPoint = GeoPoint(locationLatitude, locationLongitude)
         mapView.controller.setZoom(10.0)
         mapView.controller.setCenter(startPoint)
 
@@ -63,6 +67,28 @@ class MapActivity : Activity() {
             bundle.putFloat("longitude", marker.position.longitude.toFloat())
             setResult(RESULT_OK, intent.putExtra("location", bundle))
             finish()
+        }
+
+        val setPreciseLocationButton = findViewById<Button>(R.id.set_precise_location_button)
+
+        setPreciseLocationButton.setOnClickListener {
+            val locationDialog = layoutInflater.inflate(R.layout.precise_location_dialog, null)
+            val dialogLatitude = locationDialog.findViewById<EditText>(R.id.dialog_latitude).also { it.setText(marker.position.latitude.toString()) }
+            val dialogLongitude = locationDialog.findViewById<EditText>(R.id.dialog_longitude).also { it.setText(marker.position.longitude.toString()) }
+
+            AlertDialog.Builder(this)
+                .setView(locationDialog)
+                .setTitle("Set a precise location")
+                .setPositiveButton("Set") { _, _ ->
+                    val latitude = dialogLatitude.text.toString().toDoubleOrNull()
+                    val longitude = dialogLongitude.text.toString().toDoubleOrNull()
+                    if (latitude != null && longitude != null) {
+                        val preciseLocation = GeoPoint(latitude, longitude)
+                        mapView.controller.setCenter(preciseLocation)
+                        marker.position = preciseLocation
+                        mapView.invalidate()
+                    }
+                }.setNegativeButton("Cancel") { _, _ -> }.show()
         }
     }
 
