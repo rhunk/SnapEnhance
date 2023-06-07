@@ -26,6 +26,7 @@ import me.rhunk.snapenhance.features.impl.spying.AnonymousStoryViewing
 import me.rhunk.snapenhance.features.impl.spying.MessageLogger
 import me.rhunk.snapenhance.features.impl.spying.PreventReadReceipts
 import me.rhunk.snapenhance.features.impl.spying.StealthMode
+import me.rhunk.snapenhance.features.impl.tweaks.CameraResolution
 import me.rhunk.snapenhance.features.impl.ui.UITweaks
 import me.rhunk.snapenhance.features.impl.ui.menus.MenuViewInjector
 import me.rhunk.snapenhance.manager.Manager
@@ -77,6 +78,7 @@ class FeatureManager(private val context: ModContext) : Manager {
         register(AppPasscode::class)
         register(LocationSpoofer::class)
         register(AutoUpdater::class)
+        register(CameraResolution::class)
 
         initializeFeatures()
     }

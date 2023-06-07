@@ -6,6 +6,7 @@ import me.rhunk.snapenhance.config.impl.ConfigStateListValue
 import me.rhunk.snapenhance.config.impl.ConfigStateSelection
 import me.rhunk.snapenhance.config.impl.ConfigStateValue
 import me.rhunk.snapenhance.config.impl.ConfigStringValue
+import me.rhunk.snapenhance.features.impl.tweaks.CameraResolution
 import java.io.File
 
 enum class ConfigProperty(
@@ -257,6 +258,35 @@ enum class ConfigProperty(
         "description.message_preview_length",
         ConfigCategory.UI_TWEAKS,
         ConfigIntegerValue(20)
+    ),
+
+    //CAMERA
+    OVERRIDE_PREVIEW_RESOLUTION(
+        "property.preview_resolution",
+        "description.preview_resolution",
+        ConfigCategory.CAMERA,
+        ConfigStateSelection(
+            CameraResolution.resolutions,
+            "OFF"
+        )
+    ),
+    OVERRIDE_PICTURE_RESOLUTION(
+        "property.picture_resolution",
+        "description.picture_resolution",
+        ConfigCategory.CAMERA,
+        ConfigStateSelection(
+            CameraResolution.resolutions,
+            "OFF"
+        )
+    ),
+    OVERRIDE_FRAME_RATE(
+        "property.override_frame_rate",
+        "description.override_frame_rate",
+        ConfigCategory.CAMERA,
+        ConfigStateSelection(
+            listOf("OFF", "15", "24", "30", "60"),
+            "OFF"
+        )
     ),
 
     // UPDATES
