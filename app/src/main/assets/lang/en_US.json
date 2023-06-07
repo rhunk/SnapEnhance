@@ -114,7 +114,8 @@
                 "remove_call_buttons": "Remove Call Buttons",
                 "remove_cognac_button": "Remove Cognac Button",
                 "remove_stickers_button": "Remove Stickers Button",
-                "remove_voice_record_button": "Remove Voice Record Button"
+                "remove_voice_record_button": "Remove Voice Record Button",
+                "remove_camera_borders": "Remove Camera Borders"
             },
             "auto_updater": {
                 "DISABLED": "Disabled",
