@@ -13,7 +13,7 @@ abstract class AbstractWrapper(
     }
 
     fun instanceNonNull(): Any = instance!!
-    fun isPresent(): Boolean = instance == null
+    fun isPresent(): Boolean = instance != null
 
     override fun hashCode(): Int {
         return instance.hashCode()

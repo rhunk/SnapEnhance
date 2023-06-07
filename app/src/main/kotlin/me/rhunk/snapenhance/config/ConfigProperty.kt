@@ -15,7 +15,7 @@ enum class ConfigProperty(
     val valueContainer: ConfigValue<*>,
     val shouldAppearInSettings: Boolean = true
 ) {
-    
+
     //SPYING AND PRIVACY
     MESSAGE_LOGGER("property.message_logger",
         "description.message_logger",
@@ -189,12 +189,13 @@ enum class ConfigProperty(
         "description.hide_ui_elements",
         ConfigCategory.UI_TWEAKS,
         ConfigStateListValue(
-            listOf("remove_voice_record_button", "remove_stickers_button", "remove_cognac_button", "remove_call_buttons"),
+            listOf("remove_voice_record_button", "remove_stickers_button", "remove_cognac_button", "remove_call_buttons", "remove_camera_borders"),
             mutableMapOf(
                 "remove_voice_record_button" to false,
                 "remove_stickers_button" to false,
                 "remove_cognac_button" to false,
                 "remove_call_buttons" to false,
+                "remove_camera_borders" to false
             )
         )
     ),
@@ -268,7 +269,7 @@ enum class ConfigProperty(
             "DAILY"
         )
     ),
-    
+
     // EXPERIMENTAL DEBUGGING
     USE_DOWNLOAD_MANAGER(
         "property.use_download_manager",

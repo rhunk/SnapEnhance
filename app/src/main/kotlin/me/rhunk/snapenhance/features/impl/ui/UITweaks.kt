@@ -1,6 +1,7 @@
 package me.rhunk.snapenhance.features.impl.ui
 
 import android.annotation.SuppressLint
+import android.content.res.Resources
 import android.view.View
 import android.view.ViewGroup
 import me.rhunk.snapenhance.Constants
@@ -9,11 +10,15 @@ import me.rhunk.snapenhance.features.Feature
 import me.rhunk.snapenhance.features.FeatureLoadParams
 import me.rhunk.snapenhance.hook.HookStage
 import me.rhunk.snapenhance.hook.Hooker
+import me.rhunk.snapenhance.hook.hook
 
 class UITweaks : Feature("UITweaks", loadParams = FeatureLoadParams.ACTIVITY_CREATE_SYNC) {
     @SuppressLint("DiscouragedApi")
     override fun onActivityCreate() {
         val resources = context.resources
+
+        val capriViewfinderDefaultCornerRadius = context.resources.getIdentifier("capri_viewfinder_default_corner_radius", "dimen", Constants.SNAPCHAT_PACKAGE_NAME)
+        val ngsHovaNavLargerCameraButtonSize = context.resources.getIdentifier("ngs_hova_nav_larger_camera_button_size", "dimen", Constants.SNAPCHAT_PACKAGE_NAME)
 
         val callButtonsStub = resources.getIdentifier("call_buttons_stub", "id", Constants.SNAPCHAT_PACKAGE_NAME)
         val callButton1 = resources.getIdentifier("friend_action_button3", "id", Constants.SNAPCHAT_PACKAGE_NAME)
@@ -23,7 +28,16 @@ class UITweaks : Feature("UITweaks", loadParams = FeatureLoadParams.ACTIVITY_CRE
         val chatInputBarSticker = resources.getIdentifier("chat_input_bar_sticker", "id", Constants.SNAPCHAT_PACKAGE_NAME)
         val chatInputBarCognac = resources.getIdentifier("chat_input_bar_cognac", "id", Constants.SNAPCHAT_PACKAGE_NAME)
         val hiddenElements = context.config.options(ConfigProperty.HIDE_UI_ELEMENTS)
-        
+
+        Resources::class.java.methods.first { it.name == "getDimensionPixelSize"}.hook(HookStage.AFTER, {
+            hiddenElements["remove_camera_borders"] == true
+        }) { param ->
+            val id = param.arg<Int>(0)
+            if (id == capriViewfinderDefaultCornerRadius || id == ngsHovaNavLargerCameraButtonSize) {
+                param.setResult(0)
+            }
+        }
+
         Hooker.hook(View::class.java, "setVisibility", HookStage.BEFORE) { methodParam ->
             val viewId = (methodParam.thisObject() as View).id
             if (viewId == chatNoteRecordButton && hiddenElements["remove_voice_record_button"] == true) {
