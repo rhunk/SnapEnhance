@@ -184,6 +184,12 @@ enum class ConfigProperty(
     ),
     
     //UI AND TWEAKS
+    CAMERA_DISABLE(
+        "property.disable_camera",
+        "description.disable_camera",
+        ConfigCategory.UI_TWEAKS,
+        ConfigStateValue(false)
+    ),
     HIDE_UI_ELEMENTS(
         "property.hide_ui_elements",
         "description.hide_ui_elements",

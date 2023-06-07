@@ -58,7 +58,8 @@
         "latitude_value": "Latitude",
         "longitude_value": "Longitude",
         "hide_ui_elements": "Hide UI Elements",
-        "auto_updater": "Auto Updater"
+        "auto_updater": "Auto Updater",
+        "disable_camera": "Disable Camera"
     },
 
     "option": {
