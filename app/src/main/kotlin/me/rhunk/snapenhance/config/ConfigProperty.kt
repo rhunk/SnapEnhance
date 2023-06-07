@@ -289,6 +289,12 @@ enum class ConfigProperty(
         ConfigCategory.EXPERIMENTAL_DEBUGGING,
         ConfigStateValue(false)
     ),
+    INFINITE_STORY_BOOST(
+        "property.infinite_story_boost",
+        "description.infinite_story_boost",
+        ConfigCategory.EXPERIMENTAL_DEBUGGING,
+        ConfigStateValue(false)
+    ),
     MEO_PASSCODE_BYPASS(
     "property.meo_passcode_bypass",
     "description.meo_passcode_bypass",

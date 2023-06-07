@@ -10,6 +10,7 @@ import me.rhunk.snapenhance.features.impl.Messaging
 import me.rhunk.snapenhance.features.impl.downloader.AntiAutoDownload
 import me.rhunk.snapenhance.features.impl.downloader.MediaDownloader
 import me.rhunk.snapenhance.features.impl.experiments.AppPasscode
+import me.rhunk.snapenhance.features.impl.experiments.InfiniteStoryBoost
 import me.rhunk.snapenhance.features.impl.experiments.MeoPasscodeBypass
 import me.rhunk.snapenhance.features.impl.tweaks.AntiAutoSave
 import me.rhunk.snapenhance.features.impl.tweaks.AutoSave
@@ -77,6 +78,7 @@ class FeatureManager(private val context: ModContext) : Manager {
         register(AppPasscode::class)
         register(LocationSpoofer::class)
         register(AutoUpdater::class)
+        register(InfiniteStoryBoost::class)
 
         initializeFeatures()
     }
