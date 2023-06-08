@@ -15,10 +15,20 @@ object ViewAppearanceHelper {
         "ClickableViewAccessibility"
     )
     fun applyTheme(viewModel: View, view: TextView) {
+        val sigColorTextPrimary = viewModel.context.theme.obtainStyledAttributes(
+            intArrayOf(
+                viewModel.resources.getIdentifier(
+                    "sigColorTextPrimary",
+                    "attr",
+                    Constants.SNAPCHAT_PACKAGE_NAME
+                )
+            )
+        )
+
         val snapchatFontResId = view.context.resources.getIdentifier("avenir_next_medium", "font", "com.snapchat.android")
         //remove the shadow
         view.setBackgroundColor(0x00000000)
-        view.setTextColor(viewModel.resources.getColor(viewModel.resources.getIdentifier("sig_color_text_primary_light", "color", Constants.SNAPCHAT_PACKAGE_NAME), null))
+        view.setTextColor(sigColorTextPrimary.getColor(0, 0))
         view.setShadowLayer(0F, 0F, 0F, 0)
         view.outlineProvider = null
         view.gravity = Gravity.LEFT or Gravity.CENTER_VERTICAL
