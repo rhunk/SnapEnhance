@@ -11,7 +11,8 @@ class InfiniteStoryBoost : Feature("InfiniteStoryBoost", loadParams = FeatureLoa
 
         storyBoostStateClass.hookConstructor(HookStage.BEFORE) { param ->
             val startTimeMillis = param.arg<Long>(1)
-            if (System.currentTimeMillis() - startTimeMillis > 604800000) {
+            //reset timestamp if it's more than 24 hours
+            if (System.currentTimeMillis() - startTimeMillis > 86400000) {
                 param.setArg(1, 0)
                 param.setArg(2, 0)
             }
