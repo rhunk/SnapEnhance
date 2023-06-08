@@ -64,7 +64,7 @@ class MediaDownloader : Feature("MediaDownloader", loadParams = FeatureLoadParam
         return isFFmpegPresent
     }
 
-    private fun createNewFilePath(hash: Int, author: String, fileType: FileType): String {
+    private fun createNewFilePath(hash: Int, author: String, fileType: FileType, mediaType: String): String {
         val hexHash = Integer.toHexString(hash)
         val downloadOptions = context.config.options(ConfigProperty.DOWNLOAD_OPTIONS)
 
@@ -92,7 +92,9 @@ class MediaDownloader : Feature("MediaDownloader", loadParams = FeatureLoadParam
         if (downloadOptions["format_date_time"] == true) {
             appendFileName(currentDateTime)
         }
-
+        if(downloadOptions["media_type"] == true) {
+            appendFileName(mediaType)
+        }
         if (finalPath.isEmpty()) finalPath.append(hexHash)
 
         return finalPath.toString() + "." + fileType.fileExtension
@@ -160,8 +162,8 @@ class MediaDownloader : Feature("MediaDownloader", loadParams = FeatureLoadParam
         return file
     }
 
-    private fun isFileExists(hash: Int, author: String, fileType: FileType): Boolean {
-        val fileName: String = createNewFilePath(hash, author, fileType)
+    private fun isFileExists(hash: Int, author: String, fileType: FileType, mediaType: String): Boolean {
+        val fileName: String = createNewFilePath(hash, author, fileType, mediaType)
         val outputFile: File =
             createNeededDirectories(File(context.config.string(ConfigProperty.SAVE_FOLDER), fileName))
         return outputFile.exists()
@@ -178,7 +180,7 @@ class MediaDownloader : Feature("MediaDownloader", loadParams = FeatureLoadParam
         }
     }
 
-    private fun downloadOperaMedia(mediaInfoMap: Map<MediaType, MediaInfo>, author: String) {
+    private fun downloadOperaMedia(mediaInfoMap: Map<MediaType, MediaInfo>, author: String, mediaType: String) {
         if (mediaInfoMap.isEmpty()) return
         val originalMediaInfo = mediaInfoMap[MediaType.ORIGINAL]!!
         if (mediaInfoMap.containsKey(MediaType.OVERLAY)) {
@@ -188,7 +190,7 @@ class MediaDownloader : Feature("MediaDownloader", loadParams = FeatureLoadParam
         val hash = Arrays.hashCode(mediaContent)
         if (mediaInfoMap.containsKey(MediaType.OVERLAY)) {
             //prevent converting the same media twice
-            if (isFileExists(hash, author, FileType.fromByteArray(mediaContent!!))) {
+            if (isFileExists(hash, author, FileType.fromByteArray(mediaContent!!), mediaType)) {
                 context.shortToast("Media already exists")
                 return
             }
@@ -197,16 +199,17 @@ class MediaDownloader : Feature("MediaDownloader", loadParams = FeatureLoadParam
             mediaContent = MediaDownloaderHelper.mergeOverlay(mediaContent, overlayContent, false)
         }
         val fileType = FileType.fromByteArray(mediaContent!!)
-        downloadMediaContent(mediaContent, hash, author, fileType)
+        downloadMediaContent(mediaContent, hash, author, fileType, mediaType)
     }
 
     private fun downloadMediaContent(
         data: ByteArray,
         hash: Int,
         messageAuthor: String,
-        fileType: FileType
+        fileType: FileType,
+        mediaType: String
     ): Boolean {
-        val fileName: String = createNewFilePath(hash, messageAuthor, fileType) ?: return false
+        val fileName: String = createNewFilePath(hash, messageAuthor, fileType, mediaType)
         val outputFile: File = createNeededDirectories(File(context.config.string(ConfigProperty.SAVE_FOLDER), fileName))
         if (outputFile.exists()) {
             context.shortToast("Media already exists")
@@ -231,13 +234,13 @@ class MediaDownloader : Feature("MediaDownloader", loadParams = FeatureLoadParam
         paramMap["MESSAGE_ID"]?.toString()?.takeIf { forceDownload || canAutoDownload("friend_snaps") }?.let { id ->
             val messageId = id.substring(id.lastIndexOf(":") + 1).toLong()
             val senderId: String = context.database.getConversationMessageFromId(messageId)!!.sender_id!!
-
+            
             if (!forceDownload && context.feature(AntiAutoDownload::class).isUserIgnored(senderId)) {
                 return
             }
 
             val author = context.database.getFriendInfo(senderId)!!.usernameForSorting!!
-            downloadOperaMedia(mediaInfoMap, author)
+            downloadOperaMedia(mediaInfoMap, author, "PRIVATE-SNAP")
             return
         }
 
@@ -252,25 +255,23 @@ class MediaDownloader : Feature("MediaDownloader", loadParams = FeatureLoadParam
             )
             val author = context.database.getFriendInfo(if (storyUserId == "null") context.database.getMyUserId()!! else storyUserId)
 
-            downloadOperaMedia(mediaInfoMap, author!!.usernameForSorting!!)
+            downloadOperaMedia(mediaInfoMap, author!!.usernameForSorting!!, "PRIVATE-STORY")
             return
         }
-
         val snapSource = paramMap["SNAP_SOURCE"].toString()
-
         //public stories
         if ((snapSource == "PUBLIC_USER" || snapSource == "SAVED_STORY") &&
             (forceDownload || canAutoDownload("public_stories"))) {
             val userDisplayName = (if (paramMap.containsKey("USER_DISPLAY_NAME")) paramMap["USER_DISPLAY_NAME"].toString() else "").replace(
                     "[^\\x00-\\x7F]".toRegex(),
                     "")
-            downloadOperaMedia(mediaInfoMap, "Public-Stories/$userDisplayName")
+            downloadOperaMedia(mediaInfoMap, "Public-Stories/$userDisplayName", "PUBLIC-STORY")
             return
         }
 
         //spotlight
         if (snapSource == "SINGLE_SNAP_STORY" && (forceDownload || canAutoDownload("spotlight"))) {
-            downloadOperaMedia(mediaInfoMap, "Spotlight")
+            downloadOperaMedia(mediaInfoMap, "Spotlight", "SPOTLIGHT")
             return
         }
 
@@ -315,7 +316,7 @@ class MediaDownloader : Feature("MediaDownloader", loadParams = FeatureLoadParam
             runCatching {
                 context.shortToast("Downloading dash media. This might take a while...")
                 val downloadedMedia = MediaDownloaderHelper.downloadDashChapter(xmlData.toByteArray().toString(Charsets.UTF_8), snapChapterTimestamp, duration)
-                downloadMediaContent(downloadedMedia, downloadedMedia.contentHashCode(), "Pro-Stories/${storyName}", FileType.fromByteArray(downloadedMedia))
+                downloadMediaContent(downloadedMedia, downloadedMedia.contentHashCode(), "Pro-Stories/${storyName}", FileType.fromByteArray(downloadedMedia), "SNAP-VIDEO")
             }.onFailure {
                 context.longToast("Failed to download media: ${it.message}")
                 xposedLog(it)
@@ -433,7 +434,7 @@ class MediaDownloader : Feature("MediaDownloader", loadParams = FeatureLoadParam
                 }
                 return
             }
-            downloadMediaContent(downloadedMedia, downloadedMedia.contentHashCode(), messageAuthor, fileType)
+            downloadMediaContent(downloadedMedia, downloadedMedia.contentHashCode(), messageAuthor, fileType, contentType.toString())
         } catch (e: Throwable) {
             context.longToast("Failed to download " + e.message)
             xposedLog(e)

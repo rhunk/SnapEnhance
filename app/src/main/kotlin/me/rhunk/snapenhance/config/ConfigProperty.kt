@@ -123,13 +123,14 @@ enum class ConfigProperty(
     DOWNLOAD_OPTIONS(
         "property.download_options", "description.download_options", ConfigCategory.MEDIA_MANAGEMENT,
         ConfigStateListValue(
-            listOf("format_user_folder", "format_hash", "format_date_time", "format_username", "merge_overlay"),
+            listOf("format_user_folder", "format_hash", "format_date_time", "format_username", "merge_overlay", "media_type"),
             mutableMapOf(
                 "format_user_folder" to true,
                 "format_hash" to true,
                 "format_date_time" to true,
                 "format_username" to false,
                 "merge_overlay" to false,
+                "media_type" to true
             )
         )
     ),

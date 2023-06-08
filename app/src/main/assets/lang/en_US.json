@@ -30,7 +30,7 @@
         "auto_download_blacklist": "Auto Download Blacklist",
         "disable_metrics": "Disable Metrics",
         "prevent_screenshot_notifications": "Prevent Screenshot Notifications",
-        "prevent_status_notifications": "Prevent Status Notifications (Save to camera roll, missed calls)",
+        "prevent_status_notifications": "Prevent Status Notifications",
         "anonymous_story_view": "Anonymous Story View",
         "hide_typing_notification": "Hide Typing Notification",
         "menu_slot_id": "Friend Menu Slot ID",
@@ -74,7 +74,8 @@
                 "format_hash": "Add a unique hash to the file path",
                 "format_username": "Add the username to the file path",
                 "format_date_time": "Add the date and time to the file path",
-                "merge_overlay": "Merge Snap Image Overlays"
+                "merge_overlay": "Merge Snap Image Overlays",
+                "media_type": "Add the type of the media to the file path"
             },
             "auto_download_options": {
                 "friend_snaps": "Friend Snaps",
