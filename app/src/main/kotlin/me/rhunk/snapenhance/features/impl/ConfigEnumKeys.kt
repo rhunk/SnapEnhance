@@ -1,8 +1,11 @@
 package me.rhunk.snapenhance.features.impl
 
+import android.annotation.SuppressLint
 import me.rhunk.snapenhance.config.ConfigProperty
 import me.rhunk.snapenhance.features.Feature
 import me.rhunk.snapenhance.features.FeatureLoadParams
+import me.rhunk.snapenhance.hook.HookStage
+import me.rhunk.snapenhance.hook.hook
 import me.rhunk.snapenhance.util.setObjectField
 import java.lang.reflect.Field
 import java.lang.reflect.Modifier
@@ -33,6 +36,7 @@ class ConfigEnumKeys : Feature("Config enum keys", loadParams = FeatureLoadParam
         }
     }
 
+    @SuppressLint("PrivateApi")
     override fun onActivityCreate() {
         if (context.config.bool(ConfigProperty.NEW_MAP_UI)) {
             hookAllEnums(context.mappings.getMappedClass("enums", "PLUS")) { key, set ->
@@ -60,6 +64,19 @@ class ConfigEnumKeys : Feature("Config enum keys", loadParams = FeatureLoadParam
                 if (key == "CUSTOM_AD_SERVER_URL" || key == "CUSTOM_AD_INIT_SERVER_URL" || key == "CUSTOM_AD_TRACKER_URL") {
                     set("http://127.0.0.1")
                 }
+            }
+        }
+
+        ConfigProperty.ENABLE_APP_APPEARANCE.valueContainer.addPropertyChangeListener {
+            context.softRestartApp(true)
+        }
+
+        val sharedPreferencesImpl = context.androidContext.classLoader.loadClass("android.app.SharedPreferencesImpl")
+
+        sharedPreferencesImpl.methods.first { it.name == "getBoolean" }.hook(HookStage.BEFORE) { param ->
+            when (param.arg<String>(0)) {
+                "SIG_APP_APPEARANCE_SETTING" -> if (context.config.bool(ConfigProperty.ENABLE_APP_APPEARANCE)) param.setResult(true)
+                "SPOTLIGHT_5TH_TAB_ENABLED" -> if (context.config.bool(ConfigProperty.DISABLE_SPOTLIGHT)) param.setResult(false)
             }
         }
     }

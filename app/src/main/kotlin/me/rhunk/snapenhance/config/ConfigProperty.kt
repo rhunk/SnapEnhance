@@ -258,6 +258,19 @@ enum class ConfigProperty(
         ConfigCategory.UI_TWEAKS,
         ConfigIntegerValue(20)
     ),
+    DISABLE_SPOTLIGHT(
+        "property.disable_spotlight",
+        "description.disable_spotlight",
+        ConfigCategory.UI_TWEAKS,
+        ConfigStateValue(false)
+    ),
+    ENABLE_APP_APPEARANCE(
+        "property.enable_app_appearance",
+        "description.enable_app_appearance",
+        ConfigCategory.UI_TWEAKS,
+        ConfigStateValue(false)
+    ),
+
 
     // UPDATES
     AUTO_UPDATER(
