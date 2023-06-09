@@ -80,17 +80,10 @@ class ModContext {
         }
     }
 
-    fun restartApp() {
-        androidContext.packageManager.getLaunchIntentForPackage(
-            Constants.SNAPCHAT_PACKAGE_NAME
-        )?.let {
-            val intent = Intent.makeRestartActivityTask(it.component)
-            androidContext.startActivity(intent)
-            Runtime.getRuntime().exit(0)
+    fun softRestartApp(saveSettings: Boolean = false) {
+        if (saveSettings) {
+            config.writeConfig()
         }
-    }
-
-    fun softRestartApp() {
         val intent: Intent? = androidContext.packageManager.getLaunchIntentForPackage(
             Constants.SNAPCHAT_PACKAGE_NAME
         )

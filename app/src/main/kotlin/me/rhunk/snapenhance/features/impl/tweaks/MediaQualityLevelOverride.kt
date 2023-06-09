@@ -13,14 +13,9 @@ class MediaQualityLevelOverride : Feature("MediaQualityLevelOverride", loadParam
         Hooker.hook(context.mappings.getMappedClass("MediaQualityLevelProvider"),
             context.mappings.getMappedValue("MediaQualityLevelProviderMethod"),
             HookStage.BEFORE,
-            {context.config.bool(ConfigProperty.OVERRIDE_MEDIA_QUALITY)}
+            { context.config.bool(ConfigProperty.FORCE_MEDIA_SOURCE_QUALITY) }
         ) { param ->
-            val currentCompressionLevel = enumQualityLevel.enumConstants
-                .firstOrNull { it.toString() == context.config.state(ConfigProperty.MEDIA_QUALITY_LEVEL)} ?: run {
-                context.longToast("Invalid media quality level: ${context.config.state(ConfigProperty.MEDIA_QUALITY_LEVEL)}")
-                return@hook
-            }
-            param.setResult(currentCompressionLevel)
+            param.setResult(enumQualityLevel.enumConstants.firstOrNull { it.toString() == "LEVEL_MAX" } )
         }
     }
 }

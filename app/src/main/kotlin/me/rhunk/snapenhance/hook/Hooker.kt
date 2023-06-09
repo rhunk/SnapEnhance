@@ -90,3 +90,38 @@ object Hooker {
         }.also { unhooks.addAll(it) }
     }
 }
+
+fun Class<*>.hookConstructor(
+    stage: HookStage,
+    consumer: (HookAdapter) -> Unit
+) = Hooker.hookConstructor(this, stage, consumer)
+
+fun Class<*>.hookConstructor(
+    stage: HookStage,
+    filter: ((HookAdapter) -> Boolean),
+    consumer: (HookAdapter) -> Unit
+) = Hooker.hookConstructor(this, stage, filter, consumer)
+
+fun Class<*>.hook(
+    methodName: String,
+    stage: HookStage,
+    consumer: (HookAdapter) -> Unit
+): Set<XC_MethodHook.Unhook> = Hooker.hook(this, methodName, stage, consumer)
+
+fun Class<*>.hook(
+    methodName: String,
+    stage: HookStage,
+    filter: (HookAdapter) -> Boolean,
+    consumer: (HookAdapter) -> Unit
+): Set<XC_MethodHook.Unhook> = Hooker.hook(this, methodName, stage, filter, consumer)
+
+fun Member.hook(
+    stage: HookStage,
+    consumer: (HookAdapter) -> Unit
+): XC_MethodHook.Unhook = Hooker.hook(this, stage, consumer)
+
+fun Member.hook(
+    stage: HookStage,
+    filter: ((HookAdapter) -> Boolean),
+    consumer: (HookAdapter) -> Unit
+): XC_MethodHook.Unhook = Hooker.hook(this, stage, filter, consumer)
