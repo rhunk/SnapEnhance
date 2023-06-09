@@ -16,19 +16,17 @@ object ViewAppearanceHelper {
     )
     fun applyTheme(viewModel: View, view: TextView) {
         val sigColorTextPrimary = viewModel.context.theme.obtainStyledAttributes(
-            intArrayOf(
-                viewModel.resources.getIdentifier(
-                    "sigColorTextPrimary",
-                    "attr",
-                    Constants.SNAPCHAT_PACKAGE_NAME
-                )
-            )
-        )
+            intArrayOf(viewModel.resources.getIdentifier("sigColorTextPrimary", "attr", Constants.SNAPCHAT_PACKAGE_NAME))
+        ).getColor(0, 0)
+
+        val sigColorBackgroundMain = viewModel.context.theme.obtainStyledAttributes(
+            intArrayOf(viewModel.resources.getIdentifier("sigColorBackgroundMain", "attr", Constants.SNAPCHAT_PACKAGE_NAME))
+        ).getColor(0, 0)
 
         val snapchatFontResId = view.context.resources.getIdentifier("avenir_next_medium", "font", "com.snapchat.android")
         //remove the shadow
-        view.setBackgroundColor(0x00000000)
-        view.setTextColor(sigColorTextPrimary.getColor(0, 0))
+        view.setBackgroundColor(sigColorBackgroundMain)
+        view.setTextColor(sigColorTextPrimary)
         view.setShadowLayer(0F, 0F, 0F, 0)
         view.outlineProvider = null
         view.gravity = Gravity.LEFT or Gravity.CENTER_VERTICAL
@@ -49,7 +47,7 @@ object ViewAppearanceHelper {
                     view.setBackgroundColor(0x5395026)
                 }
                 MotionEvent.ACTION_UP, MotionEvent.ACTION_CANCEL -> {
-                    view.setBackgroundColor(0x00000000)
+                    view.setBackgroundColor(sigColorBackgroundMain)
                 }
             }
             false
