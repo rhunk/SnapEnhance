@@ -168,21 +168,12 @@ enum class ConfigProperty(
         ConfigCategory.MEDIA_MANAGEMENT,
         ConfigStateValue(false)
     ),
-    
-    OVERRIDE_MEDIA_QUALITY(
-        "property.override_media_quality",
-        "description.override_media_quality",
+
+    FORCE_MEDIA_SOURCE_QUALITY(
+        "property.force_media_source_quality",
+        "description.force_media_source_quality",
         ConfigCategory.MEDIA_MANAGEMENT,
         ConfigStateValue(false)
-    ),
-    MEDIA_QUALITY_LEVEL(
-        "property.media_quality_level",
-        "description.media_quality_level",
-        ConfigCategory.MEDIA_MANAGEMENT,
-        ConfigStateSelection(
-            listOf("LEVEL_NONE", "LEVEL_1", "LEVEL_2", "LEVEL_3", "LEVEL_4", "LEVEL_5", "LEVEL_6", "LEVEL_7", "LEVEL_MAX"),
-            "LEVEL_NONE"
-        )
     ),
     
     //UI AND TWEAKS
