@@ -14,15 +14,15 @@ import me.rhunk.snapenhance.util.protobuf.ProtoReader
 class GalleryMediaSendOverride : Feature("Gallery Media Send Override", loadParams = FeatureLoadParams.INIT_SYNC) {
     override fun init() {
         Hooker.hook(context.classCache.conversationManager, "sendMessageWithContent", HookStage.BEFORE) { param ->
-            val localMessageContent = MessageContent(param.arg(1))
+            val overrideType = context.config.state(ConfigProperty.GALLERY_MEDIA_SEND_OVERRIDE).also { if (it == "OFF") return@hook }
 
+            val localMessageContent = MessageContent(param.arg(1))
             if (localMessageContent.contentType != ContentType.EXTERNAL_MEDIA) return@hook
             //story replies
             val messageProtoReader = ProtoReader(localMessageContent.content)
             if (messageProtoReader.exists(7)) return@hook
-            val overrideType = context.config.state(ConfigProperty.GALLERY_MEDIA_SEND_OVERRIDE)
 
-            if (overrideType != "OFF" && messageProtoReader.readPath(3)?.getCount(3) != 1) {
+            if (messageProtoReader.readPath(3)?.getCount(3) != 1) {
                 context.runOnUiThread {
                     AlertDialog.Builder(context.mainActivity!!)
                         .setMessage("You can only send one media at a time")

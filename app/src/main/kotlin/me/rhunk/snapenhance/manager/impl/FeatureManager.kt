@@ -9,6 +9,7 @@ import me.rhunk.snapenhance.features.impl.ConfigEnumKeys
 import me.rhunk.snapenhance.features.impl.Messaging
 import me.rhunk.snapenhance.features.impl.downloader.AntiAutoDownload
 import me.rhunk.snapenhance.features.impl.downloader.MediaDownloader
+import me.rhunk.snapenhance.features.impl.experiments.AmoledDarkMode
 import me.rhunk.snapenhance.features.impl.experiments.AppPasscode
 import me.rhunk.snapenhance.features.impl.experiments.InfiniteStoryBoost
 import me.rhunk.snapenhance.features.impl.experiments.MeoPasscodeBypass
@@ -27,6 +28,7 @@ import me.rhunk.snapenhance.features.impl.spying.AnonymousStoryViewing
 import me.rhunk.snapenhance.features.impl.spying.MessageLogger
 import me.rhunk.snapenhance.features.impl.spying.PreventReadReceipts
 import me.rhunk.snapenhance.features.impl.spying.StealthMode
+import me.rhunk.snapenhance.features.impl.tweaks.CameraTweaks
 import me.rhunk.snapenhance.features.impl.ui.UITweaks
 import me.rhunk.snapenhance.features.impl.ui.menus.MenuViewInjector
 import me.rhunk.snapenhance.manager.Manager
@@ -78,7 +80,9 @@ class FeatureManager(private val context: ModContext) : Manager {
         register(AppPasscode::class)
         register(LocationSpoofer::class)
         register(AutoUpdater::class)
+        register(CameraTweaks::class)
         register(InfiniteStoryBoost::class)
+        register(AmoledDarkMode::class)
 
         initializeFeatures()
     }

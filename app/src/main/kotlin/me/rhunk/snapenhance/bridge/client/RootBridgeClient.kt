@@ -65,6 +65,10 @@ class RootBridgeClient : AbstractBridgeClient() {
         return true
     }
 
+    override fun getLoggedMessageIds(conversationId: String, limit: Int): List<Long> {
+        return messageLoggerWrapper.getMessageIds(conversationId, limit)
+    }
+
     override fun getMessageLoggerMessage(conversationId: String, id: Long): ByteArray? {
         val (state, messageData) = messageLoggerWrapper.getMessage(conversationId, id)
         if (state) {

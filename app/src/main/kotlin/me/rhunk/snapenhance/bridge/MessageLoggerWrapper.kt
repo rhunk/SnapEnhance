@@ -46,6 +46,16 @@ class MessageLoggerWrapper(
         return Pair(state, message)
     }
 
+    fun getMessageIds(conversationId: String, limit: Int): List<Long> {
+        val cursor = database.rawQuery("SELECT message_id FROM messages WHERE conversation_id = ? ORDER BY message_id DESC LIMIT ?", arrayOf(conversationId, limit.toString()))
+        val messageIds = mutableListOf<Long>()
+        while (cursor.moveToNext()) {
+            messageIds.add(cursor.getLong(0))
+        }
+        cursor.close()
+        return messageIds
+    }
+
     fun clearMessages() {
         database.execSQL("DELETE FROM messages")
     }

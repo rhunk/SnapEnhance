@@ -6,6 +6,7 @@ import me.rhunk.snapenhance.config.impl.ConfigStateListValue
 import me.rhunk.snapenhance.config.impl.ConfigStateSelection
 import me.rhunk.snapenhance.config.impl.ConfigStateValue
 import me.rhunk.snapenhance.config.impl.ConfigStringValue
+import me.rhunk.snapenhance.features.impl.tweaks.CameraTweaks
 import java.io.File
 
 enum class ConfigProperty(
@@ -13,7 +14,8 @@ enum class ConfigProperty(
     val descriptionKey: String,
     val category: ConfigCategory,
     val valueContainer: ConfigValue<*>,
-    val shouldAppearInSettings: Boolean = true
+    val shouldAppearInSettings: Boolean = true,
+    val disableValueLocalization: Boolean = false
 ) {
 
     //SPYING AND PRIVACY
@@ -166,24 +168,21 @@ enum class ConfigProperty(
         ConfigCategory.MEDIA_MANAGEMENT,
         ConfigStateValue(false)
     ),
-    
-    OVERRIDE_MEDIA_QUALITY(
-        "property.override_media_quality",
-        "description.override_media_quality",
+
+    FORCE_MEDIA_SOURCE_QUALITY(
+        "property.force_media_source_quality",
+        "description.force_media_source_quality",
         ConfigCategory.MEDIA_MANAGEMENT,
         ConfigStateValue(false)
     ),
-    MEDIA_QUALITY_LEVEL(
-        "property.media_quality_level",
-        "description.media_quality_level",
-        ConfigCategory.MEDIA_MANAGEMENT,
-        ConfigStateSelection(
-            listOf("LEVEL_NONE", "LEVEL_1", "LEVEL_2", "LEVEL_3", "LEVEL_4", "LEVEL_5", "LEVEL_6", "LEVEL_7", "LEVEL_MAX"),
-            "LEVEL_NONE"
-        )
-    ),
     
     //UI AND TWEAKS
+    CAMERA_DISABLE(
+        "property.disable_camera",
+        "description.disable_camera",
+        ConfigCategory.UI_TWEAKS,
+        ConfigStateValue(false)
+    ),
     HIDE_UI_ELEMENTS(
         "property.hide_ui_elements",
         "description.hide_ui_elements",
@@ -258,6 +257,53 @@ enum class ConfigProperty(
         ConfigCategory.UI_TWEAKS,
         ConfigIntegerValue(20)
     ),
+    DISABLE_SPOTLIGHT(
+        "property.disable_spotlight",
+        "description.disable_spotlight",
+        ConfigCategory.UI_TWEAKS,
+        ConfigStateValue(false)
+    ),
+    ENABLE_APP_APPEARANCE(
+        "property.enable_app_appearance",
+        "description.enable_app_appearance",
+        ConfigCategory.UI_TWEAKS,
+        ConfigStateValue(false)
+    ),
+
+
+    //CAMERA
+    OVERRIDE_PREVIEW_RESOLUTION(
+        "property.preview_resolution",
+        "description.preview_resolution",
+        ConfigCategory.CAMERA,
+        ConfigStateSelection(
+            CameraTweaks.resolutions,
+            "OFF"
+        ),
+        disableValueLocalization = true
+    ),
+    OVERRIDE_PICTURE_RESOLUTION(
+        "property.picture_resolution",
+        "description.picture_resolution",
+        ConfigCategory.CAMERA,
+        ConfigStateSelection(
+            CameraTweaks.resolutions,
+            "OFF"
+        ),
+        disableValueLocalization = true
+    ),
+    FORCE_HIGHEST_FRAME_RATE(
+        "property.force_highest_frame_rate",
+        "description.force_highest_frame_rate",
+        ConfigCategory.CAMERA,
+        ConfigStateValue(false)
+    ),
+    FORCE_CAMERA_SOURCE_ENCODING(
+        "property.force_camera_source_encoding",
+        "description.force_camera_source_encoding",
+        ConfigCategory.CAMERA,
+        ConfigStateValue(false)
+    ),
 
     // UPDATES
     AUTO_UPDATER(
@@ -298,6 +344,12 @@ enum class ConfigProperty(
     MEO_PASSCODE_BYPASS(
     "property.meo_passcode_bypass",
     "description.meo_passcode_bypass",
+        ConfigCategory.EXPERIMENTAL_DEBUGGING,
+        ConfigStateValue(false)
+    ),
+    AMOLED_DARK_MODE(
+        "property.amoled_dark_mode",
+        "description.amoled_dark_mode",
         ConfigCategory.EXPERIMENTAL_DEBUGGING,
         ConfigStateValue(false)
     );
