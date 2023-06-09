@@ -36,17 +36,29 @@ class SettingsMenu : AbstractMenu() {
 
     @SuppressLint("SetTextI18n")
     private fun createPropertyView(viewModel: View, property: ConfigProperty): View {
+        val propertyName = context.translation.get(property.nameKey)
         val updateButtonText: (TextView, String) -> Unit = { textView, text ->
-            textView.text = "${context.translation.get(property.nameKey)}${if (text.isEmpty()) "" else ": $text"}"
+            textView.text = "$propertyName${if (text.isEmpty()) "" else ": $text"}"
         }
 
         val updateLocalizedText: (TextView, String) -> Unit = { textView, value ->
-            updateButtonText(textView, value.let { if (it.isEmpty()) "(empty)" else context.translation.get("option." + property.nameKey + "." + it) })
+            updateButtonText(textView, value.let {
+                if (it.isEmpty()) {
+                    "(empty)"
+                }
+                else {
+                    if (property.disableValueLocalization) {
+                        it
+                    } else {
+                        context.translation.get("option." + property.nameKey + "." + it)
+                    }
+                }
+            })
         }
 
         val textEditor: ((String) -> Unit) -> Unit = { updateValue ->
             val builder = AlertDialog.Builder(viewModel.context)
-            builder.setTitle(context.translation.get(property.nameKey))
+            builder.setTitle(propertyName)
 
             val input = EditText(viewModel.context)
             input.inputType = InputType.TYPE_CLASS_TEXT
@@ -98,7 +110,7 @@ class SettingsMenu : AbstractMenu() {
             }
             is ConfigStateValue -> {
                 val switch = Switch(viewModel.context)
-                switch.text = context.translation.get(property.nameKey)
+                switch.text = propertyName
                 switch.isChecked = property.valueContainer.value()
                 switch.setOnCheckedChangeListener { _, isChecked ->
                     property.valueContainer.writeFrom(isChecked.toString())
@@ -112,10 +124,13 @@ class SettingsMenu : AbstractMenu() {
 
                 button.setOnClickListener {_ ->
                     val builder = AlertDialog.Builder(viewModel.context)
-                    builder.setTitle(context.translation.get(property.nameKey))
+                    builder.setTitle(propertyName)
 
                     builder.setSingleChoiceItems(
-                        property.valueContainer.keys().toTypedArray().map { context.translation.get("option." + property.nameKey + "." + it) }.toTypedArray(),
+                        property.valueContainer.keys().toTypedArray().map {
+                            if (property.disableValueLocalization) it
+                            else context.translation.get("option." + property.nameKey + "." + it)
+                        }.toTypedArray(),
                         property.valueContainer.keys().indexOf(property.valueContainer.value())
                     ) { _, which ->
                         property.valueContainer.writeFrom(property.valueContainer.keys()[which])
@@ -136,12 +151,15 @@ class SettingsMenu : AbstractMenu() {
 
                 button.setOnClickListener {_ ->
                     val builder = AlertDialog.Builder(viewModel.context)
-                    builder.setTitle(context.translation.get(property.nameKey))
+                    builder.setTitle(propertyName)
 
                     val sortedStates = property.valueContainer.value().toSortedMap()
 
                     builder.setMultiChoiceItems(
-                        sortedStates.toSortedMap().map { context.translation.get("option." + property.nameKey + "." +it.key) }.toTypedArray(),
+                        sortedStates.toSortedMap().map {
+                            if (property.disableValueLocalization) it.key
+                            else context.translation.get("option." + property.nameKey + "." + it.key)
+                        }.toTypedArray(),
                         sortedStates.map { it.value }.toBooleanArray()
                     ) { _, which, isChecked ->
                         sortedStates.keys.toList()[which].let { key ->
