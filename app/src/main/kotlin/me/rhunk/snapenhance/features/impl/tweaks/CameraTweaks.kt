@@ -1,12 +1,17 @@
 package me.rhunk.snapenhance.features.impl.tweaks
 
+import android.Manifest
 import android.annotation.SuppressLint
+import android.app.admin.DevicePolicyManager
+import android.content.ContextWrapper
+import android.content.pm.PackageManager
 import me.rhunk.snapenhance.config.ConfigProperty
 import me.rhunk.snapenhance.data.wrapper.impl.ScSize
 import me.rhunk.snapenhance.features.Feature
 import me.rhunk.snapenhance.features.FeatureLoadParams
 import me.rhunk.snapenhance.features.impl.ConfigEnumKeys
 import me.rhunk.snapenhance.hook.HookStage
+import me.rhunk.snapenhance.hook.hook
 import me.rhunk.snapenhance.hook.hookConstructor
 
 class CameraTweaks : Feature("Camera Tweaks", loadParams = FeatureLoadParams.ACTIVITY_CREATE_SYNC) {
@@ -20,6 +25,19 @@ class CameraTweaks : Feature("Camera Tweaks", loadParams = FeatureLoadParams.ACT
 
     @SuppressLint("MissingPermission", "DiscouragedApi")
     override fun onActivityCreate() {
+        if (context.config.bool(ConfigProperty.CAMERA_DISABLE)) {
+            ContextWrapper::class.java.hook("checkPermission", HookStage.BEFORE) { param ->
+                val permission = param.arg<String>(0)
+                if (permission == Manifest.permission.CAMERA) {
+                    param.setResult(PackageManager.PERMISSION_GRANTED)
+                }
+            }
+
+            DevicePolicyManager::class.java.hook("getCameraDisabled", HookStage.BEFORE) { param ->
+                param.setResult(true)
+            }
+        }
+
         ConfigEnumKeys.hookAllEnums(context.mappings.getMappedClass("enums", "CAMERA")) {
             if (key == "FORCE_CAMERA_HIGHEST_FPS" && context.config.bool(ConfigProperty.FORCE_HIGHEST_FRAME_RATE)) {
                 set(true)
