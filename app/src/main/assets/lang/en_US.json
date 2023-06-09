@@ -67,7 +67,8 @@
         "preview_resolution": "Override Preview Resolution",
         "picture_resolution": "Override Picture Resolution",
         "force_highest_frame_rate": "Force Highest Frame Rate",
-        "force_camera_source_encoding": "Force Camera Source Encoding"
+        "force_camera_source_encoding": "Force Camera Source Encoding",
+        "amoled_dark_mode": "AMOLED Dark Mode"
     },
 
     "option": {

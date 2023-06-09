@@ -346,6 +346,12 @@ enum class ConfigProperty(
     "description.meo_passcode_bypass",
         ConfigCategory.EXPERIMENTAL_DEBUGGING,
         ConfigStateValue(false)
+    ),
+    AMOLED_DARK_MODE(
+        "property.amoled_dark_mode",
+        "description.amoled_dark_mode",
+        ConfigCategory.EXPERIMENTAL_DEBUGGING,
+        ConfigStateValue(false)
     );
 
     companion object {
