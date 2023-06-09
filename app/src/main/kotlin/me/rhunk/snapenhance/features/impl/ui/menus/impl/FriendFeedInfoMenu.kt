@@ -5,26 +5,35 @@ import android.app.AlertDialog
 import android.content.Context
 import android.content.DialogInterface
 import android.content.res.Resources
+import android.graphics.Bitmap
 import android.graphics.BitmapFactory
+import android.graphics.Canvas
+import android.graphics.Color
+import android.graphics.Paint
 import android.graphics.drawable.BitmapDrawable
 import android.graphics.drawable.Drawable
+import android.view.Gravity
+import android.view.MotionEvent
 import android.view.View
+import android.view.ViewGroup
 import android.widget.Button
 import android.widget.CompoundButton
+import android.widget.LinearLayout
 import android.widget.Switch
 import android.widget.Toast
 import me.rhunk.snapenhance.Logger
 import me.rhunk.snapenhance.config.ConfigProperty
 import me.rhunk.snapenhance.data.ContentType
+import me.rhunk.snapenhance.data.wrapper.impl.FriendActionButton
 import me.rhunk.snapenhance.database.objects.ConversationMessage
 import me.rhunk.snapenhance.database.objects.FriendInfo
 import me.rhunk.snapenhance.database.objects.UserConversationLink
 import me.rhunk.snapenhance.features.impl.Messaging
 import me.rhunk.snapenhance.features.impl.downloader.AntiAutoDownload
-import me.rhunk.snapenhance.features.impl.tweaks.AntiAutoSave
 import me.rhunk.snapenhance.features.impl.spying.StealthMode
+import me.rhunk.snapenhance.features.impl.tweaks.AntiAutoSave
 import me.rhunk.snapenhance.features.impl.ui.menus.AbstractMenu
-import me.rhunk.snapenhance.features.impl.ui.menus.ViewAppearanceHelper.applyTheme
+import me.rhunk.snapenhance.features.impl.ui.menus.ViewAppearanceHelper
 import java.net.HttpURLConnection
 import java.net.URL
 import java.text.DateFormat
@@ -164,77 +173,203 @@ class FriendFeedInfoMenu : AbstractMenu() {
         builder.show()
     }
 
-    private fun createToggleFeature(viewModel: View, viewConsumer: ((View) -> Unit), text: String, isChecked: () -> Boolean, toggle: (Boolean) -> Unit) {
-        val switch = Switch(viewModel.context)
+    private fun createEmojiDrawable(text: String, width: Int, height: Int, textSize: Float, disabled: Boolean = false): Drawable {
+        val bitmap = Bitmap.createBitmap(width, height, Bitmap.Config.ARGB_8888)
+        val canvas = Canvas(bitmap)
+        val paint = Paint()
+        paint.textSize = textSize
+        paint.color = Color.BLACK
+        paint.textAlign = Paint.Align.CENTER
+        canvas.drawText(text, width / 2f, height.toFloat() - paint.descent(), paint)
+        if (disabled) {
+            paint.color = Color.RED
+            paint.strokeWidth = 5f
+            canvas.drawLine(0f, 0f, width.toFloat(), height.toFloat(), paint)
+        }
+        return BitmapDrawable(context.resources, bitmap)
+    }
+
+    private fun getCurrentConversationId(): Pair<String, String?> {
+        val messaging = context.feature(Messaging::class)
+        var focusedConversationTargetUser: String? = null
+        val conversationId = if (messaging.lastFetchConversationUUID == null) {
+            focusedConversationTargetUser = messaging.lastFetchConversationUserUUID.toString()
+            val conversation: UserConversationLink = context.database.getDMConversationIdFromUserId(focusedConversationTargetUser) ?: throw IllegalStateException("No conversation found")
+            conversation.client_conversation_id!!.trim().lowercase()
+        } else {
+            messaging.lastFetchConversationUUID.toString()
+        }
+
+        return Pair(conversationId, focusedConversationTargetUser)
+    }
+
+    private fun createToggleFeature(viewConsumer: ((View) -> Unit), text: String, isChecked: () -> Boolean, toggle: (Boolean) -> Unit) {
+        val switch = Switch(context.androidContext)
         switch.text = context.translation.get(text)
         switch.isChecked = isChecked()
-        applyTheme(viewModel, switch)
+        ViewAppearanceHelper.applyTheme(switch)
         switch.setOnCheckedChangeListener { _: CompoundButton?, checked: Boolean ->
             toggle(checked)
         }
         viewConsumer(switch)
     }
 
-    @SuppressLint("SetTextI18n", "UseSwitchCompatOrMaterialCode", "DefaultLocale")
+    fun injectOldButtons(viewModel: View, viewConsumer: ((View) -> Unit)) {
+
+    }
+
+    @SuppressLint("SetTextI18n", "UseSwitchCompatOrMaterialCode", "DefaultLocale", "InflateParams",
+        "DiscouragedApi", "ClickableViewAccessibility"
+    )
     fun inject(viewModel: View, viewConsumer: ((View) -> Unit)) {
-        val messaging = context.feature(Messaging::class)
-        var focusedConversationTargetUser: String? = null
-        val conversationId: String
-        if (messaging.lastFetchConversationUserUUID != null) {
-            focusedConversationTargetUser = messaging.lastFetchConversationUserUUID.toString()
-            val conversation: UserConversationLink = context.database.getDMConversationIdFromUserId(focusedConversationTargetUser) ?: return
-            conversationId = conversation.client_conversation_id!!.trim().lowercase()
-        } else {
-            conversationId = messaging.lastFetchConversationUUID.toString()
-        }
+        val modContext = context
 
-        //preview button
-        val previewButton = Button(viewModel.context)
-        previewButton.text = context.translation.get("friend_menu_option.preview")
-        applyTheme(viewModel, previewButton)
-        val finalFocusedConversationTargetUser = focusedConversationTargetUser
-        previewButton.setOnClickListener {
-            showPreview(
-                finalFocusedConversationTargetUser,
-                conversationId,
-                previewButton.context
-            )
-        }
+        val friendFeedMenuOptions = context.config.options(ConfigProperty.FRIEND_FEED_MENU_BUTTONS)
+        if (friendFeedMenuOptions.none { it.value }) return
 
-        //stealth switch
-        val stealthSwitch = Switch(viewModel.context)
-        stealthSwitch.text = context.translation.get("friend_menu_option.stealth_mode")
-        stealthSwitch.isChecked = context.feature(StealthMode::class).isStealth(conversationId)
-        applyTheme(viewModel, stealthSwitch)
-        stealthSwitch.setOnCheckedChangeListener { _: CompoundButton?, isChecked: Boolean ->
-            context.feature(StealthMode::class).setStealth(
-                conversationId,
-                isChecked
-            )
-        }
+        val (conversationId, focusedConversationTargetUser) = getCurrentConversationId()
 
-        run {
-            val userId = context.database.getFriendFeedInfoByConversationId(conversationId)?.friendUserId ?: return@run
-            if (context.config.bool(ConfigProperty.DOWNLOAD_BLACKLIST)) {
-                createToggleFeature(viewModel,
-                    viewConsumer,
-                    "friend_menu_option.anti_auto_download",
-                    { context.feature(AntiAutoDownload::class).isUserIgnored(userId) },
-                    { context.feature(AntiAutoDownload::class).setUserIgnored(userId, it) }
-                )
+        if (!context.config.bool(ConfigProperty.ENABLE_FRIEND_FEED_MENU_BAR)) {
+            //preview button
+            val previewButton = Button(viewModel.context).apply {
+                text = modContext.translation.get("friend_menu_option.preview")
+                ViewAppearanceHelper.applyTheme(this, viewModel.width)
+                setOnClickListener {
+                    showPreview(
+                        focusedConversationTargetUser,
+                        conversationId,
+                        context
+                    )
+                }
             }
 
-            if (context.config.bool(ConfigProperty.ANTI_AUTO_SAVE)) {
-                createToggleFeature(viewModel,
-                    viewConsumer,
-                    "friend_menu_option.anti_auto_save",
-                    { context.feature(AntiAutoSave::class).isConversationIgnored(conversationId) },
-                    { context.feature(AntiAutoSave::class).setConversationIgnored(conversationId, it) }
+            //stealth switch
+            val stealthSwitch = Switch(viewModel.context).apply {
+                text = modContext.translation.get("friend_menu_option.stealth_mode")
+                isChecked = modContext.feature(StealthMode::class).isStealth(conversationId)
+                ViewAppearanceHelper.applyTheme(this)
+                setOnCheckedChangeListener { _: CompoundButton?, isChecked: Boolean ->
+                    modContext.feature(StealthMode::class).setStealth(
+                        conversationId,
+                        isChecked
+                    )
+                }
+            }
+
+            run {
+                val userId = context.database.getFriendFeedInfoByConversationId(conversationId)?.friendUserId ?: return@run
+                if (friendFeedMenuOptions["auto_download_blacklist"] == true) {
+                    createToggleFeature(viewConsumer,
+                        "friend_menu_option.auto_download_blacklist",
+                        { context.feature(AntiAutoDownload::class).isUserIgnored(userId) },
+                        { context.feature(AntiAutoDownload::class).setUserIgnored(userId, it) }
+                    )
+                }
+
+                if (friendFeedMenuOptions["anti_auto_save"] == true) {
+                    createToggleFeature(viewConsumer,
+                        "friend_menu_option.anti_auto_save",
+                        { context.feature(AntiAutoSave::class).isConversationIgnored(conversationId) },
+                        { context.feature(AntiAutoSave::class).setConversationIgnored(conversationId, it) }
+                    )
+                }
+            }
+
+            viewConsumer(stealthSwitch)
+            viewConsumer(previewButton)
+            return
+        }
+
+        val menuButtonBar = LinearLayout(viewModel.context).apply {
+            layoutParams = ViewGroup.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT)
+            orientation = LinearLayout.HORIZONTAL
+            gravity = Gravity.CENTER
+        }
+
+        fun createActionButton(icon: String, isDisabled: Boolean? = null, onClick: (Boolean) -> Unit) {
+            //FIXME: hardcoded values
+            menuButtonBar.addView(LinearLayout(viewModel.context).apply {
+                layoutParams = LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.MATCH_PARENT, 1f)
+                gravity = Gravity.CENTER
+                setPadding(0, 20, 0, 20)
+                isClickable = true
+                scaleX = 1.1f
+                scaleY = 1.1f
+
+                var isLineThrough = isDisabled ?: false
+                FriendActionButton.new(viewModel.context).apply {
+                    fun setLineThrough(value: Boolean) {
+                        setIconDrawable(createEmojiDrawable(icon, 60, 60, 50f, if (isDisabled == null) false else value))
+                    }
+                    setLineThrough(isLineThrough)
+                    (instanceNonNull() as View).apply {
+                        layoutParams = LinearLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT).apply {
+                            setMargins(0, 60, 0, 60)
+                        }
+                        setOnTouchListener { _, event ->
+                            if (event.action == MotionEvent.ACTION_UP) {
+                                isLineThrough = !isLineThrough
+                                onClick(isLineThrough)
+                                setLineThrough(isLineThrough)
+                            }
+                            false
+                        }
+                    }
+
+                }.also { addView(it.instanceNonNull() as View) }
+
+            })
+        }
+
+        if (friendFeedMenuOptions["auto_download_blacklist"] == true) {
+            run {
+                val userId =
+                    context.database.getFriendFeedInfoByConversationId(conversationId)?.friendUserId
+                        ?: return@run
+                createActionButton(
+                    "\u2B07\uFE0F",
+                    isDisabled = !context.feature(AntiAutoDownload::class).isUserIgnored(userId)
+                ) {
+                    context.feature(AntiAutoDownload::class).setUserIgnored(userId, !it)
+                }
+            }
+        }
+
+        if (friendFeedMenuOptions["anti_auto_save"] == true) {
+            //diskette
+            createActionButton("\uD83D\uDCAC",
+                isDisabled = !context.feature(AntiAutoSave::class)
+                    .isConversationIgnored(conversationId)
+            ) {
+                context.feature(AntiAutoSave::class).setConversationIgnored(conversationId, !it)
+            }
+        }
+
+
+        if (friendFeedMenuOptions["stealth_mode"] == true) {
+            //eyes
+            createActionButton(
+                "\uD83D\uDC7B",
+                isDisabled = !context.feature(StealthMode::class).isStealth(conversationId)
+            ) { isChecked ->
+                context.feature(StealthMode::class).setStealth(
+                    conversationId,
+                    !isChecked
                 )
             }
         }
 
-        viewConsumer(stealthSwitch)
-        viewConsumer(previewButton)
+        if (friendFeedMenuOptions["conversation_info"] == true) {
+            //user
+            createActionButton("\uD83D\uDC64") {
+                showPreview(
+                    focusedConversationTargetUser,
+                    conversationId,
+                    viewModel.context
+                )
+            }
+        }
+
+        viewConsumer(menuButtonBar)
     }
 }

@@ -24,10 +24,10 @@ import me.rhunk.snapenhance.features.impl.ui.menus.ViewAppearanceHelper
 
 class SettingsMenu : AbstractMenu() {
     @SuppressLint("ClickableViewAccessibility")
-    private fun createCategoryTitle(viewModel: View, key: String): TextView {
-        val categoryText = TextView(viewModel.context)
+    private fun createCategoryTitle(key: String): TextView {
+        val categoryText = TextView(context.androidContext)
         categoryText.text = context.translation.get(key)
-        ViewAppearanceHelper.applyTheme(viewModel, categoryText)
+        ViewAppearanceHelper.applyTheme(categoryText)
         categoryText.textSize = 20f
         categoryText.typeface = categoryText.typeface?.let { Typeface.create(it, Typeface.BOLD) }
         categoryText.setOnTouchListener { _, _ -> true }
@@ -35,7 +35,7 @@ class SettingsMenu : AbstractMenu() {
     }
 
     @SuppressLint("SetTextI18n")
-    private fun createPropertyView(viewModel: View, property: ConfigProperty): View {
+    private fun createPropertyView(property: ConfigProperty): View {
         val propertyName = context.translation.get(property.nameKey)
         val updateButtonText: (TextView, String) -> Unit = { textView, text ->
             textView.text = "$propertyName${if (text.isEmpty()) "" else ": $text"}"
@@ -57,10 +57,10 @@ class SettingsMenu : AbstractMenu() {
         }
 
         val textEditor: ((String) -> Unit) -> Unit = { updateValue ->
-            val builder = AlertDialog.Builder(viewModel.context)
+            val builder = AlertDialog.Builder(context.mainActivity!!)
             builder.setTitle(propertyName)
 
-            val input = EditText(viewModel.context)
+            val input = EditText(context.androidContext)
             input.inputType = InputType.TYPE_CLASS_TEXT
             input.setText(property.valueContainer.value().toString())
 
@@ -75,12 +75,12 @@ class SettingsMenu : AbstractMenu() {
 
         val resultView: View = when (property.valueContainer) {
             is ConfigStringValue -> {
-                val textView = TextView(viewModel.context)
+                val textView = TextView(context.androidContext)
                 updateButtonText(textView, property.valueContainer.let {
                     if (it.isHidden) it.hiddenValue()
                     else it.value()
                 })
-                ViewAppearanceHelper.applyTheme(viewModel, textView)
+                ViewAppearanceHelper.applyTheme(textView)
                 textView.setOnClickListener {
                     textEditor { value ->
                         property.valueContainer.writeFrom(value)
@@ -93,7 +93,7 @@ class SettingsMenu : AbstractMenu() {
                 textView
             }
             is ConfigIntegerValue -> {
-                val button = Button(viewModel.context)
+                val button = Button(context.androidContext)
                 updateButtonText(button, property.valueContainer.value().toString())
                 button.setOnClickListener {
                     textEditor { value ->
@@ -105,25 +105,25 @@ class SettingsMenu : AbstractMenu() {
                         }
                     }
                 }
-                ViewAppearanceHelper.applyTheme(viewModel, button)
+                ViewAppearanceHelper.applyTheme(button)
                 button
             }
             is ConfigStateValue -> {
-                val switch = Switch(viewModel.context)
+                val switch = Switch(context.androidContext)
                 switch.text = propertyName
                 switch.isChecked = property.valueContainer.value()
                 switch.setOnCheckedChangeListener { _, isChecked ->
                     property.valueContainer.writeFrom(isChecked.toString())
                 }
-                ViewAppearanceHelper.applyTheme(viewModel, switch)
+                ViewAppearanceHelper.applyTheme(switch)
                 switch
             }
             is ConfigStateSelection -> {
-                val button = Button(viewModel.context)
+                val button = Button(context.androidContext)
                 updateLocalizedText(button, property.valueContainer.value())
 
                 button.setOnClickListener {_ ->
-                    val builder = AlertDialog.Builder(viewModel.context)
+                    val builder = AlertDialog.Builder(context.mainActivity!!)
                     builder.setTitle(propertyName)
 
                     builder.setSingleChoiceItems(
@@ -142,15 +142,15 @@ class SettingsMenu : AbstractMenu() {
 
                     builder.show()
                 }
-                ViewAppearanceHelper.applyTheme(viewModel, button)
+                ViewAppearanceHelper.applyTheme(button)
                 button
             }
             is ConfigStateListValue -> {
-                val button = Button(viewModel.context)
+                val button = Button(context.androidContext)
                 updateButtonText(button, "(${property.valueContainer.value().count { it.value }})")
 
                 button.setOnClickListener {_ ->
-                    val builder = AlertDialog.Builder(viewModel.context)
+                    val builder = AlertDialog.Builder(context.mainActivity!!)
                     builder.setTitle(propertyName)
 
                     val sortedStates = property.valueContainer.value().toSortedMap()
@@ -173,11 +173,11 @@ class SettingsMenu : AbstractMenu() {
 
                     builder.show()
                 }
-                ViewAppearanceHelper.applyTheme(viewModel, button)
+                ViewAppearanceHelper.applyTheme(button)
                 button
             }
             else -> {
-                TextView(viewModel.context)
+                TextView(context.androidContext)
             }
         }
         return resultView
@@ -203,7 +203,7 @@ class SettingsMenu : AbstractMenu() {
         }
         val titleText = TextView(viewModel.context)
         titleText.text = versionTextBuilder.toString()
-        ViewAppearanceHelper.applyTheme(viewModel, titleText)
+        ViewAppearanceHelper.applyTheme(titleText)
         titleText.textSize = 18f
         titleText.minHeight = 80 * versionTextBuilder.chars().filter { ch: Int -> ch == '\n'.code }
                 .count().coerceAtLeast(2).toInt()
@@ -216,7 +216,7 @@ class SettingsMenu : AbstractMenu() {
                 button.setOnClickListener { _ ->
                     it.run()
                 }
-                ViewAppearanceHelper.applyTheme(viewModel, button)
+                ViewAppearanceHelper.applyTheme(button)
                 button
             }
         }
@@ -224,9 +224,9 @@ class SettingsMenu : AbstractMenu() {
         context.config.entries().groupBy {
             it.key.category
         }.forEach { (category, value) ->
-            addView(createCategoryTitle(viewModel, category.key))
+            addView(createCategoryTitle(category.key))
             value.filter { it.key.shouldAppearInSettings }.forEach { (property, _) ->
-                addView(createPropertyView(viewModel, property))
+                addView(createPropertyView(property))
                 actions.find { pair -> pair.first.dependsOnProperty == property}?.let { pair ->
                     addView(pair.second())
                 }

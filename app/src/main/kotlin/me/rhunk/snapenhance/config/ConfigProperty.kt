@@ -141,12 +141,6 @@ enum class ConfigProperty(
         ConfigCategory.MEDIA_MANAGEMENT,
         ConfigStateValue(false)
     ),
-    DOWNLOAD_BLACKLIST(
-        "property.auto_download_blacklist",
-        "description.auto_download_blacklist",
-        ConfigCategory.MEDIA_MANAGEMENT,
-        ConfigStateValue(false)
-    ),
     GALLERY_MEDIA_SEND_OVERRIDE(
         "property.gallery_media_send_override",
         "description.gallery_media_send_override",
@@ -163,11 +157,6 @@ enum class ConfigProperty(
             listOf("CHAT", "SNAP", "NOTE", "EXTERNAL_MEDIA", "STICKER")
         )
     ),
-    ANTI_AUTO_SAVE("property.anti_auto_save",
-        "description.anti_auto_save",
-        ConfigCategory.MEDIA_MANAGEMENT,
-        ConfigStateValue(false)
-    ),
 
     FORCE_MEDIA_SOURCE_QUALITY(
         "property.force_media_source_quality",
@@ -177,6 +166,31 @@ enum class ConfigProperty(
     ),
     
     //UI AND TWEAKS
+    ENABLE_FRIEND_FEED_MENU_BAR(
+        "property.enable_friend_feed_menu_bar",
+        "description.enable_friend_feed_menu_bar",
+        ConfigCategory.UI_TWEAKS,
+        ConfigStateValue(false)
+    ),
+    FRIEND_FEED_MENU_BUTTONS(
+        "property.friend_feed_menu_buttons",
+        "description.friend_feed_menu_buttons",
+        ConfigCategory.UI_TWEAKS,
+        ConfigStateListValue(
+            listOf("auto_download_blacklist", "anti_auto_save", "stealth_mode", "conversation_info"),
+            mutableMapOf(
+                "auto_download_blacklist" to false,
+                "anti_auto_save" to false,
+                "stealth_mode" to true,
+                "conversation_info" to true
+            )
+        )
+    ),
+    FRIEND_FEED_MENU_POSITION("property.friend_feed_menu_buttons_position",
+        "description.friend_feed_menu_buttons_position",
+        ConfigCategory.UI_TWEAKS,
+        ConfigIntegerValue(1)
+    ),
     CAMERA_DISABLE(
         "property.disable_camera",
         "description.disable_camera",
