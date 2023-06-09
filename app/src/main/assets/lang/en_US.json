@@ -3,6 +3,7 @@
         "spying_privacy": "Spying & Privacy",
         "media_manager": "Media Manager",
         "ui_tweaks": "UI & Tweaks",
+        "camera": "Camera",
         "updates": "Updates",
         "experimental_debugging": "Experimental"
     },
@@ -41,7 +42,7 @@
         "snapchat_plus": "Snapchat Plus",
         "disable_snap_splitting": "Disable Snap Splitting",
         "disable_video_length_restriction": "Disable Video Length Restriction",
-        "override_media_quality": "Override Media Quality",
+        "force_media_source_quality": "Force Media Source Quality",
         "media_quality_level": "Media Quality Level",
         "remove_voice_record_button": "Remove Voice Record Button",
         "remove_stickers_button": "Remove Stickers Button",
@@ -58,7 +59,14 @@
         "latitude_value": "Latitude",
         "longitude_value": "Longitude",
         "hide_ui_elements": "Hide UI Elements",
-        "auto_updater": "Auto Updater"
+        "auto_updater": "Auto Updater",
+        "infinite_story_boost": "Infinite Story Boost",
+        "enable_app_appearance": "Enable App Appearance Settings",
+        "disable_spotlight": "Disable Spotlight",
+        "preview_resolution": "Override Preview Resolution",
+        "picture_resolution": "Override Picture Resolution",
+        "force_highest_frame_rate": "Force Highest Frame Rate",
+        "force_camera_source_encoding": "Force Camera Source Encoding"
     },
 
     "option": {

@@ -21,6 +21,8 @@ import me.rhunk.snapenhance.mapping.impl.DefaultMediaItemMapper
 import me.rhunk.snapenhance.mapping.impl.OperaPageViewControllerMapper
 import me.rhunk.snapenhance.mapping.impl.PlatformAnalyticsCreatorMapper
 import me.rhunk.snapenhance.mapping.impl.PlusSubscriptionMapper
+import me.rhunk.snapenhance.mapping.impl.ScCameraSettingsMapper
+import me.rhunk.snapenhance.mapping.impl.StoryBoostStateMapper
 import me.rhunk.snapenhance.util.getObjectField
 import java.nio.charset.StandardCharsets
 import java.util.concurrent.ConcurrentHashMap
@@ -36,6 +38,8 @@ class MappingManager(private val context: ModContext) : Manager {
         add(DefaultMediaItemMapper())
         add(BCryptClassMapper())
         add(PlatformAnalyticsCreatorMapper())
+        add(ScCameraSettingsMapper())
+        add(StoryBoostStateMapper())
     }
 
     private val mappings = ConcurrentHashMap<String, Any>()

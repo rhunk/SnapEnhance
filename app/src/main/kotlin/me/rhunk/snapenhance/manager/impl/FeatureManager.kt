@@ -10,13 +10,8 @@ import me.rhunk.snapenhance.features.impl.Messaging
 import me.rhunk.snapenhance.features.impl.downloader.AntiAutoDownload
 import me.rhunk.snapenhance.features.impl.downloader.MediaDownloader
 import me.rhunk.snapenhance.features.impl.experiments.AppPasscode
+import me.rhunk.snapenhance.features.impl.experiments.InfiniteStoryBoost
 import me.rhunk.snapenhance.features.impl.experiments.MeoPasscodeBypass
-import me.rhunk.snapenhance.features.impl.privacy.DisableMetrics
-import me.rhunk.snapenhance.features.impl.privacy.PreventMessageSending
-import me.rhunk.snapenhance.features.impl.spying.AnonymousStoryViewing
-import me.rhunk.snapenhance.features.impl.spying.MessageLogger
-import me.rhunk.snapenhance.features.impl.spying.PreventReadReceipts
-import me.rhunk.snapenhance.features.impl.spying.StealthMode
 import me.rhunk.snapenhance.features.impl.tweaks.AntiAutoSave
 import me.rhunk.snapenhance.features.impl.tweaks.AutoSave
 import me.rhunk.snapenhance.features.impl.tweaks.DisableVideoLengthRestriction
@@ -26,6 +21,13 @@ import me.rhunk.snapenhance.features.impl.tweaks.MediaQualityLevelOverride
 import me.rhunk.snapenhance.features.impl.tweaks.Notifications
 import me.rhunk.snapenhance.features.impl.tweaks.SnapchatPlus
 import me.rhunk.snapenhance.features.impl.tweaks.UnlimitedSnapViewTime
+import me.rhunk.snapenhance.features.impl.privacy.DisableMetrics
+import me.rhunk.snapenhance.features.impl.privacy.PreventMessageSending
+import me.rhunk.snapenhance.features.impl.spying.AnonymousStoryViewing
+import me.rhunk.snapenhance.features.impl.spying.MessageLogger
+import me.rhunk.snapenhance.features.impl.spying.PreventReadReceipts
+import me.rhunk.snapenhance.features.impl.spying.StealthMode
+import me.rhunk.snapenhance.features.impl.tweaks.CameraTweaks
 import me.rhunk.snapenhance.features.impl.ui.UITweaks
 import me.rhunk.snapenhance.features.impl.ui.menus.MenuViewInjector
 import me.rhunk.snapenhance.manager.Manager
@@ -77,6 +79,8 @@ class FeatureManager(private val context: ModContext) : Manager {
         register(AppPasscode::class)
         register(LocationSpoofer::class)
         register(AutoUpdater::class)
+        register(CameraTweaks::class)
+        register(InfiniteStoryBoost::class)
 
         initializeFeatures()
     }
