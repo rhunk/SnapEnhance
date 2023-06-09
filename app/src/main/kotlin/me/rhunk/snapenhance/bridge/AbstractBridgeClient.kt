@@ -68,6 +68,14 @@ abstract class AbstractBridgeClient {
     /**
      * Get the content of a logged message from the database
      *
+     * @param conversationId the ID of the conversation
+     * @return the content of the message
+     */
+    abstract fun getLoggedMessageIds(conversationId: String, limit: Int): List<Long>
+
+    /**
+     * Get the content of a logged message from the database
+     *
      * @param id the ID of the message logger message
      * @return the content of the message
      */
