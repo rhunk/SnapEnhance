@@ -259,6 +259,19 @@ enum class ConfigProperty(
         ConfigCategory.UI_TWEAKS,
         ConfigIntegerValue(20)
     ),
+    DISABLE_SPOTLIGHT(
+        "property.disable_spotlight",
+        "description.disable_spotlight",
+        ConfigCategory.UI_TWEAKS,
+        ConfigStateValue(false)
+    ),
+    ENABLE_APP_APPEARANCE(
+        "property.enable_app_appearance",
+        "description.enable_app_appearance",
+        ConfigCategory.UI_TWEAKS,
+        ConfigStateValue(false)
+    ),
+
 
     //CAMERA
     OVERRIDE_PREVIEW_RESOLUTION(
@@ -316,6 +329,12 @@ enum class ConfigProperty(
     APP_LOCK_ON_RESUME(
         "property.app_lock_on_resume",
         "description.app_lock_on_resume",
+        ConfigCategory.EXPERIMENTAL_DEBUGGING,
+        ConfigStateValue(false)
+    ),
+    INFINITE_STORY_BOOST(
+        "property.infinite_story_boost",
+        "description.infinite_story_boost",
         ConfigCategory.EXPERIMENTAL_DEBUGGING,
         ConfigStateValue(false)
     ),

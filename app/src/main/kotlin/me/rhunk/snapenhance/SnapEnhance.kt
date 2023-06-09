@@ -35,7 +35,7 @@ class SnapEnhance {
                 start { bridgeResult ->
                     if (!bridgeResult) {
                         Logger.xposedLog("Cannot connect to bridge service")
-                        appContext.restartApp()
+                        appContext.softRestartApp()
                         return@start
                     }
                     runCatching {

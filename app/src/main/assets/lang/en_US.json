@@ -59,7 +59,10 @@
         "latitude_value": "Latitude",
         "longitude_value": "Longitude",
         "hide_ui_elements": "Hide UI Elements",
-        "auto_updater": "Auto Updater"
+        "auto_updater": "Auto Updater",
+        "infinite_story_boost": "Infinite Story Boost",
+        "enable_app_appearance": "Enable App Appearance Settings",
+        "disable_spotlight": "Disable Spotlight"
     },
 
     "option": {
