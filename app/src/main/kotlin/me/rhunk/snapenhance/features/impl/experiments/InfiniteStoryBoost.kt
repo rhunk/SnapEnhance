@@ -1,5 +1,6 @@
 package me.rhunk.snapenhance.features.impl.experiments
 
+import me.rhunk.snapenhance.config.ConfigProperty
 import me.rhunk.snapenhance.features.Feature
 import me.rhunk.snapenhance.features.FeatureLoadParams
 import me.rhunk.snapenhance.hook.HookStage
@@ -9,7 +10,9 @@ class InfiniteStoryBoost : Feature("InfiniteStoryBoost", loadParams = FeatureLoa
     override fun asyncOnActivityCreate() {
         val storyBoostStateClass = context.mappings.getMappedClass("StoryBoostStateClass")
 
-        storyBoostStateClass.hookConstructor(HookStage.BEFORE) { param ->
+        storyBoostStateClass.hookConstructor(HookStage.BEFORE, {
+            context.config.bool(ConfigProperty.INFINITE_STORY_BOOST)
+        }) { param ->
             val startTimeMillis = param.arg<Long>(1)
             //reset timestamp if it's more than 24 hours
             if (System.currentTimeMillis() - startTimeMillis > 86400000) {

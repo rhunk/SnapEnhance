@@ -1,5 +1,6 @@
 package me.rhunk.snapenhance.features.impl.tweaks
 
+import me.rhunk.snapenhance.config.ConfigProperty
 import me.rhunk.snapenhance.features.Feature
 import me.rhunk.snapenhance.features.FeatureLoadParams
 import me.rhunk.snapenhance.hook.HookStage
@@ -9,7 +10,9 @@ class DisableVideoLengthRestriction : Feature("DisableVideoLengthRestriction", l
     override fun asyncOnActivityCreate() {
         val defaultMediaItem = context.mappings.getMappedClass("DefaultMediaItem")
 
-        Hooker.hookConstructor(defaultMediaItem, HookStage.BEFORE) { param ->
+        Hooker.hookConstructor(defaultMediaItem, HookStage.BEFORE, {
+            context.config.bool(ConfigProperty.DISABLE_VIDEO_LENGTH_RESTRICTION)
+        }) { param ->
             //set the video length argument
             param.setArg(5, -1L)
         }
