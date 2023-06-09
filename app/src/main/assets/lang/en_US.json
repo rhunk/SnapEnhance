@@ -62,7 +62,11 @@
         "auto_updater": "Auto Updater",
         "infinite_story_boost": "Infinite Story Boost",
         "enable_app_appearance": "Enable App Appearance Settings",
-        "disable_spotlight": "Disable Spotlight"
+        "disable_spotlight": "Disable Spotlight",
+        "preview_resolution": "Override Preview Resolution",
+        "picture_resolution": "Override Picture Resolution",
+        "force_highest_frame_rate": "Force Highest Frame Rate",
+        "force_camera_source_encoding": "Force Camera Source Encoding"
     },
 
     "option": {

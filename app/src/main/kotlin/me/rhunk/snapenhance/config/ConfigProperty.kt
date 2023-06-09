@@ -6,7 +6,7 @@ import me.rhunk.snapenhance.config.impl.ConfigStateListValue
 import me.rhunk.snapenhance.config.impl.ConfigStateSelection
 import me.rhunk.snapenhance.config.impl.ConfigStateValue
 import me.rhunk.snapenhance.config.impl.ConfigStringValue
-import me.rhunk.snapenhance.features.impl.tweaks.CameraResolution
+import me.rhunk.snapenhance.features.impl.tweaks.CameraTweaks
 import java.io.File
 
 enum class ConfigProperty(
@@ -14,7 +14,8 @@ enum class ConfigProperty(
     val descriptionKey: String,
     val category: ConfigCategory,
     val valueContainer: ConfigValue<*>,
-    val shouldAppearInSettings: Boolean = true
+    val shouldAppearInSettings: Boolean = true,
+    val disableValueLocalization: Boolean = false
 ) {
 
     //SPYING AND PRIVACY
@@ -279,27 +280,32 @@ enum class ConfigProperty(
         "description.preview_resolution",
         ConfigCategory.CAMERA,
         ConfigStateSelection(
-            CameraResolution.resolutions,
+            CameraTweaks.resolutions,
             "OFF"
-        )
+        ),
+        disableValueLocalization = true
     ),
     OVERRIDE_PICTURE_RESOLUTION(
         "property.picture_resolution",
         "description.picture_resolution",
         ConfigCategory.CAMERA,
         ConfigStateSelection(
-            CameraResolution.resolutions,
+            CameraTweaks.resolutions,
             "OFF"
-        )
+        ),
+        disableValueLocalization = true
     ),
-    OVERRIDE_FRAME_RATE(
-        "property.override_frame_rate",
-        "description.override_frame_rate",
+    FORCE_HIGHEST_FRAME_RATE(
+        "property.force_highest_frame_rate",
+        "description.force_highest_frame_rate",
         ConfigCategory.CAMERA,
-        ConfigStateSelection(
-            listOf("OFF", "15", "24", "30", "60"),
-            "OFF"
-        )
+        ConfigStateValue(false)
+    ),
+    FORCE_CAMERA_SOURCE_ENCODING(
+        "property.force_camera_source_encoding",
+        "description.force_camera_source_encoding",
+        ConfigCategory.CAMERA,
+        ConfigStateValue(false)
     ),
 
     // UPDATES
