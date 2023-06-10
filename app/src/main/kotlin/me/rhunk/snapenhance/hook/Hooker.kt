@@ -75,6 +75,23 @@ object Hooker {
         XposedBridge.hookAllConstructors(clazz, newMethodHook(stage, consumer, filter))
     }
 
+    fun hookObjectMethod(
+        clazz: Class<*>,
+        instance: Any,
+        methodName: String,
+        stage: HookStage,
+        hookConsumer: (HookAdapter) -> Unit
+    ) {
+        val unhooks: MutableSet<XC_MethodHook.Unhook> = HashSet()
+        hook(clazz, methodName, stage) { param->
+            if (param.nullableThisObject<Any>().let {
+                if (it == null) unhooks.forEach { u -> u.unhook() }
+                it != instance
+            }) return@hook
+            hookConsumer(param)
+        }.also { unhooks.addAll(it) }
+    }
+
     fun ephemeralHookObjectMethod(
         clazz: Class<*>,
         instance: Any,
@@ -84,7 +101,7 @@ object Hooker {
     ) {
         val unhooks: MutableSet<XC_MethodHook.Unhook> = HashSet()
         hook(clazz, methodName, stage) { param->
-            if (param.thisObject<Any>() != instance) return@hook
+            if (param.nullableThisObject<Any>() != instance) return@hook
             hookConsumer(param)
             unhooks.forEach{ it.unhook() }
         }.also { unhooks.addAll(it) }

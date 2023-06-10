@@ -183,6 +183,12 @@ enum class ConfigProperty(
         ConfigCategory.UI_TWEAKS,
         ConfigStateValue(false)
     ),
+    IMMERSIVE_CAMERA_PREVIEW(
+        "property.immersive_camera_preview",
+        "description.immersive_camera_preview",
+        ConfigCategory.UI_TWEAKS,
+        ConfigStateValue(false)
+    ),
     HIDE_UI_ELEMENTS(
         "property.hide_ui_elements",
         "description.hide_ui_elements",

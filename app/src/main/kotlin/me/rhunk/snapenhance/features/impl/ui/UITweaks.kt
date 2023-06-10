@@ -15,10 +15,15 @@ import me.rhunk.snapenhance.hook.hook
 class UITweaks : Feature("UITweaks", loadParams = FeatureLoadParams.ACTIVITY_CREATE_SYNC) {
     @SuppressLint("DiscouragedApi")
     override fun onActivityCreate() {
+        val hiddenElements = context.config.options(ConfigProperty.HIDE_UI_ELEMENTS)
+        val isImmersiveCamera = context.config.bool(ConfigProperty.IMMERSIVE_CAMERA_PREVIEW)
         val resources = context.resources
 
-        val capriViewfinderDefaultCornerRadius = context.resources.getIdentifier("capri_viewfinder_default_corner_radius", "dimen", Constants.SNAPCHAT_PACKAGE_NAME)
-        val ngsHovaNavLargerCameraButtonSize = context.resources.getIdentifier("ngs_hova_nav_larger_camera_button_size", "dimen", Constants.SNAPCHAT_PACKAGE_NAME)
+        val displayMetrics = context.resources.displayMetrics
+
+        val capriViewfinderDefaultCornerRadius = resources.getIdentifier("capri_viewfinder_default_corner_radius", "dimen", Constants.SNAPCHAT_PACKAGE_NAME)
+        val ngsHovaNavLargerCameraButtonSize = resources.getIdentifier("ngs_hova_nav_larger_camera_button_size", "dimen", Constants.SNAPCHAT_PACKAGE_NAME)
+        val fullScreenSurfaceView = resources.getIdentifier("full_screen_surface_view", "id", Constants.SNAPCHAT_PACKAGE_NAME)
 
         val callButtonsStub = resources.getIdentifier("call_buttons_stub", "id", Constants.SNAPCHAT_PACKAGE_NAME)
         val callButton1 = resources.getIdentifier("friend_action_button3", "id", Constants.SNAPCHAT_PACKAGE_NAME)
@@ -27,11 +32,10 @@ class UITweaks : Feature("UITweaks", loadParams = FeatureLoadParams.ACTIVITY_CRE
         val chatNoteRecordButton = resources.getIdentifier("chat_note_record_button", "id", Constants.SNAPCHAT_PACKAGE_NAME)
         val chatInputBarSticker = resources.getIdentifier("chat_input_bar_sticker", "id", Constants.SNAPCHAT_PACKAGE_NAME)
         val chatInputBarCognac = resources.getIdentifier("chat_input_bar_cognac", "id", Constants.SNAPCHAT_PACKAGE_NAME)
-        val hiddenElements = context.config.options(ConfigProperty.HIDE_UI_ELEMENTS)
 
-        Resources::class.java.methods.first { it.name == "getDimensionPixelSize"}.hook(HookStage.AFTER, {
-            hiddenElements["remove_camera_borders"] == true
-        }) { param ->
+        Resources::class.java.methods.first { it.name == "getDimensionPixelSize"}.hook(HookStage.AFTER,
+            { isImmersiveCamera }
+        ) { param ->
             val id = param.arg<Int>(0)
             if (id == capriViewfinderDefaultCornerRadius || id == ngsHovaNavLargerCameraButtonSize) {
                 param.setResult(0)
@@ -49,16 +53,20 @@ class UITweaks : Feature("UITweaks", loadParams = FeatureLoadParams.ACTIVITY_CRE
             }
         }
 
-        //TODO: use the event bus to dispatch a addView event
-        val addViewMethod = ViewGroup::class.java.getMethod(
+        ViewGroup::class.java.getMethod(
             "addView",
             View::class.java,
             Int::class.javaPrimitiveType,
             ViewGroup.LayoutParams::class.java
-        )
-        Hooker.hook(addViewMethod, HookStage.BEFORE) { param ->
+        ).hook(HookStage.BEFORE) { param ->
             val view: View = param.arg(0)
             val viewId = view.id
+
+            if (isImmersiveCamera && view.id == fullScreenSurfaceView) {
+                Hooker.hookObjectMethod(View::class.java, view, "layout", HookStage.BEFORE) { param ->
+                    param.setArg(3, displayMetrics.heightPixels)
+                }
+            }
 
             if (viewId == chatNoteRecordButton && hiddenElements["remove_voice_record_button"] == true) {
                 view.isEnabled = false
