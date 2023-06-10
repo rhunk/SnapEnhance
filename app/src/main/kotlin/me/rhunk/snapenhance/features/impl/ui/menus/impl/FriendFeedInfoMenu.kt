@@ -191,9 +191,9 @@ class FriendFeedInfoMenu : AbstractMenu() {
 
     private fun getCurrentConversationId(): Pair<String, String?> {
         val messaging = context.feature(Messaging::class)
-        var focusedConversationTargetUser: String? = null
-        val conversationId = if (messaging.lastFetchConversationUUID == null) {
-            focusedConversationTargetUser = messaging.lastFetchConversationUserUUID.toString()
+        val focusedConversationTargetUser: String? = messaging.lastFetchConversationUserUUID?.toString()
+
+        val conversationId = if (messaging.lastFetchConversationUUID == null && focusedConversationTargetUser != null) {
             val conversation: UserConversationLink = context.database.getDMConversationIdFromUserId(focusedConversationTargetUser) ?: throw IllegalStateException("No conversation found")
             conversation.client_conversation_id!!.trim().lowercase()
         } else {
@@ -212,10 +212,6 @@ class FriendFeedInfoMenu : AbstractMenu() {
             toggle(checked)
         }
         viewConsumer(switch)
-    }
-
-    fun injectOldButtons(viewModel: View, viewConsumer: ((View) -> Unit)) {
-
     }
 
     @SuppressLint("SetTextI18n", "UseSwitchCompatOrMaterialCode", "DefaultLocale", "InflateParams",
@@ -291,10 +287,7 @@ class FriendFeedInfoMenu : AbstractMenu() {
             menuButtonBar.addView(LinearLayout(viewModel.context).apply {
                 layoutParams = LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.MATCH_PARENT, 1f)
                 gravity = Gravity.CENTER
-                setPadding(0, 20, 0, 20)
-                isClickable = true
-                scaleX = 1.1f
-                scaleY = 1.1f
+                isClickable = false
 
                 var isLineThrough = isDisabled ?: false
                 FriendActionButton.new(viewModel.context).apply {
@@ -304,7 +297,7 @@ class FriendFeedInfoMenu : AbstractMenu() {
                     setLineThrough(isLineThrough)
                     (instanceNonNull() as View).apply {
                         layoutParams = LinearLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT).apply {
-                            setMargins(0, 60, 0, 60)
+                            setMargins(0, 40, 0, 40)
                         }
                         setOnTouchListener { _, event ->
                             if (event.action == MotionEvent.ACTION_UP) {
