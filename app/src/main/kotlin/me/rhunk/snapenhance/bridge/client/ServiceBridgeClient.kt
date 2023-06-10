@@ -13,8 +13,6 @@ import android.os.HandlerThread
 import android.os.IBinder
 import android.os.Message
 import android.os.Messenger
-import kotlinx.coroutines.runBlocking
-import kotlinx.coroutines.suspendCancellableCoroutine
 import me.rhunk.snapenhance.BuildConfig
 import me.rhunk.snapenhance.Logger.xposedLog
 import me.rhunk.snapenhance.bridge.AbstractBridgeClient
@@ -33,13 +31,16 @@ import me.rhunk.snapenhance.bridge.common.impl.messagelogger.MessageLoggerResult
 import me.rhunk.snapenhance.bridge.service.BridgeService
 import java.util.concurrent.CompletableFuture
 import java.util.concurrent.Executors
-import kotlin.coroutines.resume
+import java.util.concurrent.atomic.AtomicReference
+import java.util.concurrent.locks.ReentrantLock
+import kotlin.concurrent.withLock
 import kotlin.reflect.KClass
 import kotlin.system.exitProcess
 
 
 class ServiceBridgeClient: AbstractBridgeClient(), ServiceConnection {
     private val handlerThread = HandlerThread("BridgeClient")
+    private val lock = ReentrantLock()
 
     private lateinit var messenger: Messenger
     private lateinit var future: CompletableFuture<Boolean>
@@ -83,33 +84,31 @@ class ServiceBridgeClient: AbstractBridgeClient(), ServiceConnection {
     @Suppress("UNCHECKED_CAST", "UNUSED_PARAMETER")
     private fun <T : BridgeMessage> sendMessage(
         messageType: BridgeMessageType,
-        message: BridgeMessage,
+        bridgeMessage: BridgeMessage,
         resultType: KClass<T>? = null
-    ) = runBlocking {
-        suspendCancellableCoroutine { cancelableContinuation ->
-            val replyMessenger = Messenger(object : Handler(handlerThread.looper) {
+    ): T {
+        val response = AtomicReference<BridgeMessage>()
+        val condition = lock.newCondition()
+
+        with(Message.obtain()) {
+            what = messageType.value
+            replyTo = Messenger(object : Handler(handlerThread.looper) {
                 override fun handleMessage(msg: Message) {
-                    if (cancelableContinuation.isCancelled) return
-                    runCatching {
-                        cancelableContinuation.resume(handleResponseMessage(msg) as T)
-                    }.onFailure {
-                        cancelableContinuation.cancel(it)
+                    response.set(handleResponseMessage(msg))
+                    lock.withLock {
+                        condition.signal()
                     }
                 }
             })
-
-            runCatching {
-                with(Message.obtain()) {
-                    what = messageType.value
-                    replyTo = replyMessenger
-                    data = Bundle()
-                    message.write(data)
-                    messenger.send(this)
-                }
-            }.onFailure {
-                cancelableContinuation.cancel(it)
-            }
+            data = Bundle()
+            bridgeMessage.write(data)
+            messenger.send(this)
         }
+
+        lock.withLock {
+            condition.awaitUninterruptibly()
+        }
+        return response.get() as T
     }
 
     override fun createAndReadFile(

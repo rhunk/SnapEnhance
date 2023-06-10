@@ -16,8 +16,8 @@ import me.rhunk.snapenhance.manager.Manager
 import me.rhunk.snapenhance.mapping.Mapper
 import me.rhunk.snapenhance.mapping.impl.BCryptClassMapper
 import me.rhunk.snapenhance.mapping.impl.CallbackMapper
-import me.rhunk.snapenhance.mapping.impl.EnumMapper
 import me.rhunk.snapenhance.mapping.impl.DefaultMediaItemMapper
+import me.rhunk.snapenhance.mapping.impl.EnumMapper
 import me.rhunk.snapenhance.mapping.impl.OperaPageViewControllerMapper
 import me.rhunk.snapenhance.mapping.impl.PlatformAnalyticsCreatorMapper
 import me.rhunk.snapenhance.mapping.impl.PlusSubscriptionMapper
@@ -26,7 +26,6 @@ import me.rhunk.snapenhance.mapping.impl.StoryBoostStateMapper
 import me.rhunk.snapenhance.util.getObjectField
 import java.nio.charset.StandardCharsets
 import java.util.concurrent.ConcurrentHashMap
-import kotlin.concurrent.thread
 
 @Suppress("UNCHECKED_CAST")
 class MappingManager(private val context: ModContext) : Manager {
