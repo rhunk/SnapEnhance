@@ -69,7 +69,10 @@
         "picture_resolution": "Override Picture Resolution",
         "force_highest_frame_rate": "Force Highest Frame Rate",
         "force_camera_source_encoding": "Force Camera Source Encoding",
-        "amoled_dark_mode": "AMOLED Dark Mode"
+        "amoled_dark_mode": "AMOLED Dark Mode",
+        "enable_friend_feed_menu_bar": "Enable New Friend Feed Menu Bar",
+        "friend_feed_menu_buttons": "Friend Feed Menu Buttons",
+        "friend_feed_menu_buttons_position": "Friend Feed Buttons Position Index"
     },
 
     "option": {
@@ -78,6 +81,12 @@
                 "chat": "Show chat messages",
                 "snap": "Show medias",
                 "reply_button": "Add reply button"
+            },
+            "friend_feed_menu_buttons": {
+                "auto_download_blacklist": "\u2B07\uFE0F Auto Download Blacklist",
+                "anti_auto_save": "\uD83D\uDCAC Anti Auto Save Messages",
+                "stealth_mode": "\uD83D\uDC7B Stealth Mode",
+                "conversation_info": "\uD83D\uDC64 Conversation Info"
             },
             "download_options": {
                 "format_user_folder": "Create folder for each user",
@@ -140,7 +149,7 @@
     "friend_menu_option": {
         "preview": "Preview",
         "stealth_mode": "Stealth Mode",
-        "anti_auto_download": "Anti Auto Download",
+        "auto_download_blacklist": "Auto Download Blacklist",
         "anti_auto_save": "Anti Auto Save"
     },
 

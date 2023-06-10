@@ -1,11 +1,7 @@
 package me.rhunk.snapenhance.features.impl.ui.menus.impl
 
 import android.annotation.SuppressLint
-import android.content.res.Resources
-import android.graphics.Color
-import android.graphics.drawable.ColorDrawable
 import android.os.SystemClock
-import android.util.TypedValue
 import android.view.MotionEvent
 import android.view.View
 import android.view.ViewGroup
@@ -15,8 +11,8 @@ import me.rhunk.snapenhance.Constants.VIEW_INJECTED_CODE
 import me.rhunk.snapenhance.config.ConfigProperty
 import me.rhunk.snapenhance.features.impl.Messaging
 import me.rhunk.snapenhance.features.impl.downloader.MediaDownloader
-import me.rhunk.snapenhance.features.impl.spying.MessageLogger
 import me.rhunk.snapenhance.features.impl.ui.menus.AbstractMenu
+import me.rhunk.snapenhance.features.impl.ui.menus.ViewAppearanceHelper
 
 
 class ChatActionMenu : AbstractMenu() {
@@ -24,27 +20,6 @@ class ChatActionMenu : AbstractMenu() {
         if (view.getTag(VIEW_INJECTED_CODE) != null) return true
         view.setTag(VIEW_INJECTED_CODE, true)
         return false
-    }
-
-    private fun applyButtonTheme(parent: View, button: Button) {
-        button.background = ColorDrawable(Color.WHITE)
-        button.setTextColor(Color.BLACK)
-        button.transformationMethod = null
-        val margin = TypedValue.applyDimension(
-            TypedValue.COMPLEX_UNIT_DIP,
-            20f,
-            Resources.getSystem().displayMetrics
-        ).toInt()
-        val params = MarginLayoutParams(parent.layoutParams)
-        params.setMargins(margin, 5, margin, 5)
-        params.marginEnd = margin
-        params.marginStart = margin
-        button.layoutParams = params
-        button.height = TypedValue.applyDimension(
-            TypedValue.COMPLEX_UNIT_DIP,
-            50f,
-            Resources.getSystem().displayMetrics
-        ).toInt()
     }
 
     @SuppressLint("SetTextI18n")
@@ -64,9 +39,23 @@ class ChatActionMenu : AbstractMenu() {
                 )
             )
         }
+
+        val injectButton = { button: Button ->
+            ViewAppearanceHelper.applyTheme(button, parent.width, hasRadius = true)
+
+            with(button) {
+                layoutParams = MarginLayoutParams(
+                    ViewGroup.LayoutParams.MATCH_PARENT,
+                    ViewGroup.LayoutParams.WRAP_CONTENT
+                ).apply {
+                    setMargins(40, 0, 40, 15)
+                }
+                parent.addView(this)
+            }
+        }
+
         if (context.config.bool(ConfigProperty.CHAT_DOWNLOAD_CONTEXT_MENU)) {
-            parent.addView(Button(viewGroup.context).apply {
-                applyButtonTheme(parent, this)
+            injectButton(Button(viewGroup.context).apply {
                 text = this@ChatActionMenu.context.translation.get("chat_action_menu.preview_button")
                 setOnClickListener {
                     closeActionMenu()
@@ -74,8 +63,7 @@ class ChatActionMenu : AbstractMenu() {
                 }
             })
 
-            parent.addView(Button(viewGroup.context).apply {
-                applyButtonTheme(parent, this)
+            injectButton(Button(viewGroup.context).apply {
                 text = this@ChatActionMenu.context.translation.get("chat_action_menu.download_button")
                 setOnClickListener {
                     closeActionMenu()
@@ -90,18 +78,17 @@ class ChatActionMenu : AbstractMenu() {
 
         //delete logged message button
         if (context.config.bool(ConfigProperty.MESSAGE_LOGGER)) {
-            val downloadButton = Button(viewGroup.context)
-            applyButtonTheme(parent, downloadButton)
-            downloadButton.text = context.translation.get("chat_action_menu.delete_logged_message_button")
-            downloadButton.setOnClickListener {
-                closeActionMenu()
-                context.executeAsync {
-                    with(context.feature(Messaging::class)) {
-                        context.feature(MessageLogger::class).deleteMessage(lastOpenedConversationUUID.toString(), lastFocusedMessageId)
+            injectButton(Button(viewGroup.context).apply {
+                text = this@ChatActionMenu.context.translation.get("chat_action_menu.delete_logged_message_button")
+                setOnClickListener {
+                    closeActionMenu()
+                    this@ChatActionMenu.context.executeAsync {
+                        with(this@ChatActionMenu.context.feature(Messaging::class)) {
+                            context.feature(me.rhunk.snapenhance.features.impl.spying.MessageLogger::class).deleteMessage(lastOpenedConversationUUID.toString(), lastFocusedMessageId)
+                        }
                     }
                 }
-            }
-            parent.addView(downloadButton)
+            })
         }
     }
 }

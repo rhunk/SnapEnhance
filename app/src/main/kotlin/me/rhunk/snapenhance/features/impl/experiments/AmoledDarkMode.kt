@@ -36,7 +36,8 @@ class AmoledDarkMode : Feature("Amoled Dark Mode", loadParams = FeatureLoadParam
                 getAttribute("sigColorTextPrimary") -> {
                     ephemeralHook("getColor", 0xFFFFFFFF.toInt())
                 }
-                getAttribute("sigColorBackgroundMain") -> {
+                getAttribute("sigColorBackgroundMain"),
+                getAttribute("sigColorBackgroundSurface") -> {
                     ephemeralHook("getColor", 0xFF000000.toInt())
                 }
                 getAttribute("actionSheetBackgroundDrawable"),
