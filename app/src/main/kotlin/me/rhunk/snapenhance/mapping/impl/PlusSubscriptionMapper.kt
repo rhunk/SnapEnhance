@@ -11,7 +11,7 @@ class PlusSubscriptionMapper : Mapper() {
         mappings: MutableMap<String, Any>
     ) {
         for (clazz in classes) {
-            clazz.fields.firstOrNull {
+            clazz.declaredFields.firstOrNull {
                 it.type == clazz &&
                 Modifier.isFinal(it.modifiers) &&
                 Modifier.isStatic(it.modifiers) &&
