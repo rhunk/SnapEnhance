@@ -92,6 +92,19 @@ object Hooker {
         }.also { unhooks.addAll(it) }
     }
 
+    fun ephemeralHook(
+        clazz: Class<*>,
+        methodName: String,
+        stage: HookStage,
+        hookConsumer: (HookAdapter) -> Unit
+    ) {
+        val unhooks: MutableSet<XC_MethodHook.Unhook> = HashSet()
+        hook(clazz, methodName, stage) { param->
+            hookConsumer(param)
+            unhooks.forEach{ it.unhook() }
+        }.also { unhooks.addAll(it) }
+    }
+
     fun ephemeralHookObjectMethod(
         clazz: Class<*>,
         instance: Any,

@@ -223,7 +223,7 @@ class FriendFeedInfoMenu : AbstractMenu() {
         val friendFeedMenuOptions = context.config.options(ConfigProperty.FRIEND_FEED_MENU_BUTTONS)
         if (friendFeedMenuOptions.none { it.value }) return
 
-        val (conversationId, focusedConversationTargetUser) = getCurrentConversationId()
+        val (conversationId, targetUser) = getCurrentConversationId()
 
         if (!context.config.bool(ConfigProperty.ENABLE_FRIEND_FEED_MENU_BAR)) {
             //preview button
@@ -232,7 +232,7 @@ class FriendFeedInfoMenu : AbstractMenu() {
                 ViewAppearanceHelper.applyTheme(this, viewModel.width)
                 setOnClickListener {
                     showPreview(
-                        focusedConversationTargetUser,
+                        targetUser,
                         conversationId,
                         context
                     )
@@ -252,6 +252,14 @@ class FriendFeedInfoMenu : AbstractMenu() {
                 }
             }
 
+            if (friendFeedMenuOptions["anti_auto_save"] == true) {
+                createToggleFeature(viewConsumer,
+                    "friend_menu_option.anti_auto_save",
+                    { context.feature(AntiAutoSave::class).isConversationIgnored(conversationId) },
+                    { context.feature(AntiAutoSave::class).setConversationIgnored(conversationId, it) }
+                )
+            }
+
             run {
                 val userId = context.database.getFriendFeedInfoByConversationId(conversationId)?.friendUserId ?: return@run
                 if (friendFeedMenuOptions["auto_download_blacklist"] == true) {
@@ -261,18 +269,14 @@ class FriendFeedInfoMenu : AbstractMenu() {
                         { context.feature(AntiAutoDownload::class).setUserIgnored(userId, it) }
                     )
                 }
-
-                if (friendFeedMenuOptions["anti_auto_save"] == true) {
-                    createToggleFeature(viewConsumer,
-                        "friend_menu_option.anti_auto_save",
-                        { context.feature(AntiAutoSave::class).isConversationIgnored(conversationId) },
-                        { context.feature(AntiAutoSave::class).setConversationIgnored(conversationId, it) }
-                    )
-                }
             }
 
-            viewConsumer(stealthSwitch)
-            viewConsumer(previewButton)
+            if (friendFeedMenuOptions["stealth_mode"] == true) {
+                viewConsumer(stealthSwitch)
+            }
+            if (friendFeedMenuOptions["conversation_info"] == true) {
+                viewConsumer(previewButton)
+            }
             return
         }
 
@@ -356,7 +360,7 @@ class FriendFeedInfoMenu : AbstractMenu() {
             //user
             createActionButton("\uD83D\uDC64") {
                 showPreview(
-                    focusedConversationTargetUser,
+                    targetUser,
                     conversationId,
                     viewModel.context
                 )
