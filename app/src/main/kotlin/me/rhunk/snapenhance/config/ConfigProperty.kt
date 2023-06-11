@@ -265,6 +265,12 @@ enum class ConfigProperty(
         ConfigCategory.UI_TWEAKS,
         ConfigIntegerValue(20)
     ),
+    UNLIMITED_CONVERSATION_PINNING(
+        "property.unlimited_conversation_pinning",
+        "description.unlimited_conversation_pinning",
+        ConfigCategory.UI_TWEAKS,
+        ConfigStateValue(false)
+    ),
     DISABLE_SPOTLIGHT(
         "property.disable_spotlight",
         "description.disable_spotlight",

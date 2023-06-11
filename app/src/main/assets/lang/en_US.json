@@ -72,7 +72,8 @@
         "amoled_dark_mode": "AMOLED Dark Mode",
         "enable_friend_feed_menu_bar": "Enable New Friend Feed Menu Bar",
         "friend_feed_menu_buttons": "Friend Feed Menu Buttons",
-        "friend_feed_menu_buttons_position": "Friend Feed Buttons Position Index"
+        "friend_feed_menu_buttons_position": "Friend Feed Buttons Position Index",
+        "unlimited_conversation_pinning": "Unlimited Conversation Pinning"
     },
 
     "option": {
