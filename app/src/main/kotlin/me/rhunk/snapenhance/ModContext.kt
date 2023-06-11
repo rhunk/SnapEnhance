@@ -40,7 +40,7 @@ class ModContext {
     val config = ConfigManager(this)
     val actionManager = ActionManager(this)
     val database = DatabaseAccess(this)
-    val downloadServer = DownloadServer(this)
+    val downloadServer = DownloadServer()
     val messageSender = MessageSender(this)
     val classCache get() = SnapEnhance.classCache
     val resources: Resources get() = androidContext.resources

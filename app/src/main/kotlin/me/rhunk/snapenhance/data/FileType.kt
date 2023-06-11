@@ -13,6 +13,7 @@ enum class FileType(
     JPG("jpg", false, true, false),
     ZIP("zip", false, false, false),
     WEBP("webp", false, true, false),
+    MPD("mpd", false, true, false),
     UNKNOWN("dat", false, false, false);
 
     companion object {

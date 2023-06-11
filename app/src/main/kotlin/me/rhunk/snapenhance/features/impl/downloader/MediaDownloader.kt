@@ -3,11 +3,10 @@ package me.rhunk.snapenhance.features.impl.downloader
 import android.app.AlertDialog
 import android.content.DialogInterface
 import android.graphics.Bitmap
-import android.media.MediaScannerConnection
 import android.net.Uri
 import android.widget.ImageView
 import com.arthenica.ffmpegkit.FFmpegKit
-import me.rhunk.snapenhance.Constants
+import kotlinx.coroutines.runBlocking
 import me.rhunk.snapenhance.Constants.ARROYO_URL_KEY_PROTO_PATH
 import me.rhunk.snapenhance.Logger.xposedLog
 import me.rhunk.snapenhance.config.ConfigProperty
@@ -18,6 +17,8 @@ import me.rhunk.snapenhance.data.wrapper.impl.media.dash.LongformVideoPlaylistIt
 import me.rhunk.snapenhance.data.wrapper.impl.media.dash.SnapPlaylistItem
 import me.rhunk.snapenhance.data.wrapper.impl.media.opera.Layer
 import me.rhunk.snapenhance.data.wrapper.impl.media.opera.ParamMap
+import me.rhunk.snapenhance.download.ClientDownloadManager
+import me.rhunk.snapenhance.download.DownloadMediaType
 import me.rhunk.snapenhance.features.Feature
 import me.rhunk.snapenhance.features.FeatureLoadParams
 import me.rhunk.snapenhance.features.impl.Messaging
@@ -29,29 +30,19 @@ import me.rhunk.snapenhance.util.EncryptionUtils
 import me.rhunk.snapenhance.util.MediaDownloaderHelper
 import me.rhunk.snapenhance.util.MediaType
 import me.rhunk.snapenhance.util.PreviewUtils
-import me.rhunk.snapenhance.util.download.RemoteMediaResolver
 import me.rhunk.snapenhance.util.getObjectField
 import me.rhunk.snapenhance.util.protobuf.ProtoReader
-import java.io.ByteArrayOutputStream
+import java.io.ByteArrayInputStream
 import java.io.File
-import java.io.FileOutputStream
-import java.io.InputStream
-import java.net.HttpURLConnection
-import java.net.URL
 import java.nio.file.Paths
 import java.text.SimpleDateFormat
-import java.util.Arrays
 import java.util.Locale
-import java.util.concurrent.atomic.AtomicReference
-import javax.crypto.Cipher
-import javax.crypto.CipherInputStream
-import javax.xml.parsers.DocumentBuilderFactory
-import javax.xml.transform.TransformerFactory
-import javax.xml.transform.dom.DOMSource
-import javax.xml.transform.stream.StreamResult
+import kotlin.coroutines.suspendCoroutine
+import kotlin.io.encoding.Base64
+import kotlin.io.encoding.ExperimentalEncodingApi
 import kotlin.io.path.inputStream
 
-
+@OptIn(ExperimentalEncodingApi::class)
 class MediaDownloader : Feature("MediaDownloader", loadParams = FeatureLoadParams.ACTIVITY_CREATE_ASYNC) {
     private var lastSeenMediaInfoMap: MutableMap<MediaType, MediaInfo>? = null
     private var lastSeenMapParams: ParamMap? = null
@@ -59,12 +50,22 @@ class MediaDownloader : Feature("MediaDownloader", loadParams = FeatureLoadParam
         runCatching { FFmpegKit.execute("-version") }.isSuccess
     }
 
+    private fun provideClientDownloadManager(pathPrefix: String): ClientDownloadManager {
+        return ClientDownloadManager(
+            context,
+            File(
+                context.config.string(ConfigProperty.SAVE_FOLDER),
+                createNewFilePath(pathPrefix.hashCode(), pathPrefix)
+            ).absolutePath
+        )
+    }
+
     private fun canMergeOverlay(): Boolean {
         if (context.config.options(ConfigProperty.DOWNLOAD_OPTIONS)["merge_overlay"] == false) return false
         return isFFmpegPresent
     }
 
-    private fun createNewFilePath(hash: Int, author: String, fileType: FileType): String {
+    private fun createNewFilePath(hash: Int, pathPrefix: String): String {
         val hexHash = Integer.toHexString(hash)
         val downloadOptions = context.config.options(ConfigProperty.DOWNLOAD_OPTIONS)
 
@@ -81,13 +82,13 @@ class MediaDownloader : Feature("MediaDownloader", loadParams = FeatureLoadParam
         }
 
         if (downloadOptions["format_user_folder"] == true) {
-            finalPath.append(author).append("/")
+            finalPath.append(pathPrefix).append("/")
         }
         if (downloadOptions["format_hash"] == true) {
             appendFileName(hexHash)
         }
         if (downloadOptions["format_username"] == true) {
-            appendFileName(author)
+            appendFileName(pathPrefix)
         }
         if (downloadOptions["format_date_time"] == true) {
             appendFileName(currentDateTime)
@@ -95,78 +96,8 @@ class MediaDownloader : Feature("MediaDownloader", loadParams = FeatureLoadParam
 
         if (finalPath.isEmpty()) finalPath.append(hexHash)
 
-        return finalPath.toString() + "." + fileType.fileExtension
+        return finalPath.toString()
     }
-
-    private fun downloadFile(outputFile: File, content: ByteArray): Boolean {
-        val onDownloadComplete = {
-                context.shortToast(
-                    "Saved to " + outputFile.absolutePath.replace(context.config.string(ConfigProperty.SAVE_FOLDER), "")
-                        .substring(1)
-                )
-            }
-        if (!context.config.bool(ConfigProperty.USE_DOWNLOAD_MANAGER)) {
-            try {
-                val fos = FileOutputStream(outputFile)
-                fos.write(content)
-                fos.close()
-                MediaScannerConnection.scanFile(
-                    context.androidContext,
-                    arrayOf(outputFile.absolutePath),
-                    null,
-                    null
-                )
-                onDownloadComplete()
-            } catch (e: Throwable) {
-                xposedLog(e)
-                context.longToast("Failed to save file: " + e.message)
-                return false
-            }
-            return true
-        }
-        context.downloadServer.startFileDownload(outputFile, content) { result ->
-            if (result) {
-                onDownloadComplete()
-                return@startFileDownload
-            }
-            context.longToast("Failed to save file. Check logs for more info.")
-        }
-        return true
-    }
-    private fun queryMediaData(mediaInfo: MediaInfo): ByteArray {
-        val mediaUri = Uri.parse(mediaInfo.uri)
-        val mediaInputStream = AtomicReference<InputStream>()
-        if (mediaUri.scheme == "file") {
-            mediaInputStream.set(Paths.get(mediaUri.path).inputStream())
-        } else {
-            val url = URL(mediaUri.toString())
-            val connection = url.openConnection() as HttpURLConnection
-            connection.requestMethod = "GET"
-            connection.setRequestProperty("User-Agent", Constants.USER_AGENT)
-            connection.connect()
-            mediaInputStream.set(connection.inputStream)
-        }
-        mediaInfo.encryption?.let { encryption ->
-            mediaInputStream.set(CipherInputStream(mediaInputStream.get(), encryption.newCipher(Cipher.DECRYPT_MODE)))
-        }
-        return mediaInputStream.get().readBytes()
-    }
-
-    private fun createNeededDirectories(file: File): File {
-        val directory = file.parentFile ?: return file
-        if (!directory.exists()) {
-            directory.mkdirs()
-        }
-        return file
-    }
-
-    private fun isFileExists(hash: Int, author: String, fileType: FileType): Boolean {
-        val fileName: String = createNewFilePath(hash, author, fileType)
-        val outputFile: File =
-            createNeededDirectories(File(context.config.string(ConfigProperty.SAVE_FOLDER), fileName))
-        return outputFile.exists()
-    }
-
 
     /*
      * Download the last seen media
@@ -178,41 +109,56 @@ class MediaDownloader : Feature("MediaDownloader", loadParams = FeatureLoadParam
         }
     }
 
-    private fun downloadOperaMedia(mediaInfoMap: Map<MediaType, MediaInfo>, author: String) {
-        if (mediaInfoMap.isEmpty()) return
-        val originalMediaInfo = mediaInfoMap[MediaType.ORIGINAL]!!
-        if (mediaInfoMap.containsKey(MediaType.OVERLAY)) {
-            context.shortToast("Downloading split snap")
-        }
-        var mediaContent: ByteArray? = queryMediaData(originalMediaInfo)
-        val hash = Arrays.hashCode(mediaContent)
-        if (mediaInfoMap.containsKey(MediaType.OVERLAY)) {
-            //prevent converting the same media twice
-            if (isFileExists(hash, author, FileType.fromByteArray(mediaContent!!))) {
-                context.shortToast("Media already exists")
-                return
+    private fun handleLocalReferences(path: String) = runBlocking {
+        //if the media is a local file we need to copy it to a public directory
+        //so the broadcast receiver can access it
+        return@runBlocking Uri.parse(path).let { uri ->
+            if (uri.scheme == "file") {
+                return@let suspendCoroutine<String> { continuation ->
+                    context.downloadServer.ensureServerStarted {
+                        val url = putDownloadableContent(Paths.get(uri.path).inputStream())
+                        continuation.resumeWith(Result.success(url))
+                    }
+                }
             }
-            val overlayMediaInfo = mediaInfoMap[MediaType.OVERLAY]!!
-            val overlayContent: ByteArray = queryMediaData(overlayMediaInfo)
-            mediaContent = MediaDownloaderHelper.mergeOverlay(mediaContent, overlayContent, false)
+            path
         }
-        val fileType = FileType.fromByteArray(mediaContent!!)
-        downloadMediaContent(mediaContent, hash, author, fileType)
     }
 
-    private fun downloadMediaContent(
-        data: ByteArray,
-        hash: Int,
-        messageAuthor: String,
-        fileType: FileType
-    ): Boolean {
-        val fileName: String = createNewFilePath(hash, messageAuthor, fileType) ?: return false
-        val outputFile: File = createNeededDirectories(File(context.config.string(ConfigProperty.SAVE_FOLDER), fileName))
-        if (outputFile.exists()) {
-            context.shortToast("Media already exists")
-            return false
+    private fun downloadOperaMedia(mediaInfoMap: Map<MediaType, MediaInfo>, author: String) {
+        if (mediaInfoMap.isEmpty()) return
+
+        val originalMediaInfo = mediaInfoMap[MediaType.ORIGINAL]!!
+        val overlay = mediaInfoMap[MediaType.OVERLAY]
+
+        val originalMediaInfoReference = handleLocalReferences(originalMediaInfo.uri)
+        val overlayReference = overlay?.let { handleLocalReferences(it.uri) }
+
+        val clientDownloadManager = provideClientDownloadManager(author)
+
+        overlay?.let {
+            clientDownloadManager.downloadMediaWithOverlay(
+                originalMediaInfoReference,
+                overlayReference!!,
+                DownloadMediaType.fromUri(Uri.parse(originalMediaInfoReference)),
+                DownloadMediaType.fromUri(Uri.parse(overlayReference)),
+                videoEncryption = originalMediaInfo.encryption?.let {
+                    Pair(Base64.UrlSafe.encode(it.keySpec), Base64.UrlSafe.encode(it.ivKeyParameterSpec))
+                },
+                overlayEncryption = overlay.encryption?.let {
+                    Pair(Base64.UrlSafe.encode(it.keySpec), Base64.UrlSafe.encode(it.ivKeyParameterSpec))
+                }
+            )
+            return
         }
-        return downloadFile(outputFile, data)
+
+        clientDownloadManager.downloadMedia(
+            originalMediaInfoReference,
+            DownloadMediaType.fromUri(Uri.parse(originalMediaInfoReference)),
+            originalMediaInfo.encryption?.let {
+                Pair(Base64.UrlSafe.encode(it.keySpec), Base64.UrlSafe.encode(it.ivKeyParameterSpec))
+            }
+        )
     }
 
     /**
@@ -302,24 +248,12 @@ class MediaDownloader : Feature("MediaDownloader", loadParams = FeatureLoadParam
 
             //get the mpd playlist and append the cdn url to baseurl nodes
             val playlistUrl = paramMap["MEDIA_ID"].toString().let { it.substring(it.indexOf("https://cf-st.sc-cdn.net")) }
-            val playlistXml = DocumentBuilderFactory.newInstance().newDocumentBuilder().parse(URL(playlistUrl).openStream())
-            val baseUrlNodeList = playlistXml.getElementsByTagName("BaseURL")
-            for (i in 0 until baseUrlNodeList.length) {
-                val baseUrlNode = baseUrlNodeList.item(i)
-                val baseUrl = baseUrlNode.textContent
-                baseUrlNode.textContent = "${RemoteMediaResolver.CF_ST_CDN_D}$baseUrl"
-            }
-
-            val xmlData = ByteArrayOutputStream()
-            TransformerFactory.newInstance().newTransformer().transform(DOMSource(playlistXml), StreamResult(xmlData))
-            runCatching {
-                context.shortToast("Downloading dash media. This might take a while...")
-                val downloadedMedia = MediaDownloaderHelper.downloadDashChapter(xmlData.toByteArray().toString(Charsets.UTF_8), snapChapterTimestamp, duration)
-                downloadMediaContent(downloadedMedia, downloadedMedia.contentHashCode(), "Pro-Stories/${storyName}", FileType.fromByteArray(downloadedMedia))
-            }.onFailure {
-                context.longToast("Failed to download media: ${it.message}")
-                xposedLog(it)
-            }
+            val clientDownloadManager = provideClientDownloadManager("Pro-Stories/${storyName}")
+            clientDownloadManager.downloadDashMedia(
+                playlistUrl,
+                snapChapterTimestamp,
+                duration
+            )
         }
     }
 
@@ -433,7 +367,16 @@ class MediaDownloader : Feature("MediaDownloader", loadParams = FeatureLoadParam
                 }
                 return
             }
-            downloadMediaContent(downloadedMedia, downloadedMedia.contentHashCode(), messageAuthor, fileType)
+
+            //TODO: use input streams instead of bytearrays
+            context.downloadServer.ensureServerStarted {
+                val requestUrl = putDownloadableContent(ByteArrayInputStream(downloadedMedia))
+                provideClientDownloadManager(messageAuthor).downloadMedia(
+                    requestUrl,
+                    DownloadMediaType.REMOTE_MEDIA
+                )
+            }
+
         } catch (e: Throwable) {
             context.longToast("Failed to download " + e.message)
             xposedLog(e)

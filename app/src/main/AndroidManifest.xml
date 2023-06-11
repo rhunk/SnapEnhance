@@ -28,8 +28,16 @@
 
         <service
             android:name=".bridge.service.BridgeService"
-            android:exported="true">
+            android:exported="true"
+            tools:ignore="ExportedService">
         </service>
+
+        <receiver android:name=".download.MediaDownloadReceiver" android:exported="true"
+            tools:ignore="ExportedReceiver">
+            <intent-filter>
+                <action android:name="me.rhunk.snapenhance.download.MediaDownloadReceiver.DOWNLOAD_ACTION" />
+            </intent-filter>
+        </receiver>
 
         <activity
             android:theme="@android:style/Theme.NoDisplay"

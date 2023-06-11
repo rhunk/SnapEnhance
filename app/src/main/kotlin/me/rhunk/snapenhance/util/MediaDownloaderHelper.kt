@@ -15,6 +15,7 @@ import java.util.zip.ZipInputStream
 enum class MediaType {
     ORIGINAL, OVERLAY
 }
+
 object MediaDownloaderHelper {
     fun downloadMediaFromReference(mediaReference: ByteArray, mergeOverlay: Boolean, isPreviewMode: Boolean, decryptionCallback: (InputStream) -> InputStream): Map<MediaType, ByteArray> {
         val inputStream: InputStream = RemoteMediaResolver.downloadBoltMedia(mediaReference) ?: throw FileNotFoundException("Unable to get media key. Check the logs for more info")
@@ -49,30 +50,42 @@ object MediaDownloaderHelper {
         return mapOf(MediaType.ORIGINAL to content)
     }
 
-    fun downloadDashChapter(playlistXmlData: String, startTime: Long, duration: Long?): ByteArray {
+    fun downloadDashChapterFile(dashPlaylist: File, startTime: Long, duration: Long?): File {
         val outputFile = File.createTempFile("output", ".mp4")
-        val playlistFile = File.createTempFile("playlist", ".mpd").also {
-            with(FileOutputStream(it)) {
-                write(playlistXmlData.toByteArray(Charsets.UTF_8))
-                close()
-            }
-        }
 
         val ffmpegSession = FFmpegKit.execute(
             "-y -i " +
-                    playlistFile.absolutePath +
+                    dashPlaylist.absolutePath +
                     " -ss '${startTime}ms'" +
                     (if (duration != null) " -t '${duration}ms'" else "") +
                     " -c:v libx264 -threads 6 -q:v 13 " + outputFile.absolutePath
         )
 
-        playlistFile.delete()
         if (!ffmpegSession.returnCode.isValueSuccess) {
             throw Exception(ffmpegSession.output)
         }
-        val outputData = FileInputStream(outputFile).readBytes()
-        outputFile.delete()
-        return outputData
+        return outputFile
+    }
+
+    fun mergeOverlayFile(media: File, overlay: File, outputFileType: FileType, isThumbnail: Boolean = false): File {
+        val mergedFile = File.createTempFile("merged", "." + outputFileType.fileExtension)
+
+        val ffmpegSession = FFmpegKit.execute(
+            "-y -i " +
+                    media.absolutePath +
+                    " -i " +
+                    overlay.absolutePath +
+                    " -filter_complex \"[0]scale2ref[img][vid];[img]setsar=1[img];[vid]nullsink; [img][1]overlay=(W-w)/2:(H-h)/2,scale=2*trunc(iw*sar/2):2*trunc(ih/2)\" -c:v libx264 -q:v 13 -c:a copy " +
+                    "  -threads 6 ${(if (isThumbnail) "-frames:v 1" else "")} " +
+                    mergedFile.absolutePath
+        )
+
+        if (ffmpegSession.returnCode.value != 0) {
+            mergedFile.delete()
+            Logger.error(ffmpegSession.output)
+            throw IllegalStateException("Failed to merge video and overlay. See logs for more details.")
+        }
+        return mergedFile
     }
 
     fun mergeOverlay(original: ByteArray, overlay: ByteArray, isPreviewMode: Boolean): ByteArray {
