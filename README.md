@@ -52,6 +52,7 @@ We no longer offer official LSPatch binaries for obvious reasons. However, you'r
   - Location Spoofer
   - Disable Spotlight
   - Enable Official App Appearance Settings (Darkmode)
+  - Pin Conversations
 </details>
 
 <details open>
