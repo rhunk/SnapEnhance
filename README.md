@@ -2,29 +2,29 @@
   <img src="https://raw.githubusercontent.com/rhunk/SnapEnhance/main/app/src/main/res/mipmap-xxxhdpi/launcher_icon_foreground.png" height="250" />
   
 # Snap Enhance
-A xposed mod to enhance the Snapchat experience. <br/><br/>
-The project is currently in development, so expect bugs and crashes. If you find any bug, please report on [telegram](https://t.me/snapenhance) or make a pull request.
+An Xposed mod to enhance the Snapchat experience. <br/><br/>
+The project is currently in development, so expect bugs and crashes. If you find any bugs, please report them on [Telegram](https://t.me/snapenhance) or make a pull request.
 </div>
 
 
-### About the license
-The GNU GPL v3 license is a free, open source software license that gives users the right to modify, share, or redistribute the software.<br/>
+### About the License
+The GNU GPL v3 license is a free, open-source software license that gives users the right to modify, share, or redistribute the software.<br/>
 The user agrees to make the source code of the software freely available, in addition to any modifications, additions, or derivatives made. <br/>
-If the software is redistributed, it must remain under the same GPLv3 license and any modifications must be clearly marked as such.<br/>
+If the software is redistributed, it must remain under the same GPLv3 license, and any modifications must be clearly marked as such.<br/>
 
 ## Features
 <details open>
-  <summary>Media downloader</summary>
+  <summary>Media Downloader</summary>
 
-  - Download any message in chat (snap, external medias, voice notes, ...)
-  - Download any story (private, public or professional)
-  - Anti auto download (prevent auto downloading on specific conversations)
+  - Download any message in a chat (snap, external media, voice notes, ...)
+  - Download any story (private, public, or professional)
+  - Anti auto-download (prevent auto-downloading on specific conversations)
 </details>
 
 <details open>
   <summary>Privacy</summary>
 
-  - Disable metrics (snapchat analytics)
+  - Disable metrics (Snapchat analytics)
   - Prevent sending screenshot and screen recording messages
   - Prevent sending typing notifications
   - Ad blocker (remove ads from stories and discover)
@@ -34,7 +34,7 @@ If the software is redistributed, it must remain under the same GPLv3 license an
   <summary>Spying</summary>
 
   - Anonymous story viewing (other users won't know you viewed their story)
-  - Message logger (log all messages sent and received, you will be able to see deleted messages)
+  - Message logger (log all messages sent and received; you will be able to see deleted messages)
   - Prevent read receipts (other users won't know you read their messages or viewed their snaps)
   - Stealth mode (prevent read receipts on a specific conversation)
   - Conversation preview (show messages of a conversation without opening it)
@@ -45,7 +45,7 @@ If the software is redistributed, it must remain under the same GPLv3 license an
 
   - Better notifications (show message content in notification)
   - Friend info (username, mutable username, birthday, added date)
-  - Ui tweaks (remove specific buttons in the user interface)
+  - UI tweaks (remove specific buttons in the user interface)
   - External media as snap (send a gallery media to snap)
   - Snapchat Plus
 </details>
