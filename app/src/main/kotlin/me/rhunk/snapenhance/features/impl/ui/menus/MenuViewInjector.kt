@@ -43,6 +43,8 @@ class MenuViewInjector : Feature("MenuViewInjector", loadParams = FeatureLoadPar
         chatActionMenu.context = context
         settingMenu.context = context
 
+        val messaging = context.feature(Messaging::class)
+
         val actionSheetItemsContainerLayoutId = context.resources.getIdentifier("action_sheet_items_container", "id", Constants.SNAPCHAT_PACKAGE_NAME)
         val actionSheetContainer = context.resources.getIdentifier("action_sheet_container", "id", Constants.SNAPCHAT_PACKAGE_NAME)
         val actionMenu = context.resources.getIdentifier("action_menu", "id", Constants.SNAPCHAT_PACKAGE_NAME)
@@ -76,7 +78,7 @@ class MenuViewInjector : Feature("MenuViewInjector", loadParams = FeatureLoadPar
             }
 
             //inject in group chat menus
-            if (viewGroup.id == actionSheetContainer && childView.id == actionMenu) {
+            if (viewGroup.id == actionSheetContainer && childView.id == actionMenu && messaging.lastFetchConversationUserUUID == null) {
                 val injectedLayout = LinearLayout(childView.context).apply {
                     orientation = LinearLayout.VERTICAL
                     gravity = Gravity.BOTTOM
@@ -86,7 +88,6 @@ class MenuViewInjector : Feature("MenuViewInjector", loadParams = FeatureLoadPar
 
                 Hooker.ephemeralHook(context.classCache.conversationManager, "fetchConversation", HookStage.AFTER) {
                     if (wasInjectedView(injectedLayout)) return@ephemeralHook
-                    context.feature(Messaging::class).lastFetchConversationUserUUID = null
 
                     context.runOnUiThread {
                         val viewList = mutableListOf<View>()
@@ -126,11 +127,18 @@ class MenuViewInjector : Feature("MenuViewInjector", loadParams = FeatureLoadPar
                     })
                     return@hook
                 }
-                if (context.feature(Messaging::class).lastFetchConversationUserUUID == null) return@hook
+                if (messaging.lastFetchConversationUserUUID == null) return@hook
 
                 //filter by the slot index
                 if (viewGroup.getChildCount() != context.config.int(ConfigProperty.MENU_SLOT_ID)) return@hook
                 friendFeedInfoMenu.inject(viewGroup, originalAddView)
+
+                viewGroup.addOnAttachStateChangeListener(object: View.OnAttachStateChangeListener {
+                    override fun onViewAttachedToWindow(v: View) {}
+                    override fun onViewDetachedFromWindow(v: View) {
+                        messaging.lastFetchConversationUserUUID = null
+                    }
+                })
             }
 
         }
