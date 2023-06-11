@@ -12,7 +12,7 @@
         "clear_message_logger": "Nachrichten Logger bereinigen",
         "refresh_mappings": "Mappings erneuern",
         "open_map": "Standort auf der Map auswählen",
-        "check_for_updates": "Auf updates überpr"
+        "check_for_updates": "Auf updates überprüfen"
     },
 
     "property": {
@@ -34,7 +34,7 @@
         "anonymous_story_view": "Anonyme Story Ansicht",
         "hide_typing_notification": "Tippen-Benachrichtigung verbergen",
         "menu_slot_id": "Friend Menu Slot ID",
-        "message_preview_length": "Nachrichten orschau länge",
+        "message_preview_length": "Nachrichten Vorschau länge",
         "gallery_media_send_override": "Überschreiben beim senden von Gallerie Medien",
         "auto_save_messages": "Auto Nachrichten speichern",
         "anti_auto_save": "Anti Auto speichern Button",
@@ -48,7 +48,7 @@
         "remove_cognac_button": "Cognac Button entfernen",
         "remove_call_buttons": "Anruf Button entfernen",
         "block_ads": "Werbung blockieren",
-        "streak_expiration_info": "SStreak auslauf info anzeigen",
+        "streak_expiration_info": "Streak auslauf info anzeigen",
         "new_map_ui": "Neue Map UI",
         "use_download_manager": "Nutze Android Download Manager",
         "app_passcode": "App Passcode setzen",
