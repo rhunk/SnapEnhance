@@ -191,18 +191,6 @@ enum class ConfigProperty(
         ConfigCategory.UI_TWEAKS,
         ConfigIntegerValue(1)
     ),
-    CAMERA_DISABLE(
-        "property.disable_camera",
-        "description.disable_camera",
-        ConfigCategory.UI_TWEAKS,
-        ConfigStateValue(false)
-    ),
-    IMMERSIVE_CAMERA_PREVIEW(
-        "property.immersive_camera_preview",
-        "description.immersive_camera_preview",
-        ConfigCategory.UI_TWEAKS,
-        ConfigStateValue(false)
-    ),
     HIDE_UI_ELEMENTS(
         "property.hide_ui_elements",
         "description.hide_ui_elements",
@@ -292,6 +280,18 @@ enum class ConfigProperty(
 
 
     //CAMERA
+    CAMERA_DISABLE(
+        "property.disable_camera",
+        "description.disable_camera",
+        ConfigCategory.CAMERA,
+        ConfigStateValue(false)
+    ),
+    IMMERSIVE_CAMERA_PREVIEW(
+        "property.immersive_camera_preview",
+        "description.immersive_camera_preview",
+        ConfigCategory.CAMERA,
+        ConfigStateValue(false)
+    ),
     OVERRIDE_PREVIEW_RESOLUTION(
         "property.preview_resolution",
         "description.preview_resolution",

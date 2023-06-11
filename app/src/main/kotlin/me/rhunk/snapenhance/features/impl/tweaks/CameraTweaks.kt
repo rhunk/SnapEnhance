@@ -2,9 +2,9 @@ package me.rhunk.snapenhance.features.impl.tweaks
 
 import android.Manifest
 import android.annotation.SuppressLint
-import android.app.admin.DevicePolicyManager
 import android.content.ContextWrapper
 import android.content.pm.PackageManager
+import android.hardware.camera2.CameraManager
 import me.rhunk.snapenhance.config.ConfigProperty
 import me.rhunk.snapenhance.data.wrapper.impl.ScSize
 import me.rhunk.snapenhance.features.Feature
@@ -33,8 +33,8 @@ class CameraTweaks : Feature("Camera Tweaks", loadParams = FeatureLoadParams.ACT
                 }
             }
 
-            DevicePolicyManager::class.java.hook("getCameraDisabled", HookStage.BEFORE) { param ->
-                param.setResult(true)
+            CameraManager::class.java.hook("openCamera", HookStage.BEFORE) { param ->
+                param.setResult(null)
             }
         }
 
