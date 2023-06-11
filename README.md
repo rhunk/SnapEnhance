@@ -2,23 +2,23 @@
   <img src="https://raw.githubusercontent.com/rhunk/SnapEnhance/main/app/src/main/res/mipmap-xxxhdpi/launcher_icon_foreground.png" height="250" />
   
 # Snap Enhance
-An Xposed mod to enhance the Snapchat experience. <br/><br/>
-The project is currently in development, so expect bugs and crashes. If you find any bugs, please report them on [Telegram](https://t.me/snapenhance) or make a pull request.
+Snap Enhance is an Xposed mod designed to enhance the Snapchat experience. <br/><br/>
+Please note that this project is currently in development, so bugs and crashes may occur. If you encounter any issues, we encourage you to report them on [Telegram](https://t.me/snapenhance) or submit a pull request.
 </div>
 
 
 ### About the License
-The GNU GPL v3 license is a free, open-source software license that gives users the right to modify, share, or redistribute the software.<br/>
-The user agrees to make the source code of the software freely available, in addition to any modifications, additions, or derivatives made. <br/>
-If the software is redistributed, it must remain under the same GPLv3 license, and any modifications must be clearly marked as such.<br/>
+The GNU GPL v3 license is a free, open-source software license that grants users the right to modify, share, and redistribute the software.<br/>
+By using this software, you agree to make the source code freely available, along with any modifications, additions, or derivatives. <br/>
+When redistributing the software, it must remain under the same GPLv3 license, and any modifications should be clearly indicated as such.<br/>
 
 ## Features
 <details open>
   <summary>Media Downloader</summary>
 
-  - Download any message in a chat (snap, external media, voice notes, ...)
+  - Download any message in a chat (snaps, external media, voice notes, etc.)
   - Download any story (private, public, or professional)
-  - Anti auto-download (prevent auto-downloading on specific conversations)
+  - Anti auto-download (prevents automatic downloading on specific conversations)
 </details>
 
 <details open>
@@ -27,32 +27,32 @@ If the software is redistributed, it must remain under the same GPLv3 license, a
   - Disable metrics (Snapchat analytics)
   - Prevent sending screenshot and screen recording messages
   - Prevent sending typing notifications
-  - Ad blocker (remove ads from stories and discover)
+  - Ad blocker (removes ads from stories and discover)
 </details>
 
 <details open>
   <summary>Spying</summary>
 
   - Anonymous story viewing (other users won't know you viewed their story)
-  - Message logger (log all messages sent and received; you will be able to see deleted messages)
+  - Message logger (logs all sent and received messages, including deleted messages)
   - Prevent read receipts (other users won't know you read their messages or viewed their snaps)
-  - Stealth mode (prevent read receipts on a specific conversation)
-  - Conversation preview (show messages of a conversation without opening it)
+  - Stealth mode (prevents read receipts in a specific conversation)
+  - Conversation preview (displays messages of a conversation without opening it)
 </details>
 
 <details open>
   <summary>Extras</summary>
 
-  - Better notifications (show message content in notification)
+  - Better notifications (show message content in the notification)
   - Friend info (username, mutable username, birthday, added date)
-  - UI tweaks (remove specific buttons in the user interface)
-  - External media as snap (send a gallery media to snap)
+  - UI tweaks (remove specific buttons from the user interface)
+  - External media as snap (send gallery media as a snap)
   - Snapchat Plus
 </details>
 
 ## Download 
-To download the latest stable version, go to the [releases](https://github.com/rhunk/SnapEnhance/releases)<br/>
-You can also download the latest build from the [actions](https://github.com/rhunk/SnapEnhance/actions)
+To download the latest stable version, please visit the [releases](https://github.com/rhunk/SnapEnhance/releases) page.<br/>
+You can also download the latest build from the [actions](https://github.com/rhunk/SnapEnhance/actions) section.
 
 ## Donate
 - LTC: LbBnT9GxgnFhwy891EdDKqGmpn7XtduBdE
