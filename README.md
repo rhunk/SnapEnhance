@@ -64,9 +64,9 @@ We no longer offer official LSPatch binaries for obvious reasons. However, you'r
 </details>
 
 ## License
-The GNU GPL v3 license is a free, open-source software license that grants users the right to modify, share, and redistribute the software.<br/>
+The [GNU GPL v3](https://www.gnu.org/licenses/gpl-3.0.en.html#license-text) license is a free, open-source software license that grants users the right to modify, share, and redistribute the software.<br/>
 By using this software, you agree to make the source code freely available, along with any modifications, additions, or derivatives. <br/>
-When redistributing the software, it must remain under the same GPLv3 license, and any modifications should be clearly indicated as such.<br/>
+When redistributing the software, it must remain under the same [GPLv3](https://www.gnu.org/licenses/gpl-3.0.en.html#license-text) license, and any modifications should be clearly indicated as such.<br/>
 
 ## Donate
 - LTC: LbBnT9GxgnFhwy891EdDKqGmpn7XtduBdE
