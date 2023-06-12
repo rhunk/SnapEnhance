@@ -72,7 +72,7 @@ object MediaDownloaderHelper {
                 }
             )
         },
-        Executors.newSingleThreadExecutor())
+            Executors.newSingleThreadExecutor())
     }
 
     suspend fun downloadDashChapterFile(
@@ -93,8 +93,8 @@ object MediaDownloaderHelper {
     ) {
         runFFmpegAsync(
             "-y", "-i", media.absolutePath, "-i", overlay.absolutePath,
-            "-filter_complex", "[0]scale2ref[img][vid];[img]setsar=1[img];[vid]nullsink; [img][1]overlay=(W-w)/2:(H-h)/2,scale=2*trunc(iw*sar/2):2*trunc(ih/2)",
-            "-c:v", "libx264", "-q:v", "13", "-c:a", "copy", "-threads", "6", output.absolutePath
+            "-filter_complex", "\"[0]scale2ref[img][vid];[img]setsar=1[img];[vid]nullsink;[img][1]overlay=(W-w)/2:(H-h)/2,scale=2*trunc(iw*sar/2):2*trunc(ih/2)\"",
+            "-c:v", "libx264", "-b:v", "5M", "-c:a", "copy", "-threads", "6", output.absolutePath
         )
     }
 }
