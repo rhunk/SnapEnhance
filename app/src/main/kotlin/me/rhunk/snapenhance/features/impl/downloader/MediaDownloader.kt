@@ -337,7 +337,8 @@ class MediaDownloader : Feature("MediaDownloader", loadParams = FeatureLoadParam
         val message = context.database.getConversationMessageFromId(messaging.lastFocusedMessageId) ?: return
 
         //get the message author
-        val messageAuthor: String = context.database.getFriendInfo(message.sender_id!!)!!.usernameForSorting!!
+        val friendInfo: FriendInfo = context.database.getFriendInfo(message.sender_id!!)!!
+        val authorName = friendInfo.usernameForSorting!!
 
         //check if the messageId
         val contentType: ContentType = ContentType.fromId(message.content_type)
@@ -358,7 +359,7 @@ class MediaDownloader : Feature("MediaDownloader", loadParams = FeatureLoadParam
             if (!isPreviewMode) {
                 val encryptionKeys = EncryptionHelper.getEncryptionKeys(contentType, messageReader, isArroyo = true)
 
-                provideClientDownloadManager(messageAuthor, messageAuthor, "Chat Media").downloadMedia(
+                provideClientDownloadManager(authorName, authorName, "Chat Media", friendInfo = friendInfo).downloadMedia(
                     Base64.UrlSafe.encode(urlProto),
                     DownloadMediaType.PROTO_MEDIA,
                     encryption = encryptionKeys?.let {
