@@ -81,7 +81,7 @@ object MediaDownloaderHelper {
         startTime: Long,
         duration: Long?) {
         runFFmpegAsync(
-            "-y", "-i", dashPlaylist.absolutePath, "-ss", "${startTime}ms", *(if (duration != null) arrayOf("-t", "${duration}ms") else arrayOf()),
+            "-y", "-i", dashPlaylist.absolutePath, "-ss", "'${startTime}ms'", *(if (duration != null) arrayOf("-t", "'${duration}ms'") else arrayOf()),
             "-c:v", "libx264", "-threads", "6", "-q:v", "13", output.absolutePath
         )
     }

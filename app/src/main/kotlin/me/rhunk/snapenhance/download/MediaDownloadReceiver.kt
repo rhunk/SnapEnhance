@@ -292,8 +292,8 @@ class MediaDownloadReceiver : BroadcastReceiver() {
                     }
 
                     val dashOptions = intent.getBundleExtra("dashOptions") ?: return@launch
-                    val offsetTimestamp = dashOptions.getLong("offsetTimestamp")
-                    val duration = dashOptions.getLong("duration")
+                    val offsetTime = dashOptions.getLong("offsetTime")
+                    val duration = dashOptions.getLong("duration", -1L).let { if (it == -1L) null else it }
 
                     val dashPlaylistFile = renameFromFileType(media.file, FileType.MPD)
                     val xmlData = dashPlaylistFile.outputStream()
@@ -305,7 +305,7 @@ class MediaDownloadReceiver : BroadcastReceiver() {
                         MediaDownloaderHelper.downloadDashChapterFile(
                             dashPlaylist = dashPlaylistFile,
                             output = outputFile,
-                            startTime = offsetTimestamp,
+                            startTime = offsetTime,
                             duration = duration)
                         saveMediaToGallery(outputFile, pendingDownloadObject)
                     }.onFailure {
