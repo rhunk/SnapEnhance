@@ -29,6 +29,7 @@ import me.rhunk.snapenhance.features.impl.spying.MessageLogger
 import me.rhunk.snapenhance.features.impl.spying.PreventReadReceipts
 import me.rhunk.snapenhance.features.impl.spying.StealthMode
 import me.rhunk.snapenhance.features.impl.tweaks.CameraTweaks
+import me.rhunk.snapenhance.features.impl.ui.PinConversations
 import me.rhunk.snapenhance.features.impl.ui.UITweaks
 import me.rhunk.snapenhance.features.impl.ui.menus.MenuViewInjector
 import me.rhunk.snapenhance.manager.Manager
@@ -83,6 +84,7 @@ class FeatureManager(private val context: ModContext) : Manager {
         register(CameraTweaks::class)
         register(InfiniteStoryBoost::class)
         register(AmoledDarkMode::class)
+        register(PinConversations::class)
 
         initializeFeatures()
     }
