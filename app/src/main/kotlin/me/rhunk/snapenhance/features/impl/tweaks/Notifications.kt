@@ -162,7 +162,11 @@ class Notifications : Feature("Notifications", loadParams = FeatureLoadParams.IN
 
         notificationDataQueue.entries.onEach { (messageId, notificationData) ->
             val snapMessage = messages.firstOrNull { message -> message.orderKey == messageId } ?: return
-            val senderUsername = context.database.getFriendInfo(snapMessage.senderId.toString())?.displayName ?: throw Throwable("Cant find senderId of message $snapMessage")
+            val senderUsername by lazy {
+                context.database.getFriendInfo(snapMessage.senderId.toString())?.let {
+                    it.displayName ?: it.username
+                }
+            }
 
             val contentType = snapMessage.messageContent.contentType
             val contentData = snapMessage.messageContent.content
