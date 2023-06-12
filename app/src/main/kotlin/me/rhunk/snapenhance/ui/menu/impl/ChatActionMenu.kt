@@ -1,4 +1,4 @@
-package me.rhunk.snapenhance.features.impl.ui.menus.impl
+package me.rhunk.snapenhance.ui.menu.impl
 
 import android.annotation.SuppressLint
 import android.os.SystemClock
@@ -11,8 +11,8 @@ import me.rhunk.snapenhance.Constants.VIEW_INJECTED_CODE
 import me.rhunk.snapenhance.config.ConfigProperty
 import me.rhunk.snapenhance.features.impl.Messaging
 import me.rhunk.snapenhance.features.impl.downloader.MediaDownloader
-import me.rhunk.snapenhance.features.impl.ui.menus.AbstractMenu
-import me.rhunk.snapenhance.features.impl.ui.menus.ViewAppearanceHelper
+import me.rhunk.snapenhance.ui.menu.AbstractMenu
+import me.rhunk.snapenhance.ui.menu.ViewAppearanceHelper
 
 
 class ChatActionMenu : AbstractMenu() {

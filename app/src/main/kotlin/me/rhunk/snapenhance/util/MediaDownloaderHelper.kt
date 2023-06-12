@@ -1,6 +1,8 @@
 package me.rhunk.snapenhance.util
 
 import com.arthenica.ffmpegkit.FFmpegKit
+import com.arthenica.ffmpegkit.FFmpegSession
+import kotlinx.coroutines.suspendCancellableCoroutine
 import me.rhunk.snapenhance.Logger
 import me.rhunk.snapenhance.data.FileType
 import me.rhunk.snapenhance.util.download.RemoteMediaResolver
@@ -10,6 +12,7 @@ import java.io.FileInputStream
 import java.io.FileNotFoundException
 import java.io.FileOutputStream
 import java.io.InputStream
+import java.util.concurrent.ExecutorService
 import java.util.zip.ZipInputStream
 
 enum class MediaType {
@@ -67,25 +70,30 @@ object MediaDownloaderHelper {
         return outputFile
     }
 
-    fun mergeOverlayFile(media: File, overlay: File, outputFileType: FileType, isThumbnail: Boolean = false): File {
-        val mergedFile = File.createTempFile("merged", "." + outputFileType.fileExtension)
-
-        val ffmpegSession = FFmpegKit.execute(
+    suspend fun mergeOverlayFile(
+        media: File,
+        overlay: File,
+        output: File,
+        isThumbnail: Boolean = false,
+        executorService: ExecutorService
+    ) = suspendCancellableCoroutine { continuation ->
+        FFmpegKit.executeAsync(
             "-y -i " +
                     media.absolutePath +
                     " -i " +
                     overlay.absolutePath +
                     " -filter_complex \"[0]scale2ref[img][vid];[img]setsar=1[img];[vid]nullsink; [img][1]overlay=(W-w)/2:(H-h)/2,scale=2*trunc(iw*sar/2):2*trunc(ih/2)\" -c:v libx264 -q:v 13 -c:a copy " +
                     "  -threads 6 ${(if (isThumbnail) "-frames:v 1" else "")} " +
-                    mergedFile.absolutePath
-        )
-
-        if (ffmpegSession.returnCode.value != 0) {
-            mergedFile.delete()
-            Logger.error(ffmpegSession.output)
-            throw IllegalStateException("Failed to merge video and overlay. See logs for more details.")
-        }
-        return mergedFile
+                    output.absolutePath,
+            { session ->
+                continuation.resumeWith(
+                    if (session.returnCode.isValueSuccess) {
+                        Result.success(output)
+                    } else {
+                        Result.failure(Exception(session.output))
+                    }
+                )
+            }, executorService)
     }
 
     fun mergeOverlay(original: ByteArray, overlay: ByteArray, isPreviewMode: Boolean): ByteArray {

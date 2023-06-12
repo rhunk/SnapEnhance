@@ -1,4 +1,4 @@
-package me.rhunk.snapenhance.features.impl.ui.menus.impl
+package me.rhunk.snapenhance.ui.menu.impl
 
 import android.annotation.SuppressLint
 import android.app.AlertDialog
@@ -32,8 +32,8 @@ import me.rhunk.snapenhance.features.impl.Messaging
 import me.rhunk.snapenhance.features.impl.downloader.AntiAutoDownload
 import me.rhunk.snapenhance.features.impl.spying.StealthMode
 import me.rhunk.snapenhance.features.impl.tweaks.AntiAutoSave
-import me.rhunk.snapenhance.features.impl.ui.menus.AbstractMenu
-import me.rhunk.snapenhance.features.impl.ui.menus.ViewAppearanceHelper
+import me.rhunk.snapenhance.ui.menu.AbstractMenu
+import me.rhunk.snapenhance.ui.menu.ViewAppearanceHelper
 import java.net.HttpURLConnection
 import java.net.URL
 import java.text.DateFormat

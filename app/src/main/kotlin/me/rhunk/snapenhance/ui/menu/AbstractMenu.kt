@@ -1,4 +1,4 @@
-package me.rhunk.snapenhance.features.impl.ui.menus
+package me.rhunk.snapenhance.ui.menu
 
 import me.rhunk.snapenhance.ModContext
 

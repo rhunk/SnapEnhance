@@ -1,4 +1,4 @@
-package me.rhunk.snapenhance.features.impl.ui.menus.impl
+package me.rhunk.snapenhance.ui.menu.impl
 
 import android.annotation.SuppressLint
 import android.app.AlertDialog
@@ -19,8 +19,8 @@ import me.rhunk.snapenhance.config.impl.ConfigStateListValue
 import me.rhunk.snapenhance.config.impl.ConfigStateSelection
 import me.rhunk.snapenhance.config.impl.ConfigStateValue
 import me.rhunk.snapenhance.config.impl.ConfigStringValue
-import me.rhunk.snapenhance.features.impl.ui.menus.AbstractMenu
-import me.rhunk.snapenhance.features.impl.ui.menus.ViewAppearanceHelper
+import me.rhunk.snapenhance.ui.menu.AbstractMenu
+import me.rhunk.snapenhance.ui.menu.ViewAppearanceHelper
 
 class SettingsMenu : AbstractMenu() {
     @SuppressLint("ClickableViewAccessibility")

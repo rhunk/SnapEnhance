@@ -3,10 +3,13 @@ package me.rhunk.snapenhance.download
 import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
-import android.net.Uri
 import android.os.Handler
 import android.widget.Toast
+import kotlinx.coroutines.DelicateCoroutinesApi
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.Job
+import kotlinx.coroutines.job
 import kotlinx.coroutines.joinAll
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
@@ -19,9 +22,7 @@ import java.io.File
 import java.io.InputStream
 import java.net.HttpURLConnection
 import java.net.URL
-import java.nio.file.Paths
 import java.util.concurrent.Executors
-import java.util.concurrent.atomic.AtomicReference
 import javax.crypto.Cipher
 import javax.crypto.CipherInputStream
 import javax.crypto.spec.IvParameterSpec
@@ -30,9 +31,9 @@ import javax.xml.parsers.DocumentBuilderFactory
 import javax.xml.transform.TransformerFactory
 import javax.xml.transform.dom.DOMSource
 import javax.xml.transform.stream.StreamResult
+import kotlin.coroutines.coroutineContext
 import kotlin.io.encoding.Base64
 import kotlin.io.encoding.ExperimentalEncodingApi
-import kotlin.io.path.inputStream
 
 data class DownloadedFile(
     val file: File,
@@ -45,6 +46,8 @@ data class DownloadedFile(
 @OptIn(ExperimentalEncodingApi::class)
 class MediaDownloadReceiver : BroadcastReceiver() {
     companion object {
+        val downloadTasks = mutableListOf<PendingDownload>()
+
         const val DOWNLOAD_ACTION = "me.rhunk.snapenhance.download.MediaDownloadReceiver.DOWNLOAD_ACTION"
     }
 
@@ -67,30 +70,6 @@ class MediaDownloadReceiver : BroadcastReceiver() {
         }
     }
 
-    private fun queryMedia(uri: String, type: DownloadMediaType, encryption: Pair<String, String>?): InputStream? {
-        val mediaUri = Uri.parse(uri)
-        val mediaInputStream = AtomicReference<InputStream>()
-        if (mediaUri.scheme == "file") {
-            mediaInputStream.set(Paths.get(mediaUri.path).inputStream())
-        } else {
-            val url = URL(mediaUri.toString())
-            val connection = url.openConnection() as HttpURLConnection
-            connection.requestMethod = "GET"
-            connection.setRequestProperty("User-Agent", Constants.USER_AGENT)
-            connection.connect()
-            mediaInputStream.set(connection.inputStream)
-        }
-        encryption?.let {
-            val cipher = Cipher.getInstance("AES/CBC/PKCS5Padding")
-            mediaInputStream.set(
-                CipherInputStream(mediaInputStream.get(), cipher).apply {
-                    cipher.init(Cipher.DECRYPT_MODE, SecretKeySpec(it.first.toByteArray(), "AES"), IvParameterSpec(it.second.toByteArray()))
-                }
-            )
-        }
-        return mediaInputStream.get()
-    }
-
     private fun decryptInputStream(inputStream: InputStream, encryption: Pair<String, String>): InputStream {
         val cipher = Cipher.getInstance("AES/CBC/PKCS5Padding")
         val key = Base64.UrlSafe.decode(encryption.first)
@@ -107,22 +86,26 @@ class MediaDownloadReceiver : BroadcastReceiver() {
         return file
     }
 
-    private fun saveMediaToGallery(inputFile: File, outputPath: String) {
-        val fileType = getFileType(inputFile)
-        val outputFile = File(outputPath + "." + fileType.fileExtension).also { createNeededDirectories(it) }
-        inputFile.copyTo(outputFile, overwrite = true)
-        //print the path of the saved media
-        val parentName = outputFile.parentFile?.parentFile?.absolutePath?.let {
-            if (!it.endsWith("/")) "$it/" else it
-        }
-        longToast("Saved media to ${outputFile.absolutePath.replace(parentName ?: "", "")}")
-    }
+    private suspend fun saveMediaToGallery(inputFile: File, pendingDownload: PendingDownload) {
+        if (coroutineContext.job.isCancelled) return
 
-    private fun getFileType(file: File): FileType {
-        file.inputStream().use { inputStream ->
-            val buffer = ByteArray(16)
-            inputStream.read(buffer)
-            return FileType.fromByteArray(buffer)
+        runCatching {
+            val fileType = FileType.fromFile(inputFile)
+            val outputFile = File(pendingDownload.outputPath + "." + fileType.fileExtension).also { createNeededDirectories(it) }
+            inputFile.copyTo(outputFile, overwrite = true)
+            //print the path of the saved media
+            val parentName = outputFile.parentFile?.parentFile?.absolutePath?.let {
+                if (!it.endsWith("/")) "$it/" else it
+            }
+
+            longToast("Saved media to ${outputFile.absolutePath.replace(parentName ?: "", "")}")
+
+            pendingDownload.outputFile = outputFile.absolutePath
+            pendingDownload.downloadStage = DownloadStage.SAVED
+        }.onFailure {
+            Logger.error("Failed to save media to gallery", it)
+            longToast("Failed to save media to gallery")
+            pendingDownload.downloadStage = DownloadStage.FAILED
         }
     }
 
@@ -187,17 +170,8 @@ class MediaDownloadReceiver : BroadcastReceiver() {
         file.renameTo(newFile)
         return newFile
     }
-    private fun executeAsync(block: () -> Unit) {
-        executor.execute{
-            runCatching {
-                block()
-            }.onFailure {
-                Logger.error(it)
-                longToast("Error: ${it.message}")
-            }
-        }
-    }
 
+    @OptIn(DelicateCoroutinesApi::class)
     override fun onReceive(context: Context, intent: Intent) {
         if (intent.action != DOWNLOAD_ACTION) return
         this.context = context
@@ -214,11 +188,19 @@ class MediaDownloadReceiver : BroadcastReceiver() {
         val shouldMergeOverlay = intent.getBooleanExtra("shouldMergeOverlay", false)
         val isDashPlaylist = intent.getBooleanExtra("isDashPlaylist", false)
 
-        executeAsync {
+        val pendingDownloadObject = PendingDownload(outputPath = outputPath)
+
+        GlobalScope.launch(Dispatchers.IO) {
+            downloadTasks.add(0, pendingDownloadObject.apply {
+                job = coroutineContext.job
+                downloadStage = DownloadStage.DOWNLOADING
+            })
+
             //first download all input medias into cache
             val downloadedMedias = downloadInputMedias(inputMedias.toList(), inputMediaTypes.toList(), mediaEncryption).map {
-                it.key to DownloadedFile(it.value, getFileType(it.value))
+                it.key to DownloadedFile(it.value, FileType.fromFile(it.value))
             }.toMap().toMutableMap()
+            pendingDownloadObject.downloadStage = DownloadStage.DOWNLOADED
 
             if (shouldMergeOverlay) {
                 assert(downloadedMedias.size == 2)
@@ -227,66 +209,67 @@ class MediaDownloadReceiver : BroadcastReceiver() {
 
                 val renamedMedia = renameFromFileType(media.file, media.fileType)
                 val renamedOverlayMedia = renameFromFileType(overlayMedia.file, overlayMedia.fileType)
-
+                val mergedOverlay: File = File.createTempFile("merged", "." + media.fileType.fileExtension)
                 runCatching {
                     longToast("Merging overlay...")
-                    val mergedOverlay = MediaDownloaderHelper.mergeOverlayFile(
-                        renamedMedia,
-                        renamedOverlayMedia,
-                        media.fileType
+                    pendingDownloadObject.downloadStage = DownloadStage.MERGING
+
+                    MediaDownloaderHelper.mergeOverlayFile(
+                        media = renamedMedia,
+                        overlay = renamedOverlayMedia,
+                        output = mergedOverlay,
+                        executorService = Executors.newSingleThreadExecutor()
                     )
 
-                    media.file.delete()
-                    renamedMedia.delete()
-                    renamedOverlayMedia.delete()
-
-                    Logger.debug("merged overlay ${mergedOverlay.absolutePath}")
-                    saveMediaToGallery(mergedOverlay, outputPath)
-                    mergedOverlay.delete()
+                    Logger.debug("merged overlay $mergedOverlay.absolutePath")
+                    saveMediaToGallery(mergedOverlay, pendingDownloadObject)
                 }.onFailure {
+                    if (coroutineContext.job.isCancelled) return@onFailure
                     Logger.error("failed to merge overlay", it)
                     longToast("Failed to merge overlay: ${it.message}")
+                    pendingDownloadObject.downloadStage = DownloadStage.MERGE_FAILED
                 }
 
+                mergedOverlay.delete()
                 renamedOverlayMedia.delete()
                 renamedMedia.delete()
-
-                return@executeAsync
+                return@launch
             }
 
             inputMedias[0]?.let {
                 val mediaType = inputMediaTypes[0]
                 val media = downloadedMedias[it]!!
 
-                if (isDashPlaylist) {
-                    assert(mediaType == DownloadMediaType.REMOTE_MEDIA)
-
-                    val playlistXml = DocumentBuilderFactory.newInstance().newDocumentBuilder().parse(media.file)
-                    val baseUrlNodeList = playlistXml.getElementsByTagName("BaseURL")
-                    for (i in 0 until baseUrlNodeList.length) {
-                        val baseUrlNode = baseUrlNodeList.item(i)
-                        val baseUrl = baseUrlNode.textContent
-                        baseUrlNode.textContent = "${RemoteMediaResolver.CF_ST_CDN_D}$baseUrl"
-                    }
-
-                    val dashOptions = intent.getBundleExtra("dashOptions") ?: return@executeAsync
-                    val offsetTimestamp = dashOptions.getLong("offsetTimestamp")
-                    val duration = dashOptions.getLong("duration")
-
-                    val dashPlaylistFile = renameFromFileType(media.file, FileType.MPD)
-                    val xmlData = dashPlaylistFile.outputStream()
-                    TransformerFactory.newInstance().newTransformer().transform(DOMSource(playlistXml), StreamResult(xmlData))
-
-                    longToast("Downloading dash media...")
-                    val outputFile = MediaDownloaderHelper.downloadDashChapterFile(dashPlaylistFile, offsetTimestamp, duration)
-                    dashPlaylistFile.delete()
-
-                    saveMediaToGallery(outputFile, outputPath)
-                    outputFile.delete()
-                    return@executeAsync
+                if (!isDashPlaylist) {
+                    saveMediaToGallery(media.file, pendingDownloadObject)
+                    media.file.delete()
+                    return@launch
                 }
 
-                saveMediaToGallery(media.file, outputPath)
+                assert(mediaType == DownloadMediaType.REMOTE_MEDIA)
+
+                val playlistXml = DocumentBuilderFactory.newInstance().newDocumentBuilder().parse(media.file)
+                val baseUrlNodeList = playlistXml.getElementsByTagName("BaseURL")
+                for (i in 0 until baseUrlNodeList.length) {
+                    val baseUrlNode = baseUrlNodeList.item(i)
+                    val baseUrl = baseUrlNode.textContent
+                    baseUrlNode.textContent = "${RemoteMediaResolver.CF_ST_CDN_D}$baseUrl"
+                }
+
+                val dashOptions = intent.getBundleExtra("dashOptions") ?: return@launch
+                val offsetTimestamp = dashOptions.getLong("offsetTimestamp")
+                val duration = dashOptions.getLong("duration")
+
+                val dashPlaylistFile = renameFromFileType(media.file, FileType.MPD)
+                val xmlData = dashPlaylistFile.outputStream()
+                TransformerFactory.newInstance().newTransformer().transform(DOMSource(playlistXml), StreamResult(xmlData))
+
+                longToast("Downloading dash media...")
+                val outputFile = MediaDownloaderHelper.downloadDashChapterFile(dashPlaylistFile, offsetTimestamp, duration)
+                dashPlaylistFile.delete()
+
+                saveMediaToGallery(outputFile, pendingDownloadObject)
+                outputFile.delete()
                 media.file.delete()
             }
         }
