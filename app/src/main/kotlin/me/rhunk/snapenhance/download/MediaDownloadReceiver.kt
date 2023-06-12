@@ -3,6 +3,7 @@ package me.rhunk.snapenhance.download
 import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
+import android.media.MediaScannerConnection
 import android.os.Handler
 import android.widget.Toast
 import kotlinx.coroutines.DelicateCoroutinesApi
@@ -93,6 +94,9 @@ class MediaDownloadReceiver : BroadcastReceiver() {
             val fileType = FileType.fromFile(inputFile)
             val outputFile = File(pendingDownload.outputPath + "." + fileType.fileExtension).also { createNeededDirectories(it) }
             inputFile.copyTo(outputFile, overwrite = true)
+
+            MediaScannerConnection.scanFile(context, arrayOf(outputFile.absolutePath), null, null)
+
             //print the path of the saved media
             val parentName = outputFile.parentFile?.parentFile?.absolutePath?.let {
                 if (!it.endsWith("/")) "$it/" else it
