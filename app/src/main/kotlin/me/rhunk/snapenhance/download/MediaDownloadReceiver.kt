@@ -24,6 +24,7 @@ import java.io.InputStream
 import java.net.HttpURLConnection
 import java.net.URL
 import java.util.concurrent.Executors
+import java.util.zip.ZipInputStream
 import javax.crypto.Cipher
 import javax.crypto.CipherInputStream
 import javax.crypto.spec.IvParameterSpec
@@ -69,6 +70,24 @@ class MediaDownloadReceiver : BroadcastReceiver() {
         runOnUIThread {
             Toast.makeText(context, text, Toast.LENGTH_LONG).show()
         }
+    }
+
+    private fun extractZip(inputStream: InputStream): List<File> {
+        val files = mutableListOf<File>()
+        val zipInputStream = ZipInputStream(inputStream)
+        var entry = zipInputStream.nextEntry
+
+        while (entry != null) {
+            createMediaTempFile().also { file ->
+                file.outputStream().use { outputStream ->
+                    zipInputStream.copyTo(outputStream)
+                }
+                files += file
+            }
+            entry = zipInputStream.nextEntry
+        }
+
+        return files
     }
 
     private fun decryptInputStream(inputStream: InputStream, encryption: Pair<String, String>): InputStream {
@@ -126,7 +145,6 @@ class MediaDownloadReceiver : BroadcastReceiver() {
             val hasEncryption = mediaEncryption.containsKey(mediaData)
 
             fun handleInputStream(inputStream: InputStream) {
-                Logger.debug("Downloading media $mediaData hasEncryption=$hasEncryption")
                 createMediaTempFile().apply {
                     if (hasEncryption) {
                         decryptInputStream(inputStream, mediaEncryption[mediaData]!!).use { decryptedInputStream ->
@@ -152,11 +170,12 @@ class MediaDownloadReceiver : BroadcastReceiver() {
                         }.also { downloadedMedias[mediaData] = it }
                     }
                     DownloadMediaType.REMOTE_MEDIA -> {
-                        val urlConnection = URL(mediaData).openConnection() as HttpURLConnection
-                        urlConnection.requestMethod = "GET"
-                        urlConnection.setRequestProperty("User-Agent", Constants.USER_AGENT)
-                        urlConnection.connect()
-                        handleInputStream(urlConnection.inputStream)
+                        with(URL(mediaData).openConnection() as HttpURLConnection) {
+                            requestMethod = "GET"
+                            setRequestProperty("User-Agent", Constants.USER_AGENT)
+                            connect()
+                            handleInputStream(inputStream)
+                        }
                     }
                     else -> {
                         downloadedMedias[mediaData] = File(mediaData)
@@ -189,7 +208,7 @@ class MediaDownloadReceiver : BroadcastReceiver() {
             }
         } ?: return
 
-        val shouldMergeOverlay = intent.getBooleanExtra("shouldMergeOverlay", false)
+        var shouldMergeOverlay = intent.getBooleanExtra("shouldMergeOverlay", false)
         val isDashPlaylist = intent.getBooleanExtra("isDashPlaylist", false)
 
         val pendingDownloadObject = PendingDownload(outputPath = outputPath)
@@ -200,81 +219,110 @@ class MediaDownloadReceiver : BroadcastReceiver() {
                 downloadStage = DownloadStage.DOWNLOADING
             })
 
-            //first download all input medias into cache
-            val downloadedMedias = downloadInputMedias(inputMedias.toList(), inputMediaTypes.toList(), mediaEncryption).map {
-                it.key to DownloadedFile(it.value, FileType.fromFile(it.value))
-            }.toMap().toMutableMap()
-            pendingDownloadObject.downloadStage = DownloadStage.DOWNLOADED
+            runCatching {
+                //first download all input medias into cache
+                val downloadedMedias = downloadInputMedias(inputMedias.toList(), inputMediaTypes.toList(), mediaEncryption).map {
+                    it.key to DownloadedFile(it.value, FileType.fromFile(it.value))
+                }.toMap().toMutableMap()
 
-            if (shouldMergeOverlay) {
-                assert(downloadedMedias.size == 2)
-                val media = downloadedMedias.values.first { it.fileType.isVideo }
-                val overlayMedia = downloadedMedias.values.first { it.fileType.isImage }
+                //if there is a zip file, extract it and replace the downloaded media with the extracted ones
+                downloadedMedias.values.find { it.fileType == FileType.ZIP }?.let { entry ->
+                    val extractedMedias = extractZip(entry.file.inputStream()).map {
+                        it.absolutePath to DownloadedFile(it, FileType.fromFile(it))
+                    }
 
-                val renamedMedia = renameFromFileType(media.file, media.fileType)
-                val renamedOverlayMedia = renameFromFileType(overlayMedia.file, overlayMedia.fileType)
-                val mergedOverlay: File = File.createTempFile("merged", "." + media.fileType.fileExtension)
-                runCatching {
-                    longToast("Merging overlay...")
-                    pendingDownloadObject.downloadStage = DownloadStage.MERGING
-
-                    MediaDownloaderHelper.mergeOverlayFile(
-                        media = renamedMedia,
-                        overlay = renamedOverlayMedia,
-                        output = mergedOverlay,
-                        executorService = Executors.newSingleThreadExecutor()
-                    )
-
-                    Logger.debug("merged overlay $mergedOverlay.absolutePath")
-                    saveMediaToGallery(mergedOverlay, pendingDownloadObject)
-                }.onFailure {
-                    if (coroutineContext.job.isCancelled) return@onFailure
-                    Logger.error("failed to merge overlay", it)
-                    longToast("Failed to merge overlay: ${it.message}")
-                    pendingDownloadObject.downloadStage = DownloadStage.MERGE_FAILED
+                    downloadedMedias.values.removeIf {
+                        it.file.delete()
+                        true
+                    }
+                    downloadedMedias.putAll(extractedMedias)
+                    shouldMergeOverlay = true
                 }
 
-                mergedOverlay.delete()
-                renamedOverlayMedia.delete()
-                renamedMedia.delete()
-                return@launch
-            }
+                if (shouldMergeOverlay) {
+                    assert(downloadedMedias.size == 2)
+                    val media = downloadedMedias.values.first { it.fileType.isVideo }
+                    val overlayMedia = downloadedMedias.values.first { it.fileType.isImage }
 
-            inputMedias[0]?.let {
-                val mediaType = inputMediaTypes[0]
-                val media = downloadedMedias[it]!!
+                    val renamedMedia = renameFromFileType(media.file, media.fileType)
+                    val renamedOverlayMedia = renameFromFileType(overlayMedia.file, overlayMedia.fileType)
+                    val mergedOverlay: File = File.createTempFile("merged", "." + media.fileType.fileExtension)
+                    runCatching {
+                        longToast("Merging overlay...")
+                        pendingDownloadObject.downloadStage = DownloadStage.MERGING
 
-                if (!isDashPlaylist) {
-                    saveMediaToGallery(media.file, pendingDownloadObject)
-                    media.file.delete()
+                        MediaDownloaderHelper.mergeOverlayFile(
+                            media = renamedMedia,
+                            overlay = renamedOverlayMedia,
+                            output = mergedOverlay
+                        )
+
+                        saveMediaToGallery(mergedOverlay, pendingDownloadObject)
+                    }.onFailure {
+                        if (coroutineContext.job.isCancelled) return@onFailure
+                        Logger.error("failed to merge overlay", it)
+                        longToast("Failed to merge overlay: ${it.message}")
+                        pendingDownloadObject.downloadStage = DownloadStage.MERGE_FAILED
+                    }
+
+                    mergedOverlay.delete()
+                    renamedOverlayMedia.delete()
+                    renamedMedia.delete()
                     return@launch
                 }
 
-                assert(mediaType == DownloadMediaType.REMOTE_MEDIA)
+                inputMedias[0]?.let { inputMedia ->
+                    val mediaType = inputMediaTypes[0]
+                    val media = downloadedMedias[inputMedia]!!
 
-                val playlistXml = DocumentBuilderFactory.newInstance().newDocumentBuilder().parse(media.file)
-                val baseUrlNodeList = playlistXml.getElementsByTagName("BaseURL")
-                for (i in 0 until baseUrlNodeList.length) {
-                    val baseUrlNode = baseUrlNodeList.item(i)
-                    val baseUrl = baseUrlNode.textContent
-                    baseUrlNode.textContent = "${RemoteMediaResolver.CF_ST_CDN_D}$baseUrl"
+                    if (!isDashPlaylist) {
+                        saveMediaToGallery(media.file, pendingDownloadObject)
+                        media.file.delete()
+                        return@launch
+                    }
+
+                    assert(mediaType == DownloadMediaType.REMOTE_MEDIA)
+
+                    val playlistXml = DocumentBuilderFactory.newInstance().newDocumentBuilder().parse(media.file)
+                    val baseUrlNodeList = playlistXml.getElementsByTagName("BaseURL")
+                    for (i in 0 until baseUrlNodeList.length) {
+                        val baseUrlNode = baseUrlNodeList.item(i)
+                        val baseUrl = baseUrlNode.textContent
+                        baseUrlNode.textContent = "${RemoteMediaResolver.CF_ST_CDN_D}$baseUrl"
+                    }
+
+                    val dashOptions = intent.getBundleExtra("dashOptions") ?: return@launch
+                    val offsetTimestamp = dashOptions.getLong("offsetTimestamp")
+                    val duration = dashOptions.getLong("duration")
+
+                    val dashPlaylistFile = renameFromFileType(media.file, FileType.MPD)
+                    val xmlData = dashPlaylistFile.outputStream()
+                    TransformerFactory.newInstance().newTransformer().transform(DOMSource(playlistXml), StreamResult(xmlData))
+
+                    longToast("Downloading dash media...")
+                    val outputFile = File.createTempFile("dash", ".mp4")
+                    runCatching {
+                        MediaDownloaderHelper.downloadDashChapterFile(
+                            dashPlaylist = dashPlaylistFile,
+                            output = outputFile,
+                            startTime = offsetTimestamp,
+                            duration = duration)
+                        saveMediaToGallery(outputFile, pendingDownloadObject)
+                    }.onFailure {
+                        if (coroutineContext.job.isCancelled) return@onFailure
+                        Logger.error("failed to download dash media", it)
+                        longToast("Failed to download dash media: ${it.message}")
+                        pendingDownloadObject.downloadStage = DownloadStage.FAILED
+                    }
+
+                    dashPlaylistFile.delete()
+                    outputFile.delete()
+                    media.file.delete()
                 }
-
-                val dashOptions = intent.getBundleExtra("dashOptions") ?: return@launch
-                val offsetTimestamp = dashOptions.getLong("offsetTimestamp")
-                val duration = dashOptions.getLong("duration")
-
-                val dashPlaylistFile = renameFromFileType(media.file, FileType.MPD)
-                val xmlData = dashPlaylistFile.outputStream()
-                TransformerFactory.newInstance().newTransformer().transform(DOMSource(playlistXml), StreamResult(xmlData))
-
-                longToast("Downloading dash media...")
-                val outputFile = MediaDownloaderHelper.downloadDashChapterFile(dashPlaylistFile, offsetTimestamp, duration)
-                dashPlaylistFile.delete()
-
-                saveMediaToGallery(outputFile, pendingDownloadObject)
-                outputFile.delete()
-                media.file.delete()
+            }.onFailure {
+                pendingDownloadObject.downloadStage = DownloadStage.FAILED
+                Logger.error("failed to download media", it)
+                longToast("Failed to download media: ${it.message}")
             }
         }
     }

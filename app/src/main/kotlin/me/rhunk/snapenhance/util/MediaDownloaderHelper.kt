@@ -3,16 +3,16 @@ package me.rhunk.snapenhance.util
 import com.arthenica.ffmpegkit.FFmpegKit
 import com.arthenica.ffmpegkit.FFmpegSession
 import kotlinx.coroutines.suspendCancellableCoroutine
-import me.rhunk.snapenhance.Logger
+import me.rhunk.snapenhance.Constants
+import me.rhunk.snapenhance.data.ContentType
 import me.rhunk.snapenhance.data.FileType
 import me.rhunk.snapenhance.util.download.RemoteMediaResolver
+import me.rhunk.snapenhance.util.protobuf.ProtoReader
 import java.io.ByteArrayInputStream
 import java.io.File
-import java.io.FileInputStream
 import java.io.FileNotFoundException
-import java.io.FileOutputStream
 import java.io.InputStream
-import java.util.concurrent.ExecutorService
+import java.util.concurrent.Executors
 import java.util.zip.ZipInputStream
 
 enum class MediaType {
@@ -20,7 +20,19 @@ enum class MediaType {
 }
 
 object MediaDownloaderHelper {
-    fun downloadMediaFromReference(mediaReference: ByteArray, mergeOverlay: Boolean, isPreviewMode: Boolean, decryptionCallback: (InputStream) -> InputStream): Map<MediaType, ByteArray> {
+    fun getMessageMediaInfo(protoReader: ProtoReader, contentType: ContentType, isArroyo: Boolean): ProtoReader? {
+        val messageContainerPath = if (isArroyo) protoReader.readPath(*Constants.ARROYO_MEDIA_CONTAINER_PROTO_PATH)!! else protoReader
+        val mediaContainerPath = if (contentType == ContentType.NOTE) intArrayOf(6, 1, 1) else intArrayOf(5, 1, 1)
+
+        return when (contentType) {
+            ContentType.NOTE -> messageContainerPath.readPath(*mediaContainerPath)
+            ContentType.SNAP -> messageContainerPath.readPath(*(intArrayOf(11) + mediaContainerPath))
+            ContentType.EXTERNAL_MEDIA -> messageContainerPath.readPath(*(intArrayOf(3, 3) + mediaContainerPath))
+            else -> throw IllegalArgumentException("Invalid content type: $contentType")
+        }
+    }
+
+    fun downloadMediaFromReference(mediaReference: ByteArray, decryptionCallback: (InputStream) -> InputStream): Map<MediaType, ByteArray> {
         val inputStream: InputStream = RemoteMediaResolver.downloadBoltMedia(mediaReference) ?: throw FileNotFoundException("Unable to get media key. Check the logs for more info")
         val content = decryptionCallback(inputStream).readBytes()
         val fileType = FileType.fromByteArray(content)
@@ -43,96 +55,46 @@ object MediaDownloaderHelper {
             }
             videoData ?: throw FileNotFoundException("Unable to find video file in zip file")
             overlayData ?: throw FileNotFoundException("Unable to find overlay file in zip file")
-            if (mergeOverlay) {
-                val mergedVideo = mergeOverlay(videoData, overlayData, isPreviewMode)
-                return mapOf(MediaType.ORIGINAL to mergedVideo)
-            }
             return mapOf(MediaType.ORIGINAL to videoData, MediaType.OVERLAY to overlayData)
         }
 
         return mapOf(MediaType.ORIGINAL to content)
     }
 
-    fun downloadDashChapterFile(dashPlaylist: File, startTime: Long, duration: Long?): File {
-        val outputFile = File.createTempFile("output", ".mp4")
 
-        val ffmpegSession = FFmpegKit.execute(
-            "-y -i " +
-                    dashPlaylist.absolutePath +
-                    " -ss '${startTime}ms'" +
-                    (if (duration != null) " -t '${duration}ms'" else "") +
-                    " -c:v libx264 -threads 6 -q:v 13 " + outputFile.absolutePath
+    private suspend fun runFFmpegAsync(vararg args: String) = suspendCancellableCoroutine<FFmpegSession> {
+        FFmpegKit.executeAsync(args.joinToString(" "), { session ->
+            it.resumeWith(
+                if (session.returnCode.isValueSuccess) {
+                    Result.success(session)
+                } else {
+                    Result.failure(Exception(session.output))
+                }
+            )
+        },
+        Executors.newSingleThreadExecutor())
+    }
+
+    suspend fun downloadDashChapterFile(
+        dashPlaylist: File,
+        output: File,
+        startTime: Long,
+        duration: Long?) {
+        runFFmpegAsync(
+            "-y", "-i", dashPlaylist.absolutePath, "-ss", "${startTime}ms", *(if (duration != null) arrayOf("-t", "${duration}ms") else arrayOf()),
+            "-c:v", "libx264", "-threads", "6", "-q:v", "13", output.absolutePath
         )
-
-        if (!ffmpegSession.returnCode.isValueSuccess) {
-            throw Exception(ffmpegSession.output)
-        }
-        return outputFile
     }
 
     suspend fun mergeOverlayFile(
         media: File,
         overlay: File,
-        output: File,
-        isThumbnail: Boolean = false,
-        executorService: ExecutorService
-    ) = suspendCancellableCoroutine { continuation ->
-        FFmpegKit.executeAsync(
-            "-y -i " +
-                    media.absolutePath +
-                    " -i " +
-                    overlay.absolutePath +
-                    " -filter_complex \"[0]scale2ref[img][vid];[img]setsar=1[img];[vid]nullsink; [img][1]overlay=(W-w)/2:(H-h)/2,scale=2*trunc(iw*sar/2):2*trunc(ih/2)\" -c:v libx264 -q:v 13 -c:a copy " +
-                    "  -threads 6 ${(if (isThumbnail) "-frames:v 1" else "")} " +
-                    output.absolutePath,
-            { session ->
-                continuation.resumeWith(
-                    if (session.returnCode.isValueSuccess) {
-                        Result.success(output)
-                    } else {
-                        Result.failure(Exception(session.output))
-                    }
-                )
-            }, executorService)
-    }
-
-    fun mergeOverlay(original: ByteArray, overlay: ByteArray, isPreviewMode: Boolean): ByteArray {
-        val originalFileType = FileType.fromByteArray(original)
-        val overlayFileType = FileType.fromByteArray(overlay)
-        //merge files
-        val mergedFile = File.createTempFile("merged", "." + originalFileType.fileExtension)
-        val tempVideoFile = File.createTempFile("original", "." + originalFileType.fileExtension).also {
-            with(FileOutputStream(it)) {
-                write(original)
-                close()
-            }
-        }
-        val tempOverlayFile = File.createTempFile("overlay", "." + overlayFileType.fileExtension).also {
-            with(FileOutputStream(it)) {
-                write(overlay)
-                close()
-            }
-        }
-
-        //TODO: improve ffmpeg speed
-        val fFmpegSession = FFmpegKit.execute(
-            "-y -i " +
-                    tempVideoFile.absolutePath +
-                    " -i " +
-                    tempOverlayFile.absolutePath +
-                    " -filter_complex \"[0]scale2ref[img][vid];[img]setsar=1[img];[vid]nullsink; [img][1]overlay=(W-w)/2:(H-h)/2,scale=2*trunc(iw*sar/2):2*trunc(ih/2)\" -c:v libx264 -q:v 13 -c:a copy " +
-                    "  -threads 6 ${(if (isPreviewMode) "-frames:v 1" else "")} " +
-                    mergedFile.absolutePath
+        output: File
+    ) {
+        runFFmpegAsync(
+            "-y", "-i", media.absolutePath, "-i", overlay.absolutePath,
+            "-filter_complex", "[0]scale2ref[img][vid];[img]setsar=1[img];[vid]nullsink; [img][1]overlay=(W-w)/2:(H-h)/2,scale=2*trunc(iw*sar/2):2*trunc(ih/2)",
+            "-c:v", "libx264", "-q:v", "13", "-c:a", "copy", "-threads", "6", output.absolutePath
         )
-        tempVideoFile.delete()
-        tempOverlayFile.delete()
-        if (fFmpegSession.returnCode.value != 0) {
-            mergedFile.delete()
-            Logger.xposedLog(fFmpegSession.output)
-            throw IllegalStateException("Failed to merge video and overlay. See logs for more details.")
-        }
-        val mergedFileData: ByteArray = FileInputStream(mergedFile).readBytes()
-        mergedFile.delete()
-        return mergedFileData
     }
 }

@@ -3,6 +3,7 @@ package me.rhunk.snapenhance.features.impl.downloader
 import android.app.AlertDialog
 import android.content.DialogInterface
 import android.graphics.Bitmap
+import android.graphics.BitmapFactory
 import android.net.Uri
 import android.widget.ImageView
 import com.arthenica.ffmpegkit.FFmpegKit
@@ -26,13 +27,12 @@ import me.rhunk.snapenhance.features.impl.spying.MessageLogger
 import me.rhunk.snapenhance.hook.HookAdapter
 import me.rhunk.snapenhance.hook.HookStage
 import me.rhunk.snapenhance.hook.Hooker
-import me.rhunk.snapenhance.util.EncryptionUtils
+import me.rhunk.snapenhance.util.EncryptionHelper
 import me.rhunk.snapenhance.util.MediaDownloaderHelper
 import me.rhunk.snapenhance.util.MediaType
 import me.rhunk.snapenhance.util.PreviewUtils
 import me.rhunk.snapenhance.util.getObjectField
 import me.rhunk.snapenhance.util.protobuf.ProtoReader
-import java.io.ByteArrayInputStream
 import java.io.File
 import java.nio.file.Paths
 import java.text.SimpleDateFormat
@@ -50,12 +50,12 @@ class MediaDownloader : Feature("MediaDownloader", loadParams = FeatureLoadParam
         runCatching { FFmpegKit.execute("-version") }.isSuccess
     }
 
-    private fun provideClientDownloadManager(pathPrefix: String): ClientDownloadManager {
+    private fun provideClientDownloadManager(pathSuffix: String): ClientDownloadManager {
         return ClientDownloadManager(
             context,
             File(
                 context.config.string(ConfigProperty.SAVE_FOLDER),
-                createNewFilePath(pathPrefix.hashCode(), pathPrefix)
+                createNewFilePath(pathSuffix.hashCode(), pathSuffix)
             ).absolutePath
         )
     }
@@ -338,45 +338,51 @@ class MediaDownloader : Feature("MediaDownloader", loadParams = FeatureLoadParam
         val messageReader = ProtoReader(message.message_content!!)
         val urlProto: ByteArray = messageReader.getByteArray(*ARROYO_URL_KEY_PROTO_PATH)!!
 
-        //download the message content
         try {
-            val downloadedMedia = MediaDownloaderHelper.downloadMediaFromReference(urlProto, canMergeOverlay(), isPreviewMode) {
-                EncryptionUtils.decryptInputStreamFromArroyo(it, contentType, messageReader)
-            }[MediaType.ORIGINAL] ?: throw Exception("Failed to download media")
-            val fileType = FileType.fromByteArray(downloadedMedia)
+            if (!isPreviewMode) {
+                val encryptionKeys = EncryptionHelper.getEncryptionKeys(contentType, messageReader, isArroyo = true)
 
-            if (isPreviewMode) {
-                runCatching {
-                    val bitmap: Bitmap? = PreviewUtils.createPreview(downloadedMedia, fileType.isVideo)
-                    if (bitmap == null) {
-                        context.shortToast("Failed to create preview")
-                        return
+                provideClientDownloadManager(messageAuthor).downloadMedia(
+                    Base64.UrlSafe.encode(urlProto),
+                    DownloadMediaType.PROTO_MEDIA,
+                    encryption = encryptionKeys?.let {
+                        Pair(Base64.UrlSafe.encode(it.first), Base64.UrlSafe.encode(it.second))
                     }
-                    val builder = AlertDialog.Builder(context.mainActivity)
-                    builder.setTitle("Preview")
-                    val imageView = ImageView(builder.context)
-                    imageView.setImageBitmap(bitmap)
-                    builder.setView(imageView)
-                    builder.setPositiveButton(
-                        "Close"
-                    ) { dialog: DialogInterface, _: Int -> dialog.dismiss() }
-                    context.runOnUiThread { builder.show() }
-                }.onFailure {
-                    context.shortToast("Failed to create preview: $it")
-                    xposedLog(it)
-                }
+                )
                 return
             }
 
-            //TODO: use input streams instead of bytearrays
-            context.downloadServer.ensureServerStarted {
-                val requestUrl = putDownloadableContent(ByteArrayInputStream(downloadedMedia))
-                provideClientDownloadManager(messageAuthor).downloadMedia(
-                    requestUrl,
-                    DownloadMediaType.REMOTE_MEDIA
-                )
+            val downloadedMediaList = MediaDownloaderHelper.downloadMediaFromReference(urlProto) {
+                EncryptionHelper.decryptInputStream(it, contentType, messageReader, isArroyo = true)
             }
 
+            runCatching {
+                val originalMedia = downloadedMediaList[MediaType.ORIGINAL] ?: return@runCatching
+                val overlay = downloadedMediaList[MediaType.OVERLAY]
+
+                var bitmap: Bitmap? = PreviewUtils.createPreview(originalMedia, isVideo = FileType.fromByteArray(originalMedia).isVideo)
+
+                if (bitmap == null) {
+                    context.shortToast("Failed to create preview")
+                    return
+                }
+
+                overlay?.let {
+                    bitmap = PreviewUtils.mergeBitmapOverlay(bitmap!!, BitmapFactory.decodeByteArray(it, 0, it.size))
+                }
+
+                with(AlertDialog.Builder(context.mainActivity)) {
+                    setTitle("Preview")
+                    setView(ImageView(context).apply {
+                        setImageBitmap(bitmap)
+                    })
+                    setPositiveButton("Close") { dialog: DialogInterface, _: Int -> dialog.dismiss() }
+                    this@MediaDownloader.context.runOnUiThread { show() }
+                }
+            }.onFailure {
+                context.shortToast("Failed to create preview: $it")
+                xposedLog(it)
+            }
         } catch (e: Throwable) {
             context.longToast("Failed to download " + e.message)
             xposedLog(e)

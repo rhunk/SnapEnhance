@@ -10,58 +10,43 @@ import javax.crypto.CipherInputStream
 import javax.crypto.spec.IvParameterSpec
 import javax.crypto.spec.SecretKeySpec
 
-object EncryptionUtils {
-    fun decryptInputStreamFromArroyo(
-        inputStream: InputStream,
-        contentType: ContentType,
-        messageProto: ProtoReader
-    ): InputStream {
-        var resultInputStream = inputStream
-        val encryptionProtoPath: IntArray = when (contentType) {
-            ContentType.NOTE -> Constants.ARROYO_NOTE_ENCRYPTION_PROTO_PATH
-            ContentType.SNAP -> Constants.ARROYO_SNAP_ENCRYPTION_PROTO_PATH
-            ContentType.EXTERNAL_MEDIA -> Constants.ARROYO_EXTERNAL_MEDIA_ENCRYPTION_PROTO_PATH
-            else -> throw IllegalArgumentException("Invalid content type: $contentType")
-        }
+object EncryptionHelper {
+    fun getEncryptionKeys(contentType: ContentType, messageProto: ProtoReader, isArroyo: Boolean): Pair<ByteArray, ByteArray>? {
+        val messageMediaInfo = MediaDownloaderHelper.getMessageMediaInfo(messageProto, contentType, isArroyo)
 
-        //decrypt the content if needed
-        messageProto.readPath(*encryptionProtoPath)?.let {
-            val encryptionProtoIndex: Int = if (it.exists(Constants.ARROYO_ENCRYPTION_PROTO_INDEX_V2)) {
-                Constants.ARROYO_ENCRYPTION_PROTO_INDEX_V2
-            } else if (it.exists(Constants.ARROYO_ENCRYPTION_PROTO_INDEX)) {
-                Constants.ARROYO_ENCRYPTION_PROTO_INDEX
+        return messageMediaInfo?.let {  mediaEncryption ->
+            val encryptionProtoIndex: Int = if (mediaEncryption.exists(Constants.ENCRYPTION_PROTO_INDEX_V2)) {
+                Constants.ENCRYPTION_PROTO_INDEX_V2
             } else {
-                return resultInputStream
+                Constants.ENCRYPTION_PROTO_INDEX
             }
-            resultInputStream = decryptInputStream(
-                resultInputStream,
-                encryptionProtoIndex == Constants.ARROYO_ENCRYPTION_PROTO_INDEX_V2,
-                it,
-                encryptionProtoIndex
-            )
+
+            val encryptionProto = mediaEncryption.readPath(encryptionProtoIndex) ?: return null
+            var key: ByteArray = encryptionProto.getByteArray(1)!!
+            var iv: ByteArray = encryptionProto.getByteArray(2)!!
+
+            if (encryptionProtoIndex == Constants.ENCRYPTION_PROTO_INDEX_V2) {
+                val decoder = Base64.getMimeDecoder()
+                key = decoder.decode(key)
+                iv = decoder.decode(iv)
+            }
+
+            return Pair(key, iv)
         }
-        return resultInputStream
     }
 
     fun decryptInputStream(
         inputStream: InputStream,
-        base64Encryption: Boolean,
-        mediaInfoProto: ProtoReader,
-        encryptionProtoIndex: Int
+        contentType: ContentType,
+        messageProto: ProtoReader,
+        isArroyo: Boolean
     ): InputStream {
-        val mediaEncryption = mediaInfoProto.readPath(encryptionProtoIndex)!!
-        var key: ByteArray = mediaEncryption.getByteArray(1)!!
-        var iv: ByteArray = mediaEncryption.getByteArray(2)!!
+        val encryptionKeys = getEncryptionKeys(contentType, messageProto, isArroyo)!!
 
-        //audio note and external medias have their key and iv encoded in base64
-        if (base64Encryption) {
-            val decoder = Base64.getMimeDecoder()
-            key = decoder.decode(key)
-            iv = decoder.decode(iv)
+        Cipher.getInstance("AES/CBC/PKCS5Padding").apply {
+            init(Cipher.DECRYPT_MODE, SecretKeySpec(encryptionKeys.first, "AES"), IvParameterSpec(encryptionKeys.second))
+        }.let { cipher ->
+            return CipherInputStream(inputStream, cipher)
         }
-
-        val cipher = Cipher.getInstance("AES/CBC/PKCS5Padding")
-        cipher.init(Cipher.DECRYPT_MODE, SecretKeySpec(key, "AES"), IvParameterSpec(iv))
-        return CipherInputStream(inputStream, cipher)
     }
 }
