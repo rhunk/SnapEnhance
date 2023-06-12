@@ -53,13 +53,12 @@ class MediaDownloadReceiver : BroadcastReceiver() {
         const val DOWNLOAD_ACTION = "me.rhunk.snapenhance.download.MediaDownloadReceiver.DOWNLOAD_ACTION"
     }
 
-    private val executor = Executors.newCachedThreadPool()
-
     lateinit var context: Context
 
     private fun runOnUIThread(block: () -> Unit) {
         Handler(context.mainLooper).post(block)
     }
+
     private fun shortToast(text: String) {
         runOnUIThread {
             Toast.makeText(context, text, Toast.LENGTH_SHORT).show()
