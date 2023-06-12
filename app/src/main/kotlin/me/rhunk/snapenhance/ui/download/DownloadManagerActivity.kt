@@ -4,6 +4,7 @@ import android.annotation.SuppressLint
 import android.app.Activity
 import android.content.Context
 import android.content.Intent
+import android.graphics.drawable.ColorDrawable
 import android.net.Uri
 import android.os.Bundle
 import android.os.PowerManager
@@ -28,16 +29,21 @@ class DownloadManagerActivity : Activity() {
     @SuppressLint("BatteryLife")
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        actionBar?.apply {
+            title = "Download Manager"
+            setBackgroundDrawable(ColorDrawable(getColor(R.color.actionBarColor)))
+        }
         setContentView(R.layout.download_manager_activity)
 
         with(findViewById<RecyclerView>(R.id.download_list)) {
             adapter = DownloadListAdapter(MediaDownloadReceiver.downloadTasks).apply {
                 registerAdapterDataObserver(object : RecyclerView.AdapterDataObserver() {
-                    override fun onChanged() {
+                    override fun onItemRangeRemoved(positionStart: Int, itemCount: Int) {
                         updateNoDownloadText()
                     }
                 })
             }
+
             layoutManager = androidx.recyclerview.widget.LinearLayoutManager(this@DownloadManagerActivity)
 
             ItemTouchHelper(object : ItemTouchHelper.SimpleCallback(0, ItemTouchHelper.LEFT or ItemTouchHelper.RIGHT) {
@@ -95,5 +101,6 @@ class DownloadManagerActivity : Activity() {
         with(findViewById<RecyclerView>(R.id.download_list)) {
             adapter?.notifyDataSetChanged()
         }
+        updateNoDownloadText()
     }
 }

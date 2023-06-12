@@ -1,12 +1,15 @@
 package me.rhunk.snapenhance.ui.download
 
+import android.annotation.SuppressLint
 import android.content.Intent
+import android.graphics.BitmapFactory
 import android.net.Uri
 import android.os.Handler
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Button
+import android.widget.ImageView
 import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
 import androidx.recyclerview.widget.RecyclerView.Adapter
@@ -15,14 +18,18 @@ import me.rhunk.snapenhance.data.FileType
 import me.rhunk.snapenhance.download.DownloadStage
 import me.rhunk.snapenhance.download.PendingDownload
 import java.io.File
+import java.net.URL
+import kotlin.concurrent.thread
 
 class DownloadListAdapter(
     private val downloadList: MutableList<PendingDownload>
 ): Adapter<DownloadListAdapter.ViewHolder>() {
     inner class ViewHolder(val view: View) : RecyclerView.ViewHolder(view) {
-        val itemName: TextView = view.findViewById(R.id.download_manager_item_name)
-        val itemStatus: TextView = view.findViewById(R.id.download_manager_item_status)
-        val itemCancel: Button = view.findViewById(R.id.download_manager_item_cancel)
+        val bitmojiIcon: ImageView = view.findViewById(R.id.bitmoji_icon)
+        val title: TextView = view.findViewById(R.id.item_title)
+        val subtitle: TextView = view.findViewById(R.id.item_subtitle)
+        val status: TextView = view.findViewById(R.id.item_status)
+        val actionButton: Button = view.findViewById(R.id.item_action_button)
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
@@ -33,11 +40,23 @@ class DownloadListAdapter(
         return downloadList.size
     }
 
+    @SuppressLint("SetTextI18n")
     private fun setDownloadStage(holder: ViewHolder, downloadStage: DownloadStage) {
-        holder.itemStatus.text = downloadStage.toString()
+        holder.status.text = downloadStage.toString()
         if (!downloadStage.isFinalStage) return
-        holder.itemCancel.isEnabled = false
-        holder.itemCancel.alpha = 0.5f
+        if (downloadStage == DownloadStage.SAVED) {
+            holder.status.visibility = View.GONE
+            with(holder.actionButton) {
+                isEnabled = true
+                alpha = 1f
+                background = context.getDrawable(R.drawable.action_button_success)
+                setTextColor(context.getColor(R.color.successColor))
+                text = "Open"
+            }
+            return
+        }
+        holder.actionButton.isEnabled = false
+        holder.actionButton.alpha = 0.5f
     }
 
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
@@ -50,20 +69,44 @@ class DownloadListAdapter(
             }
         }
 
-        holder.view.setOnClickListener {
-            if (download.downloadStage != DownloadStage.SAVED) return@setOnClickListener
-            download.outputFile?.let {
-                val intent = Intent(Intent.ACTION_VIEW)
-                intent.setDataAndType(Uri.parse(it), FileType.fromFile(File(it)).mimeType)
-                holder.view.context.startActivity(intent)
+        holder.bitmojiIcon.visibility = View.GONE
+
+        download.iconUrl?.let { url ->
+            thread(start = true) {
+                runCatching {
+                    val iconBitmap = URL(url).openStream().use {
+                        BitmapFactory.decodeStream(it)
+                    }
+                    Handler(holder.view.context.mainLooper).post {
+                        holder.bitmojiIcon.setImageBitmap(iconBitmap)
+                        holder.bitmojiIcon.visibility = View.VISIBLE
+                    }
+                }
             }
         }
 
-        holder.itemName.text = (download.outputFile ?: download.outputPath).split("/").takeLast(2).joinToString("/").let {
-            if (it.length > 30) it.take(30) + "..." else it
+        holder.title.visibility = View.GONE
+        holder.subtitle.visibility = View.GONE
+
+        download.mediaDisplayType?.let {
+            holder.title.text = it
+            holder.title.visibility = View.VISIBLE
         }
 
-        holder.itemCancel.setOnClickListener {
+        download.mediaDisplaySource?.let {
+            holder.subtitle.text = it
+            holder.subtitle.visibility = View.VISIBLE
+        }
+
+        holder.actionButton.setOnClickListener {
+            if (download.downloadStage == DownloadStage.SAVED) {
+                download.outputFile?.let {
+                    val intent = Intent(Intent.ACTION_VIEW)
+                    intent.setDataAndType(Uri.parse(it), FileType.fromFile(File(it)).mimeType)
+                    holder.view.context.startActivity(intent)
+                }
+                return@setOnClickListener
+            }
             download.cancel()
             download.downloadStage = DownloadStage.CANCELLED
             setDownloadStage(holder, DownloadStage.CANCELLED)

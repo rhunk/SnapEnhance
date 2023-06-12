@@ -23,7 +23,6 @@ import java.io.File
 import java.io.InputStream
 import java.net.HttpURLConnection
 import java.net.URL
-import java.util.concurrent.Executors
 import java.util.zip.ZipInputStream
 import javax.crypto.Cipher
 import javax.crypto.CipherInputStream
@@ -197,7 +196,6 @@ class MediaDownloadReceiver : BroadcastReceiver() {
     override fun onReceive(context: Context, intent: Intent) {
         if (intent.action != DOWNLOAD_ACTION) return
         this.context = context
-        val outputPath = intent.getStringExtra("outputPath") ?: return
 
         val inputMedias = intent.getStringArrayExtra("inputMedias") ?: return
         val inputMediaTypes = intent.getStringArrayExtra("inputTypes")?.map { DownloadMediaType.valueOf(it) } ?: return
@@ -210,7 +208,7 @@ class MediaDownloadReceiver : BroadcastReceiver() {
         var shouldMergeOverlay = intent.getBooleanExtra("shouldMergeOverlay", false)
         val isDashPlaylist = intent.getBooleanExtra("isDashPlaylist", false)
 
-        val pendingDownloadObject = PendingDownload(outputPath = outputPath)
+        val pendingDownloadObject = PendingDownload(intent = intent)
 
         GlobalScope.launch(Dispatchers.IO) {
             downloadTasks.add(0, pendingDownloadObject.apply {

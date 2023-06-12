@@ -1,33 +1,59 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
-    android:layout_height="90dp"
+    android:layout_height="70dp"
     android:layout_margin="8dp"
     android:layout_marginBottom="10dp"
-    android:background="@drawable/download_manager_item_background"
+    android:background="@drawable/download_manager_item"
     android:gravity="center_vertical"
     android:orientation="horizontal"
     android:padding="10dp">
 
-    <TextView
-        android:id="@+id/download_manager_item_name"
+    <ImageView
+        android:id="@+id/bitmoji_icon"
+        android:layout_width="45dp"
+        android:layout_height="45dp"
+        android:layout_margin="5dp"
+        tools:ignore="ContentDescription" />
+
+    <LinearLayout
         android:layout_width="0dp"
-        android:layout_height="wrap_content"
+        android:layout_height="match_parent"
+        android:layout_marginStart="10dp"
         android:layout_weight="1"
-        android:textColor="@color/primaryText" />
+        android:orientation="vertical">
+
+        <TextView
+            android:id="@+id/item_title"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textColor="@color/primaryText"
+            android:textSize="17sp"
+            android:textStyle="bold" />
+
+        <TextView
+            android:id="@+id/item_subtitle"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textSize="14sp"
+            android:textColor="@color/secondaryText" />
+    </LinearLayout>
 
     <TextView
-        android:id="@+id/download_manager_item_status"
+        android:id="@+id/item_status"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginEnd="10dp"
         android:textColor="@color/primaryText" />
 
     <Button
-        android:id="@+id/download_manager_item_cancel"
+        android:id="@+id/item_action_button"
         android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:background="@color/tertiaryBackground"
+        android:layout_height="35dp"
+        android:padding="5dp"
+        android:background="@drawable/action_button_cancel"
         android:text="Cancel"
-        android:textColor="@color/primaryText" />
+        android:textColor="@color/darkText"
+        tools:ignore="ButtonOrder,HardcodedText" />
 </LinearLayout>

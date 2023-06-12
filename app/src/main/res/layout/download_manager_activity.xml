@@ -3,7 +3,7 @@
     android:id="@+id/download_manager_activity"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/background_dark"
+    android:background="@color/primaryBackground"
     android:orientation="vertical">
 
     <androidx.recyclerview.widget.RecyclerView

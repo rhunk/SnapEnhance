@@ -7,7 +7,10 @@ import me.rhunk.snapenhance.ModContext
 
 class ClientDownloadManager (
     private val context: ModContext,
-    private val outputPath: String
+    private val outputPath: String,
+    private val mediaDisplaySource: String?,
+    private val mediaDisplayType: String?,
+    private val iconUrl: String?
 ) {
     private fun sendToBroadcastReceiver(bundle: Bundle) {
         val intent = Intent()
@@ -33,6 +36,9 @@ class ClientDownloadManager (
         bundle.putStringArray("mediaEncryption", mediaEncryption.map { "${it.key}|${it.value.first}|${it.value.second}" }.toTypedArray())
         bundle.putBoolean("shouldMergeOverlay", shouldMergeOverlay)
         bundle.putBoolean("isDashPlaylist", isDashPlaylist)
+        bundle.putString("mediaDisplaySource", mediaDisplaySource)
+        bundle.putString("mediaDisplayType", mediaDisplayType)
+        bundle.putString("iconUrl", iconUrl)
         bundle.extras()
         sendToBroadcastReceiver(bundle)
     }

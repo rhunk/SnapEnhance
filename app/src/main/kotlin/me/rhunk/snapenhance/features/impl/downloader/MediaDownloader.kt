@@ -18,6 +18,7 @@ import me.rhunk.snapenhance.data.wrapper.impl.media.dash.LongformVideoPlaylistIt
 import me.rhunk.snapenhance.data.wrapper.impl.media.dash.SnapPlaylistItem
 import me.rhunk.snapenhance.data.wrapper.impl.media.opera.Layer
 import me.rhunk.snapenhance.data.wrapper.impl.media.opera.ParamMap
+import me.rhunk.snapenhance.database.objects.FriendInfo
 import me.rhunk.snapenhance.download.ClientDownloadManager
 import me.rhunk.snapenhance.download.DownloadMediaType
 import me.rhunk.snapenhance.features.Feature
@@ -50,13 +51,28 @@ class MediaDownloader : Feature("MediaDownloader", loadParams = FeatureLoadParam
         runCatching { FFmpegKit.execute("-version") }.isSuccess
     }
 
-    private fun provideClientDownloadManager(pathSuffix: String): ClientDownloadManager {
+    private fun provideClientDownloadManager(
+        pathSuffix: String,
+        mediaDisplaySource: String? = null,
+        mediaDisplayType: String? = null,
+        friendInfo: FriendInfo? = null
+    ): ClientDownloadManager {
+        val iconUrl = friendInfo?.takeIf {
+            it.bitmojiAvatarId != null && it.bitmojiSelfieId != null
+        }?.let {
+            "https://sdk.bitmoji.com/render/panel/" + it.bitmojiSelfieId + "-" + it.bitmojiAvatarId + "-v1.webp?transparent=1&scale=0"
+        }
+        val outputPath = File(
+            context.config.string(ConfigProperty.SAVE_FOLDER),
+            createNewFilePath(pathSuffix.hashCode(), pathSuffix)
+        ).absolutePath
+
         return ClientDownloadManager(
-            context,
-            File(
-                context.config.string(ConfigProperty.SAVE_FOLDER),
-                createNewFilePath(pathSuffix.hashCode(), pathSuffix)
-            ).absolutePath
+            context = context,
+            mediaDisplaySource = mediaDisplaySource,
+            mediaDisplayType = mediaDisplayType,
+            iconUrl = iconUrl,
+            outputPath = outputPath
         )
     }
 
@@ -125,7 +141,7 @@ class MediaDownloader : Feature("MediaDownloader", loadParams = FeatureLoadParam
         }
     }
 
-    private fun downloadOperaMedia(mediaInfoMap: Map<MediaType, MediaInfo>, author: String) {
+    private fun downloadOperaMedia(clientDownloadManager: ClientDownloadManager, mediaInfoMap: Map<MediaType, MediaInfo>) {
         if (mediaInfoMap.isEmpty()) return
 
         val originalMediaInfo = mediaInfoMap[MediaType.ORIGINAL]!!
@@ -133,8 +149,6 @@ class MediaDownloader : Feature("MediaDownloader", loadParams = FeatureLoadParam
 
         val originalMediaInfoReference = handleLocalReferences(originalMediaInfo.uri)
         val overlayReference = overlay?.let { handleLocalReferences(it.uri) }
-
-        val clientDownloadManager = provideClientDownloadManager(author)
 
         overlay?.let {
             clientDownloadManager.downloadMediaWithOverlay(
@@ -182,8 +196,9 @@ class MediaDownloader : Feature("MediaDownloader", loadParams = FeatureLoadParam
                 return
             }
 
-            val author = context.database.getFriendInfo(senderId)!!.usernameForSorting!!
-            downloadOperaMedia(mediaInfoMap, author)
+            val author = context.database.getFriendInfo(senderId) ?: return
+            val authorUsername = author.usernameForSorting!!
+            downloadOperaMedia(provideClientDownloadManager(authorUsername, authorUsername, "Chat Media", friendInfo = author), mediaInfoMap)
             return
         }
 
@@ -196,9 +211,10 @@ class MediaDownloader : Feature("MediaDownloader", loadParams = FeatureLoadParam
                 storyIdStartIndex,
                 playlistGroup.indexOf(",", storyIdStartIndex)
             )
-            val author = context.database.getFriendInfo(if (storyUserId == "null") context.database.getMyUserId()!! else storyUserId)
+            val author = context.database.getFriendInfo(if (storyUserId == "null") context.database.getMyUserId()!! else storyUserId) ?: return
+            val authorName = author.usernameForSorting!!
 
-            downloadOperaMedia(mediaInfoMap, author!!.usernameForSorting!!)
+            downloadOperaMedia(provideClientDownloadManager(authorName, authorName, "Story", friendInfo = author), mediaInfoMap, )
             return
         }
 
@@ -210,13 +226,13 @@ class MediaDownloader : Feature("MediaDownloader", loadParams = FeatureLoadParam
             val userDisplayName = (if (paramMap.containsKey("USER_DISPLAY_NAME")) paramMap["USER_DISPLAY_NAME"].toString() else "").replace(
                     "[^\\x00-\\x7F]".toRegex(),
                     "")
-            downloadOperaMedia(mediaInfoMap, "Public-Stories/$userDisplayName")
+            downloadOperaMedia(provideClientDownloadManager("Public-Stories/$userDisplayName", userDisplayName, "Public Story"), mediaInfoMap)
             return
         }
 
         //spotlight
         if (snapSource == "SINGLE_SNAP_STORY" && (forceDownload || canAutoDownload("spotlight"))) {
-            downloadOperaMedia(mediaInfoMap, "Spotlight")
+            downloadOperaMedia(provideClientDownloadManager("Spotlight", mediaDisplayType = "Spotlight", mediaDisplaySource = paramMap["TIME_STAMP"].toString()), mediaInfoMap)
             return
         }
 
@@ -248,7 +264,7 @@ class MediaDownloader : Feature("MediaDownloader", loadParams = FeatureLoadParam
 
             //get the mpd playlist and append the cdn url to baseurl nodes
             val playlistUrl = paramMap["MEDIA_ID"].toString().let { it.substring(it.indexOf("https://cf-st.sc-cdn.net")) }
-            val clientDownloadManager = provideClientDownloadManager("Pro-Stories/${storyName}")
+            val clientDownloadManager = provideClientDownloadManager("Pro-Stories/${storyName}", storyName, "Pro Story")
             clientDownloadManager.downloadDashMedia(
                 playlistUrl,
                 snapChapterTimestamp,
@@ -342,7 +358,7 @@ class MediaDownloader : Feature("MediaDownloader", loadParams = FeatureLoadParam
             if (!isPreviewMode) {
                 val encryptionKeys = EncryptionHelper.getEncryptionKeys(contentType, messageReader, isArroyo = true)
 
-                provideClientDownloadManager(messageAuthor).downloadMedia(
+                provideClientDownloadManager(messageAuthor, messageAuthor, "Chat Media").downloadMedia(
                     Base64.UrlSafe.encode(urlProto),
                     DownloadMediaType.PROTO_MEDIA,
                     encryption = encryptionKeys?.let {
