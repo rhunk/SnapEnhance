@@ -43,26 +43,24 @@ class DownloadListAdapter(
     @SuppressLint("SetTextI18n")
     private fun setDownloadStage(holder: ViewHolder, downloadStage: DownloadStage) {
         holder.status.text = downloadStage.toString()
+
         if (!downloadStage.isFinalStage) return
-        if (downloadStage == DownloadStage.SAVED) {
-            holder.status.visibility = View.GONE
-            with(holder.actionButton) {
-                isEnabled = true
-                alpha = 1f
-                background = context.getDrawable(R.drawable.action_button_success)
-                setTextColor(context.getColor(R.color.successColor))
-                text = "Open"
-            }
-            return
+        val isSaved = downloadStage == DownloadStage.SAVED
+        holder.status.visibility = if (isSaved) View.GONE else View.VISIBLE
+
+        with(holder.actionButton) {
+            isEnabled = isSaved
+            alpha = if (isSaved) 1f else 0.5f
+            background = context.getDrawable(if (isSaved) R.drawable.action_button_success else R.drawable.action_button_cancel)
+            setTextColor(context.getColor(if (isSaved) R.color.successColor else R.color.actionBarColor))
+            text = if (isSaved) "Open" else "Cancel"
         }
-        holder.actionButton.isEnabled = false
-        holder.actionButton.alpha = 0.5f
     }
 
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
-        val download = downloadList[position]
+        val pendingDownload = downloadList[position]
 
-        download.changeListener = { _, newState ->
+        pendingDownload.changeListener = { _, newState ->
             Handler(holder.view.context.mainLooper).post {
                 setDownloadStage(holder, newState)
                 notifyItemChanged(position)
@@ -71,7 +69,7 @@ class DownloadListAdapter(
 
         holder.bitmojiIcon.visibility = View.GONE
 
-        download.iconUrl?.let { url ->
+        pendingDownload.iconUrl?.let { url ->
             thread(start = true) {
                 runCatching {
                     val iconBitmap = URL(url).openStream().use {
@@ -88,31 +86,31 @@ class DownloadListAdapter(
         holder.title.visibility = View.GONE
         holder.subtitle.visibility = View.GONE
 
-        download.mediaDisplayType?.let {
+        pendingDownload.mediaDisplayType?.let {
             holder.title.text = it
             holder.title.visibility = View.VISIBLE
         }
 
-        download.mediaDisplaySource?.let {
+        pendingDownload.mediaDisplaySource?.let {
             holder.subtitle.text = it
             holder.subtitle.visibility = View.VISIBLE
         }
 
         holder.actionButton.setOnClickListener {
-            if (download.downloadStage == DownloadStage.SAVED) {
-                download.outputFile?.let {
+            if (pendingDownload.downloadStage == DownloadStage.SAVED) {
+                pendingDownload.outputFile?.let {
                     val intent = Intent(Intent.ACTION_VIEW)
                     intent.setDataAndType(Uri.parse(it), FileType.fromFile(File(it)).mimeType)
                     holder.view.context.startActivity(intent)
                 }
                 return@setOnClickListener
             }
-            download.cancel()
-            download.downloadStage = DownloadStage.CANCELLED
+            pendingDownload.cancel()
+            pendingDownload.downloadStage = DownloadStage.CANCELLED
             setDownloadStage(holder, DownloadStage.CANCELLED)
             notifyItemChanged(position);
         }
 
-        setDownloadStage(holder, download.downloadStage)
+        setDownloadStage(holder, pendingDownload.downloadStage)
     }
 }

@@ -14,29 +14,36 @@ import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.RecyclerView
 import me.rhunk.snapenhance.R
 import me.rhunk.snapenhance.download.MediaDownloadReceiver
+import me.rhunk.snapenhance.download.PendingDownload
 
 class DownloadManagerActivity : Activity() {
+    private val fetchedDownloadTasks = mutableListOf<PendingDownload>()
+
     private val preferences by lazy {
         getSharedPreferences("settings", Context.MODE_PRIVATE)
     }
 
     private fun updateNoDownloadText() {
         findViewById<View>(R.id.no_download_title).let {
-            it.visibility = if (MediaDownloadReceiver.downloadTasks.isEmpty()) View.VISIBLE else View.GONE
+            it.visibility = if (fetchedDownloadTasks.isEmpty()) View.VISIBLE else View.GONE
         }
     }
 
     @SuppressLint("BatteryLife")
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        val downloadTaskManager = MediaDownloadReceiver.downloadTaskManager.also { it.init(this) }
+
         actionBar?.apply {
             title = "Download Manager"
             setBackgroundDrawable(ColorDrawable(getColor(R.color.actionBarColor)))
         }
         setContentView(R.layout.download_manager_activity)
 
+        fetchedDownloadTasks.addAll(downloadTaskManager.queryAllTasks().values)
+
         with(findViewById<RecyclerView>(R.id.download_list)) {
-            adapter = DownloadListAdapter(MediaDownloadReceiver.downloadTasks).apply {
+            adapter = DownloadListAdapter(fetchedDownloadTasks).apply {
                 registerAdapterDataObserver(object : RecyclerView.AdapterDataObserver() {
                     override fun onItemRangeRemoved(positionStart: Int, itemCount: Int) {
                         updateNoDownloadText()
@@ -51,7 +58,7 @@ class DownloadManagerActivity : Activity() {
                     recyclerView: RecyclerView,
                     viewHolder: RecyclerView.ViewHolder
                 ): Int {
-                    val download = MediaDownloadReceiver.downloadTasks[viewHolder.absoluteAdapterPosition]
+                    val download = fetchedDownloadTasks[viewHolder.absoluteAdapterPosition]
                     return if (download.isJobActive()) {
                         0
                     } else {
@@ -69,10 +76,36 @@ class DownloadManagerActivity : Activity() {
 
                 @SuppressLint("NotifyDataSetChanged")
                 override fun onSwiped(viewHolder: RecyclerView.ViewHolder, direction: Int) {
-                    MediaDownloadReceiver.downloadTasks.removeAt(viewHolder.absoluteAdapterPosition)
+                    fetchedDownloadTasks.removeAt(viewHolder.absoluteAdapterPosition).let {
+                        downloadTaskManager.removeTask(it)
+                    }
                     adapter?.notifyItemRemoved(viewHolder.absoluteAdapterPosition)
                 }
             }).attachToRecyclerView(this)
+
+            var isLoading = false
+
+            addOnScrollListener(object : RecyclerView.OnScrollListener() {
+                override fun onScrollStateChanged(recyclerView: RecyclerView, newState: Int) {
+                    val layoutManager = recyclerView.layoutManager as androidx.recyclerview.widget.LinearLayoutManager
+                    val lastVisibleItemPosition = layoutManager.findLastVisibleItemPosition()
+
+                    if (lastVisibleItemPosition == RecyclerView.NO_POSITION) {
+                        return
+                    }
+
+                    if (lastVisibleItemPosition == fetchedDownloadTasks.size - 1 && !isLoading) {
+                        isLoading = true
+
+                        downloadTaskManager.queryTasks(fetchedDownloadTasks.last().id).forEach {
+                            fetchedDownloadTasks.add(it.value)
+                            adapter?.notifyItemInserted(fetchedDownloadTasks.size - 1)
+                        }
+
+                        isLoading = false
+                    }
+                }
+            })
         }
 
         updateNoDownloadText()
@@ -98,6 +131,9 @@ class DownloadManagerActivity : Activity() {
     @SuppressLint("NotifyDataSetChanged")
     override fun onResume() {
         super.onResume()
+        fetchedDownloadTasks.clear()
+        fetchedDownloadTasks.addAll(MediaDownloadReceiver.downloadTaskManager.queryAllTasks().values)
+
         with(findViewById<RecyclerView>(R.id.download_list)) {
             adapter?.notifyDataSetChanged()
         }

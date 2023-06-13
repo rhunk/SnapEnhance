@@ -4,30 +4,42 @@ import android.content.Intent
 import kotlinx.coroutines.Job
 
 data class PendingDownload(
-    private val intent: Intent,
     var outputFile: String? = null,
-    var job: Job? = null
+    var job: Job? = null,
+
+    var id: Int = 0,
+    val outputPath: String,
+    val mediaDisplayType: String?,
+    val mediaDisplaySource: String?,
+    val iconUrl: String?
 ) {
-    private var _state: DownloadStage = DownloadStage.PENDING
+    companion object {
+        fun fromIntent(intent: Intent): PendingDownload {
+            return PendingDownload(
+                outputPath = intent.getStringExtra("outputPath")!!,
+                mediaDisplayType = intent.getStringExtra("mediaDisplayType"),
+                mediaDisplaySource = intent.getStringExtra("mediaDisplaySource"),
+                iconUrl = intent.getStringExtra("iconUrl")
+            )
+        }
+    }
 
     var changeListener = { _: DownloadStage, _: DownloadStage -> }
-    val outputPath: String get() = intent.getStringExtra("outputPath")!!
-    val mediaDisplayType: String? get() = intent.getStringExtra("mediaDisplayType")
-    val mediaDisplaySource: String? get() = intent.getStringExtra("mediaDisplaySource")
-    val iconUrl: String? get() = intent.getStringExtra("iconUrl")
-
+    private var _stage: DownloadStage = DownloadStage.PENDING
     var downloadStage: DownloadStage
         get() = synchronized(this) {
-            _state
+            _stage
         }
         set(value) = synchronized(this) {
-            changeListener(_state, value)
-            _state = value
+            changeListener(_stage, value)
+            _stage = value
+            MediaDownloadReceiver.downloadTaskManager.updateTask(this)
         }
 
     fun isJobActive(): Boolean {
         return job?.isActive ?: false
     }
+
     fun cancel() {
         job?.cancel()
         downloadStage = DownloadStage.CANCELLED

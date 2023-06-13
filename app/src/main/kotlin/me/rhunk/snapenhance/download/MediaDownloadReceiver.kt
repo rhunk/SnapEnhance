@@ -47,12 +47,11 @@ data class DownloadedFile(
 @OptIn(ExperimentalEncodingApi::class)
 class MediaDownloadReceiver : BroadcastReceiver() {
     companion object {
-        val downloadTasks = mutableListOf<PendingDownload>()
-
+        val downloadTaskManager = DownloadTaskManager()
         const val DOWNLOAD_ACTION = "me.rhunk.snapenhance.download.MediaDownloadReceiver.DOWNLOAD_ACTION"
     }
 
-    lateinit var context: Context
+    private lateinit var context: Context
 
     private fun runOnUIThread(block: () -> Unit) {
         Handler(context.mainLooper).post(block)
@@ -196,6 +195,7 @@ class MediaDownloadReceiver : BroadcastReceiver() {
     override fun onReceive(context: Context, intent: Intent) {
         if (intent.action != DOWNLOAD_ACTION) return
         this.context = context
+        downloadTaskManager.init(context)
 
         val inputMedias = intent.getStringArrayExtra("inputMedias") ?: return
         val inputMediaTypes = intent.getStringArrayExtra("inputTypes")?.map { DownloadMediaType.valueOf(it) } ?: return
@@ -209,12 +209,13 @@ class MediaDownloadReceiver : BroadcastReceiver() {
         val isDashPlaylist = intent.getBooleanExtra("isDashPlaylist", false)
 
         GlobalScope.launch(Dispatchers.Default) {
-            val pendingDownloadObject = PendingDownload(intent = intent)
+            val pendingDownloadObject = PendingDownload.fromIntent(intent)
 
-            downloadTasks.add(0, pendingDownloadObject.apply {
+            downloadTaskManager.addTask(pendingDownloadObject)
+            pendingDownloadObject.apply {
                 job = coroutineContext.job
                 downloadStage = DownloadStage.DOWNLOADING
-            })
+            }
 
             runCatching {
                 //first download all input medias into cache
