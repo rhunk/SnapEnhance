@@ -41,7 +41,7 @@ object EncryptionHelper {
         messageProto: ProtoReader,
         isArroyo: Boolean
     ): InputStream {
-        val encryptionKeys = getEncryptionKeys(contentType, messageProto, isArroyo)!!
+        val encryptionKeys = getEncryptionKeys(contentType, messageProto, isArroyo) ?: throw Exception("Failed to get encryption keys")
 
         Cipher.getInstance("AES/CBC/PKCS5Padding").apply {
             init(Cipher.DECRYPT_MODE, SecretKeySpec(encryptionKeys.first, "AES"), IvParameterSpec(encryptionKeys.second))
