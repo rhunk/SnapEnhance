@@ -76,7 +76,7 @@ class MenuViewInjector : Feature("MenuViewInjector", loadParams = FeatureLoadPar
                 return@hook
             }
 
-            //inject in group chat menus
+            //TODO: inject in group chat menus
             if (viewGroup.id == actionSheetContainer && childView.id == actionMenu) {
                 val injectedLayout = LinearLayout(childView.context).apply {
                     orientation = LinearLayout.VERTICAL
@@ -85,27 +85,16 @@ class MenuViewInjector : Feature("MenuViewInjector", loadParams = FeatureLoadPar
                     addView(childView)
                 }
 
-                viewGroup.addOnAttachStateChangeListener(object: View.OnAttachStateChangeListener {
-                    override fun onViewAttachedToWindow(v: View) {}
-                    override fun onViewDetachedFromWindow(v: View) {
-                        unhookFetchConversation()
-                        messaging.lastFetchConversationUUID = null
-                    }
-                })
-
-                Hooker.hook(context.classCache.conversationManager, "fetchConversation", HookStage.AFTER) {
-                    unhookFetchConversation()
-                    context.runOnUiThread {
-                        val viewList = mutableListOf<View>()
-                        friendFeedInfoMenu.inject(injectedLayout) { view ->
-                            view.layoutParams = LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT).apply {
-                                setMargins(0, 10, 0, 10)
-                            }
-                            viewList.add(view)
+                fun injectView() {
+                    val viewList = mutableListOf<View>()
+                    friendFeedInfoMenu.inject(injectedLayout) { view ->
+                        view.layoutParams = LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT).apply {
+                            setMargins(0, 10, 0, 10)
                         }
-                        viewList.reversed().forEach { injectedLayout.addView(it, 0) }
+                        viewList.add(view)
                     }
-                }.also { fetchConversationHooks.addAll(it) }
+                    viewList.reversed().forEach { injectedLayout.addView(it, 0) }
+                }
 
                 param.setArg(0, injectedLayout)
             }

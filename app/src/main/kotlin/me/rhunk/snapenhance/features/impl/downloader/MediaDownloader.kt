@@ -333,7 +333,7 @@ class MediaDownloader : Feature("MediaDownloader", loadParams = FeatureLoadParam
     fun onMessageActionMenu(isPreviewMode: Boolean) {
         //check if the message was focused in a conversation
         val messaging = context.feature(Messaging::class)
-        if (messaging.lastOpenedConversationUUID == null) return
+        if (messaging.openedConversationUUID == null) return
         val message = context.database.getConversationMessageFromId(messaging.lastFocusedMessageId) ?: return
 
         //get the message author

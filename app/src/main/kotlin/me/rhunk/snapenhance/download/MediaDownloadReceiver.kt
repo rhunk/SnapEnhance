@@ -208,7 +208,7 @@ class MediaDownloadReceiver : BroadcastReceiver() {
         var shouldMergeOverlay = intent.getBooleanExtra("shouldMergeOverlay", false)
         val isDashPlaylist = intent.getBooleanExtra("isDashPlaylist", false)
 
-        GlobalScope.launch(Dispatchers.Default) {
+        GlobalScope.launch(Dispatchers.IO) {
             val pendingDownloadObject = PendingDownload.fromIntent(intent)
 
             downloadTaskManager.addTask(pendingDownloadObject)

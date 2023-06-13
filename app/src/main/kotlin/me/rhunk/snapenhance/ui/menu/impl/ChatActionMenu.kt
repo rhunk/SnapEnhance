@@ -11,6 +11,7 @@ import me.rhunk.snapenhance.Constants.VIEW_INJECTED_CODE
 import me.rhunk.snapenhance.config.ConfigProperty
 import me.rhunk.snapenhance.features.impl.Messaging
 import me.rhunk.snapenhance.features.impl.downloader.MediaDownloader
+import me.rhunk.snapenhance.features.impl.spying.MessageLogger
 import me.rhunk.snapenhance.ui.menu.AbstractMenu
 import me.rhunk.snapenhance.ui.menu.ViewAppearanceHelper
 
@@ -84,7 +85,7 @@ class ChatActionMenu : AbstractMenu() {
                     closeActionMenu()
                     this@ChatActionMenu.context.executeAsync {
                         with(this@ChatActionMenu.context.feature(Messaging::class)) {
-                            context.feature(me.rhunk.snapenhance.features.impl.spying.MessageLogger::class).deleteMessage(lastOpenedConversationUUID.toString(), lastFocusedMessageId)
+                            context.feature(MessageLogger::class).deleteMessage(openedConversationUUID.toString(), lastFocusedMessageId)
                         }
                     }
                 }
