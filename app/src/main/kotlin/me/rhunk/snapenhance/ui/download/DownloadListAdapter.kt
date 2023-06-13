@@ -11,6 +11,7 @@ import android.view.ViewGroup
 import android.widget.Button
 import android.widget.ImageView
 import android.widget.TextView
+import android.widget.Toast
 import androidx.recyclerview.widget.RecyclerView
 import androidx.recyclerview.widget.RecyclerView.Adapter
 import me.rhunk.snapenhance.R
@@ -97,18 +98,24 @@ class DownloadListAdapter(
         }
 
         holder.actionButton.setOnClickListener {
-            if (pendingDownload.downloadStage == DownloadStage.SAVED) {
-                pendingDownload.outputFile?.let {
-                    val intent = Intent(Intent.ACTION_VIEW)
-                    intent.setDataAndType(Uri.parse(it), FileType.fromFile(File(it)).mimeType)
-                    holder.view.context.startActivity(intent)
-                }
+            if (pendingDownload.downloadStage != DownloadStage.SAVED) {
+                pendingDownload.cancel()
+                pendingDownload.downloadStage = DownloadStage.CANCELLED
+                setDownloadStage(holder, DownloadStage.CANCELLED)
+                notifyItemChanged(position);
                 return@setOnClickListener
             }
-            pendingDownload.cancel()
-            pendingDownload.downloadStage = DownloadStage.CANCELLED
-            setDownloadStage(holder, DownloadStage.CANCELLED)
-            notifyItemChanged(position);
+
+            pendingDownload.outputFile?.let {
+                val file = File(it)
+                if (!file.exists()) {
+                    Toast.makeText(holder.view.context, "File does not exist", Toast.LENGTH_SHORT).show()
+                    return@setOnClickListener
+                }
+                val intent = Intent(Intent.ACTION_VIEW)
+                intent.setDataAndType(Uri.parse(it), FileType.fromFile(File(it)).mimeType)
+                holder.view.context.startActivity(intent)
+            }
         }
 
         setDownloadStage(holder, pendingDownload.downloadStage)

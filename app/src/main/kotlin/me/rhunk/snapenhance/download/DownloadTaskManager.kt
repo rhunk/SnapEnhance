@@ -107,4 +107,9 @@ class DownloadTaskManager {
         cursor.close()
         return result.toSortedMap(reverseOrder())
     }
+
+    fun removeAllTasks() {
+        taskDatabase.execSQL("DELETE FROM tasks")
+        cachedTasks.clear()
+    }
 }

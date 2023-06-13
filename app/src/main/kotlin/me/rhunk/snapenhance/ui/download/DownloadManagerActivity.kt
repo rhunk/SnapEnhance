@@ -10,6 +10,7 @@ import android.os.Bundle
 import android.os.PowerManager
 import android.provider.Settings
 import android.view.View
+import android.widget.Button
 import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.RecyclerView
 import me.rhunk.snapenhance.R
@@ -29,7 +30,7 @@ class DownloadManagerActivity : Activity() {
         }
     }
 
-    @SuppressLint("BatteryLife")
+    @SuppressLint("BatteryLife", "NotifyDataSetChanged")
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         val downloadTaskManager = MediaDownloadReceiver.downloadTaskManager.also { it.init(this) }
@@ -41,6 +42,7 @@ class DownloadManagerActivity : Activity() {
         setContentView(R.layout.download_manager_activity)
 
         fetchedDownloadTasks.addAll(downloadTaskManager.queryAllTasks().values)
+
 
         with(findViewById<RecyclerView>(R.id.download_list)) {
             adapter = DownloadListAdapter(fetchedDownloadTasks).apply {
@@ -106,6 +108,18 @@ class DownloadManagerActivity : Activity() {
                     }
                 }
             })
+
+            with(this@DownloadManagerActivity.findViewById<Button>(R.id.remove_all_button)) {
+                setOnClickListener {
+                    downloadTaskManager.removeAllTasks()
+                    fetchedDownloadTasks.removeIf {
+                        if (it.isJobActive()) it.cancel()
+                        true
+                    }
+                    adapter?.notifyDataSetChanged()
+                    updateNoDownloadText()
+                }
+            }
         }
 
         updateNoDownloadText()

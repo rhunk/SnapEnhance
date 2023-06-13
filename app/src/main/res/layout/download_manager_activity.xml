@@ -1,24 +1,60 @@
 <?xml version="1.0" encoding="utf-8"?>
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/download_manager_activity"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="@color/primaryBackground"
     android:orientation="vertical">
 
-    <androidx.recyclerview.widget.RecyclerView
-        android:id="@+id/download_list"
+    <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="match_parent">
-    </androidx.recyclerview.widget.RecyclerView>
+        android:layout_height="50dp"
+        android:background="@color/secondaryBackground"
+        android:gravity="center_vertical"
+        android:orientation="horizontal"
+        android:layoutDirection="rtl">
 
-    <TextView
-        android:id="@+id/no_download_title"
+        <RelativeLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:gravity="right"
+            android:padding="10dp"
+            tools:ignore="RtlHardcoded">
+            <Button
+                android:id="@+id/remove_all_button"
+                android:layout_width="wrap_content"
+                android:layout_height="35dp"
+                android:background="@drawable/action_button_cancel"
+                android:padding="5dp"
+                android:text="Remove All"
+                android:textColor="@color/darkText" />
+        </RelativeLayout>
+
+    </LinearLayout>
+
+    <RelativeLayout
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:foregroundGravity="clip_horizontal"
-        android:gravity="center"
-        android:paddingVertical="40dp"
-        android:textColor="@color/primaryText"
-        android:text="No downloads" />
-</RelativeLayout>
+        android:layout_height="match_parent"
+        android:orientation="vertical">
+
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/download_list"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent">
+
+        </androidx.recyclerview.widget.RecyclerView>
+
+        <TextView
+            android:id="@+id/no_download_title"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:foregroundGravity="clip_horizontal"
+            android:gravity="center"
+            android:paddingVertical="40dp"
+            android:text="No downloads"
+            android:textColor="@color/primaryText" />
+
+    </RelativeLayout>
+
+</LinearLayout>
