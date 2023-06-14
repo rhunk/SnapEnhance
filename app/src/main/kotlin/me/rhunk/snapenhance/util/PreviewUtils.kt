@@ -6,6 +6,9 @@ import android.graphics.Canvas
 import android.graphics.Matrix
 import android.media.MediaDataSource
 import android.media.MediaMetadataRetriever
+import me.rhunk.snapenhance.data.FileType
+import java.io.File
+import kotlin.math.roundToInt
 
 object PreviewUtils {
     fun createPreview(data: ByteArray, isVideo: Boolean): Bitmap? {
@@ -38,6 +41,30 @@ object PreviewUtils {
                 override fun close() {}
             })
         }.getFrameAtTime(0, MediaMetadataRetriever.OPTION_CLOSEST_SYNC)
+    }
+
+    fun createPreviewFromFile(file: File, scaleFactor: Float): Bitmap? {
+        return if (FileType.fromFile(file).isVideo) {
+            MediaMetadataRetriever().apply {
+                setDataSource(file.absolutePath)
+            }.getFrameAtTime(0, MediaMetadataRetriever.OPTION_CLOSEST_SYNC)?.let {
+                resizeBitmap(it, (it.width * scaleFactor).toInt(), (it.height * scaleFactor).toInt())
+            }
+        } else {
+            BitmapFactory.decodeFile(file.absolutePath, BitmapFactory.Options().apply {
+                inSampleSize = (1 / scaleFactor).roundToInt()
+            })
+        }
+    }
+
+    private fun resizeBitmap(bitmap: Bitmap, outWidth: Int, outHeight: Int): Bitmap? {
+        val scaleWidth = outWidth.toFloat() / bitmap.width
+        val scaleHeight = outHeight.toFloat() / bitmap.height
+        val matrix = Matrix()
+        matrix.postScale(scaleWidth, scaleHeight)
+        val resizedBitmap = Bitmap.createBitmap(bitmap, 0, 0, bitmap.width, bitmap.height, matrix, false)
+        bitmap.recycle()
+        return resizedBitmap
     }
 
     fun mergeBitmapOverlay(originalMedia: Bitmap, overlayLayer: Bitmap): Bitmap {
