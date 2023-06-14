@@ -333,6 +333,8 @@ class MediaDownloader : Feature("MediaDownloader", loadParams = FeatureLoadParam
     fun onMessageActionMenu(isPreviewMode: Boolean) {
         //check if the message was focused in a conversation
         val messaging = context.feature(Messaging::class)
+        val messageLogger = context.feature(MessageLogger::class)
+
         if (messaging.openedConversationUUID == null) return
         val message = context.database.getConversationMessageFromId(messaging.lastFocusedMessageId) ?: return
 
@@ -340,25 +342,52 @@ class MediaDownloader : Feature("MediaDownloader", loadParams = FeatureLoadParam
         val friendInfo: FriendInfo = context.database.getFriendInfo(message.sender_id!!)!!
         val authorName = friendInfo.usernameForSorting!!
 
+        var messageContent = message.message_content!!
+        var isArroyoMessage = true
+        var deletedMediaReference: ByteArray? = null
+
         //check if the messageId
-        val contentType: ContentType = ContentType.fromId(message.content_type)
-        if (context.feature(MessageLogger::class).isMessageRemoved(message.client_message_id.toLong())) {
-            context.shortToast("Preview/Download are not yet available for deleted messages")
-            return
+        var contentType: ContentType = ContentType.fromId(message.content_type)
+
+        if (messageLogger.isMessageRemoved(message.client_message_id.toLong())) {
+            val messageObject = messageLogger.getMessageObject(message.client_conversation_id!!, message.client_message_id.toLong()) ?: throw Exception("Message not found in database")
+            isArroyoMessage = false
+            val messageContentObject = messageObject.getAsJsonObject("mMessageContent")
+
+            messageContent = messageContentObject
+                .getAsJsonArray("mContent")
+                .map { it.asByte }
+                .toByteArray()
+
+            contentType = ContentType.valueOf(messageContentObject
+                .getAsJsonPrimitive("mContentType").asString
+            )
+
+            deletedMediaReference = messageContentObject.getAsJsonArray("mRemoteMediaReferences")
+                .map { it.asJsonObject.getAsJsonArray("mMediaReferences") }
+                .flatten().let {  reference ->
+                    if (reference.isEmpty()) return@let null
+                    reference[0].asJsonObject.getAsJsonArray("mContentObject").map { it.asByte }.toByteArray()
+                }
         }
+
         if (contentType != ContentType.NOTE &&
             contentType != ContentType.SNAP &&
             contentType != ContentType.EXTERNAL_MEDIA) {
             context.shortToast("Unsupported content type $contentType")
             return
         }
-        val messageReader = ProtoReader(message.message_content!!)
-        val urlProto: ByteArray = messageReader.getByteArray(*ARROYO_URL_KEY_PROTO_PATH)!!
 
-        try {
+        val messageReader = ProtoReader(messageContent)
+        val urlProto: ByteArray = if (isArroyoMessage) {
+            messageReader.getByteArray(*ARROYO_URL_KEY_PROTO_PATH)!!
+        } else {
+            deletedMediaReference!!
+        }
+
+        runCatching {
             if (!isPreviewMode) {
-                val encryptionKeys = EncryptionHelper.getEncryptionKeys(contentType, messageReader, isArroyo = true)
-
+                val encryptionKeys = EncryptionHelper.getEncryptionKeys(contentType, messageReader, isArroyo = isArroyoMessage)
                 provideClientDownloadManager(authorName, authorName, "Chat Media", friendInfo = friendInfo).downloadMedia(
                     Base64.UrlSafe.encode(urlProto),
                     DownloadMediaType.PROTO_MEDIA,
@@ -370,7 +399,7 @@ class MediaDownloader : Feature("MediaDownloader", loadParams = FeatureLoadParam
             }
 
             val downloadedMediaList = MediaDownloaderHelper.downloadMediaFromReference(urlProto) {
-                EncryptionHelper.decryptInputStream(it, contentType, messageReader, isArroyo = true)
+                EncryptionHelper.decryptInputStream(it, contentType, messageReader, isArroyo = isArroyoMessage)
             }
 
             runCatching {
@@ -400,9 +429,9 @@ class MediaDownloader : Feature("MediaDownloader", loadParams = FeatureLoadParam
                 context.shortToast("Failed to create preview: $it")
                 xposedLog(it)
             }
-        } catch (e: Throwable) {
-            context.longToast("Failed to download " + e.message)
-            xposedLog(e)
+        }.onFailure {
+            context.longToast("Failed to download " + it.message)
+            xposedLog(it)
         }
     }
 }
