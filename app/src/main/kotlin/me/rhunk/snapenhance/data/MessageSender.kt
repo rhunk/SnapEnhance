@@ -31,7 +31,7 @@ class MessageSender(
             }.toByteArray()
         }
 
-        val audioNoteProto: (Int) -> ByteArray = { duration ->
+        val audioNoteProto: (Long) -> ByteArray = { duration ->
             ProtoWriter().apply {
                 write(6, 1) {
                     write(1) {
