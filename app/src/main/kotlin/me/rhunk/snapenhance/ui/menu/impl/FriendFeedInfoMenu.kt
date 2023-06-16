@@ -34,6 +34,7 @@ import me.rhunk.snapenhance.features.impl.spying.StealthMode
 import me.rhunk.snapenhance.features.impl.tweaks.AntiAutoSave
 import me.rhunk.snapenhance.ui.menu.AbstractMenu
 import me.rhunk.snapenhance.ui.menu.ViewAppearanceHelper
+import me.rhunk.snapenhance.util.snap.BitmojiSelfie
 import java.net.HttpURLConnection
 import java.net.URL
 import java.text.DateFormat
@@ -59,9 +60,11 @@ class FriendFeedInfoMenu : AbstractMenu() {
         try {
             if (profile.bitmojiSelfieId != null && profile.bitmojiAvatarId != null) {
                 icon = getImageDrawable(
-                    "https://sdk.bitmoji.com/render/panel/" + profile.bitmojiSelfieId
-                        .toString() + "-" + profile.bitmojiAvatarId
-                        .toString() + "-v1.webp?transparent=1&scale=0"
+                    BitmojiSelfie.getBitmojiSelfie(
+                        profile.bitmojiSelfieId.toString(),
+                        profile.bitmojiAvatarId.toString(),
+                        BitmojiSelfie.BitmojiSelfieType.THREE_D
+                    )
                 )
             }
         } catch (e: Throwable) {
@@ -72,7 +75,7 @@ class FriendFeedInfoMenu : AbstractMenu() {
             val addedTimestamp: Long = profile.addedTimestamp.coerceAtLeast(profile.reverseAddedTimestamp)
             val builder = AlertDialog.Builder(context.mainActivity)
             builder.setIcon(finalIcon)
-            builder.setTitle(profile.displayName)
+            builder.setTitle(profile.displayName ?: profile.username)
 
             val birthday = Calendar.getInstance()
             birthday[Calendar.MONTH] = (profile.birthday shr 32).toInt() - 1

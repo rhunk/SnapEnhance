@@ -35,6 +35,7 @@ import me.rhunk.snapenhance.util.MediaType
 import me.rhunk.snapenhance.util.PreviewUtils
 import me.rhunk.snapenhance.util.getObjectField
 import me.rhunk.snapenhance.util.protobuf.ProtoReader
+import me.rhunk.snapenhance.util.snap.BitmojiSelfie
 import java.io.File
 import java.nio.file.Paths
 import java.text.SimpleDateFormat
@@ -61,8 +62,9 @@ class MediaDownloader : Feature("MediaDownloader", loadParams = FeatureLoadParam
         val iconUrl = friendInfo?.takeIf {
             it.bitmojiAvatarId != null && it.bitmojiSelfieId != null
         }?.let {
-            "https://sdk.bitmoji.com/render/panel/" + it.bitmojiSelfieId + "-" + it.bitmojiAvatarId + "-v1.webp?transparent=1&scale=0"
+            BitmojiSelfie.getBitmojiSelfie(it.bitmojiSelfieId!!, it.bitmojiAvatarId!!, BitmojiSelfie.BitmojiSelfieType.THREE_D)
         }
+
         val outputPath = File(
             context.config.string(ConfigProperty.SAVE_FOLDER),
             createNewFilePath(pathSuffix.hashCode(), pathSuffix)
@@ -127,9 +129,7 @@ class MediaDownloader : Feature("MediaDownloader", loadParams = FeatureLoadParam
     }
 
     private fun handleLocalReferences(path: String) = runBlocking {
-        //if the media is a local file we need to copy it to a public directory
-        //so the broadcast receiver can access it
-        return@runBlocking Uri.parse(path).let { uri ->
+        Uri.parse(path).let { uri ->
             if (uri.scheme == "file") {
                 return@let suspendCoroutine<String> { continuation ->
                     context.downloadServer.ensureServerStarted {
