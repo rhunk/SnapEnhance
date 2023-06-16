@@ -3,6 +3,8 @@ package me.rhunk.snapenhance.download
 import android.annotation.SuppressLint
 import android.content.Context
 import android.database.sqlite.SQLiteDatabase
+import me.rhunk.snapenhance.download.data.PendingDownload
+import me.rhunk.snapenhance.download.enums.DownloadStage
 import me.rhunk.snapenhance.util.SQLiteDatabaseHelper
 
 class DownloadTaskManager {

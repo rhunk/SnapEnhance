@@ -17,6 +17,12 @@ import kotlinx.coroutines.runBlocking
 import me.rhunk.snapenhance.Constants
 import me.rhunk.snapenhance.Logger
 import me.rhunk.snapenhance.data.FileType
+import me.rhunk.snapenhance.download.data.DownloadRequest
+import me.rhunk.snapenhance.download.data.InputMedia
+import me.rhunk.snapenhance.download.data.MediaEncryptionKeyPair
+import me.rhunk.snapenhance.download.data.PendingDownload
+import me.rhunk.snapenhance.download.enums.DownloadMediaType
+import me.rhunk.snapenhance.download.enums.DownloadStage
 import me.rhunk.snapenhance.util.MediaDownloaderHelper
 import me.rhunk.snapenhance.util.download.RemoteMediaResolver
 import java.io.File
@@ -87,10 +93,10 @@ class MediaDownloadReceiver : BroadcastReceiver() {
         return files
     }
 
-    private fun decryptInputStream(inputStream: InputStream, encryption: Pair<String, String>): InputStream {
+    private fun decryptInputStream(inputStream: InputStream, encryption: MediaEncryptionKeyPair): InputStream {
         val cipher = Cipher.getInstance("AES/CBC/PKCS5Padding")
-        val key = Base64.UrlSafe.decode(encryption.first)
-        val iv = Base64.UrlSafe.decode(encryption.second)
+        val key = Base64.UrlSafe.decode(encryption.key)
+        val iv = Base64.UrlSafe.decode(encryption.iv)
         cipher.init(Cipher.DECRYPT_MODE, SecretKeySpec(key, "AES"), IvParameterSpec(iv))
         return CipherInputStream(inputStream, cipher)
     }
@@ -133,41 +139,38 @@ class MediaDownloadReceiver : BroadcastReceiver() {
         return File.createTempFile("media", ".tmp")
     }
 
-    private fun downloadInputMedias(inputMedias: List<String>, inputMediaTypes: List<DownloadMediaType>, mediaEncryption: Map<String, Pair<String, String>>) = runBlocking {
+    private fun downloadInputMedias(downloadRequest: DownloadRequest) = runBlocking {
         val jobs = mutableListOf<Job>()
-        val downloadedMedias = mutableMapOf<String, File>()
+        val downloadedMedias = mutableMapOf<InputMedia, File>()
 
-        inputMedias.forEachIndexed { index, mediaData ->
-            val mediaType = inputMediaTypes[index]
-            val hasEncryption = mediaEncryption.containsKey(mediaData)
-
+        downloadRequest.getInputMedias().forEach { inputMedia ->
             fun handleInputStream(inputStream: InputStream) {
                 createMediaTempFile().apply {
-                    if (hasEncryption) {
-                        decryptInputStream(inputStream, mediaEncryption[mediaData]!!).use { decryptedInputStream ->
+                    if (inputMedia.encryption != null) {
+                        decryptInputStream(inputStream, inputMedia.encryption).use { decryptedInputStream ->
                             decryptedInputStream.copyTo(outputStream())
                         }
                     } else {
                         inputStream.copyTo(outputStream())
                     }
-                }.also { downloadedMedias[mediaData] = it }
+                }.also { downloadedMedias[inputMedia] = it }
             }
 
             launch {
-                when (mediaType) {
+                when (inputMedia.type) {
                     DownloadMediaType.PROTO_MEDIA -> {
-                        RemoteMediaResolver.downloadBoltMedia(Base64.UrlSafe.decode(mediaData))?.let { inputStream ->
+                        RemoteMediaResolver.downloadBoltMedia(Base64.UrlSafe.decode(inputMedia.content))?.let { inputStream ->
                             handleInputStream(inputStream)
                         }
                     }
                     DownloadMediaType.DIRECT_MEDIA -> {
-                        val decoded = Base64.UrlSafe.decode(mediaData)
+                        val decoded = Base64.UrlSafe.decode(inputMedia.content)
                         createMediaTempFile().apply {
                             writeBytes(decoded)
-                        }.also { downloadedMedias[mediaData] = it }
+                        }.also { downloadedMedias[inputMedia] = it }
                     }
                     DownloadMediaType.REMOTE_MEDIA -> {
-                        with(URL(mediaData).openConnection() as HttpURLConnection) {
+                        with(URL(inputMedia.content).openConnection() as HttpURLConnection) {
                             requestMethod = "GET"
                             setRequestProperty("User-Agent", Constants.USER_AGENT)
                             connect()
@@ -175,7 +178,7 @@ class MediaDownloadReceiver : BroadcastReceiver() {
                         }
                     }
                     else -> {
-                        downloadedMedias[mediaData] = File(mediaData)
+                        downloadedMedias[inputMedia] = File(inputMedia.content)
                     }
                 }
             }.also { jobs.add(it) }
@@ -183,6 +186,55 @@ class MediaDownloadReceiver : BroadcastReceiver() {
 
         jobs.joinAll()
         downloadedMedias
+    }
+
+    private suspend fun downloadRemoteMedia(pendingDownloadObject:  PendingDownload, downloadedMedias: Map<InputMedia, DownloadedFile>, downloadRequest: DownloadRequest) {
+        downloadRequest.getInputMedias().first().let { inputMedia ->
+            val mediaType = downloadRequest.getInputType(0)!!
+            val media = downloadedMedias[inputMedia]!!
+
+            if (!downloadRequest.isDashPlaylist) {
+                saveMediaToGallery(media.file, pendingDownloadObject)
+                media.file.delete()
+                return
+            }
+
+            assert(mediaType == DownloadMediaType.REMOTE_MEDIA)
+
+            val playlistXml = DocumentBuilderFactory.newInstance().newDocumentBuilder().parse(media.file)
+            val baseUrlNodeList = playlistXml.getElementsByTagName("BaseURL")
+            for (i in 0 until baseUrlNodeList.length) {
+                val baseUrlNode = baseUrlNodeList.item(i)
+                val baseUrl = baseUrlNode.textContent
+                baseUrlNode.textContent = "${RemoteMediaResolver.CF_ST_CDN_D}$baseUrl"
+            }
+
+            val dashOptions = downloadRequest.getDashOptions()!!
+
+            val dashPlaylistFile = renameFromFileType(media.file, FileType.MPD)
+            val xmlData = dashPlaylistFile.outputStream()
+            TransformerFactory.newInstance().newTransformer().transform(DOMSource(playlistXml), StreamResult(xmlData))
+
+            longToast("Downloading dash media...")
+            val outputFile = File.createTempFile("dash", ".mp4")
+            runCatching {
+                MediaDownloaderHelper.downloadDashChapterFile(
+                    dashPlaylist = dashPlaylistFile,
+                    output = outputFile,
+                    startTime = dashOptions.offsetTime,
+                    duration = dashOptions.duration)
+                saveMediaToGallery(outputFile, pendingDownloadObject)
+            }.onFailure {
+                if (coroutineContext.job.isCancelled) return@onFailure
+                Logger.error("failed to download dash media", it)
+                longToast("Failed to download dash media: ${it.message}")
+                pendingDownloadObject.downloadStage = DownloadStage.FAILED
+            }
+
+            dashPlaylistFile.delete()
+            outputFile.delete()
+            media.file.delete()
+        }
     }
 
     private fun renameFromFileType(file: File, fileType: FileType): File {
@@ -197,19 +249,10 @@ class MediaDownloadReceiver : BroadcastReceiver() {
         this.context = context
         downloadTaskManager.init(context)
 
-        val inputMedias = intent.getStringArrayExtra("inputMedias") ?: return
-        val inputMediaTypes = intent.getStringArrayExtra("inputTypes")?.map { DownloadMediaType.valueOf(it) } ?: return
-        val mediaEncryption = intent.getStringArrayExtra("mediaEncryption")?.associate { entry ->
-            entry.split("|").let {
-                it[0] to Pair(it[1], it[2])
-            }
-        } ?: return
-
-        var shouldMergeOverlay = intent.getBooleanExtra("shouldMergeOverlay", false)
-        val isDashPlaylist = intent.getBooleanExtra("isDashPlaylist", false)
+        val downloadRequest = DownloadRequest.fromBundle(intent.extras!!)
 
         GlobalScope.launch(Dispatchers.IO) {
-            val pendingDownloadObject = PendingDownload.fromIntent(intent)
+            val pendingDownloadObject = PendingDownload.fromBundle(intent.extras!!)
 
             downloadTaskManager.addTask(pendingDownloadObject)
             pendingDownloadObject.apply {
@@ -219,20 +262,26 @@ class MediaDownloadReceiver : BroadcastReceiver() {
 
             runCatching {
                 //first download all input medias into cache
-                val downloadedMedias = downloadInputMedias(inputMedias.toList(), inputMediaTypes.toList(), mediaEncryption).map {
+                val downloadedMedias = downloadInputMedias(downloadRequest).map {
                     it.key to DownloadedFile(it.value, FileType.fromFile(it.value))
                 }.toMap().toMutableMap()
+
+                var shouldMergeOverlay = downloadRequest.shouldMergeOverlay
 
                 //if there is a zip file, extract it and replace the downloaded media with the extracted ones
                 downloadedMedias.values.find { it.fileType == FileType.ZIP }?.let { entry ->
                     val extractedMedias = extractZip(entry.file.inputStream()).map {
-                        it.absolutePath to DownloadedFile(it, FileType.fromFile(it))
+                        InputMedia(
+                            type = DownloadMediaType.LOCAL_MEDIA,
+                            content = it.absolutePath
+                        ) to DownloadedFile(it, FileType.fromFile(it))
                     }
 
                     downloadedMedias.values.removeIf {
                         it.file.delete()
                         true
                     }
+
                     downloadedMedias.putAll(extractedMedias)
                     shouldMergeOverlay = true
                 }
@@ -269,54 +318,7 @@ class MediaDownloadReceiver : BroadcastReceiver() {
                     return@launch
                 }
 
-                inputMedias[0]?.let { inputMedia ->
-                    val mediaType = inputMediaTypes[0]
-                    val media = downloadedMedias[inputMedia]!!
-
-                    if (!isDashPlaylist) {
-                        saveMediaToGallery(media.file, pendingDownloadObject)
-                        media.file.delete()
-                        return@launch
-                    }
-
-                    assert(mediaType == DownloadMediaType.REMOTE_MEDIA)
-
-                    val playlistXml = DocumentBuilderFactory.newInstance().newDocumentBuilder().parse(media.file)
-                    val baseUrlNodeList = playlistXml.getElementsByTagName("BaseURL")
-                    for (i in 0 until baseUrlNodeList.length) {
-                        val baseUrlNode = baseUrlNodeList.item(i)
-                        val baseUrl = baseUrlNode.textContent
-                        baseUrlNode.textContent = "${RemoteMediaResolver.CF_ST_CDN_D}$baseUrl"
-                    }
-
-                    val dashOptions = intent.getBundleExtra("dashOptions") ?: return@launch
-                    val offsetTime = dashOptions.getLong("offsetTime")
-                    val duration = dashOptions.getLong("duration", -1L).let { if (it == -1L) null else it }
-
-                    val dashPlaylistFile = renameFromFileType(media.file, FileType.MPD)
-                    val xmlData = dashPlaylistFile.outputStream()
-                    TransformerFactory.newInstance().newTransformer().transform(DOMSource(playlistXml), StreamResult(xmlData))
-
-                    longToast("Downloading dash media...")
-                    val outputFile = File.createTempFile("dash", ".mp4")
-                    runCatching {
-                        MediaDownloaderHelper.downloadDashChapterFile(
-                            dashPlaylist = dashPlaylistFile,
-                            output = outputFile,
-                            startTime = offsetTime,
-                            duration = duration)
-                        saveMediaToGallery(outputFile, pendingDownloadObject)
-                    }.onFailure {
-                        if (coroutineContext.job.isCancelled) return@onFailure
-                        Logger.error("failed to download dash media", it)
-                        longToast("Failed to download dash media: ${it.message}")
-                        pendingDownloadObject.downloadStage = DownloadStage.FAILED
-                    }
-
-                    dashPlaylistFile.delete()
-                    outputFile.delete()
-                    media.file.delete()
-                }
+                downloadRemoteMedia(pendingDownloadObject, downloadedMedias, downloadRequest)
             }.onFailure {
                 pendingDownloadObject.downloadStage = DownloadStage.FAILED
                 Logger.error("failed to download media", it)

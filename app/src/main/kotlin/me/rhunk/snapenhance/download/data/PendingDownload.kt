@@ -1,7 +1,9 @@
-package me.rhunk.snapenhance.download
+package me.rhunk.snapenhance.download.data
 
-import android.content.Intent
+import android.os.Bundle
 import kotlinx.coroutines.Job
+import me.rhunk.snapenhance.download.MediaDownloadReceiver
+import me.rhunk.snapenhance.download.enums.DownloadStage
 
 data class PendingDownload(
     var outputFile: String? = null,
@@ -14,12 +16,12 @@ data class PendingDownload(
     val iconUrl: String?
 ) {
     companion object {
-        fun fromIntent(intent: Intent): PendingDownload {
+        fun fromBundle(bundle: Bundle): PendingDownload {
             return PendingDownload(
-                outputPath = intent.getStringExtra("outputPath")!!,
-                mediaDisplayType = intent.getStringExtra("mediaDisplayType"),
-                mediaDisplaySource = intent.getStringExtra("mediaDisplaySource"),
-                iconUrl = intent.getStringExtra("iconUrl")
+                outputPath = bundle.getString("outputPath")!!,
+                mediaDisplayType = bundle.getString("mediaDisplayType"),
+                mediaDisplaySource = bundle.getString("mediaDisplaySource"),
+                iconUrl = bundle.getString("iconUrl")
             )
         }
     }

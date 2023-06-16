@@ -23,8 +23,8 @@ import kotlinx.coroutines.job
 import kotlinx.coroutines.launch
 import me.rhunk.snapenhance.R
 import me.rhunk.snapenhance.data.FileType
-import me.rhunk.snapenhance.download.DownloadStage
-import me.rhunk.snapenhance.download.PendingDownload
+import me.rhunk.snapenhance.download.data.PendingDownload
+import me.rhunk.snapenhance.download.enums.DownloadStage
 import me.rhunk.snapenhance.util.PreviewUtils
 import java.io.File
 import java.net.URL

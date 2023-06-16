@@ -15,7 +15,7 @@ import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.RecyclerView
 import me.rhunk.snapenhance.R
 import me.rhunk.snapenhance.download.MediaDownloadReceiver
-import me.rhunk.snapenhance.download.PendingDownload
+import me.rhunk.snapenhance.download.data.PendingDownload
 
 class DownloadManagerActivity : Activity() {
     private val fetchedDownloadTasks = mutableListOf<PendingDownload>()

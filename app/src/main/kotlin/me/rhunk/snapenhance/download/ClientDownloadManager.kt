@@ -4,6 +4,9 @@ import android.content.Intent
 import android.os.Bundle
 import me.rhunk.snapenhance.BuildConfig
 import me.rhunk.snapenhance.ModContext
+import me.rhunk.snapenhance.download.data.DownloadRequest
+import me.rhunk.snapenhance.download.data.MediaEncryptionKeyPair
+import me.rhunk.snapenhance.download.enums.DownloadMediaType
 
 class ClientDownloadManager (
     private val context: ModContext,
@@ -21,35 +24,24 @@ class ClientDownloadManager (
     }
 
     private fun sendToBroadcastReceiver(
-        outputPath: String,
-        inputMedias: Array<String>,
-        inputTypes: Array<DownloadMediaType>,
-        mediaEncryption: Map<String, Pair<String, String>>,
-        shouldMergeOverlay: Boolean = false,
-        isDashPlaylist: Boolean = false,
+        request: DownloadRequest,
         extras: Bundle.() -> Unit = {}
     ) {
-        val bundle = Bundle()
-        bundle.putString("outputPath", outputPath)
-        bundle.putStringArray("inputMedias", inputMedias)
-        bundle.putStringArray("inputTypes", inputTypes.map { it.name }.toTypedArray())
-        bundle.putStringArray("mediaEncryption", mediaEncryption.map { "${it.key}|${it.value.first}|${it.value.second}" }.toTypedArray())
-        bundle.putBoolean("shouldMergeOverlay", shouldMergeOverlay)
-        bundle.putBoolean("isDashPlaylist", isDashPlaylist)
-        bundle.putString("mediaDisplaySource", mediaDisplaySource)
-        bundle.putString("mediaDisplayType", mediaDisplayType)
-        bundle.putString("iconUrl", iconUrl)
-        bundle.extras()
-        sendToBroadcastReceiver(bundle)
+        sendToBroadcastReceiver(request.toBundle().apply {
+            putString("outputPath", outputPath)
+            putString("mediaDisplaySource", mediaDisplaySource)
+            putString("mediaDisplayType", mediaDisplayType)
+            putString("iconUrl", iconUrl)
+        }.apply(extras))
     }
 
     fun downloadDashMedia(playlistUrl: String, offsetTime: Long, duration: Long) {
         sendToBroadcastReceiver(
-            outputPath,
-            arrayOf(playlistUrl),
-            arrayOf(DownloadMediaType.REMOTE_MEDIA),
-            mapOf(),
-            isDashPlaylist = true
+            DownloadRequest(
+                inputMedias = arrayOf(playlistUrl),
+                inputTypes = arrayOf(DownloadMediaType.REMOTE_MEDIA.name),
+                flags = DownloadRequest.Flags.IS_DASH_PLAYLIST
+            )
         ) {
             putBundle("dashOptions", Bundle().apply {
                 putLong("offsetTime", offsetTime)
@@ -58,12 +50,13 @@ class ClientDownloadManager (
         }
     }
 
-    fun downloadMedia(mediaData: String, mediaType: DownloadMediaType, encryption: Pair<String, String>? = null) {
+    fun downloadMedia(mediaData: String, mediaType: DownloadMediaType, encryption: MediaEncryptionKeyPair? = null) {
         sendToBroadcastReceiver(
-            outputPath,
-            arrayOf(mediaData),
-            arrayOf(mediaType),
-            if (encryption != null) mapOf(mediaData to encryption) else mapOf()
+            DownloadRequest(
+                inputMedias = arrayOf(mediaData),
+                inputTypes = arrayOf(mediaType.name),
+                mediaEncryption = if (encryption != null) mapOf(mediaData to encryption) else mapOf()
+            )
         )
     }
 
@@ -72,21 +65,18 @@ class ClientDownloadManager (
         overlayData: String,
         videoType: DownloadMediaType = DownloadMediaType.LOCAL_MEDIA,
         overlayType: DownloadMediaType = DownloadMediaType.LOCAL_MEDIA,
-        videoEncryption: Pair<String, String>? = null,
-        overlayEncryption: Pair<String, String>? = null)
+        videoEncryption: MediaEncryptionKeyPair? = null,
+        overlayEncryption: MediaEncryptionKeyPair? = null)
     {
-
-        val encryptionMap = mutableMapOf<String, Pair<String, String>>()
+        val encryptionMap = mutableMapOf<String, MediaEncryptionKeyPair>()
 
         if (videoEncryption != null) encryptionMap[videoData] = videoEncryption
         if (overlayEncryption != null) encryptionMap[overlayData] = overlayEncryption
-
-        sendToBroadcastReceiver(
-            outputPath,
-            arrayOf(videoData, overlayData),
-            arrayOf(videoType, overlayType),
-            encryptionMap,
-            shouldMergeOverlay = true
-        )
+        sendToBroadcastReceiver(DownloadRequest(
+            inputMedias = arrayOf(videoData, overlayData),
+            inputTypes = arrayOf(videoType.name, overlayType.name),
+            mediaEncryption = encryptionMap,
+            flags = DownloadRequest.Flags.SHOULD_MERGE_OVERLAY
+        ))
     }
 }

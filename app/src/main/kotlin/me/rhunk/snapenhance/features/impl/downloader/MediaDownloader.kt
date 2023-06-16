@@ -20,7 +20,8 @@ import me.rhunk.snapenhance.data.wrapper.impl.media.opera.Layer
 import me.rhunk.snapenhance.data.wrapper.impl.media.opera.ParamMap
 import me.rhunk.snapenhance.database.objects.FriendInfo
 import me.rhunk.snapenhance.download.ClientDownloadManager
-import me.rhunk.snapenhance.download.DownloadMediaType
+import me.rhunk.snapenhance.download.data.toKeyPair
+import me.rhunk.snapenhance.download.enums.DownloadMediaType
 import me.rhunk.snapenhance.features.Feature
 import me.rhunk.snapenhance.features.FeatureLoadParams
 import me.rhunk.snapenhance.features.impl.Messaging
@@ -156,12 +157,8 @@ class MediaDownloader : Feature("MediaDownloader", loadParams = FeatureLoadParam
                 overlayReference!!,
                 DownloadMediaType.fromUri(Uri.parse(originalMediaInfoReference)),
                 DownloadMediaType.fromUri(Uri.parse(overlayReference)),
-                videoEncryption = originalMediaInfo.encryption?.let {
-                    Pair(Base64.UrlSafe.encode(it.keySpec), Base64.UrlSafe.encode(it.ivKeyParameterSpec))
-                },
-                overlayEncryption = overlay.encryption?.let {
-                    Pair(Base64.UrlSafe.encode(it.keySpec), Base64.UrlSafe.encode(it.ivKeyParameterSpec))
-                }
+                videoEncryption = originalMediaInfo.encryption?.toKeyPair(),
+                overlayEncryption = overlay.encryption?.toKeyPair()
             )
             return
         }
@@ -169,9 +166,7 @@ class MediaDownloader : Feature("MediaDownloader", loadParams = FeatureLoadParam
         clientDownloadManager.downloadMedia(
             originalMediaInfoReference,
             DownloadMediaType.fromUri(Uri.parse(originalMediaInfoReference)),
-            originalMediaInfo.encryption?.let {
-                Pair(Base64.UrlSafe.encode(it.keySpec), Base64.UrlSafe.encode(it.ivKeyParameterSpec))
-            }
+            originalMediaInfo.encryption?.toKeyPair()
         )
     }
 
@@ -391,9 +386,7 @@ class MediaDownloader : Feature("MediaDownloader", loadParams = FeatureLoadParam
                 provideClientDownloadManager(authorName, authorName, "Chat Media", friendInfo = friendInfo).downloadMedia(
                     Base64.UrlSafe.encode(urlProto),
                     DownloadMediaType.PROTO_MEDIA,
-                    encryption = encryptionKeys?.let {
-                        Pair(Base64.UrlSafe.encode(it.first), Base64.UrlSafe.encode(it.second))
-                    }
+                    encryption = encryptionKeys?.toKeyPair()
                 )
                 return
             }
@@ -403,7 +396,7 @@ class MediaDownloader : Feature("MediaDownloader", loadParams = FeatureLoadParam
             }
 
             runCatching {
-                val originalMedia = downloadedMediaList[MediaType.ORIGINAL] ?: return@runCatching
+                val originalMedia = downloadedMediaList[MediaType.ORIGINAL] ?: return
                 val overlay = downloadedMediaList[MediaType.OVERLAY]
 
                 var bitmap: Bitmap? = PreviewUtils.createPreview(originalMedia, isVideo = FileType.fromByteArray(originalMedia).isVideo)

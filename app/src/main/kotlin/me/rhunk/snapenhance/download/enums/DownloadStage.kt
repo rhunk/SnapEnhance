@@ -1,4 +1,4 @@
-package me.rhunk.snapenhance.download
+package me.rhunk.snapenhance.download.enums
 
 enum class DownloadStage(
     val isFinalStage: Boolean = false,
