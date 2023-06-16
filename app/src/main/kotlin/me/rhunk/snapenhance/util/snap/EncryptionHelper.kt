@@ -1,4 +1,4 @@
-package me.rhunk.snapenhance.util
+package me.rhunk.snapenhance.util.snap
 
 import me.rhunk.snapenhance.Constants
 import me.rhunk.snapenhance.data.ContentType
@@ -12,7 +12,8 @@ import javax.crypto.spec.SecretKeySpec
 
 object EncryptionHelper {
     fun getEncryptionKeys(contentType: ContentType, messageProto: ProtoReader, isArroyo: Boolean): Pair<ByteArray, ByteArray>? {
-        val messageMediaInfo = MediaDownloaderHelper.getMessageMediaInfo(messageProto, contentType, isArroyo)
+        val messageMediaInfo =
+            MediaDownloaderHelper.getMessageMediaInfo(messageProto, contentType, isArroyo)
 
         return messageMediaInfo?.let {  mediaEncryption ->
             val encryptionProtoIndex: Int = if (mediaEncryption.exists(Constants.ENCRYPTION_PROTO_INDEX_V2)) {

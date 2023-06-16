@@ -25,7 +25,7 @@ import me.rhunk.snapenhance.R
 import me.rhunk.snapenhance.data.FileType
 import me.rhunk.snapenhance.download.data.PendingDownload
 import me.rhunk.snapenhance.download.enums.DownloadStage
-import me.rhunk.snapenhance.util.PreviewUtils
+import me.rhunk.snapenhance.util.snap.PreviewUtils
 import java.io.File
 import java.net.URL
 import kotlin.concurrent.thread

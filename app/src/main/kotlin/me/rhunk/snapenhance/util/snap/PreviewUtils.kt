@@ -1,4 +1,4 @@
-package me.rhunk.snapenhance.util
+package me.rhunk.snapenhance.util.snap
 
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory

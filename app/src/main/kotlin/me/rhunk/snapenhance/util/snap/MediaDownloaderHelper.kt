@@ -1,4 +1,4 @@
-package me.rhunk.snapenhance.util
+package me.rhunk.snapenhance.util.snap
 
 import com.arthenica.ffmpegkit.FFmpegKit
 import com.arthenica.ffmpegkit.FFmpegSession

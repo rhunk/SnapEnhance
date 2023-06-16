@@ -29,10 +29,10 @@ import me.rhunk.snapenhance.features.impl.spying.MessageLogger
 import me.rhunk.snapenhance.hook.HookAdapter
 import me.rhunk.snapenhance.hook.HookStage
 import me.rhunk.snapenhance.hook.Hooker
-import me.rhunk.snapenhance.util.EncryptionHelper
-import me.rhunk.snapenhance.util.MediaDownloaderHelper
-import me.rhunk.snapenhance.util.MediaType
-import me.rhunk.snapenhance.util.PreviewUtils
+import me.rhunk.snapenhance.util.snap.EncryptionHelper
+import me.rhunk.snapenhance.util.snap.MediaDownloaderHelper
+import me.rhunk.snapenhance.util.snap.MediaType
+import me.rhunk.snapenhance.util.snap.PreviewUtils
 import me.rhunk.snapenhance.util.getObjectField
 import me.rhunk.snapenhance.util.protobuf.ProtoReader
 import me.rhunk.snapenhance.util.snap.BitmojiSelfie
