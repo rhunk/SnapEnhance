@@ -1,4 +1,4 @@
-package me.rhunk.snapenhance.features.impl.ui.menus
+package me.rhunk.snapenhance.ui.map
 
 import android.annotation.SuppressLint
 import android.app.Activity
@@ -18,7 +18,6 @@ import org.osmdroid.views.overlay.Marker
 import org.osmdroid.views.overlay.Overlay
 
 
-//TODO: Implement correctly
 class MapActivity : Activity() {
 
     private lateinit var mapView: MapView

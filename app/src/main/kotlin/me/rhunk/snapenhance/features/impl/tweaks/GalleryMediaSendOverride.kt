@@ -40,7 +40,7 @@ class GalleryMediaSendOverride : Feature("Gallery Media Send Override", loadPara
                 }
                 "NOTE" -> {
                     localMessageContent.contentType = ContentType.NOTE
-                    val mediaDuration = messageProtoReader.getInt(3, 3, 5, 1, 1, 15) ?: 0
+                    val mediaDuration = messageProtoReader.getLong(3, 3, 5, 1, 1, 15) ?: 0
                     localMessageContent.content = MessageSender.audioNoteProto(mediaDuration)
                 }
             }
