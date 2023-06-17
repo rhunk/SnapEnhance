@@ -1,60 +1,49 @@
-<?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/download_manager_activity"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/primaryBackground"
-    android:orientation="vertical">
+    android:background="@color/primaryBackground">
 
-    <LinearLayout
+    <FrameLayout
+        android:id="@+id/floating_button_container"
         android:layout_width="match_parent"
-        android:layout_height="50dp"
-        android:background="@color/secondaryBackground"
-        android:gravity="center_vertical"
-        android:orientation="horizontal"
-        android:layoutDirection="rtl">
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        android:background="@android:color/transparent"
+        android:padding="16dp">
 
-        <RelativeLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:gravity="right"
-            android:padding="10dp"
-            tools:ignore="RtlHardcoded">
-            <Button
-                android:id="@+id/remove_all_button"
-                android:layout_width="wrap_content"
-                android:layout_height="35dp"
-                android:background="@drawable/action_button_cancel"
-                android:padding="5dp"
-                android:text="Remove All"
-                android:textColor="@color/darkText" />
-        </RelativeLayout>
-
-    </LinearLayout>
+        <Button
+            android:id="@+id/remove_all_button"
+            android:layout_width="120dp"
+            android:layout_height="45dp"
+            android:background="@drawable/action_button_cancel"
+            android:padding="5dp"
+            android:text="@string/remove_all"
+            android:textColor="@color/darkText"
+            android:layout_gravity="center_horizontal|bottom"
+            android:layout_marginBottom="5dp"/>
+    </FrameLayout>
 
     <RelativeLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:orientation="vertical">
+        android:layout_above="@id/floating_button_container">
 
         <androidx.recyclerview.widget.RecyclerView
             android:id="@+id/download_list"
             android:layout_width="match_parent"
-            android:layout_height="match_parent">
-
-        </androidx.recyclerview.widget.RecyclerView>
+            android:layout_height="match_parent" />
 
         <TextView
             android:id="@+id/no_download_title"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:foregroundGravity="clip_horizontal"
             android:gravity="center"
             android:paddingVertical="40dp"
-            android:text="No downloads"
-            android:textColor="@color/primaryText" />
-
+            android:text="@string/no_downloads"
+            android:textColor="@color/primaryText"
+            android:layout_centerInParent="true" />
     </RelativeLayout>
 
-</LinearLayout>
+</RelativeLayout>

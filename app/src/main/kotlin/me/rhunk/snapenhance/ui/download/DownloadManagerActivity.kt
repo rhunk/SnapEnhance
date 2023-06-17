@@ -2,6 +2,7 @@ package me.rhunk.snapenhance.ui.download
 
 import android.annotation.SuppressLint
 import android.app.Activity
+import android.app.AlertDialog
 import android.content.Context
 import android.content.Intent
 import android.graphics.drawable.ColorDrawable
@@ -40,7 +41,9 @@ class DownloadManagerActivity : Activity() {
             setBackgroundDrawable(ColorDrawable(getColor(R.color.actionBarColor)))
         }
         setContentView(R.layout.download_manager_activity)
-
+        
+        window.navigationBarColor = getColor(R.color.primaryBackground)
+    
         fetchedDownloadTasks.addAll(downloadTaskManager.queryAllTasks().values)
 
 
@@ -111,13 +114,22 @@ class DownloadManagerActivity : Activity() {
 
             with(this@DownloadManagerActivity.findViewById<Button>(R.id.remove_all_button)) {
                 setOnClickListener {
-                    downloadTaskManager.removeAllTasks()
-                    fetchedDownloadTasks.removeIf {
-                        if (it.isJobActive()) it.cancel()
-                        true
+                    val dialog = AlertDialog.Builder(this@DownloadManagerActivity)
+                    dialog.setTitle(R.string.remove_all_title)
+                    dialog.setMessage(R.string.remove_all_text)
+                    dialog.setPositiveButton("Yes") { _, _ ->
+                        downloadTaskManager.removeAllTasks()
+                        fetchedDownloadTasks.removeIf {
+                            if (it.isJobActive()) it.cancel()
+                            true
+                        }
+                        adapter?.notifyDataSetChanged()
+                        updateNoDownloadText()
                     }
-                    adapter?.notifyDataSetChanged()
-                    updateNoDownloadText()
+                    dialog.setNegativeButton("Cancel") { dialog, _ ->
+                        dialog.dismiss()
+                    }
+                    dialog.show()
                 }
             }
         }

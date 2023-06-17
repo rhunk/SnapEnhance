@@ -1,3 +1,8 @@
 <resources>
     <string name="app_name" translatable="false">Snap Enhance</string>
+    <string name="remove_all_title">Remove all Downloads</string>
+    <string name="remove_all_text">Are you sure you want to do this?</string>
+    <string name="remove_all">Remove All</string>
+    <string name="no_downloads">No downloads</string>
+    <string name="cancel">Cancel</string>
 </resources>
