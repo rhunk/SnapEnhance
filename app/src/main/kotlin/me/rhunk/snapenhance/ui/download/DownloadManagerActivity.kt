@@ -12,6 +12,7 @@ import android.os.PowerManager
 import android.provider.Settings
 import android.view.View
 import android.widget.Button
+import android.widget.TextView
 import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.RecyclerView
 import me.rhunk.snapenhance.R
@@ -35,11 +36,7 @@ class DownloadManagerActivity : Activity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         val downloadTaskManager = MediaDownloadReceiver.downloadTaskManager.also { it.init(this) }
-
-        actionBar?.apply {
-            title = "Download Manager"
-            setBackgroundDrawable(ColorDrawable(getColor(R.color.actionBarColor)))
-        }
+        
         setContentView(R.layout.download_manager_activity)
         
         window.navigationBarColor = getColor(R.color.primaryBackground)
@@ -111,7 +108,26 @@ class DownloadManagerActivity : Activity() {
                     }
                 }
             })
+    
 
+            with(this@DownloadManagerActivity.findViewById<TextView>(R.id.all_category)) {
+                setOnClickListener {
+                    //TODO: implement logic
+                }
+            }
+    
+            with(this@DownloadManagerActivity.findViewById<TextView>(R.id.snap_category)) {
+                setOnClickListener {
+                    //TODO: implement logic
+                }
+            }
+    
+            with(this@DownloadManagerActivity.findViewById<TextView>(R.id.spotlight_category)) {
+                setOnClickListener {
+                    //TODO: implement logic
+                }
+            }
+            
             with(this@DownloadManagerActivity.findViewById<Button>(R.id.remove_all_button)) {
                 setOnClickListener {
                     val dialog = AlertDialog.Builder(this@DownloadManagerActivity)

@@ -9,4 +9,6 @@
     <color name="secondaryText">#999999</color>
     <color name="errorColor">#DF4C5C</color>
     <color name="successColor">#4FABF8</color>
+    <color name="borderColor">#424242</color>
+    <color name="focusedCategoryColor">#4FABF8</color>
 </resources>

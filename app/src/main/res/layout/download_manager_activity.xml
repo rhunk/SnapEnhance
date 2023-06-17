@@ -1,34 +1,83 @@
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/download_manager_activity"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/primaryBackground">
+    android:background="@color/primaryBackground"
+    android:orientation="vertical">
 
     <FrameLayout
-        android:id="@+id/floating_button_container"
+        android:id="@+id/title_bar"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_alignParentBottom="true"
-        android:background="@android:color/transparent"
-        android:padding="16dp">
+        android:layout_height="50dp">
 
-        <Button
-            android:id="@+id/remove_all_button"
-            android:layout_width="120dp"
-            android:layout_height="45dp"
-            android:background="@drawable/action_button_cancel"
-            android:padding="5dp"
-            android:text="@string/remove_all"
-            android:textColor="@color/darkText"
-            android:layout_gravity="center_horizontal|bottom"
-            android:layout_marginBottom="5dp"/>
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            android:background="@color/borderColor"
+            android:layout_gravity="bottom" />
+
+        <TextView
+            android:id="@+id/title"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:gravity="center"
+            android:text="@string/app_name"
+            android:textColor="@color/primaryText"
+            android:textSize="23sp"
+            android:fontFamily="@font/avenir_next_bold" />
     </FrameLayout>
 
-    <RelativeLayout
+    <LinearLayout
+        android:id="@+id/category_bar"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:layout_above="@id/floating_button_container">
+        android:layout_height="30dp"
+        android:orientation="horizontal">
+
+        <TextView
+            android:id="@+id/all_category"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:gravity="center"
+            android:text="@string/all_category"
+            android:textColor="@color/focusedCategoryColor"
+            android:clickable="true"
+            android:fontFamily="@font/avenir_next_medium"
+            android:focusable="true" />
+
+        <TextView
+            android:id="@+id/snap_category"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:gravity="center"
+            android:text="@string/snap_category"
+            android:textColor="@color/primaryText"
+            android:clickable="true"
+            android:fontFamily="@font/avenir_next_medium"
+            android:focusable="true" />
+
+        <TextView
+            android:id="@+id/spotlight_category"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:gravity="center"
+            android:text="@string/spotlight_category"
+            android:textColor="@color/primaryText"
+            android:clickable="true"
+            android:fontFamily="@font/avenir_next_medium"
+            android:focusable="true" />
+
+    </LinearLayout>
+
+    <RelativeLayout
+        android:id="@+id/download_list_container"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        android:layout_marginTop="10dp">
 
         <androidx.recyclerview.widget.RecyclerView
             android:id="@+id/download_list"
@@ -46,4 +95,23 @@
             android:layout_centerInParent="true" />
     </RelativeLayout>
 
-</RelativeLayout>
+    <FrameLayout
+        android:id="@+id/floating_button_container"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="@android:color/transparent"
+        android:padding="16dp">
+
+        <Button
+            android:id="@+id/remove_all_button"
+            android:layout_width="120dp"
+            android:layout_height="45dp"
+            android:background="@drawable/action_button_cancel"
+            android:padding="5dp"
+            android:text="@string/remove_all"
+            android:textColor="@color/darkText"
+            android:layout_gravity="center_horizontal|bottom"
+            android:layout_marginBottom="5dp"/>
+    </FrameLayout>
+
+</LinearLayout>

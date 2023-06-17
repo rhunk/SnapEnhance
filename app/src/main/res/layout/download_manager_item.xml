@@ -35,7 +35,6 @@
                 android:layout_width="wrap_content"
                 android:layout_height="match_parent"
                 android:paddingTop="10dp"
-                android:paddingBottom="10dp"
                 android:paddingStart="15dp"
                 android:paddingEnd="15dp"
                 android:orientation="vertical">
@@ -67,7 +66,7 @@
 
     <Button
         android:id="@+id/item_action_button"
-        android:layout_width="wrap_content"
+        android:layout_width="90dp"
         android:layout_height="39dp"
         android:background="@drawable/action_button_cancel"
         android:padding="5dp"
