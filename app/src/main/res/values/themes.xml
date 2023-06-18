@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<resources>
+    <style name="AppTheme">
+        <item name="android:fontFamily">@font/avenir_next_medium</item>
+    </style>
+</resources>

@@ -3,8 +3,8 @@ plugins {
     id 'org.jetbrains.kotlin.android'
 }
 
-def appVersionName = "0.1.1"
-def appVersionCode = 3
+def appVersionName = "1.0.2"
+def appVersionCode = 6
 
 android {
     compileSdk 33
@@ -95,6 +95,7 @@ task getVersion {
 dependencies {
     implementation 'org.jetbrains.kotlinx:kotlinx-coroutines-android:1.7.1'
     implementation 'org.jetbrains.kotlin:kotlin-reflect:1.8.21'
+    implementation 'androidx.recyclerview:recyclerview:1.3.0'
 
     compileOnly files('libs/LSPosed-api-1.0-SNAPSHOT.jar')
     implementation 'com.google.code.gson:gson:2.10.1'

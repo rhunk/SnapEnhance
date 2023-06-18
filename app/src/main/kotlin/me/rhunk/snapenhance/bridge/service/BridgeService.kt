@@ -17,6 +17,7 @@ import me.rhunk.snapenhance.bridge.common.impl.file.FileAccessRequest
 import me.rhunk.snapenhance.bridge.common.impl.file.FileAccessResult
 import me.rhunk.snapenhance.bridge.common.impl.locale.LocaleRequest
 import me.rhunk.snapenhance.bridge.common.impl.locale.LocaleResult
+import me.rhunk.snapenhance.bridge.common.impl.messagelogger.MessageLoggerListResult
 import me.rhunk.snapenhance.bridge.common.impl.messagelogger.MessageLoggerRequest
 import me.rhunk.snapenhance.bridge.common.impl.messagelogger.MessageLoggerResult
 import java.io.File
@@ -82,7 +83,7 @@ class BridgeService : Service() {
     private fun handleMessageLoggerRequest(msg: MessageLoggerRequest, reply: (Message) -> Unit) {
         when (msg.action) {
             MessageLoggerRequest.Action.ADD  -> {
-                val isSuccess = messageLoggerWrapper.addMessage(msg.conversationId!!, msg.messageId!!, msg.message!!)
+                val isSuccess = messageLoggerWrapper.addMessage(msg.conversationId!!, msg.index!!, msg.message!!)
                 reply(MessageLoggerResult(isSuccess).toMessage(BridgeMessageType.MESSAGE_LOGGER_RESULT.value))
                 return
             }
@@ -90,11 +91,16 @@ class BridgeService : Service() {
                 messageLoggerWrapper.clearMessages()
             }
             MessageLoggerRequest.Action.DELETE -> {
-                messageLoggerWrapper.deleteMessage(msg.conversationId!!, msg.messageId!!)
+                messageLoggerWrapper.deleteMessage(msg.conversationId!!, msg.index!!)
             }
             MessageLoggerRequest.Action.GET -> {
-                val (state, messageData) = messageLoggerWrapper.getMessage(msg.conversationId!!, msg.messageId!!)
+                val (state, messageData) = messageLoggerWrapper.getMessage(msg.conversationId!!, msg.index!!)
                 reply(MessageLoggerResult(state, messageData).toMessage(BridgeMessageType.MESSAGE_LOGGER_RESULT.value))
+            }
+            MessageLoggerRequest.Action.LIST_IDS -> {
+                val messageIds = messageLoggerWrapper.getMessageIds(msg.conversationId!!, msg.index!!.toInt())
+                reply(MessageLoggerListResult(messageIds).toMessage(BridgeMessageType.MESSAGE_LOGGER_LIST_RESULT.value))
+                return
             }
             else -> {
                 Logger.log(Exception("Unknown message logger action: ${msg.action}"))
@@ -109,8 +115,7 @@ class BridgeService : Service() {
         val compatibleLocale = resources.assets.list("lang")?.find { it.startsWith(deviceLocale) }?.substring(0, 5) ?: "en_US"
 
         resources.assets.open("lang/$compatibleLocale.json").use { inputStream ->
-            val json = inputStream.bufferedReader().use { it.readText() }
-            reply(LocaleResult(compatibleLocale, json.toByteArray(Charsets.UTF_8)).toMessage(BridgeMessageType.LOCALE_RESULT.value))
+            reply(LocaleResult(compatibleLocale, inputStream.readBytes()).toMessage(BridgeMessageType.LOCALE_RESULT.value))
         }
     }
 

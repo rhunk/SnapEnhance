@@ -110,11 +110,11 @@ class DatabaseAccess(private val context: ModContext) : Manager {
         }
     }
 
-    fun getFriendFeed(): List<FriendFeedInfo> {
+    fun getFriendFeed(limit: Int): List<FriendFeedInfo> {
         return safeDatabaseOperation(openMain()) { database ->
             val cursor = database.rawQuery(
-                "SELECT * FROM FriendsFeedView",
-                null
+                "SELECT * FROM FriendsFeedView ORDER BY _id LIMIT ?",
+                arrayOf(limit.toString())
             )
             val list = mutableListOf<FriendFeedInfo>()
             while (cursor.moveToNext()) {

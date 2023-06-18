@@ -5,7 +5,7 @@ import android.os.Bundle
 import me.rhunk.snapenhance.BuildConfig
 import me.rhunk.snapenhance.action.AbstractAction
 import me.rhunk.snapenhance.config.ConfigProperty
-import me.rhunk.snapenhance.features.impl.ui.menus.MapActivity
+import me.rhunk.snapenhance.ui.map.MapActivity
 
 class OpenMap: AbstractAction("action.open_map", dependsOnProperty = ConfigProperty.LOCATION_SPOOF) {
     override fun run() {

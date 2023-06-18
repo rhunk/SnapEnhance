@@ -4,17 +4,22 @@ import me.rhunk.snapenhance.config.ConfigValue
 
 class ConfigStateListValue(
     private val keys: List<String>,
-    var states: MutableMap<String, Boolean> = mutableMapOf()
+    private var states: MutableMap<String, Boolean> = mutableMapOf()
 ) : ConfigValue<Map<String, Boolean>>() {
     override fun value() = states
 
-    fun value(key: String) = states[key] ?: false
+    fun setKey(key: String, state: Boolean) {
+        states[key] = state
+        onValueChanged()
+    }
 
-    override fun write(): String {
+    operator fun get(key: String) = states[key] ?: false
+
+    override fun read(): String {
         return keys.joinToString("|") { "$it:${states[it]}" }
     }
 
-    override fun read(value: String) {
+    override fun write(value: String) {
         value.split("|").forEach {
             val (key, state) = it.split(":")
             states[key] = state.toBoolean()

@@ -13,6 +13,10 @@ class HookAdapter(
         return methodHookParam.thisObject as T
     }
 
+    fun <T : Any> nullableThisObject(): T? {
+        return methodHookParam.thisObject as T?
+    }
+
     fun method(): Member {
         return methodHookParam.method
     }

@@ -3,15 +3,15 @@ package me.rhunk.snapenhance.config.impl
 import me.rhunk.snapenhance.config.ConfigValue
 
 class ConfigIntegerValue(
-    var value: Int
+    private var value: Int
 ) : ConfigValue<Int>() {
     override fun value() = value
 
-    override fun write(): String {
+    override fun read(): String {
         return value.toString()
     }
 
-    override fun read(value: String) {
+    override fun write(value: String) {
         this.value = value.toInt()
     }
 }

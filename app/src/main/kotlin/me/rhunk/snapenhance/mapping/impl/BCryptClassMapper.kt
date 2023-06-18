@@ -11,7 +11,7 @@ class BCryptClassMapper : Mapper() {
     ) {
         for (clazz in classes) {
             if (!Modifier.isFinal(clazz.modifiers)) continue
-            clazz.fields.firstOrNull { it.type == IntArray::class.java && Modifier.isStatic(it.modifiers)}?.let { field ->
+            clazz.declaredFields.firstOrNull { it.type == IntArray::class.java && Modifier.isStatic(it.modifiers)}?.let { field ->
                 val fieldData = field.get(null)
                 if (fieldData !is IntArray) return@let
                 if (fieldData.size != 18 || fieldData[0] != 608135816) return@let

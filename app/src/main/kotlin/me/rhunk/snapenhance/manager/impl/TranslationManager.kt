@@ -14,7 +14,7 @@ class TranslationManager(
     lateinit var locale: Locale
 
     override fun init() {
-        val messageLocaleResult = context.bridgeClient.fetchTranslations();
+        val messageLocaleResult = context.bridgeClient.fetchTranslations()
         locale = messageLocaleResult.locale?.split("_")?.let { Locale(it[0], it[1]) } ?: Locale.getDefault()
 
         val translations = JsonParser.parseString(messageLocaleResult.content?.toString(Charsets.UTF_8)).asJsonObject

@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="actionBarColor">#0B0B0B</color>
+    <color name="primaryBackground">#121212</color>
+    <color name="secondaryBackground">#1E1E1E</color>
+    <color name="tertiaryBackground">#2B2B2B</color>
+    <color name="darkText">#2B2B2B</color>
+    <color name="primaryText">#DEDEDE</color>
+    <color name="secondaryText">#999999</color>
+    <color name="errorColor">#DF4C5C</color>
+    <color name="successColor">#4FABF8</color>
+</resources>

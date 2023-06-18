@@ -40,7 +40,7 @@ class ModContext {
     val config = ConfigManager(this)
     val actionManager = ActionManager(this)
     val database = DatabaseAccess(this)
-    val downloadServer = DownloadServer(this)
+    val downloadServer = DownloadServer()
     val messageSender = MessageSender(this)
     val classCache get() = SnapEnhance.classCache
     val resources: Resources get() = androidContext.resources
@@ -80,17 +80,10 @@ class ModContext {
         }
     }
 
-    fun restartApp() {
-        androidContext.packageManager.getLaunchIntentForPackage(
-            Constants.SNAPCHAT_PACKAGE_NAME
-        )?.let {
-            val intent = Intent.makeRestartActivityTask(it.component)
-            androidContext.startActivity(intent)
-            Runtime.getRuntime().exit(0)
+    fun softRestartApp(saveSettings: Boolean = false) {
+        if (saveSettings) {
+            config.writeConfig()
         }
-    }
-
-    fun softRestartApp() {
         val intent: Intent? = androidContext.packageManager.getLaunchIntentForPackage(
             Constants.SNAPCHAT_PACKAGE_NAME
         )
