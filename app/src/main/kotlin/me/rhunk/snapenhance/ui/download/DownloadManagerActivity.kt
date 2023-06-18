@@ -5,7 +5,6 @@ import android.app.Activity
 import android.app.AlertDialog
 import android.content.Context
 import android.content.Intent
-import android.graphics.drawable.ColorDrawable
 import android.net.Uri
 import android.os.Bundle
 import android.os.PowerManager
@@ -21,6 +20,11 @@ import me.rhunk.snapenhance.download.data.PendingDownload
 
 class DownloadManagerActivity : Activity() {
     private val fetchedDownloadTasks = mutableListOf<PendingDownload>()
+    private var listFilter = MediaFilter.NONE
+
+    private val downloadTaskManager by lazy {
+        MediaDownloadReceiver.downloadTaskManager.also { it.init(this) }
+    }
 
     private val preferences by lazy {
         getSharedPreferences("settings", Context.MODE_PRIVATE)
@@ -32,19 +36,29 @@ class DownloadManagerActivity : Activity() {
         }
     }
 
+    @SuppressLint("NotifyDataSetChanged")
+    private fun updateListContent() {
+        fetchedDownloadTasks.clear()
+        fetchedDownloadTasks.addAll(downloadTaskManager.queryAllTasks(filter = listFilter).values)
+
+        with(findViewById<RecyclerView>(R.id.download_list)) {
+            adapter?.notifyDataSetChanged()
+            scrollToPosition(0)
+        }
+        updateNoDownloadText()
+    }
+
     @SuppressLint("BatteryLife", "NotifyDataSetChanged")
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        val downloadTaskManager = MediaDownloadReceiver.downloadTaskManager.also { it.init(this) }
         
         setContentView(R.layout.download_manager_activity)
         
         window.navigationBarColor = getColor(R.color.primaryBackground)
-    
-        fetchedDownloadTasks.addAll(downloadTaskManager.queryAllTasks().values)
-
 
         with(findViewById<RecyclerView>(R.id.download_list)) {
+            layoutManager = androidx.recyclerview.widget.LinearLayoutManager(this@DownloadManagerActivity)
+
             adapter = DownloadListAdapter(fetchedDownloadTasks).apply {
                 registerAdapterDataObserver(object : RecyclerView.AdapterDataObserver() {
                     override fun onItemRangeRemoved(positionStart: Int, itemCount: Int) {
@@ -52,8 +66,6 @@ class DownloadManagerActivity : Activity() {
                     }
                 })
             }
-
-            layoutManager = androidx.recyclerview.widget.LinearLayoutManager(this@DownloadManagerActivity)
 
             ItemTouchHelper(object : ItemTouchHelper.SimpleCallback(0, ItemTouchHelper.LEFT or ItemTouchHelper.RIGHT) {
                 override fun getMovementFlags(
@@ -99,7 +111,7 @@ class DownloadManagerActivity : Activity() {
                     if (lastVisibleItemPosition == fetchedDownloadTasks.size - 1 && !isLoading) {
                         isLoading = true
 
-                        downloadTaskManager.queryTasks(fetchedDownloadTasks.last().id).forEach {
+                        downloadTaskManager.queryTasks(fetchedDownloadTasks.last().id, filter = listFilter).forEach {
                             fetchedDownloadTasks.add(it.value)
                             adapter?.notifyItemInserted(fetchedDownloadTasks.size - 1)
                         }
@@ -109,31 +121,30 @@ class DownloadManagerActivity : Activity() {
                 }
             })
     
+            arrayOf(
+                Pair(R.id.all_category, MediaFilter.NONE),
+                Pair(R.id.pending_category, MediaFilter.PENDING),
+                Pair(R.id.snap_category, MediaFilter.CHAT_MEDIA),
+                Pair(R.id.story_category, MediaFilter.STORY),
+                Pair(R.id.spotlight_category, MediaFilter.SPOTLIGHT)
+            ).let { categoryPairs ->
+                categoryPairs.forEach { pair ->
+                    this@DownloadManagerActivity.findViewById<TextView>(pair.first).setOnClickListener { view ->
+                        listFilter = pair.second
+                        updateListContent()
+                        categoryPairs.map { this@DownloadManagerActivity.findViewById<TextView>(it.first) }.forEach {
+                            it.setTextColor(getColor(R.color.primaryText))
+                        }
+                        (view as TextView).setTextColor(getColor(R.color.focusedCategoryColor))
+                    }
+                }
+            }
 
-            with(this@DownloadManagerActivity.findViewById<TextView>(R.id.all_category)) {
-                setOnClickListener {
-                    //TODO: implement logic
-                }
-            }
-    
-            with(this@DownloadManagerActivity.findViewById<TextView>(R.id.snap_category)) {
-                setOnClickListener {
-                    //TODO: implement logic
-                }
-            }
-    
-            with(this@DownloadManagerActivity.findViewById<TextView>(R.id.spotlight_category)) {
-                setOnClickListener {
-                    //TODO: implement logic
-                }
-            }
-            
-            with(this@DownloadManagerActivity.findViewById<Button>(R.id.remove_all_button)) {
-                setOnClickListener {
-                    val dialog = AlertDialog.Builder(this@DownloadManagerActivity)
-                    dialog.setTitle(R.string.remove_all_title)
-                    dialog.setMessage(R.string.remove_all_text)
-                    dialog.setPositiveButton("Yes") { _, _ ->
+            this@DownloadManagerActivity.findViewById<Button>(R.id.remove_all_button).setOnClickListener {
+                with(AlertDialog.Builder(this@DownloadManagerActivity)) {
+                    setTitle(R.string.remove_all_title)
+                    setMessage(R.string.remove_all_text)
+                    setPositiveButton("Yes") { _, _ ->
                         downloadTaskManager.removeAllTasks()
                         fetchedDownloadTasks.removeIf {
                             if (it.isJobActive()) it.cancel()
@@ -142,25 +153,24 @@ class DownloadManagerActivity : Activity() {
                         adapter?.notifyDataSetChanged()
                         updateNoDownloadText()
                     }
-                    dialog.setNegativeButton("Cancel") { dialog, _ ->
+                    setNegativeButton("Cancel") { dialog, _ ->
                         dialog.dismiss()
                     }
-                    dialog.show()
+                    show()
                 }
             }
+
         }
 
-        updateNoDownloadText()
+        updateListContent()
 
-        if (preferences.getBoolean("ask_battery_optimisations", true)) {
-            val pm = getSystemService(Context.POWER_SERVICE) as PowerManager
-            if (!pm.isIgnoringBatteryOptimizations(packageName)) {
-                with(Intent()) {
-                    action = Settings.ACTION_REQUEST_IGNORE_BATTERY_OPTIMIZATIONS
-                    data = Uri.parse("package:$packageName")
-                    startActivityForResult(this, 1)
-                }
-            }
+        if (!preferences.getBoolean("ask_battery_optimisations", true) ||
+            !(getSystemService(Context.POWER_SERVICE) as PowerManager).isIgnoringBatteryOptimizations(packageName)) return
+
+        with(Intent()) {
+            action = Settings.ACTION_REQUEST_IGNORE_BATTERY_OPTIMIZATIONS
+            data = Uri.parse("package:$packageName")
+            startActivityForResult(this, 1)
         }
     }
 
@@ -173,12 +183,6 @@ class DownloadManagerActivity : Activity() {
     @SuppressLint("NotifyDataSetChanged")
     override fun onResume() {
         super.onResume()
-        fetchedDownloadTasks.clear()
-        fetchedDownloadTasks.addAll(MediaDownloadReceiver.downloadTaskManager.queryAllTasks().values)
-
-        with(findViewById<RecyclerView>(R.id.download_list)) {
-            adapter?.notifyDataSetChanged()
-        }
-        updateNoDownloadText()
+        updateListContent()
     }
 }

@@ -5,11 +5,11 @@
     android:layout_width="match_parent"
     android:layout_height="100dp"
     android:layout_margin="5dp"
-    android:layout_marginBottom="10dp"
+    android:layout_marginBottom="15dp"
     android:background="@drawable/download_manager_item_background"
     android:gravity="center_vertical"
     android:orientation="horizontal"
-    android:padding="5dp">
+    android:padding="10dp">
 
     <RelativeLayout
         android:layout_width="0dp"
@@ -21,22 +21,21 @@
             android:layout_height="wrap_content"
             android:background="@drawable/download_manager_item_background"
             android:orientation="horizontal"
-            android:padding="5dp"
+            android:padding="10dp"
             tools:ignore="UselessParent">
 
             <ImageView
                 android:id="@+id/bitmoji_icon"
-                android:layout_width="45dp"
-                android:layout_height="45dp"
-                android:layout_margin="5dp"
+                android:layout_gravity="center_vertical"
+                android:layout_width="50dp"
+                android:layout_height="50dp"
+                android:layout_marginEnd="10dp"
                 tools:ignore="ContentDescription" />
 
             <LinearLayout
                 android:layout_width="wrap_content"
-                android:layout_height="match_parent"
-                android:paddingTop="10dp"
-                android:paddingStart="15dp"
-                android:paddingEnd="15dp"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center_vertical"
                 android:orientation="vertical">
 
                 <TextView
@@ -51,8 +50,8 @@
                     android:id="@+id/item_subtitle"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:textSize="14sp"
-                    android:textColor="@color/secondaryText" />
+                    android:textColor="@color/secondaryText"
+                    android:textSize="14sp" />
             </LinearLayout>
         </LinearLayout>
     </RelativeLayout>

@@ -1,5 +1,4 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/download_manager_activity"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
@@ -31,7 +30,7 @@
     <LinearLayout
         android:id="@+id/category_bar"
         android:layout_width="match_parent"
-        android:layout_height="30dp"
+        android:layout_height="50dp"
         android:orientation="horizontal">
 
         <TextView
@@ -39,36 +38,60 @@
             android:layout_width="0dp"
             android:layout_height="match_parent"
             android:layout_weight="1"
+            android:clickable="true"
+            android:focusable="true"
+            android:fontFamily="@font/avenir_next_medium"
             android:gravity="center"
             android:text="@string/all_category"
-            android:textColor="@color/focusedCategoryColor"
+            android:textColor="@color/focusedCategoryColor" />
+
+        <TextView
+            android:id="@+id/pending_category"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
             android:clickable="true"
+            android:focusable="true"
             android:fontFamily="@font/avenir_next_medium"
-            android:focusable="true" />
+            android:gravity="center"
+            android:text="@string/pending_category"
+            android:textColor="@color/primaryText" />
 
         <TextView
             android:id="@+id/snap_category"
             android:layout_width="0dp"
             android:layout_height="match_parent"
             android:layout_weight="1"
+            android:clickable="true"
+            android:focusable="true"
+            android:fontFamily="@font/avenir_next_medium"
             android:gravity="center"
             android:text="@string/snap_category"
-            android:textColor="@color/primaryText"
+            android:textColor="@color/primaryText" />
+
+        <TextView
+            android:id="@+id/story_category"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
             android:clickable="true"
+            android:focusable="true"
             android:fontFamily="@font/avenir_next_medium"
-            android:focusable="true" />
+            android:gravity="center"
+            android:text="@string/story_category"
+            android:textColor="@color/primaryText" />
 
         <TextView
             android:id="@+id/spotlight_category"
             android:layout_width="0dp"
             android:layout_height="match_parent"
             android:layout_weight="1"
+            android:clickable="true"
+            android:focusable="true"
+            android:fontFamily="@font/avenir_next_medium"
             android:gravity="center"
             android:text="@string/spotlight_category"
-            android:textColor="@color/primaryText"
-            android:clickable="true"
-            android:fontFamily="@font/avenir_next_medium"
-            android:focusable="true" />
+            android:textColor="@color/primaryText" />
 
     </LinearLayout>
 
@@ -76,8 +99,7 @@
         android:id="@+id/download_list_container"
         android:layout_width="match_parent"
         android:layout_height="0dp"
-        android:layout_weight="1"
-        android:layout_marginTop="10dp">
+        android:layout_weight="1">
 
         <androidx.recyclerview.widget.RecyclerView
             android:id="@+id/download_list"
@@ -88,11 +110,11 @@
             android:id="@+id/no_download_title"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:layout_centerInParent="true"
             android:gravity="center"
             android:paddingVertical="40dp"
             android:text="@string/no_downloads"
-            android:textColor="@color/primaryText"
-            android:layout_centerInParent="true" />
+            android:textColor="@color/primaryText" />
     </RelativeLayout>
 
     <FrameLayout

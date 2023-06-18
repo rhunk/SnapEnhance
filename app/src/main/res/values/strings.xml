@@ -5,7 +5,9 @@
     <string name="remove_all">Remove All</string>
     <string name="no_downloads">No downloads</string>
     <string name="cancel">Cancel</string>
-    <string name="all_category">All Downloads</string>
+    <string name="all_category">All</string>
+    <string name="pending_category">Pending</string>
     <string name="snap_category">Snaps</string>
+    <string name="story_category">Stories</string>
     <string name="spotlight_category">Spotlight</string>
 </resources>
