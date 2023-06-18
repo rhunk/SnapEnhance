@@ -70,7 +70,7 @@ class ExportChatMessages : AbstractAction("action.export_chat_messages") {
         GlobalScope.launch(Dispatchers.Main){
             val exportType = askExportType() ?: return@launch
 
-            val friendFeedEntries = context.database.getFriendFeed()
+            val friendFeedEntries = context.database.getFriendFeed(20)
             val selectedConversations = mutableListOf<FriendFeedInfo>()
 
             AlertDialog.Builder(context.mainActivity)

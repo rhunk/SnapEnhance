@@ -3,7 +3,6 @@ package me.rhunk.snapenhance.util.export
 import com.google.gson.GsonBuilder
 import com.google.gson.JsonArray
 import com.google.gson.JsonObject
-import me.rhunk.snapenhance.Constants
 import me.rhunk.snapenhance.ModContext
 import me.rhunk.snapenhance.data.ContentType
 import me.rhunk.snapenhance.data.MediaReferenceType
@@ -11,6 +10,7 @@ import me.rhunk.snapenhance.data.wrapper.impl.Message
 import me.rhunk.snapenhance.database.objects.FriendFeedInfo
 import me.rhunk.snapenhance.database.objects.FriendInfo
 import me.rhunk.snapenhance.util.protobuf.ProtoReader
+import me.rhunk.snapenhance.util.snap.EncryptionHelper
 import java.io.File
 import java.io.FileOutputStream
 import java.io.OutputStream
@@ -109,19 +109,10 @@ class MessageExporter(
 
                         val messageContentType = message.messageContent.contentType
 
-                        ProtoReader(message.messageContent.content).let {
-                                                if (messageContentType == ContentType.EXTERNAL_MEDIA)
-                                                    return@let it.readPath(*Constants.MESSAGE_EXTERNAL_MEDIA_ENCRYPTION_PROTO_PATH)
-                                                else
-                                                    return@let it.readPath(*Constants.MESSAGE_SNAP_ENCRYPTION_PROTO_PATH)
-                                            }
-                            ?.readPath(Constants.ARROYO_ENCRYPTION_PROTO_INDEX)?.let { reader ->
+                        EncryptionHelper.getEncryptionKeys(messageContentType, ProtoReader(message.messageContent.content), isArroyo = false)?.let { encryptionKeyPair ->
                             add("encryption", JsonObject().apply encryption@{
-                                val key = reader.getByteArray(1)!!
-                                val iv = reader.getByteArray(2)!!
-
-                                addProperty("key", Base64.getEncoder().encodeToString(key))
-                                addProperty("iv", Base64.getEncoder().encodeToString(iv))
+                                addProperty("key", Base64.getEncoder().encodeToString(encryptionKeyPair.first))
+                                addProperty("iv", Base64.getEncoder().encodeToString(encryptionKeyPair.second))
                             })
                         }
 
