@@ -131,8 +131,6 @@ class DownloadListAdapter(
             }
         }
 
-        holder.bitmojiIcon.visibility = View.GONE
-
         pendingDownload.iconUrl?.let { url ->
             thread(start = true) {
                 runCatching {
@@ -141,7 +139,6 @@ class DownloadListAdapter(
                     }
                     Handler(holder.view.context.mainLooper).post {
                         holder.bitmojiIcon.setImageBitmap(iconBitmap)
-                        holder.bitmojiIcon.visibility = View.VISIBLE
                     }
                 }
             }

@@ -26,10 +26,11 @@
 
             <ImageView
                 android:id="@+id/bitmoji_icon"
-                android:layout_gravity="center_vertical"
                 android:layout_width="50dp"
                 android:layout_height="50dp"
+                android:layout_gravity="center_vertical"
                 android:layout_marginEnd="10dp"
+                android:src="@drawable/bitmoji_blank"
                 tools:ignore="ContentDescription" />
 
             <LinearLayout
