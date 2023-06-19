@@ -62,7 +62,7 @@ class ExportChatMessages : AbstractAction("action.export_chat_messages") {
     private suspend fun askExportType() = suspendCancellableCoroutine { cont ->
         context.runOnUiThread {
             AlertDialog.Builder(context.mainActivity)
-                .setTitle(context.translation.get("chat_export.select_export_type"))
+                .setTitle(context.translation.get("chat_export.select_export_format"))
                 .setItems(ExportFormat.values().map { it.name }.toTypedArray()) { _, which ->
                     cont.resumeWith(Result.success(ExportFormat.values()[which]))
                 }
