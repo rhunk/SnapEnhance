@@ -89,7 +89,7 @@ class MessageExporter(
             val sender = conversationParticipants[message.senderId.toString()]
             val senderUsername = sender?.usernameForSorting ?: message.senderId.toString()
             val senderDisplayName = sender?.displayName ?: message.senderId.toString()
-            val messageContent = serializeMessageContent(message) ?: "Failed to parse message"
+            val messageContent = serializeMessageContent(message) ?: message.messageContent.contentType.name
             val date = SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.ENGLISH).format(Date(message.messageMetadata.createdAt))
             writer.write("[$date] - $senderDisplayName (${senderUsername}): $messageContent\n")
         }
