@@ -62,7 +62,7 @@ class ExportChatMessages : AbstractAction("action.export_chat_messages") {
     private suspend fun askExportType() = suspendCancellableCoroutine { cont ->
         context.runOnUiThread {
             AlertDialog.Builder(context.mainActivity)
-                .setTitle("Select the export format")
+                .setTitle(context.translation.get("chat_export.select_export_type"))
                 .setItems(ExportFormat.values().map { it.name }.toTypedArray()) { _, which ->
                     cont.resumeWith(Result.success(ExportFormat.values()[which]))
                 }
@@ -83,7 +83,7 @@ class ExportChatMessages : AbstractAction("action.export_chat_messages") {
                 ContentType.STICKER
             )
             AlertDialog.Builder(context.mainActivity)
-                .setTitle("Select the media types to download")
+                .setTitle(context.translation.get("chat_export.select_media_type"))
                 .setMultiChoiceItems(contentTypes.map { it.name }.toTypedArray(), BooleanArray(contentTypes.size) { false }) { _, which, isChecked ->
                     val media = contentTypes[which]
                     if (isChecked) {
@@ -111,7 +111,7 @@ class ExportChatMessages : AbstractAction("action.export_chat_messages") {
             val selectedConversations = mutableListOf<FriendFeedInfo>()
 
             AlertDialog.Builder(context.mainActivity)
-                .setTitle("Select a conversation")
+                .setTitle(context.translation.get("chat_export.select_conversation"))
                 .setMultiChoiceItems(
                     friendFeedEntries.map { it.feedDisplayName ?: it.friendDisplayName!!.split("|").firstOrNull() }.toTypedArray(),
                     BooleanArray(friendFeedEntries.size) { false }
@@ -122,13 +122,13 @@ class ExportChatMessages : AbstractAction("action.export_chat_messages") {
                         selectedConversations.remove(friendFeedEntries[which])
                     }
                 }
-                .setNegativeButton("Cancel") { dialog, _ ->
+                .setNegativeButton(context.translation.get("chat_export.dialog_negative_button")) { dialog, _ ->
                     dialog.dismiss()
                 }
-                .setNeutralButton("Export all") { _, _ ->
+                .setNeutralButton(context.translation.get("chat_export.dialog_neutral_button")) { _, _ ->
                     exportChatForConversations(friendFeedEntries)
                 }
-                .setPositiveButton("Export") { _, _ ->
+                .setPositiveButton(context.translation.get("chat_export.dialog_positive_button")) { _, _ ->
                     exportChatForConversations(selectedConversations)
                 }
                 .show()
@@ -187,12 +187,12 @@ class ExportChatMessages : AbstractAction("action.export_chat_messages") {
         val conversationName = friendFeedInfo.feedDisplayName ?: friendFeedInfo.friendDisplayName!!.split("|").lastOrNull() ?: "unknown"
 
         conversationAction(true, conversationId, if (friendFeedInfo.feedDisplayName != null) "USERCREATEDGROUP" else "ONEONONE")
-
-        logDialog("Exporting $conversationName ...")
+        
+        logDialog(context.translation.get("chat_export.exporting_message").replace("{conversation}", conversationName))
 
         val foundMessages = fetchMessagesPaginated(conversationId, Long.MAX_VALUE).toMutableList()
         var lastMessageId = foundMessages.firstOrNull()?.messageDescriptor?.messageId ?: run {
-            logDialog("No messages found")
+            logDialog(context.translation.get("chat_export.no_messages_found"))
             return
         }
 
@@ -211,7 +211,7 @@ class ExportChatMessages : AbstractAction("action.export_chat_messages") {
             "SnapEnhance/conversation_${conversationName}_${System.currentTimeMillis()}.${exportType!!.extension}"
         ).also { it.parentFile?.mkdirs() }
 
-        logDialog("Writing output ...")
+        logDialog(context.translation.get("chat_export.writing_output"))
         MessageExporter(
             context = context,
             friendFeedInfo = friendFeedInfo,
@@ -222,14 +222,14 @@ class ExportChatMessages : AbstractAction("action.export_chat_messages") {
             runCatching {
                 it.readMessages(foundMessages)
             }.onFailure {
-                logDialog("Failed to export conversation: ${it.message}")
+                logDialog(context.translation.get("chat_export.export_failed").replace("{conversation}", it.message.toString()))
                 Logger.error(it)
                 return
             }
         }.exportTo(exportType!!)
 
         dialogLogs.clear()
-        logDialog("\nExported to ${outputFile.absolutePath}\n")
+        logDialog("\n" + context.translation.get("chat_export.exported_to").replace("{path}", outputFile.absolutePath.toString()) + "\n")
 
         currentActionDialog?.setButton(DialogInterface.BUTTON_POSITIVE, "Open") { _, _ ->
             val intent = Intent(Intent.ACTION_VIEW)
@@ -247,16 +247,18 @@ class ExportChatMessages : AbstractAction("action.export_chat_messages") {
         val jobs = mutableListOf<Job>()
 
         currentActionDialog = AlertDialog.Builder(context.mainActivity)
-            .setTitle("Exporting chats")
+            .setTitle(context.translation.get("chat_export.exporting_chats"))
             .setCancelable(false)
             .setMessage("")
-            .setNegativeButton("Close") { dialog, _ ->
+            .setNegativeButton(context.translation.get("chat_export.dialog_negative_button")) { dialog, _ ->
                 jobs.forEach { it.cancel() }
                 dialog.dismiss()
             }
             .create()
-
-        logDialog("Processing ${conversations.size} conversations")
+        
+        val conversationSize = context.translation.get("chat_export.processing_chats").replace("{amount}", conversations.size.toString())
+        
+        logDialog(conversationSize)
 
         currentActionDialog!!.show()
 
@@ -266,14 +268,14 @@ class ExportChatMessages : AbstractAction("action.export_chat_messages") {
                     runCatching {
                         exportFullConversation(conversation)
                     }.onFailure {
-                        logDialog("Failed to export conversation ${conversation.key}")
+                        logDialog(context.translation.get("chat_export.export_fail").replace("{conversation}", conversation.key.toString()))
                         logDialog(it.stackTraceToString())
                         Logger.xposedLog(it)
                     }
                 }.also { jobs.add(it) }
             }
             jobs.joinAll()
-            logDialog("Done! You now can close this dialog")
+            logDialog(context.translation.get("chat_export.finished"))
         }
     }
 }

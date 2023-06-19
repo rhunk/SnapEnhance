@@ -196,5 +196,22 @@
         "dialog_negative_button": "Cancel",
         "downloading_toast": "Downloading Update...",
         "download_manager_notification_title": "Downloading SnapEnhance APK..."
+    },
+
+    "chat_export": {
+        "select_export_format": "Select the Export Format",
+        "select_media_type": "Select Media Types to export",
+        "select_conversation": "Select a Conversation to export",
+        "dialog_negative_button": "Cancel",
+        "dialog_neutral_button": "Export All",
+        "dialog_positive_button": "Export",
+        "exported_to": "Exported to {path}",
+        "exporting_chats": "Exporting Chats...",
+        "processing_chats": "Processing {amount} conversations...",
+        "export_fail": "Failed to export conversation {conversation}",
+        "writing_output": "Writing output...",
+        "finished": "Done! You now can close this dialog.",
+        "no_messages_found": "No messages found!",
+        "exporting_message": "Exporting {conversation}..."
     }
 }
