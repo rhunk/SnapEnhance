@@ -1,6 +1,9 @@
 package me.rhunk.snapenhance.action.impl
 
 import android.app.AlertDialog
+import android.content.DialogInterface
+import android.content.Intent
+import android.net.Uri
 import android.os.Environment
 import kotlinx.coroutines.DelicateCoroutinesApi
 import kotlinx.coroutines.Dispatchers
@@ -49,7 +52,7 @@ class ExportChatMessages : AbstractAction("action.export_chat_messages") {
 
     private fun logDialog(message: String) {
         context.runOnUiThread {
-            if (dialogLogs.size > 20) dialogLogs.removeAt(0)
+            if (dialogLogs.size > 15) dialogLogs.removeAt(0)
             dialogLogs.add(message)
             Logger.debug("dialog: $message")
             currentActionDialog!!.setMessage(dialogLogs.joinToString("\n"))
@@ -221,10 +224,19 @@ class ExportChatMessages : AbstractAction("action.export_chat_messages") {
             }.onFailure {
                 logDialog("Failed to export conversation: ${it.message}")
                 Logger.error(it)
+                return
             }
         }.exportTo(exportType!!)
 
+        dialogLogs.clear()
         logDialog("\nExported to ${outputFile.absolutePath}\n")
+
+        currentActionDialog?.setButton(DialogInterface.BUTTON_POSITIVE, "Open") { _, _ ->
+            val intent = Intent(Intent.ACTION_VIEW)
+            intent.setDataAndType(Uri.fromFile(outputFile.parentFile), "resource/folder")
+            context.mainActivity!!.startActivity(intent)
+        }
+
         runCatching {
             conversationAction(false, conversationId, null)
         }
@@ -248,7 +260,7 @@ class ExportChatMessages : AbstractAction("action.export_chat_messages") {
 
         currentActionDialog!!.show()
 
-        GlobalScope.launch(Dispatchers.Main) {
+        GlobalScope.launch(Dispatchers.Default) {
             conversations.forEach { conversation ->
                 launch {
                     runCatching {

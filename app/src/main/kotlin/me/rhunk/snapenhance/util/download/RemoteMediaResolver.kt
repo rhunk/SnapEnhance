@@ -16,6 +16,8 @@ object RemoteMediaResolver {
 
     private val okHttpClient = OkHttpClient.Builder()
         .followRedirects(true)
+        .retryOnConnectionFailure(true)
+        .readTimeout(20, java.util.concurrent.TimeUnit.SECONDS)
         .addInterceptor { chain ->
             val request = chain.request()
             val requestUrl = request.url.toString()

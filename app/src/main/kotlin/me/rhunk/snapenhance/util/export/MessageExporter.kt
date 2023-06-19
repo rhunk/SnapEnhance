@@ -1,12 +1,16 @@
 package me.rhunk.snapenhance.util.export
 
+import android.content.pm.PackageManager
 import android.os.Environment
-import com.google.gson.GsonBuilder
+import android.util.Base64InputStream
 import com.google.gson.JsonArray
 import com.google.gson.JsonObject
+import de.robv.android.xposed.XposedHelpers
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.launch
-import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.async
+import kotlinx.coroutines.awaitAll
+import kotlinx.coroutines.withContext
+import me.rhunk.snapenhance.BuildConfig
 import me.rhunk.snapenhance.Logger
 import me.rhunk.snapenhance.ModContext
 import me.rhunk.snapenhance.data.ContentType
@@ -21,14 +25,17 @@ import me.rhunk.snapenhance.util.snap.EncryptionHelper
 import me.rhunk.snapenhance.util.snap.MediaDownloaderHelper
 import java.io.File
 import java.io.FileOutputStream
+import java.io.InputStream
 import java.io.OutputStream
 import java.text.SimpleDateFormat
 import java.util.Base64
 import java.util.Collections
 import java.util.Date
 import java.util.Locale
-import java.util.zip.ZipEntry
-import java.util.zip.ZipOutputStream
+import java.util.zip.Deflater
+import java.util.zip.DeflaterInputStream
+import java.util.zip.ZipFile
+import kotlin.io.encoding.ExperimentalEncodingApi
 
 
 enum class ExportFormat(
@@ -46,10 +53,6 @@ class MessageExporter(
     private val mediaToDownload: List<ContentType>? = null,
     private val printLog: (String) -> Unit = {},
 ) {
-    companion object {
-        private val prettyPrintGson = GsonBuilder().setPrettyPrinting().create()
-    }
-
     private lateinit var conversationParticipants: Map<String, FriendInfo>
     private lateinit var messages: List<Message>
 
@@ -93,64 +96,137 @@ class MessageExporter(
         writer.flush()
     }
 
-    private fun exportHtml(output: OutputStream) {
-        //first download all medias and put it into a file
+    @OptIn(ExperimentalEncodingApi::class)
+    suspend fun exportHtml(output: OutputStream) {
         val downloadMediaCacheFolder = File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS), "SnapEnhance/cache").also { it.mkdirs() }
         val mediaFiles = Collections.synchronizedMap(mutableMapOf<String, Pair<FileType, File>>())
 
         printLog("found ${messages.size} messages")
 
-        runBlocking {
+        withContext(Dispatchers.IO) {
             messages.filter {
                 mediaToDownload?.contains(it.messageContent.contentType) ?: false
-            }.forEach { message ->
-                val remoteMediaReferences by lazy {
-                    val serializedMessageContent = context.gson.toJsonTree(message.messageContent.instanceNonNull()).asJsonObject
-                    serializedMessageContent["mRemoteMediaReferences"]
-                        .asJsonArray.map { it.asJsonObject["mMediaReferences"].asJsonArray }
-                        .flatten()
-                }
+            }.map { message ->
+                async {
+                    val remoteMediaReferences by lazy {
+                        val serializedMessageContent = context.gson.toJsonTree(message.messageContent.instanceNonNull()).asJsonObject
+                        serializedMessageContent["mRemoteMediaReferences"]
+                            .asJsonArray.map { it.asJsonObject["mMediaReferences"].asJsonArray }
+                            .flatten()
+                    }
 
-                remoteMediaReferences.firstOrNull().takeIf { it != null }?.let { media ->
-                    val protoMediaReference = media.asJsonObject["mContentObject"].asJsonArray.map { it.asByte }.toByteArray()
+                    remoteMediaReferences.firstOrNull().takeIf { it != null }?.let { media ->
+                        val protoMediaReference = media.asJsonObject["mContentObject"].asJsonArray.map { it.asByte }.toByteArray()
 
-                    launch(Dispatchers.IO) {
-                        val downloadedMedia = MediaDownloaderHelper.downloadMediaFromReference(protoMediaReference) {
-                            EncryptionHelper.decryptInputStream(it, message.messageContent.contentType, ProtoReader(message.messageContent.content), isArroyo = false)
-                        }
-
-                        downloadedMedia.forEach { (type, mediaData) ->
-                            val fileType = FileType.fromByteArray(mediaData)
-                            val fileName = "${message.messageDescriptor.conversationId}_${message.orderKey}_$type"
-
-                            val mediaFile = File(downloadMediaCacheFolder, "$fileName.${fileType.fileExtension}")
-                            FileOutputStream(mediaFile).use { fos ->
-                                fos.write(mediaData)
+                        runCatching {
+                            val downloadedMedia = MediaDownloaderHelper.downloadMediaFromReference(protoMediaReference) {
+                                EncryptionHelper.decryptInputStream(it, message.messageContent.contentType, ProtoReader(message.messageContent.content), isArroyo = false)
                             }
 
-                            mediaFiles[fileName] = fileType to mediaFile
-                            Logger.debug("exported $fileName")
+                            printLog("downloaded media ${message.orderKey}")
+
+                            downloadedMedia.forEach { (type, mediaData) ->
+                                val fileType = FileType.fromByteArray(mediaData)
+                                val fileName = "${type}_${kotlin.io.encoding.Base64.UrlSafe.encode(protoMediaReference).replace("=", "")}"
+
+                                val mediaFile = File(downloadMediaCacheFolder, "$fileName.${fileType.fileExtension}")
+
+                                FileOutputStream(mediaFile).use { fos ->
+                                    mediaData.inputStream().copyTo(fos)
+                                }
+
+                                mediaFiles[fileName] = fileType to mediaFile
+                            }
+                        }.onFailure {
+                            printLog("failed to download media for ${message.messageDescriptor.conversationId}_${message.orderKey}")
+                            Logger.error("failed to download media for ${message.messageDescriptor.conversationId}_${message.orderKey}", it)
                         }
                     }
                 }
-            }
+            }.awaitAll()
         }
 
-        printLog("downloaded ${mediaFiles.size} medias")
-        printLog("packing medias into a zip file")
-        //create a zip file with all medias
-        val zipFile = File(outputFile.parentFile, "${outputFile.nameWithoutExtension}.zip")
-        ZipOutputStream(FileOutputStream(zipFile)).use { zos ->
-            mediaFiles.forEach { (fileKey, mediaInfoPair) ->
-                printLog("adding $fileKey to zip file")
-                zos.putNextEntry(ZipEntry("assets/${fileKey}.${mediaInfoPair.first.fileExtension}"))
-                mediaInfoPair.second.inputStream().use { fis ->
-                    fis.copyTo(zos)
+        printLog("writing downloaded medias...")
+
+        //write the head of the html file
+        output.write("""
+            <!DOCTYPE html>
+            <html>
+            <head>
+                <meta charset="UTF-8">
+                <meta http-equiv="X-UA-Compatible" content="IE=edge">
+                <meta name="viewport" content="width=device-width, initial-scale=1.0">
+                <title></title>
+            </head>
+        """.trimIndent().toByteArray())
+
+        output.write("<!-- This file was generated by SnapEnhance ${BuildConfig.VERSION_NAME} -->\n".toByteArray())
+
+        mediaFiles.forEach { (key, filePair) ->
+            printLog("writing $key...")
+            output.write("<div class=\"media-$key\"><!-- ".toByteArray())
+
+            val deflateInputStream = DeflaterInputStream(filePair.second.inputStream(), Deflater(Deflater.BEST_COMPRESSION, true))
+            val base64InputStream = XposedHelpers.newInstance(
+                Base64InputStream::class.java,
+                deflateInputStream,
+                android.util.Base64.DEFAULT or android.util.Base64.NO_WRAP,
+                true
+            ) as InputStream
+            base64InputStream.copyTo(output)
+            deflateInputStream.close()
+
+            output.write(" --></div>\n".toByteArray())
+            output.flush()
+        }
+        printLog("writing json conversation data...")
+
+        //write the json file
+        output.write("<script type=\"application/json\" class=\"exported_content\">".toByteArray())
+        exportJson(output)
+        output.write("</script>\n".toByteArray())
+
+        printLog("writing template...")
+
+        runCatching {
+            ZipFile(
+                context.androidContext.packageManager.getApplicationInfo(BuildConfig.APPLICATION_ID, PackageManager.GET_META_DATA).publicSourceDir
+            ).use { apkFile ->
+                //export rawinflate.js
+                apkFile.getEntry("assets/web/rawinflate.js").let { entry ->
+                    output.write("<script>".toByteArray())
+                    apkFile.getInputStream(entry).copyTo(output)
+                    output.write("</script>\n".toByteArray())
                 }
-                zos.closeEntry()
+
+                //export avenir next font
+                apkFile.getEntry("res/font/avenir_next_medium.ttf").let { entry ->
+                    val encodedFontData = kotlin.io.encoding.Base64.Default.encode(apkFile.getInputStream(entry).readBytes())
+                    output.write("""
+                        <style>
+                            @font-face {
+                                font-family: 'Avenir Next';
+                                src: url('data:font/truetype;charset=utf-8;base64, $encodedFontData');
+                                font-weight: normal;
+                                font-style: normal;
+                            }
+                        </style>
+                    """.trimIndent().toByteArray())
+                }
+
+                apkFile.getEntry("assets/web/export_template.html").let { entry ->
+                    apkFile.getInputStream(entry).copyTo(output)
+                }
+
+                apkFile.close()
             }
+        }.onFailure {
+            printLog("failed to read template from apk")
+            Logger.error("failed to read template from apk", it)
         }
 
+        output.write("</html>".toByteArray())
+        output.close()
         printLog("done")
     }
 
@@ -223,7 +299,8 @@ class MessageExporter(
                         add("mediaReferences", JsonArray().apply mediaReferences@ {
                             if (messageContentType != ContentType.EXTERNAL_MEDIA &&
                                 messageContentType != ContentType.STICKER &&
-                                messageContentType != ContentType.SNAP)
+                                messageContentType != ContentType.SNAP &&
+                                messageContentType != ContentType.NOTE)
                                 return@mediaReferences
 
                             remoteMediaReferences.forEach { media ->
@@ -241,11 +318,11 @@ class MessageExporter(
             })
         }
 
-        output.write(prettyPrintGson.toJson(rootObject).toByteArray())
+        output.write(context.gson.toJson(rootObject).toByteArray())
         output.flush()
     }
 
-    fun exportTo(exportFormat: ExportFormat) {
+    suspend fun exportTo(exportFormat: ExportFormat) {
         val output = FileOutputStream(outputFile)
 
         when (exportFormat) {
