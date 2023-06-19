@@ -28,7 +28,7 @@ object MediaDownloaderHelper {
             ContentType.NOTE -> messageContainerPath.readPath(*mediaContainerPath)
             ContentType.SNAP -> messageContainerPath.readPath(*(intArrayOf(11) + mediaContainerPath))
             ContentType.EXTERNAL_MEDIA -> messageContainerPath.readPath(*(intArrayOf(3, 3) + mediaContainerPath))
-            else -> throw IllegalArgumentException("Invalid content type: $contentType")
+            else -> null
         }
     }
 

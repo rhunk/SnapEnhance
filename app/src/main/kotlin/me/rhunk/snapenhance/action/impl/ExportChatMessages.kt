@@ -11,6 +11,7 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.suspendCancellableCoroutine
 import me.rhunk.snapenhance.Logger
 import me.rhunk.snapenhance.action.AbstractAction
+import me.rhunk.snapenhance.data.ContentType
 import me.rhunk.snapenhance.data.wrapper.impl.Message
 import me.rhunk.snapenhance.data.wrapper.impl.SnapUUID
 import me.rhunk.snapenhance.database.objects.FriendFeedInfo
@@ -43,6 +44,9 @@ class ExportChatMessages : AbstractAction("action.export_chat_messages") {
     private val dialogLogs = mutableListOf<String>()
     private var currentActionDialog: AlertDialog? = null
 
+    private var exportType: ExportFormat? = null
+    private var mediaToDownload: List<ContentType>? = null
+
     private fun logDialog(message: String) {
         context.runOnUiThread {
             if (dialogLogs.size > 20) dialogLogs.removeAt(0)
@@ -66,9 +70,39 @@ class ExportChatMessages : AbstractAction("action.export_chat_messages") {
         }
     }
 
+    private suspend fun askMediaToDownload() = suspendCancellableCoroutine { cont ->
+        context.runOnUiThread {
+            val mediasToDownload = mutableListOf<ContentType>()
+            val contentTypes = arrayOf(
+                ContentType.SNAP,
+                ContentType.EXTERNAL_MEDIA,
+                ContentType.NOTE,
+                ContentType.STICKER
+            )
+            AlertDialog.Builder(context.mainActivity)
+                .setTitle("Select the media types to download")
+                .setMultiChoiceItems(contentTypes.map { it.name }.toTypedArray(), BooleanArray(contentTypes.size) { false }) { _, which, isChecked ->
+                    val media = contentTypes[which]
+                    if (isChecked) {
+                        mediasToDownload.add(media)
+                    } else if (mediasToDownload.contains(media)) {
+                        mediasToDownload.remove(media)
+                    }
+                }
+                .setOnCancelListener {
+                    cont.resumeWith(Result.success(null))
+                }
+                .setPositiveButton("OK") { _, _ ->
+                    cont.resumeWith(Result.success(mediasToDownload))
+                }
+                .show()
+        }
+    }
+
     override fun run() {
-        GlobalScope.launch(Dispatchers.Main){
-            val exportType = askExportType() ?: return@launch
+        GlobalScope.launch(Dispatchers.Main) {
+            exportType = askExportType() ?: return@launch
+            mediaToDownload = if (exportType == ExportFormat.HTML) askMediaToDownload() else null
 
             val friendFeedEntries = context.database.getFriendFeed(20)
             val selectedConversations = mutableListOf<FriendFeedInfo>()
@@ -89,10 +123,10 @@ class ExportChatMessages : AbstractAction("action.export_chat_messages") {
                     dialog.dismiss()
                 }
                 .setNeutralButton("Export all") { _, _ ->
-                    exportChatForConversations(exportType, friendFeedEntries)
+                    exportChatForConversations(friendFeedEntries)
                 }
                 .setPositiveButton("Export") { _, _ ->
-                    exportChatForConversations(exportType, selectedConversations)
+                    exportChatForConversations(selectedConversations)
                 }
                 .show()
         }
@@ -139,19 +173,19 @@ class ExportChatMessages : AbstractAction("action.export_chat_messages") {
             conversationManagerInstance,
             SnapUUID.fromString(conversationId).instanceNonNull(),
             lastMessageId,
-            500,
+            100,
             callback
         )
     }
 
-    private suspend fun exportFullConversation(exportFormat: ExportFormat, conversation: FriendFeedInfo) {
+    private suspend fun exportFullConversation(friendFeedInfo: FriendFeedInfo) {
         //first fetch the first message
-        val conversationId = conversation.key!!
-        val conversationName = conversation.feedDisplayName ?: conversation.friendDisplayName!!.split("|").lastOrNull() ?: "unknown"
+        val conversationId = friendFeedInfo.key!!
+        val conversationName = friendFeedInfo.feedDisplayName ?: friendFeedInfo.friendDisplayName!!.split("|").lastOrNull() ?: "unknown"
 
-        conversationAction(true, conversationId, if (conversation.feedDisplayName != null) "USERCREATEDGROUP" else "ONEONONE")
+        conversationAction(true, conversationId, if (friendFeedInfo.feedDisplayName != null) "USERCREATEDGROUP" else "ONEONONE")
 
-        logDialog("exporting $conversationName ...")
+        logDialog("Exporting $conversationName ...")
 
         val foundMessages = fetchMessagesPaginated(conversationId, Long.MAX_VALUE).toMutableList()
         var lastMessageId = foundMessages.firstOrNull()?.messageDescriptor?.messageId ?: run {
@@ -171,17 +205,24 @@ class ExportChatMessages : AbstractAction("action.export_chat_messages") {
 
         val outputFile = File(
             Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS),
-            "SnapEnhance/conversation_${conversationName}_${System.currentTimeMillis()}.${exportFormat.extension}"
+            "SnapEnhance/conversation_${conversationName}_${System.currentTimeMillis()}.${exportType!!.extension}"
         ).also { it.parentFile?.mkdirs() }
 
         logDialog("Writing output ...")
-        MessageExporter(context).also {
-            it.readInfo(
-                conversation,
-                foundMessages,
-                outputFile
-            )
-        }.exportTo(exportFormat)
+        MessageExporter(
+            context = context,
+            friendFeedInfo = friendFeedInfo,
+            outputFile = outputFile,
+            mediaToDownload = mediaToDownload,
+            printLog = ::logDialog
+        ).also {
+            runCatching {
+                it.readMessages(foundMessages)
+            }.onFailure {
+                logDialog("Failed to export conversation: ${it.message}")
+                Logger.error(it)
+            }
+        }.exportTo(exportType!!)
 
         logDialog("\nExported to ${outputFile.absolutePath}\n")
         runCatching {
@@ -189,7 +230,7 @@ class ExportChatMessages : AbstractAction("action.export_chat_messages") {
         }
     }
 
-    private fun exportChatForConversations(exportFormat: ExportFormat, conversations: List<FriendFeedInfo>) {
+    private fun exportChatForConversations(conversations: List<FriendFeedInfo>) {
         dialogLogs.clear()
         val jobs = mutableListOf<Job>()
 
@@ -211,7 +252,7 @@ class ExportChatMessages : AbstractAction("action.export_chat_messages") {
             conversations.forEach { conversation ->
                 launch {
                     runCatching {
-                        exportFullConversation(exportFormat, conversation)
+                        exportFullConversation(conversation)
                     }.onFailure {
                         logDialog("Failed to export conversation ${conversation.key}")
                         logDialog(it.stackTraceToString())

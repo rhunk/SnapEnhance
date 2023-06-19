@@ -12,5 +12,21 @@ class MessageMetadata(obj: Any?) : AbstractWrapper(obj){
     set(value) {
         setEnumValue("mPlayableSnapState", value)
     }
-    val savedBy: List<SnapUUID> = (instanceNonNull().getObjectField("mSavedBy") as List<*>).map { SnapUUID(it!!) }
+
+    private fun getUUIDList(name: String): List<SnapUUID> {
+        return (instanceNonNull().getObjectField(name) as List<*>).map { SnapUUID(it!!) }
+    }
+
+    val savedBy: List<SnapUUID> by lazy {
+        getUUIDList("mSavedBy")
+    }
+    val openedBy: List<SnapUUID> by lazy {
+        getUUIDList("mOpenedBy")
+    }
+    val seenBy: List<SnapUUID> by lazy {
+        getUUIDList("mSeenBy")
+    }
+    val reactions: List<UserIdToReaction> by lazy {
+        (instanceNonNull().getObjectField("mReactions") as List<*>).map { UserIdToReaction(it!!) }
+    }
 }
