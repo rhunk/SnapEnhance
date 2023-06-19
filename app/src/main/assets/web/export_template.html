@@ -1,0 +1,254 @@
+<style>
+    :root {
+        --sigIconPrimary: #dedede;
+        --sigIconSecondary: #999;
+        --sigIconTertiary: #616161;
+        --sigIconNegative: #f23c57;
+        --sigTextPrimary: #dedede;
+        --sigTextPrimaryInverse: #000;
+        --sigTextSecondary: #999;
+        --sigTextTertiary: #616161;
+        --sigTextPlayer: #fff;
+        --sigTextNegative: #f23c57;
+        --sigColorBackgroundBorder: rgba(255, 255, 255, 0.1);
+        --sigBackgroundPrimary: #121212;
+        --sigBackgroundPrimaryInverse: #fff;
+        --sigBackgroundSecondary: #1e1e1e;
+        --sigBackgroundSecondaryHover: #2b2b2b;
+        --sigBackgroundFeedHover: rgba(255, 255, 255, 0.1);
+        --sigBackgroundMessageHover: #292929;
+        --sigBackgroundMessageSaved: #333232;
+        --sigBackgroundMessageSavedHover: #3a3a3a;
+        --sigMediaControlContainerBackground: rgba(255, 255, 255, 0.1);
+        --sigStartupFooterBackground: rgba(0, 0, 0, 0.05);
+        --sigButtonPrimary: #0fadff;
+        --sigButtonPrimaryHover: #42bfff;
+        --sigButtonSecondary: #2b2b2b;
+        --sigButtonSecondaryHover: #424242;
+        --sigButtonSecondaryActive: #5c5c5c;
+        --sigButtonTertiary: #4e565f;
+        --sigButtonQuaternary: #fff;
+        --sigButtonInactive: #1e1e1e;
+        --sigButtonNegative: #e1143d;
+        --sigButtonOnPrimary: #fff;
+        --sigButtonOnSecondary: #dedede;
+        --sigButtonOnTertiary: #fff;
+        --sigButtonOnQuaternary: #1e1e1e;
+        --sigButtonOnInactive: rgba(255, 255, 255, 0.3);
+        --sigButtonOnNegative: #fff;
+        --sigMain: #121212;
+        --sigSubscreen: #121212;
+        --sigOverlay: rgba(0, 0, 0, 0.4);
+        --sigOverlayHover: rgba(0, 0, 0, 0.35);
+        --sigSurface: #1e1e1e;
+        --sigSurfaceRGB: 30, 30, 30;
+        --sigSurfaceDown: #212121;
+        --sigAboveSurface: #292929;
+        --sigObject: rgba(255, 255, 255, 0.1);
+        --sigObjectDown: rgba(255, 255, 255, 0.19);
+        --sigConversationBoxBackground: rgba(255, 255, 255, 0.25);
+        --sigDivider: rgba(255, 255, 255, 0.1);
+        --sigDividerLight: rgba(255, 255, 255, 0.2);
+        --sigPlaceholder: #1e1e1e;
+        --sigDisabled: rgba(255, 255, 255, 0.1);
+        --sigCallTileHighlight: rgba(255, 255, 255, 0.8);
+        --sigChat: #0fadff;
+        --sigSnapWithoutSound: #f23c57;
+        --sigSnapWithSound: #a05dcd;
+        --sigChatSurfaceCalling: #39ca8e;
+        --sigChatSurfaceCallingDisabled: #105e3d;
+        --sigChatPending: #767676;
+        --sigChatPendingHover: #8f8f8f;
+        --sigChatIcon: #0fadff;
+        --sigChatIconCaret: #f8616d;
+        --sigChatShadowOne: 0 0 17px rgba(33, 33, 33, 0.07), 0 0 22px rgba(0, 0, 0, 0.06), 0 0 8px rgba(84, 84, 84, 0.1);
+        --selectedMiddleColorGradient: rgba(4, 4, 4, 0.1);
+        --selectedRightColorGradient: rgba(4, 4, 4, 0);
+    }
+
+    body {
+        margin: 0;
+        font-family: 'Avenir Next', sans-serif;
+        color: var(--sigTextPrimary);
+        background-color: var(--sigBackgroundPrimary);
+    }
+
+    /* like an header */
+    .conversation_summary {
+        display: flex;
+        flex-direction: row;
+        align-items: center;
+        padding: 10px;
+        border-bottom: 1px solid var(--sigColorBackgroundBorder);
+    }
+
+    .conversation_message_container {
+        display: flex;
+        flex-direction: column;
+        padding: 5px;
+        background-color: var(--sigBackgroundSecondary);
+    }
+
+    .message {
+        display: flex;
+        flex-direction: row;
+        align-items: center;
+        padding: 5px;
+        margin-left: 5px;
+        border-bottom: 1px solid var(--sigColorBackgroundBorder);
+    }
+
+    .message .header {
+        display: flex;
+        flex-direction: column;
+        vertical-align: top;
+        align-self: flex-start;
+    }
+
+    .message .username {
+        font-weight: bold;
+    }
+
+    .message .time {
+        font-size: 12px;
+        color: var(--sigTextSecondary);
+    }
+
+    .message .content {
+        margin-left: 10px;
+        display: flex;
+        flex-direction: row;
+        align-items: center;
+
+    }
+
+    .media_container {
+        max-width: 300px;
+        max-height: 500px;
+    }
+
+    .red_snap_svg {
+        color: var(--sigSnapWithoutSound);
+    }
+</style>
+<body>
+    <div class="conversation_summary">
+        <div class="title"></div>
+    </div>
+
+    <div class="conversation_message_container"></div>
+    <div style="display: none;">
+        <svg class="red_snap_svg" width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <rect x="2.75" y="2.75" width="10.5" height="10.5" rx="1.808" stroke="currentColor" stroke-width="1.5"></rect>
+         </svg>
+    </div>
+
+    <script>
+        const conversationData = JSON.parse(document.querySelector(".exported_content").innerHTML)
+        const participants = Object.values(conversationData.participants)
+
+        function base64decode(data) {
+            return new Uint8Array(atob(data).split('').map(c => c.charCodeAt(0)))
+        }
+
+        function makeConversationSummary() {
+            const conversationTitle = conversationData.conversationName != null ? 
+            conversationData.conversationName : 
+            "DM with " + Object.values(participants).map(user => user.username).join(", ")
+
+            document.querySelector(".conversation_summary .title").textContent = conversationTitle
+        }
+
+        function makeConversationMessageContainer() {
+            const messageTemplate = document.querySelector("#message_template")
+            Object.values(conversationData.messages).forEach(message => {
+                const messageObject = document.createElement("div")
+                messageObject.classList.add("message")
+
+                messageObject.appendChild(((headerElement) =>{
+                    headerElement.classList.add("header")
+
+                    headerElement.appendChild(((elem) =>{
+                        elem.classList.add("username")
+                        const participant = participants[message.senderId]
+                        elem.innerHTML = (participant == null) ? "Unknown user" : participant.username
+                        return elem
+                    })(document.createElement("div")))
+
+
+                    headerElement.appendChild(((elem) =>{
+                        elem.classList.add("time")
+                        elem.innerHTML = new Date(message.createdTimestamp).toISOString()
+                        return elem
+                    })(document.createElement("div")))
+
+                    return headerElement
+                })(document.createElement("div")))
+
+                messageObject.appendChild(((elem) =>{
+                    elem.classList.add("content")
+
+                    elem.innerHTML = message.serializedContent
+
+                    if (!message.serializedContent) {
+                        elem.innerHTML = ""
+                        let messageData = ""
+                        switch(message.type) {
+                            case "SNAP":
+                                elem.appendChild(document.querySelector('.red_snap_svg').cloneNode(true))
+                                messageData = "Snap"
+                                break
+                            default:
+                                messageData = message.type
+
+                        }
+                        elem.innerHTML += messageData
+                    }
+
+                    if (message.mediaReferences && message.mediaReferences.length > 0) {
+                        //only get the first reference
+                        const reference = Object.values(message.mediaReferences)[0]
+                        let fetched = false
+                        var observer = new IntersectionObserver(function(entries) {
+                            if(!fetched && entries[0].isIntersecting === true) {
+                                fetched = true
+
+                                const mediaDiv = document.querySelector('.media-ORIGINAL_' + reference.content.replace(/(=)/g, ""))
+                                if (!mediaDiv) return
+                                
+                                const content = mediaDiv.innerHTML.substring(5, mediaDiv.innerHTML.length - 4)
+                                const decodedData = new Uint8Array(inflate(base64decode(content)))
+
+                                const blob = new Blob([decodedData])
+                                const url = URL.createObjectURL(blob)
+                                
+                                const imageTag = document.createElement("img")
+                                imageTag.classList.add("media_container")
+                                imageTag.src = url
+                                imageTag.onerror = () => {
+                                    elem.removeChild(imageTag)
+                                    const mediaTag = document.createElement(message.type === "VIDEO" ? "video" : "audio")
+                                    mediaTag.classList.add("media_container")
+                                    mediaTag.src = url
+                                    mediaTag.preload = "metadata"
+                                    mediaTag.controls = true
+                                    elem.appendChild(mediaTag)
+                                }
+                                elem.innerHTML = ""
+                                elem.appendChild(imageTag)
+                            }
+                        }, { threshold: [1] });
+                        observer.observe(elem)
+                    }
+
+                    return elem
+                })(document.createElement("div")))
+
+                document.querySelector('.conversation_message_container').appendChild(messageObject)
+            })
+        }
+
+        makeConversationSummary()
+        makeConversationMessageContainer()
+    </script>
+</body>
