@@ -254,11 +254,6 @@ enum class ConfigProperty(
         ConfigStringValue("0.0000"),
         shouldAppearInSettings = false
     ),
-    MENU_SLOT_ID("property.menu_slot_id",
-        "description.menu_slot_id",
-        ConfigCategory.UI_TWEAKS,
-        ConfigIntegerValue(1)
-    ),
     MESSAGE_PREVIEW_LENGTH(
         "property.message_preview_length",
         "description.message_preview_length",
@@ -343,12 +338,6 @@ enum class ConfigProperty(
     ),
 
     // EXPERIMENTAL DEBUGGING
-    USE_DOWNLOAD_MANAGER(
-        "property.use_download_manager",
-        "description.use_download_manager",
-        ConfigCategory.EXPERIMENTAL_DEBUGGING,
-        ConfigStateValue(false)
-    ),
     APP_PASSCODE(
         "property.app_passcode",
         "description.app_passcode",
