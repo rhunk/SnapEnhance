@@ -122,7 +122,9 @@
                 "remove_cognac_button": "Remove Cognac Button",
                 "remove_stickers_button": "Remove Stickers Button",
                 "remove_voice_record_button": "Remove Voice Record Button",
-                "remove_camera_borders": "Remove Camera Borders"
+                "remove_camera_borders": "Remove Camera Borders",
+                "remove_spotlight_button": "Remove Spotlight Button",
+                "remove_stories_button": "Remove Stories Button"
             },
             "auto_updater": {
                 "DISABLED": "Disabled",

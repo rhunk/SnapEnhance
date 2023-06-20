@@ -116,7 +116,9 @@
                 "remove_cognac_button": "Entferne Cognac Button",
                 "remove_stickers_button": "Entferne Stickers Button",
                 "remove_voice_record_button": "Entferne Sprachnachricht Button",
-                "remove_camera_borders": "Entferne Kamera Ränder"
+                "remove_camera_borders": "Entferne Kamera Ränder",
+                "remove_spotlight_button": "Entferne Spotlight Button",
+                "remove_stories_button": "Entferne Stories Button"
             },
             "auto_updater": {
                 "DISABLED": "Deaktiviert",

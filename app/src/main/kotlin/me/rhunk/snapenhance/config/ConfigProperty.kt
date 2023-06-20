@@ -196,13 +196,15 @@ enum class ConfigProperty(
         "description.hide_ui_elements",
         ConfigCategory.UI_TWEAKS,
         ConfigStateListValue(
-            listOf("remove_voice_record_button", "remove_stickers_button", "remove_cognac_button", "remove_call_buttons", "remove_camera_borders"),
+            listOf("remove_voice_record_button", "remove_stickers_button", "remove_cognac_button", "remove_call_buttons", "remove_camera_borders", "remove_stories_button", "remove_spotlight_button"),
             mutableMapOf(
                 "remove_voice_record_button" to false,
                 "remove_stickers_button" to false,
                 "remove_cognac_button" to false,
                 "remove_call_buttons" to false,
-                "remove_camera_borders" to false
+                "remove_camera_borders" to false,
+                "remove_stories_button" to false,
+                "remove_spotlight_button" to false
             )
         )
     ),
@@ -276,7 +278,7 @@ enum class ConfigProperty(
         "property.enable_app_appearance",
         "description.enable_app_appearance",
         ConfigCategory.UI_TWEAKS,
-        ConfigStateValue(false)
+        ConfigStateValue(true)
     ),
 
 

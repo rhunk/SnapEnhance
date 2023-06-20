@@ -32,6 +32,9 @@ class UITweaks : Feature("UITweaks", loadParams = FeatureLoadParams.ACTIVITY_CRE
         val chatNoteRecordButton = resources.getIdentifier("chat_note_record_button", "id", Constants.SNAPCHAT_PACKAGE_NAME)
         val chatInputBarSticker = resources.getIdentifier("chat_input_bar_sticker", "id", Constants.SNAPCHAT_PACKAGE_NAME)
         val chatInputBarCognac = resources.getIdentifier("chat_input_bar_cognac", "id", Constants.SNAPCHAT_PACKAGE_NAME)
+        
+        val spotlightTabButton = resources.getIdentifier("ngs_spotlight_icon_container", "id", Constants.SNAPCHAT_PACKAGE_NAME)
+        val storiesTabButton = resources.getIdentifier("ngs_community_icon_container", "id", Constants.SNAPCHAT_PACKAGE_NAME)
 
         Resources::class.java.methods.first { it.name == "getDimensionPixelSize"}.hook(HookStage.AFTER,
             { isImmersiveCamera }
@@ -86,6 +89,12 @@ class UITweaks : Feature("UITweaks", loadParams = FeatureLoadParams.ACTIVITY_CRE
             if (viewId == callButtonsStub) {
                 if (hiddenElements["remove_call_buttons"] == false) return@hook
                 param.setResult(null)
+            }
+            if(viewId == spotlightTabButton  && hiddenElements["remove_spotlight_button"] == true) {
+                view.visibility = View.GONE
+            }
+            if(viewId == storiesTabButton && hiddenElements["remove_stories_button"] == true) {
+                view.visibility = View.GONE
             }
         }
     }
