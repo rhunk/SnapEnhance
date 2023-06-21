@@ -16,7 +16,7 @@ object Logger {
     }
 
     fun error(throwable: Throwable) {
-        Log.e(TAG, "",throwable)
+        Log.e(TAG, "", throwable)
     }
 
     fun error(message: Any?) {

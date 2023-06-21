@@ -128,7 +128,7 @@ class DownloadManagerReceiver : BroadcastReceiver() {
                 if (!it.endsWith("/")) "$it/" else it
             }
 
-            longToast(
+            shortToast(
                 translation.format("saved_toast", "path" to outputFile.absolutePath.replace(parentName ?: "", ""))
             )
 
@@ -255,8 +255,18 @@ class DownloadManagerReceiver : BroadcastReceiver() {
         this.context = context
         SharedContext.ensureInitialized(context)
 
-
         val downloadRequest = DownloadRequest.fromBundle(intent.extras!!)
+
+        SharedContext.downloadTaskManager.canDownloadMedia(downloadRequest.getUniqueHash())?.let { downloadStage ->
+            shortToast(
+                translation[if (downloadStage.isFinalStage) {
+                    "already_downloaded_toast"
+                } else {
+                    "already_queued_toast"
+                }]
+            )
+            return
+        }
 
         GlobalScope.launch(Dispatchers.IO) {
             val pendingDownloadObject = PendingDownload.fromBundle(intent.extras!!)

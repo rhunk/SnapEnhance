@@ -115,8 +115,16 @@ enum class ConfigProperty(
         "download_options",
         ConfigCategory.MEDIA_MANAGEMENT,
         ConfigStateListValue(
-            listOf("format_user_folder", "format_hash", "format_date_time", "format_username", "merge_overlay"),
+            listOf(
+                "allow_duplicate",
+                "format_user_folder",
+                "format_hash",
+                "format_date_time",
+                "format_username",
+                "merge_overlay"
+            ),
             mutableMapOf(
+                "allow_duplicate" to false,
                 "format_user_folder" to true,
                 "format_hash" to true,
                 "format_date_time" to true,

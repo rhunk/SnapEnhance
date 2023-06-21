@@ -13,7 +13,8 @@ class DownloadManagerClient (
     private val outputPath: String,
     private val mediaDisplaySource: String?,
     private val mediaDisplayType: String?,
-    private val iconUrl: String?
+    private val iconUrl: String?,
+    private val uniqueHash: String?
 ) {
     private fun sendToBroadcastReceiver(bundle: Bundle) {
         val intent = Intent()
@@ -32,10 +33,11 @@ class DownloadManagerClient (
             putString("mediaDisplaySource", mediaDisplaySource)
             putString("mediaDisplayType", mediaDisplayType)
             putString("iconUrl", iconUrl)
+            putString("uniqueHash", uniqueHash)
         }.apply(extras))
     }
 
-    fun downloadDashMedia(playlistUrl: String, offsetTime: Long, duration: Long) {
+    fun downloadDashMedia(playlistUrl: String, offsetTime: Long, duration: Long?) {
         sendToBroadcastReceiver(
             DownloadRequest(
                 inputMedias = arrayOf(playlistUrl),
@@ -44,8 +46,8 @@ class DownloadManagerClient (
             )
         ) {
             putBundle("dashOptions", Bundle().apply {
-                putLong("offsetTime", offsetTime)
-                putLong("duration", duration)
+                putString("offsetTime", offsetTime.toString())
+                duration?.let { putString("duration", it.toString()) }
             })
         }
     }

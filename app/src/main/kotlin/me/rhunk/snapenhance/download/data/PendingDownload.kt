@@ -13,7 +13,8 @@ data class PendingDownload(
     val outputPath: String,
     val mediaDisplayType: String?,
     val mediaDisplaySource: String?,
-    val iconUrl: String?
+    val iconUrl: String?,
+    val uniqueHash: String?
 ) {
     companion object {
         fun fromBundle(bundle: Bundle): PendingDownload {
@@ -21,7 +22,8 @@ data class PendingDownload(
                 outputPath = bundle.getString("outputPath")!!,
                 mediaDisplayType = bundle.getString("mediaDisplayType"),
                 mediaDisplaySource = bundle.getString("mediaDisplaySource"),
-                iconUrl = bundle.getString("iconUrl")
+                iconUrl = bundle.getString("iconUrl"),
+                uniqueHash = bundle.getString("uniqueHash")
             )
         }
     }

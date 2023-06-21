@@ -20,6 +20,7 @@ class DownloadTaskManager {
             SQLiteDatabaseHelper.createTablesFromSchema(this, mapOf(
                 "tasks" to listOf(
                     "id INTEGER PRIMARY KEY AUTOINCREMENT",
+                    "hash VARCHAR UNIQUE",
                     "outputPath TEXT",
                     "outputFile TEXT",
                     "mediaDisplayType TEXT",
@@ -32,8 +33,9 @@ class DownloadTaskManager {
     }
 
     fun addTask(task: PendingDownload): Int {
-        taskDatabase.execSQL("INSERT INTO tasks (outputPath, outputFile, mediaDisplayType, mediaDisplaySource, iconUrl, downloadStage) VALUES (?, ?, ?, ?, ?, ?)",
+        taskDatabase.execSQL("INSERT INTO tasks (hash, outputPath, outputFile, mediaDisplayType, mediaDisplaySource, iconUrl, downloadStage) VALUES (?, ?, ?, ?, ?, ?, ?)",
             arrayOf(
+                task.uniqueHash,
                 task.outputPath,
                 task.outputFile,
                 task.mediaDisplayType,
@@ -51,8 +53,9 @@ class DownloadTaskManager {
     }
 
     fun updateTask(task: PendingDownload) {
-        taskDatabase.execSQL("UPDATE tasks SET outputPath = ?, outputFile = ?, mediaDisplayType = ?, mediaDisplaySource = ?, iconUrl = ?, downloadStage = ? WHERE id = ?",
+        taskDatabase.execSQL("UPDATE tasks SET hash = ?, outputPath = ?, outputFile = ?, mediaDisplayType = ?, mediaDisplaySource = ?, iconUrl = ?, downloadStage = ? WHERE id = ?",
             arrayOf(
+                task.uniqueHash,
                 task.outputPath,
                 task.outputFile,
                 task.mediaDisplayType,
@@ -69,6 +72,28 @@ class DownloadTaskManager {
             pendingTasks.remove(task.id)
             cachedTasks[task.id] = task
         }
+    }
+
+    @SuppressLint("Range")
+    fun canDownloadMedia(mediaIdentifier: String?): DownloadStage? {
+        if (mediaIdentifier == null) return null
+
+        val cursor = taskDatabase.rawQuery("SELECT * FROM tasks WHERE hash = ?", arrayOf(mediaIdentifier))
+        if (cursor.count > 0) {
+            cursor.moveToFirst()
+            val downloadStage = DownloadStage.valueOf(cursor.getString(cursor.getColumnIndex("downloadStage")))
+            cursor.close()
+
+            //if the stage has reached a final stage and is not in a saved state, remove the task
+            if (downloadStage.isFinalStage && downloadStage != DownloadStage.SAVED) {
+                taskDatabase.execSQL("DELETE FROM tasks WHERE hash = ?", arrayOf(mediaIdentifier))
+                return null
+            }
+
+            return downloadStage
+        }
+        cursor.close()
+        return null
     }
 
     fun isEmpty(): Boolean {
@@ -127,6 +152,7 @@ class DownloadTaskManager {
                 outputPath = cursor.getString(cursor.getColumnIndex("outputPath")),
                 mediaDisplayType = cursor.getString(cursor.getColumnIndex("mediaDisplayType")),
                 mediaDisplaySource = cursor.getString(cursor.getColumnIndex("mediaDisplaySource")),
+                uniqueHash = cursor.getString(cursor.getColumnIndex("hash")),
                 iconUrl = cursor.getString(cursor.getColumnIndex("iconUrl"))
             ).apply {
                 downloadStage = DownloadStage.valueOf(cursor.getString(cursor.getColumnIndex("downloadStage")))
