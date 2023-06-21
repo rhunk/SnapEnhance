@@ -2,7 +2,7 @@ package me.rhunk.snapenhance.download.data
 
 import android.os.Bundle
 import kotlinx.coroutines.Job
-import me.rhunk.snapenhance.download.MediaDownloadReceiver
+import me.rhunk.snapenhance.SharedContext
 import me.rhunk.snapenhance.download.enums.DownloadStage
 
 data class PendingDownload(
@@ -35,7 +35,7 @@ data class PendingDownload(
         set(value) = synchronized(this) {
             changeListener(_stage, value)
             _stage = value
-            MediaDownloadReceiver.downloadTaskManager.updateTask(this)
+            SharedContext.downloadTaskManager.updateTask(this)
         }
 
     fun isJobActive(): Boolean {

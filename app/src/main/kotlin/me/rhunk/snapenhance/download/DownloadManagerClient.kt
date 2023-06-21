@@ -8,7 +8,7 @@ import me.rhunk.snapenhance.download.data.DownloadRequest
 import me.rhunk.snapenhance.download.data.MediaEncryptionKeyPair
 import me.rhunk.snapenhance.download.enums.DownloadMediaType
 
-class ClientDownloadManager (
+class DownloadManagerClient (
     private val context: ModContext,
     private val outputPath: String,
     private val mediaDisplaySource: String?,
@@ -17,8 +17,8 @@ class ClientDownloadManager (
 ) {
     private fun sendToBroadcastReceiver(bundle: Bundle) {
         val intent = Intent()
-        intent.setClassName(BuildConfig.APPLICATION_ID, MediaDownloadReceiver::class.java.name)
-        intent.action = MediaDownloadReceiver.DOWNLOAD_ACTION
+        intent.setClassName(BuildConfig.APPLICATION_ID, DownloadManagerReceiver::class.java.name)
+        intent.action = DownloadManagerReceiver.DOWNLOAD_ACTION
         intent.putExtras(bundle)
         context.androidContext.sendBroadcast(intent)
     }

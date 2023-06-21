@@ -18,21 +18,15 @@ import androidx.recyclerview.widget.RecyclerView
 import me.rhunk.snapenhance.BuildConfig
 import me.rhunk.snapenhance.R
 import me.rhunk.snapenhance.bridge.TranslationWrapper
-import me.rhunk.snapenhance.download.MediaDownloadReceiver
+import me.rhunk.snapenhance.SharedContext
 import me.rhunk.snapenhance.download.data.PendingDownload
 
 class DownloadManagerActivity : Activity() {
-    val translation by lazy {
-        TranslationWrapper().also { it.loadFromContext(this) }.getCategory("download_manager_activity")
-    }
+    lateinit var translation: TranslationWrapper
 
     private val backCallbacks = mutableListOf<() -> Unit>()
     private val fetchedDownloadTasks = mutableListOf<PendingDownload>()
     private var listFilter = MediaFilter.NONE
-
-    private val downloadTaskManager by lazy {
-        MediaDownloadReceiver.downloadTaskManager.also { it.init(this) }
-    }
 
     private val preferences by lazy {
         getSharedPreferences("settings", Context.MODE_PRIVATE)
@@ -48,7 +42,7 @@ class DownloadManagerActivity : Activity() {
     @SuppressLint("NotifyDataSetChanged")
     private fun updateListContent() {
         fetchedDownloadTasks.clear()
-        fetchedDownloadTasks.addAll(downloadTaskManager.queryAllTasks(filter = listFilter).values)
+        fetchedDownloadTasks.addAll(SharedContext.downloadTaskManager.queryAllTasks(filter = listFilter).values)
 
         with(findViewById<RecyclerView>(R.id.download_list)) {
             adapter?.notifyDataSetChanged()
@@ -73,6 +67,8 @@ class DownloadManagerActivity : Activity() {
     @SuppressLint("BatteryLife", "NotifyDataSetChanged", "SetTextI18n")
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        SharedContext.ensureInitialized(this)
+        translation = SharedContext.translation.getCategory("download_manager_activity")
         
         setContentView(R.layout.download_manager_activity)
 
@@ -118,7 +114,7 @@ class DownloadManagerActivity : Activity() {
                 @SuppressLint("NotifyDataSetChanged")
                 override fun onSwiped(viewHolder: RecyclerView.ViewHolder, direction: Int) {
                     fetchedDownloadTasks.removeAt(viewHolder.absoluteAdapterPosition).let {
-                        downloadTaskManager.removeTask(it)
+                        SharedContext.downloadTaskManager.removeTask(it)
                     }
                     adapter?.notifyItemRemoved(viewHolder.absoluteAdapterPosition)
                 }
@@ -138,7 +134,7 @@ class DownloadManagerActivity : Activity() {
                     if (lastVisibleItemPosition == fetchedDownloadTasks.size - 1 && !isLoading) {
                         isLoading = true
 
-                        downloadTaskManager.queryTasks(fetchedDownloadTasks.last().id, filter = listFilter).forEach {
+                        SharedContext.downloadTaskManager.queryTasks(fetchedDownloadTasks.last().id, filter = listFilter).forEach {
                             fetchedDownloadTasks.add(it.value)
                             adapter?.notifyItemInserted(fetchedDownloadTasks.size - 1)
                         }
@@ -176,7 +172,7 @@ class DownloadManagerActivity : Activity() {
                     setTitle(translation["remove_all_title"])
                     setMessage(translation["remove_all_text"])
                     setPositiveButton(translation["button.positive"]) { _, _ ->
-                        downloadTaskManager.removeAllTasks()
+                        SharedContext.downloadTaskManager.removeAllTasks()
                         fetchedDownloadTasks.removeIf {
                             if (it.isJobActive()) it.cancel()
                             true

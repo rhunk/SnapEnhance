@@ -230,5 +230,13 @@
             "reset_all_confirmation": "Are you sure you want to reset all settings?",
             "success_toast": "Success!"
         }
+    },
+    "download_manager_receiver": {
+        "saved_toast": "Saved to {path}",
+        "download_toast": "Downloading {path}...",
+        "processing_toast": "Processing {path}...",
+        "failed_generic_toast": "Failed to download",
+        "failed_processing_toast": "Failed to process {error}",
+        "failed_gallery_toast": "Failed to save to gallery {error}"
     }
 }
