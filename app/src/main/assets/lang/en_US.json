@@ -161,7 +161,7 @@
     },
 
     "conversation_preview": {
-        "streak_expiration": "expires in %s days %s hours %s minutes",
+        "streak_expiration": "expires in {day} days {hour} hours {minute} minutes",
         "title": "Preview",
         "unknown_user": "Unknown User"
     },

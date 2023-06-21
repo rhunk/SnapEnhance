@@ -154,10 +154,10 @@ class FriendFeedInfoMenu : AbstractMenu() {
             messageBuilder.append("\n\n")
                 .append("\uD83D\uDD25 ") //fire emoji
                 .append(
-                    context.translation["conversation_preview.streak_expiration"].format(
-                    timeSecondDiff / 60 / 24,
-                    timeSecondDiff / 60 % 24,
-                    timeSecondDiff % 60
+                    context.translation.format("conversation_preview.streak_expiration",
+                    "day" to (timeSecondDiff / 60 / 24).toString(),
+                    "hour" to (timeSecondDiff / 60 % 24).toString(),
+                    "minute" to (timeSecondDiff % 60).toString()
                 ))
         }
 
