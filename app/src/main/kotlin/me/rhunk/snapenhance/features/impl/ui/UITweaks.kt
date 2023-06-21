@@ -19,19 +19,21 @@ class UITweaks : Feature("UITweaks", loadParams = FeatureLoadParams.ACTIVITY_CRE
         val isImmersiveCamera = context.config.bool(ConfigProperty.IMMERSIVE_CAMERA_PREVIEW)
         val resources = context.resources
 
+        fun findIdentifier(name: String, defType: String) = resources.getIdentifier(name, defType, Constants.SNAPCHAT_PACKAGE_NAME)
+
         val displayMetrics = context.resources.displayMetrics
 
-        val capriViewfinderDefaultCornerRadius = resources.getIdentifier("capri_viewfinder_default_corner_radius", "dimen", Constants.SNAPCHAT_PACKAGE_NAME)
-        val ngsHovaNavLargerCameraButtonSize = resources.getIdentifier("ngs_hova_nav_larger_camera_button_size", "dimen", Constants.SNAPCHAT_PACKAGE_NAME)
-        val fullScreenSurfaceView = resources.getIdentifier("full_screen_surface_view", "id", Constants.SNAPCHAT_PACKAGE_NAME)
+        val capriViewfinderDefaultCornerRadius = findIdentifier("capri_viewfinder_default_corner_radius", "dimen")
+        val ngsHovaNavLargerCameraButtonSize = findIdentifier("ngs_hova_nav_larger_camera_button_size", "dimen")
+        val fullScreenSurfaceView = findIdentifier("full_screen_surface_view", "id")
 
-        val callButtonsStub = resources.getIdentifier("call_buttons_stub", "id", Constants.SNAPCHAT_PACKAGE_NAME)
-        val callButton1 = resources.getIdentifier("friend_action_button3", "id", Constants.SNAPCHAT_PACKAGE_NAME)
-        val callButton2 = resources.getIdentifier("friend_action_button4", "id", Constants.SNAPCHAT_PACKAGE_NAME)
+        val callButtonsStub = findIdentifier("call_buttons_stub", "id")
+        val callButton1 = findIdentifier("friend_action_button3", "id")
+        val callButton2 = findIdentifier("friend_action_button4", "id")
 
-        val chatNoteRecordButton = resources.getIdentifier("chat_note_record_button", "id", Constants.SNAPCHAT_PACKAGE_NAME)
-        val chatInputBarSticker = resources.getIdentifier("chat_input_bar_sticker", "id", Constants.SNAPCHAT_PACKAGE_NAME)
-        val chatInputBarCognac = resources.getIdentifier("chat_input_bar_cognac", "id", Constants.SNAPCHAT_PACKAGE_NAME)
+        val chatNoteRecordButton = findIdentifier("chat_note_record_button", "id")
+        val chatInputBarSticker = findIdentifier("chat_input_bar_sticker", "id")
+        val chatInputBarCognac = findIdentifier("chat_input_bar_cognac", "id")
 
         Resources::class.java.methods.first { it.name == "getDimensionPixelSize"}.hook(HookStage.AFTER,
             { isImmersiveCamera }

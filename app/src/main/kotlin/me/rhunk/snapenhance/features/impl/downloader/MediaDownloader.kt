@@ -29,6 +29,7 @@ import me.rhunk.snapenhance.features.impl.spying.MessageLogger
 import me.rhunk.snapenhance.hook.HookAdapter
 import me.rhunk.snapenhance.hook.HookStage
 import me.rhunk.snapenhance.hook.Hooker
+import me.rhunk.snapenhance.ui.download.MediaFilter
 import me.rhunk.snapenhance.util.snap.EncryptionHelper
 import me.rhunk.snapenhance.util.snap.MediaDownloaderHelper
 import me.rhunk.snapenhance.util.snap.MediaType
@@ -193,7 +194,7 @@ class MediaDownloader : Feature("MediaDownloader", loadParams = FeatureLoadParam
 
             val author = context.database.getFriendInfo(senderId) ?: return
             val authorUsername = author.usernameForSorting!!
-            downloadOperaMedia(provideClientDownloadManager(authorUsername, authorUsername, "Chat Media", friendInfo = author), mediaInfoMap)
+            downloadOperaMedia(provideClientDownloadManager(authorUsername, authorUsername, MediaFilter.CHAT_MEDIA.mediaDisplayType, friendInfo = author), mediaInfoMap)
             return
         }
 
@@ -209,7 +210,7 @@ class MediaDownloader : Feature("MediaDownloader", loadParams = FeatureLoadParam
             val author = context.database.getFriendInfo(if (storyUserId == "null") context.database.getMyUserId()!! else storyUserId) ?: return
             val authorName = author.usernameForSorting!!
 
-            downloadOperaMedia(provideClientDownloadManager(authorName, authorName, "Story", friendInfo = author), mediaInfoMap, )
+            downloadOperaMedia(provideClientDownloadManager(authorName, authorName, MediaFilter.STORY.mediaDisplayType, friendInfo = author), mediaInfoMap, )
             return
         }
 
@@ -227,7 +228,7 @@ class MediaDownloader : Feature("MediaDownloader", loadParams = FeatureLoadParam
 
         //spotlight
         if (snapSource == "SINGLE_SNAP_STORY" && (forceDownload || canAutoDownload("spotlight"))) {
-            downloadOperaMedia(provideClientDownloadManager("Spotlight", mediaDisplayType = "Spotlight", mediaDisplaySource = paramMap["TIME_STAMP"].toString()), mediaInfoMap)
+            downloadOperaMedia(provideClientDownloadManager("Spotlight", mediaDisplayType = MediaFilter.SPOTLIGHT.mediaDisplayType, mediaDisplaySource = paramMap["TIME_STAMP"].toString()), mediaInfoMap)
             return
         }
 
@@ -383,7 +384,7 @@ class MediaDownloader : Feature("MediaDownloader", loadParams = FeatureLoadParam
         runCatching {
             if (!isPreviewMode) {
                 val encryptionKeys = EncryptionHelper.getEncryptionKeys(contentType, messageReader, isArroyo = isArroyoMessage)
-                provideClientDownloadManager(authorName, authorName, "Chat Media", friendInfo = friendInfo).downloadMedia(
+                provideClientDownloadManager(authorName, authorName, MediaFilter.CHAT_MEDIA.mediaDisplayType, friendInfo = friendInfo).downloadMedia(
                     Base64.UrlSafe.encode(urlProto),
                     DownloadMediaType.PROTO_MEDIA,
                     encryption = encryptionKeys?.toKeyPair()
