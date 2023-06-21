@@ -128,7 +128,7 @@ class DownloadManagerReceiver : BroadcastReceiver() {
                 if (!it.endsWith("/")) "$it/" else it
             }
 
-            longToast(
+            shortToast(
                 translation.format("saved_toast", "path" to outputFile.absolutePath.replace(parentName ?: "", ""))
             )
 
