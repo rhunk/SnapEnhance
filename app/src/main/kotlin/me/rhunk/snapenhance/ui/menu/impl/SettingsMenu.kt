@@ -36,7 +36,7 @@ class SettingsMenu : AbstractMenu() {
 
     @SuppressLint("SetTextI18n")
     private fun createPropertyView(property: ConfigProperty): View {
-        val propertyName = context.translation[property.nameKey]
+        val propertyName = context.translation["property.${property.translationKey}"]
         val updateButtonText: (TextView, String) -> Unit = { textView, text ->
             textView.text = "$propertyName${if (text.isEmpty()) "" else ": $text"}"
         }
@@ -50,7 +50,7 @@ class SettingsMenu : AbstractMenu() {
                     if (property.disableValueLocalization) {
                         it
                     } else {
-                        context.translation["option." + property.nameKey + "." + it]
+                        context.translation["option.property." + property.translationKey + "." + it]
                     }
                 }
             })
@@ -129,7 +129,7 @@ class SettingsMenu : AbstractMenu() {
                     builder.setSingleChoiceItems(
                         property.valueContainer.keys().toTypedArray().map {
                             if (property.disableValueLocalization) it
-                            else context.translation["option." + property.nameKey + "." + it]
+                            else context.translation["option.property." + property.translationKey + "." + it]
                         }.toTypedArray(),
                         property.valueContainer.keys().indexOf(property.valueContainer.value())
                     ) { _, which ->
@@ -158,7 +158,7 @@ class SettingsMenu : AbstractMenu() {
                     builder.setMultiChoiceItems(
                         sortedStates.toSortedMap().map {
                             if (property.disableValueLocalization) it.key
-                            else context.translation["option." + property.nameKey + "." + it.key]
+                            else context.translation["option.property." + property.translationKey + "." + it.key]
                         }.toTypedArray(),
                         sortedStates.map { it.value }.toBooleanArray()
                     ) { _, which, isChecked ->
