@@ -199,5 +199,36 @@
         "finished": "Done! You now can close this dialog.",
         "no_messages_found": "No messages found!",
         "exporting_message": "Exporting {conversation}..."
+    },
+
+    "download_manager_activity": {
+        "remove_all_title": "Remove all Downloads",
+        "remove_all_text": "Are you sure you want to do this?",
+        "remove_all": "Remove All",
+        "no_downloads": "No downloads",
+        "cancel": "Cancel",
+        "file_not_found_toast": "File does not exist!",
+        "category": {
+            "all_category": "All",
+            "pending_category": "Pending",
+            "snap_category": "Snaps",
+            "story_category": "Stories",
+            "spotlight_category": "Spotlight"
+        },
+        "settings": "Settings",
+        "button": {
+            "positive": "Yes",
+            "negative": "No",
+            "cancel": "Cancel",
+            "open": "Open"
+        },
+        "settings_page": {
+            "clear_file_title": "Clear {file_name} file",
+            "clear_file_confirmation": "Are you sure you want to clear the {file_name} file?",
+            "clear_cache_title": "Clear Cache",
+            "reset_all_title": "Reset all settings",
+            "reset_all_confirmation": "Are you sure you want to reset all settings?",
+            "success_toast": "Success!"
+        }
     }
 }

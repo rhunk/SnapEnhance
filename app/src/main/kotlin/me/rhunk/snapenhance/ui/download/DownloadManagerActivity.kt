@@ -10,7 +10,6 @@ import android.os.Bundle
 import android.os.PowerManager
 import android.provider.Settings
 import android.view.View
-import android.view.ViewGroup
 import android.widget.Button
 import android.widget.ImageButton
 import android.widget.TextView
@@ -18,10 +17,15 @@ import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.RecyclerView
 import me.rhunk.snapenhance.BuildConfig
 import me.rhunk.snapenhance.R
+import me.rhunk.snapenhance.bridge.TranslationWrapper
 import me.rhunk.snapenhance.download.MediaDownloadReceiver
 import me.rhunk.snapenhance.download.data.PendingDownload
 
 class DownloadManagerActivity : Activity() {
+    val translation by lazy {
+        TranslationWrapper().also { it.loadFromContext(this) }.getCategory("download_manager_activity")
+    }
+
     private val backCallbacks = mutableListOf<() -> Unit>()
     private val fetchedDownloadTasks = mutableListOf<PendingDownload>()
     private var listFilter = MediaFilter.NONE
@@ -35,7 +39,8 @@ class DownloadManagerActivity : Activity() {
     }
 
     private fun updateNoDownloadText() {
-        findViewById<View>(R.id.no_download_title).let {
+        findViewById<TextView>(R.id.no_download_title).let {
+            it.text = translation["no_downloads"]
             it.visibility = if (fetchedDownloadTasks.isEmpty()) View.VISIBLE else View.GONE
         }
     }
@@ -75,13 +80,13 @@ class DownloadManagerActivity : Activity() {
         findViewById<TextView>(R.id.title).text = resources.getString(R.string.app_name) + " " + BuildConfig.VERSION_NAME
 
         findViewById<ImageButton>(R.id.settings_button).setOnClickListener {
-            SettingLayoutInflater(this).inflate(findViewById<ViewGroup>(android.R.id.content))
+            SettingLayoutInflater(this).inflate(findViewById(android.R.id.content))
         }
         
         with(findViewById<RecyclerView>(R.id.download_list)) {
             layoutManager = androidx.recyclerview.widget.LinearLayoutManager(this@DownloadManagerActivity)
 
-            adapter = DownloadListAdapter(fetchedDownloadTasks).apply {
+            adapter = DownloadListAdapter(this@DownloadManagerActivity, fetchedDownloadTasks).apply {
                 registerAdapterDataObserver(object : RecyclerView.AdapterDataObserver() {
                     override fun onItemRangeRemoved(positionStart: Int, itemCount: Int) {
                         updateNoDownloadText()
@@ -151,7 +156,9 @@ class DownloadManagerActivity : Activity() {
                 Pair(R.id.spotlight_category, MediaFilter.SPOTLIGHT)
             ).let { categoryPairs ->
                 categoryPairs.forEach { pair ->
-                    this@DownloadManagerActivity.findViewById<TextView>(pair.first).setOnClickListener { view ->
+                    this@DownloadManagerActivity.findViewById<TextView>(pair.first).apply {
+                        text = translation["category.${resources.getResourceEntryName(pair.first)}"]
+                    }.setOnClickListener { view ->
                         listFilter = pair.second
                         updateListContent()
                         categoryPairs.map { this@DownloadManagerActivity.findViewById<TextView>(it.first) }.forEach {
@@ -162,11 +169,13 @@ class DownloadManagerActivity : Activity() {
                 }
             }
 
-            this@DownloadManagerActivity.findViewById<Button>(R.id.remove_all_button).setOnClickListener {
+            this@DownloadManagerActivity.findViewById<Button>(R.id.remove_all_button).also {
+                it.text = translation["remove_all"]
+            }.setOnClickListener {
                 with(AlertDialog.Builder(this@DownloadManagerActivity)) {
-                    setTitle(R.string.remove_all_title)
-                    setMessage(R.string.remove_all_text)
-                    setPositiveButton("Yes") { _, _ ->
+                    setTitle(translation["remove_all_title"])
+                    setMessage(translation["remove_all_text"])
+                    setPositiveButton(translation["button.positive"]) { _, _ ->
                         downloadTaskManager.removeAllTasks()
                         fetchedDownloadTasks.removeIf {
                             if (it.isJobActive()) it.cancel()
@@ -175,7 +184,7 @@ class DownloadManagerActivity : Activity() {
                         adapter?.notifyDataSetChanged()
                         updateNoDownloadText()
                     }
-                    setNegativeButton("Cancel") { dialog, _ ->
+                    setNegativeButton(translation["button.negative"]) { dialog, _ ->
                         dialog.dismiss()
                     }
                     show()

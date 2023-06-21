@@ -74,13 +74,23 @@ class TranslationWrapper {
         }
     }
 
-    fun get(key: String): String {
-        return translationMap[key] ?: key.also { Logger.xposedLog("Missing translation for $key") }
+    operator fun get(key: String): String {
+        return translationMap[key] ?: key.also { Logger.debug("Missing translation for $key") }
     }
 
     fun format(key: String, vararg args: Pair<String, String>): String {
         return args.fold(get(key)) { acc, pair ->
             acc.replace("{${pair.first}}", pair.second)
+        }
+    }
+
+    fun getCategory(key: String): TranslationWrapper {
+        return TranslationWrapper().apply {
+            translationMap.putAll(
+                this@TranslationWrapper.translationMap
+                    .filterKeys { it.startsWith("$key.") }
+                    .mapKeys { it.key.substring(key.length + 1) }
+            )
         }
     }
 }
