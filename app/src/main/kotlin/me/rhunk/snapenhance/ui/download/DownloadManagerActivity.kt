@@ -14,6 +14,7 @@ import android.widget.Button
 import android.widget.TextView
 import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.RecyclerView
+import me.rhunk.snapenhance.BuildConfig
 import me.rhunk.snapenhance.R
 import me.rhunk.snapenhance.download.MediaDownloadReceiver
 import me.rhunk.snapenhance.download.data.PendingDownload
@@ -48,14 +49,15 @@ class DownloadManagerActivity : Activity() {
         updateNoDownloadText()
     }
 
-    @SuppressLint("BatteryLife", "NotifyDataSetChanged")
+    @SuppressLint("BatteryLife", "NotifyDataSetChanged", "SetTextI18n")
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         
         setContentView(R.layout.download_manager_activity)
         
         window.navigationBarColor = getColor(R.color.primaryBackground)
-
+        findViewById<TextView>(R.id.title).text = resources.getString(R.string.app_name) + " " + BuildConfig.VERSION_NAME
+        
         with(findViewById<RecyclerView>(R.id.download_list)) {
             layoutManager = androidx.recyclerview.widget.LinearLayoutManager(this@DownloadManagerActivity)
 

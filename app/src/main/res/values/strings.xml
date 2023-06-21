@@ -10,4 +10,6 @@
     <string name="snap_category">Snaps</string>
     <string name="story_category">Stories</string>
     <string name="spotlight_category">Spotlight</string>
+    <string name="settings">Settings</string>
+    <string name="refresh_mappings">Refresh Mappings</string>
 </resources>
