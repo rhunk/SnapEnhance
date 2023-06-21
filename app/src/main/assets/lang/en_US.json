@@ -87,6 +87,7 @@
                 "conversation_info": "\uD83D\uDC64 Conversation Info"
             },
             "download_options": {
+                "allow_duplicate": "Allow duplicate downloads",
                 "format_user_folder": "Create folder for each user",
                 "format_hash": "Add a unique hash to the file path",
                 "format_username": "Add the username to the file path",
@@ -232,6 +233,8 @@
         }
     },
     "download_manager_receiver": {
+        "already_queued_toast": "Media already in queue!",
+        "already_downloaded_toast": "Media already downloaded!",
         "saved_toast": "Saved to {path}",
         "download_toast": "Downloading {path}...",
         "processing_toast": "Processing {path}...",

@@ -13,7 +13,8 @@ class DownloadManagerClient (
     private val outputPath: String,
     private val mediaDisplaySource: String?,
     private val mediaDisplayType: String?,
-    private val iconUrl: String?
+    private val iconUrl: String?,
+    private val uniqueHash: String?
 ) {
     private fun sendToBroadcastReceiver(bundle: Bundle) {
         val intent = Intent()
@@ -32,6 +33,7 @@ class DownloadManagerClient (
             putString("mediaDisplaySource", mediaDisplaySource)
             putString("mediaDisplayType", mediaDisplayType)
             putString("iconUrl", iconUrl)
+            putString("uniqueHash", uniqueHash)
         }.apply(extras))
     }
 

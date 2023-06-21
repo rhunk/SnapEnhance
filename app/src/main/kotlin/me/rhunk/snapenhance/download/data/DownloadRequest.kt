@@ -19,7 +19,8 @@ class DownloadRequest(
     private val flags: Int = 0,
     private val dashOptions: Map<String, String?>? = null,
     private val mediaDisplaySource: String? = null,
-    private val mediaDisplayType: String? = null
+    private val mediaDisplayType: String? = null,
+    private val uniqueHash: String? = null
 ) {
     companion object {
         fun fromBundle(bundle: Bundle): DownloadRequest {
@@ -39,7 +40,8 @@ class DownloadRequest(
                         options.getString(key)
                     }
                 },
-                flags = bundle.getInt("flags", 0)
+                flags = bundle.getInt("flags", 0),
+                uniqueHash = bundle.getString("uniqueHash")
             )
         }
     }
@@ -62,6 +64,7 @@ class DownloadRequest(
                 }
             })
             putInt("flags", flags)
+            putString("uniqueHash", uniqueHash)
         }
     }
 
@@ -85,10 +88,6 @@ class DownloadRequest(
         }
     }
 
-    fun getInputMedia(index: Int): String? {
-        return inputMedias.getOrNull(index)
-    }
-
     fun getInputMedias(): List<InputMedia> {
         return inputMedias.mapIndexed { index, uri ->
             InputMedia(
@@ -102,4 +101,6 @@ class DownloadRequest(
     fun getInputType(index: Int): DownloadMediaType? {
         return inputTypes.getOrNull(index)?.let { DownloadMediaType.valueOf(it) }
     }
+
+    fun getUniqueHash() = uniqueHash
 }
