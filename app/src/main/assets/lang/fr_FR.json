@@ -159,7 +159,7 @@
         "username": "Nom d'utilisateur",
         "display_name": "Nom d'affichage",
         "added_date": "Date d'ajout",
-        "birthday": "Anniversaire : {month} {day}"
+        "birthday": "Anniversaire : {day} {month}"
     },
     "auto_updater": {
         "no_update_available": "Aucune mise à jour disponible !",
