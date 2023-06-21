@@ -131,6 +131,8 @@ class DownloadListAdapter(
             }
         }
 
+        holder.bitmojiIcon.setImageResource(R.drawable.bitmoji_blank)
+
         pendingDownload.iconUrl?.let { url ->
             thread(start = true) {
                 runCatching {
