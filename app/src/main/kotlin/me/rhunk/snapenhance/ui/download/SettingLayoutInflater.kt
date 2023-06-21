@@ -10,6 +10,7 @@ import android.widget.TextView
 import android.widget.Toast
 import me.rhunk.snapenhance.R
 import me.rhunk.snapenhance.bridge.common.impl.file.BridgeFileType
+import java.io.File
 
 class SettingAdapter(
     private val activity: DownloadManagerActivity,
@@ -57,7 +58,9 @@ class SettingLayoutInflater(
         settingsView.findViewById<ListView>(R.id.setting_page_list).apply {
             adapter = SettingAdapter(activity, R.layout.setting_item, mutableListOf<Pair<String, () -> Unit>>().apply {
                 add("Clear Cache" to {
-                    context.cacheDir.deleteRecursively()
+                    context.cacheDir.listFiles()?.forEach {
+                        it.deleteRecursively()
+                    }
                     Toast.makeText(context, "Cache cleared", Toast.LENGTH_SHORT).show()
                 })
 
@@ -73,7 +76,11 @@ class SettingLayoutInflater(
 
                 add("Reset All" to {
                     confirmAction("Reset All", "Are you sure you want to reset all?") {
-                        context.dataDir.deleteRecursively()
+                        arrayOf(context.cacheDir, context.filesDir, File(context.dataDir, "databases"), File(context.dataDir, "shared_prefs")).forEach {
+                            it.listFiles()?.forEach { file ->
+                                file.deleteRecursively()
+                            }
+                        }
                         Toast.makeText(context, "Success!", Toast.LENGTH_SHORT).show()
                     }
                 })
