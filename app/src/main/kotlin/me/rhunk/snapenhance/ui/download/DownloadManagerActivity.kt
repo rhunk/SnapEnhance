@@ -10,7 +10,6 @@ import android.os.Bundle
 import android.os.PowerManager
 import android.provider.Settings
 import android.view.View
-import android.view.ViewGroup
 import android.widget.Button
 import android.widget.ImageButton
 import android.widget.TextView
@@ -18,24 +17,24 @@ import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.RecyclerView
 import me.rhunk.snapenhance.BuildConfig
 import me.rhunk.snapenhance.R
-import me.rhunk.snapenhance.download.MediaDownloadReceiver
+import me.rhunk.snapenhance.bridge.TranslationWrapper
+import me.rhunk.snapenhance.SharedContext
 import me.rhunk.snapenhance.download.data.PendingDownload
 
 class DownloadManagerActivity : Activity() {
+    lateinit var translation: TranslationWrapper
+
     private val backCallbacks = mutableListOf<() -> Unit>()
     private val fetchedDownloadTasks = mutableListOf<PendingDownload>()
     private var listFilter = MediaFilter.NONE
-
-    private val downloadTaskManager by lazy {
-        MediaDownloadReceiver.downloadTaskManager.also { it.init(this) }
-    }
 
     private val preferences by lazy {
         getSharedPreferences("settings", Context.MODE_PRIVATE)
     }
 
     private fun updateNoDownloadText() {
-        findViewById<View>(R.id.no_download_title).let {
+        findViewById<TextView>(R.id.no_download_title).let {
+            it.text = translation["no_downloads"]
             it.visibility = if (fetchedDownloadTasks.isEmpty()) View.VISIBLE else View.GONE
         }
     }
@@ -43,7 +42,7 @@ class DownloadManagerActivity : Activity() {
     @SuppressLint("NotifyDataSetChanged")
     private fun updateListContent() {
         fetchedDownloadTasks.clear()
-        fetchedDownloadTasks.addAll(downloadTaskManager.queryAllTasks(filter = listFilter).values)
+        fetchedDownloadTasks.addAll(SharedContext.downloadTaskManager.queryAllTasks(filter = listFilter).values)
 
         with(findViewById<RecyclerView>(R.id.download_list)) {
             adapter?.notifyDataSetChanged()
@@ -68,6 +67,8 @@ class DownloadManagerActivity : Activity() {
     @SuppressLint("BatteryLife", "NotifyDataSetChanged", "SetTextI18n")
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        SharedContext.ensureInitialized(this)
+        translation = SharedContext.translation.getCategory("download_manager_activity")
         
         setContentView(R.layout.download_manager_activity)
 
@@ -75,13 +76,13 @@ class DownloadManagerActivity : Activity() {
         findViewById<TextView>(R.id.title).text = resources.getString(R.string.app_name) + " " + BuildConfig.VERSION_NAME
 
         findViewById<ImageButton>(R.id.settings_button).setOnClickListener {
-            SettingLayoutInflater(this).inflate(findViewById<ViewGroup>(android.R.id.content))
+            SettingLayoutInflater(this).inflate(findViewById(android.R.id.content))
         }
         
         with(findViewById<RecyclerView>(R.id.download_list)) {
             layoutManager = androidx.recyclerview.widget.LinearLayoutManager(this@DownloadManagerActivity)
 
-            adapter = DownloadListAdapter(fetchedDownloadTasks).apply {
+            adapter = DownloadListAdapter(this@DownloadManagerActivity, fetchedDownloadTasks).apply {
                 registerAdapterDataObserver(object : RecyclerView.AdapterDataObserver() {
                     override fun onItemRangeRemoved(positionStart: Int, itemCount: Int) {
                         updateNoDownloadText()
@@ -113,7 +114,7 @@ class DownloadManagerActivity : Activity() {
                 @SuppressLint("NotifyDataSetChanged")
                 override fun onSwiped(viewHolder: RecyclerView.ViewHolder, direction: Int) {
                     fetchedDownloadTasks.removeAt(viewHolder.absoluteAdapterPosition).let {
-                        downloadTaskManager.removeTask(it)
+                        SharedContext.downloadTaskManager.removeTask(it)
                     }
                     adapter?.notifyItemRemoved(viewHolder.absoluteAdapterPosition)
                 }
@@ -133,7 +134,7 @@ class DownloadManagerActivity : Activity() {
                     if (lastVisibleItemPosition == fetchedDownloadTasks.size - 1 && !isLoading) {
                         isLoading = true
 
-                        downloadTaskManager.queryTasks(fetchedDownloadTasks.last().id, filter = listFilter).forEach {
+                        SharedContext.downloadTaskManager.queryTasks(fetchedDownloadTasks.last().id, filter = listFilter).forEach {
                             fetchedDownloadTasks.add(it.value)
                             adapter?.notifyItemInserted(fetchedDownloadTasks.size - 1)
                         }
@@ -151,7 +152,9 @@ class DownloadManagerActivity : Activity() {
                 Pair(R.id.spotlight_category, MediaFilter.SPOTLIGHT)
             ).let { categoryPairs ->
                 categoryPairs.forEach { pair ->
-                    this@DownloadManagerActivity.findViewById<TextView>(pair.first).setOnClickListener { view ->
+                    this@DownloadManagerActivity.findViewById<TextView>(pair.first).apply {
+                        text = translation["category.${resources.getResourceEntryName(pair.first)}"]
+                    }.setOnClickListener { view ->
                         listFilter = pair.second
                         updateListContent()
                         categoryPairs.map { this@DownloadManagerActivity.findViewById<TextView>(it.first) }.forEach {
@@ -162,12 +165,14 @@ class DownloadManagerActivity : Activity() {
                 }
             }
 
-            this@DownloadManagerActivity.findViewById<Button>(R.id.remove_all_button).setOnClickListener {
+            this@DownloadManagerActivity.findViewById<Button>(R.id.remove_all_button).also {
+                it.text = translation["remove_all"]
+            }.setOnClickListener {
                 with(AlertDialog.Builder(this@DownloadManagerActivity)) {
-                    setTitle(R.string.remove_all_title)
-                    setMessage(R.string.remove_all_text)
-                    setPositiveButton("Yes") { _, _ ->
-                        downloadTaskManager.removeAllTasks()
+                    setTitle(translation["remove_all_title"])
+                    setMessage(translation["remove_all_text"])
+                    setPositiveButton(translation["button.positive"]) { _, _ ->
+                        SharedContext.downloadTaskManager.removeAllTasks()
                         fetchedDownloadTasks.removeIf {
                             if (it.isJobActive()) it.cancel()
                             true
@@ -175,7 +180,7 @@ class DownloadManagerActivity : Activity() {
                         adapter?.notifyDataSetChanged()
                         updateNoDownloadText()
                     }
-                    setNegativeButton("Cancel") { dialog, _ ->
+                    setNegativeButton(translation["button.negative"]) { dialog, _ ->
                         dialog.dismiss()
                     }
                     show()

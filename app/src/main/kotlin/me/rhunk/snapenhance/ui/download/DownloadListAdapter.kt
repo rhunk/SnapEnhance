@@ -31,6 +31,7 @@ import java.net.URL
 import kotlin.concurrent.thread
 
 class DownloadListAdapter(
+    private val activity: DownloadManagerActivity,
     private val downloadList: MutableList<PendingDownload>
 ): Adapter<DownloadListAdapter.ViewHolder>() {
     private val previewJobs = mutableMapOf<Int, Job>()
@@ -54,15 +55,6 @@ class DownloadListAdapter(
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
         return ViewHolder(LayoutInflater.from(parent.context).inflate(R.layout.download_manager_item, parent, false))
-    }
-
-    override fun onViewRecycled(holder: ViewHolder) {
-        val download = downloadList.getOrNull(holder.bindingAdapterPosition) ?: return
-
-        previewJobs[holder.hashCode()]?.let {
-            it.cancel()
-            previewJobs.remove(holder.hashCode())
-        }
     }
 
     override fun getItemCount(): Int {
@@ -99,6 +91,11 @@ class DownloadListAdapter(
         }
     }
 
+    private val openButtonText by lazy {
+        activity.translation["button.open"]
+    }
+
+
     private fun updateViewHolder(download: PendingDownload, holder: ViewHolder) {
         holder.status.text = download.downloadStage.toString()
         holder.view.background = holder.view.context.getDrawable(R.drawable.download_manager_item_background)
@@ -117,7 +114,10 @@ class DownloadListAdapter(
             alpha = if (canInteract) 1f else 0.5f
             background = context.getDrawable(if (isSaved) R.drawable.action_button_success else R.drawable.action_button_cancel)
             setTextColor(context.getColor(if (isSaved) R.color.successColor else R.color.actionBarColor))
-            text = if (isSaved) "Open" else "Cancel"
+            text = if (isSaved)
+                activity.translation["button.open"]
+            else
+                activity.translation["button.cancel"]
         }
     }
 
@@ -171,7 +171,7 @@ class DownloadListAdapter(
             pendingDownload.outputFile?.let {
                 val file = File(it)
                 if (!file.exists()) {
-                    Toast.makeText(holder.view.context, "File does not exist", Toast.LENGTH_SHORT).show()
+                    Toast.makeText(holder.view.context, activity.translation["file_not_found_toast"], Toast.LENGTH_SHORT).show()
                     return@setOnClickListener
                 }
                 val intent = Intent(Intent.ACTION_VIEW)

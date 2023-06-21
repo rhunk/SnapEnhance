@@ -71,7 +71,7 @@
         android:background="@drawable/action_button_cancel"
         android:padding="5dp"
         android:layout_marginEnd="10dp"
-        android:text="@string/cancel"
+        android:text=""
         android:textColor="@color/darkText"
         tools:ignore="ButtonOrder" />
 </LinearLayout>

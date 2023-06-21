@@ -39,49 +39,56 @@ class SettingLayoutInflater(
             AlertDialog.Builder(activity)
                 .setTitle(title)
                 .setMessage(message)
-                .setPositiveButton("Yes") { _, _ ->
+                .setPositiveButton(activity.translation["button.positive"]) { _, _ ->
                     action()
                 }
-                .setNegativeButton("No") { _, _ -> }
+                .setNegativeButton(activity.translation["button.negative"]) { _, _ -> }
                 .show()
         }
     }
 
+    private fun showSuccessToast() {
+        Toast.makeText(activity, "Success", Toast.LENGTH_SHORT).show()
+    }
 
     fun inflate(parent: ViewGroup) {
         val settingsView = activity.layoutInflater.inflate(R.layout.settings_page, parent, false)
+
+        val settingTranslation = activity.translation.getCategory("settings_page")
 
         settingsView.findViewById<ImageButton>(R.id.settings_button).setOnClickListener {
             parent.removeView(settingsView)
         }
 
+        settingsView.findViewById<TextView>(R.id.title).text = activity.translation["settings"]
+
         settingsView.findViewById<ListView>(R.id.setting_page_list).apply {
             adapter = SettingAdapter(activity, R.layout.setting_item, mutableListOf<Pair<String, () -> Unit>>().apply {
-                add("Clear Cache" to {
+                add(settingTranslation["clear_cache_title"] to {
                     context.cacheDir.listFiles()?.forEach {
                         it.deleteRecursively()
                     }
-                    Toast.makeText(context, "Cache cleared", Toast.LENGTH_SHORT).show()
+                    showSuccessToast()
                 })
 
                 BridgeFileType.values().forEach { fileType ->
-                    val actionName = "Clear ${fileType.displayName} File"
+                    val actionName = settingTranslation.format("clear_file_title", "file_name" to fileType.displayName)
                     add(actionName to {
-                        confirmAction(actionName, "Are you sure you want to clear ${fileType.displayName} file?") {
+                        confirmAction(actionName, settingTranslation.format("clear_file_confirmation", "file_name" to fileType.displayName)) {
                             fileType.resolve(context).deleteRecursively()
-                            Toast.makeText(context, "${fileType.displayName} file cleared", Toast.LENGTH_SHORT).show()
+                            showSuccessToast()
                         }
                     })
                 }
 
-                add("Reset All" to {
-                    confirmAction("Reset All", "Are you sure you want to reset all?") {
+                add(settingTranslation["reset_all_title"] to {
+                    confirmAction(settingTranslation["reset_all_title"], settingTranslation["reset_all_confirmation"]) {
                         arrayOf(context.cacheDir, context.filesDir, File(context.dataDir, "databases"), File(context.dataDir, "shared_prefs")).forEach {
                             it.listFiles()?.forEach { file ->
                                 file.deleteRecursively()
                             }
                         }
-                        Toast.makeText(context, "Success!", Toast.LENGTH_SHORT).show()
+                        showSuccessToast()
                     }
                 })
             }.toTypedArray())

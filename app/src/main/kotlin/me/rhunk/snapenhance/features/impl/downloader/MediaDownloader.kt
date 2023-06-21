@@ -19,7 +19,7 @@ import me.rhunk.snapenhance.data.wrapper.impl.media.dash.SnapPlaylistItem
 import me.rhunk.snapenhance.data.wrapper.impl.media.opera.Layer
 import me.rhunk.snapenhance.data.wrapper.impl.media.opera.ParamMap
 import me.rhunk.snapenhance.database.objects.FriendInfo
-import me.rhunk.snapenhance.download.ClientDownloadManager
+import me.rhunk.snapenhance.download.DownloadManagerClient
 import me.rhunk.snapenhance.download.data.toKeyPair
 import me.rhunk.snapenhance.download.enums.DownloadMediaType
 import me.rhunk.snapenhance.features.Feature
@@ -59,7 +59,7 @@ class MediaDownloader : Feature("MediaDownloader", loadParams = FeatureLoadParam
         mediaDisplaySource: String? = null,
         mediaDisplayType: String? = null,
         friendInfo: FriendInfo? = null
-    ): ClientDownloadManager {
+    ): DownloadManagerClient {
         val iconUrl = friendInfo?.takeIf {
             it.bitmojiAvatarId != null && it.bitmojiSelfieId != null
         }?.let {
@@ -71,7 +71,7 @@ class MediaDownloader : Feature("MediaDownloader", loadParams = FeatureLoadParam
             createNewFilePath(pathSuffix.hashCode(), pathSuffix)
         ).absolutePath
 
-        return ClientDownloadManager(
+        return DownloadManagerClient(
             context = context,
             mediaDisplaySource = mediaDisplaySource,
             mediaDisplayType = mediaDisplayType,
@@ -143,7 +143,7 @@ class MediaDownloader : Feature("MediaDownloader", loadParams = FeatureLoadParam
         }
     }
 
-    private fun downloadOperaMedia(clientDownloadManager: ClientDownloadManager, mediaInfoMap: Map<MediaType, MediaInfo>) {
+    private fun downloadOperaMedia(downloadManagerClient: DownloadManagerClient, mediaInfoMap: Map<MediaType, MediaInfo>) {
         if (mediaInfoMap.isEmpty()) return
 
         val originalMediaInfo = mediaInfoMap[MediaType.ORIGINAL]!!
@@ -153,7 +153,7 @@ class MediaDownloader : Feature("MediaDownloader", loadParams = FeatureLoadParam
         val overlayReference = overlay?.let { handleLocalReferences(it.uri) }
 
         overlay?.let {
-            clientDownloadManager.downloadMediaWithOverlay(
+            downloadManagerClient.downloadMediaWithOverlay(
                 originalMediaInfoReference,
                 overlayReference!!,
                 DownloadMediaType.fromUri(Uri.parse(originalMediaInfoReference)),
@@ -164,7 +164,7 @@ class MediaDownloader : Feature("MediaDownloader", loadParams = FeatureLoadParam
             return
         }
 
-        clientDownloadManager.downloadMedia(
+        downloadManagerClient.downloadMedia(
             originalMediaInfoReference,
             DownloadMediaType.fromUri(Uri.parse(originalMediaInfoReference)),
             originalMediaInfo.encryption?.toKeyPair()

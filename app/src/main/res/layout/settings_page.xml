@@ -34,7 +34,7 @@
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:gravity="center"
-            android:text="@string/settings"
+            android:text=""
             android:textColor="@color/primaryText"
             android:textSize="23sp"
             android:fontFamily="@font/avenir_next_bold" />

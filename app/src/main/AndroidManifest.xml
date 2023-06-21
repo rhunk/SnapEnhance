@@ -34,10 +34,10 @@
             tools:ignore="ExportedService">
         </service>
 
-        <receiver android:name=".download.MediaDownloadReceiver" android:exported="true"
+        <receiver android:name=".download.DownloadManagerReceiver" android:exported="true"
             tools:ignore="ExportedReceiver">
             <intent-filter>
-                <action android:name="me.rhunk.snapenhance.download.MediaDownloadReceiver.DOWNLOAD_ACTION" />
+                <action android:name="me.rhunk.snapenhance.download.DownloadManagerReceiver.DOWNLOAD_ACTION" />
             </intent-filter>
         </receiver>
 

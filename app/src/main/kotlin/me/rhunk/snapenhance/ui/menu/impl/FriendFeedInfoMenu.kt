@@ -80,17 +80,18 @@ class FriendFeedInfoMenu : AbstractMenu() {
             val birthday = Calendar.getInstance()
             birthday[Calendar.MONTH] = (profile.birthday shr 32).toInt() - 1
             val message: String = """
-                ${context.translation.get("profile_info.username")}: ${profile.username}
-                ${context.translation.get("profile_info.display_name")}: ${profile.displayName}
-                ${context.translation.get("profile_info.added_date")}: ${formatDate(addedTimestamp)}
+                ${context.translation["profile_info.username"]}: ${profile.username}
+                ${context.translation["profile_info.display_name"]}: ${profile.displayName}
+                ${context.translation["profile_info.added_date"]}: ${formatDate(addedTimestamp)}
                 ${birthday.getDisplayName(
                     Calendar.MONTH,
                     Calendar.LONG,
                     context.translation.locale
                 )?.let {
-                    context.translation.get("profile_info.birthday")
-                        .replace("{month}", it)
-                        .replace("{day}", profile.birthday.toInt().toString())
+                    context.translation.format("profile_info.birthday",
+                        "month" to it,
+                        "day" to birthday[Calendar.DAY_OF_MONTH].toString()
+                    )
                 }
             }
             """.trimIndent()
@@ -136,7 +137,7 @@ class FriendFeedInfoMenu : AbstractMenu() {
                 }
             }
 
-            var displayUsername = sender?.displayName ?: sender?.usernameForSorting?: context.translation.get("conversation_preview.unknown_user")
+            var displayUsername = sender?.displayName ?: sender?.usernameForSorting?: context.translation["conversation_preview.unknown_user"]
 
             if (displayUsername.length > 12) {
                 displayUsername = displayUsername.substring(0, 13) + "... "
@@ -152,22 +153,23 @@ class FriendFeedInfoMenu : AbstractMenu() {
             val timeSecondDiff = ((it - System.currentTimeMillis()) / 1000 / 60).toInt()
             messageBuilder.append("\n\n")
                 .append("\uD83D\uDD25 ") //fire emoji
-                .append(context.translation.get("conversation_preview.streak_expiration").format(
-                    timeSecondDiff / 60 / 24,
-                    timeSecondDiff / 60 % 24,
-                    timeSecondDiff % 60
+                .append(
+                    context.translation.format("conversation_preview.streak_expiration",
+                    "day" to (timeSecondDiff / 60 / 24).toString(),
+                    "hour" to (timeSecondDiff / 60 % 24).toString(),
+                    "minute" to (timeSecondDiff % 60).toString()
                 ))
         }
 
         //alert dialog
         val builder = AlertDialog.Builder(context.mainActivity)
-        builder.setTitle(context.translation.get("conversation_preview.title"))
+        builder.setTitle(context.translation["conversation_preview.title"])
         builder.setMessage(messageBuilder.toString())
         builder.setPositiveButton(
             "OK"
         ) { dialog: DialogInterface, _: Int -> dialog.dismiss() }
         targetPerson?.let {
-            builder.setNegativeButton(context.translation.get("modal_option.profile_info")) {_, _ ->
+            builder.setNegativeButton(context.translation["modal_option.profile_info"]) { _, _ ->
                 context.executeAsync {
                     showProfileInfo(it)
                 }
@@ -208,7 +210,7 @@ class FriendFeedInfoMenu : AbstractMenu() {
 
     private fun createToggleFeature(viewConsumer: ((View) -> Unit), text: String, isChecked: () -> Boolean, toggle: (Boolean) -> Unit) {
         val switch = Switch(context.androidContext)
-        switch.text = context.translation.get(text)
+        switch.text = context.translation[text]
         switch.isChecked = isChecked()
         ViewAppearanceHelper.applyTheme(switch)
         switch.setOnCheckedChangeListener { _: CompoundButton?, checked: Boolean ->
@@ -231,7 +233,7 @@ class FriendFeedInfoMenu : AbstractMenu() {
         if (!context.config.bool(ConfigProperty.ENABLE_FRIEND_FEED_MENU_BAR)) {
             //preview button
             val previewButton = Button(viewModel.context).apply {
-                text = modContext.translation.get("friend_menu_option.preview")
+                text = modContext.translation["friend_menu_option.preview"]
                 ViewAppearanceHelper.applyTheme(this, viewModel.width)
                 setOnClickListener {
                     showPreview(
@@ -244,7 +246,7 @@ class FriendFeedInfoMenu : AbstractMenu() {
 
             //stealth switch
             val stealthSwitch = Switch(viewModel.context).apply {
-                text = modContext.translation.get("friend_menu_option.stealth_mode")
+                text = modContext.translation["friend_menu_option.stealth_mode"]
                 isChecked = modContext.feature(StealthMode::class).isStealth(conversationId)
                 ViewAppearanceHelper.applyTheme(this)
                 setOnCheckedChangeListener { _: CompoundButton?, isChecked: Boolean ->

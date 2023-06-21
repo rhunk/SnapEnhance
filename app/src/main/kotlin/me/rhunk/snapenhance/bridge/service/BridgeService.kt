@@ -8,6 +8,7 @@ import android.net.Uri
 import android.os.*
 import me.rhunk.snapenhance.Logger
 import me.rhunk.snapenhance.bridge.MessageLoggerWrapper
+import me.rhunk.snapenhance.bridge.TranslationWrapper
 import me.rhunk.snapenhance.bridge.common.BridgeMessageType
 import me.rhunk.snapenhance.bridge.common.impl.*
 import me.rhunk.snapenhance.bridge.common.impl.download.DownloadContentRequest
@@ -111,12 +112,15 @@ class BridgeService : Service() {
     }
 
     private fun handleLocaleRequest(reply: (Message) -> Unit) {
-        val deviceLocale = Locale.getDefault().toString()
-        val compatibleLocale = resources.assets.list("lang")?.find { it.startsWith(deviceLocale) }?.substring(0, 5) ?: "en_US"
+        val locales = sortedSetOf<String>()
+        val contentArray = sortedSetOf<String>()
 
-        resources.assets.open("lang/$compatibleLocale.json").use { inputStream ->
-            reply(LocaleResult(compatibleLocale, inputStream.readBytes()).toMessage(BridgeMessageType.LOCALE_RESULT.value))
+        TranslationWrapper.fetchLocales(context = this).forEach { pair ->
+            locales.add(pair.locale)
+            contentArray.add(pair.content)
         }
+
+        reply(LocaleResult(locales.toTypedArray(), contentArray.toTypedArray()).toMessage(BridgeMessageType.LOCALE_RESULT.value))
     }
 
     @SuppressLint("UnspecifiedRegisterReceiverFlag")

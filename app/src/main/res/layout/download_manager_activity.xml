@@ -34,7 +34,7 @@
             android:src="@drawable/settings_icon"
             android:layout_gravity="center_vertical|end"
             android:padding="8dp"
-            android:contentDescription="@string/settings" />
+            android:contentDescription="@null" />
 
     </FrameLayout>
 
@@ -53,7 +53,7 @@
             android:focusable="true"
             android:fontFamily="@font/avenir_next_medium"
             android:gravity="center"
-            android:text="@string/all_category"
+            android:text=""
             android:textColor="@color/focusedCategoryColor" />
 
         <TextView
@@ -65,7 +65,7 @@
             android:focusable="true"
             android:fontFamily="@font/avenir_next_medium"
             android:gravity="center"
-            android:text="@string/pending_category"
+            android:text=""
             android:textColor="@color/primaryText" />
 
         <TextView
@@ -77,7 +77,7 @@
             android:focusable="true"
             android:fontFamily="@font/avenir_next_medium"
             android:gravity="center"
-            android:text="@string/snap_category"
+            android:text=""
             android:textColor="@color/primaryText" />
 
         <TextView
@@ -89,7 +89,7 @@
             android:focusable="true"
             android:fontFamily="@font/avenir_next_medium"
             android:gravity="center"
-            android:text="@string/story_category"
+            android:text=""
             android:textColor="@color/primaryText" />
 
         <TextView
@@ -101,7 +101,7 @@
             android:focusable="true"
             android:fontFamily="@font/avenir_next_medium"
             android:gravity="center"
-            android:text="@string/spotlight_category"
+            android:text=""
             android:textColor="@color/primaryText" />
 
     </LinearLayout>
@@ -124,7 +124,7 @@
             android:layout_centerInParent="true"
             android:gravity="center"
             android:paddingVertical="40dp"
-            android:text="@string/no_downloads"
+            android:text=""
             android:textColor="@color/primaryText" />
     </RelativeLayout>
 
@@ -141,7 +141,7 @@
             android:layout_height="45dp"
             android:background="@drawable/action_button_cancel"
             android:padding="5dp"
-            android:text="@string/remove_all"
+            android:text=""
             android:textColor="@color/darkText"
             android:layout_gravity="center_horizontal|bottom"
             android:layout_marginBottom="5dp"/>

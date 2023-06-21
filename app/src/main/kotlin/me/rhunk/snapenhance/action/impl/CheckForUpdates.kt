@@ -10,7 +10,7 @@ class CheckForUpdates : AbstractAction("action.check_for_updates", dependsOnProp
             runCatching {
                 val latestVersion = context.feature(AutoUpdater::class).checkForUpdates()
                 if (latestVersion == null) {
-                    context.longToast(context.translation.get("auto_updater.no_update_available"))
+                    context.longToast(context.translation["auto_updater.no_update_available"])
                 }
             }.onFailure {
                 context.longToast(it.message ?: "Failed to check for updates")
