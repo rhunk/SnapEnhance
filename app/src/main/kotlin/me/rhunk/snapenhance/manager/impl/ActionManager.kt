@@ -22,7 +22,7 @@ class ActionManager(
         actions[action.nameKey] = action
     }
     override fun init() {
-        //load(CleanCache::class)
+        load(CleanCache::class)
         //load(ClearMessageLogger::class)
         //load(RefreshMappings::class)
         load(OpenMap::class)
