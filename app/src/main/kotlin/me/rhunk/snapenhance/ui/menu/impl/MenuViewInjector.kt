@@ -125,7 +125,7 @@ class MenuViewInjector : Feature("MenuViewInjector", loadParams = FeatureLoadPar
                 if (messaging.lastFetchConversationUUID == null || messaging.lastFetchConversationUserUUID == null) return@hook
 
                 //filter by the slot index
-                if (viewGroup.getChildCount() != context.config.int(ConfigProperty.MENU_SLOT_ID)) return@hook
+                if (viewGroup.getChildCount() != context.config.int(ConfigProperty.FRIEND_FEED_MENU_POSITION)) return@hook
                 friendFeedInfoMenu.inject(viewGroup, originalAddView)
             }
         }

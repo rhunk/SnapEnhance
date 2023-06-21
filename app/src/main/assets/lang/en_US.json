@@ -13,14 +13,14 @@
         "clear_message_logger": "Clear Message Logger",
         "refresh_mappings": "Refresh Mappings",
         "open_map": "Choose location on map",
-        "check_for_updates": "Check for updates"
+        "check_for_updates": "Check for updates",
+        "export_chat_messages": "Export chat messages"
     },
    
     "property": {
         "save_folder": "Save Folder",
         "prevent_read_receipts": "Prevent Read Receipts",
         "hide_bitmoji_presence": "Hide Bitmoji Presence",
-        "show_message_content_in_notifications": "Show Message Content In Notifications",
         "better_notifications": "Better Notifications",
         "notification_blacklist": "Notification Blacklist",
         "message_logger": "Message Logger",
@@ -31,10 +31,9 @@
         "auto_download_blacklist": "Auto Download Blacklist",
         "disable_metrics": "Disable Metrics",
         "prevent_screenshot_notifications": "Prevent Screenshot Notifications",
-        "prevent_status_notifications": "Prevent Status Notifications (Save to camera roll, missed calls)",
+        "prevent_status_notifications": "Prevent Status Notifications (Save to camera roll, etc)",
         "anonymous_story_view": "Anonymous Story View",
         "hide_typing_notification": "Hide Typing Notification",
-        "menu_slot_id": "Friend Menu Slot ID",
         "message_preview_length": "Message Preview Length",
         "gallery_media_send_override": "Gallery Media Send Override",
         "auto_save_messages": "Auto Save Messages",
@@ -43,7 +42,6 @@
         "disable_snap_splitting": "Disable Snap Splitting",
         "disable_video_length_restriction": "Disable Video Length Restriction",
         "force_media_source_quality": "Force Media Source Quality",
-        "media_quality_level": "Media Quality Level",
         "remove_voice_record_button": "Remove Voice Record Button",
         "remove_stickers_button": "Remove Stickers Button",
         "remove_cognac_button": "Remove Cognac Button",
@@ -51,7 +49,6 @@
         "block_ads": "Block Ads",
         "streak_expiration_info": "Show Streak Expiration Info",
         "new_map_ui": "New Map UI",
-        "use_download_manager": "Use Android Download Manager",
         "app_passcode": "Set App Passcode",
         "app_lock_on_resume": "App Lock On Resume",
         "meo_passcode_bypass": "My Eyes Only Passcode Bypass",
@@ -120,17 +117,6 @@
                 "SNAP": "Snap",
                 "LIVE_SNAP": "Snap with audio"
             },
-            "media_quality_level": {
-                "LEVEL_NONE": "Level None",
-                "LEVEL_1": "Level 1",
-                "LEVEL_2": "Level 2",
-                "LEVEL_3": "Level 3",
-                "LEVEL_4": "Level 4",
-                "LEVEL_5": "Level 5",
-                "LEVEL_6": "Level 6",
-                "LEVEL_7": "Level 7",
-                "LEVEL_MAX": "Level Max"
-            },
             "hide_ui_elements": {
                 "remove_call_buttons": "Remove Call Buttons",
                 "remove_cognac_button": "Remove Cognac Button",
@@ -196,5 +182,22 @@
         "dialog_negative_button": "Cancel",
         "downloading_toast": "Downloading Update...",
         "download_manager_notification_title": "Downloading SnapEnhance APK..."
+    },
+
+    "chat_export": {
+        "select_export_format": "Select the Export Format",
+        "select_media_type": "Select Media Types to export",
+        "select_conversation": "Select a Conversation to export",
+        "dialog_negative_button": "Cancel",
+        "dialog_neutral_button": "Export All",
+        "dialog_positive_button": "Export",
+        "exported_to": "Exported to {path}",
+        "exporting_chats": "Exporting Chats...",
+        "processing_chats": "Processing {amount} conversations...",
+        "export_fail": "Failed to export conversation {conversation}",
+        "writing_output": "Writing output...",
+        "finished": "Done! You now can close this dialog.",
+        "no_messages_found": "No messages found!",
+        "exporting_message": "Exporting {conversation}..."
     }
 }

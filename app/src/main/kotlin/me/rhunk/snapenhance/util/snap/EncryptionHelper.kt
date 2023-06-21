@@ -12,28 +12,24 @@ import javax.crypto.spec.SecretKeySpec
 
 object EncryptionHelper {
     fun getEncryptionKeys(contentType: ContentType, messageProto: ProtoReader, isArroyo: Boolean): Pair<ByteArray, ByteArray>? {
-        val messageMediaInfo =
-            MediaDownloaderHelper.getMessageMediaInfo(messageProto, contentType, isArroyo)
-
-        return messageMediaInfo?.let {  mediaEncryption ->
-            val encryptionProtoIndex: Int = if (mediaEncryption.exists(Constants.ENCRYPTION_PROTO_INDEX_V2)) {
-                Constants.ENCRYPTION_PROTO_INDEX_V2
-            } else {
-                Constants.ENCRYPTION_PROTO_INDEX
-            }
-
-            val encryptionProto = mediaEncryption.readPath(encryptionProtoIndex) ?: return null
-            var key: ByteArray = encryptionProto.getByteArray(1)!!
-            var iv: ByteArray = encryptionProto.getByteArray(2)!!
-
-            if (encryptionProtoIndex == Constants.ENCRYPTION_PROTO_INDEX_V2) {
-                val decoder = Base64.getMimeDecoder()
-                key = decoder.decode(key)
-                iv = decoder.decode(iv)
-            }
-
-            return Pair(key, iv)
+        val messageMediaInfo = MediaDownloaderHelper.getMessageMediaInfo(messageProto, contentType, isArroyo) ?: return null
+        val encryptionProtoIndex = if (messageMediaInfo.exists(Constants.ENCRYPTION_PROTO_INDEX_V2)) {
+            Constants.ENCRYPTION_PROTO_INDEX_V2
+        } else {
+            Constants.ENCRYPTION_PROTO_INDEX
         }
+        val encryptionProto = messageMediaInfo.readPath(encryptionProtoIndex) ?: return null
+
+        var key: ByteArray = encryptionProto.getByteArray(1)!!
+        var iv: ByteArray = encryptionProto.getByteArray(2)!!
+
+        if (encryptionProtoIndex == Constants.ENCRYPTION_PROTO_INDEX_V2) {
+            val decoder = Base64.getMimeDecoder()
+            key = decoder.decode(key)
+            iv = decoder.decode(iv)
+        }
+
+        return Pair(key, iv)
     }
 
     fun decryptInputStream(

@@ -13,13 +13,14 @@ class CallbackBuilder(
 ) {
     internal class Override(
         val methodName: String,
+        val shouldUnhook: Boolean = true,
         val callback: (HookAdapter) -> Unit
     )
 
     private val methodOverrides = mutableListOf<Override>()
 
-    fun override(methodName: String, callback: (HookAdapter) -> Unit = {}): CallbackBuilder {
-        methodOverrides.add(Override(methodName, callback))
+    fun override(methodName: String, shouldUnhook: Boolean = true, callback: (HookAdapter) -> Unit = {}): CallbackBuilder {
+        methodOverrides.add(Override(methodName, shouldUnhook, callback))
         return this
     }
 
@@ -46,9 +47,7 @@ class CallbackBuilder(
                 //checking invokerField ensure that's the callback was created by the CallbackBuilder
                 if (invokerField.get(it.thisObject()) != null) return@defaultHook false
                 if ((it.thisObject() as Any).hashCode() != callbackInstanceHashCode) return@defaultHook false
-
                 it.setResult(null)
-                unhooks.forEach { unhook -> unhook.unhook() }
                 true
             }
 
@@ -59,6 +58,7 @@ class CallbackBuilder(
                 hook = {
                     if (defaultHook(it)) {
                         callback(it)
+                        if (shouldUnhook) unhooks.forEach { unhook -> unhook.unhook() }
                     }
                 }
             }

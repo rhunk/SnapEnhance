@@ -5,6 +5,7 @@ import me.rhunk.snapenhance.action.AbstractAction
 import me.rhunk.snapenhance.action.impl.CheckForUpdates
 import me.rhunk.snapenhance.action.impl.CleanCache
 import me.rhunk.snapenhance.action.impl.ClearMessageLogger
+import me.rhunk.snapenhance.action.impl.ExportChatMessages
 import me.rhunk.snapenhance.action.impl.OpenMap
 import me.rhunk.snapenhance.action.impl.RefreshMappings
 import me.rhunk.snapenhance.manager.Manager
@@ -26,6 +27,7 @@ class ActionManager(
         //load(RefreshMappings::class)
         load(OpenMap::class)
         load(CheckForUpdates::class)
+        load(ExportChatMessages::class)
 
         actions.values.forEach(AbstractAction::init)
     }
