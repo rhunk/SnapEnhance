@@ -62,7 +62,7 @@ class ExportChatMessages : AbstractAction("action.export_chat_messages") {
     private suspend fun askExportType() = suspendCancellableCoroutine { cont ->
         context.runOnUiThread {
             AlertDialog.Builder(context.mainActivity)
-                .setTitle(context.translation.get("chat_export.select_export_format"))
+                .setTitle(context.translation["chat_export.select_export_format"])
                 .setItems(ExportFormat.values().map { it.name }.toTypedArray()) { _, which ->
                     cont.resumeWith(Result.success(ExportFormat.values()[which]))
                 }
@@ -83,7 +83,7 @@ class ExportChatMessages : AbstractAction("action.export_chat_messages") {
                 ContentType.STICKER
             )
             AlertDialog.Builder(context.mainActivity)
-                .setTitle(context.translation.get("chat_export.select_media_type"))
+                .setTitle(context.translation["chat_export.select_media_type"])
                 .setMultiChoiceItems(contentTypes.map { it.name }.toTypedArray(), BooleanArray(contentTypes.size) { false }) { _, which, isChecked ->
                     val media = contentTypes[which]
                     if (isChecked) {
@@ -111,7 +111,7 @@ class ExportChatMessages : AbstractAction("action.export_chat_messages") {
             val selectedConversations = mutableListOf<FriendFeedInfo>()
 
             AlertDialog.Builder(context.mainActivity)
-                .setTitle(context.translation.get("chat_export.select_conversation"))
+                .setTitle(context.translation["chat_export.select_conversation"])
                 .setMultiChoiceItems(
                     friendFeedEntries.map { it.feedDisplayName ?: it.friendDisplayName!!.split("|").firstOrNull() }.toTypedArray(),
                     BooleanArray(friendFeedEntries.size) { false }
@@ -122,13 +122,13 @@ class ExportChatMessages : AbstractAction("action.export_chat_messages") {
                         selectedConversations.remove(friendFeedEntries[which])
                     }
                 }
-                .setNegativeButton(context.translation.get("chat_export.dialog_negative_button")) { dialog, _ ->
+                .setNegativeButton(context.translation["chat_export.dialog_negative_button"]) { dialog, _ ->
                     dialog.dismiss()
                 }
-                .setNeutralButton(context.translation.get("chat_export.dialog_neutral_button")) { _, _ ->
+                .setNeutralButton(context.translation["chat_export.dialog_neutral_button"]) { _, _ ->
                     exportChatForConversations(friendFeedEntries)
                 }
-                .setPositiveButton(context.translation.get("chat_export.dialog_positive_button")) { _, _ ->
+                .setPositiveButton(context.translation["chat_export.dialog_positive_button"]) { _, _ ->
                     exportChatForConversations(selectedConversations)
                 }
                 .show()
@@ -192,7 +192,7 @@ class ExportChatMessages : AbstractAction("action.export_chat_messages") {
 
         val foundMessages = fetchMessagesPaginated(conversationId, Long.MAX_VALUE).toMutableList()
         var lastMessageId = foundMessages.firstOrNull()?.messageDescriptor?.messageId ?: run {
-            logDialog(context.translation.get("chat_export.no_messages_found"))
+            logDialog(context.translation["chat_export.no_messages_found"])
             return
         }
 
@@ -211,7 +211,7 @@ class ExportChatMessages : AbstractAction("action.export_chat_messages") {
             "SnapEnhance/conversation_${conversationName}_${System.currentTimeMillis()}.${exportType!!.extension}"
         ).also { it.parentFile?.mkdirs() }
 
-        logDialog(context.translation.get("chat_export.writing_output"))
+        logDialog(context.translation["chat_export.writing_output"])
         MessageExporter(
             context = context,
             friendFeedInfo = friendFeedInfo,
@@ -249,10 +249,10 @@ class ExportChatMessages : AbstractAction("action.export_chat_messages") {
         val jobs = mutableListOf<Job>()
 
         currentActionDialog = AlertDialog.Builder(context.mainActivity)
-            .setTitle(context.translation.get("chat_export.exporting_chats"))
+            .setTitle(context.translation["chat_export.exporting_chats"])
             .setCancelable(false)
             .setMessage("")
-            .setNegativeButton(context.translation.get("chat_export.dialog_negative_button")) { dialog, _ ->
+            .setNegativeButton(context.translation["chat_export.dialog_negative_button"]) { dialog, _ ->
                 jobs.forEach { it.cancel() }
                 dialog.dismiss()
             }
@@ -277,7 +277,7 @@ class ExportChatMessages : AbstractAction("action.export_chat_messages") {
                 }.also { jobs.add(it) }
             }
             jobs.joinAll()
-            logDialog(context.translation.get("chat_export.finished"))
+            logDialog(context.translation["chat_export.finished"])
         }
     }
 }

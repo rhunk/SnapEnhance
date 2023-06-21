@@ -62,21 +62,21 @@ class AutoUpdater : Feature("AutoUpdater", loadParams = FeatureLoadParams.ACTIVI
 
         context.runOnUiThread {
             AlertDialog.Builder(context.mainActivity)
-                .setTitle(context.translation.get("auto_updater.dialog_title"))
+                .setTitle(context.translation["auto_updater.dialog_title"])
                 .setMessage(
-                    context.translation.get("auto_updater.dialog_message")
-                        .replace("{version}", latestVersion)
-                        .replace("{body}", releaseContentBody)
+                    context.translation.format("auto_updater.dialog_message",
+                        "version" to latestVersion,
+                        "body" to releaseContentBody)
                 )
-                .setNegativeButton(context.translation.get("auto_updater.dialog_negative_button")) { dialog, _ ->
+                .setNegativeButton(context.translation["auto_updater.dialog_negative_button"]) { dialog, _ ->
                     dialog.dismiss()
                 }
-                .setPositiveButton(context.translation.get("auto_updater.dialog_positive_button")) { dialog, _ ->
+                .setPositiveButton(context.translation["auto_updater.dialog_positive_button"]) { dialog, _ ->
                     dialog.dismiss()
-                    context.longToast(context.translation.get("auto_updater.downloading_toast"))
+                    context.longToast(context.translation["auto_updater.downloading_toast"])
 
                     val request = DownloadManager.Request(Uri.parse(downloadEndpoint))
-                        .setTitle(context.translation.get("auto_updater.download_manager_notification_title"))
+                        .setTitle(context.translation["auto_updater.download_manager_notification_title"])
                         .setDestinationInExternalPublicDir(Environment.DIRECTORY_DOWNLOADS, "latest-snapenhance.apk")
                         .setMimeType("application/vnd.android.package-archive")
                         .setNotificationVisibility(DownloadManager.Request.VISIBILITY_VISIBLE)
