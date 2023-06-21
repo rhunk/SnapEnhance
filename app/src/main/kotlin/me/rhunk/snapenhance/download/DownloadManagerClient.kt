@@ -37,7 +37,7 @@ class DownloadManagerClient (
         }.apply(extras))
     }
 
-    fun downloadDashMedia(playlistUrl: String, offsetTime: Long, duration: Long) {
+    fun downloadDashMedia(playlistUrl: String, offsetTime: Long, duration: Long?) {
         sendToBroadcastReceiver(
             DownloadRequest(
                 inputMedias = arrayOf(playlistUrl),
@@ -46,8 +46,8 @@ class DownloadManagerClient (
             )
         ) {
             putBundle("dashOptions", Bundle().apply {
-                putLong("offsetTime", offsetTime)
-                putLong("duration", duration)
+                putString("offsetTime", offsetTime.toString())
+                duration?.let { putString("duration", it.toString()) }
             })
         }
     }

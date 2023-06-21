@@ -30,6 +30,7 @@ import me.rhunk.snapenhance.hook.HookAdapter
 import me.rhunk.snapenhance.hook.HookStage
 import me.rhunk.snapenhance.hook.Hooker
 import me.rhunk.snapenhance.ui.download.MediaFilter
+import me.rhunk.snapenhance.util.download.RemoteMediaResolver
 import me.rhunk.snapenhance.util.getObjectField
 import me.rhunk.snapenhance.util.protobuf.ProtoReader
 import me.rhunk.snapenhance.util.snap.BitmojiSelfie
@@ -95,6 +96,10 @@ class MediaDownloader : Feature("MediaDownloader", loadParams = FeatureLoadParam
 
     private fun createNewFilePath(hexHash: String, pathPrefix: String): String {
         val downloadOptions = context.config.options(ConfigProperty.DOWNLOAD_OPTIONS)
+        val sanitizedPathPrefix = pathPrefix
+            .replace(" ", "_")
+            .replace(Regex("[\\\\/:*?\"<>|]"), "")
+            .ifEmpty { hexHash }
 
         val currentDateTime = SimpleDateFormat("yyyy-MM-dd_HH-mm-ss", Locale.ENGLISH).format(System.currentTimeMillis())
 
@@ -109,13 +114,13 @@ class MediaDownloader : Feature("MediaDownloader", loadParams = FeatureLoadParam
         }
 
         if (downloadOptions["format_user_folder"] == true) {
-            finalPath.append(pathPrefix).append("/")
+            finalPath.append(sanitizedPathPrefix).append("/")
         }
         if (downloadOptions["format_hash"] == true) {
             appendFileName(hexHash)
         }
         if (downloadOptions["format_username"] == true) {
-            appendFileName(pathPrefix)
+            appendFileName(sanitizedPathPrefix)
         }
         if (downloadOptions["format_date_time"] == true) {
             appendFileName(currentDateTime)
@@ -290,10 +295,18 @@ class MediaDownloader : Feature("MediaDownloader", loadParams = FeatureLoadParam
 
             //add 100ms to the start time to prevent the video from starting too early
             val snapChapterTimestamp = snapChapter.startTimeMs.plus(100)
-            val duration = nextChapter?.startTimeMs?.minus(snapChapterTimestamp) ?: 0
+            val duration: Long? = nextChapter?.startTimeMs?.minus(snapChapterTimestamp)
 
             //get the mpd playlist and append the cdn url to baseurl nodes
-            val playlistUrl = paramMap["MEDIA_ID"].toString().let { it.substring(it.indexOf("https://cf-st.sc-cdn.net")) }
+            val playlistUrl = paramMap["MEDIA_ID"].toString().let {
+                val urlIndex = it.indexOf("https://cf-st.sc-cdn.net")
+                if (urlIndex == -1) {
+                    "${RemoteMediaResolver.CF_ST_CDN_D}$it"
+                } else {
+                    it.substring(urlIndex)
+                }
+            }
+
             provideClientDownloadManager(
                 pathSuffix = "Pro-Stories/${storyName}",
                 mediaIdentifier = "${paramMap["STORY_ID"]}-${snapItem.snapId}",
