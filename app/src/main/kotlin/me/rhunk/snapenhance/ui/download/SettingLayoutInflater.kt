@@ -1,5 +1,6 @@
 package me.rhunk.snapenhance.ui.download
 
+import android.app.AlertDialog
 import android.view.View
 import android.view.ViewGroup
 import android.widget.ArrayAdapter
@@ -32,6 +33,20 @@ class SettingAdapter(
 class SettingLayoutInflater(
     private val activity: DownloadManagerActivity
 ) {
+    private fun confirmAction(title: String, message: String, action: () -> Unit) {
+        activity.runOnUiThread {
+            AlertDialog.Builder(activity)
+                .setTitle(title)
+                .setMessage(message)
+                .setPositiveButton("Yes") { _, _ ->
+                    action()
+                }
+                .setNegativeButton("No") { _, _ -> }
+                .show()
+        }
+    }
+
+
     fun inflate(parent: ViewGroup) {
         val settingsView = activity.layoutInflater.inflate(R.layout.settings_page, parent, false)
 
@@ -47,15 +62,20 @@ class SettingLayoutInflater(
                 })
 
                 BridgeFileType.values().forEach { fileType ->
-                    add("Clear ${fileType.displayName} File" to {
-                        fileType.resolve(context).deleteRecursively()
-                        Toast.makeText(context, "${fileType.displayName} file cleared", Toast.LENGTH_SHORT).show()
+                    val actionName = "Clear ${fileType.displayName} File"
+                    add(actionName to {
+                        confirmAction(actionName, "Are you sure you want to clear ${fileType.displayName} file?") {
+                            fileType.resolve(context).deleteRecursively()
+                            Toast.makeText(context, "${fileType.displayName} file cleared", Toast.LENGTH_SHORT).show()
+                        }
                     })
                 }
 
                 add("Reset All" to {
-                    context.dataDir.deleteRecursively()
-                    Toast.makeText(context, "Success!", Toast.LENGTH_SHORT).show()
+                    confirmAction("Reset All", "Are you sure you want to reset all?") {
+                        context.dataDir.deleteRecursively()
+                        Toast.makeText(context, "Success!", Toast.LENGTH_SHORT).show()
+                    }
                 })
             }.toTypedArray())
         }
