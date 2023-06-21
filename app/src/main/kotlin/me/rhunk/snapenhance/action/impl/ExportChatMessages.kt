@@ -188,7 +188,7 @@ class ExportChatMessages : AbstractAction("action.export_chat_messages") {
 
         conversationAction(true, conversationId, if (friendFeedInfo.feedDisplayName != null) "USERCREATEDGROUP" else "ONEONONE")
         
-        logDialog(context.translation.get("chat_export.exporting_message").replace("{conversation}", conversationName))
+        logDialog(context.translation.format("chat_export.exporting_message", "conversation" to conversationName))
 
         val foundMessages = fetchMessagesPaginated(conversationId, Long.MAX_VALUE).toMutableList()
         var lastMessageId = foundMessages.firstOrNull()?.messageDescriptor?.messageId ?: run {
@@ -222,14 +222,16 @@ class ExportChatMessages : AbstractAction("action.export_chat_messages") {
             runCatching {
                 it.readMessages(foundMessages)
             }.onFailure {
-                logDialog(context.translation.get("chat_export.export_failed").replace("{conversation}", it.message.toString()))
+                logDialog(context.translation.format("chat_export.export_failed","conversation" to it.message.toString()))
                 Logger.error(it)
                 return
             }
         }.exportTo(exportType!!)
 
         dialogLogs.clear()
-        logDialog("\n" + context.translation.get("chat_export.exported_to").replace("{path}", outputFile.absolutePath.toString()) + "\n")
+        logDialog("\n" + context.translation.format("chat_export.exported_to",
+            "path" to outputFile.absolutePath.toString()
+        ) + "\n")
 
         currentActionDialog?.setButton(DialogInterface.BUTTON_POSITIVE, "Open") { _, _ ->
             val intent = Intent(Intent.ACTION_VIEW)
@@ -256,7 +258,7 @@ class ExportChatMessages : AbstractAction("action.export_chat_messages") {
             }
             .create()
         
-        val conversationSize = context.translation.get("chat_export.processing_chats").replace("{amount}", conversations.size.toString())
+        val conversationSize = context.translation.format("chat_export.processing_chats", "amount" to conversations.size.toString())
         
         logDialog(conversationSize)
 
@@ -268,7 +270,7 @@ class ExportChatMessages : AbstractAction("action.export_chat_messages") {
                     runCatching {
                         exportFullConversation(conversation)
                     }.onFailure {
-                        logDialog(context.translation.get("chat_export.export_fail").replace("{conversation}", conversation.key.toString()))
+                        logDialog(context.translation.format("chat_export.export_fail", "conversation" to conversation.key.toString()))
                         logDialog(it.stackTraceToString())
                         Logger.xposedLog(it)
                     }

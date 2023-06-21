@@ -110,7 +110,7 @@ class RootBridgeClient : AbstractBridgeClient() {
 
         if (langJsonData != null) {
             Logger.debug("Fetched translations for $locale")
-            return LocaleResult(locale, langJsonData)
+            return LocaleResult(arrayOf(locale), arrayOf(langJsonData.toString(Charsets.UTF_8)))
         }
 
         throw Throwable("Failed to fetch translations for $locale")
