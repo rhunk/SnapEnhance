@@ -1,6 +1,7 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
-    android:id="@+id/download_manager_activity"
+    android:id="@+id/setting_page"
+    android:clickable="true"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="@color/primaryBackground"
@@ -40,66 +41,12 @@
 
     </FrameLayout>
 
-    <RelativeLayout
+    <ListView
+        android:id="@+id/setting_page_list"
         android:layout_width="match_parent"
-        android:layout_height="match_parent">
-
-        <LinearLayout
-            android:id="@+id/preference_item"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="horizontal"
-            android:padding="16dp"
-            tools:ignore="UselessParent">
-
-            <TextView
-                android:id="@+id/feature_text"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:text="@string/refresh_mappings"
-                android:textColor="@color/primaryText"
-                android:textSize="16sp" />
-
-        </LinearLayout>
-
-        <View
-            android:layout_width="match_parent"
-            android:layout_height="1dp"
-            android:layout_below="@id/preference_item"
-            android:background="@color/borderColor" />
-
-    </RelativeLayout>
-
-    <RelativeLayout
-        android:layout_width="match_parent"
-        android:layout_height="match_parent">
-
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="horizontal"
-            android:padding="16dp"
-            tools:ignore="UselessParent">
-
-            <TextView
-                android:id="@+id/refresh_mappings"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:text="@string/refresh_mappings"
-                android:textColor="@color/primaryText"
-                android:textSize="16sp" />
-
-        </LinearLayout>
-
-        <View
-            android:layout_width="match_parent"
-            android:layout_height="1dp"
-            android:background="@color/borderColor" />
-
-    </RelativeLayout>
-
-
+        android:layout_height="match_parent"
+        android:listSelector="@android:color/transparent"
+        android:orientation="vertical">
+    </ListView>
 
 </LinearLayout>

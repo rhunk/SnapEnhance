@@ -10,7 +10,9 @@ import android.os.Bundle
 import android.os.PowerManager
 import android.provider.Settings
 import android.view.View
+import android.view.ViewGroup
 import android.widget.Button
+import android.widget.ImageButton
 import android.widget.TextView
 import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.RecyclerView
@@ -20,6 +22,7 @@ import me.rhunk.snapenhance.download.MediaDownloadReceiver
 import me.rhunk.snapenhance.download.data.PendingDownload
 
 class DownloadManagerActivity : Activity() {
+    private val backCallbacks = mutableListOf<() -> Unit>()
     private val fetchedDownloadTasks = mutableListOf<PendingDownload>()
     private var listFilter = MediaFilter.NONE
 
@@ -49,14 +52,31 @@ class DownloadManagerActivity : Activity() {
         updateNoDownloadText()
     }
 
+    @Deprecated("Deprecated in Java")
+    @Suppress("DEPRECATION")
+    override fun onBackPressed() {
+        backCallbacks.lastOrNull()?.let {
+            it()
+            backCallbacks.removeLast()
+        } ?: super.onBackPressed()
+    }
+
+    fun registerBackCallback(callback: () -> Unit) {
+        backCallbacks.add(callback)
+    }
+
     @SuppressLint("BatteryLife", "NotifyDataSetChanged", "SetTextI18n")
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         
         setContentView(R.layout.download_manager_activity)
-        
+
         window.navigationBarColor = getColor(R.color.primaryBackground)
         findViewById<TextView>(R.id.title).text = resources.getString(R.string.app_name) + " " + BuildConfig.VERSION_NAME
+
+        findViewById<ImageButton>(R.id.settings_button).setOnClickListener {
+            SettingLayoutInflater(this).inflate(findViewById<ViewGroup>(android.R.id.content))
+        }
         
         with(findViewById<RecyclerView>(R.id.download_list)) {
             layoutManager = androidx.recyclerview.widget.LinearLayoutManager(this@DownloadManagerActivity)
