@@ -2,7 +2,6 @@ package me.rhunk.snapenhance.ui.menu.impl
 
 import android.annotation.SuppressLint
 import android.app.AlertDialog
-import android.content.Intent
 import android.graphics.Color
 import android.graphics.Typeface
 import android.text.InputType
@@ -12,14 +11,12 @@ import android.widget.EditText
 import android.widget.LinearLayout
 import android.widget.Switch
 import android.widget.TextView
-import me.rhunk.snapenhance.BuildConfig
 import me.rhunk.snapenhance.config.ConfigProperty
 import me.rhunk.snapenhance.config.impl.ConfigIntegerValue
 import me.rhunk.snapenhance.config.impl.ConfigStateListValue
 import me.rhunk.snapenhance.config.impl.ConfigStateSelection
 import me.rhunk.snapenhance.config.impl.ConfigStateValue
 import me.rhunk.snapenhance.config.impl.ConfigStringValue
-import me.rhunk.snapenhance.ui.config.ConfigActivity
 import me.rhunk.snapenhance.ui.menu.AbstractMenu
 import me.rhunk.snapenhance.ui.menu.ViewAppearanceHelper
 
@@ -193,19 +190,6 @@ class SettingsMenu : AbstractMenu() {
 
     @SuppressLint("SetTextI18n")
     fun inject(viewModel: View, addView: (View) -> Unit) {
-        addView(Button(context.androidContext).apply {
-            //FIXME: Fix text not applying sometimes at first launch
-            text = this@SettingsMenu.context.translation["action.open_settings_button"]
-            setOnClickListener {
-                val intent = Intent().apply {
-                    setClassName(BuildConfig.APPLICATION_ID, ConfigActivity::class.java.name)
-                }
-
-                this@SettingsMenu.context.mainActivity!!.startActivity(intent)
-            }
-            ViewAppearanceHelper.applyTheme(this)
-        })
-
         val actions = context.actionManager.getActions().map {
             Pair(it) {
                 val button = Button(viewModel.context)
