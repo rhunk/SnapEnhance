@@ -84,6 +84,19 @@ class ConfigEnumKeys : Feature("Config enum keys", loadParams = FeatureLoadParam
             }
         }
 
+        context.config.state(ConfigProperty.STORY_VIEWER_OVERRIDE).let { state ->
+            if (state == "OFF") return@let
+
+            hookAllEnums(context.mappings.getMappedClass("enums", "DISCOVER_FEED")) {
+                if (key == "DF_ENABLE_SHOWS_PAGE_CONTROLS" && state == "DISCOVER_PLAYBACK_SEEKBAR") {
+                    set(true)
+                }
+                if (key == "DF_VOPERA_FOR_STORIES" && state == "VERTICAL_STORY_VIEWER") {
+                    set(true)
+                }
+            }
+        }
+
         ConfigProperty.ENABLE_APP_APPEARANCE.valueContainer.addPropertyChangeListener {
             context.softRestartApp(true)
         }

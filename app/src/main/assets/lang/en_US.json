@@ -70,7 +70,8 @@
         "enable_friend_feed_menu_bar": "Enable New Friend Feed Menu Bar",
         "friend_feed_menu_buttons": "Friend Feed Menu Buttons",
         "friend_feed_menu_buttons_position": "Friend Feed Buttons Position Index",
-        "unlimited_conversation_pinning": "Unlimited Conversation Pinning"
+        "unlimited_conversation_pinning": "Unlimited Conversation Pinning",
+        "story_viewer_override": "Story Viewer Override"
     },
 
     "option": {
@@ -130,6 +131,11 @@
                 "EVERY_LAUNCH": "Every Launch",
                 "DAILY": "Daily",
                 "WEEKLY": "Weekly"
+            },
+            "story_viewer_override": {
+                "OFF": "Off",
+                "DISCOVER_PLAYBACK_SEEKBAR": "Enable Discover Playback Seekbar",
+                "VERTICAL_STORY_VIEWER": "Enable Vertical Story Viewer"
             }
         }
     },
