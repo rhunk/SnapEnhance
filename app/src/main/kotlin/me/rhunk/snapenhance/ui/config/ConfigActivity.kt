@@ -130,6 +130,8 @@ class ConfigActivity : Activity() {
                 addSeparator()
             }
 
+            if (!property.shouldAppearInSettings) return@forEach
+
             val propertyName = SharedContext.translation["property.${property.translationKey}"]
 
             configItem.findViewById<TextView>(R.id.name).text = propertyName

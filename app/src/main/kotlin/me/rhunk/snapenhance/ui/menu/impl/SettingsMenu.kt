@@ -193,7 +193,10 @@ class SettingsMenu : AbstractMenu() {
         val actions = context.actionManager.getActions().map {
             Pair(it) {
                 val button = Button(viewModel.context)
-                button.text = context.translation[it.nameKey]
+                button.text = (it.dependsOnProperty?.let { property ->
+                    "["+context.translation["property.${property.translationKey}"] + "] "
+                }?: "") + context.translation[it.nameKey]
+
                 button.setOnClickListener { _ ->
                     it.run()
                 }
@@ -202,7 +205,7 @@ class SettingsMenu : AbstractMenu() {
             }
         }
 
-        actions.filter { it.first.dependsOnProperty == null }.forEach {
+        actions.forEach {
             addView(it.second())
         }
     }
