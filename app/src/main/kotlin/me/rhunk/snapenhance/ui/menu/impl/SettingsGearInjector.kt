@@ -70,17 +70,14 @@ class SettingsGearInjector : AbstractMenu() {
             backgroundTintList = firstView.backgroundTintList
             background = firstView.background
 
-            addView(View(context).apply {
-
-                addView(ImageView(context).apply {
-                    layoutParams = FrameLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT, 17).apply {
-                        gravity = android.view.Gravity.CENTER
-                    }
-                    setImageDrawable(settingsSvg)
-                    headerButtonOpaqueIconTint?.let {
-                        imageTintList = it
-                    }
-                })
+            addView(ImageView(context).apply {
+                layoutParams = FrameLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT, 17).apply {
+                    gravity = android.view.Gravity.CENTER
+                }
+                setImageDrawable(settingsSvg)
+                headerButtonOpaqueIconTint?.let {
+                    imageTintList = it
+                }
             })
         })
     }
