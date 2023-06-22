@@ -32,7 +32,7 @@
         "auto_download_blacklist": "Auto Download Blacklist",
         "disable_metrics": "Disable Metrics",
         "prevent_screenshot_notifications": "Prevent Screenshot Notifications",
-        "prevent_status_notifications": "Prevent Status Notifications (Save to camera roll, etc)",
+        "prevent_status_notifications": "Prevent Status Notifications",
         "anonymous_story_view": "Anonymous Story View",
         "hide_typing_notification": "Hide Typing Notification",
         "message_preview_length": "Message Preview Length",
