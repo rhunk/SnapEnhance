@@ -1,5 +1,6 @@
 package me.rhunk.snapenhance.manager.impl
 
+import me.rhunk.snapenhance.BuildConfig
 import me.rhunk.snapenhance.ModContext
 import me.rhunk.snapenhance.action.AbstractAction
 import me.rhunk.snapenhance.action.impl.CheckForUpdates
@@ -26,7 +27,7 @@ class ActionManager(
         //load(ClearMessageLogger::class)
         //load(RefreshMappings::class)
         load(OpenMap::class)
-        load(CheckForUpdates::class)
+        if(!BuildConfig.DEBUG) load(CheckForUpdates::class)
         load(ExportChatMessages::class)
 
         actions.values.forEach(AbstractAction::init)
