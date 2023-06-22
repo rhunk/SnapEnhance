@@ -68,7 +68,7 @@ class ConfigActivity : Activity() {
                         it
                     }
                 } ?: ""
-                super.setTextColor(getColor(R.color.primaryText))
+                super.setTextColor(getColor(R.color.tertiaryText))
                 super.setText(newText, type)
             }
         }

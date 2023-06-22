@@ -5,5 +5,8 @@
         <item name="android:windowNoTitle">true</item>
         <item name="android:windowContentOverlay">@null</item>
         <item name="android:navigationBarColor">@color/primaryBackground</item>
+        <item name="android:background">@color/primaryBackground</item>
+        <item name="android:textColor">@color/primaryText</item>
+        <item name="android:alertDialogTheme">@android:style/Theme.DeviceDefault.Dialog.Alert</item>
     </style>
 </resources>
