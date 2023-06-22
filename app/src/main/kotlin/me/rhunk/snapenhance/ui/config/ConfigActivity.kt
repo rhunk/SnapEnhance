@@ -2,6 +2,7 @@ package me.rhunk.snapenhance.ui.config
 
 import android.app.Activity
 import android.app.AlertDialog
+import android.content.res.ColorStateList
 import android.os.Bundle
 import android.text.InputType
 import android.view.View
@@ -145,6 +146,16 @@ class ConfigActivity : Activity() {
                 is ConfigStateValue -> {
                     val switch = Switch(this)
                     switch.isChecked = value.value()
+                    switch.trackTintList = ColorStateList(
+                        arrayOf(
+                            intArrayOf(android.R.attr.state_checked),
+                            intArrayOf(-android.R.attr.state_checked)
+                        ),
+                        intArrayOf(
+                            switch.highlightColor,
+                            getColor(R.color.tertiaryBackground)
+                        )
+                    )
                     switch.setOnCheckedChangeListener { _, isChecked ->
                         value.writeFrom(isChecked.toString())
                     }
