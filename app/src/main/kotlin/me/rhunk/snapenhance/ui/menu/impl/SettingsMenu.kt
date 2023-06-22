@@ -194,7 +194,8 @@ class SettingsMenu : AbstractMenu() {
     @SuppressLint("SetTextI18n")
     fun inject(viewModel: View, addView: (View) -> Unit) {
         addView(Button(context.androidContext).apply {
-            text = "Open SnapEnhance settings"
+            //FIXME: Fix text not applying sometimes at first launch
+            text = this@SettingsMenu.context.translation["action.open_settings_button"]
             setOnClickListener {
                 val intent = Intent().apply {
                     setClassName(BuildConfig.APPLICATION_ID, ConfigActivity::class.java.name)

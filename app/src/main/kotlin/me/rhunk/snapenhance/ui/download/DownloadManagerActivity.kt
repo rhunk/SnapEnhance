@@ -71,8 +71,7 @@ class DownloadManagerActivity : Activity() {
         translation = SharedContext.translation.getCategory("download_manager_activity")
         
         setContentView(R.layout.download_manager_activity)
-
-        window.navigationBarColor = getColor(R.color.primaryBackground)
+        
         findViewById<TextView>(R.id.title).text = resources.getString(R.string.app_name) + " " + BuildConfig.VERSION_NAME
 
         findViewById<ImageButton>(R.id.settings_button).setOnClickListener {

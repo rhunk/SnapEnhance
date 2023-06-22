@@ -4,5 +4,7 @@
         <item name="android:fontFamily">@font/avenir_next_medium</item>
         <item name="android:windowNoTitle">true</item>
         <item name="android:windowContentOverlay">@null</item>
+        <item name="android:navigationBarColor">@color/primaryBackground</item>
+        <item name="android:textColor">@color/primaryText</item>
     </style>
 </resources>
