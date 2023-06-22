@@ -117,14 +117,15 @@ class ConfigActivity : Activity() {
 
             if (property.category != currentCategory) {
                 currentCategory = property.category
-                configItem.findViewById<TextView>(R.id.name).apply {
-                    text = SharedContext.translation["category.${property.category.key}"]
-                    textSize = 20f
-                    typeface = typeface?.let { android.graphics.Typeface.create(it, android.graphics.Typeface.BOLD) }
+                with(layoutInflater.inflate(R.layout.config_activity_item, propertyListLayout, false)) {
+                    findViewById<TextView>(R.id.name).apply {
+                        text = SharedContext.translation["category.${property.category.key}"]
+                        textSize = 20f
+                        typeface = typeface?.let { android.graphics.Typeface.create(it, android.graphics.Typeface.BOLD) }
+                    }
+                    propertyListLayout.addView(this)
                 }
-                propertyListLayout.addView(configItem)
                 addSeparator()
-                return@forEach
             }
 
             val propertyName = SharedContext.translation["property.${property.translationKey}"]
