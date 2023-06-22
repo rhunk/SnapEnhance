@@ -212,7 +212,7 @@ class MediaDownloader : Feature("MediaDownloader", loadParams = FeatureLoadParam
 
             downloadOperaMedia(provideClientDownloadManager(
                 pathSuffix = authorUsername,
-                mediaIdentifier = "$conversationId$senderId$messageId",
+                mediaIdentifier = "$conversationId$senderId${conversationMessage.server_message_id}",
                 mediaDisplaySource = authorUsername,
                 mediaDisplayType = MediaFilter.CHAT_MEDIA.mediaDisplayType,
                 friendInfo = author
@@ -437,7 +437,7 @@ class MediaDownloader : Feature("MediaDownloader", loadParams = FeatureLoadParam
                 val encryptionKeys = EncryptionHelper.getEncryptionKeys(contentType, messageReader, isArroyo = isArroyoMessage)
                 provideClientDownloadManager(
                     pathSuffix = authorName,
-                    mediaIdentifier = "${message.client_conversation_id}${message.sender_id}${message.client_message_id}",
+                    mediaIdentifier = "${message.client_conversation_id}${message.sender_id}${message.server_message_id}",
                     mediaDisplaySource = authorName,
                     mediaDisplayType = MediaFilter.CHAT_MEDIA.mediaDisplayType,
                     friendInfo = friendInfo
