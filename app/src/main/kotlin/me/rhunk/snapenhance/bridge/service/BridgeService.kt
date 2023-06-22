@@ -35,7 +35,7 @@ class BridgeService : Service() {
                 runCatching {
                     this@BridgeService.handleMessage(msg)
                 }.onFailure {
-                    Logger.error("Failed to handle message", it)
+                    Logger.error("Failed to handle message ${BridgeMessageType.fromValue(msg.what)}", it)
                 }
             }
         }).binder
@@ -97,6 +97,7 @@ class BridgeService : Service() {
             MessageLoggerRequest.Action.GET -> {
                 val (state, messageData) = messageLoggerWrapper.getMessage(msg.conversationId!!, msg.index!!)
                 reply(MessageLoggerResult(state, messageData).toMessage(BridgeMessageType.MESSAGE_LOGGER_RESULT.value))
+                return
             }
             MessageLoggerRequest.Action.LIST_IDS -> {
                 val messageIds = messageLoggerWrapper.getMessageIds(msg.conversationId!!, msg.index!!.toInt())

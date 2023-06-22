@@ -171,7 +171,7 @@ class DownloadManagerActivity : Activity() {
                 with(AlertDialog.Builder(this@DownloadManagerActivity)) {
                     setTitle(translation["remove_all_title"])
                     setMessage(translation["remove_all_text"])
-                    setPositiveButton(translation["button.positive"]) { _, _ ->
+                    setPositiveButton(SharedContext.translation["button.positive"]) { _, _ ->
                         SharedContext.downloadTaskManager.removeAllTasks()
                         fetchedDownloadTasks.removeIf {
                             if (it.isJobActive()) it.cancel()
@@ -180,7 +180,7 @@ class DownloadManagerActivity : Activity() {
                         adapter?.notifyDataSetChanged()
                         updateNoDownloadText()
                     }
-                    setNegativeButton(translation["button.negative"]) { dialog, _ ->
+                    setNegativeButton(SharedContext.translation["button.negative"]) { dialog, _ ->
                         dialog.dismiss()
                     }
                     show()

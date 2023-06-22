@@ -208,6 +208,14 @@
         "exporting_message": "Exporting {conversation}..."
     },
 
+    "button": {
+        "ok": "OK",
+        "positive": "Yes",
+        "negative": "No",
+        "cancel": "Cancel",
+        "open": "Open"
+    },
+
     "download_manager_activity": {
         "remove_all_title": "Remove all Downloads",
         "remove_all_text": "Are you sure you want to do this?",
@@ -223,12 +231,6 @@
             "spotlight_category": "Spotlight"
         },
         "settings": "Settings",
-        "button": {
-            "positive": "Yes",
-            "negative": "No",
-            "cancel": "Cancel",
-            "open": "Open"
-        },
         "settings_page": {
             "clear_file_title": "Clear {file_name} file",
             "clear_file_confirmation": "Are you sure you want to clear the {file_name} file?",
@@ -247,5 +249,10 @@
         "failed_generic_toast": "Failed to download",
         "failed_processing_toast": "Failed to process {error}",
         "failed_gallery_toast": "Failed to save to gallery {error}"
+    },
+    "config_activity": {
+        "title": "SnapEnhance Settings",
+        "selected_text": "{count} selected",
+        "invalid_number_toast": "Invalid number!"
     }
 }

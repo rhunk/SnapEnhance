@@ -22,6 +22,7 @@ import kotlinx.coroutines.Job
 import kotlinx.coroutines.job
 import kotlinx.coroutines.launch
 import me.rhunk.snapenhance.R
+import me.rhunk.snapenhance.SharedContext
 import me.rhunk.snapenhance.data.FileType
 import me.rhunk.snapenhance.download.data.PendingDownload
 import me.rhunk.snapenhance.download.enums.DownloadStage
@@ -91,11 +92,6 @@ class DownloadListAdapter(
         }
     }
 
-    private val openButtonText by lazy {
-        activity.translation["button.open"]
-    }
-
-
     private fun updateViewHolder(download: PendingDownload, holder: ViewHolder) {
         holder.status.text = download.downloadStage.toString()
         holder.view.background = holder.view.context.getDrawable(R.drawable.download_manager_item_background)
@@ -115,9 +111,9 @@ class DownloadListAdapter(
             background = context.getDrawable(if (isSaved) R.drawable.action_button_success else R.drawable.action_button_cancel)
             setTextColor(context.getColor(if (isSaved) R.color.successColor else R.color.actionBarColor))
             text = if (isSaved)
-                activity.translation["button.open"]
+                SharedContext.translation["button.open"]
             else
-                activity.translation["button.cancel"]
+                SharedContext.translation["button.cancel"]
         }
     }
 

@@ -54,6 +54,11 @@
             android:name=".ui.map.MapActivity"
             android:exported="true"
             android:excludeFromRecents="true" />
+        <activity
+            android:name=".ui.config.ConfigActivity"
+            android:theme="@style/AppTheme"
+            android:excludeFromRecents="true"
+            android:exported="true" />
     </application>
 
 </manifest>

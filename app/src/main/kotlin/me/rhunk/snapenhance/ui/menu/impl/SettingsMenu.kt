@@ -2,6 +2,7 @@ package me.rhunk.snapenhance.ui.menu.impl
 
 import android.annotation.SuppressLint
 import android.app.AlertDialog
+import android.content.Intent
 import android.graphics.Color
 import android.graphics.Typeface
 import android.text.InputType
@@ -12,13 +13,13 @@ import android.widget.LinearLayout
 import android.widget.Switch
 import android.widget.TextView
 import me.rhunk.snapenhance.BuildConfig
-import me.rhunk.snapenhance.Constants
 import me.rhunk.snapenhance.config.ConfigProperty
 import me.rhunk.snapenhance.config.impl.ConfigIntegerValue
 import me.rhunk.snapenhance.config.impl.ConfigStateListValue
 import me.rhunk.snapenhance.config.impl.ConfigStateSelection
 import me.rhunk.snapenhance.config.impl.ConfigStateValue
 import me.rhunk.snapenhance.config.impl.ConfigStringValue
+import me.rhunk.snapenhance.ui.config.ConfigActivity
 import me.rhunk.snapenhance.ui.menu.AbstractMenu
 import me.rhunk.snapenhance.ui.menu.ViewAppearanceHelper
 
@@ -191,23 +192,18 @@ class SettingsMenu : AbstractMenu() {
     }
 
     @SuppressLint("SetTextI18n")
-    @Suppress("deprecation")
     fun inject(viewModel: View, addView: (View) -> Unit) {
-        val packageInfo = viewModel.context.packageManager.getPackageInfo(Constants.SNAPCHAT_PACKAGE_NAME, 0)
-        val versionTextBuilder = StringBuilder()
-        versionTextBuilder.append("SnapEnhance ").append(BuildConfig.VERSION_NAME)
-            .append(" by rhunk")
-        if (BuildConfig.DEBUG) {
-            versionTextBuilder.append("\n").append("Snapchat ").append(packageInfo.versionName)
-                .append(" (").append(packageInfo.longVersionCode).append(")")
-        }
-        val titleText = TextView(viewModel.context)
-        titleText.text = versionTextBuilder.toString()
-        ViewAppearanceHelper.applyTheme(titleText)
-        titleText.textSize = 18f
-        titleText.minHeight = 80 * versionTextBuilder.chars().filter { ch: Int -> ch == '\n'.code }
-                .count().coerceAtLeast(2).toInt()
-        addView(titleText)
+        addView(Button(context.androidContext).apply {
+            text = "Open SnapEnhance settings"
+            setOnClickListener {
+                val intent = Intent().apply {
+                    setClassName(BuildConfig.APPLICATION_ID, ConfigActivity::class.java.name)
+                }
+
+                this@SettingsMenu.context.mainActivity!!.startActivity(intent)
+            }
+            ViewAppearanceHelper.applyTheme(this)
+        })
 
         val actions = context.actionManager.getActions().map {
             Pair(it) {
@@ -221,22 +217,8 @@ class SettingsMenu : AbstractMenu() {
             }
         }
 
-        context.config.entries().groupBy {
-            it.key.category
-        }.forEach { (category, value) ->
-            addView(createCategoryTitle(category.key))
-            value.filter { it.key.shouldAppearInSettings }.forEach { (property, _) ->
-                addView(createPropertyView(property))
-                actions.find { pair -> pair.first.dependsOnProperty == property}?.let { pair ->
-                    addView(pair.second())
-                }
-            }
-        }
-
         actions.filter { it.first.dependsOnProperty == null }.forEach {
             addView(it.second())
         }
-
-        addView(newSeparator(3, Color.parseColor("#f5f5f5")))
     }
 }
