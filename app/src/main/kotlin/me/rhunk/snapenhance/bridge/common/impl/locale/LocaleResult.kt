@@ -2,18 +2,30 @@ package me.rhunk.snapenhance.bridge.common.impl.locale
 
 import android.os.Bundle
 import me.rhunk.snapenhance.bridge.common.BridgeMessage
+import me.rhunk.snapenhance.data.LocalePair
 
 class LocaleResult(
-    var locale: String? = null,
-    var content: ByteArray? = null
+    private var locales: Array<String>? = null,
+    private var localContentArray: Array<String>? = null
 ) : BridgeMessage(){
-    override fun write(bundle: Bundle) {
-        bundle.putString("locale", locale)
-        bundle.putByteArray("content", content)
+
+    fun getLocales(): List<LocalePair> {
+        val locales = locales ?: return emptyList()
+        val localContentArray = localContentArray ?: return emptyList()
+        return locales.mapIndexed { index, locale ->
+            LocalePair(locale, localContentArray[index])
+        }.asReversed()
     }
 
+
+    override fun write(bundle: Bundle) {
+        bundle.putStringArray("locales", locales)
+        bundle.putSerializable("localContentArray", localContentArray)
+    }
+
+    @Suppress("UNCHECKED_CAST", "DEPRECATION")
     override fun read(bundle: Bundle) {
-        locale = bundle.getString("locale")
-        content = bundle.getByteArray("content")
+        locales = bundle.getStringArray("locales")
+        localContentArray = bundle.getSerializable("localContentArray") as? Array<String>
     }
 }

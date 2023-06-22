@@ -2,7 +2,7 @@ package me.rhunk.snapenhance.download.data
 
 import android.os.Bundle
 import kotlinx.coroutines.Job
-import me.rhunk.snapenhance.download.MediaDownloadReceiver
+import me.rhunk.snapenhance.SharedContext
 import me.rhunk.snapenhance.download.enums.DownloadStage
 
 data class PendingDownload(
@@ -13,7 +13,8 @@ data class PendingDownload(
     val outputPath: String,
     val mediaDisplayType: String?,
     val mediaDisplaySource: String?,
-    val iconUrl: String?
+    val iconUrl: String?,
+    val uniqueHash: String?
 ) {
     companion object {
         fun fromBundle(bundle: Bundle): PendingDownload {
@@ -21,7 +22,8 @@ data class PendingDownload(
                 outputPath = bundle.getString("outputPath")!!,
                 mediaDisplayType = bundle.getString("mediaDisplayType"),
                 mediaDisplaySource = bundle.getString("mediaDisplaySource"),
-                iconUrl = bundle.getString("iconUrl")
+                iconUrl = bundle.getString("iconUrl"),
+                uniqueHash = bundle.getString("uniqueHash")
             )
         }
     }
@@ -35,7 +37,7 @@ data class PendingDownload(
         set(value) = synchronized(this) {
             changeListener(_stage, value)
             _stage = value
-            MediaDownloadReceiver.downloadTaskManager.updateTask(this)
+            SharedContext.downloadTaskManager.updateTask(this)
         }
 
     fun isJobActive(): Boolean {

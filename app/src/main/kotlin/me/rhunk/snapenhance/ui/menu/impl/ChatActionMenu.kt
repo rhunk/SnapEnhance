@@ -57,7 +57,7 @@ class ChatActionMenu : AbstractMenu() {
 
         if (context.config.bool(ConfigProperty.CHAT_DOWNLOAD_CONTEXT_MENU)) {
             injectButton(Button(viewGroup.context).apply {
-                text = this@ChatActionMenu.context.translation.get("chat_action_menu.preview_button")
+                text = this@ChatActionMenu.context.translation["chat_action_menu.preview_button"]
                 setOnClickListener {
                     closeActionMenu()
                     this@ChatActionMenu.context.executeAsync { this@ChatActionMenu.context.feature(MediaDownloader::class).onMessageActionMenu(true) }
@@ -65,7 +65,7 @@ class ChatActionMenu : AbstractMenu() {
             })
 
             injectButton(Button(viewGroup.context).apply {
-                text = this@ChatActionMenu.context.translation.get("chat_action_menu.download_button")
+                text = this@ChatActionMenu.context.translation["chat_action_menu.download_button"]
                 setOnClickListener {
                     closeActionMenu()
                     this@ChatActionMenu.context.executeAsync {
@@ -80,7 +80,7 @@ class ChatActionMenu : AbstractMenu() {
         //delete logged message button
         if (context.config.bool(ConfigProperty.MESSAGE_LOGGER)) {
             injectButton(Button(viewGroup.context).apply {
-                text = this@ChatActionMenu.context.translation.get("chat_action_menu.delete_logged_message_button")
+                text = this@ChatActionMenu.context.translation["chat_action_menu.delete_logged_message_button"]
                 setOnClickListener {
                     closeActionMenu()
                     this@ChatActionMenu.context.executeAsync {

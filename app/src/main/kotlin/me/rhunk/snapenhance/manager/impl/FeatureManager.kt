@@ -90,8 +90,7 @@ class FeatureManager(private val context: ModContext) : Manager {
     }
 
     private fun featureInitializer(isAsync: Boolean, param: Int, action: (Feature) -> Unit) {
-        features.forEach { feature ->
-            if (feature.loadParams and param == 0) return@forEach
+        features.filter { it.loadParams and param != 0 }.forEach { feature ->
             val callback = {
                 runCatching {
                     action(feature)

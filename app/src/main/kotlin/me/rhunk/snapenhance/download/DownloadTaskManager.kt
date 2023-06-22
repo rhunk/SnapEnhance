@@ -5,10 +5,12 @@ import android.content.Context
 import android.database.sqlite.SQLiteDatabase
 import me.rhunk.snapenhance.download.data.PendingDownload
 import me.rhunk.snapenhance.download.enums.DownloadStage
+import me.rhunk.snapenhance.ui.download.MediaFilter
 import me.rhunk.snapenhance.util.SQLiteDatabaseHelper
 
 class DownloadTaskManager {
     private lateinit var taskDatabase: SQLiteDatabase
+    private val pendingTasks = mutableMapOf<Int, PendingDownload>()
     private val cachedTasks = mutableMapOf<Int, PendingDownload>()
 
     @SuppressLint("Range")
@@ -18,6 +20,7 @@ class DownloadTaskManager {
             SQLiteDatabaseHelper.createTablesFromSchema(this, mapOf(
                 "tasks" to listOf(
                     "id INTEGER PRIMARY KEY AUTOINCREMENT",
+                    "hash VARCHAR UNIQUE",
                     "outputPath TEXT",
                     "outputFile TEXT",
                     "mediaDisplayType TEXT",
@@ -30,8 +33,9 @@ class DownloadTaskManager {
     }
 
     fun addTask(task: PendingDownload): Int {
-        taskDatabase.execSQL("INSERT INTO tasks (outputPath, outputFile, mediaDisplayType, mediaDisplaySource, iconUrl, downloadStage) VALUES (?, ?, ?, ?, ?, ?)",
+        taskDatabase.execSQL("INSERT INTO tasks (hash, outputPath, outputFile, mediaDisplayType, mediaDisplaySource, iconUrl, downloadStage) VALUES (?, ?, ?, ?, ?, ?, ?)",
             arrayOf(
+                task.uniqueHash,
                 task.outputPath,
                 task.outputFile,
                 task.mediaDisplayType,
@@ -44,13 +48,14 @@ class DownloadTaskManager {
             it.moveToFirst()
             it.getInt(0)
         }
-        cachedTasks[task.id] = task
+        pendingTasks[task.id] = task
         return task.id
     }
 
     fun updateTask(task: PendingDownload) {
-        taskDatabase.execSQL("UPDATE tasks SET outputPath = ?, outputFile = ?, mediaDisplayType = ?, mediaDisplaySource = ?, iconUrl = ?, downloadStage = ? WHERE id = ?",
+        taskDatabase.execSQL("UPDATE tasks SET hash = ?, outputPath = ?, outputFile = ?, mediaDisplayType = ?, mediaDisplaySource = ?, iconUrl = ?, downloadStage = ? WHERE id = ?",
             arrayOf(
+                task.uniqueHash,
                 task.outputPath,
                 task.outputFile,
                 task.mediaDisplayType,
@@ -60,33 +65,84 @@ class DownloadTaskManager {
                 task.id
             )
         )
-        cachedTasks[task.id] = task
+        //if the task is no longer active, move it to the cached tasks
+        if (task.isJobActive()) {
+            pendingTasks[task.id] = task
+        } else {
+            pendingTasks.remove(task.id)
+            cachedTasks[task.id] = task
+        }
+    }
+
+    @SuppressLint("Range")
+    fun canDownloadMedia(mediaIdentifier: String?): DownloadStage? {
+        if (mediaIdentifier == null) return null
+
+        val cursor = taskDatabase.rawQuery("SELECT * FROM tasks WHERE hash = ?", arrayOf(mediaIdentifier))
+        if (cursor.count > 0) {
+            cursor.moveToFirst()
+            val downloadStage = DownloadStage.valueOf(cursor.getString(cursor.getColumnIndex("downloadStage")))
+            cursor.close()
+
+            //if the stage has reached a final stage and is not in a saved state, remove the task
+            if (downloadStage.isFinalStage && downloadStage != DownloadStage.SAVED) {
+                taskDatabase.execSQL("DELETE FROM tasks WHERE hash = ?", arrayOf(mediaIdentifier))
+                return null
+            }
+
+            return downloadStage
+        }
+        cursor.close()
+        return null
     }
 
     fun isEmpty(): Boolean {
-        return cachedTasks.isEmpty()
+        return cachedTasks.isEmpty() && pendingTasks.isEmpty()
     }
 
     private fun removeTask(id: Int) {
         taskDatabase.execSQL("DELETE FROM tasks WHERE id = ?", arrayOf(id))
         cachedTasks.remove(id)
+        pendingTasks.remove(id)
     }
 
     fun removeTask(task: PendingDownload) {
         removeTask(task.id)
     }
 
-    fun queryAllTasks(): Map<Int, PendingDownload> {
-        cachedTasks.putAll(queryTasks(
-            from = cachedTasks.values.lastOrNull()?.id ?: Int.MAX_VALUE,
-            amount = 20
+    fun queryAllTasks(filter: MediaFilter): Map<Int, PendingDownload> {
+        val isPendingFilter = filter == MediaFilter.PENDING
+        val tasks = mutableMapOf<Int, PendingDownload>()
+
+        tasks.putAll(pendingTasks.filter { isPendingFilter || filter.matches(it.value.mediaDisplayType) })
+        if (isPendingFilter) {
+            return tasks.toSortedMap(reverseOrder())
+        }
+
+        tasks.putAll(queryTasks(
+            from = tasks.values.lastOrNull()?.id ?: Int.MAX_VALUE,
+            amount = 30,
+            filter = filter
         ))
-        return cachedTasks.toSortedMap(reverseOrder())
+
+        return tasks.toSortedMap(reverseOrder())
     }
 
     @SuppressLint("Range")
-    fun queryTasks(from: Int, amount: Int = 20): Map<Int, PendingDownload> {
-        val cursor = taskDatabase.rawQuery("SELECT * FROM tasks WHERE id < ? ORDER BY id DESC LIMIT ?", arrayOf(from.toString(), amount.toString()))
+    fun queryTasks(from: Int, amount: Int = 20, filter: MediaFilter = MediaFilter.NONE): Map<Int, PendingDownload> {
+        if (filter == MediaFilter.PENDING) {
+            return emptyMap()
+        }
+
+        val cursor = taskDatabase.rawQuery(
+            "SELECT * FROM tasks WHERE id < ? AND mediaDisplayType LIKE ? ORDER BY id DESC LIMIT ?",
+            arrayOf(
+                from.toString(),
+                filter.mediaDisplayType.let { if (it == null) "%" else "%$it" },
+                amount.toString()
+            )
+        )
+
         val result = sortedMapOf<Int, PendingDownload>()
 
         while (cursor.moveToNext()) {
@@ -96,6 +152,7 @@ class DownloadTaskManager {
                 outputPath = cursor.getString(cursor.getColumnIndex("outputPath")),
                 mediaDisplayType = cursor.getString(cursor.getColumnIndex("mediaDisplayType")),
                 mediaDisplaySource = cursor.getString(cursor.getColumnIndex("mediaDisplaySource")),
+                uniqueHash = cursor.getString(cursor.getColumnIndex("hash")),
                 iconUrl = cursor.getString(cursor.getColumnIndex("iconUrl"))
             ).apply {
                 downloadStage = DownloadStage.valueOf(cursor.getString(cursor.getColumnIndex("downloadStage")))
@@ -107,11 +164,13 @@ class DownloadTaskManager {
             result[task.id] = task
         }
         cursor.close()
+
         return result.toSortedMap(reverseOrder())
     }
 
     fun removeAllTasks() {
         taskDatabase.execSQL("DELETE FROM tasks")
         cachedTasks.clear()
+        pendingTasks.clear()
     }
 }

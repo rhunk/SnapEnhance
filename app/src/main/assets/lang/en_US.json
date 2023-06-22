@@ -70,7 +70,8 @@
         "enable_friend_feed_menu_bar": "Enable New Friend Feed Menu Bar",
         "friend_feed_menu_buttons": "Friend Feed Menu Buttons",
         "friend_feed_menu_buttons_position": "Friend Feed Buttons Position Index",
-        "unlimited_conversation_pinning": "Unlimited Conversation Pinning"
+        "unlimited_conversation_pinning": "Unlimited Conversation Pinning",
+        "story_viewer_override": "Story Viewer Override"
     },
 
     "option": {
@@ -87,6 +88,7 @@
                 "conversation_info": "\uD83D\uDC64 Conversation Info"
             },
             "download_options": {
+                "allow_duplicate": "Allow duplicate downloads",
                 "format_user_folder": "Create folder for each user",
                 "format_hash": "Add a unique hash to the file path",
                 "format_username": "Add the username to the file path",
@@ -131,6 +133,11 @@
                 "EVERY_LAUNCH": "Every Launch",
                 "DAILY": "Daily",
                 "WEEKLY": "Weekly"
+            },
+            "story_viewer_override": {
+                "OFF": "Off",
+                "DISCOVER_PLAYBACK_SEEKBAR": "Enable Discover Playback Seekbar",
+                "VERTICAL_STORY_VIEWER": "Enable Vertical Story Viewer"
             }
         }
     },
@@ -163,7 +170,7 @@
     },
 
     "conversation_preview": {
-        "streak_expiration": "expires in %s days %s hours %s minutes",
+        "streak_expiration": "expires in {day} days {hour} hours {minute} minutes",
         "title": "Preview",
         "unknown_user": "Unknown User"
     },
@@ -201,5 +208,46 @@
         "finished": "Done! You now can close this dialog.",
         "no_messages_found": "No messages found!",
         "exporting_message": "Exporting {conversation}..."
+    },
+
+    "download_manager_activity": {
+        "remove_all_title": "Remove all Downloads",
+        "remove_all_text": "Are you sure you want to do this?",
+        "remove_all": "Remove All",
+        "no_downloads": "No downloads",
+        "cancel": "Cancel",
+        "file_not_found_toast": "File does not exist!",
+        "category": {
+            "all_category": "All",
+            "pending_category": "Pending",
+            "snap_category": "Snaps",
+            "story_category": "Stories",
+            "spotlight_category": "Spotlight"
+        },
+        "settings": "Settings",
+        "button": {
+            "positive": "Yes",
+            "negative": "No",
+            "cancel": "Cancel",
+            "open": "Open"
+        },
+        "settings_page": {
+            "clear_file_title": "Clear {file_name} file",
+            "clear_file_confirmation": "Are you sure you want to clear the {file_name} file?",
+            "clear_cache_title": "Clear Cache",
+            "reset_all_title": "Reset all settings",
+            "reset_all_confirmation": "Are you sure you want to reset all settings?",
+            "success_toast": "Success!"
+        }
+    },
+    "download_manager_receiver": {
+        "already_queued_toast": "Media already in queue!",
+        "already_downloaded_toast": "Media already downloaded!",
+        "saved_toast": "Saved to {path}",
+        "download_toast": "Downloading {path}...",
+        "processing_toast": "Processing {path}...",
+        "failed_generic_toast": "Failed to download",
+        "failed_processing_toast": "Failed to process {error}",
+        "failed_gallery_toast": "Failed to save to gallery {error}"
     }
 }

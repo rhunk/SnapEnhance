@@ -23,6 +23,7 @@ import me.rhunk.snapenhance.download.data.MediaEncryptionKeyPair
 import me.rhunk.snapenhance.download.data.PendingDownload
 import me.rhunk.snapenhance.download.enums.DownloadMediaType
 import me.rhunk.snapenhance.download.enums.DownloadStage
+import me.rhunk.snapenhance.SharedContext
 import me.rhunk.snapenhance.util.snap.MediaDownloaderHelper
 import me.rhunk.snapenhance.util.download.RemoteMediaResolver
 import java.io.File
@@ -48,13 +49,16 @@ data class DownloadedFile(
 )
 
 /**
- * MediaDownloadReceiver handles the download of media files
+ * DownloadManagerReceiver handles the download requests of the user
  */
 @OptIn(ExperimentalEncodingApi::class)
-class MediaDownloadReceiver : BroadcastReceiver() {
+class DownloadManagerReceiver : BroadcastReceiver() {
     companion object {
-        val downloadTaskManager = DownloadTaskManager()
-        const val DOWNLOAD_ACTION = "me.rhunk.snapenhance.download.MediaDownloadReceiver.DOWNLOAD_ACTION"
+        const val DOWNLOAD_ACTION = "me.rhunk.snapenhance.download.DownloadManagerReceiver.DOWNLOAD_ACTION"
+    }
+
+    private val translation by lazy {
+        SharedContext.translation.getCategory("download_manager_receiver")
     }
 
     private lateinit var context: Context
@@ -124,13 +128,15 @@ class MediaDownloadReceiver : BroadcastReceiver() {
                 if (!it.endsWith("/")) "$it/" else it
             }
 
-            longToast("Saved media to ${outputFile.absolutePath.replace(parentName ?: "", "")}")
+            shortToast(
+                translation.format("saved_toast", "path" to outputFile.absolutePath.replace(parentName ?: "", ""))
+            )
 
             pendingDownload.outputFile = outputFile.absolutePath
             pendingDownload.downloadStage = DownloadStage.SAVED
         }.onFailure {
-            Logger.error("Failed to save media to gallery", it)
-            longToast("Failed to save media to gallery")
+            Logger.error(it)
+            longToast(translation.format("failed_gallery_toast", "error" to it.toString()))
             pendingDownload.downloadStage = DownloadStage.FAILED
         }
     }
@@ -215,7 +221,7 @@ class MediaDownloadReceiver : BroadcastReceiver() {
             val xmlData = dashPlaylistFile.outputStream()
             TransformerFactory.newInstance().newTransformer().transform(DOMSource(playlistXml), StreamResult(xmlData))
 
-            longToast("Downloading dash media...")
+            longToast(translation.format("download_toast", "path" to dashPlaylistFile.nameWithoutExtension))
             val outputFile = File.createTempFile("dash", ".mp4")
             runCatching {
                 MediaDownloaderHelper.downloadDashChapterFile(
@@ -226,8 +232,8 @@ class MediaDownloadReceiver : BroadcastReceiver() {
                 saveMediaToGallery(outputFile, pendingDownloadObject)
             }.onFailure {
                 if (coroutineContext.job.isCancelled) return@onFailure
-                Logger.error("failed to download dash media", it)
-                longToast("Failed to download dash media: ${it.message}")
+                Logger.error(it)
+                longToast(translation.format("failed_processing_toast", "error" to it.toString()))
                 pendingDownloadObject.downloadStage = DownloadStage.FAILED
             }
 
@@ -247,14 +253,25 @@ class MediaDownloadReceiver : BroadcastReceiver() {
     override fun onReceive(context: Context, intent: Intent) {
         if (intent.action != DOWNLOAD_ACTION) return
         this.context = context
-        downloadTaskManager.init(context)
+        SharedContext.ensureInitialized(context)
 
         val downloadRequest = DownloadRequest.fromBundle(intent.extras!!)
+
+        SharedContext.downloadTaskManager.canDownloadMedia(downloadRequest.getUniqueHash())?.let { downloadStage ->
+            shortToast(
+                translation[if (downloadStage.isFinalStage) {
+                    "already_downloaded_toast"
+                } else {
+                    "already_queued_toast"
+                }]
+            )
+            return
+        }
 
         GlobalScope.launch(Dispatchers.IO) {
             val pendingDownloadObject = PendingDownload.fromBundle(intent.extras!!)
 
-            downloadTaskManager.addTask(pendingDownloadObject)
+            SharedContext.downloadTaskManager.addTask(pendingDownloadObject)
             pendingDownloadObject.apply {
                 job = coroutineContext.job
                 downloadStage = DownloadStage.DOWNLOADING
@@ -295,7 +312,7 @@ class MediaDownloadReceiver : BroadcastReceiver() {
                     val renamedOverlayMedia = renameFromFileType(overlayMedia.file, overlayMedia.fileType)
                     val mergedOverlay: File = File.createTempFile("merged", "." + media.fileType.fileExtension)
                     runCatching {
-                        longToast("Merging overlay...")
+                        longToast(translation.format("download_toast", "path" to media.file.nameWithoutExtension))
                         pendingDownloadObject.downloadStage = DownloadStage.MERGING
 
                         MediaDownloaderHelper.mergeOverlayFile(
@@ -307,8 +324,8 @@ class MediaDownloadReceiver : BroadcastReceiver() {
                         saveMediaToGallery(mergedOverlay, pendingDownloadObject)
                     }.onFailure {
                         if (coroutineContext.job.isCancelled) return@onFailure
-                        Logger.error("failed to merge overlay", it)
-                        longToast("Failed to merge overlay: ${it.message}")
+                        Logger.error(it)
+                        longToast(translation.format("failed_processing_toast", "error" to it.toString()))
                         pendingDownloadObject.downloadStage = DownloadStage.MERGE_FAILED
                     }
 
@@ -321,8 +338,8 @@ class MediaDownloadReceiver : BroadcastReceiver() {
                 downloadRemoteMedia(pendingDownloadObject, downloadedMedias, downloadRequest)
             }.onFailure {
                 pendingDownloadObject.downloadStage = DownloadStage.FAILED
-                Logger.error("failed to download media", it)
-                longToast("Failed to download media: ${it.message}")
+                Logger.error(it)
+                longToast(translation["failed_generic_toast"])
             }
         }
     }

@@ -26,7 +26,7 @@ class SettingsMenu : AbstractMenu() {
     @SuppressLint("ClickableViewAccessibility")
     private fun createCategoryTitle(key: String): TextView {
         val categoryText = TextView(context.androidContext)
-        categoryText.text = context.translation.get(key)
+        categoryText.text = context.translation[key]
         ViewAppearanceHelper.applyTheme(categoryText)
         categoryText.textSize = 20f
         categoryText.typeface = categoryText.typeface?.let { Typeface.create(it, Typeface.BOLD) }
@@ -36,7 +36,7 @@ class SettingsMenu : AbstractMenu() {
 
     @SuppressLint("SetTextI18n")
     private fun createPropertyView(property: ConfigProperty): View {
-        val propertyName = context.translation.get(property.nameKey)
+        val propertyName = context.translation["property.${property.translationKey}"]
         val updateButtonText: (TextView, String) -> Unit = { textView, text ->
             textView.text = "$propertyName${if (text.isEmpty()) "" else ": $text"}"
         }
@@ -50,7 +50,7 @@ class SettingsMenu : AbstractMenu() {
                     if (property.disableValueLocalization) {
                         it
                     } else {
-                        context.translation.get("option." + property.nameKey + "." + it)
+                        context.translation["option.property." + property.translationKey + "." + it]
                     }
                 }
             })
@@ -129,7 +129,7 @@ class SettingsMenu : AbstractMenu() {
                     builder.setSingleChoiceItems(
                         property.valueContainer.keys().toTypedArray().map {
                             if (property.disableValueLocalization) it
-                            else context.translation.get("option." + property.nameKey + "." + it)
+                            else context.translation["option.property." + property.translationKey + "." + it]
                         }.toTypedArray(),
                         property.valueContainer.keys().indexOf(property.valueContainer.value())
                     ) { _, which ->
@@ -158,7 +158,7 @@ class SettingsMenu : AbstractMenu() {
                     builder.setMultiChoiceItems(
                         sortedStates.toSortedMap().map {
                             if (property.disableValueLocalization) it.key
-                            else context.translation.get("option." + property.nameKey + "." + it.key)
+                            else context.translation["option.property." + property.translationKey + "." + it.key]
                         }.toTypedArray(),
                         sortedStates.map { it.value }.toBooleanArray()
                     ) { _, which, isChecked ->
@@ -212,7 +212,7 @@ class SettingsMenu : AbstractMenu() {
         val actions = context.actionManager.getActions().map {
             Pair(it) {
                 val button = Button(viewModel.context)
-                button.text = context.translation.get(it.nameKey)
+                button.text = context.translation[it.nameKey]
                 button.setOnClickListener { _ ->
                     it.run()
                 }
