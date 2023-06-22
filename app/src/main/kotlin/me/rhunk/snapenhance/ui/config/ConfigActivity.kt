@@ -130,6 +130,10 @@ class ConfigActivity : Activity() {
             val propertyName = SharedContext.translation["property.${property.translationKey}"]
 
             configItem.findViewById<TextView>(R.id.name).text = propertyName
+            configItem.findViewById<TextView>(R.id.description).also {
+                it.text = SharedContext.translation["description.${property.translationKey}"]
+                it.visibility = if (it.text.isEmpty()) View.GONE else View.VISIBLE
+            }
 
             fun addValueView(view: View) {
                 configItem.findViewById<ViewGroup>(R.id.value).addView(view)
