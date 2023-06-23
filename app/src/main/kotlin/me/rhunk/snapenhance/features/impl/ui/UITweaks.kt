@@ -33,6 +33,7 @@ class UITweaks : Feature("UITweaks", loadParams = FeatureLoadParams.ACTIVITY_CRE
 
     @SuppressLint("DiscouragedApi")
     override fun onActivityCreate() {
+        val blockAds = context.config.bool(ConfigProperty.BLOCK_ADS)
         val hiddenElements = context.config.options(ConfigProperty.HIDE_UI_ELEMENTS)
         val hideStorySection = context.config.options(ConfigProperty.HIDE_STORY_SECTION)
         val isImmersiveCamera = context.config.bool(ConfigProperty.IMMERSIVE_CAMERA_PREVIEW)
@@ -92,6 +93,10 @@ class UITweaks : Feature("UITweaks", loadParams = FeatureLoadParams.ACTIVITY_CRE
 
             if (hideStorySection["hide_following"] == true && (viewId == getIdentifier("df_small_story", "id"))
             ) {
+                hideStorySection(param)
+            }
+
+            if (blockAds && viewId == getIdentifier("df_promoted_story", "id")) {
                 hideStorySection(param)
             }
 
