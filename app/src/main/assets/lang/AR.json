@@ -10,66 +10,200 @@
     "action": {
         "clean_cache": "تنظيف ذاكرة التخزين المؤقت",
         "clear_message_logger": "مسح سجل الرسائل",
-        "refresh_mappings": "تحديث الخرائط",
+        "refresh_mappings": "Refresh Mappings",
         "open_map": "اختيار الموقع على الخريطة",
         "check_for_updates": "التحقق من توفر تحديثات",
         "export_chat_messages": "تصدير رسائل الدردشة"
     },
     "property": {
-        "save_folder": "مجلد الحفظ",
-        "prevent_read_receipts": "منع إيصالات القراءة",
-        "hide_bitmoji_presence": "إخفاء وجود Bitmoji",
-        "better_notifications": "إشعارات أفضل",
-        "notification_blacklist": "الإشعارات المحظورة",
-        "message_logger": "تسجيل الرسائل",
-        "unlimited_snap_view_time": "مشاهدة السنابات لوقت غير محدود",
-        "auto_download_options": "خيارات التنزيل التلقائي",
-        "download_options": "خيارات التنزيل",
-        "chat_download_context_menu": "تمكين قائمة التنزيل في الدردشة",
-        "auto_download_blacklist": "قائمة التنزيل التلقائي المحظورة",
-        "disable_metrics": "تعطيل التتبع",
-        "prevent_screenshot_notifications": "منع إشعارات لقطة الشاشة",
-        "prevent_status_notifications": "منع إشعارات الحالة (حفظ في ألبوم الكاميرا، إلخ)",
-        "anonymous_story_view": "مشاهدة القصة كمجهول",
-        "hide_typing_notification": "إخفاء إشعار الكتابة",
-        "message_preview_length": "طول معاينة الرسالة",
-        "gallery_media_send_override": "Gallery Media Send Override",
-        "auto_save_messages": "حفظ الرسائل تلقائيًا",
-        "anti_auto_save": "منع زر الحفظ التلقائي",
-        "snapchat_plus": "سناب شات+",
-        "disable_snap_splitting": "تعطيل تقسيم السنابة",
-        "disable_video_length_restriction": "تعطيل قيود طول الفيديو",
-        "force_media_source_quality": "فرض جودة مصدر الوسائط",
-        "remove_voice_record_button": "إزالة زر تسجيل الصوت",
-        "remove_stickers_button": "إزالة زر الملصقات",
-        "remove_cognac_button": "إزالة زر Cognac",
-        "remove_call_buttons": "إزالة أزرار المكالمات",
-        "block_ads": "حجب الإعلانات",
-        "streak_expiration_info": "عرض معلومات انتهاء صَلاحِيَة سلسلة اللقطات المتتالية",
-        "new_map_ui": "واجهة الخريطة الجديدة",
-        "app_passcode": "تعيين رقم سري خاص للتطبيق",
-        "app_lock_on_resume": "قفل التطبيق عند الإستئناف",
-        "meo_passcode_bypass": "My Eyes Only Passcode Bypass",
-        "location_spoof": "موقع وهمي بخريطة السناب",
-        "latitude_value": "خط العرض",
-        "longitude_value": "خط الطول",
-        "hide_ui_elements": "إخفاء عناصر واجهة المستخدم",
-        "auto_updater": "التحديث التلقائي",
-        "disable_camera": "تعطيل الكاميرا",
-        "immersive_camera_preview": "معاينة الكاميرا المغمورة",
-        "infinite_story_boost": "Infinite Story Boost",
-        "enable_app_appearance": "تمكين إعدادات مظهر التطبيق",
-        "disable_spotlight": "تعطيل منصة الأضواء",
-        "preview_resolution": "تجاوز دقة المعاينة",
-        "picture_resolution": "تجاوز دقة الصورة",
-        "force_highest_frame_rate": "فرض أعلى معدل إطارات",
-        "force_camera_source_encoding": "فرض ترميز مصدر الكاميرا",
-        "amoled_dark_mode": "الوضع الليلي AMOLED",
-        "enable_friend_feed_menu_bar": "Enable New Friend Feed Menu Bar",
-        "friend_feed_menu_buttons": "أزرار قائمة موجز الأصدقاء",
-        "friend_feed_menu_buttons_position": "Friend Feed Buttons Position Index",
-        "unlimited_conversation_pinning": "تثبيت محادثة غير محدود",
-        "story_viewer_override": "Story Viewer Override"
+        "message_logger": {
+            "name": "تسجيل الرسائل",
+            "description": "يمنع حذف الرسائل"
+        },
+        "prevent_read_receipts": {
+            "name": "منع إيصالات القراءة",
+            "description": "يمنع أي شخص من معرفة أنك فتحت السنابات الخاصة به"
+        },
+        "hide_bitmoji_presence": {
+            "name": "إخفاء وجود Bitmoji",
+            "description": "يخفي وجود Bitmoji الخاص بك من الدردشة"
+        },
+        "better_notifications": {
+            "name": "إشعارات أفضل",
+            "description": "يعرض المزيد من المعلومات في الإشعارات"
+        },
+        "notification_blacklist": {
+            "name": "الإشعارات المحظورة",
+            "description": "يخفي نوع الإشعار المحدد"
+        },
+        "disable_metrics": {
+            "name": "تعطيل التتبع",
+            "description": "Disables metrics sent to Snapchat"
+        },
+        "block_ads": {
+            "name": "حجب الإعلانات",
+            "description": "يمنع الإعلانات من الظهور"
+        },
+        "unlimited_snap_view_time": {
+            "name": "مشاهدة السنابات لوقت غير محدود",
+            "description": "يزيل الحد الزمني لعرض السنابات"
+        },
+        "prevent_screenshot_notifications": {
+            "name": "منع إشعارات لقطة الشاشة",
+            "description": "يمنع أي شخص من معرفة أنك قد التقطت لقطة شاشة"
+        },
+        "prevent_status_notifications": {
+            "name": "منع إشعارات الحالة",
+            "description": "يمنع إرسال إشعارات الحالة\nعلى سبيل المثال: تم الحفظ في ألبوم الكاميرا"
+        },
+        "anonymous_story_view": {
+            "name": "مشاهدة القصة كمجهول",
+            "description": "يمنع أي شخص من معرفة أنك رأيت قصته"
+        },
+        "hide_typing_notification": {
+            "name": "إخفاء إشعار الكتابة",
+            "description": "يمنع إرسال إشعارات الكتابة"
+        },
+        "save_folder": {
+            "name": "مجلد الحفظ",
+            "description": "المجلد الذي يتم فيه حفظ جميع الوسائط"
+        },
+        "auto_download_options": {
+            "name": "خيارات التنزيل التلقائي",
+            "description": "حدد الوسائط التي سيتم تنزيلها تلقائيًا"
+        },
+        "download_options": {
+            "name": "خيارات التنزيل",
+            "description": "تحديد تنسيق مسار المِلَفّ"
+        },
+        "chat_download_context_menu": {
+            "name": "قائمة سياق التنزيل بالدردشة",
+            "description": "تمكين قائمة التنزيل في الدردشة"
+        },
+        "gallery_media_send_override": {
+            "name": "Gallery Media Send Override",
+            "description": "يتجاوز الوسائط المرسلة من المعرض"
+        },
+        "auto_save_messages": {
+            "name": "حفظ الرسائل تلقائيًا",
+            "description": "تحديد نوع الرسائل التي سيتم حفظها تلقائيًا"
+        },
+        "force_media_source_quality": {
+            "name": "فرض جودة مصدر الوسائط",
+            "description": "يتجاوز جودة مصدر الوسائط"
+        },
+        "enable_friend_feed_menu_bar": {
+            "name": "شريط قائمة موجز الأصدقاء",
+            "description": "يمكّن شريط قائمة موجز الأصدقاء الجديد"
+        },
+        "friend_feed_menu_buttons": {
+            "name": "أزرار قائمة موجز الأصدقاء",
+            "description": "حدد الأزرار التي تريد عرضها في شريط قائمة موجز الأصدقاء"
+        },
+        "friend_feed_menu_buttons_position": {
+            "name": "ترتيب موضع أزرار موجز الأصدقاء",
+            "description": "موضع أزرار قائمة موجز الأصدقاء"
+        },
+        "hide_ui_elements": {
+            "name": "إخفاء عناصر واجهة المستخدم",
+            "description": "تحديد عناصر واجهة المستخدم التي تريد إخفاءها"
+        },
+        "hide_story_section": {
+            "name": "إخفاء قسم القصص",
+            "description": "إخفاء بعض عناصر واجهة المستخدم المعروضة في قسم القصص"
+        },
+        "story_viewer_override": {
+            "name": "Story Viewer Override",
+            "description": "يقوم بتشغيل ميزات معينة أخفاها Snapchat"
+        },
+        "streak_expiration_info": {
+            "name": "عرض معلومات انتهاء صَلاحِيَة سلسلة اللقطات المتتالية",
+            "description": "يعرض معلومات انتهاء صَلاحِيَة سلسلة اللقطات المتتالية بجانب اللقطات"
+        },
+        "disable_snap_splitting": {
+            "name": "تعطيل تقسيم السنابة",
+            "description": "يمنع السنابات من الانقسام إلى أجزاء متعددة"
+        },
+        "disable_video_length_restriction": {
+            "name": "تعطيل قيود طول الفيديو",
+            "description": "يعطّل قيود طول الفيديو"
+        },
+        "snapchat_plus": {
+            "name": "سناب شات+",
+            "description": "يمكّن ميزات Snapchat Plus"
+        },
+        "new_map_ui": {
+            "name": "واجهة الخريطة الجديدة",
+            "description": "يمكّن واجهة الخرائط الجديدة"
+        },
+        "location_spoof": {
+            "name": "تزوير الموقع بخريطة السناب",
+            "description": "يقوم بتغيير موقعك في خريطة السناب"
+        },
+        "message_preview_length": {
+            "name": "طول معاينة الرسالة",
+            "description": "تحديد كَمّيَّة الرسائل التي سيتم معاينتها"
+        },
+        "unlimited_conversation_pinning": {
+            "name": "تثبيت محادثة غير محدود",
+            "description": "تمكن من القدرة على تثبيت محادثات غير محدودة"
+        },
+        "disable_spotlight": {
+            "name": "تعطيل منصة الأضواء",
+            "description": "يعطّل صفحة منصة الأضواء"
+        },
+        "enable_app_appearance": {
+            "name": "تمكين إعدادات مظهر التطبيق",
+            "description": "لتمكين إعدادات مظهر التطبيق المخفية"
+        },
+        "auto_updater": {
+            "name": "التحديث التلقائي",
+            "description": "الفاصل الزمني للتحقق من توفر تحديثات"
+        },
+        "disable_camera": {
+            "name": "تعطيل الكاميرا",
+            "description": "يمنع Snapchat من القدرة على استخدام الكاميرا"
+        },
+        "immersive_camera_preview": {
+            "name": "معاينة الكاميرا المغمورة",
+            "description": "يمنع Snapchat من اقتصاص معاينة الكاميرا"
+        },
+        "preview_resolution": {
+            "name": "معاينة الدِّقَّة",
+            "description": "يتجاوز دِقَّة معاينة الكاميرا"
+        },
+        "picture_resolution": {
+            "name": "دِقَّة الصورة",
+            "description": "يتجاوز دِقَّة الصورة"
+        },
+        "force_highest_frame_rate": {
+            "name": "فرض أعلى معدل إطارات",
+            "description": "يفرض أعلى معدل إطارات ممكن"
+        },
+        "force_camera_source_encoding": {
+            "name": "فرض ترميز مصدر الكاميرا",
+            "description": "يفرض ترميز مصدر الكاميرا"
+        },
+        "app_passcode": {
+            "name": "تعيين رمز مرور التطبيق",
+            "description": "يعيّن رمز مرور لقفل التطبيق"
+        },
+        "app_lock_on_resume": {
+            "name": "قفل التطبيق عند الإستئناف",
+            "description": "يقفل التطبيق عند إعادة فتحه"
+        },
+        "infinite_story_boost": {
+            "name": "تعزيز القصّة بلا حدود",
+            "description": "يعزز قصتك بلا حدود"
+        },
+        "meo_passcode_bypass": {
+            "name": "تجاوز رمز مرور خاصية خاص بي فقط",
+            "description": "تجاوز رمز مرور خاصية خاص بي فقط\nلن يعمل هذا إلا إذا تم إدخال رمز المرور بشكل صحيح من قبل"
+        },
+        "amoled_dark_mode": {
+            "name": "الوضع الداكن AMOLED",
+            "description": "تمكين وضع AMOLED الداكن\nتأكد من تمكين الوضع المظلم في Snapchat"
+        }
     },
     "option": {
         "property": {
@@ -86,11 +220,12 @@
             },
             "download_options": {
                 "allow_duplicate": "السماح بالتنزيلات المكررة",
-                "format_user_folder": "إنشاء مجلد لكل مستخدم",
-                "format_hash": "إضافة هاش فريد إلى مسار الملف",
-                "format_username": "إضافة اسم المستخدم إلى مسار الملف",
-                "format_date_time": "إضافة التاريخ والوقت إلى مسار الملف",
-                "merge_overlay": "Merge Snap Image Overlays"
+                "create_user_folder": "إنشاء مجلد لكل مستخدم",
+                "append_hash": "إضافة هاش فريد إلى اسم المِلَفّ",
+                "append_username": "إضافة اسم المستخدم إلى اسم المِلَفّ",
+                "append_date_time": "إضافة التاريخ والوقت إلى اسم المِلَفّ",
+                "append_type": "إضافة نوع الوسائط إلى اسم المِلَفّ",
+                "merge_overlay": "دمج تداخل النص مع السنابة"
             },
             "auto_download_options": {
                 "friend_snaps": "سنابات الأصدقاء",
@@ -112,13 +247,14 @@
             },
             "gallery_media_send_override": {
                 "OFF": "إيقاف",
-                "NOTE": "ملاحظة صوتية",
+                "NOTE": "الملاحظات الصوتية",
                 "SNAP": "السنابات",
                 "LIVE_SNAP": "السنابات مع الصوت"
             },
             "hide_ui_elements": {
                 "remove_call_buttons": "إزالة أزرار المكالمات",
                 "remove_cognac_button": "إزالة زر Cognac",
+                "remove_live_location_share_button": "إزالة زر مشاركة الموقع المباشر",
                 "remove_stickers_button": "إزالة زر الملصقات",
                 "remove_voice_record_button": "إزالة زر تسجيل الصوت",
                 "remove_camera_borders": "إزالة حدود الكاميرا"
@@ -126,13 +262,18 @@
             "auto_updater": {
                 "DISABLED": "معطّل",
                 "EVERY_LAUNCH": "كل عملية تشغيل",
-                "DAILY": "يومياً",
+                "DAILY": "يوميًا",
                 "WEEKLY": "إسبوعيٍا"
             },
             "story_viewer_override": {
                 "OFF": "إيقاف",
                 "DISCOVER_PLAYBACK_SEEKBAR": "تمكين اكتشاف شريط التقدم عن التشغيل",
-                "VERTICAL_STORY_VIEWER": "تمكين عارض القصة العمودي"
+                "VERTICAL_STORY_VIEWER": "تمكين شريط عارض عداد القصة بأعلى السنابات"
+            },
+            "hide_story_section": {
+                "hide_friends": "إخفاء قسم الأصدقاء",
+                "hide_following": "إخفاء قسم المتابعة",
+                "hide_for_you": "إخفاء قسم اكتشف"
             }
         }
     },
@@ -155,7 +296,7 @@
         "download": "تنزيل الوسائط"
     },
     "modal_option": {
-        "profile_info": "معلومات الملف الشخصي",
+        "profile_info": "معلومات المِلَفّ الشخصي",
         "close": "إغلاق"
     },
     "conversation_preview": {
@@ -164,7 +305,7 @@
         "unknown_user": "مستخدم مجهول"
     },
     "profile_info": {
-        "title": "معلومات الملف الشخصي",
+        "title": "معلومات المِلَفّ الشخصي",
         "username": "اسم المستخدم",
         "display_name": "إسم العرض",
         "added_date": "تاريخ الإضافة",
@@ -188,12 +329,19 @@
         "dialog_positive_button": "تصدير",
         "exported_to": "تم التصدير إلى {path}",
         "exporting_chats": "تصدير الدردشة...",
-        "processing_chats": "جاري معالجة {amount} من المحادثات...",
+        "processing_chats": "جارٍ معالجة {amount} من المحادثات...",
         "export_fail": "فشل في تصدير المحادثة {conversation}",
         "writing_output": "إخراج الكتابة...",
         "finished": "تم! يمكنك الآن إغلاق مربع الحوار هذا.",
         "no_messages_found": "لم يتم العثور على رسائل!",
         "exporting_message": "تصدير {conversation}..."
+    },
+    "button": {
+        "ok": "موافق",
+        "positive": "نعم",
+        "negative": "لا",
+        "cancel": "إلغاء",
+        "open": "فتح"
     },
     "download_manager_activity": {
         "remove_all_title": "إزالة جميع التنزيلات",
@@ -201,7 +349,7 @@
         "remove_all": "إزالة الكل",
         "no_downloads": "لا توجد تنزيلات",
         "cancel": "إلغاء",
-        "file_not_found_toast": "الملف غير موجود!",
+        "file_not_found_toast": "المِلَفّ غير موجود!",
         "category": {
             "all_category": "الكل",
             "pending_category": "معلقة",
@@ -209,16 +357,10 @@
             "story_category": "القصص",
             "spotlight_category": "منصة الأضواء"
         },
-        "settings": "الإعدادات",
-        "button": {
-            "positive": "نعم",
-            "negative": "لا",
-            "cancel": "إلغاء",
-            "open": "فتح"
-        },
-        "settings_page": {
-            "clear_file_title": "مسح ملف {file_name}",
-            "clear_file_confirmation": "هل أنت متأكد من أنك تريد مسح الملف {file_name}؟",
+        "debug_settings": "إعدادات التصحيح",
+        "debug_settings_page": {
+            "clear_file_title": "مسح مِلَفّ {file_name}",
+            "clear_file_confirmation": "هل أنت متأكد من أنك تريد مسح المِلَفّ {file_name}؟",
             "clear_cache_title": "تنظيف ذاكرة التخزين المؤقت",
             "reset_all_title": "إعادة تعيين كل الإعدادات",
             "reset_all_confirmation": "هل أنت متأكد من أنك تريد إعادة تعيين كل الإعدادات؟",
@@ -234,5 +376,10 @@
         "failed_generic_toast": "فشل التنزيل",
         "failed_processing_toast": "فشل في معالجة {error}",
         "failed_gallery_toast": "فشل الحفظ في معرض الصور {error}"
+    },
+    "config_activity": {
+        "title": "إعدادات SnapEnhance",
+        "selected_text": "{count} المحدد",
+        "invalid_number_toast": "رقم غير صالح!"
     }
-}
+    }
