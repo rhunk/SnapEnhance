@@ -118,6 +118,9 @@ class UITweaks : Feature("UITweaks", loadParams = FeatureLoadParams.ACTIVITY_CRE
             if (getIdentifier("chat_input_bar_sticker", "id") == viewId && hiddenElements["remove_stickers_button"] == true) {
                 view.visibility = View.GONE
             }
+            if (getIdentifier("chat_input_bar_sharing_drawer_button", "id") == viewId && hiddenElements["remove_live_location_share_button"] == true) {
+                param.setResult(null)
+            }
             if (viewId == callButton1 || viewId == callButton2) {
                 if (hiddenElements["remove_call_buttons"] == false) return@hook
                 if (view.visibility == View.GONE) return@hook

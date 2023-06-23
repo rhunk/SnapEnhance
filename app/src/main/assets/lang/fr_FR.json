@@ -261,6 +261,7 @@
             "hide_ui_elements": {
                 "remove_call_buttons": "Supprimer le bouton d'appel",
                 "remove_cognac_button": "Supprimer le bouton des Activités",
+                "remove_live_location_share_button": "Supprimer le bouton de partage de la localisation en direct",
                 "remove_stickers_button": "Supprimer le bouton des autocollants",
                 "remove_voice_record_button": "Supprimer le bouton d'enregistrement de la voix",
                 "remove_camera_borders": "Supprimer les bordures de la caméra"
