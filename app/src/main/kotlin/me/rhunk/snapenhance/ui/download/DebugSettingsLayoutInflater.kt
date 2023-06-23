@@ -1,6 +1,7 @@
 package me.rhunk.snapenhance.ui.download
 
 import android.app.AlertDialog
+import android.content.Intent
 import android.view.View
 import android.view.ViewGroup
 import android.widget.ArrayAdapter
@@ -11,9 +12,10 @@ import android.widget.Toast
 import me.rhunk.snapenhance.R
 import me.rhunk.snapenhance.SharedContext
 import me.rhunk.snapenhance.bridge.common.impl.file.BridgeFileType
+import me.rhunk.snapenhance.ui.config.ConfigActivity
 import java.io.File
 
-class SettingAdapter(
+class ActionListAdapter(
     private val activity: DownloadManagerActivity,
     private val layoutId: Int,
     private val actions: Array<Pair<String, () -> Unit>>
@@ -32,7 +34,7 @@ class SettingAdapter(
     }
 }
 
-class SettingLayoutInflater(
+class DebugSettingsLayoutInflater(
     private val activity: DownloadManagerActivity
 ) {
     private fun confirmAction(title: String, message: String, action: () -> Unit) {
@@ -53,19 +55,22 @@ class SettingLayoutInflater(
     }
 
     fun inflate(parent: ViewGroup) {
-        val settingsView = activity.layoutInflater.inflate(R.layout.debug_settings_page, parent, false)
+        val debugSettingsLayout = activity.layoutInflater.inflate(R.layout.debug_settings_page, parent, false)
 
-        val settingTranslation = activity.translation.getCategory("settings_page")
+        val debugSettingsTranslation = activity.translation.getCategory("debug_settings_page")
 
-        settingsView.findViewById<ImageButton>(R.id.back_button).setOnClickListener {
-            parent.removeView(settingsView)
+        debugSettingsLayout.findViewById<ImageButton>(R.id.back_button).setOnClickListener {
+            parent.removeView(debugSettingsLayout)
         }
 
-        settingsView.findViewById<TextView>(R.id.title).text = activity.translation["settings"]
+        debugSettingsLayout.findViewById<TextView>(R.id.title).text = activity.translation["debug_settings"]
 
-        settingsView.findViewById<ListView>(R.id.setting_page_list).apply {
-            adapter = SettingAdapter(activity, R.layout.debug_setting_item, mutableListOf<Pair<String, () -> Unit>>().apply {
-                add(settingTranslation["clear_cache_title"] to {
+        debugSettingsLayout.findViewById<ListView>(R.id.setting_page_list).apply {
+            adapter = ActionListAdapter(activity, R.layout.debug_setting_item, mutableListOf<Pair<String, () -> Unit>>().apply {
+                add(SharedContext.translation["config_activity.title"] to {
+                    activity.startActivity(Intent(activity, ConfigActivity::class.java))
+                })
+                add(debugSettingsTranslation["clear_cache_title"] to {
                     context.cacheDir.listFiles()?.forEach {
                         it.deleteRecursively()
                     }
@@ -73,17 +78,17 @@ class SettingLayoutInflater(
                 })
 
                 BridgeFileType.values().forEach { fileType ->
-                    val actionName = settingTranslation.format("clear_file_title", "file_name" to fileType.displayName)
+                    val actionName = debugSettingsTranslation.format("clear_file_title", "file_name" to fileType.displayName)
                     add(actionName to {
-                        confirmAction(actionName, settingTranslation.format("clear_file_confirmation", "file_name" to fileType.displayName)) {
+                        confirmAction(actionName, debugSettingsTranslation.format("clear_file_confirmation", "file_name" to fileType.displayName)) {
                             fileType.resolve(context).deleteRecursively()
                             showSuccessToast()
                         }
                     })
                 }
 
-                add(settingTranslation["reset_all_title"] to {
-                    confirmAction(settingTranslation["reset_all_title"], settingTranslation["reset_all_confirmation"]) {
+                add(debugSettingsTranslation["reset_all_title"] to {
+                    confirmAction(debugSettingsTranslation["reset_all_title"], debugSettingsTranslation["reset_all_confirmation"]) {
                         arrayOf(context.cacheDir, context.filesDir, File(context.dataDir, "databases"), File(context.dataDir, "shared_prefs")).forEach {
                             it.listFiles()?.forEach { file ->
                                 file.deleteRecursively()
@@ -96,9 +101,9 @@ class SettingLayoutInflater(
         }
 
         activity.registerBackCallback {
-            parent.removeView(settingsView)
+            parent.removeView(debugSettingsLayout)
         }
 
-        parent.addView(settingsView)
+        parent.addView(debugSettingsLayout)
     }
 }

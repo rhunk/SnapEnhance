@@ -375,8 +375,8 @@
             "story_category": "Story",
             "spotlight_category": "Spotlight"
         },
-        "settings": "Paramètres",
-        "settings_page": {
+        "debug_settings": "Paramètres de débogage",
+        "debug_settings_page": {
             "clear_file_title": "Supprimer le fichier {file_name}",
             "clear_file_confirmation": "Êtes-vous sûr de vouloir supprimer le fichier {file_name} ?",
             "clear_cache_title": "Supprimer le cache",

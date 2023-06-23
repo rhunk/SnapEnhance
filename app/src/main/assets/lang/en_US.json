@@ -375,8 +375,8 @@
             "story_category": "Stories",
             "spotlight_category": "Spotlight"
         },
-        "settings": "Settings",
-        "settings_page": {
+        "debug_settings": "Debug Settings",
+        "debug_settings_page": {
             "clear_file_title": "Clear {file_name} file",
             "clear_file_confirmation": "Are you sure you want to clear the {file_name} file?",
             "clear_cache_title": "Clear Cache",

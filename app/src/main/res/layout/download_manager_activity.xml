@@ -27,11 +27,11 @@
             android:fontFamily="@font/avenir_next_bold" />
 
         <ImageButton
-            android:id="@+id/settings_button"
+            android:id="@+id/debug_settings_button"
             android:layout_width="45dp"
             android:layout_height="match_parent"
             android:background="@null"
-            android:src="@drawable/settings_icon"
+            android:src="@drawable/debug_settings_icon"
             android:layout_gravity="center_vertical|end"
             android:padding="8dp"
             android:contentDescription="@null" />

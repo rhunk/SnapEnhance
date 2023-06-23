@@ -74,8 +74,8 @@ class DownloadManagerActivity : Activity() {
         
         findViewById<TextView>(R.id.title).text = resources.getString(R.string.app_name) + " " + BuildConfig.VERSION_NAME
 
-        findViewById<ImageButton>(R.id.settings_button).setOnClickListener {
-            SettingLayoutInflater(this).inflate(findViewById(android.R.id.content))
+        findViewById<ImageButton>(R.id.debug_settings_button).setOnClickListener {
+            DebugSettingsLayoutInflater(this).inflate(findViewById(android.R.id.content))
         }
         
         with(findViewById<RecyclerView>(R.id.download_list)) {
