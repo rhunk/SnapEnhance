@@ -34,7 +34,7 @@ class SettingsMenu : AbstractMenu() {
 
     @SuppressLint("SetTextI18n")
     private fun createPropertyView(property: ConfigProperty): View {
-        val propertyName = context.translation["property.${property.translationKey}"]
+        val propertyName = context.translation["property.${property.translationKey}.name"]
         val updateButtonText: (TextView, String) -> Unit = { textView, text ->
             textView.text = "$propertyName${if (text.isEmpty()) "" else ": $text"}"
         }
@@ -188,13 +188,14 @@ class SettingsMenu : AbstractMenu() {
         }
     }
 
+    //TODO: quick settings
     @SuppressLint("SetTextI18n")
     fun inject(viewModel: View, addView: (View) -> Unit) {
         val actions = context.actionManager.getActions().map {
             Pair(it) {
                 val button = Button(viewModel.context)
                 button.text = (it.dependsOnProperty?.let { property ->
-                    "["+context.translation["property.${property.translationKey}"] + "] "
+                    "["+context.translation["property.${property.translationKey}.name"] + "] "
                 }?: "") + context.translation[it.nameKey]
 
                 button.setOnClickListener { _ ->

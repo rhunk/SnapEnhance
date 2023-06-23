@@ -80,7 +80,7 @@ class ConfigActivity : Activity() {
             setText(property.valueContainer.value().toString())
         }
         AlertDialog.Builder(this)
-            .setTitle(SharedContext.translation["property.${property.translationKey}"])
+            .setTitle(SharedContext.translation["property.${property.translationKey}.name"])
             .setView(editText)
             .setPositiveButton(positiveButtonText) { _, _ ->
                 callback(editText.text.toString())
@@ -132,11 +132,11 @@ class ConfigActivity : Activity() {
 
             if (!property.shouldAppearInSettings) return@forEach
 
-            val propertyName = SharedContext.translation["property.${property.translationKey}"]
+            val propertyName = SharedContext.translation["property.${property.translationKey}.name"]
 
             configItem.findViewById<TextView>(R.id.name).text = propertyName
             configItem.findViewById<TextView>(R.id.description).also {
-                it.text = SharedContext.translation["description.${property.translationKey}"]
+                it.text = SharedContext.translation["property.${property.translationKey}.description"]
                 it.visibility = if (it.text.isEmpty()) View.GONE else View.VISIBLE
             }
 

@@ -117,18 +117,20 @@ enum class ConfigProperty(
         ConfigStateListValue(
             listOf(
                 "allow_duplicate",
-                "format_user_folder",
-                "format_hash",
-                "format_date_time",
-                "format_username",
+                "create_user_folder",
+                "append_hash",
+                "append_date_time",
+                "append_type",
+                "append_username",
                 "merge_overlay"
             ),
             mutableMapOf(
                 "allow_duplicate" to false,
-                "format_user_folder" to true,
-                "format_hash" to true,
-                "format_date_time" to true,
-                "format_username" to false,
+                "create_user_folder" to true,
+                "append_hash" to true,
+                "append_date_time" to true,
+                "append_type" to false,
+                "append_username" to false,
                 "merge_overlay" to false,
             )
         )

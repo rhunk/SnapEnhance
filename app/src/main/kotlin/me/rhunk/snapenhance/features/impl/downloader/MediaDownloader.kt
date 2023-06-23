@@ -62,7 +62,7 @@ class MediaDownloader : Feature("MediaDownloader", loadParams = FeatureLoadParam
         mediaDisplayType: String? = null,
         friendInfo: FriendInfo? = null
     ): DownloadManagerClient {
-        val generatedHash = mediaIdentifier.hashCode().toString(16)
+        val generatedHash = mediaIdentifier.hashCode().toString(16).replaceFirst("-", "")
 
         val iconUrl = friendInfo?.takeIf {
             it.bitmojiAvatarId != null && it.bitmojiSelfieId != null
@@ -72,7 +72,7 @@ class MediaDownloader : Feature("MediaDownloader", loadParams = FeatureLoadParam
 
         val outputPath = File(
             context.config.string(ConfigProperty.SAVE_FOLDER),
-            createNewFilePath(generatedHash, pathSuffix)
+            createNewFilePath(generatedHash, mediaDisplayType, pathSuffix)
         ).absolutePath
 
         return DownloadManagerClient(
@@ -94,7 +94,7 @@ class MediaDownloader : Feature("MediaDownloader", loadParams = FeatureLoadParam
         return isFFmpegPresent
     }
 
-    private fun createNewFilePath(hexHash: String, pathPrefix: String): String {
+    private fun createNewFilePath(hexHash: String, mediaDisplayType: String?, pathPrefix: String): String {
         val downloadOptions = context.config.options(ConfigProperty.DOWNLOAD_OPTIONS)
         val sanitizedPathPrefix = pathPrefix
             .replace(" ", "_")
@@ -113,16 +113,21 @@ class MediaDownloader : Feature("MediaDownloader", loadParams = FeatureLoadParam
             }
         }
 
-        if (downloadOptions["format_user_folder"] == true) {
+        if (downloadOptions["create_user_folder"] == true) {
             finalPath.append(sanitizedPathPrefix).append("/")
         }
-        if (downloadOptions["format_hash"] == true) {
+        if (downloadOptions["append_hash"] == true) {
             appendFileName(hexHash)
         }
-        if (downloadOptions["format_username"] == true) {
+        mediaDisplayType?.let {
+            if (downloadOptions["append_type"] == true) {
+                appendFileName(it.lowercase().replace(" ", "-"))
+            }
+        }
+        if (downloadOptions["append_username"] == true) {
             appendFileName(sanitizedPathPrefix)
         }
-        if (downloadOptions["format_date_time"] == true) {
+        if (downloadOptions["append_date_time"] == true) {
             appendFileName(currentDateTime)
         }
 
