@@ -12,12 +12,12 @@ import com.google.gson.Gson
 import com.google.gson.GsonBuilder
 import kotlinx.coroutines.asCoroutineDispatcher
 import me.rhunk.snapenhance.bridge.AbstractBridgeClient
+import me.rhunk.snapenhance.bridge.ConfigWrapper
 import me.rhunk.snapenhance.bridge.TranslationWrapper
 import me.rhunk.snapenhance.data.MessageSender
 import me.rhunk.snapenhance.database.DatabaseAccess
 import me.rhunk.snapenhance.features.Feature
 import me.rhunk.snapenhance.manager.impl.ActionManager
-import me.rhunk.snapenhance.manager.impl.ConfigManager
 import me.rhunk.snapenhance.manager.impl.FeatureManager
 import me.rhunk.snapenhance.manager.impl.MappingManager
 import me.rhunk.snapenhance.util.download.DownloadServer
@@ -40,9 +40,9 @@ class ModContext {
     val gson: Gson = GsonBuilder().create()
 
     val translation = TranslationWrapper()
+    val config = ConfigWrapper()
     val features = FeatureManager(this)
     val mappings = MappingManager(this)
-    val config = ConfigManager(this)
     val actionManager = ActionManager(this)
     val database = DatabaseAccess(this)
     val downloadServer = DownloadServer()

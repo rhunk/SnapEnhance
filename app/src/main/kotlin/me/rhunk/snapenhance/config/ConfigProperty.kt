@@ -196,6 +196,18 @@ enum class ConfigProperty(
             )
         )
     ),
+    HIDE_STORY_SECTION(
+        "hide_story_section",
+        ConfigCategory.UI_TWEAKS,
+        ConfigStateListValue(
+            listOf("hide_friends", "hide_following", "hide_for_you"),
+            mutableMapOf(
+                "hide_friends" to false,
+                "hide_following" to false,
+                "hide_for_you" to false
+            )
+        )
+    ),
     STORY_VIEWER_OVERRIDE("story_viewer_override",
         ConfigCategory.UI_TWEAKS,
         ConfigStateSelection(

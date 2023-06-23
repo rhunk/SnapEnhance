@@ -33,9 +33,7 @@ import me.rhunk.snapenhance.bridge.common.impl.messagelogger.MessageLoggerResult
 import me.rhunk.snapenhance.bridge.service.BridgeService
 import java.util.concurrent.CompletableFuture
 import java.util.concurrent.Executors
-import java.util.concurrent.atomic.AtomicReference
 import java.util.concurrent.locks.ReentrantLock
-import kotlin.concurrent.withLock
 import kotlin.reflect.KClass
 import kotlin.system.exitProcess
 
@@ -94,7 +92,10 @@ class ServiceBridgeClient: AbstractBridgeClient(), ServiceConnection {
                 what = messageType.value
                 replyTo = Messenger(object : Handler(handlerThread.looper) {
                     override fun handleMessage(msg: Message) {
-                        if (continuation.isCompleted) return
+                        if (continuation.isCompleted) {
+                            continuation.cancel(Throwable("Already completed"))
+                            return
+                        }
                         continuation.resumeWith(Result.success(handleResponseMessage(msg) as T))
                     }
                 })

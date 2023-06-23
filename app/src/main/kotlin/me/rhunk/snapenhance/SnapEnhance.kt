@@ -59,6 +59,23 @@ class SnapEnhance {
             if (isMainActivityNotNull || !appContext.mappings.areMappingsLoaded) return@hook
             onActivityCreate()
         }
+
+        var activityWasResumed = false
+
+        //we need to reload the config when the app is resumed
+        Hooker.hook(Activity::class.java, "onResume", HookStage.AFTER) {
+            val activity = it.thisObject() as Activity
+
+            if (!activity.packageName.equals(Constants.SNAPCHAT_PACKAGE_NAME)) return@hook
+
+            if (!activityWasResumed) {
+                activityWasResumed = true
+                return@hook
+            }
+
+            Logger.debug("Reloading config")
+            appContext.config.loadFromBridge(appContext.bridgeClient)
+        }
     }
 
     @SuppressLint("ObsoleteSdkInt")
@@ -79,7 +96,7 @@ class SnapEnhance {
 
         measureTime {
             with(appContext) {
-                config.init()
+                config.loadFromBridge(bridgeClient)
                 mappings.init()
                 //if mappings aren't loaded, we can't initialize features
                 if (!mappings.areMappingsLoaded) return

@@ -71,8 +71,7 @@ class DownloadManagerActivity : Activity() {
         translation = SharedContext.translation.getCategory("download_manager_activity")
         
         setContentView(R.layout.download_manager_activity)
-
-        window.navigationBarColor = getColor(R.color.primaryBackground)
+        
         findViewById<TextView>(R.id.title).text = resources.getString(R.string.app_name) + " " + BuildConfig.VERSION_NAME
 
         findViewById<ImageButton>(R.id.settings_button).setOnClickListener {
@@ -171,7 +170,7 @@ class DownloadManagerActivity : Activity() {
                 with(AlertDialog.Builder(this@DownloadManagerActivity)) {
                     setTitle(translation["remove_all_title"])
                     setMessage(translation["remove_all_text"])
-                    setPositiveButton(translation["button.positive"]) { _, _ ->
+                    setPositiveButton(SharedContext.translation["button.positive"]) { _, _ ->
                         SharedContext.downloadTaskManager.removeAllTasks()
                         fetchedDownloadTasks.removeIf {
                             if (it.isJobActive()) it.cancel()
@@ -180,7 +179,7 @@ class DownloadManagerActivity : Activity() {
                         adapter?.notifyDataSetChanged()
                         updateNoDownloadText()
                     }
-                    setNegativeButton(translation["button.negative"]) { dialog, _ ->
+                    setNegativeButton(SharedContext.translation["button.negative"]) { dialog, _ ->
                         dialog.dismiss()
                     }
                     show()

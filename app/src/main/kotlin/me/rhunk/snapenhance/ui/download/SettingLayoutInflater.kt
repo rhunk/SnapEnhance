@@ -9,6 +9,7 @@ import android.widget.ListView
 import android.widget.TextView
 import android.widget.Toast
 import me.rhunk.snapenhance.R
+import me.rhunk.snapenhance.SharedContext
 import me.rhunk.snapenhance.bridge.common.impl.file.BridgeFileType
 import java.io.File
 
@@ -39,10 +40,10 @@ class SettingLayoutInflater(
             AlertDialog.Builder(activity)
                 .setTitle(title)
                 .setMessage(message)
-                .setPositiveButton(activity.translation["button.positive"]) { _, _ ->
+                .setPositiveButton(SharedContext.translation["button.positive"]) { _, _ ->
                     action()
                 }
-                .setNegativeButton(activity.translation["button.negative"]) { _, _ -> }
+                .setNegativeButton(SharedContext.translation["button.negative"]) { _, _ -> }
                 .show()
         }
     }
@@ -52,18 +53,18 @@ class SettingLayoutInflater(
     }
 
     fun inflate(parent: ViewGroup) {
-        val settingsView = activity.layoutInflater.inflate(R.layout.settings_page, parent, false)
+        val settingsView = activity.layoutInflater.inflate(R.layout.debug_settings_page, parent, false)
 
         val settingTranslation = activity.translation.getCategory("settings_page")
 
-        settingsView.findViewById<ImageButton>(R.id.settings_button).setOnClickListener {
+        settingsView.findViewById<ImageButton>(R.id.back_button).setOnClickListener {
             parent.removeView(settingsView)
         }
 
         settingsView.findViewById<TextView>(R.id.title).text = activity.translation["settings"]
 
         settingsView.findViewById<ListView>(R.id.setting_page_list).apply {
-            adapter = SettingAdapter(activity, R.layout.setting_item, mutableListOf<Pair<String, () -> Unit>>().apply {
+            adapter = SettingAdapter(activity, R.layout.debug_setting_item, mutableListOf<Pair<String, () -> Unit>>().apply {
                 add(settingTranslation["clear_cache_title"] to {
                     context.cacheDir.listFiles()?.forEach {
                         it.deleteRecursively()

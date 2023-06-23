@@ -11,8 +11,6 @@ import android.widget.EditText
 import android.widget.LinearLayout
 import android.widget.Switch
 import android.widget.TextView
-import me.rhunk.snapenhance.BuildConfig
-import me.rhunk.snapenhance.Constants
 import me.rhunk.snapenhance.config.ConfigProperty
 import me.rhunk.snapenhance.config.impl.ConfigIntegerValue
 import me.rhunk.snapenhance.config.impl.ConfigStateListValue
@@ -191,28 +189,14 @@ class SettingsMenu : AbstractMenu() {
     }
 
     @SuppressLint("SetTextI18n")
-    @Suppress("deprecation")
     fun inject(viewModel: View, addView: (View) -> Unit) {
-        val packageInfo = viewModel.context.packageManager.getPackageInfo(Constants.SNAPCHAT_PACKAGE_NAME, 0)
-        val versionTextBuilder = StringBuilder()
-        versionTextBuilder.append("SnapEnhance ").append(BuildConfig.VERSION_NAME)
-            .append(" by rhunk")
-        if (BuildConfig.DEBUG) {
-            versionTextBuilder.append("\n").append("Snapchat ").append(packageInfo.versionName)
-                .append(" (").append(packageInfo.longVersionCode).append(")")
-        }
-        val titleText = TextView(viewModel.context)
-        titleText.text = versionTextBuilder.toString()
-        ViewAppearanceHelper.applyTheme(titleText)
-        titleText.textSize = 18f
-        titleText.minHeight = 80 * versionTextBuilder.chars().filter { ch: Int -> ch == '\n'.code }
-                .count().coerceAtLeast(2).toInt()
-        addView(titleText)
-
         val actions = context.actionManager.getActions().map {
             Pair(it) {
                 val button = Button(viewModel.context)
-                button.text = context.translation[it.nameKey]
+                button.text = (it.dependsOnProperty?.let { property ->
+                    "["+context.translation["property.${property.translationKey}"] + "] "
+                }?: "") + context.translation[it.nameKey]
+
                 button.setOnClickListener { _ ->
                     it.run()
                 }
@@ -221,22 +205,8 @@ class SettingsMenu : AbstractMenu() {
             }
         }
 
-        context.config.entries().groupBy {
-            it.key.category
-        }.forEach { (category, value) ->
-            addView(createCategoryTitle(category.key))
-            value.filter { it.key.shouldAppearInSettings }.forEach { (property, _) ->
-                addView(createPropertyView(property))
-                actions.find { pair -> pair.first.dependsOnProperty == property}?.let { pair ->
-                    addView(pair.second())
-                }
-            }
-        }
-
-        actions.filter { it.first.dependsOnProperty == null }.forEach {
+        actions.forEach {
             addView(it.second())
         }
-
-        addView(newSeparator(3, Color.parseColor("#f5f5f5")))
     }
 }

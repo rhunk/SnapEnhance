@@ -22,6 +22,7 @@ class MenuViewInjector : Feature("MenuViewInjector", loadParams = FeatureLoadPar
     private val operaContextActionMenu = OperaContextActionMenu()
     private val chatActionMenu = ChatActionMenu()
     private val settingMenu = SettingsMenu()
+    private val settingsGearInjector = SettingsGearInjector()
 
     private val newChatString by lazy {
         context.resources.getString(context.resources.getIdentifier("new_chat", "string", Constants.SNAPCHAT_PACKAGE_NAME))
@@ -41,12 +42,15 @@ class MenuViewInjector : Feature("MenuViewInjector", loadParams = FeatureLoadPar
         operaContextActionMenu.context = context
         chatActionMenu.context = context
         settingMenu.context = context
+        settingsGearInjector.context = context
 
         val messaging = context.feature(Messaging::class)
 
         val actionSheetItemsContainerLayoutId = context.resources.getIdentifier("action_sheet_items_container", "id", Constants.SNAPCHAT_PACKAGE_NAME)
         val actionSheetContainer = context.resources.getIdentifier("action_sheet_container", "id", Constants.SNAPCHAT_PACKAGE_NAME)
         val actionMenu = context.resources.getIdentifier("action_menu", "id", Constants.SNAPCHAT_PACKAGE_NAME)
+        val componentsHolder = context.resources.getIdentifier("components_holder", "id", Constants.SNAPCHAT_PACKAGE_NAME)
+        val feedNewChat = context.resources.getIdentifier("feed_new_chat", "id", Constants.SNAPCHAT_PACKAGE_NAME)
 
         val addViewMethod = ViewGroup::class.java.getMethod(
             "addView",
@@ -68,6 +72,11 @@ class MenuViewInjector : Feature("MenuViewInjector", loadParams = FeatureLoadPar
 
             val childView: View = param.arg(0)
             operaContextActionMenu.inject(viewGroup, childView)
+
+            if (viewGroup.id == componentsHolder && childView.id == feedNewChat) {
+                settingsGearInjector.inject(viewGroup, childView)
+                return@hook
+            }
 
             //download in chat snaps and notes from the chat action menu
             if (viewGroup.javaClass.name.endsWith("ActionMenuChatItemContainer")) {
