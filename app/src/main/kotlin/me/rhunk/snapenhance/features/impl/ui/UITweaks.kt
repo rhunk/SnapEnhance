@@ -4,6 +4,7 @@ import android.annotation.SuppressLint
 import android.content.res.Resources
 import android.view.View
 import android.view.ViewGroup
+import android.widget.FrameLayout
 import me.rhunk.snapenhance.Constants
 import me.rhunk.snapenhance.config.ConfigProperty
 import me.rhunk.snapenhance.features.Feature
@@ -101,8 +102,8 @@ class UITweaks : Feature("UITweaks", loadParams = FeatureLoadParams.ACTIVITY_CRE
             }
 
             if (isImmersiveCamera && view.id == getIdentifier("full_screen_surface_view", "id")) {
-                Hooker.hookObjectMethod(View::class.java, view, "layout", HookStage.BEFORE) { param ->
-                    param.setArg(3, displayMetrics.heightPixels)
+                Hooker.hookObjectMethod(View::class.java, view, "setLayoutParams", HookStage.BEFORE) {
+                    it.setArg(0, FrameLayout.LayoutParams(displayMetrics.widthPixels, displayMetrics.heightPixels))
                 }
             }
 
