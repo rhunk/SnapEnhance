@@ -94,11 +94,12 @@ class MediaDownloader : Feature("MediaDownloader", loadParams = FeatureLoadParam
         return isFFmpegPresent
     }
 
+    //TODO: implement subfolder argument
     private fun createNewFilePath(hexHash: String, mediaDisplayType: String?, pathPrefix: String): String {
         val downloadOptions = context.config.options(ConfigProperty.DOWNLOAD_OPTIONS)
         val sanitizedPathPrefix = pathPrefix
             .replace(" ", "_")
-            .replace(Regex("[\\\\/:*?\"<>|]"), "")
+            .replace(Regex("[\\\\:*?\"<>|]"), "")
             .ifEmpty { hexHash }
 
         val currentDateTime = SimpleDateFormat("yyyy-MM-dd_HH-mm-ss", Locale.ENGLISH).format(System.currentTimeMillis())
