@@ -118,6 +118,11 @@ class DownloadManagerReceiver : BroadcastReceiver() {
 
         runCatching {
             val fileType = FileType.fromFile(inputFile)
+            if (fileType == FileType.UNKNOWN) {
+                longToast(translation.format("failed_gallery_toast", "error" to "Unknown media type"))
+                return
+            }
+
             val outputFile = File(pendingDownload.outputPath + "." + fileType.fileExtension).also { createNeededDirectories(it) }
             inputFile.copyTo(outputFile, overwrite = true)
 
