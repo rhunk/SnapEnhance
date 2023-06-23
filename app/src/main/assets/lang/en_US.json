@@ -73,7 +73,8 @@
         "friend_feed_menu_buttons": "Friend Feed Menu Buttons",
         "friend_feed_menu_buttons_position": "Friend Feed Buttons Position Index",
         "unlimited_conversation_pinning": "Unlimited Conversation Pinning",
-        "story_viewer_override": "Story Viewer Override"
+        "story_viewer_override": "Story Viewer Override",
+        "hide_story_section": "Hide story sections"
     },
 
     "description": {
@@ -132,7 +133,8 @@
         "friend_feed_menu_bar": "Enables the new Friend Feed Menu Bar",
         "enable_friend_feed_menu_bar": "Enables the new Friend Feed Menu Bar",
         "unlimited_conversation_pinning": "Enables the ability to Pin unlimited conversations",
-        "force_camera_source_encoding": "Forces Camera Source Encoding"
+        "force_camera_source_encoding": "Forces Camera Source Encoding",
+        "hide_story_section": "Hide certain UI Elements shown in the story section"
     },
 
     "option": {
@@ -197,6 +199,11 @@
                 "OFF": "Off",
                 "DISCOVER_PLAYBACK_SEEKBAR": "Enable Discover Playback Seekbar",
                 "VERTICAL_STORY_VIEWER": "Enable Vertical Story Viewer"
+            },
+            "hide_story_section": {
+                "hide_friends": "Hide friends section",
+                "hide_following": "Hide following section",
+                "hide_for_you": "Hide For You section"
             }
         }
     },
