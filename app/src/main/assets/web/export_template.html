@@ -227,7 +227,7 @@
                                 imageTag.src = url
                                 imageTag.onerror = () => {
                                     elem.removeChild(imageTag)
-                                    const mediaTag = document.createElement(message.type === "VIDEO" ? "video" : "audio")
+                                    const mediaTag = document.createElement(message.type === "NOTE" ? "audio" : "video")
                                     mediaTag.classList.add("media_container")
                                     mediaTag.src = url
                                     mediaTag.preload = "metadata"
