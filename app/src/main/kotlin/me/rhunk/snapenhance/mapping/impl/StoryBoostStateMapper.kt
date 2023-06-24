@@ -9,8 +9,11 @@ class StoryBoostStateMapper : Mapper(){
         mappings: MutableMap<String, Any>
     ) {
         for (clazz in classes) {
-            val firstField = clazz.declaredFields.firstOrNull() ?: continue
-            if (!firstField.type.isEnum || firstField.type.enumConstants.none { it.toString() == "NeedSubscriptionCannotSubscribe" }) continue
+            val firstConstructor = clazz.constructors.firstOrNull() ?: continue
+            if (firstConstructor.parameterCount != 3) continue
+            if (firstConstructor.parameterTypes[1] != Long::class.javaPrimitiveType || firstConstructor.parameterTypes[2] != Long::class.javaPrimitiveType) continue
+            val storyBoostEnumClass = firstConstructor.parameterTypes[0]
+            if (!storyBoostEnumClass.isEnum || storyBoostEnumClass.enumConstants.none { it.toString() == "NeedSubscriptionCannotSubscribe" }) continue
             mappings["StoryBoostStateClass"] = clazz.name
             return
         }
