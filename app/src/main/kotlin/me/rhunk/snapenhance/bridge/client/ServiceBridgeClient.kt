@@ -13,6 +13,8 @@ import android.os.HandlerThread
 import android.os.IBinder
 import android.os.Message
 import android.os.Messenger
+import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.suspendCancellableCoroutine
 import me.rhunk.snapenhance.BuildConfig
 import me.rhunk.snapenhance.Logger.xposedLog
 import me.rhunk.snapenhance.bridge.AbstractBridgeClient
@@ -31,9 +33,7 @@ import me.rhunk.snapenhance.bridge.common.impl.messagelogger.MessageLoggerResult
 import me.rhunk.snapenhance.bridge.service.BridgeService
 import java.util.concurrent.CompletableFuture
 import java.util.concurrent.Executors
-import java.util.concurrent.atomic.AtomicReference
 import java.util.concurrent.locks.ReentrantLock
-import kotlin.concurrent.withLock
 import kotlin.reflect.KClass
 import kotlin.system.exitProcess
 
@@ -86,29 +86,24 @@ class ServiceBridgeClient: AbstractBridgeClient(), ServiceConnection {
         messageType: BridgeMessageType,
         bridgeMessage: BridgeMessage,
         resultType: KClass<T>? = null
-    ): T {
-        val response = AtomicReference<BridgeMessage>()
-        val condition = lock.newCondition()
-
-        with(Message.obtain()) {
-            what = messageType.value
-            replyTo = Messenger(object : Handler(handlerThread.looper) {
-                override fun handleMessage(msg: Message) {
-                    response.set(handleResponseMessage(msg))
-                    lock.withLock {
-                        condition.signal()
+    ) = runBlocking {
+        return@runBlocking suspendCancellableCoroutine<T> { continuation ->
+            with(Message.obtain()) {
+                what = messageType.value
+                replyTo = Messenger(object : Handler(handlerThread.looper) {
+                    override fun handleMessage(msg: Message) {
+                        if (continuation.isCompleted) {
+                            continuation.cancel(Throwable("Already completed"))
+                            return
+                        }
+                        continuation.resumeWith(Result.success(handleResponseMessage(msg) as T))
                     }
-                }
-            })
-            data = Bundle()
-            bridgeMessage.write(data)
-            messenger.send(this)
+                })
+                data = Bundle()
+                bridgeMessage.write(data)
+                messenger.send(this)
+            }
         }
-
-        lock.withLock {
-            condition.awaitUninterruptibly()
-        }
-        return response.get() as T
     }
 
     override fun createAndReadFile(

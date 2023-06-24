@@ -8,6 +8,7 @@ import android.net.Uri
 import android.os.*
 import me.rhunk.snapenhance.Logger
 import me.rhunk.snapenhance.bridge.MessageLoggerWrapper
+import me.rhunk.snapenhance.bridge.TranslationWrapper
 import me.rhunk.snapenhance.bridge.common.BridgeMessageType
 import me.rhunk.snapenhance.bridge.common.impl.*
 import me.rhunk.snapenhance.bridge.common.impl.download.DownloadContentRequest
@@ -34,7 +35,7 @@ class BridgeService : Service() {
                 runCatching {
                     this@BridgeService.handleMessage(msg)
                 }.onFailure {
-                    Logger.error("Failed to handle message", it)
+                    Logger.error("Failed to handle message ${BridgeMessageType.fromValue(msg.what)}", it)
                 }
             }
         }).binder
@@ -96,6 +97,7 @@ class BridgeService : Service() {
             MessageLoggerRequest.Action.GET -> {
                 val (state, messageData) = messageLoggerWrapper.getMessage(msg.conversationId!!, msg.index!!)
                 reply(MessageLoggerResult(state, messageData).toMessage(BridgeMessageType.MESSAGE_LOGGER_RESULT.value))
+                return
             }
             MessageLoggerRequest.Action.LIST_IDS -> {
                 val messageIds = messageLoggerWrapper.getMessageIds(msg.conversationId!!, msg.index!!.toInt())
@@ -111,12 +113,15 @@ class BridgeService : Service() {
     }
 
     private fun handleLocaleRequest(reply: (Message) -> Unit) {
-        val deviceLocale = Locale.getDefault().toString()
-        val compatibleLocale = resources.assets.list("lang")?.find { it.startsWith(deviceLocale) }?.substring(0, 5) ?: "en_US"
+        val locales = sortedSetOf<String>()
+        val contentArray = sortedSetOf<String>()
 
-        resources.assets.open("lang/$compatibleLocale.json").use { inputStream ->
-            reply(LocaleResult(compatibleLocale, inputStream.readBytes()).toMessage(BridgeMessageType.LOCALE_RESULT.value))
+        TranslationWrapper.fetchLocales(context = this).forEach { pair ->
+            locales.add(pair.locale)
+            contentArray.add(pair.content)
         }
+
+        reply(LocaleResult(locales.toTypedArray(), contentArray.toTypedArray()).toMessage(BridgeMessageType.LOCALE_RESULT.value))
     }
 
     @SuppressLint("UnspecifiedRegisterReceiverFlag")

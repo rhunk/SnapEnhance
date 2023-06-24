@@ -29,8 +29,9 @@ import me.rhunk.snapenhance.features.impl.spying.MessageLogger
 import me.rhunk.snapenhance.features.impl.spying.PreventReadReceipts
 import me.rhunk.snapenhance.features.impl.spying.StealthMode
 import me.rhunk.snapenhance.features.impl.tweaks.CameraTweaks
+import me.rhunk.snapenhance.features.impl.ui.PinConversations
 import me.rhunk.snapenhance.features.impl.ui.UITweaks
-import me.rhunk.snapenhance.features.impl.ui.menus.MenuViewInjector
+import me.rhunk.snapenhance.ui.menu.impl.MenuViewInjector
 import me.rhunk.snapenhance.manager.Manager
 import java.util.concurrent.Executors
 import kotlin.reflect.KClass
@@ -83,13 +84,13 @@ class FeatureManager(private val context: ModContext) : Manager {
         register(CameraTweaks::class)
         register(InfiniteStoryBoost::class)
         register(AmoledDarkMode::class)
+        register(PinConversations::class)
 
         initializeFeatures()
     }
 
     private fun featureInitializer(isAsync: Boolean, param: Int, action: (Feature) -> Unit) {
-        features.forEach { feature ->
-            if (feature.loadParams and param == 0) return@forEach
+        features.filter { it.loadParams and param != 0 }.forEach { feature ->
             val callback = {
                 runCatching {
                     action(feature)

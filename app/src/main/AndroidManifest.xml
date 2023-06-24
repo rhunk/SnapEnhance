@@ -2,6 +2,8 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools">
 
+    <uses-permission android:name="android.permission.REQUEST_IGNORE_BATTERY_OPTIMIZATIONS" />
+
     <uses-permission android:name="android.permission.DOWNLOAD_WITHOUT_NOTIFICATION" />
     <uses-permission android:name="android.permission.INTERNET" />
 
@@ -28,23 +30,35 @@
 
         <service
             android:name=".bridge.service.BridgeService"
-            android:exported="true">
+            android:exported="true"
+            tools:ignore="ExportedService">
         </service>
 
+        <receiver android:name=".download.DownloadManagerReceiver" android:exported="true"
+            tools:ignore="ExportedReceiver">
+            <intent-filter>
+                <action android:name="me.rhunk.snapenhance.download.DownloadManagerReceiver.DOWNLOAD_ACTION" />
+            </intent-filter>
+        </receiver>
+
         <activity
-            android:theme="@android:style/Theme.NoDisplay"
-            android:name=".bridge.service.MainActivity"
-            android:exported="true"
-            android:excludeFromRecents="true">
+            android:name=".ui.download.DownloadManagerActivity"
+            android:theme="@style/AppTheme"
+            android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
         <activity
-            android:name=".features.impl.ui.menus.MapActivity"
+            android:name=".ui.map.MapActivity"
             android:exported="true"
             android:excludeFromRecents="true" />
+        <activity
+            android:name=".ui.config.ConfigActivity"
+            android:theme="@style/AppTheme"
+            android:excludeFromRecents="true"
+            android:exported="true" />
     </application>
 
 </manifest>

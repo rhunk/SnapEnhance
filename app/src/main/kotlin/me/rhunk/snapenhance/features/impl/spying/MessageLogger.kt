@@ -37,6 +37,15 @@ class MessageLogger : Feature("MessageLogger",
         context.bridgeClient.deleteMessageLoggerMessage(conversationId, messageId)
     }
 
+    fun getMessageObject(conversationId: String, messageId: Long): JsonObject? {
+        if (deletedMessageCache.containsKey(messageId)) {
+            return deletedMessageCache[messageId]
+        }
+        return context.bridgeClient.getMessageLoggerMessage(conversationId, messageId)?.let {
+            JsonParser.parseString(it.toString(Charsets.UTF_8)).asJsonObject
+        }
+    }
+
     @OptIn(ExperimentalTime::class)
     override fun asyncOnActivityCreate() {
         ConfigProperty.MESSAGE_LOGGER.valueContainer.addPropertyChangeListener {

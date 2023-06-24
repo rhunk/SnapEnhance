@@ -14,6 +14,9 @@ class SnapClassCache (
     val networkApi by lazy { findClass("com.snapchat.client.network_api.NetworkApi\$CppProxy") }
     val messageDestinations by lazy { findClass("com.snapchat.client.messaging.MessageDestinations") }
     val localMessageContent by lazy { findClass("com.snapchat.client.messaging.LocalMessageContent") }
+    val feedEntry by lazy { findClass("com.snapchat.client.messaging.FeedEntry") }
+    val conversation by lazy { findClass("com.snapchat.client.messaging.Conversation") }
+    val feedManager by lazy { findClass("com.snapchat.client.messaging.FeedManager\$CppProxy") }
 
     private fun findClass(className: String): Class<*> {
         return try {

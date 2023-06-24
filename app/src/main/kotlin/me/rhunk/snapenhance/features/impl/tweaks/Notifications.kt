@@ -7,6 +7,7 @@ import android.app.RemoteInput
 import android.content.Context
 import android.content.Intent
 import android.graphics.Bitmap
+import android.graphics.BitmapFactory
 import android.os.Bundle
 import android.os.UserHandle
 import de.robv.android.xposed.XposedBridge
@@ -24,10 +25,10 @@ import me.rhunk.snapenhance.features.impl.Messaging
 import me.rhunk.snapenhance.hook.HookStage
 import me.rhunk.snapenhance.hook.Hooker
 import me.rhunk.snapenhance.util.CallbackBuilder
-import me.rhunk.snapenhance.util.EncryptionUtils
-import me.rhunk.snapenhance.util.MediaDownloaderHelper
-import me.rhunk.snapenhance.util.MediaType
-import me.rhunk.snapenhance.util.PreviewUtils
+import me.rhunk.snapenhance.util.snap.EncryptionHelper
+import me.rhunk.snapenhance.util.snap.MediaDownloaderHelper
+import me.rhunk.snapenhance.util.snap.MediaType
+import me.rhunk.snapenhance.util.snap.PreviewUtils
 import me.rhunk.snapenhance.util.protobuf.ProtoReader
 
 class Notifications : Feature("Notifications", loadParams = FeatureLoadParams.INIT_SYNC) {
@@ -161,7 +162,11 @@ class Notifications : Feature("Notifications", loadParams = FeatureLoadParams.IN
 
         notificationDataQueue.entries.onEach { (messageId, notificationData) ->
             val snapMessage = messages.firstOrNull { message -> message.orderKey == messageId } ?: return
-            val senderUsername = context.database.getFriendInfo(snapMessage.senderId.toString())?.displayName ?: throw Throwable("Cant find senderId of message $snapMessage")
+            val senderUsername by lazy {
+                context.database.getFriendInfo(snapMessage.senderId.toString())?.let {
+                    it.displayName ?: it.username
+                }
+            }
 
             val contentType = snapMessage.messageContent.contentType
             val contentData = snapMessage.messageContent.content
@@ -192,21 +197,17 @@ class Notifications : Feature("Notifications", loadParams = FeatureLoadParams.IN
                         val protoMediaReference = media.asJsonObject["mContentObject"].asJsonArray.map { it.asByte }.toByteArray()
                         val mediaType = MediaReferenceType.valueOf(media.asJsonObject["mMediaType"].asString)
                         runCatching {
-                            //download the media
-                            val mediaInfo = ProtoReader(contentData).let {
-                                if (contentType == ContentType.EXTERNAL_MEDIA)
-                                    return@let it.readPath(*Constants.MESSAGE_EXTERNAL_MEDIA_ENCRYPTION_PROTO_PATH)
-                                else
-                                    return@let it.readPath(*Constants.MESSAGE_SNAP_ENCRYPTION_PROTO_PATH)
-                            }?: return@runCatching
+                            val messageReader = ProtoReader(contentData)
+                            val downloadedMediaList = MediaDownloaderHelper.downloadMediaFromReference(protoMediaReference) {
+                                EncryptionHelper.decryptInputStream(it, contentType, messageReader, isArroyo = false)
+                            }
 
-                            val downloadedMedia = MediaDownloaderHelper.downloadMediaFromReference(protoMediaReference, mergeOverlay = false, isPreviewMode = false) {
-                                if (mediaInfo.exists(Constants.ARROYO_ENCRYPTION_PROTO_INDEX))
-                                    EncryptionUtils.decryptInputStream(it, false, mediaInfo, Constants.ARROYO_ENCRYPTION_PROTO_INDEX)
-                                else it
-                            }[MediaType.ORIGINAL] ?: throw Throwable("Failed to download media")
+                            var bitmapPreview = PreviewUtils.createPreview(downloadedMediaList[MediaType.ORIGINAL]!!, mediaType.name.contains("VIDEO"))!!
 
-                            val bitmapPreview = PreviewUtils.createPreview(downloadedMedia, mediaType.name.contains("VIDEO"))!!
+                            downloadedMediaList[MediaType.OVERLAY]?.let {
+                                bitmapPreview = PreviewUtils.mergeBitmapOverlay(bitmapPreview, BitmapFactory.decodeByteArray(it, 0, it.size))
+                            }
+
                             val notificationBuilder = XposedHelpers.newInstance(
                                 Notification.Builder::class.java,
                                 context.androidContext,

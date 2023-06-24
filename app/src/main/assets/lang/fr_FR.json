@@ -1,0 +1,404 @@
+{
+    "category": {
+        "spying_privacy": "Espionnage et vie privée",
+        "media_manager": "Gestionnaire de média",
+        "ui_tweaks": "Interface & Ajustements",
+        "camera": "Caméra",
+        "updates": "Mises à jour",
+        "experimental_debugging": "Expérimental"
+    },
+
+    "action": {
+        "clean_cache": "Effacer le cache",
+        "clear_message_logger": "Effacer le Loggeur de message",
+        "refresh_mappings": "Actualiser les mappings",
+        "open_map": "Choisir un emplacement sur la carte",
+        "check_for_updates": "Vérifier les mises à jour",
+        "export_chat_messages": "Exporter une conversation"
+    },
+
+    "property": {
+        "message_logger": {
+            "name": "Journal des messages",
+            "description": "Empêche les messages d'être supprimés"
+        },
+        "prevent_read_receipts": {
+            "name": "Empêcher les accusés de réception",
+            "description": "Empêche les accusés de réception d'être envoyés"
+        },
+        "hide_bitmoji_presence": {
+            "name": "Cacher la présence de son Bitmoji",
+            "description": "Empêche vos amis de voir votre Bitmoji apparaître dans les conversations"
+        },
+        "better_notifications": {
+            "name": "Notifications améliorées",
+            "description": "Affiche plus d'informations dans les notifications"
+        },
+        "notification_blacklist": {
+            "name": "Liste de noire des notifications",
+            "description": "Cache les type de notifications sélectionnés"
+        },
+        "disable_metrics": {
+            "name": "Désactiver les métriques",
+            "description": "Empêche les métriques d'être envoyées aux serveurs de Snapchat"
+        },
+        "block_ads": {
+            "name": "Bloquer les publicités",
+            "description": "Bloque les publicités dans Snapchat"
+        },
+        "unlimited_snap_view_time": {
+            "name": "Temps de visionnage des snaps illimité",
+            "description": "Permet de voir les snaps aussi longtemps que vous le souhaitez"
+        },
+        "prevent_screenshot_notifications": {
+            "name": "Empêcher les notifications de capture d'écran",
+            "description": "Empêche l'envoi d'une notification lorsqu'une capture d'écran est effectuée"
+        },
+        "prevent_status_notifications": {
+            "name": "Empêcher les notifications de statut",
+            "description": "Empêche l'envoi des notifications de statut (enregistré dans la galerie, etc.)"
+        },
+        "anonymous_story_view": {
+            "name": "Visionnage anonyme des stories",
+            "description": "Empêche les utilisateurs de voir que vous avez vu leur story"
+        },
+        "hide_typing_notification": {
+            "name": "Empêcher les notifications de saisie",
+            "description": "Empêche l'envoi des notifications de saisie"
+        },
+
+        "save_folder": {
+            "name": "Dossier d'enregistrement",
+            "description": "Spécifie le dossier dans lequel les médias seront enregistrés"
+        },
+        "auto_download_options": {
+            "name": "Options de téléchargement automatique",
+            "description": "Spécifie quel type de média seront automatiquement téléchargés"
+        },
+        "download_options": {
+            "name": "Options de téléchargement",
+            "description": "Spécifie le format du chemin de téléchargement des médias"
+        },
+        "chat_download_context_menu": {
+            "name": "Activer le menu contextuel de téléchargement de Chat",
+            "description": "Ajoute de boutons de téléchargement dans le menu contextuel de Chat"
+        },
+        "gallery_media_send_override": {
+            "name": "Remplacement de l'envoi des médias depuis la galerie",
+            "description": "Remplace le type de média envoyé depuis la galerie"
+        },
+        "auto_save_messages": {
+            "name": "Enregistrement automatique des messages",
+            "description": "Enregistre automatiquement les messages textuels dans le Chat"
+        },
+        "force_media_source_quality": {
+            "name": "Forcer la qualité source des médias",
+            "description": "Oblige Snapchat à envoyer la qualité source des médias"
+        },
+
+        "enable_friend_feed_menu_bar": {
+            "name": "Barre du menu du fil d'ami",
+            "description": "Active la nouvelle barre du menu du fil d'ami"
+        },
+        "friend_feed_menu_buttons": {
+            "name": "Boutons du menu du fil d'ami",
+            "description": "Sélectionne les boutons à afficher dans le menu du fil d'ami"
+        },
+        "friend_feed_menu_buttons_position": {
+            "name": "Position des boutons du menu du fil d'ami",
+            "description": "Sélectionne la position des boutons dans le menu du fil d'ami"
+        },
+        "hide_ui_elements": {
+            "name": "Masquer les éléments de l'interface",
+            "description": "Selectionne les éléments de l'interface à masquer"
+        },
+        "hide_story_section": {
+            "name": "Masquer la section de la page des Stories",
+            "description": "Masque certaines sections de la page des Stories"
+        },
+        "story_viewer_override": {
+            "name": "Remplacer le style de visionnage des Stories",
+            "description": "Active certaines fonctionnalités que Snapchat a masqué"
+        },
+        "streak_expiration_info": {
+            "name": "Afficher l'expiration des Snapflammes",
+            "description": "Affiche le temps restant avant l'expiration des Snapflammes à côté du nombre de jours"
+        },
+        "disable_snap_splitting": {
+            "name": "Désactiver le fractionnement des Snaps",
+            "description": "Empêche les Snaps de se fractionner en plusieurs parties"
+        },
+        "disable_video_length_restriction": {
+            "name": "Désactiver la restriction de la durée des vidéos",
+            "description": "Empêche Snapchat de limiter la durée des vidéos lors de l'envoi"
+        },
+        "snapchat_plus": {
+            "name": "Snapchat Plus",
+            "description": "Active les fonctionnalités de Snapchat Plus"
+        },
+        "new_map_ui": {
+            "name": "Nouvelle interface de la Snapmap",
+            "description": "Active la nouvelle interface de la Snapmap"
+        },
+        "location_spoof": {
+            "name": "Changement de la localisation sur la carte",
+            "description": "Change la localisation affichée sur la Snapmap"
+        },
+        "message_preview_length": {
+            "name": "Longueur de prévisualisation des messages",
+            "description": "Spécifie le nombre de message à afficher"
+        },
+        "unlimited_conversation_pinning": {
+            "name": "Épinglage illimité des conversations",
+            "description": "Permet d'épingler autant de conversations que vous le souhaitez"
+        },
+        "disable_spotlight": {
+            "name": "Désactiver Spotlight",
+            "description": "Désactive la page Spotlight"
+        },
+        "enable_app_appearance": {
+            "name": "Activer l'apparence de l'application",
+            "description": "Active les paramètres cachés d'apparence de l'application"
+        },
+
+        "auto_updater": {
+            "name": "Mises à jour automatiques",
+            "description": "Le délai entre les mises à jour automatiques"
+        },
+
+        "disable_camera": {
+            "name": "Désactiver la caméra",
+            "description": "Empêche Snapchat d'accéder à la caméra"
+        },
+        "immersive_camera_preview": {
+            "name": "Aperçu de la caméra en plein écran",
+            "description": "Empêche Snapchat de recadrer l'aperçu de la caméra"
+        },
+        "preview_resolution": {
+            "name": "Résolution de l'aperçu de la caméra",
+            "description": "Remplace la résolution de l'aperçu de la caméra"
+        },
+        "picture_resolution": {
+            "name": "Résolution des photos",
+            "description": "Remplace la résolution des photos"
+        },
+        "force_highest_frame_rate": {
+            "name": "Taux de rafraîchissement maximal",
+            "description": "Forcer le taux de rafraîchissement le plus élevé"
+        },
+        "force_camera_source_encoding": {
+            "name": "Encodage source de la caméra",
+            "description": "Forcer l'encodage de la source de la caméra"
+        },
+
+        "app_passcode": {
+            "name": "Mot de passe de l'application",
+            "description": "Définir un mot de passe pour l'application"
+        },
+        "app_lock_on_resume": {
+            "name": "Verrouillage de l'application à la reprise",
+            "description": "Verrouille l'application lorsque vous la réouvrez"
+        },
+        "infinite_story_boost": {
+            "name": "Mis en avant infini des Stories",
+            "description": "Permet de mettre en avant vos Stories autant de fois que vous le souhaitez"
+        },
+        "meo_passcode_bypass": {
+            "name": "Contourner le mot de passe de My Eyes Only",
+            "description": "Contourne le mot de passe de My Eyes Only\nCela ne fonctionnera que si le mot de passe n'a pas été entré correctement auparavant"
+        },
+        "amoled_dark_mode": {
+            "name": "Mode sombre AMOLED",
+            "description": "Active le mode sombre AMOLED\nAssurez-vous que le mode sombre de Snapchat est activé"
+        }
+    },
+    "option": {
+        "property": {
+            "better_notifications": {
+                "chat": "Afficher les messages textuels",
+                "snap": "Afficher les médias",
+                "reply_button": "Ajouter un bouton de réponse"
+            },
+            "friend_feed_menu_buttons": {
+                "auto_download_blacklist": "\u2B07\uFE0F Button de filtrage des téléchargements automatisés",
+                "anti_auto_save": "\uD83D\uDCAC Bouton de filtrage de la sauvegarde des messages",
+                "stealth_mode": "\uD83D\uDC7B Mode furtif",
+                "conversation_info": "\uD83D\uDC64 Info de conversation"
+            },
+            "download_options": {
+                "allow_duplicate": "Autoriser les doublons",
+                "create_user_folder": "Création d'un dossier pour chaque utilisateur",
+                "append_hash": "Ajouter un hashage unique au nom du fichier",
+                "append_username": "Ajouter le nom d'utilisateur au nom du fichier",
+                "append_date_time": "Ajouter la date ainsi que l'heure au nom du fichier",
+                "append_type": "Ajouter le type de média au nom du fichier",
+                "merge_overlay": "Fusion des superpositions des Snaps"
+            },
+            "auto_download_options": {
+                "friend_snaps": "Snaps des amis",
+                "friend_stories": "Stories des amis",
+                "public_stories": "Stories publiques",
+                "spotlight": "Spotlight"
+            },
+            "auto_save_messages": {
+                "NOTE": "Message vocal",
+                "CHAT": "Message textuel",
+                "EXTERNAL_MEDIA": "Média externe",
+                "SNAP": "Snap",
+                "STICKER": "Autocollant"
+            },
+            "notification_blacklist": {
+                "chat": "Chat",
+                "snap": "Snap",
+                "typing": "Saisie"
+            },
+            "gallery_media_send_override": {
+                "OFF": "Désactivé",
+                "NOTE": "Message vocal",
+                "SNAP": "Snap",
+                "LIVE_SNAP": "Snap avec audio"
+            },
+            "hide_ui_elements": {
+                "remove_call_buttons": "Supprimer le bouton d'appel",
+                "remove_cognac_button": "Supprimer le bouton des Activités",
+                "remove_live_location_share_button": "Supprimer le bouton de partage de la localisation en direct",
+                "remove_stickers_button": "Supprimer le bouton des autocollants",
+                "remove_voice_record_button": "Supprimer le bouton d'enregistrement de la voix",
+                "remove_camera_borders": "Supprimer les bordures de la caméra"
+            },
+            "auto_updater": {
+                "DISABLED": "Désactivé",
+                "EVERY_LAUNCH": "À chaque lancement",
+                "DAILY": "Journalière",
+                "WEEKLY": "Hebdomadaire"
+            },
+
+            "story_viewer_override": {
+                "OFF": "Désactivé",
+                "DISCOVER_PLAYBACK_SEEKBAR": "Activer la barre du lecteur des Stories Discover",
+                "VERTICAL_STORY_VIEWER": "Activer le lecteur vertical des Stories"
+            },
+            "hide_story_section": {
+                "hide_friends": "Cacher la section des amis",
+                "hide_following": "Cacher la section des abonnements",
+                "hide_for_you": "Cacher la section Pour vous"
+            }
+        }
+    },
+
+    "friend_menu_option": {
+        "preview": "Aperçu",
+        "stealth_mode": "Mode furtif",
+        "auto_download_blacklist": "Empêcher le téléchargement automatique",
+        "anti_auto_save": "Empêcher l'enregistrement automatique"
+    },
+
+    "message_context_menu_option": {
+        "download": "Télécharger",
+        "preview": "Aperçu"
+    },
+
+    "chat_action_menu": {
+        "preview_button": "Aperçu",
+        "download_button": "Télécharger",
+        "delete_logged_message_button": "Supprimer le message enregistré par le Loggeur"
+    },
+
+    "opera_context_menu": {
+        "download": "Télécharger"
+    },
+
+    "modal_option": {
+        "profile_info": "Informations du profil",
+        "close": "Fermer"
+    },
+
+    "conversation_preview": {
+        "streak_expiration": "expire dans {day} jour(s) {hour} heure(s) {minute} minute(s)",
+        "title": "Aperçu",
+        "unknown_user": "Utilisateur inconnu"
+    },
+
+    "profile_info": {
+        "title": "Informations du profil",
+        "username": "Nom d'utilisateur",
+        "display_name": "Nom d'affichage",
+        "added_date": "Date d'ajout",
+        "birthday": "Anniversaire : {day} {month}"
+    },
+
+    "auto_updater": {
+        "no_update_available": "Aucune mise à jour disponible !",
+        "dialog_title": "Nouvelle mise à jour disponible !",
+        "dialog_message": "Une nouvelle mise à jour pour SnapEnhance est disponible ! ({version})\n\n{body}",
+        "dialog_positive_button": "Télécharger & installer",
+        "dialog_negative_button": "Annuler",
+        "downloading_toast": "Téléchargement de la mise à jour...",
+        "download_manager_notification_title": "Téléchargement du fichier APK de SnapEnhance..."
+    },
+
+    "chat_export": {
+        "select_export_format": "Selectionner le format d'exportation",
+        "select_media_type": "Selectionner le type de média à exporter",
+        "select_conversation": "Selectionner la/les conversation à exporter",
+        "dialog_negative_button": "Annuler",
+        "dialog_neutral_button": "Exporter tout",
+        "dialog_positive_button": "Exporter",
+        "exported_to": "Exporté vers {path}",
+        "exporting_chats": "Exportation des conversations...",
+        "processing_chats": "Traitement de {amount} conversation(s)...",
+        "export_fail": "Impossible d'exporter la conversation {conversation} !",
+        "writing_output": "Écriture du fichier de sortie...",
+        "finished": "Terminé ! Vous pouvez maintenant fermer ce popup.",
+        "no_messages_found": "Aucun message trouvé !",
+        "exporting_message": "Exportation de {message}..."
+    },
+
+    "button": {
+        "ok": "OK",
+        "positive": "Oui",
+        "negative": "Non",
+        "cancel": "Annuler",
+        "open": "Ouvrir"
+    },
+
+    "download_manager_activity": {
+        "remove_all_title": "Supprimer tout les téléchargements",
+        "remove_all_text": "Êtes-vous sûr de vouloir supprimer tous les téléchargements ?",
+        "remove_all": "Supprimer tout",
+        "no_downloads": "Aucun téléchargement",
+        "cancel": "Annuler",
+        "file_not_found_toast": "Fichier introuvable !",
+        "category": {
+            "all_category": "Tout",
+            "pending_category": "En attente",
+            "snap_category": "Snap",
+            "story_category": "Story",
+            "spotlight_category": "Spotlight"
+        },
+        "debug_settings": "Paramètres de débogage",
+        "debug_settings_page": {
+            "clear_file_title": "Supprimer le fichier {file_name}",
+            "clear_file_confirmation": "Êtes-vous sûr de vouloir supprimer le fichier {file_name} ?",
+            "clear_cache_title": "Supprimer le cache",
+            "reset_all_title": "Réinitialiser tous les paramètres",
+            "reset_all_confirmation": "Êtes-vous sûr de vouloir réinitialiser tous les paramètres ?",
+            "success_toast": "Succès !"
+        }
+    },
+    "download_manager_receiver": {
+        "already_queued_toast": "Média déjà en attente !",
+        "already_downloaded_toast": "Média déjà téléchargé !",
+        "saved_toast": "Sauvegardé vers {path}",
+        "download_toast": "Téléchargement de {path}...",
+        "processing_toast": "Traitement de {path}...",
+        "failed_generic_toast": "Échec du téléchargement !",
+        "failed_processing_toast": "Échec du traitement !",
+        "failed_gallery_toast": "Échec de l'ajout à la galerie ! {error}"
+    },
+    "config_activity": {
+        "title": "Paramètres de SnapEnhance",
+        "selected_text": "{count} sélectionné(s)",
+        "invalid_number_toast": "Nombre invalide !"
+    }
+}

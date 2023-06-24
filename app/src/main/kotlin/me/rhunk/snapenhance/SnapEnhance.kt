@@ -5,6 +5,8 @@ import android.app.Activity
 import android.app.Application
 import android.content.Context
 import android.os.Build
+import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.withContext
 import me.rhunk.snapenhance.bridge.AbstractBridgeClient
 import me.rhunk.snapenhance.bridge.client.RootBridgeClient
 import me.rhunk.snapenhance.bridge.client.ServiceBridgeClient
@@ -39,7 +41,9 @@ class SnapEnhance {
                         return@start
                     }
                     runCatching {
-                        init()
+                        runBlocking {
+                            init()
+                        }
                     }.onFailure {
                         Logger.xposedLog("Failed to initialize", it)
                     }
@@ -55,6 +59,23 @@ class SnapEnhance {
             if (isMainActivityNotNull || !appContext.mappings.areMappingsLoaded) return@hook
             onActivityCreate()
         }
+
+        var activityWasResumed = false
+
+        //we need to reload the config when the app is resumed
+        Hooker.hook(Activity::class.java, "onResume", HookStage.AFTER) {
+            val activity = it.thisObject() as Activity
+
+            if (!activity.packageName.equals(Constants.SNAPCHAT_PACKAGE_NAME)) return@hook
+
+            if (!activityWasResumed) {
+                activityWasResumed = true
+                return@hook
+            }
+
+            Logger.debug("Reloading config")
+            appContext.config.loadFromBridge(appContext.bridgeClient)
+        }
     }
 
     @SuppressLint("ObsoleteSdkInt")
@@ -67,11 +88,15 @@ class SnapEnhance {
     }
 
     @OptIn(ExperimentalTime::class)
-    private fun init() {
+    private suspend fun init() {
+        //load translations in a coroutine to speed up initialization
+        withContext(appContext.coroutineDispatcher) {
+            appContext.translation.loadFromBridge(appContext.bridgeClient)
+        }
+
         measureTime {
             with(appContext) {
-                translation.init()
-                config.init()
+                config.loadFromBridge(bridgeClient)
                 mappings.init()
                 //if mappings aren't loaded, we can't initialize features
                 if (!mappings.areMappingsLoaded) return
@@ -82,10 +107,15 @@ class SnapEnhance {
         }
     }
 
+    @OptIn(ExperimentalTime::class)
     private fun onActivityCreate() {
-        with(appContext) {
-            features.onActivityCreate()
-            actionManager.init()
+        measureTime {
+            with(appContext) {
+                features.onActivityCreate()
+                actionManager.init()
+            }
+        }.also { time ->
+            Logger.debug("onActivityCreate in $time")
         }
     }
 }

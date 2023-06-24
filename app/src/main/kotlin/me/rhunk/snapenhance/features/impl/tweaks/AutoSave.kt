@@ -69,8 +69,8 @@ class AutoSave : Feature("Auto Save", loadParams = FeatureLoadParams.ACTIVITY_CR
         if (context.config.options(ConfigProperty.AUTO_SAVE_MESSAGES).none { it.value }) return false
 
         with(context.feature(Messaging::class)) {
-            if (lastOpenedConversationUUID == null) return@canSave false
-            val conversation = lastOpenedConversationUUID.toString()
+            if (openedConversationUUID == null) return@canSave false
+            val conversation = openedConversationUUID.toString()
             if (context.feature(StealthMode::class).isStealth(conversation)) return@canSave false
             if (context.feature(AntiAutoSave::class).isConversationIgnored(conversation)) return@canSave false
         }
@@ -120,7 +120,7 @@ class AutoSave : Feature("Auto Save", loadParams = FeatureLoadParams.ACTIVITY_CR
             val callback = CallbackBuilder(fetchConversationWithMessagesCallbackClass).build()
             runCatching {
                 fetchConversationWithMessagesPaginatedMethod.invoke(
-                    messaging.conversationManager, messaging.lastOpenedConversationUUID!!.instanceNonNull(),
+                    messaging.conversationManager, messaging.openedConversationUUID!!.instanceNonNull(),
                     Long.MAX_VALUE,
                     3,
                     callback
