@@ -211,6 +211,10 @@
             "name": "Mode sombre AMOLED",
             "description": "Active le mode sombre AMOLED\nAssurez-vous que le mode sombre de Snapchat est activé"
         }
+        "unlimited_multi_snap": {
+            "name": "Snap multiples illimité",
+            "description": "Permettre l'usage d'un nombre illimité de snaps multiples"
+        }
     },
     "option": {
         "property": {
