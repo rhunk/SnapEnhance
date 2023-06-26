@@ -142,6 +142,8 @@ class DownloadManagerReceiver : BroadcastReceiver() {
 
             val hasWritePermission = outputFile.parentFile?.canWrite() == true
 
+            Logger.debug("download started hasWritePermission=$hasWritePermission")
+
             //check for write permissions
             if (hasWritePermission) {
                 inputFile.copyTo(outputFile, overwrite = true)
@@ -303,6 +305,8 @@ class DownloadManagerReceiver : BroadcastReceiver() {
     override fun onReceive(context: Context, intent: Intent) {
         if (intent.action != DOWNLOAD_ACTION) return
         this.context = context
+        Logger.debug("onReceive download")
+
         SharedContext.ensureInitialized(context)
 
         val downloadRequest = DownloadRequest.fromBundle(intent.extras!!)
@@ -318,7 +322,7 @@ class DownloadManagerReceiver : BroadcastReceiver() {
             return
         }
 
-        CoroutineScope(Dispatchers.Default).launch {
+        CoroutineScope(Dispatchers.IO).launch {
             val pendingDownloadObject = PendingDownload.fromBundle(intent.extras!!)
 
             SharedContext.downloadTaskManager.addTask(pendingDownloadObject)
@@ -332,6 +336,7 @@ class DownloadManagerReceiver : BroadcastReceiver() {
                 val downloadedMedias = downloadInputMedias(downloadRequest).map {
                     it.key to DownloadedFile(it.value, FileType.fromFile(it.value))
                 }.toMap().toMutableMap()
+                Logger.debug("downloaded ${downloadedMedias.size} medias")
 
                 var shouldMergeOverlay = downloadRequest.shouldMergeOverlay
 
