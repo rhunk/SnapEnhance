@@ -24,11 +24,17 @@ class ActionManager(
     }
     override fun init() {
         load(CleanCache::class)
-        //load(ClearMessageLogger::class)
-        //load(RefreshMappings::class)
-        load(OpenMap::class)
-        if(!BuildConfig.DEBUG) load(CheckForUpdates::class)
         load(ExportChatMessages::class)
+        load(OpenMap::class)
+
+        if(!BuildConfig.DEBUG) {
+            load(CheckForUpdates::class)
+        }
+        else {
+            load(ClearMessageLogger::class)
+            load(RefreshMappings::class)
+        }
+
 
         actions.values.forEach(AbstractAction::init)
     }
