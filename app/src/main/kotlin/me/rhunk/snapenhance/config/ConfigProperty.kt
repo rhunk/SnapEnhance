@@ -355,6 +355,11 @@ enum class ConfigProperty(
         "amoled_dark_mode",
         ConfigCategory.EXPERIMENTAL_DEBUGGING,
         ConfigStateValue(false)
+    ),
+    UNLIMITED_MULTI_SNAP(
+        "unlimited_multi_snap",
+        ConfigCategory.EXPERIMENTAL_DEBUGGING,
+        ConfigStateValue(false)
     );
 
     companion object {

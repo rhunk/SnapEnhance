@@ -13,6 +13,7 @@ import me.rhunk.snapenhance.features.impl.experiments.AmoledDarkMode
 import me.rhunk.snapenhance.features.impl.experiments.AppPasscode
 import me.rhunk.snapenhance.features.impl.experiments.InfiniteStoryBoost
 import me.rhunk.snapenhance.features.impl.experiments.MeoPasscodeBypass
+import me.rhunk.snapenhance.features.impl.experiments.UnlimitedMultiSnap
 import me.rhunk.snapenhance.features.impl.tweaks.AntiAutoSave
 import me.rhunk.snapenhance.features.impl.tweaks.AutoSave
 import me.rhunk.snapenhance.features.impl.tweaks.DisableVideoLengthRestriction
@@ -85,6 +86,7 @@ class FeatureManager(private val context: ModContext) : Manager {
         register(InfiniteStoryBoost::class)
         register(AmoledDarkMode::class)
         register(PinConversations::class)
+        register(UnlimitedMultiSnap::class)
 
         initializeFeatures()
     }

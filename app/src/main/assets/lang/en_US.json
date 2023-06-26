@@ -210,6 +210,10 @@
         "amoled_dark_mode": {
             "name": "AMOLED Dark Mode",
             "description": "Enables AMOLED dark mode\nMake sure Snapchat's dark mode is enabled"
+        },
+        "unlimited_multi_snap": {
+            "name": "Unlimited Multi Snap",
+            "description": "Allows you to take an unlimited amount of multi snaps"
         }
     },
 
