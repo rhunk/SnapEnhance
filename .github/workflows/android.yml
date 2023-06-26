@@ -20,6 +20,17 @@ jobs:
           distribution: 'temurin'
           cache: gradle
           
+      - name: Set up node
+        uses: actions/setup-node@v3
+        with:
+          node-version: '18'
+          
+      - name: Install Dependencies
+        run: |
+          npm install --global yarn
+          cd ./.github/workflows
+          yarn add node-telegram-bot-api commander
+          
       - name: Grant execute permission for gradlew
         run: chmod +x gradlew
         
@@ -54,3 +65,10 @@ jobs:
         with:
           name: app-armv7-debug
           path: app/build/outputs/apk/armv7/debug/*.apk
+          
+      - name: CI Upload armv8
+        run: node ./.github/workflows/upload.js -t "${{ secrets.TELEGRAM_BOT_TOKEN }}" -f "app/build/outputs/apk/armv8/debug/app-${{ env.version }}-armv8-${{ steps.version-env.outputs.sha_short }}.apk" --caption "A new commit has been pushed! ${{ steps.version-env.outputs.sha_short }}" --chatid "${{ secrets.TELEGRAM_CHAT_ID }}" 
+
+      - name: CI Upload armv7
+        run: node ./.github/workflows/upload.js -t "${{ secrets.TELEGRAM_BOT_TOKEN }}" -f "app/build/outputs/apk/armv7/debug/app-${{ env.version }}-armv7-${{ steps.version-env.outputs.sha_short }}.apk" --chatid "${{ secrets.TELEGRAM_CHAT_ID }}" 
+        
