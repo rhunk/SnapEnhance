@@ -127,8 +127,6 @@ class DownloadManagerReceiver : BroadcastReceiver() {
             val outputFile = File(pendingDownload.outputPath + "." + fileType.fileExtension).also { createNeededDirectories(it) }
 
             fun endDownload() {
-                MediaScannerConnection.scanFile(context, arrayOf(outputFile.absolutePath), null, null)
-
                 //print the path of the saved media
                 val parentName = outputFile.parentFile?.parentFile?.absolutePath?.let {
                     if (!it.endsWith("/")) "$it/" else it
@@ -147,6 +145,12 @@ class DownloadManagerReceiver : BroadcastReceiver() {
             //check for write permissions
             if (hasWritePermission) {
                 inputFile.copyTo(outputFile, overwrite = true)
+                runCatching {
+                    MediaScannerConnection.scanFile(context, arrayOf(outputFile.absolutePath), null, null)
+                }.onFailure {
+                    Logger.error("Failed to scan media file", it)
+                    longToast(translation.format("failed_gallery_toast", "error" to it.toString()))
+                }
                 endDownload()
                 return
             }
