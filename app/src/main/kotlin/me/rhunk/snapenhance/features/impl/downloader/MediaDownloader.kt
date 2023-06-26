@@ -152,7 +152,8 @@ class MediaDownloader : Feature("MediaDownloader", loadParams = FeatureLoadParam
             if (uri.scheme == "file") {
                 return@let suspendCoroutine<String> { continuation ->
                     context.downloadServer.ensureServerStarted {
-                        val url = putDownloadableContent(Paths.get(uri.path).inputStream())
+                        val file = Paths.get(uri.path).toFile()
+                        val url = putDownloadableContent(file.inputStream(), file.length())
                         continuation.resumeWith(Result.success(url))
                     }
                 }

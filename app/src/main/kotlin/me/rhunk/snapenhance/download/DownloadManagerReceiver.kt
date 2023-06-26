@@ -1,5 +1,6 @@
 package me.rhunk.snapenhance.download
 
+import android.annotation.SuppressLint
 import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
@@ -14,8 +15,10 @@ import kotlinx.coroutines.job
 import kotlinx.coroutines.joinAll
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.suspendCancellableCoroutine
 import me.rhunk.snapenhance.Constants
 import me.rhunk.snapenhance.Logger
+import me.rhunk.snapenhance.SharedContext
 import me.rhunk.snapenhance.data.FileType
 import me.rhunk.snapenhance.download.data.DownloadRequest
 import me.rhunk.snapenhance.download.data.InputMedia
@@ -23,9 +26,8 @@ import me.rhunk.snapenhance.download.data.MediaEncryptionKeyPair
 import me.rhunk.snapenhance.download.data.PendingDownload
 import me.rhunk.snapenhance.download.enums.DownloadMediaType
 import me.rhunk.snapenhance.download.enums.DownloadStage
-import me.rhunk.snapenhance.SharedContext
-import me.rhunk.snapenhance.util.snap.MediaDownloaderHelper
 import me.rhunk.snapenhance.util.download.RemoteMediaResolver
+import me.rhunk.snapenhance.util.snap.MediaDownloaderHelper
 import java.io.File
 import java.io.InputStream
 import java.net.HttpURLConnection
@@ -113,6 +115,7 @@ class DownloadManagerReceiver : BroadcastReceiver() {
         return file
     }
 
+    @SuppressLint("UnspecifiedRegisterReceiverFlag")
     private suspend fun saveMediaToGallery(inputFile: File, pendingDownload: PendingDownload) {
         if (coroutineContext.job.isCancelled) return
 
@@ -122,23 +125,62 @@ class DownloadManagerReceiver : BroadcastReceiver() {
                 longToast(translation.format("failed_gallery_toast", "error" to "Unknown media type"))
                 return
             }
-
             val outputFile = File(pendingDownload.outputPath + "." + fileType.fileExtension).also { createNeededDirectories(it) }
-            inputFile.copyTo(outputFile, overwrite = true)
 
-            MediaScannerConnection.scanFile(context, arrayOf(outputFile.absolutePath), null, null)
+            fun endDownload() {
+                MediaScannerConnection.scanFile(context, arrayOf(outputFile.absolutePath), null, null)
 
-            //print the path of the saved media
-            val parentName = outputFile.parentFile?.parentFile?.absolutePath?.let {
-                if (!it.endsWith("/")) "$it/" else it
+                //print the path of the saved media
+                val parentName = outputFile.parentFile?.parentFile?.absolutePath?.let {
+                    if (!it.endsWith("/")) "$it/" else it
+                }
+
+                shortToast(
+                    translation.format("saved_toast", "path" to outputFile.absolutePath.replace(parentName ?: "", ""))
+                )
+
+                pendingDownload.outputFile = outputFile.absolutePath
+                pendingDownload.downloadStage = DownloadStage.SAVED
             }
 
-            shortToast(
-                translation.format("saved_toast", "path" to outputFile.absolutePath.replace(parentName ?: "", ""))
-            )
+            val hasWritePermission = outputFile.parentFile?.canWrite() == true
 
-            pendingDownload.outputFile = outputFile.absolutePath
-            pendingDownload.downloadStage = DownloadStage.SAVED
+            //check for write permissions
+            if (hasWritePermission) {
+                inputFile.copyTo(outputFile, overwrite = true)
+                endDownload()
+                return
+            }
+
+            //use the download manager to save the media when the app is not allowed to write directly to the gallery
+            suspendCancellableCoroutine<Unit> { continuation ->
+                SharedContext.downloadServer.ensureServerStarted {
+                    val url = putDownloadableContent(inputFile.inputStream(), inputFile.length())
+
+                    val downloadManager = context.getSystemService(Context.DOWNLOAD_SERVICE) as android.app.DownloadManager
+                    val downloadRequest = android.app.DownloadManager.Request(
+                        android.net.Uri.parse(url)
+                    ).apply {
+                        setNotificationVisibility(android.app.DownloadManager.Request.VISIBILITY_VISIBLE)
+                        setDestinationUri(android.net.Uri.fromFile(outputFile))
+                    }
+                    context.registerReceiver(
+                        object : BroadcastReceiver() {
+                            override fun onReceive(context: Context?, intent: Intent?) {
+                                if (intent?.action == android.app.DownloadManager.ACTION_DOWNLOAD_COMPLETE) {
+                                    endDownload()
+                                    Logger.debug("download complete")
+                                    context?.unregisterReceiver(this)
+                                    continuation.resumeWith(Result.success(Unit))
+                                }
+                            }
+                        },
+                        android.content.IntentFilter(android.app.DownloadManager.ACTION_DOWNLOAD_COMPLETE),
+                        0
+                    )
+                    downloadManager.enqueue(downloadRequest)
+                }
+            }
         }.onFailure {
             Logger.error(it)
             longToast(translation.format("failed_gallery_toast", "error" to it.toString()))
