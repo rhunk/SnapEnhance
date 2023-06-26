@@ -43,13 +43,25 @@ android {
         armv8 {
             getIsDefault().set(true)
             ndk {
+                //noinspection ChromeOsAbiSupport
                 abiFilters "arm64-v8a"
             }
             dimension "release"
         }
         armv7 {
             ndk {
+                //noinspection ChromeOsAbiSupport
                 abiFilters "armeabi-v7a"
+            }
+            packagingOptions {
+                exclude 'lib/armeabi-v7a/libswscale_neon.so'
+                exclude 'lib/armeabi-v7a/libswresample_neon.so'
+                exclude 'lib/armeabi-v7a/libffmpegkit_armv7a_neon.so'
+                exclude 'lib/armeabi-v7a/libavutil_neon.so'
+                exclude 'lib/armeabi-v7a/libavformat_neon.so'
+                exclude 'lib/armeabi-v7a/libavfilter_neon.so'
+                exclude 'lib/armeabi-v7a/libavdevice_neon.so'
+                exclude 'lib/armeabi-v7a/libavcodec_neon.so'
             }
             dimension "release"
         }
