@@ -38,7 +38,9 @@ class DownloadServer(
             while (!serverSocket!!.isClosed) {
                 try {
                     val socket = serverSocket!!.accept()
-                    handleRequest(socket)
+                    launch(Dispatchers.IO) {
+                        handleRequest(socket)
+                    }
                 } catch (e: SocketTimeoutException) {
                     serverSocket?.close()
                     serverSocket = null
