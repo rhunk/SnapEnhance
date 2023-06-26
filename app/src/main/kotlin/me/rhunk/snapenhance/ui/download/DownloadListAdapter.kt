@@ -66,7 +66,7 @@ class DownloadListAdapter(
     private fun handlePreview(download: PendingDownload, holder: ViewHolder) {
         download.outputFile?.let { File(it) }?.takeIf { it.exists() }?.let {
             GlobalScope.launch(Dispatchers.IO) {
-                val previewBitmap = PreviewUtils.createPreviewFromFile(it, 1F)?.let { preview ->
+                val previewBitmap = PreviewUtils.createPreviewFromFile(it)?.let { preview ->
                     val offsetY = (preview.height / 2 - holder.viewHeight / 2).coerceAtLeast(0)
 
                     Bitmap.createScaledBitmap(

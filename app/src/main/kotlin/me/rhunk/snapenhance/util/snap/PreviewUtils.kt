@@ -43,16 +43,14 @@ object PreviewUtils {
         }.getFrameAtTime(0, MediaMetadataRetriever.OPTION_CLOSEST_SYNC)
     }
 
-    fun createPreviewFromFile(file: File, scaleFactor: Float): Bitmap? {
+    fun createPreviewFromFile(file: File): Bitmap? {
         return if (FileType.fromFile(file).isVideo) {
             MediaMetadataRetriever().apply {
                 setDataSource(file.absolutePath)
-            }.getFrameAtTime(0, MediaMetadataRetriever.OPTION_CLOSEST_SYNC)?.let {
-                resizeBitmap(it, (it.width * scaleFactor).toInt(), (it.height * scaleFactor).toInt())
-            }
+            }.getFrameAtTime(0, MediaMetadataRetriever.OPTION_CLOSEST_SYNC)
         } else {
             BitmapFactory.decodeFile(file.absolutePath, BitmapFactory.Options().apply {
-                inSampleSize = (1 / scaleFactor).roundToInt()
+                inSampleSize = 1
             })
         }
     }
