@@ -7,9 +7,8 @@ import android.content.Intent
 import android.media.MediaScannerConnection
 import android.os.Handler
 import android.widget.Toast
-import kotlinx.coroutines.DelicateCoroutinesApi
+import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.job
 import kotlinx.coroutines.joinAll
@@ -168,8 +167,6 @@ class DownloadManagerReceiver : BroadcastReceiver() {
                         object : BroadcastReceiver() {
                             override fun onReceive(context: Context?, intent: Intent?) {
                                 if (intent?.action == android.app.DownloadManager.ACTION_DOWNLOAD_COMPLETE) {
-                                    endDownload()
-                                    Logger.debug("download complete")
                                     context?.unregisterReceiver(this)
                                     continuation.resumeWith(Result.success(Unit))
                                 }
@@ -181,6 +178,9 @@ class DownloadManagerReceiver : BroadcastReceiver() {
                     downloadManager.enqueue(downloadRequest)
                 }
             }
+
+            Logger.debug("download complete")
+            endDownload()
         }.onFailure {
             Logger.error(it)
             longToast(translation.format("failed_gallery_toast", "error" to it.toString()))
@@ -296,7 +296,6 @@ class DownloadManagerReceiver : BroadcastReceiver() {
         return newFile
     }
 
-    @OptIn(DelicateCoroutinesApi::class)
     override fun onReceive(context: Context, intent: Intent) {
         if (intent.action != DOWNLOAD_ACTION) return
         this.context = context
@@ -315,7 +314,7 @@ class DownloadManagerReceiver : BroadcastReceiver() {
             return
         }
 
-        GlobalScope.launch(Dispatchers.IO) {
+        CoroutineScope(Dispatchers.Default).launch {
             val pendingDownloadObject = PendingDownload.fromBundle(intent.extras!!)
 
             SharedContext.downloadTaskManager.addTask(pendingDownloadObject)

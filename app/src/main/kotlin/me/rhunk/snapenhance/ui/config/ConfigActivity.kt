@@ -2,6 +2,7 @@ package me.rhunk.snapenhance.ui.config
 
 import android.app.Activity
 import android.app.AlertDialog
+import android.content.pm.ApplicationInfo
 import android.content.res.ColorStateList
 import android.os.Bundle
 import android.text.InputType
@@ -103,8 +104,11 @@ class ConfigActivity : Activity() {
         }
 
         val propertyListLayout = findViewById<ViewGroup>(R.id.property_list)
-
         var currentCategory: ConfigCategory? = null
+
+        if (applicationInfo.packageName == "me.rhunk.snapenhance" && applicationInfo.flags and ApplicationInfo.FLAG_DEBUGGABLE == 0) {
+            findViewById<View>(R.id.title_info).visibility = View.GONE
+        }
 
         config.entries().forEach { (property, value) ->
             val configItem = layoutInflater.inflate(R.layout.config_activity_item, propertyListLayout, false)
