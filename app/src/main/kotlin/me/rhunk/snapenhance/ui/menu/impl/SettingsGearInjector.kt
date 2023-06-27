@@ -10,6 +10,7 @@ import me.rhunk.snapenhance.BuildConfig
 import me.rhunk.snapenhance.Constants
 import me.rhunk.snapenhance.ui.config.ConfigActivity
 import me.rhunk.snapenhance.ui.menu.AbstractMenu
+import java.io.File
 
 
 @SuppressLint("DiscouragedApi")
@@ -49,6 +50,7 @@ class SettingsGearInjector : AbstractMenu() {
                 val intent = Intent().apply {
                     setClassName(BuildConfig.APPLICATION_ID, ConfigActivity::class.java.name)
                 }
+                intent.putExtra("lspatched", File(context.cacheDir, "lspatch/origin").exists())
                 context.startActivity(intent)
             }
 

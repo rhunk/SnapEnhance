@@ -10,26 +10,6 @@
         android:id="@+id/title_bar"
         layout="@layout/activity_default_header" />
 
-    <FrameLayout
-        android:id="@+id/title_info"
-        android:layout_width="match_parent"
-        android:layout_gravity="center"
-        android:layout_height="90dp">
-        <TextView
-            android:id="@+id/title_description"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:textAllCaps="true"
-            android:layout_gravity="center_vertical"
-            android:gravity="center"
-            android:textStyle="bold"
-            android:textSize="16sp"
-            android:autoLink="web"
-            android:text="❞                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                  𝘠𝘰𝘶 𝘢𝘳𝘦 𝘤𝘶𝘳𝘳𝘦𝘯𝘵𝘭𝘺 𝘶𝘴𝘪𝘯𝘨 𝘢 𝘥𝘦𝘣𝘶𝘨/𝘶𝘯𝘰𝘧𝘧𝘪𝘤𝘪𝘢𝘭 𝘣𝘶𝘪𝘭𝘥!\n𝘐𝘴𝘴𝘶𝘦 𝘮𝘢𝘺 𝘰𝘤𝘤𝘶𝘳, 𝘱𝘭𝘦𝘢𝘴𝘦 𝘥𝘰𝘸𝘯𝘭𝘰𝘢𝘥 𝘢 𝘴𝘵𝘢𝘣𝘭𝘦 𝘣𝘶𝘪𝘭𝘥 𝘩𝘦𝘳𝘦: https://GitHub.com/\u0072\u0068\u0075\u006E\u006B/\u0053\u006E\u0061\u0070\u0045\u006E\u0068\u0061\u006E\u0063\u0065"
-            android:textAlignment="center"
-            tools:ignore="HardcodedText" />
-    </FrameLayout>
-
     <ScrollView
         android:layout_width="match_parent"
         android:layout_height="match_parent"
