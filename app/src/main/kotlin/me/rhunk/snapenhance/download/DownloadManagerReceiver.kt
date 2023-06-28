@@ -4,7 +4,7 @@ import android.annotation.SuppressLint
 import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
-import android.media.MediaScannerConnection
+import android.net.Uri
 import android.os.Handler
 import android.widget.Toast
 import kotlinx.coroutines.CoroutineScope
@@ -14,7 +14,6 @@ import kotlinx.coroutines.job
 import kotlinx.coroutines.joinAll
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
-import kotlinx.coroutines.suspendCancellableCoroutine
 import me.rhunk.snapenhance.Constants
 import me.rhunk.snapenhance.Logger
 import me.rhunk.snapenhance.SharedContext
@@ -132,7 +131,10 @@ class DownloadManagerReceiver : BroadcastReceiver() {
             pendingDownload.downloadStage = DownloadStage.SAVED
 
             runCatching {
-                MediaScannerConnection.scanFile(context, arrayOf(outputFile.absolutePath), arrayOf(fileType.mimeType)) { _,_ -> }
+                val contentUri = Uri.fromFile(outputFile)
+                val mediaScanIntent = Intent("android.intent.action.MEDIA_SCANNER_SCAN_FILE")
+                mediaScanIntent.setData(contentUri)
+                context.sendBroadcast(mediaScanIntent)
             }.onFailure {
                 Logger.error("Failed to scan media file", it)
                 longToast(translation.format("failed_gallery_toast", "error" to it.toString()))
