@@ -126,67 +126,28 @@ class DownloadManagerReceiver : BroadcastReceiver() {
             }
             val outputFile = File(pendingDownload.outputPath + "." + fileType.fileExtension).also { createNeededDirectories(it) }
 
-            fun endDownload() {
-                //print the path of the saved media
-                val parentName = outputFile.parentFile?.parentFile?.absolutePath?.let {
-                    if (!it.endsWith("/")) "$it/" else it
-                }
+            inputFile.copyTo(outputFile, overwrite = true)
 
-                shortToast(
-                    translation.format("saved_toast", "path" to outputFile.absolutePath.replace(parentName ?: "", ""))
-                )
+            pendingDownload.outputFile = outputFile.absolutePath
+            pendingDownload.downloadStage = DownloadStage.SAVED
 
-                pendingDownload.outputFile = outputFile.absolutePath
-                pendingDownload.downloadStage = DownloadStage.SAVED
-            }
-
-            val hasWritePermission = outputFile.parentFile?.canWrite() == true
-
-            Logger.debug("download started hasWritePermission=$hasWritePermission")
-
-            //check for write permissions
-            if (hasWritePermission) {
-                inputFile.copyTo(outputFile, overwrite = true)
-                runCatching {
-                    MediaScannerConnection.scanFile(context, arrayOf(outputFile.absolutePath), null, null)
-                }.onFailure {
-                    Logger.error("Failed to scan media file", it)
-                    longToast(translation.format("failed_gallery_toast", "error" to it.toString()))
-                }
-                endDownload()
-                return
-            }
-
-            //use the download manager to save the media when the app is not allowed to write directly to the gallery
-            suspendCancellableCoroutine<Unit> { continuation ->
-                SharedContext.downloadServer.ensureServerStarted {
-                    val url = putDownloadableContent(inputFile.inputStream(), inputFile.length())
-
-                    val downloadManager = context.getSystemService(Context.DOWNLOAD_SERVICE) as android.app.DownloadManager
-                    val downloadRequest = android.app.DownloadManager.Request(
-                        android.net.Uri.parse(url)
-                    ).apply {
-                        setNotificationVisibility(android.app.DownloadManager.Request.VISIBILITY_VISIBLE)
-                        setDestinationUri(android.net.Uri.fromFile(outputFile))
-                    }
-                    context.registerReceiver(
-                        object : BroadcastReceiver() {
-                            override fun onReceive(context: Context?, intent: Intent?) {
-                                if (intent?.action == android.app.DownloadManager.ACTION_DOWNLOAD_COMPLETE) {
-                                    context?.unregisterReceiver(this)
-                                    continuation.resumeWith(Result.success(Unit))
-                                }
-                            }
-                        },
-                        android.content.IntentFilter(android.app.DownloadManager.ACTION_DOWNLOAD_COMPLETE),
-                        0
-                    )
-                    downloadManager.enqueue(downloadRequest)
-                }
+            runCatching {
+                MediaScannerConnection.scanFile(context, arrayOf(outputFile.absolutePath), arrayOf(fileType.mimeType)) { _,_ -> }
+            }.onFailure {
+                Logger.error("Failed to scan media file", it)
+                longToast(translation.format("failed_gallery_toast", "error" to it.toString()))
             }
 
             Logger.debug("download complete")
-            endDownload()
+
+            //print the path of the saved media
+            val parentName = outputFile.parentFile?.parentFile?.absolutePath?.let {
+                if (!it.endsWith("/")) "$it/" else it
+            }
+
+            shortToast(
+                translation.format("saved_toast", "path" to outputFile.absolutePath.replace(parentName ?: "", ""))
+            )
         }.onFailure {
             Logger.error(it)
             longToast(translation.format("failed_gallery_toast", "error" to it.toString()))
