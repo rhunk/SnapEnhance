@@ -1,0 +1,385 @@
+{
+  "category": {
+    "spying_privacy": "जासूसी और गोपनीयता",
+    "media_manager": "मीडिया प्रबंधक",
+    "ui_tweaks": "यूआई और ट्वीक्स",
+    "camera": "कैमरा",
+    "updates": "अपडेट",
+    "experimental_debugging": "प्रायोगिक"
+  },
+  "action": {
+    "clean_cache": "कैश साफ़ करें",
+    "clear_message_logger": "संदेश लॉगर साफ़ करें",
+    "refresh_mappings": "मैपिंग रीफ़्रेश करें",
+    "open_map": "मैप पर स्थान चुनें",
+    "check_for_updates": "अपडेट जाँचें",
+    "export_chat_messages": "चैट संदेश निर्यात करें"
+  },
+  "property": {
+    "message_logger": {
+      "name": "मैसेज लॉगर",
+      "description": "संदेशों को हटाने से रोकता है"
+    },
+    "prevent_read_receipts": {
+      "name": "पठित प्राप्ति रोकें",
+      "description": "किसी को न बताएं कि आपने उनके स्नैप्स खोले हैं"
+    },
+    "hide_bitmoji_presence": {
+      "name": "बिटमोजी मौजूदगी छिपाएं",
+      "description": "अपनी बिटमोजी मौजूदगी को चैट से छिपाएं"
+    },
+    "better_notifications": {
+      "name": "बेहतर अधिसूचनाएँ",
+      "description": "अधिसूचनाओं में अधिक जानकारी दिखाएं"
+    },
+    "notification_blacklist": {
+      "name": "अधिसूचना ब्लैकलिस्ट",
+      "description": "चयनित अधिसूचना प्रकार को छिपाएं"
+    },
+    "disable_metrics": {
+      "name": "मैट्रिक्स अक्षम करें",
+      "description": "Snapchat को भेजे जाने वाले मैट्रिक्स को अक्षम करें"
+    },
+    "block_ads": {
+      "name": "विज्ञापन रोकें",
+      "description": "विज्ञापनों को प्रदर्शित होने से रोकें"
+    },
+    "unlimited_snap_view_time": {
+      "name": "असीमित स्नैप देखें समय",
+      "description": "स्नैप्स को देखने के लिए समय सीमा को हटा देता है"
+    },
+    "prevent_screenshot_notifications": {
+      "name": "स्क्रीनशॉट अधिसूचनाओं को रोकें",
+      "description": "किसी को न बताएं कि आपने स्क्रीनशॉट लिया है"
+    },
+    "prevent_status_notifications": {
+      "name": "स्थिति अधिसूचनाएँ रोकें",
+      "description": "स्थिति अधिसूचनाएँ भेजने से रोकें\nजैसे कि कैमरा रोल में सहेजा गया"
+    },
+    "anonymous_story_view": {
+      "name": "गुमनाम कहानी देखें",
+      "description": "किसी को न बताएं कि आपने उनकी कहानी देखी है"
+    },
+    "hide_typing_notification": {
+      "name": "टाइप करने की सूचना छिपाएं",
+      "description": "टाइप करने की सूचनाएँ भेजने से रोकें"
+    },
+    "save_folder": {
+      "name": "सहेजें फ़ोल्डर",
+      "description": "सभी मीडिया को सहेजा जाने वाला निर्देशिका"
+    },
+    "auto_download_options": {
+      "name": "ऑटो डाउनलोड विकल्प",
+      "description": "ऑटो डाउनलोड करने के लिए मीडिया का चयन करें"
+    },
+    "download_options": {
+      "name": "डाउनलोड विकल्प",
+      "description": "फ़ाइल पथ प्रारूप निर्दिष्ट करें"
+    },
+    "chat_download_context_menu": {
+      "name": "चैट डाउनलोड संदर्भ मेनू",
+      "description": "चैट डाउनलोड संदर्भ मेनू को सक्षम करें"
+    },
+    "gallery_media_send_override": {
+      "name": "गैलरी मीडिया भेजें ओवरराइड",
+      "description": "गैलरी से भेजे गए मीडिया को ओवरराइड करें"
+    },
+    "auto_save_messages": {
+      "name": "ऑटो संदेश सहेजें",
+      "description": "ऑटो सहेजने के लिए संदेश का प्रकार चुनें"
+    },
+    "force_media_source_quality": {
+      "name": "मीडिया स्रोत गुणवत्ता को मजबूत करें",
+      "description": "मीडिया स्रोत गुणवत्ता को ओवरराइड करें"
+    },
+    "enable_friend_feed_menu_bar": {
+      "name": "दोस्त फ़ीड मेनू बार सक्षम करें",
+      "description": "नए दोस्त फ़ीड मेनू बार को सक्षम करें"
+    },
+    "friend_feed_menu_buttons": {
+      "name": "दोस्त फ़ीड मेनू बटन",
+      "description": "दोस्त फ़ीड मेनू बार में दिखाए जाने वाले बटन का चयन करें"
+    },
+    "friend_feed_menu_buttons_position": {
+      "name": "दोस्त फ़ीड बटन स्थान सूचकांक",
+      "description": "दोस्त फ़ीड मेनू बटन का स्थान सूचकांक"
+    },
+    "hide_ui_elements": {
+      "name": "यूआई तत्व छिपाएं",
+      "description": "छिपाने के लिए यूआई तत्व का चयन करें"
+    },
+    "hide_story_section": {
+      "name": "स्टोरी खंड छिपाएं",
+      "description": "स्टोरी खंड में दिखाए जाने वाले कुछ यूआई तत्वों को छिपाएं"
+    },
+    "story_viewer_override": {
+      "name": "स्टोरी देखने वाले को ओवरराइड करें",
+      "description": "Snapchat द्वारा छिपाए गए कुछ सुविधाओं को सक्षम करें"
+    },
+    "streak_expiration_info": {
+      "name": "स्ट्रीक समाप्ति जानकारी दिखाएं",
+      "description": "स्ट्रीक के पास स्ट्रीक समाप्ति जानकारी दिखाएं"
+    },
+    "disable_snap_splitting": {
+      "name": "स्नैप स्प्लिटिंग अक्षम करें",
+      "description": "स्नैप को एकाधिक भागों में विभाजित होने से रोकें"
+    },
+    "disable_video_length_restriction": {
+      "name": "वीडियो लंबाई प्रतिबंध को अक्षम करें",
+      "description": "वीडियो लंबाई प्रतिबंध को अक्षम करता है"
+    },
+    "snapchat_plus": {
+      "name": "स्नैपचैट प्लस",
+      "description": "स्नैपचैट प्लस सुविधाओं को सक्षम करता है"
+    },
+    "new_map_ui": {
+      "name": "नई मानचित्र UI",
+      "description": "नई मानचित्र UI को सक्षम करता है"
+    },
+    "location_spoof": {
+      "name": "स्नैपमैप स्थान स्पूफ़र",
+      "description": "स्नैपमैप पर अपने स्थान को स्पूफ़ करता है"
+    },
+    "message_preview_length": {
+      "name": "संदेश पूर्वावलोकन लंबाई",
+      "description": "पूर्वावलोकित किए जाने वाले संदेशों की मात्रा निर्दिष्ट करें"
+    },
+    "unlimited_conversation_pinning": {
+      "name": "असीमित बातचीत पिन करना",
+      "description": "असीमित बातचीत पिन करने की क्षमता को सक्षम करता है"
+    },
+    "disable_spotlight": {
+      "name": "स्पॉटलाइट को अक्षम करें",
+      "description": "स्पॉटलाइट पेज को अक्षम करता है"
+    },
+    "enable_app_appearance": {
+      "name": "ऐप उपस्थिति सेटिंग को सक्षम करें",
+      "description": "छिपे हुए ऐप उपस्थिति सेटिंग को सक्षम करता है"
+    },
+    "auto_updater": {
+      "name": "ऑटो अपडेटर",
+      "description": "अपडेट के लिए जांच करने का अंतराल"
+    },
+    "disable_camera": {
+      "name": "कैमरा को अक्षम करें",
+      "description": "स्नैपचैट को कैमरा का उपयोग करने से रोकता है"
+    },
+    "immersive_camera_preview": {
+      "name": "विस्मरणीय कैमरा पूर्वावलोकन",
+      "description": "स्नैपचैट को कैमरा पूर्वावलोकन कट करने से रोकता है"
+    },
+    "preview_resolution": {
+      "name": "पूर्वावलोकन रेज़ोल्यूशन",
+      "description": "कैमरा पूर्वावलोकन रेज़ोल्यूशन को ओवरराइड करता है"
+    },
+    "picture_resolution": {
+      "name": "तस्वीर का रेज़ोल्यूशन",
+      "description": "तस्वीर का रेज़ोल्यूशन ओवरराइड करता है"
+    },
+    "force_highest_frame_rate": {
+      "name": "सर्वोच्च फ्रेम दर को मजबूत करें",
+      "description": "सर्वाधिक संभव फ्रेम दर को मजबूत करता है"
+    },
+    "force_camera_source_encoding": {
+      "name": "कैमरा स्रोत कोडिंग को मजबूत करें",
+      "description": "कैमरा स्रोत कोडिंग को मजबूत करता है"
+    },
+    "app_passcode": {
+      "name": "ऐप पासकोड सेट करें",
+      "description": "ऐप को लॉक करने के लिए पासकोड सेट करता है"
+    },
+    "app_lock_on_resume": {
+      "name": "ऐप लॉक ऑन रिज़्यूम",
+      "description": "ऐप को दोबारा खोलने पर लॉक करता है"
+    },
+    "infinite_story_boost": {
+      "name": "अनंत कहानी बढ़ावा",
+      "description": "अपनी कहानी को अनंत बढ़ाएं"
+    },
+    "meo_passcode_bypass": {
+      "name": "मेरी आंखों के लिए पासकोड बाईपास",
+      "description": "मेरी आंखों के लिए पासकोड बाईपास करें\nयह केवल तब काम करेगा जब पासकोड सही तरीके से दर्ज किया गया हो"
+    },
+    "amoled_dark_mode": {
+      "name": "AMOLED डार्क मोड",
+      "description": "AMOLED डार्क मोड को सक्षम करता है\nसुनिश्चित करें कि स्नैपचैट का डार्क मोड सक्षम है"
+    }
+  },
+  "option": {
+    "property": {
+      "better_notifications": {
+        "chat": "चैट संदेश दिखाएं",
+        "snap": "मीडिया दिखाएं",
+        "reply_button": "जवाब बटन जोड़ें"
+      },
+      "friend_feed_menu_buttons": {
+        "auto_download_blacklist": "\u2B07\uFE0F ऑटो डाउनलोड ब्लैकलिस्ट",
+        "anti_auto_save": "\uD83D\uDCAC आंतरिक ऑटो सेव संदेश",
+        "stealth_mode": "\uD83D\uDC7B स्टेल्थ मोड",
+        "conversation_info": "\uD83D\uDC64 वार्तालाप जानकारी"
+      },
+      "download_options": {
+        "allow_duplicate": "डुप्लिकेट डाउनलोड स्वीकार करें",
+        "create_user_folder": "प्रत्येक उपयोगकर्ता के लिए फ़ोल्डर बनाएं",
+        "append_hash": "फ़ाइल नाम में एक अद्वितीय हैश जोड़ें",
+        "append_username": "फ़ाइल नाम में उपयोगकर्ता नाम जोड़ें",
+        "append_date_time": "फ़ाइल नाम में तिथि और समय जोड़ें",
+        "append_type": "फ़ाइल नाम में मीडिया प्रकार जोड़ें",
+        "merge_overlay": "स्नैप छवि ओवरले मर्ज करें"
+      },
+      "auto_download_options": {
+        "friend_snaps": "मित्र स्नैप्स",
+        "friend_stories": "मित्र की कहानियाँ",
+        "public_stories": "सार्वजनिक कहानियाँ",
+        "spotlight": "स्पॉटलाइट"
+      },
+      "auto_save_messages": {
+        "NOTE": "ऑडियो नोट",
+        "CHAT": "चैट",
+        "EXTERNAL_MEDIA": "बाहरी मीडिया",
+        "SNAP": "स्नैप",
+        "STICKER": "स्टिकर"
+      },
+      "notification_blacklist": {
+        "chat": "चैट",
+        "snap": "स्नैप",
+        "typing": "टाइपिंग"
+      },
+      "gallery_media_send_override": {
+        "OFF": "बंद",
+        "NOTE": "ऑडियो नोट",
+        "SNAP": "स्नैप",
+        "LIVE_SNAP": "ऑडियो के साथ स्नैप"
+      },
+      "hide_ui_elements": {
+        "remove_call_buttons": "कॉल बटन हटाएं",
+        "remove_cognac_button": "कोग्नाक बटन हटाएं",
+        "remove_live_location_share_button": "लाइव स्थान साझा करने वाला बटन हटाएं",
+        "remove_stickers_button": "स्टिकर बटन हटाएं",
+        "remove_voice_record_button": "आवाज रिकॉर्ड बटन हटाएं",
+        "remove_camera_borders": "कैमरा सीमाओं को हटाएं"
+      },
+      "auto_updater": {
+        "DISABLED": "अक्षम",
+        "EVERY_LAUNCH": "हर लॉन्च पर",
+        "DAILY": "रोज़ाना",
+        "WEEKLY": "साप्ताहिक"
+      },
+      "story_viewer_override": {
+        "OFF": "बंद",
+        "DISCOVER_PLAYBACK_SEEKBAR": "डिस्कवर प्लेबैक सीकबार सक्षम करें",
+        "VERTICAL_STORY_VIEWER": "वर्टिकल स्टोरी व्यूअर सक्षम करें"
+      },
+      "hide_story_section": {
+        "hide_friends": "मित्र सेक्शन छिपाएं",
+        "hide_following": "फ़ॉलोइंग सेक्शन छिपाएं",
+        "hide_for_you": "आपके लिए सेक्शन छिपाएं"
+      }
+    }
+  },
+  "friend_menu_option": {
+    "preview": "पूर्वावलोकन",
+    "stealth_mode": "छिपे हुए मोड",
+    "auto_download_blacklist": "ऑटो डाउनलोड ब्लैकलिस्ट",
+    "anti_auto_save": "ऑटो सेव के खिलाफ"
+  },
+  "message_context_menu_option": {
+    "download": "डाउनलोड करें",
+    "preview": "पूर्वावलोकन"
+  },
+  "chat_action_menu": {
+    "preview_button": "पूर्वावलोकन",
+    "download_button": "डाउनलोड करें",
+    "delete_logged_message_button": "लॉग किए गए संदेश को हटाएं"
+  },
+  "opera_context_menu": {
+    "download": "मीडिया डाउनलोड करें"
+  },
+  "modal_option": {
+    "profile_info": "प्रोफ़ाइल जानकारी",
+    "close": "बंद करें"
+  },
+  "conversation_preview": {
+    "streak_expiration": "{day} दिन {hour} घंटे {minute} मिनट में समाप्त होता है",
+    "title": "पूर्वावलोकन",
+    "unknown_user": "अज्ञात उपयोगकर्ता"
+  },
+  "profile_info": {
+    "title": "प्रोफ़ाइल जानकारी",
+    "username": "उपयोगकर्ता नाम",
+    "display_name": "प्रदर्शित नाम",
+    "added_date": "जोड़ने की तारीख",
+    "birthday": "जन्मदिन: {month} {day}"
+  },
+  "auto_updater": {
+    "no_update_available": "कोई अद्यतन उपलब्ध नहीं है!",
+    "dialog_title": "नया अद्यतन उपलब्ध है!",
+    "dialog_message": "SnapEnhance के लिए एक नया अद्यतन उपलब्ध है! ({version})\n\n{body}",
+    "dialog_positive_button": "डाउनलोड और स्थापित करें",
+    "dialog_negative_button": "रद्द करें",
+    "downloading_toast": "अद्यतन डाउनलोड हो रहा है...",
+    "download_manager_notification_title": "SnapEnhance APK डाउनलोड हो रहा है..."
+  },
+  "chat_export": {
+    "select_export_format": "निर्यात प्रारूप का चयन करें",
+    "select_media_type": "निर्यात करने के लिए मीडिया प्रकार का चयन करें",
+    "select_conversation": "निर्यात करने के लिए एक बातचीत का चयन करें",
+    "dialog_negative_button": "रद्द करें",
+    "dialog_neutral_button": "सभी निर्यात करें",
+    "dialog_positive_button": "निर्यात करें",
+    "exported_to": "{path} में निर्यात किया गया",
+    "exporting_chats": "बातचीत निर्यात कर रहा है...",
+    "processing_chats": "{amount} बातचीतों का प्रसंस्करण कर रहा है...",
+    "export_fail": "बातचीत {conversation} को निर्यात करने में विफल रहा",
+    "writing_output": "आउटपुट लिख रहा है...",
+    "finished": "तैयार हो गया! अब आप इस संवाद बॉक्स को बंद कर सकते हैं।",
+    "no_messages_found": "कोई संदेश नहीं मिले!",
+    "exporting_message": "{conversation} को निर्यात कर रहा है..."
+  },
+  "button": {
+    "ok": "ठीक है",
+    "positive": "हाँ",
+    "negative": "नहीं",
+    "cancel": "रद्द करें",
+    "open": "खोलें"
+  },
+  "download_manager_activity": {
+    "remove_all_title": "सभी डाउनलोड हटाएं",
+    "remove_all_text": "क्या आप इसे करना चाहते हैं?",
+    "remove_all": "सभी हटाएं",
+    "no_downloads": "कोई डाउनलोड नहीं",
+    "cancel": "रद्द करें",
+    "file_not_found_toast": "फ़ाइल मौजूद नहीं है!",
+    "category": {
+      "all_category": "सभी",
+      "pending_category": "अपूर्ण",
+      "snap_category": "स्नैप",
+      "story_category": "कहानी",
+      "spotlight_category": "स्पॉटलाइट"
+    },
+    "debug_settings": "डीबग सेटिंग्स",
+    "debug_settings_page": {
+      "clear_file_title": "{file_name} फ़ाइल को साफ़ करें",
+      "clear_file_confirmation": "क्या आप वाकई {file_name} फ़ाइल को साफ़ करना चाहते हैं?",
+      "clear_cache_title": "कैश को साफ़ करें",
+      "reset_all_title": "सभी सेटिंग्स रीसेट करें",
+      "reset_all_confirmation": "क्या आप वाकई सभी सेटिंग्स को रीसेट करना चाहते हैं?",
+      "success_toast": "सफलता!"
+    }
+  },
+  "download_manager_receiver": {
+    "already_queued_toast": "मीडिया पहले से कतार में है!",
+    "already_downloaded_toast": "मीडिया पहले से डाउनलोड हो चुका है!",
+    "saved_toast": "{path} में सहेजा गया",
+    "download_toast": "{path} को डाउनलोड कर रहा है...",
+    "processing_toast": "{path} को प्रसंस्करण कर रहा है...",
+    "failed_generic_toast": "डाउनलोड करने में विफल रहा",
+    "failed_processing_toast": "{error} को प्रसंस्करण करने में विफल रहा",
+    "failed_gallery_toast": "गैलरी में सहेजने में विफल रहा {error}"
+  },
+  "config_activity": {
+    "title": "SnapEnhance सेटिंग्स",
+    "selected_text": "{count} चयनित",
+    "invalid_number_toast": "अमान्य संख्या!"
+  }
+}
