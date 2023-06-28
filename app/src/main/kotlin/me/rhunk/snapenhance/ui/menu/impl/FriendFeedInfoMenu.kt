@@ -90,8 +90,7 @@ class FriendFeedInfoMenu : AbstractMenu() {
                 )?.let {
                     context.translation.format("profile_info.birthday",
                         "month" to it,
-                        "day" to birthday[Calendar.DAY_OF_MONTH].toString()
-                    )
+                        "day" to profile.birthday.toInt().toString())
                 }
             }
             """.trimIndent()
