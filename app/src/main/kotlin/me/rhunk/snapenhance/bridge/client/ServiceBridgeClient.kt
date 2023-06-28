@@ -1,7 +1,6 @@
 package me.rhunk.snapenhance.bridge.client
 
 
-import android.annotation.TargetApi
 import android.content.ComponentName
 import android.content.Context
 import android.content.Intent
@@ -13,6 +12,7 @@ import android.os.HandlerThread
 import android.os.IBinder
 import android.os.Message
 import android.os.Messenger
+import de.robv.android.xposed.XposedHelpers
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.suspendCancellableCoroutine
 import me.rhunk.snapenhance.BuildConfig
@@ -33,19 +33,16 @@ import me.rhunk.snapenhance.bridge.common.impl.messagelogger.MessageLoggerResult
 import me.rhunk.snapenhance.bridge.service.BridgeService
 import java.util.concurrent.CompletableFuture
 import java.util.concurrent.Executors
-import java.util.concurrent.locks.ReentrantLock
 import kotlin.reflect.KClass
 import kotlin.system.exitProcess
 
 
 class ServiceBridgeClient: AbstractBridgeClient(), ServiceConnection {
     private val handlerThread = HandlerThread("BridgeClient")
-    private val lock = ReentrantLock()
 
     private lateinit var messenger: Messenger
     private lateinit var future: CompletableFuture<Boolean>
 
-    @TargetApi(Build.VERSION_CODES.Q)
     override fun start(callback: (Boolean) -> Unit) {
         this.future = CompletableFuture()
         this.handlerThread.start()
@@ -53,12 +50,24 @@ class ServiceBridgeClient: AbstractBridgeClient(), ServiceConnection {
         with(context.androidContext) {
             val intent = Intent()
                 .setClassName(BuildConfig.APPLICATION_ID, BridgeService::class.java.name)
-            bindService(
-                intent,
-                Context.BIND_AUTO_CREATE,
-                Executors.newSingleThreadExecutor(),
-                this@ServiceBridgeClient
-            )
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+                bindService(
+                    intent,
+                    Context.BIND_AUTO_CREATE,
+                    Executors.newSingleThreadExecutor(),
+                    this@ServiceBridgeClient
+                )
+            } else {
+                XposedHelpers.callMethod(
+                    this,
+                    "bindServiceAsUser",
+                    intent,
+                    this@ServiceBridgeClient,
+                    Context.BIND_AUTO_CREATE,
+                    Handler(handlerThread.looper),
+                    android.os.Process.myUserHandle()
+                )
+            }
         }
         callback(future.get())
     }
