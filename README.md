@@ -53,6 +53,7 @@ We no longer offer official LSPatch binaries for obvious reasons. However, you'r
   - Disable Spotlight
   - Enable Official App Appearance Settings (Darkmode)
   - Pin Conversations
+  - Multi Snap Limit bypass
 </details>
 
 <details open>
@@ -62,6 +63,7 @@ We no longer offer official LSPatch binaries for obvious reasons. However, you'r
   - Infinite Story Boost
   - My Eyes Only Bypass
   - AMOLED Dark Mode
+  - Chat Export (HTML, JSON and TXT)
 </details>
 
 ## License
@@ -79,3 +81,6 @@ When redistributing the software, it must remain under the same [GPLv3](https://
 - [rathmerdominik](https://github.com/rathmerdominik)
 - [Flole998](https://github.com/Flole998)
 - [authorisation](https://github.com/authorisation/)
+- [RevealedSoulEven](https://github.com/revealedsouleven)
+- [iBasim](https://github.com/ibasim)
+- [xerta555](https://github.com/xerta555)
