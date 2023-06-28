@@ -4,6 +4,7 @@ import android.app.Activity
 import android.app.AlertDialog
 import android.content.res.ColorStateList
 import android.os.Bundle
+import android.text.Html
 import android.text.InputType
 import android.view.View
 import android.view.ViewGroup
@@ -12,6 +13,7 @@ import android.widget.ImageButton
 import android.widget.Switch
 import android.widget.TextView
 import android.widget.Toast
+import me.rhunk.snapenhance.BuildConfig
 import me.rhunk.snapenhance.R
 import me.rhunk.snapenhance.SharedContext
 import me.rhunk.snapenhance.bridge.ConfigWrapper
@@ -103,6 +105,26 @@ class ConfigActivity : Activity() {
         }
 
         val propertyListLayout = findViewById<ViewGroup>(R.id.property_list)
+
+        if (intent.getBooleanExtra("lspatched", false) ||
+            applicationInfo.packageName != "me.rhunk.snapenhance" ||
+            BuildConfig.DEBUG) {
+            propertyListLayout.addView(
+                layoutInflater.inflate(
+                    R.layout.config_activity_debug_item,
+                    propertyListLayout,
+                    false
+                ).apply {
+                    findViewById<TextView>(R.id.debug_item_content).apply {
+                        text = Html.fromHtml(
+                            "You are using a <u><b>debug/unofficial</b></u> build!\n" +
+                                    "Please consider downloading stable builds from <a href=\"https://github.com/rhunk/SnapEnhance\">GitHub</a>.",
+                            Html.FROM_HTML_MODE_COMPACT
+                        )
+                        movementMethod = android.text.method.LinkMovementMethod.getInstance()
+                    }
+                })
+        }
 
         var currentCategory: ConfigCategory? = null
 
@@ -248,5 +270,12 @@ class ConfigActivity : Activity() {
             propertyListLayout.addView(configItem)
             addSeparator()
         }
+
+        propertyListLayout.addView(layoutInflater.inflate(R.layout.config_activity_debug_item, propertyListLayout, false).apply {
+            findViewById<TextView>(R.id.debug_item_content).apply {
+                text = Html.fromHtml("Made by rhunk on <a href=\"https://github.com/rhunk/SnapEnhance\">GitHub</a>", Html.FROM_HTML_MODE_COMPACT)
+                movementMethod = android.text.method.LinkMovementMethod.getInstance()
+            }
+        })
     }
 }

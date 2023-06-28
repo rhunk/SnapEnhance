@@ -1,22 +1,27 @@
 package me.rhunk.snapenhance.util.download
 
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 import me.rhunk.snapenhance.Logger
-import me.rhunk.snapenhance.Logger.debug
 import java.io.BufferedReader
 import java.io.InputStream
 import java.io.InputStreamReader
 import java.io.PrintWriter
 import java.net.ServerSocket
 import java.net.Socket
+import java.net.SocketTimeoutException
 import java.util.Locale
 import java.util.StringTokenizer
 import java.util.concurrent.ConcurrentHashMap
 import java.util.concurrent.ThreadLocalRandom
 
-class DownloadServer {
+class DownloadServer(
+    private val timeout: Int = 10000
+) {
     private val port = ThreadLocalRandom.current().nextInt(10000, 65535)
 
-    private val cachedData = ConcurrentHashMap<String, InputStream>()
+    private val cachedData = ConcurrentHashMap<String, Pair<InputStream, Long>>()
     private var serverSocket: ServerSocket? = null
 
     fun ensureServerStarted(callback: DownloadServer.() -> Unit) {
@@ -24,28 +29,37 @@ class DownloadServer {
             callback(this)
             return
         }
-        Thread {
-            try {
-                debug("started web server on 127.0.0.1:$port")
-                serverSocket = ServerSocket(port)
-                callback(this)
-                while (!serverSocket!!.isClosed) {
-                    try {
-                        val socket = serverSocket!!.accept()
-                        Thread { handleRequest(socket) }.start()
-                    } catch (e: Throwable) {
-                        Logger.xposedLog(e)
+
+        CoroutineScope(Dispatchers.IO).launch {
+            Logger.debug("starting download server on port $port")
+            serverSocket = ServerSocket(port)
+            serverSocket!!.soTimeout = timeout
+            callback(this@DownloadServer)
+            while (!serverSocket!!.isClosed) {
+                try {
+                    val socket = serverSocket!!.accept()
+                    launch(Dispatchers.IO) {
+                        handleRequest(socket)
                     }
+                } catch (e: SocketTimeoutException) {
+                    serverSocket?.close()
+                    serverSocket = null
+                    Logger.debug("download server closed")
+                    break;
+                } catch (e: Exception) {
+                    Logger.error("failed to handle request", e)
                 }
-            } catch (e: Throwable) {
-                Logger.xposedLog(e)
             }
-        }.start()
+        }
     }
 
-    fun putDownloadableContent(inputStream: InputStream): String {
+    fun close() {
+        serverSocket?.close()
+    }
+
+    fun putDownloadableContent(inputStream: InputStream, size: Long): String {
         val key = System.nanoTime().toString(16)
-        cachedData[key] = inputStream
+        cachedData[key] = inputStream to size
         return "http://127.0.0.1:$port/$key"
     }
 
@@ -96,14 +110,11 @@ class DownloadServer {
         with(writer) {
             println("HTTP/1.1 200 OK")
             println("Content-type: " + "application/octet-stream")
+            println("Content-length: " + requestedData.second)
             println()
             flush()
         }
-        val buffer = ByteArray(1024)
-        var bytesRead: Int
-        while (requestedData.read(buffer).also { bytesRead = it } != -1) {
-            outputStream.write(buffer, 0, bytesRead)
-        }
+        requestedData.first.copyTo(outputStream)
         outputStream.flush()
         cachedData.remove(fileRequested)
         close()

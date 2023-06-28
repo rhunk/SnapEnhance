@@ -1,14 +1,14 @@
 package me.rhunk.snapenhance.download
 
+import android.annotation.SuppressLint
 import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
-import android.media.MediaScannerConnection
+import android.net.Uri
 import android.os.Handler
 import android.widget.Toast
-import kotlinx.coroutines.DelicateCoroutinesApi
+import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.job
 import kotlinx.coroutines.joinAll
@@ -16,6 +16,7 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 import me.rhunk.snapenhance.Constants
 import me.rhunk.snapenhance.Logger
+import me.rhunk.snapenhance.SharedContext
 import me.rhunk.snapenhance.data.FileType
 import me.rhunk.snapenhance.download.data.DownloadRequest
 import me.rhunk.snapenhance.download.data.InputMedia
@@ -23,9 +24,8 @@ import me.rhunk.snapenhance.download.data.MediaEncryptionKeyPair
 import me.rhunk.snapenhance.download.data.PendingDownload
 import me.rhunk.snapenhance.download.enums.DownloadMediaType
 import me.rhunk.snapenhance.download.enums.DownloadStage
-import me.rhunk.snapenhance.SharedContext
-import me.rhunk.snapenhance.util.snap.MediaDownloaderHelper
 import me.rhunk.snapenhance.util.download.RemoteMediaResolver
+import me.rhunk.snapenhance.util.snap.MediaDownloaderHelper
 import java.io.File
 import java.io.InputStream
 import java.net.HttpURLConnection
@@ -113,6 +113,7 @@ class DownloadManagerReceiver : BroadcastReceiver() {
         return file
     }
 
+    @SuppressLint("UnspecifiedRegisterReceiverFlag")
     private suspend fun saveMediaToGallery(inputFile: File, pendingDownload: PendingDownload) {
         if (coroutineContext.job.isCancelled) return
 
@@ -122,11 +123,24 @@ class DownloadManagerReceiver : BroadcastReceiver() {
                 longToast(translation.format("failed_gallery_toast", "error" to "Unknown media type"))
                 return
             }
-
             val outputFile = File(pendingDownload.outputPath + "." + fileType.fileExtension).also { createNeededDirectories(it) }
+
             inputFile.copyTo(outputFile, overwrite = true)
 
-            MediaScannerConnection.scanFile(context, arrayOf(outputFile.absolutePath), null, null)
+            pendingDownload.outputFile = outputFile.absolutePath
+            pendingDownload.downloadStage = DownloadStage.SAVED
+
+            runCatching {
+                val contentUri = Uri.fromFile(outputFile)
+                val mediaScanIntent = Intent("android.intent.action.MEDIA_SCANNER_SCAN_FILE")
+                mediaScanIntent.setData(contentUri)
+                context.sendBroadcast(mediaScanIntent)
+            }.onFailure {
+                Logger.error("Failed to scan media file", it)
+                longToast(translation.format("failed_gallery_toast", "error" to it.toString()))
+            }
+
+            Logger.debug("download complete")
 
             //print the path of the saved media
             val parentName = outputFile.parentFile?.parentFile?.absolutePath?.let {
@@ -136,9 +150,6 @@ class DownloadManagerReceiver : BroadcastReceiver() {
             shortToast(
                 translation.format("saved_toast", "path" to outputFile.absolutePath.replace(parentName ?: "", ""))
             )
-
-            pendingDownload.outputFile = outputFile.absolutePath
-            pendingDownload.downloadStage = DownloadStage.SAVED
         }.onFailure {
             Logger.error(it)
             longToast(translation.format("failed_gallery_toast", "error" to it.toString()))
@@ -254,10 +265,11 @@ class DownloadManagerReceiver : BroadcastReceiver() {
         return newFile
     }
 
-    @OptIn(DelicateCoroutinesApi::class)
     override fun onReceive(context: Context, intent: Intent) {
         if (intent.action != DOWNLOAD_ACTION) return
         this.context = context
+        Logger.debug("onReceive download")
+
         SharedContext.ensureInitialized(context)
 
         val downloadRequest = DownloadRequest.fromBundle(intent.extras!!)
@@ -273,7 +285,7 @@ class DownloadManagerReceiver : BroadcastReceiver() {
             return
         }
 
-        GlobalScope.launch(Dispatchers.IO) {
+        CoroutineScope(Dispatchers.IO).launch {
             val pendingDownloadObject = PendingDownload.fromBundle(intent.extras!!)
 
             SharedContext.downloadTaskManager.addTask(pendingDownloadObject)
@@ -287,6 +299,7 @@ class DownloadManagerReceiver : BroadcastReceiver() {
                 val downloadedMedias = downloadInputMedias(downloadRequest).map {
                     it.key to DownloadedFile(it.value, FileType.fromFile(it.value))
                 }.toMap().toMutableMap()
+                Logger.debug("downloaded ${downloadedMedias.size} medias")
 
                 var shouldMergeOverlay = downloadRequest.shouldMergeOverlay
 
