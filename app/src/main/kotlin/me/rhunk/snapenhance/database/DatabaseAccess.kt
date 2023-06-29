@@ -110,6 +110,25 @@ class DatabaseAccess(private val context: ModContext) : Manager {
         }
     }
 
+    fun getFriendFeed(limit: Int): List<FriendFeedInfo> {
+        return safeDatabaseOperation(openMain()) { database ->
+            val cursor = database.rawQuery(
+                "SELECT * FROM FriendsFeedView ORDER BY _id LIMIT ?",
+                arrayOf(limit.toString())
+            )
+            val list = mutableListOf<FriendFeedInfo>()
+            while (cursor.moveToNext()) {
+                val friendFeedInfo = FriendFeedInfo()
+                try {
+                    friendFeedInfo.write(cursor)
+                } catch (_: Throwable) {}
+                list.add(friendFeedInfo)
+            }
+            cursor.close()
+            list
+        } ?: emptyList()
+    }
+
     fun getConversationMessageFromId(clientMessageId: Long): ConversationMessage? {
         return safeDatabaseOperation(openArroyo()) {
             readDatabaseObject(

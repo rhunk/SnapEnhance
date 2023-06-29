@@ -1,7 +1,6 @@
 package me.rhunk.snapenhance.bridge.client
 
 
-import android.annotation.TargetApi
 import android.content.ComponentName
 import android.content.Context
 import android.content.Intent
@@ -13,6 +12,9 @@ import android.os.HandlerThread
 import android.os.IBinder
 import android.os.Message
 import android.os.Messenger
+import de.robv.android.xposed.XposedHelpers
+import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.suspendCancellableCoroutine
 import me.rhunk.snapenhance.BuildConfig
 import me.rhunk.snapenhance.Logger.xposedLog
 import me.rhunk.snapenhance.bridge.AbstractBridgeClient
@@ -25,6 +27,7 @@ import me.rhunk.snapenhance.bridge.common.impl.file.FileAccessRequest
 import me.rhunk.snapenhance.bridge.common.impl.file.FileAccessResult
 import me.rhunk.snapenhance.bridge.common.impl.locale.LocaleRequest
 import me.rhunk.snapenhance.bridge.common.impl.locale.LocaleResult
+import me.rhunk.snapenhance.bridge.common.impl.messagelogger.MessageLoggerListResult
 import me.rhunk.snapenhance.bridge.common.impl.messagelogger.MessageLoggerRequest
 import me.rhunk.snapenhance.bridge.common.impl.messagelogger.MessageLoggerResult
 import me.rhunk.snapenhance.bridge.service.BridgeService
@@ -40,7 +43,6 @@ class ServiceBridgeClient: AbstractBridgeClient(), ServiceConnection {
     private lateinit var messenger: Messenger
     private lateinit var future: CompletableFuture<Boolean>
 
-    @TargetApi(Build.VERSION_CODES.Q)
     override fun start(callback: (Boolean) -> Unit) {
         this.future = CompletableFuture()
         this.handlerThread.start()
@@ -48,62 +50,69 @@ class ServiceBridgeClient: AbstractBridgeClient(), ServiceConnection {
         with(context.androidContext) {
             val intent = Intent()
                 .setClassName(BuildConfig.APPLICATION_ID, BridgeService::class.java.name)
-            bindService(
-                intent,
-                Context.BIND_AUTO_CREATE,
-                Executors.newSingleThreadExecutor(),
-                this@ServiceBridgeClient
-            )
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+                bindService(
+                    intent,
+                    Context.BIND_AUTO_CREATE,
+                    Executors.newSingleThreadExecutor(),
+                    this@ServiceBridgeClient
+                )
+            } else {
+                XposedHelpers.callMethod(
+                    this,
+                    "bindServiceAsUser",
+                    intent,
+                    this@ServiceBridgeClient,
+                    Context.BIND_AUTO_CREATE,
+                    Handler(handlerThread.looper),
+                    android.os.Process.myUserHandle()
+                )
+            }
         }
         callback(future.get())
     }
 
     private fun handleResponseMessage(
-        msg: Message,
-        future: CompletableFuture<BridgeMessage>
-    ) {
+        msg: Message
+    ): BridgeMessage {
         val message: BridgeMessage = when (BridgeMessageType.fromValue(msg.what)) {
             BridgeMessageType.FILE_ACCESS_RESULT -> FileAccessResult()
             BridgeMessageType.DOWNLOAD_CONTENT_RESULT -> DownloadContentResult()
             BridgeMessageType.MESSAGE_LOGGER_RESULT -> MessageLoggerResult()
+            BridgeMessageType.MESSAGE_LOGGER_LIST_RESULT -> MessageLoggerListResult()
             BridgeMessageType.LOCALE_RESULT -> LocaleResult()
-            else -> {
-                future.completeExceptionally(IllegalStateException("Unknown message type: ${msg.what}"))
-                return
-            }
+            else -> throw IllegalStateException("Unknown message type: ${msg.what}")
         }
 
         with(message) {
             read(msg.data)
-            future.complete(this)
+            return this
         }
     }
 
     @Suppress("UNCHECKED_CAST", "UNUSED_PARAMETER")
     private fun <T : BridgeMessage> sendMessage(
         messageType: BridgeMessageType,
-        message: BridgeMessage,
+        bridgeMessage: BridgeMessage,
         resultType: KClass<T>? = null
-    ): T {
-        val future = CompletableFuture<BridgeMessage>()
-
-        val replyMessenger = Messenger(object : Handler(handlerThread.looper) {
-            override fun handleMessage(msg: Message) {
-                handleResponseMessage(msg, future)
-            }
-        })
-
-        runCatching {
+    ) = runBlocking {
+        return@runBlocking suspendCancellableCoroutine<T> { continuation ->
             with(Message.obtain()) {
                 what = messageType.value
-                replyTo = replyMessenger
+                replyTo = Messenger(object : Handler(handlerThread.looper) {
+                    override fun handleMessage(msg: Message) {
+                        if (continuation.isCompleted) {
+                            continuation.cancel(Throwable("Already completed"))
+                            return
+                        }
+                        continuation.resumeWith(Result.success(handleResponseMessage(msg) as T))
+                    }
+                })
                 data = Bundle()
-                message.write(data)
+                bridgeMessage.write(data)
                 messenger.send(this)
             }
         }
-
-        return future.get() as T
     }
 
     override fun createAndReadFile(
@@ -177,6 +186,16 @@ class ServiceBridgeClient: AbstractBridgeClient(), ServiceConnection {
         }
     }
 
+    override fun getLoggedMessageIds(conversationId: String, limit: Int): List<Long> {
+        sendMessage(
+            BridgeMessageType.MESSAGE_LOGGER_REQUEST,
+            MessageLoggerRequest(MessageLoggerRequest.Action.LIST_IDS, conversationId, limit.toLong()),
+            MessageLoggerListResult::class
+        ).run {
+            return messages!!
+        }
+    }
+
     override fun getMessageLoggerMessage(conversationId: String, id: Long): ByteArray? {
         sendMessage(
             BridgeMessageType.MESSAGE_LOGGER_REQUEST,
@@ -219,6 +238,20 @@ class ServiceBridgeClient: AbstractBridgeClient(), ServiceConnection {
         ).run {
             return this
         }
+    }
+
+    override fun getAutoUpdaterTime(): Long {
+        createAndReadFile(BridgeFileType.AUTO_UPDATER_TIMESTAMP, "0".toByteArray()).run {
+            return if (isEmpty()) {
+                0
+            } else {
+                String(this).toLong()
+            }
+        }
+    }
+
+    override fun setAutoUpdaterTime(time: Long) {
+        writeFile(BridgeFileType.AUTO_UPDATER_TIMESTAMP, time.toString().toByteArray())
     }
 
     override fun onServiceConnected(name: ComponentName, service: IBinder) {

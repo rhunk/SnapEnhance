@@ -3,13 +3,10 @@ package me.rhunk.snapenhance.config
 enum class ConfigCategory(
     val key: String
 ) {
-    GENERAL("category.general"),
-    SPYING("category.spying"),
-    MEDIA_DOWNLOADER("category.media_download"),
-    PRIVACY("category.privacy"),
-    UI("category.ui"),
-    EXTRAS("category.extras"),
-    TWEAKS("category.tweaks"),
-    LOCATION_SPOOF("category.location_spoof"),
-    EXPERIMENTAL("category.experimental");
+    SPYING_PRIVACY("spying_privacy"),
+    MEDIA_MANAGEMENT("media_manager"),
+    UI_TWEAKS("ui_tweaks"),
+    UPDATES("updates"),
+    CAMERA("camera"),
+    EXPERIMENTAL_DEBUGGING("experimental_debugging");
 }

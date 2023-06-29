@@ -6,10 +6,13 @@ import me.rhunk.snapenhance.features.Feature
 import me.rhunk.snapenhance.features.FeatureLoadParams
 import me.rhunk.snapenhance.hook.HookStage
 import me.rhunk.snapenhance.hook.Hooker
+import me.rhunk.snapenhance.hook.hook
+import me.rhunk.snapenhance.util.getObjectField
 
 class Messaging : Feature("Messaging", loadParams = FeatureLoadParams.ACTIVITY_CREATE_SYNC or FeatureLoadParams.INIT_ASYNC or FeatureLoadParams.INIT_SYNC) {
     lateinit var conversationManager: Any
 
+    var openedConversationUUID: SnapUUID? = null
     var lastOpenedConversationUUID: SnapUUID? = null
     var lastFetchConversationUserUUID: SnapUUID? = null
     var lastFetchConversationUUID: SnapUUID? = null
@@ -22,24 +25,22 @@ class Messaging : Feature("Messaging", loadParams = FeatureLoadParams.ACTIVITY_C
     }
 
     override fun onActivityCreate() {
+        context.mappings.getMappedClass("callbacks", "GetOneOnOneConversationIdsCallback").hook("onSuccess", HookStage.BEFORE) { param ->
+            val userIdToConversation = (param.arg<ArrayList<*>>(0))
+                .takeIf { it.isNotEmpty() }
+                ?.get(0) ?: return@hook
+
+            lastFetchConversationUUID = SnapUUID(userIdToConversation.getObjectField("mConversationId"))
+            lastFetchConversationUserUUID = SnapUUID(userIdToConversation.getObjectField("mUserId"))
+        }
+
         with(context.classCache.conversationManager) {
             Hooker.hook(this, "enterConversation", HookStage.BEFORE) {
-                lastOpenedConversationUUID = SnapUUID(it.arg(0))
-            }
-
-            Hooker.hook(this, "getOneOnOneConversationIds", HookStage.BEFORE) { param ->
-                val conversationIds: List<Any> = param.arg(0)
-                if (conversationIds.isNotEmpty()) {
-                    lastFetchConversationUserUUID = SnapUUID(conversationIds[0])
-                }
+                openedConversationUUID = SnapUUID(it.arg(0))
             }
 
             Hooker.hook(this, "exitConversation", HookStage.BEFORE) {
-                lastOpenedConversationUUID = null
-            }
-
-            Hooker.hook(this, "fetchConversation", HookStage.BEFORE) {
-                lastFetchConversationUUID = SnapUUID(it.arg(0))
+                openedConversationUUID = null
             }
         }
 
@@ -54,7 +55,7 @@ class Messaging : Feature("Messaging", loadParams = FeatureLoadParams.ACTIVITY_C
 
         //get last opened snap for media downloader
         Hooker.hook(context.classCache.snapManager, "onSnapInteraction", HookStage.BEFORE) { param ->
-            lastOpenedConversationUUID = SnapUUID(param.arg(1))
+            openedConversationUUID = SnapUUID(param.arg(1))
             lastFocusedMessageId = param.arg(2)
         }
 

@@ -10,15 +10,16 @@ import android.os.Process
 import android.widget.Toast
 import com.google.gson.Gson
 import com.google.gson.GsonBuilder
+import kotlinx.coroutines.asCoroutineDispatcher
 import me.rhunk.snapenhance.bridge.AbstractBridgeClient
+import me.rhunk.snapenhance.bridge.ConfigWrapper
+import me.rhunk.snapenhance.bridge.TranslationWrapper
 import me.rhunk.snapenhance.data.MessageSender
 import me.rhunk.snapenhance.database.DatabaseAccess
 import me.rhunk.snapenhance.features.Feature
 import me.rhunk.snapenhance.manager.impl.ActionManager
-import me.rhunk.snapenhance.manager.impl.ConfigManager
 import me.rhunk.snapenhance.manager.impl.FeatureManager
 import me.rhunk.snapenhance.manager.impl.MappingManager
-import me.rhunk.snapenhance.manager.impl.TranslationManager
 import me.rhunk.snapenhance.util.download.DownloadServer
 import java.util.concurrent.ExecutorService
 import java.util.concurrent.Executors
@@ -28,19 +29,23 @@ import kotlin.system.exitProcess
 class ModContext {
     private val executorService: ExecutorService = Executors.newCachedThreadPool()
 
+    val coroutineDispatcher by lazy {
+        executorService.asCoroutineDispatcher()
+    }
+
     lateinit var androidContext: Context
     var mainActivity: Activity? = null
     lateinit var bridgeClient: AbstractBridgeClient
 
     val gson: Gson = GsonBuilder().create()
 
-    val translation = TranslationManager(this)
+    val translation = TranslationWrapper()
+    val config = ConfigWrapper()
     val features = FeatureManager(this)
     val mappings = MappingManager(this)
-    val config = ConfigManager(this)
     val actionManager = ActionManager(this)
     val database = DatabaseAccess(this)
-    val downloadServer = DownloadServer(this)
+    val downloadServer = DownloadServer()
     val messageSender = MessageSender(this)
     val classCache get() = SnapEnhance.classCache
     val resources: Resources get() = androidContext.resources
@@ -80,17 +85,10 @@ class ModContext {
         }
     }
 
-    fun restartApp() {
-        androidContext.packageManager.getLaunchIntentForPackage(
-            Constants.SNAPCHAT_PACKAGE_NAME
-        )?.let {
-            val intent = Intent.makeRestartActivityTask(it.component)
-            androidContext.startActivity(intent)
-            Runtime.getRuntime().exit(0)
+    fun softRestartApp(saveSettings: Boolean = false) {
+        if (saveSettings) {
+            config.writeConfig()
         }
-    }
-
-    fun softRestartApp() {
         val intent: Intent? = androidContext.packageManager.getLaunchIntentForPackage(
             Constants.SNAPCHAT_PACKAGE_NAME
         )

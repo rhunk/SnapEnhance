@@ -2,6 +2,7 @@ package me.rhunk.snapenhance.bridge
 
 import android.content.ContentValues
 import android.database.sqlite.SQLiteDatabase
+import me.rhunk.snapenhance.util.SQLiteDatabaseHelper
 import java.io.File
 
 class MessageLoggerWrapper(
@@ -12,7 +13,14 @@ class MessageLoggerWrapper(
 
     fun init() {
         database = SQLiteDatabase.openDatabase(databaseFile.absolutePath, null, SQLiteDatabase.CREATE_IF_NECESSARY or SQLiteDatabase.OPEN_READWRITE)
-        database.execSQL("CREATE TABLE IF NOT EXISTS messages (id INTEGER PRIMARY KEY, conversation_id VARCHAR, message_id BIGINT, message_data BLOB)")
+        SQLiteDatabaseHelper.createTablesFromSchema(database, mapOf(
+            "messages" to listOf(
+                "id INTEGER PRIMARY KEY",
+                "conversation_id VARCHAR",
+                "message_id BIGINT",
+                "message_data BLOB"
+            )
+        ))
     }
 
     fun deleteMessage(conversationId: String, messageId: Long) {
@@ -44,6 +52,16 @@ class MessageLoggerWrapper(
         }
         cursor.close()
         return Pair(state, message)
+    }
+
+    fun getMessageIds(conversationId: String, limit: Int): List<Long> {
+        val cursor = database.rawQuery("SELECT message_id FROM messages WHERE conversation_id = ? ORDER BY message_id DESC LIMIT ?", arrayOf(conversationId, limit.toString()))
+        val messageIds = mutableListOf<Long>()
+        while (cursor.moveToNext()) {
+            messageIds.add(cursor.getLong(0))
+        }
+        cursor.close()
+        return messageIds
     }
 
     fun clearMessages() {

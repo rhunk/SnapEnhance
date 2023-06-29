@@ -1,6 +1,8 @@
 package me.rhunk.snapenhance.features.impl.spying
 
+import com.google.gson.JsonObject
 import com.google.gson.JsonParser
+import me.rhunk.snapenhance.Logger
 import me.rhunk.snapenhance.config.ConfigProperty
 import me.rhunk.snapenhance.data.ContentType
 import me.rhunk.snapenhance.data.MessageState
@@ -9,83 +11,123 @@ import me.rhunk.snapenhance.features.Feature
 import me.rhunk.snapenhance.features.FeatureLoadParams
 import me.rhunk.snapenhance.hook.HookStage
 import me.rhunk.snapenhance.hook.Hooker
+import kotlin.time.ExperimentalTime
+import kotlin.time.measureTime
 
-class MessageLogger : Feature("MessageLogger", loadParams = FeatureLoadParams.INIT_SYNC or FeatureLoadParams.ACTIVITY_CREATE_ASYNC) {
-    private val messageCache = mutableMapOf<Long, String>()
-    private val removedMessages = linkedSetOf<Long>()
+class MessageLogger : Feature("MessageLogger",
+    loadParams = FeatureLoadParams.INIT_SYNC or
+        FeatureLoadParams.ACTIVITY_CREATE_ASYNC
+) {
+    companion object {
+        const val PREFETCH_MESSAGE_COUNT = 20
+        const val PREFETCH_FEED_COUNT = 20
+    }
+
+    //two level of cache to avoid querying the database
+    private val fetchedMessages = mutableListOf<Long>()
+    private val deletedMessageCache = mutableMapOf<Long, JsonObject>()
+
     private val myUserId by lazy { context.database.getMyUserId() }
 
-    fun isMessageRemoved(messageId: Long) = removedMessages.contains(messageId)
+    fun isMessageRemoved(messageId: Long) = deletedMessageCache.containsKey(messageId)
 
     fun deleteMessage(conversationId: String, messageId: Long) {
-        messageCache.remove(messageId)
+        fetchedMessages.remove(messageId)
+        deletedMessageCache.remove(messageId)
         context.bridgeClient.deleteMessageLoggerMessage(conversationId, messageId)
     }
 
-    override fun asyncOnActivityCreate() {
-        if (!context.database.hasArroyo()) {
-            context.bridgeClient.clearMessageLogger()
+    fun getMessageObject(conversationId: String, messageId: Long): JsonObject? {
+        if (deletedMessageCache.containsKey(messageId)) {
+            return deletedMessageCache[messageId]
+        }
+        return context.bridgeClient.getMessageLoggerMessage(conversationId, messageId)?.let {
+            JsonParser.parseString(it.toString(Charsets.UTF_8)).asJsonObject
         }
     }
 
-    //FIXME: message disappears when the conversation is set to delete on view
+    @OptIn(ExperimentalTime::class)
+    override fun asyncOnActivityCreate() {
+        ConfigProperty.MESSAGE_LOGGER.valueContainer.addPropertyChangeListener {
+            context.config.writeConfig()
+            context.softRestartApp()
+        }
+
+        if (!context.database.hasArroyo()) {
+            return
+        }
+
+        measureTime {
+            context.database.getFriendFeed(PREFETCH_FEED_COUNT).forEach { friendFeedInfo ->
+                fetchedMessages.addAll(context.bridgeClient.getLoggedMessageIds(friendFeedInfo.key!!, PREFETCH_MESSAGE_COUNT))
+            }
+        }.also { Logger.debug("Loaded ${fetchedMessages.size} cached messages in $it") }
+    }
+
+    private fun processSnapMessage(messageInstance: Any) {
+        val message = Message(messageInstance)
+
+        if (message.messageState != MessageState.COMMITTED) return
+
+        //exclude messages sent by me
+        if (message.senderId.toString() == myUserId) return
+
+        val messageId = message.messageDescriptor.messageId
+        val conversationId = message.messageDescriptor.conversationId.toString()
+
+        if (message.messageContent.contentType != ContentType.STATUS) {
+            if (fetchedMessages.contains(messageId)) return
+            fetchedMessages.add(messageId)
+
+            context.executeAsync {
+                context.bridgeClient.getMessageLoggerMessage(conversationId, messageId)?.let {
+                    return@executeAsync
+                }
+                context.bridgeClient.addMessageLoggerMessage(conversationId, messageId, context.gson.toJson(messageInstance).toByteArray(Charsets.UTF_8))
+            }
+
+            return
+        }
+
+        //query the deleted message
+        val deletedMessageObject: JsonObject = if (deletedMessageCache.containsKey(messageId))
+            deletedMessageCache[messageId]
+        else {
+            context.bridgeClient.getMessageLoggerMessage(conversationId, messageId)?.let {
+                JsonParser.parseString(it.toString(Charsets.UTF_8)).asJsonObject
+            }
+        } ?: return
+
+        val messageJsonObject = deletedMessageObject.asJsonObject
+
+        //if the message is a snap make it playable
+        if (messageJsonObject["mMessageContent"]?.asJsonObject?.get("mContentType")?.asString == "SNAP") {
+            messageJsonObject["mMetadata"].asJsonObject.addProperty("mPlayableSnapState", "PLAYABLE")
+        }
+
+        //serialize all properties of messageJsonObject and put in the message object
+        messageInstance.javaClass.declaredFields.forEach { field ->
+            field.isAccessible = true
+            messageJsonObject[field.name]?.let { fieldValue ->
+                field.set(messageInstance, context.gson.fromJson(fieldValue, field.type))
+            }
+        }
+
+        //set the message state to PREPARING for visibility
+        with(message.messageContent.contentType) {
+            if (this != ContentType.SNAP && this != ContentType.EXTERNAL_MEDIA) {
+                message.messageState = MessageState.PREPARING
+            }
+        }
+
+        deletedMessageCache[messageId] = deletedMessageObject
+    }
+
     override fun init() {
         Hooker.hookConstructor(context.classCache.message, HookStage.AFTER, {
             context.config.bool(ConfigProperty.MESSAGE_LOGGER)
-        }) {
-            val message = Message(it.thisObject())
-            val messageId = message.messageDescriptor.messageId
-            val contentType = message.messageContent.contentType
-            val conversationId = message.messageDescriptor.conversationId.toString()
-            val messageState = message.messageState
-
-            if (messageState != MessageState.COMMITTED) return@hookConstructor
-
-            if (contentType == ContentType.STATUS) {
-                //query the deleted message
-                val deletedMessage: String = if (messageCache.containsKey(messageId)) messageCache[messageId] else {
-                    context.bridgeClient.getMessageLoggerMessage(conversationId, messageId)?.toString(Charsets.UTF_8)
-                } ?: return@hookConstructor
-
-                val messageJsonObject = JsonParser.parseString(deletedMessage).asJsonObject
-
-                //if the message is a snap make it playable
-                if (messageJsonObject["mMessageContent"]?.asJsonObject?.get("mContentType")?.asString == "SNAP") {
-                    messageJsonObject["mMetadata"].asJsonObject.addProperty("mPlayableSnapState", "PLAYABLE")
-                }
-
-                //serialize all properties of messageJsonObject and put in the message object
-                message.instanceNonNull().javaClass.declaredFields.forEach { field ->
-                    field.isAccessible = true
-                    val fieldName = field.name
-                    val fieldValue = messageJsonObject[fieldName]
-                    if (fieldValue != null) {
-                        field.set(message.instanceNonNull(), context.gson.fromJson(fieldValue, field.type))
-                    }
-                }
-
-                //set the message state to PREPARING for visibility
-                if (message.messageContent.contentType != ContentType.SNAP && message.messageContent.contentType != ContentType.EXTERNAL_MEDIA) {
-                    message.messageState = MessageState.PREPARING
-                }
-                removedMessages.add(messageId)
-                return@hookConstructor
-            }
-
-            //exclude messages sent by me
-            if (message.senderId.toString() == myUserId) return@hookConstructor
-
-            if (!messageCache.containsKey(messageId)) {
-                context.executeAsync {
-                    val storedMessage = context.bridgeClient.getMessageLoggerMessage(conversationId, messageId)?.toString(Charsets.UTF_8)
-                    if (storedMessage == null) {
-                        messageCache[messageId] = context.gson.toJson(message.instanceNonNull())
-                        context.bridgeClient.addMessageLoggerMessage(conversationId, messageId, messageCache[messageId]!!.toByteArray(Charsets.UTF_8))
-                        return@executeAsync
-                    }
-                    messageCache[messageId] = storedMessage
-                }
-            }
+        }) { param ->
+            processSnapMessage(param.thisObject())
         }
     }
 }

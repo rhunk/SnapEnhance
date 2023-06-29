@@ -65,6 +65,10 @@ class RootBridgeClient : AbstractBridgeClient() {
         return true
     }
 
+    override fun getLoggedMessageIds(conversationId: String, limit: Int): List<Long> {
+        return messageLoggerWrapper.getMessageIds(conversationId, limit)
+    }
+
     override fun getMessageLoggerMessage(conversationId: String, id: Long): ByteArray? {
         val (state, messageData) = messageLoggerWrapper.getMessage(conversationId, id)
         if (state) {
@@ -106,10 +110,24 @@ class RootBridgeClient : AbstractBridgeClient() {
 
         if (langJsonData != null) {
             Logger.debug("Fetched translations for $locale")
-            return LocaleResult(locale, langJsonData)
+            return LocaleResult(arrayOf(locale), arrayOf(langJsonData.toString(Charsets.UTF_8)))
         }
 
         throw Throwable("Failed to fetch translations for $locale")
+    }
+
+    override fun getAutoUpdaterTime(): Long {
+        readFile(BridgeFileType.AUTO_UPDATER_TIMESTAMP).run {
+            return if (isEmpty()) {
+                0
+            } else {
+                String(this).toLong()
+            }
+        }
+    }
+
+    override fun setAutoUpdaterTime(time: Long) {
+        writeFile(BridgeFileType.AUTO_UPDATER_TIMESTAMP, time.toString().toByteArray(Charsets.UTF_8))
     }
 
     private fun rootOperation(command: String): String {

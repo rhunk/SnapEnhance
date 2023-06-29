@@ -8,6 +8,7 @@ import android.net.Uri
 import android.os.*
 import me.rhunk.snapenhance.Logger
 import me.rhunk.snapenhance.bridge.MessageLoggerWrapper
+import me.rhunk.snapenhance.bridge.TranslationWrapper
 import me.rhunk.snapenhance.bridge.common.BridgeMessageType
 import me.rhunk.snapenhance.bridge.common.impl.*
 import me.rhunk.snapenhance.bridge.common.impl.download.DownloadContentRequest
@@ -17,6 +18,7 @@ import me.rhunk.snapenhance.bridge.common.impl.file.FileAccessRequest
 import me.rhunk.snapenhance.bridge.common.impl.file.FileAccessResult
 import me.rhunk.snapenhance.bridge.common.impl.locale.LocaleRequest
 import me.rhunk.snapenhance.bridge.common.impl.locale.LocaleResult
+import me.rhunk.snapenhance.bridge.common.impl.messagelogger.MessageLoggerListResult
 import me.rhunk.snapenhance.bridge.common.impl.messagelogger.MessageLoggerRequest
 import me.rhunk.snapenhance.bridge.common.impl.messagelogger.MessageLoggerResult
 import java.io.File
@@ -33,7 +35,7 @@ class BridgeService : Service() {
                 runCatching {
                     this@BridgeService.handleMessage(msg)
                 }.onFailure {
-                    Logger.error("Failed to handle message", it)
+                    Logger.error("Failed to handle message ${BridgeMessageType.fromValue(msg.what)}", it)
                 }
             }
         }).binder
@@ -82,7 +84,7 @@ class BridgeService : Service() {
     private fun handleMessageLoggerRequest(msg: MessageLoggerRequest, reply: (Message) -> Unit) {
         when (msg.action) {
             MessageLoggerRequest.Action.ADD  -> {
-                val isSuccess = messageLoggerWrapper.addMessage(msg.conversationId!!, msg.messageId!!, msg.message!!)
+                val isSuccess = messageLoggerWrapper.addMessage(msg.conversationId!!, msg.index!!, msg.message!!)
                 reply(MessageLoggerResult(isSuccess).toMessage(BridgeMessageType.MESSAGE_LOGGER_RESULT.value))
                 return
             }
@@ -90,11 +92,17 @@ class BridgeService : Service() {
                 messageLoggerWrapper.clearMessages()
             }
             MessageLoggerRequest.Action.DELETE -> {
-                messageLoggerWrapper.deleteMessage(msg.conversationId!!, msg.messageId!!)
+                messageLoggerWrapper.deleteMessage(msg.conversationId!!, msg.index!!)
             }
             MessageLoggerRequest.Action.GET -> {
-                val (state, messageData) = messageLoggerWrapper.getMessage(msg.conversationId!!, msg.messageId!!)
+                val (state, messageData) = messageLoggerWrapper.getMessage(msg.conversationId!!, msg.index!!)
                 reply(MessageLoggerResult(state, messageData).toMessage(BridgeMessageType.MESSAGE_LOGGER_RESULT.value))
+                return
+            }
+            MessageLoggerRequest.Action.LIST_IDS -> {
+                val messageIds = messageLoggerWrapper.getMessageIds(msg.conversationId!!, msg.index!!.toInt())
+                reply(MessageLoggerListResult(messageIds).toMessage(BridgeMessageType.MESSAGE_LOGGER_LIST_RESULT.value))
+                return
             }
             else -> {
                 Logger.log(Exception("Unknown message logger action: ${msg.action}"))
@@ -105,13 +113,15 @@ class BridgeService : Service() {
     }
 
     private fun handleLocaleRequest(reply: (Message) -> Unit) {
-        val deviceLocale = Locale.getDefault().toString()
-        val compatibleLocale = resources.assets.list("lang")?.find { it.startsWith(deviceLocale) }?.substring(0, 5) ?: "en_US"
+        val locales = sortedSetOf<String>()
+        val contentArray = sortedSetOf<String>()
 
-        resources.assets.open("lang/$compatibleLocale.json").use { inputStream ->
-            val json = inputStream.bufferedReader().use { it.readText() }
-            reply(LocaleResult(compatibleLocale, json.toByteArray(Charsets.UTF_8)).toMessage(BridgeMessageType.LOCALE_RESULT.value))
+        TranslationWrapper.fetchLocales(context = this).forEach { pair ->
+            locales.add(pair.locale)
+            contentArray.add(pair.content)
         }
+
+        reply(LocaleResult(locales.toTypedArray(), contentArray.toTypedArray()).toMessage(BridgeMessageType.LOCALE_RESULT.value))
     }
 
     @SuppressLint("UnspecifiedRegisterReceiverFlag")

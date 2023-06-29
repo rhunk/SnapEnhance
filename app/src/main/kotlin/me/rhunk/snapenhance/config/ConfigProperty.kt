@@ -6,36 +6,47 @@ import me.rhunk.snapenhance.config.impl.ConfigStateListValue
 import me.rhunk.snapenhance.config.impl.ConfigStateSelection
 import me.rhunk.snapenhance.config.impl.ConfigStateValue
 import me.rhunk.snapenhance.config.impl.ConfigStringValue
+import me.rhunk.snapenhance.features.impl.tweaks.CameraTweaks
 import java.io.File
 
 enum class ConfigProperty(
-    val nameKey: String,
-    val descriptionKey: String,
+    val translationKey: String,
     val category: ConfigCategory,
-    val valueContainer: ConfigValue<*>
+    val valueContainer: ConfigValue<*>,
+    val shouldAppearInSettings: Boolean = true,
+    val disableValueLocalization: Boolean = false
 ) {
+
+    //SPYING AND PRIVACY
+    MESSAGE_LOGGER("message_logger",
+        ConfigCategory.SPYING_PRIVACY,
+        ConfigStateValue(false)
+    ),
     PREVENT_READ_RECEIPTS(
-        "property.prevent_read_receipts",
-        "description.prevent_read_receipts",
-        ConfigCategory.SPYING,
+        "prevent_read_receipts",
+        ConfigCategory.SPYING_PRIVACY,
         ConfigStateValue(false)
     ),
     HIDE_BITMOJI_PRESENCE(
-        "property.hide_bitmoji_presence",
-        "description.hide_bitmoji_presence",
-        ConfigCategory.SPYING,
+        "hide_bitmoji_presence",
+        ConfigCategory.SPYING_PRIVACY,
         ConfigStateValue(false)
     ),
-    SHOW_MESSAGE_CONTENT_IN_NOTIFICATIONS(
-        "property.show_message_content_in_notifications",
-        "description.show_message_content_in_notifications",
-        ConfigCategory.SPYING,
-        ConfigStateValue(false)
+    BETTER_NOTIFICATIONS(
+        "better_notifications",
+        ConfigCategory.SPYING_PRIVACY,
+        ConfigStateListValue(
+            listOf("snap", "chat", "reply_button"),
+            mutableMapOf(
+                "snap" to false,
+                "chat" to false,
+                "reply_button" to false
+            )
+        )
     ),
     NOTIFICATION_BLACKLIST(
-        "property.notification_blacklist",
-        "description.notification_blacklist",
-        ConfigCategory.SPYING,
+        "notification_blacklist",
+        ConfigCategory.SPYING_PRIVACY,
         ConfigStateListValue(
             listOf("snap", "chat", "typing"),
             mutableMapOf(
@@ -45,215 +56,309 @@ enum class ConfigProperty(
             )
         )
     ),
-
-    MESSAGE_LOGGER("property.message_logger", "description.message_logger", ConfigCategory.SPYING, ConfigStateValue(false)),
-    UNLIMITED_SNAP_VIEW_TIME("property.unlimited_snap_view_time", "description.unlimited_snap_view_time", ConfigCategory.SPYING, ConfigStateValue(false)),
-
+    DISABLE_METRICS("disable_metrics",
+        ConfigCategory.SPYING_PRIVACY,
+        ConfigStateValue(false)
+    ),
+    BLOCK_ADS("block_ads",
+        ConfigCategory.SPYING_PRIVACY,
+        ConfigStateValue(false)
+    ),
+    UNLIMITED_SNAP_VIEW_TIME("unlimited_snap_view_time",
+        ConfigCategory.SPYING_PRIVACY,
+        ConfigStateValue(false)
+    ),
+    PREVENT_SCREENSHOT_NOTIFICATIONS(
+        "prevent_screenshot_notifications",
+        ConfigCategory.SPYING_PRIVACY,
+        ConfigStateValue(false)
+    ),
+    PREVENT_STATUS_NOTIFICATIONS(
+        "prevent_status_notifications",
+        ConfigCategory.SPYING_PRIVACY,
+        ConfigStateValue(false)
+    ),
+    ANONYMOUS_STORY_VIEW(
+        "anonymous_story_view",
+        ConfigCategory.SPYING_PRIVACY,
+        ConfigStateValue(false)
+    ),
+    HIDE_TYPING_NOTIFICATION(
+        "hide_typing_notification",
+        ConfigCategory.SPYING_PRIVACY,
+        ConfigStateValue(false)
+    ),
+    
+    //MEDIA MANAGEMENT
     SAVE_FOLDER(
-        "property.save_folder", "description.save_folder", ConfigCategory.MEDIA_DOWNLOADER,
+        "save_folder",
+        ConfigCategory.MEDIA_MANAGEMENT,
         ConfigStringValue(File(
             Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DCIM).absolutePath + "/Snapchat",
             "SnapEnhance"
         ).absolutePath)
     ),
-    AUTO_DOWNLOAD_SNAPS(
-        "property.auto_download_snaps",
-        "description.auto_download_snaps",
-        ConfigCategory.MEDIA_DOWNLOADER,
-        ConfigStateValue(false)
-    ),
-    AUTO_DOWNLOAD_STORIES(
-        "property.auto_download_stories",
-        "description.auto_download_stories",
-        ConfigCategory.MEDIA_DOWNLOADER,
-        ConfigStateValue(false)
-    ),
-    AUTO_DOWNLOAD_PUBLIC_STORIES(
-        "property.auto_download_public_stories",
-        "description.auto_download_public_stories",
-        ConfigCategory.MEDIA_DOWNLOADER,
-        ConfigStateValue(false)
-    ),
-    AUTO_DOWNLOAD_SPOTLIGHT(
-        "property.auto_download_spotlight",
-        "description.auto_download_spotlight",
-        ConfigCategory.MEDIA_DOWNLOADER,
-        ConfigStateValue(false)
+    AUTO_DOWNLOAD_OPTIONS(
+        "auto_download_options",
+        ConfigCategory.MEDIA_MANAGEMENT,
+        ConfigStateListValue(
+            listOf("friend_snaps", "friend_stories", "public_stories", "spotlight"),
+            mutableMapOf(
+                "friend_snaps" to false,
+                "friend_stories" to false,
+                "public_stories" to false,
+                "spotlight" to false
+            )
+        )
     ),
     DOWNLOAD_OPTIONS(
-        "property.download_options", "description.download_options", ConfigCategory.MEDIA_DOWNLOADER,
+        "download_options",
+        ConfigCategory.MEDIA_MANAGEMENT,
         ConfigStateListValue(
-            listOf("format_user_folder", "format_hash", "format_date_time", "format_username", "merge_overlay"),
+            listOf(
+                "allow_duplicate",
+                "create_user_folder",
+                "append_hash",
+                "append_date_time",
+                "append_type",
+                "append_username",
+                "merge_overlay"
+            ),
             mutableMapOf(
-                "format_user_folder" to true,
-                "format_hash" to true,
-                "format_date_time" to true,
-                "format_username" to false,
+                "allow_duplicate" to false,
+                "create_user_folder" to true,
+                "append_hash" to true,
+                "append_date_time" to true,
+                "append_type" to false,
+                "append_username" to false,
                 "merge_overlay" to false,
             )
         )
     ),
-    DOWNLOAD_INCHAT_SNAPS(
-        "property.download_inchat_snaps",
-        "description.download_inchat_snaps",
-        ConfigCategory.MEDIA_DOWNLOADER,
+    CHAT_DOWNLOAD_CONTEXT_MENU(
+        "chat_download_context_menu",
+        ConfigCategory.MEDIA_MANAGEMENT,
         ConfigStateValue(false)
-    ),
-    ANTI_DOWNLOAD_BUTTON(
-        "property.anti_auto_download_button",
-        "description.anti_auto_download_button",
-        ConfigCategory.MEDIA_DOWNLOADER,
-        ConfigStateValue(false)
-    ),
-
-    DISABLE_METRICS("property.disable_metrics", "description.disable_metrics", ConfigCategory.PRIVACY, ConfigStateValue(false)),
-    PREVENT_SCREENSHOT_NOTIFICATIONS(
-        "property.prevent_screenshot_notifications",
-        "description.prevent_screenshot_notifications",
-        ConfigCategory.PRIVACY,
-        ConfigStateValue(false)
-    ),
-    PREVENT_STATUS_NOTIFICATIONS(
-        "property.prevent_status_notifications",
-        "description.prevent_status_notifications",
-        ConfigCategory.PRIVACY,
-        ConfigStateValue(false)
-    ),
-    ANONYMOUS_STORY_VIEW(
-        "property.anonymous_story_view",
-        "description.anonymous_story_view",
-        ConfigCategory.PRIVACY,
-        ConfigStateValue(false)
-    ),
-    HIDE_TYPING_NOTIFICATION(
-        "property.hide_typing_notification",
-        "description.hide_typing_notification",
-        ConfigCategory.PRIVACY,
-        ConfigStateValue(false)
-    ),
-
-    MENU_SLOT_ID("property.menu_slot_id", "description.menu_slot_id", ConfigCategory.UI, ConfigIntegerValue(1)),
-    MESSAGE_PREVIEW_LENGTH(
-        "property.message_preview_length",
-        "description.message_preview_length",
-        ConfigCategory.UI,
-        ConfigIntegerValue(20)
-    ),
-
-    AUTO_SAVE("property.auto_save", "description.auto_save", ConfigCategory.EXTRAS, ConfigStateValue(false)),
-    ANTI_AUTO_SAVE("property.anti_auto_save", "description.anti_auto_save", ConfigCategory.EXTRAS, ConfigStateValue(false)),
-    SNAPCHAT_PLUS("property.snapchat_plus", "description.snapchat_plus", ConfigCategory.EXTRAS, ConfigStateValue(false)),
-    DISABLE_SNAP_SPLITTING(
-        "property.disable_snap_splitting",
-        "description.disable_snap_splitting",
-        ConfigCategory.EXTRAS,
-        ConfigStateValue(false)
-    ),
-    DISABLE_VIDEO_LENGTH_RESTRICTION(
-        "property.disable_video_length_restriction",
-        "description.disable_video_length_restriction",
-        ConfigCategory.EXTRAS,
-        ConfigStateValue(false)
-    ),
-    OVERRIDE_MEDIA_QUALITY(
-        "property.override_media_quality",
-        "description.override_media_quality",
-        ConfigCategory.EXTRAS,
-        ConfigStateValue(false)
-    ),
-    MEDIA_QUALITY_LEVEL(
-        "property.media_quality_level",
-        "description.media_quality_level",
-        ConfigCategory.EXTRAS,
-        ConfigStateSelection(
-            listOf("LEVEL_NONE", "LEVEL_1", "LEVEL_2", "LEVEL_3", "LEVEL_4", "LEVEL_5", "LEVEL_6", "LEVEL_7", "LEVEL_MAX"),
-            "LEVEL_NONE"
-        )
     ),
     GALLERY_MEDIA_SEND_OVERRIDE(
-        "property.gallery_media_send_override",
-        "description.gallery_media_send_override",
-        ConfigCategory.EXTRAS,
+        "gallery_media_send_override",
+        ConfigCategory.MEDIA_MANAGEMENT,
         ConfigStateSelection(
             listOf("OFF", "NOTE", "SNAP", "LIVE_SNAP"),
             "OFF"
         )
     ),
+    AUTO_SAVE_MESSAGES("auto_save_messages",
+        ConfigCategory.MEDIA_MANAGEMENT,
+        ConfigStateListValue(
+            listOf("CHAT", "SNAP", "NOTE", "EXTERNAL_MEDIA", "STICKER")
+        )
+    ),
 
-    REMOVE_VOICE_RECORD_BUTTON(
-        "property.remove_voice_record_button",
-        "description.remove_voice_record_button",
-        ConfigCategory.TWEAKS,
+    FORCE_MEDIA_SOURCE_QUALITY(
+        "force_media_source_quality",
+        ConfigCategory.MEDIA_MANAGEMENT,
         ConfigStateValue(false)
     ),
-    REMOVE_STICKERS_BUTTON(
-        "property.remove_stickers_button",
-        "description.remove_stickers_button",
-        ConfigCategory.TWEAKS,
+    
+    //UI AND TWEAKS
+    ENABLE_FRIEND_FEED_MENU_BAR(
+        "enable_friend_feed_menu_bar",
+        ConfigCategory.UI_TWEAKS,
         ConfigStateValue(false)
     ),
-    REMOVE_COGNAC_BUTTON(
-        "property.remove_cognac_button",
-        "description.remove_cognac_button",
-        ConfigCategory.TWEAKS,
-        ConfigStateValue(false)
+    FRIEND_FEED_MENU_BUTTONS(
+        "friend_feed_menu_buttons",
+        ConfigCategory.UI_TWEAKS,
+        ConfigStateListValue(
+            listOf("auto_download_blacklist", "anti_auto_save", "stealth_mode", "conversation_info"),
+            mutableMapOf(
+                "auto_download_blacklist" to false,
+                "anti_auto_save" to false,
+                "stealth_mode" to true,
+                "conversation_info" to true
+            )
+        )
     ),
-    REMOVE_CALL_BUTTONS(
-        "property.remove_call_buttons",
-        "description.remove_call_buttons",
-        ConfigCategory.TWEAKS,
-        ConfigStateValue(false)
+    FRIEND_FEED_MENU_POSITION("friend_feed_menu_buttons_position",
+        ConfigCategory.UI_TWEAKS,
+        ConfigIntegerValue(1)
     ),
-    BLOCK_ADS("property.block_ads", "description.block_ads", ConfigCategory.TWEAKS, ConfigStateValue(false)),
+    HIDE_UI_ELEMENTS(
+        "hide_ui_elements",
+        ConfigCategory.UI_TWEAKS,
+        ConfigStateListValue(
+            listOf("remove_voice_record_button", "remove_stickers_button", "remove_cognac_button", "remove_live_location_share_button", "remove_call_buttons", "remove_camera_borders"),
+            mutableMapOf(
+                "remove_voice_record_button" to false,
+                "remove_stickers_button" to false,
+                "remove_cognac_button" to false,
+                "remove_live_location_share_button" to false,
+                "remove_call_buttons" to false,
+                "remove_camera_borders" to false
+            )
+        )
+    ),
+    HIDE_STORY_SECTION(
+        "hide_story_section",
+        ConfigCategory.UI_TWEAKS,
+        ConfigStateListValue(
+            listOf("hide_friends", "hide_following", "hide_for_you"),
+            mutableMapOf(
+                "hide_friends" to false,
+                "hide_following" to false,
+                "hide_for_you" to false
+            )
+        )
+    ),
+    STORY_VIEWER_OVERRIDE("story_viewer_override",
+        ConfigCategory.UI_TWEAKS,
+        ConfigStateSelection(
+            listOf("OFF", "DISCOVER_PLAYBACK_SEEKBAR", "VERTICAL_STORY_VIEWER"),
+            "OFF"
+        )
+    ),
     STREAK_EXPIRATION_INFO(
-        "property.streak_expiration_info",
-        "description.streakexpirationinfo",
-        ConfigCategory.TWEAKS,
+        "streak_expiration_info",
+        ConfigCategory.UI_TWEAKS,
         ConfigStateValue(false)
     ),
-    NEW_MAP_UI("property.new_map_ui", "description.new_map_ui", ConfigCategory.TWEAKS, ConfigStateValue(false)),
-
+    DISABLE_SNAP_SPLITTING(
+        "disable_snap_splitting",
+        ConfigCategory.UI_TWEAKS,
+        ConfigStateValue(false)
+    ),
+    DISABLE_VIDEO_LENGTH_RESTRICTION(
+        "disable_video_length_restriction",
+        ConfigCategory.UI_TWEAKS,
+        ConfigStateValue(false)
+    ),
+    SNAPCHAT_PLUS("snapchat_plus",
+        ConfigCategory.UI_TWEAKS,
+        ConfigStateValue(false)
+    ),
+    NEW_MAP_UI("new_map_ui",
+        ConfigCategory.UI_TWEAKS,
+        ConfigStateValue(false)
+    ),
     LOCATION_SPOOF(
-        "property.location_spoof",
-        "description.location_spoof",
-        ConfigCategory.LOCATION_SPOOF,
+        "location_spoof",
+        ConfigCategory.UI_TWEAKS,
         ConfigStateValue(false)
     ),
     LATITUDE(
-        "property.latitude_value",
-        "description.latitude_value",
-        ConfigCategory.LOCATION_SPOOF,
-        ConfigStringValue("0.0000")
+        "latitude_value",
+        ConfigCategory.UI_TWEAKS,
+        ConfigStringValue("0.0000"),
+        shouldAppearInSettings = false
     ),
     LONGITUDE(
-        "property.longitude_value",
-        "description.longitude_value",
-        ConfigCategory.LOCATION_SPOOF,
-        ConfigStringValue("0.0000")
+        "longitude_value",
+        ConfigCategory.UI_TWEAKS,
+        ConfigStringValue("0.0000"),
+        shouldAppearInSettings = false
     ),
-
-    USE_DOWNLOAD_MANAGER(
-        "property.use_download_manager",
-        "description.use_download_manager",
-        ConfigCategory.EXPERIMENTAL,
+    MESSAGE_PREVIEW_LENGTH(
+        "message_preview_length",
+        ConfigCategory.UI_TWEAKS,
+        ConfigIntegerValue(20)
+    ),
+    UNLIMITED_CONVERSATION_PINNING(
+        "unlimited_conversation_pinning",
+        ConfigCategory.UI_TWEAKS,
         ConfigStateValue(false)
     ),
+    DISABLE_SPOTLIGHT(
+        "disable_spotlight",
+        ConfigCategory.UI_TWEAKS,
+        ConfigStateValue(false)
+    ),
+    ENABLE_APP_APPEARANCE(
+        "enable_app_appearance",
+        ConfigCategory.UI_TWEAKS,
+        ConfigStateValue(false)
+    ),
+
+
+    //CAMERA
+    CAMERA_DISABLE(
+        "disable_camera",
+        ConfigCategory.CAMERA,
+        ConfigStateValue(false)
+    ),
+    IMMERSIVE_CAMERA_PREVIEW(
+        "immersive_camera_preview",
+        ConfigCategory.CAMERA,
+        ConfigStateValue(false)
+    ),
+    OVERRIDE_PREVIEW_RESOLUTION(
+        "preview_resolution",
+        ConfigCategory.CAMERA,
+        ConfigStateSelection(
+            CameraTweaks.resolutions,
+            "OFF"
+        ),
+        disableValueLocalization = true
+    ),
+    OVERRIDE_PICTURE_RESOLUTION(
+        "picture_resolution",
+        ConfigCategory.CAMERA,
+        ConfigStateSelection(
+            CameraTweaks.resolutions,
+            "OFF"
+        ),
+        disableValueLocalization = true
+    ),
+    FORCE_HIGHEST_FRAME_RATE(
+        "force_highest_frame_rate",
+        ConfigCategory.CAMERA,
+        ConfigStateValue(false)
+    ),
+    FORCE_CAMERA_SOURCE_ENCODING(
+        "force_camera_source_encoding",
+        ConfigCategory.CAMERA,
+        ConfigStateValue(false)
+    ),
+
+    // UPDATES
+    AUTO_UPDATER(
+        "auto_updater",
+        ConfigCategory.UPDATES,
+        ConfigStateSelection(
+            listOf("DISABLED", "EVERY_LAUNCH", "DAILY", "WEEKLY"),
+            "DAILY"
+        )
+    ),
+
+    // EXPERIMENTAL DEBUGGING
     APP_PASSCODE(
-        "property.app_passcode",
-        "description.app_passcode",
-        ConfigCategory.EXPERIMENTAL,
-        ConfigStringValue("")
+        "app_passcode",
+        ConfigCategory.EXPERIMENTAL_DEBUGGING,
+        ConfigStringValue("", isHidden = true)
     ),
     APP_LOCK_ON_RESUME(
-        "property.app_lock_on_resume",
-        "description.app_lock_on_resume",
-        ConfigCategory.EXPERIMENTAL,
+        "app_lock_on_resume",
+        ConfigCategory.EXPERIMENTAL_DEBUGGING,
+        ConfigStateValue(false)
+    ),
+    INFINITE_STORY_BOOST(
+        "infinite_story_boost",
+        ConfigCategory.EXPERIMENTAL_DEBUGGING,
         ConfigStateValue(false)
     ),
     MEO_PASSCODE_BYPASS(
-    "property.meo_passcode_bypass",
-    "description.meo_passcode_bypass",
-        ConfigCategory.EXPERIMENTAL,
+    "meo_passcode_bypass",
+        ConfigCategory.EXPERIMENTAL_DEBUGGING,
+        ConfigStateValue(false)
+    ),
+    AMOLED_DARK_MODE(
+        "amoled_dark_mode",
+        ConfigCategory.EXPERIMENTAL_DEBUGGING,
+        ConfigStateValue(false)
+    ),
+    UNLIMITED_MULTI_SNAP(
+        "unlimited_multi_snap",
+        ConfigCategory.EXPERIMENTAL_DEBUGGING,
         ConfigStateValue(false)
     ),
     FINGERPRINT(

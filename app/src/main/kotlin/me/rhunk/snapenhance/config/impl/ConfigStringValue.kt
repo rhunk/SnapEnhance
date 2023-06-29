@@ -3,15 +3,18 @@ package me.rhunk.snapenhance.config.impl
 import me.rhunk.snapenhance.config.ConfigValue
 
 class ConfigStringValue(
-    var value: String = ""
+    private var value: String = "",
+    val isHidden: Boolean = false
 ) : ConfigValue<String>() {
     override fun value() = value
 
-    override fun write(): String {
+    fun hiddenValue() = if (isHidden) value.map { '*' }.joinToString("") else value
+
+    override fun read(): String {
         return value
     }
 
-    override fun read(value: String) {
+    override fun write(value: String) {
         this.value = value
     }
 }

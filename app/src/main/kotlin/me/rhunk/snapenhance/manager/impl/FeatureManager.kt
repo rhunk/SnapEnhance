@@ -4,30 +4,35 @@ import me.rhunk.snapenhance.Logger
 import me.rhunk.snapenhance.ModContext
 import me.rhunk.snapenhance.features.Feature
 import me.rhunk.snapenhance.features.FeatureLoadParams
+import me.rhunk.snapenhance.features.impl.AutoUpdater
 import me.rhunk.snapenhance.features.impl.ConfigEnumKeys
 import me.rhunk.snapenhance.features.impl.Messaging
 import me.rhunk.snapenhance.features.impl.downloader.AntiAutoDownload
 import me.rhunk.snapenhance.features.impl.downloader.MediaDownloader
+import me.rhunk.snapenhance.features.impl.experiments.AmoledDarkMode
 import me.rhunk.snapenhance.features.impl.experiments.AppPasscode
-import me.rhunk.snapenhance.features.impl.experiments.FingerprintSpoof
+import me.rhunk.snapenhance.features.impl.experiments.InfiniteStoryBoost
 import me.rhunk.snapenhance.features.impl.experiments.MeoPasscodeBypass
-import me.rhunk.snapenhance.features.impl.extras.AntiAutoSave
-import me.rhunk.snapenhance.features.impl.extras.AutoSave
-import me.rhunk.snapenhance.features.impl.extras.DisableVideoLengthRestriction
-import me.rhunk.snapenhance.features.impl.extras.GalleryMediaSendOverride
-import me.rhunk.snapenhance.features.impl.extras.LocationSpoofer
-import me.rhunk.snapenhance.features.impl.extras.MediaQualityLevelOverride
-import me.rhunk.snapenhance.features.impl.extras.Notifications
-import me.rhunk.snapenhance.features.impl.extras.SnapchatPlus
-import me.rhunk.snapenhance.features.impl.extras.UnlimitedSnapViewTime
+import me.rhunk.snapenhance.features.impl.experiments.UnlimitedMultiSnap
+import me.rhunk.snapenhance.features.impl.tweaks.AntiAutoSave
+import me.rhunk.snapenhance.features.impl.tweaks.AutoSave
+import me.rhunk.snapenhance.features.impl.tweaks.DisableVideoLengthRestriction
+import me.rhunk.snapenhance.features.impl.tweaks.GalleryMediaSendOverride
+import me.rhunk.snapenhance.features.impl.tweaks.LocationSpoofer
+import me.rhunk.snapenhance.features.impl.tweaks.MediaQualityLevelOverride
+import me.rhunk.snapenhance.features.impl.tweaks.Notifications
+import me.rhunk.snapenhance.features.impl.tweaks.SnapchatPlus
+import me.rhunk.snapenhance.features.impl.tweaks.UnlimitedSnapViewTime
 import me.rhunk.snapenhance.features.impl.privacy.DisableMetrics
 import me.rhunk.snapenhance.features.impl.privacy.PreventMessageSending
 import me.rhunk.snapenhance.features.impl.spying.AnonymousStoryViewing
 import me.rhunk.snapenhance.features.impl.spying.MessageLogger
 import me.rhunk.snapenhance.features.impl.spying.PreventReadReceipts
 import me.rhunk.snapenhance.features.impl.spying.StealthMode
+import me.rhunk.snapenhance.features.impl.tweaks.CameraTweaks
+import me.rhunk.snapenhance.features.impl.ui.PinConversations
 import me.rhunk.snapenhance.features.impl.ui.UITweaks
-import me.rhunk.snapenhance.features.impl.ui.menus.MenuViewInjector
+import me.rhunk.snapenhance.ui.menu.impl.MenuViewInjector
 import me.rhunk.snapenhance.manager.Manager
 import java.util.concurrent.Executors
 import kotlin.reflect.KClass
@@ -76,15 +81,18 @@ class FeatureManager(private val context: ModContext) : Manager {
         register(MeoPasscodeBypass::class)
         register(AppPasscode::class)
         register(LocationSpoofer::class)
-        register(FingerprintSpoof::class)
-
+        register(AutoUpdater::class)
+        register(CameraTweaks::class)
+        register(InfiniteStoryBoost::class)
+        register(AmoledDarkMode::class)
+        register(PinConversations::class)
+        register(UnlimitedMultiSnap::class)
 
         initializeFeatures()
     }
 
     private fun featureInitializer(isAsync: Boolean, param: Int, action: (Feature) -> Unit) {
-        features.forEach { feature ->
-            if (feature.loadParams and param == 0) return@forEach
+        features.filter { it.loadParams and param != 0 }.forEach { feature ->
             val callback = {
                 runCatching {
                     action(feature)
