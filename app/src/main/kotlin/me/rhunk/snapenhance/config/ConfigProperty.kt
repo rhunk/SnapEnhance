@@ -362,10 +362,14 @@ enum class ConfigProperty(
         ConfigStateValue(false)
     ),
     FINGERPRINT(
-        "property.device_fingerprint",
-        "description.device_fingerprint",
-        ConfigCategory.EXPERIMENTAL,
-        ConfigStringValue("")
+        "device_fingerprint",
+        ConfigCategory.EXPERIMENTAL_DEBUGGING,
+        ConfigStringValue("", isHidden = true)
+    ),
+    ANDROID_ID(
+        "android_id",
+        ConfigCategory.EXPERIMENTAL_DEBUGGING,
+        ConfigStringValue("", isHidden = true)
     );
 
     companion object {

@@ -11,6 +11,7 @@ import me.rhunk.snapenhance.features.impl.downloader.AntiAutoDownload
 import me.rhunk.snapenhance.features.impl.downloader.MediaDownloader
 import me.rhunk.snapenhance.features.impl.experiments.AmoledDarkMode
 import me.rhunk.snapenhance.features.impl.experiments.AppPasscode
+import me.rhunk.snapenhance.features.impl.experiments.DeviceSpooferHook
 import me.rhunk.snapenhance.features.impl.experiments.InfiniteStoryBoost
 import me.rhunk.snapenhance.features.impl.experiments.MeoPasscodeBypass
 import me.rhunk.snapenhance.features.impl.experiments.UnlimitedMultiSnap
@@ -87,7 +88,8 @@ class FeatureManager(private val context: ModContext) : Manager {
         register(AmoledDarkMode::class)
         register(PinConversations::class)
         register(UnlimitedMultiSnap::class)
-
+        register(DeviceSpooferHook::class)
+        
         initializeFeatures()
     }
 
