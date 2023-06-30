@@ -48,7 +48,7 @@ jobs:
         run: | 
           echo "version=$(cat app/build/version.txt)" >> $GITHUB_ENV  
           echo "sha_short=$(git rev-parse --short HEAD)" >> $GITHUB_OUTPUT
-          echo "branch_name=${GITHUB_REF#refs/heads/}" >> $GITHUB_ENV
+          echo "branch_name=${GITHUB_REF#refs/heads/}" >> $GITHUB_OUTPUT
         
       - name: Rename APK files
         run: |
