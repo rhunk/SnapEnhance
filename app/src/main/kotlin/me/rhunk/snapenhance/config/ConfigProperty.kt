@@ -361,15 +361,23 @@ enum class ConfigProperty(
         ConfigCategory.EXPERIMENTAL_DEBUGGING,
         ConfigStateValue(false)
     ),
+    
+    //DEVICE SPOOFER
+    //TODO: custom category(?)
+    DEVICE_SPOOF(
+        "device_spoof",
+        ConfigCategory.EXPERIMENTAL_DEBUGGING,
+        ConfigStateValue(false)
+    ),
     FINGERPRINT(
         "device_fingerprint",
         ConfigCategory.EXPERIMENTAL_DEBUGGING,
-        ConfigStringValue("", isHidden = true)
+        ConfigStringValue("")
     ),
     ANDROID_ID(
         "android_id",
         ConfigCategory.EXPERIMENTAL_DEBUGGING,
-        ConfigStringValue("", isHidden = true)
+        ConfigStringValue("")
     );
 
     companion object {

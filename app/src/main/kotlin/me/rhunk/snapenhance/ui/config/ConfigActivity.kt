@@ -8,25 +8,24 @@ import android.text.Html
 import android.text.InputType
 import android.view.View
 import android.view.ViewGroup
-import android.widget.EditText
 import android.widget.ImageButton
 import android.widget.Switch
 import android.widget.TextView
-import android.widget.Toast
 import me.rhunk.snapenhance.BuildConfig
 import me.rhunk.snapenhance.R
 import me.rhunk.snapenhance.SharedContext
 import me.rhunk.snapenhance.bridge.ConfigWrapper
 import me.rhunk.snapenhance.config.ConfigCategory
-import me.rhunk.snapenhance.config.ConfigProperty
 import me.rhunk.snapenhance.config.impl.ConfigIntegerValue
 import me.rhunk.snapenhance.config.impl.ConfigStateListValue
 import me.rhunk.snapenhance.config.impl.ConfigStateSelection
 import me.rhunk.snapenhance.config.impl.ConfigStateValue
 import me.rhunk.snapenhance.config.impl.ConfigStringValue
+import me.rhunk.snapenhance.ui.ItemHelper
 
 class ConfigActivity : Activity() {
     private val config = ConfigWrapper()
+    private val itemHelper = ItemHelper()
 
     @Deprecated("Deprecated in Java")
     @Suppress("DEPRECATION")
@@ -44,55 +43,6 @@ class ConfigActivity : Activity() {
         super.onPause()
         config.writeConfig()
     }
-
-    private val positiveButtonText by lazy {
-        SharedContext.translation["button.ok"]
-    }
-
-    private val cancelButtonText by lazy {
-        SharedContext.translation["button.cancel"]
-    }
-
-    private fun longToast(message: String) {
-        Toast.makeText(this, message, Toast.LENGTH_LONG).show()
-    }
-
-    private fun createTranslatedTextView(property: ConfigProperty, shouldTranslatePropertyValue: Boolean = true): TextView {
-        return object: TextView(this) {
-            override fun setText(text: CharSequence?, type: BufferType?) {
-                val newText = text?.takeIf { it.isNotEmpty() }?.let {
-                    if (!shouldTranslatePropertyValue || property.disableValueLocalization) it
-                    else SharedContext.translation["option.property." + property.translationKey + "." + it]
-                }?.let {
-                    if (it.length > 20) {
-                        it.substring(0, 20) + "..."
-                    } else {
-                        it
-                    }
-                } ?: ""
-                super.setTextColor(getColor(R.color.tertiaryText))
-                super.setText(newText, type)
-            }
-        }
-    }
-
-    private fun askForValue(property: ConfigProperty, requestedInputType: Int, callback: (String) -> Unit) {
-        val editText = EditText(this).apply {
-            inputType = requestedInputType
-            setText(property.valueContainer.value().toString())
-        }
-        AlertDialog.Builder(this)
-            .setTitle(SharedContext.translation["property.${property.translationKey}.name"])
-            .setView(editText)
-            .setPositiveButton(positiveButtonText) { _, _ ->
-                callback(editText.text.toString())
-            }
-            .setNegativeButton(cancelButtonText) { dialog, _ ->
-                dialog.cancel()
-            }
-            .show()
-    }
-
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         config.loadFromContext(this)
@@ -187,22 +137,22 @@ class ConfigActivity : Activity() {
                     addValueView(switch)
                 }
                 is ConfigStringValue, is ConfigIntegerValue -> {
-                    val textView = createTranslatedTextView(property, shouldTranslatePropertyValue = false).also {
+                    val textView = itemHelper.createTranslatedTextView(property, shouldTranslatePropertyValue = false, this).also {
                         it.text = value.value().toString()
                     }
                     configItem.setOnClickListener {
                         if (value is ConfigIntegerValue) {
-                            askForValue(property, InputType.TYPE_CLASS_NUMBER) {
+                            itemHelper.askForValue(property, InputType.TYPE_CLASS_NUMBER, this) {
                                 try {
                                     value.writeFrom(it)
                                     textView.text = value.value().toString()
                                 } catch (e: NumberFormatException) {
-                                    longToast(SharedContext.translation["config_activity.invalid_number_toast"])
+                                    itemHelper.longToast(SharedContext.translation["config_activity.invalid_number_toast"], this)
                                 }
                             }
                             return@setOnClickListener
                         }
-                        askForValue(property, InputType.TYPE_CLASS_TEXT) {
+                        itemHelper.askForValue(property, InputType.TYPE_CLASS_TEXT, this) {
                             value.writeFrom(it)
                             textView.text = value.value().toString()
                         }
@@ -210,7 +160,7 @@ class ConfigActivity : Activity() {
                     addValueView(textView)
                 }
                 is ConfigStateListValue -> {
-                    val textView = createTranslatedTextView(property, shouldTranslatePropertyValue = false)
+                    val textView = itemHelper.createTranslatedTextView(property, shouldTranslatePropertyValue = false, this)
                     val values = value.value()
 
                     fun updateText() {
@@ -222,7 +172,7 @@ class ConfigActivity : Activity() {
                     configItem.setOnClickListener {
                         AlertDialog.Builder(this)
                             .setTitle(propertyName)
-                            .setPositiveButton(positiveButtonText) { _, _ ->
+                            .setPositiveButton(itemHelper.positiveButtonText) { _, _ ->
                                 updateText()
                             }
                             .setMultiChoiceItems(
@@ -240,7 +190,7 @@ class ConfigActivity : Activity() {
                     addValueView(textView)
                 }
                 is ConfigStateSelection -> {
-                    val textView = createTranslatedTextView(property, shouldTranslatePropertyValue = true)
+                    val textView = itemHelper.createTranslatedTextView(property, shouldTranslatePropertyValue = true, this)
                     textView.text = value.value()
 
                     configItem.setOnClickListener {
@@ -257,7 +207,7 @@ class ConfigActivity : Activity() {
                             value.writeFrom(value.keys()[which])
                         }
 
-                        builder.setPositiveButton(positiveButtonText) { _, _ ->
+                        builder.setPositiveButton(itemHelper.positiveButtonText) { _, _ ->
                             textView.text = value.value()
                         }
 
