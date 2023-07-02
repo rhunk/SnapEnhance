@@ -31,6 +31,7 @@ import me.rhunk.snapenhance.features.impl.spying.PreventReadReceipts
 import me.rhunk.snapenhance.features.impl.spying.StealthMode
 import me.rhunk.snapenhance.features.impl.tweaks.CameraTweaks
 import me.rhunk.snapenhance.features.impl.ui.PinConversations
+import me.rhunk.snapenhance.features.impl.ui.StartupPageOverride
 import me.rhunk.snapenhance.features.impl.ui.UITweaks
 import me.rhunk.snapenhance.ui.menu.impl.MenuViewInjector
 import me.rhunk.snapenhance.manager.Manager
@@ -87,6 +88,7 @@ class FeatureManager(private val context: ModContext) : Manager {
         register(AmoledDarkMode::class)
         register(PinConversations::class)
         register(UnlimitedMultiSnap::class)
+        register(StartupPageOverride::class)
 
         initializeFeatures()
     }
