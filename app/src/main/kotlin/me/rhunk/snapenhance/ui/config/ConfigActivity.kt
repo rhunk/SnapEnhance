@@ -90,6 +90,7 @@ class ConfigActivity : Activity() {
             }
 
             if (property.category != currentCategory) {
+                if(!property.shouldAppearInSettings) return@forEach
                 currentCategory = property.category
                 with(layoutInflater.inflate(R.layout.config_activity_item, propertyListLayout, false)) {
                     findViewById<TextView>(R.id.name).apply {

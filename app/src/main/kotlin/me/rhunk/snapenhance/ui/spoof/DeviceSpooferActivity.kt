@@ -12,6 +12,7 @@ import android.widget.TextView
 import me.rhunk.snapenhance.R
 import me.rhunk.snapenhance.SharedContext
 import me.rhunk.snapenhance.bridge.ConfigWrapper
+import me.rhunk.snapenhance.config.ConfigCategory
 import me.rhunk.snapenhance.config.impl.ConfigIntegerValue
 import me.rhunk.snapenhance.config.impl.ConfigStateValue
 import me.rhunk.snapenhance.config.impl.ConfigStringValue
@@ -34,7 +35,7 @@ class DeviceSpooferActivity: Activity() {
         config.entries().forEach { (property, value) ->
             val configItem = layoutInflater.inflate(R.layout.config_activity_item, propertyListLayout, false)
             
-            val propertyName = SharedContext.translation["spoof_activity.${property.translationKey}"]
+            val propertyName = SharedContext.translation["property.${property.translationKey}.name"]
             
             fun addSeparator() {
                 //add separator
@@ -43,10 +44,14 @@ class DeviceSpooferActivity: Activity() {
                     setBackgroundColor(getColor(R.color.tertiaryBackground))
                 })
             }
-        
-            if (!property.shouldAppearInSettings) return@forEach
+    
+            if(property.category != ConfigCategory.DEVICE_SPOOFER) return@forEach
             
             configItem.findViewById<TextView>(R.id.name).text = propertyName
+            configItem.findViewById<TextView>(R.id.description).also {
+                it.text = SharedContext.translation["property.${property.translationKey}.description"]
+                it.visibility = if (it.text.isEmpty()) View.GONE else View.VISIBLE
+            }
         
             fun addValueView(view: View) {
                 configItem.findViewById<ViewGroup>(R.id.value).addView(view)

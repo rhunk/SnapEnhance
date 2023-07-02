@@ -363,21 +363,23 @@ enum class ConfigProperty(
     ),
     
     //DEVICE SPOOFER
-    //TODO: custom category(?)
     DEVICE_SPOOF(
         "device_spoof",
-        ConfigCategory.EXPERIMENTAL_DEBUGGING,
-        ConfigStateValue(false)
+        ConfigCategory.DEVICE_SPOOFER,
+        ConfigStateValue(false),
+        shouldAppearInSettings = false
     ),
     FINGERPRINT(
         "device_fingerprint",
-        ConfigCategory.EXPERIMENTAL_DEBUGGING,
-        ConfigStringValue("")
+        ConfigCategory.DEVICE_SPOOFER,
+        ConfigStringValue("") ,
+        shouldAppearInSettings = false
     ),
     ANDROID_ID(
         "android_id",
-        ConfigCategory.EXPERIMENTAL_DEBUGGING,
-        ConfigStringValue("")
+        ConfigCategory.DEVICE_SPOOFER,
+        ConfigStringValue(""),
+        shouldAppearInSettings = false
     );
 
     companion object {

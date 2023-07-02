@@ -217,7 +217,15 @@
         },
         "device_spoof": {
             "name": "Spoof Device Values",
-            "description": "Spoofs device values e.g. Fingerprint"
+            "description": "Spoofs the devices values"
+        },
+        "device_fingerprint": {
+            "name": "Device Fingerprint",
+            "description": "Spoofs the device fingerprint"
+        },
+        "android_id": {
+            "name": "Android ID",
+            "description": "Spoofs the devices Android ID"
         }
     },
 
