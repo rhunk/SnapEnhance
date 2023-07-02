@@ -160,7 +160,7 @@
             "name": "Enable App Appearance Settings",
             "description": "Enables the hidden app appearance settings"
         },
-        "override_startup_page": {
+        "startup_page_override": {
             "name": "Override Startup Page",
             "description": "Overrides the startup page"
         },
