@@ -32,7 +32,7 @@ class DeviceSpooferActivity: Activity() {
         findViewById<ImageButton>(R.id.back_button).setOnClickListener { finish() }
         val propertyListLayout = findViewById<ViewGroup>(R.id.spoof_property_list)
         
-        config.entries().forEach { (property, value) ->
+        config.entries().filter { it.key.category == ConfigCategory.DEVICE_SPOOFER }.forEach { (property, value) ->
             val configItem = layoutInflater.inflate(R.layout.config_activity_item, propertyListLayout, false)
             
             val propertyName = SharedContext.translation["property.${property.translationKey}.name"]
@@ -44,8 +44,6 @@ class DeviceSpooferActivity: Activity() {
                     setBackgroundColor(getColor(R.color.tertiaryBackground))
                 })
             }
-    
-            if(property.category != ConfigCategory.DEVICE_SPOOFER) return@forEach
             
             configItem.findViewById<TextView>(R.id.name).text = propertyName
             configItem.findViewById<TextView>(R.id.description).also {
