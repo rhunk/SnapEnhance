@@ -160,6 +160,10 @@
             "name": "Enable App Appearance Settings",
             "description": "Enables the hidden app appearance settings"
         },
+        "startup_page_override": {
+            "name": "Override Startup Page",
+            "description": "Overrides the startup page"
+        },
 
         "auto_updater": {
             "name": "Auto Updater",
@@ -286,6 +290,15 @@
                 "hide_friends": "Hide friends section",
                 "hide_following": "Hide following section",
                 "hide_for_you": "Hide For You section"
+            },
+            "startup_page_override": {
+                "OFF": "Off",
+                "ngs_map_icon_container": "Map",
+                "ngs_chat_icon_container": "Chat",
+                "ngs_camera_icon_container": "Camera",
+                "ngs_community_icon_container": "Community / Stories",
+                "ngs_spotlight_icon_container": "Spotlight",
+                "ngs_search_icon_container": "Search"
             }
         }
     },
@@ -319,6 +332,7 @@
 
     "conversation_preview": {
         "streak_expiration": "expires in {day} days {hour} hours {minute} minutes",
+        "total_messages": "Total sent/received messages: {count}",
         "title": "Preview",
         "unknown_user": "Unknown User"
     },
