@@ -332,6 +332,7 @@
 
     "conversation_preview": {
         "streak_expiration": "expires in {day} days {hour} hours {minute} minutes",
+        "total_messages": "Total sent/received messages: {count}",
         "title": "Preview",
         "unknown_user": "Unknown User"
     },

@@ -91,8 +91,7 @@ class FriendFeedInfoMenu : AbstractMenu() {
                     context.translation.format("profile_info.birthday",
                         "month" to it,
                         "day" to profile.birthday.toInt().toString())
-                }
-            }
+                }}
             """.trimIndent()
             builder.setMessage(message)
             builder.setPositiveButton(
@@ -150,7 +149,7 @@ class FriendFeedInfoMenu : AbstractMenu() {
 
         targetPerson?.streakExpirationTimestamp?.takeIf { it > 0 }?.let {
             val timeSecondDiff = ((it - System.currentTimeMillis()) / 1000 / 60).toInt()
-            messageBuilder.append("\n\n")
+            messageBuilder.append("\n")
                 .append("\uD83D\uDD25 ") //fire emoji
                 .append(
                     context.translation.format("conversation_preview.streak_expiration",
@@ -159,6 +158,14 @@ class FriendFeedInfoMenu : AbstractMenu() {
                     "minute" to (timeSecondDiff % 60).toString()
                 ))
         }
+
+        messages.lastOrNull()?.let {
+            messageBuilder
+                .append("\n\n")
+                .append(context.translation.format("conversation_preview.total_messages", "count" to it.server_message_id.toString()))
+                .append("\n")
+        }
+
 
         //alert dialog
         val builder = AlertDialog.Builder(context.mainActivity)
