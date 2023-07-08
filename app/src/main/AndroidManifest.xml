@@ -62,6 +62,11 @@
             android:theme="@style/AppTheme"
             android:excludeFromRecents="true"
             android:exported="true" />
+        <activity
+            android:name=".ui.spoof.DeviceSpooferActivity"
+            android:theme="@style/AppTheme"
+            android:excludeFromRecents="true"
+            android:exported="true" />
     </application>
 
 </manifest>

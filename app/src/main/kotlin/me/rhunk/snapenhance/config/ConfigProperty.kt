@@ -376,6 +376,26 @@ enum class ConfigProperty(
         "unlimited_multi_snap",
         ConfigCategory.EXPERIMENTAL_DEBUGGING,
         ConfigStateValue(false)
+    ),
+    
+    //DEVICE SPOOFER
+    DEVICE_SPOOF(
+        "device_spoof",
+        ConfigCategory.DEVICE_SPOOFER,
+        ConfigStateValue(false),
+        shouldAppearInSettings = false
+    ),
+    FINGERPRINT(
+        "device_fingerprint",
+        ConfigCategory.DEVICE_SPOOFER,
+        ConfigStringValue("") ,
+        shouldAppearInSettings = false
+    ),
+    ANDROID_ID(
+        "android_id",
+        ConfigCategory.DEVICE_SPOOFER,
+        ConfigStringValue(""),
+        shouldAppearInSettings = false
     );
 
     companion object {

@@ -218,6 +218,18 @@
         "unlimited_multi_snap": {
             "name": "Unlimited Multi Snap",
             "description": "Allows you to take an unlimited amount of multi snaps"
+        },
+        "device_spoof": {
+            "name": "Spoof Device Values",
+            "description": "Spoofs the devices values"
+        },
+        "device_fingerprint": {
+            "name": "Device Fingerprint",
+            "description": "Spoofs the device fingerprint"
+        },
+        "android_id": {
+            "name": "Android ID",
+            "description": "Spoofs the devices Android ID"
         }
     },
 
@@ -401,7 +413,8 @@
             "clear_cache_title": "Clear Cache",
             "reset_all_title": "Reset all settings",
             "reset_all_confirmation": "Are you sure you want to reset all settings?",
-            "success_toast": "Success!"
+            "success_toast": "Success!",
+            "device_spoofer": "Device Spoofer"
         }
     },
     "download_manager_receiver": {
@@ -418,5 +431,8 @@
         "title": "SnapEnhance Settings",
         "selected_text": "{count} selected",
         "invalid_number_toast": "Invalid number!"
+    },
+    "spoof_activity": {
+        "title": "Spoof Settings"
     }
 }
