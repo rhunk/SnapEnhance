@@ -7,6 +7,8 @@ import android.content.Intent
 import android.os.Build
 import android.os.Environment
 import android.provider.Settings
+import com.google.gson.Gson
+import com.google.gson.GsonBuilder
 import me.rhunk.snapenhance.bridge.TranslationWrapper
 import me.rhunk.snapenhance.download.DownloadTaskManager
 import kotlin.system.exitProcess

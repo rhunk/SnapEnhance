@@ -7,6 +7,7 @@ import android.content.Intent
 import android.net.Uri
 import android.os.Handler
 import android.widget.Toast
+import com.google.gson.GsonBuilder
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
@@ -18,6 +19,7 @@ import me.rhunk.snapenhance.Constants
 import me.rhunk.snapenhance.Logger
 import me.rhunk.snapenhance.SharedContext
 import me.rhunk.snapenhance.data.FileType
+import me.rhunk.snapenhance.download.data.DownloadMetadata
 import me.rhunk.snapenhance.download.data.DownloadRequest
 import me.rhunk.snapenhance.download.data.InputMedia
 import me.rhunk.snapenhance.download.data.MediaEncryptionKeyPair
@@ -55,10 +57,16 @@ data class DownloadedFile(
 class DownloadManagerReceiver : BroadcastReceiver() {
     companion object {
         const val DOWNLOAD_ACTION = "me.rhunk.snapenhance.download.DownloadManagerReceiver.DOWNLOAD_ACTION"
+        const val DOWNLOAD_REQUEST_EXTRA = "request"
+        const val DOWNLOAD_METADATA_EXTRA = "metadata"
     }
 
     private val translation by lazy {
         SharedContext.translation.getCategory("download_manager_receiver")
+    }
+
+    private val gson by lazy {
+        GsonBuilder().setPrettyPrinting().create()
     }
 
     private lateinit var context: Context
@@ -123,7 +131,7 @@ class DownloadManagerReceiver : BroadcastReceiver() {
                 longToast(translation.format("failed_gallery_toast", "error" to "Unknown media type"))
                 return
             }
-            val outputFile = File(pendingDownload.outputPath + "." + fileType.fileExtension).also { createNeededDirectories(it) }
+            val outputFile = File(pendingDownload.metadata.outputPath + "." + fileType.fileExtension).also { createNeededDirectories(it) }
 
             inputFile.copyTo(outputFile, overwrite = true)
 
@@ -165,7 +173,7 @@ class DownloadManagerReceiver : BroadcastReceiver() {
         val jobs = mutableListOf<Job>()
         val downloadedMedias = mutableMapOf<InputMedia, File>()
 
-        downloadRequest.getInputMedias().forEach { inputMedia ->
+        downloadRequest.inputMedias.forEach { inputMedia ->
             fun handleInputStream(inputStream: InputStream) {
                 createMediaTempFile().apply {
                     if (inputMedia.encryption != null) {
@@ -210,9 +218,9 @@ class DownloadManagerReceiver : BroadcastReceiver() {
         downloadedMedias
     }
 
-    private suspend fun downloadRemoteMedia(pendingDownloadObject:  PendingDownload, downloadedMedias: Map<InputMedia, DownloadedFile>, downloadRequest: DownloadRequest) {
-        downloadRequest.getInputMedias().first().let { inputMedia ->
-            val mediaType = downloadRequest.getInputType(0)!!
+    private suspend fun downloadRemoteMedia(pendingDownloadObject: PendingDownload, downloadedMedias: Map<InputMedia, DownloadedFile>, downloadRequest: DownloadRequest) {
+        downloadRequest.inputMedias.first().let { inputMedia ->
+            val mediaType = inputMedia.type
             val media = downloadedMedias[inputMedia]!!
 
             if (!downloadRequest.isDashPlaylist) {
@@ -231,7 +239,7 @@ class DownloadManagerReceiver : BroadcastReceiver() {
                 baseUrlNode.textContent = "${RemoteMediaResolver.CF_ST_CDN_D}$baseUrl"
             }
 
-            val dashOptions = downloadRequest.getDashOptions()!!
+            val dashOptions = downloadRequest.dashOptions!!
 
             val dashPlaylistFile = renameFromFileType(media.file, FileType.MPD)
             val xmlData = dashPlaylistFile.outputStream()
@@ -272,9 +280,10 @@ class DownloadManagerReceiver : BroadcastReceiver() {
 
         SharedContext.ensureInitialized(context)
 
-        val downloadRequest = DownloadRequest.fromBundle(intent.extras!!)
+        val downloadMetadata = gson.fromJson(intent.getStringExtra(DOWNLOAD_METADATA_EXTRA)!!, DownloadMetadata::class.java)
+        val downloadRequest = gson.fromJson(intent.getStringExtra(DOWNLOAD_REQUEST_EXTRA)!!, DownloadRequest::class.java)
 
-        SharedContext.downloadTaskManager.canDownloadMedia(downloadRequest.getUniqueHash())?.let { downloadStage ->
+        SharedContext.downloadTaskManager.canDownloadMedia(downloadMetadata.mediaIdentifier)?.let { downloadStage ->
             shortToast(
                 translation[if (downloadStage.isFinalStage) {
                     "already_downloaded_toast"
@@ -286,7 +295,9 @@ class DownloadManagerReceiver : BroadcastReceiver() {
         }
 
         CoroutineScope(Dispatchers.IO).launch {
-            val pendingDownloadObject = PendingDownload.fromBundle(intent.extras!!)
+            val pendingDownloadObject = PendingDownload(
+                metadata = downloadMetadata
+            )
 
             SharedContext.downloadTaskManager.addTask(pendingDownloadObject)
             pendingDownloadObject.apply {
@@ -322,6 +333,7 @@ class DownloadManagerReceiver : BroadcastReceiver() {
                 }
 
                 if (shouldMergeOverlay) {
+                    Logger.debug("got overlay, merging")
                     assert(downloadedMedias.size == 2)
                     val media = downloadedMedias.values.first { it.fileType.isVideo }
                     val overlayMedia = downloadedMedias.values.first { it.fileType.isImage }

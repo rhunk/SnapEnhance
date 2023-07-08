@@ -6,6 +6,7 @@ import kotlinx.coroutines.suspendCancellableCoroutine
 import me.rhunk.snapenhance.Constants
 import me.rhunk.snapenhance.data.ContentType
 import me.rhunk.snapenhance.data.FileType
+import me.rhunk.snapenhance.download.data.SplitMediaAssetType
 import me.rhunk.snapenhance.util.download.RemoteMediaResolver
 import me.rhunk.snapenhance.util.protobuf.ProtoReader
 import java.io.ByteArrayInputStream
@@ -15,9 +16,6 @@ import java.io.InputStream
 import java.util.concurrent.Executors
 import java.util.zip.ZipInputStream
 
-enum class MediaType {
-    ORIGINAL, OVERLAY
-}
 
 object MediaDownloaderHelper {
     fun getMessageMediaInfo(protoReader: ProtoReader, contentType: ContentType, isArroyo: Boolean): ProtoReader? {
@@ -32,7 +30,7 @@ object MediaDownloaderHelper {
         }
     }
 
-    fun downloadMediaFromReference(mediaReference: ByteArray, decryptionCallback: (InputStream) -> InputStream): Map<MediaType, ByteArray> {
+    fun downloadMediaFromReference(mediaReference: ByteArray, decryptionCallback: (InputStream) -> InputStream): Map<SplitMediaAssetType, ByteArray> {
         val inputStream: InputStream = RemoteMediaResolver.downloadBoltMedia(mediaReference) ?: throw FileNotFoundException("Unable to get media key. Check the logs for more info")
         val content = decryptionCallback(inputStream).readBytes()
         val fileType = FileType.fromByteArray(content)
@@ -55,10 +53,10 @@ object MediaDownloaderHelper {
             }
             videoData ?: throw FileNotFoundException("Unable to find video file in zip file")
             overlayData ?: throw FileNotFoundException("Unable to find overlay file in zip file")
-            return mapOf(MediaType.ORIGINAL to videoData, MediaType.OVERLAY to overlayData)
+            return mapOf(SplitMediaAssetType.ORIGINAL to videoData, SplitMediaAssetType.OVERLAY to overlayData)
         }
 
-        return mapOf(MediaType.ORIGINAL to content)
+        return mapOf(SplitMediaAssetType.ORIGINAL to content)
     }
 
 

@@ -3,6 +3,7 @@ package me.rhunk.snapenhance.download
 import android.annotation.SuppressLint
 import android.content.Context
 import android.database.sqlite.SQLiteDatabase
+import me.rhunk.snapenhance.download.data.DownloadMetadata
 import me.rhunk.snapenhance.download.data.PendingDownload
 import me.rhunk.snapenhance.download.enums.DownloadStage
 import me.rhunk.snapenhance.ui.download.MediaFilter
@@ -35,42 +36,42 @@ class DownloadTaskManager {
     fun addTask(task: PendingDownload): Int {
         taskDatabase.execSQL("INSERT INTO tasks (hash, outputPath, outputFile, mediaDisplayType, mediaDisplaySource, iconUrl, downloadStage) VALUES (?, ?, ?, ?, ?, ?, ?)",
             arrayOf(
-                task.uniqueHash,
-                task.outputPath,
+                task.metadata.mediaIdentifier,
+                task.metadata.outputPath,
                 task.outputFile,
-                task.mediaDisplayType,
-                task.mediaDisplaySource,
-                task.iconUrl,
+                task.metadata.mediaDisplayType,
+                task.metadata.mediaDisplaySource,
+                task.metadata.iconUrl,
                 task.downloadStage.name
             )
         )
-        task.id = taskDatabase.rawQuery("SELECT last_insert_rowid()", null).use {
+        task.downloadId = taskDatabase.rawQuery("SELECT last_insert_rowid()", null).use {
             it.moveToFirst()
             it.getInt(0)
         }
-        pendingTasks[task.id] = task
-        return task.id
+        pendingTasks[task.downloadId] = task
+        return task.downloadId
     }
 
     fun updateTask(task: PendingDownload) {
         taskDatabase.execSQL("UPDATE tasks SET hash = ?, outputPath = ?, outputFile = ?, mediaDisplayType = ?, mediaDisplaySource = ?, iconUrl = ?, downloadStage = ? WHERE id = ?",
             arrayOf(
-                task.uniqueHash,
-                task.outputPath,
+                task.metadata.mediaIdentifier,
+                task.metadata.outputPath,
                 task.outputFile,
-                task.mediaDisplayType,
-                task.mediaDisplaySource,
-                task.iconUrl,
+                task.metadata.mediaDisplayType,
+                task.metadata.mediaDisplaySource,
+                task.metadata.iconUrl,
                 task.downloadStage.name,
-                task.id
+                task.downloadId
             )
         )
         //if the task is no longer active, move it to the cached tasks
         if (task.isJobActive()) {
-            pendingTasks[task.id] = task
+            pendingTasks[task.downloadId] = task
         } else {
-            pendingTasks.remove(task.id)
-            cachedTasks[task.id] = task
+            pendingTasks.remove(task.downloadId)
+            cachedTasks[task.downloadId] = task
         }
     }
 
@@ -107,20 +108,20 @@ class DownloadTaskManager {
     }
 
     fun removeTask(task: PendingDownload) {
-        removeTask(task.id)
+        removeTask(task.downloadId)
     }
 
     fun queryAllTasks(filter: MediaFilter): Map<Int, PendingDownload> {
         val isPendingFilter = filter == MediaFilter.PENDING
         val tasks = mutableMapOf<Int, PendingDownload>()
 
-        tasks.putAll(pendingTasks.filter { isPendingFilter || filter.matches(it.value.mediaDisplayType) })
+        tasks.putAll(pendingTasks.filter { isPendingFilter || filter.matches(it.value.metadata.mediaDisplayType) })
         if (isPendingFilter) {
             return tasks.toSortedMap(reverseOrder())
         }
 
         tasks.putAll(queryTasks(
-            from = tasks.values.lastOrNull()?.id ?: Int.MAX_VALUE,
+            from = tasks.values.lastOrNull()?.downloadId ?: Int.MAX_VALUE,
             amount = 30,
             filter = filter
         ))
@@ -147,13 +148,15 @@ class DownloadTaskManager {
 
         while (cursor.moveToNext()) {
             val task = PendingDownload(
-                id = cursor.getInt(cursor.getColumnIndex("id")),
+                downloadId = cursor.getInt(cursor.getColumnIndex("id")),
                 outputFile = cursor.getString(cursor.getColumnIndex("outputFile")),
-                outputPath = cursor.getString(cursor.getColumnIndex("outputPath")),
-                mediaDisplayType = cursor.getString(cursor.getColumnIndex("mediaDisplayType")),
-                mediaDisplaySource = cursor.getString(cursor.getColumnIndex("mediaDisplaySource")),
-                uniqueHash = cursor.getString(cursor.getColumnIndex("hash")),
-                iconUrl = cursor.getString(cursor.getColumnIndex("iconUrl"))
+                metadata = DownloadMetadata(
+                    outputPath = cursor.getString(cursor.getColumnIndex("outputPath")),
+                    mediaIdentifier = cursor.getString(cursor.getColumnIndex("hash")),
+                    mediaDisplayType = cursor.getString(cursor.getColumnIndex("mediaDisplayType")),
+                    mediaDisplaySource = cursor.getString(cursor.getColumnIndex("mediaDisplaySource")),
+                    iconUrl = cursor.getString(cursor.getColumnIndex("iconUrl"))
+                )
             ).apply {
                 downloadStage = DownloadStage.valueOf(cursor.getString(cursor.getColumnIndex("downloadStage")))
                 //if downloadStage is not saved, it means the app was killed before the download was finished
@@ -161,7 +164,7 @@ class DownloadTaskManager {
                     downloadStage = DownloadStage.FAILED
                 }
             }
-            result[task.id] = task
+            result[task.downloadId] = task
         }
         cursor.close()
 

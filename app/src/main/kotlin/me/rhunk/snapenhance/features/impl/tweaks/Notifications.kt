@@ -19,6 +19,7 @@ import me.rhunk.snapenhance.data.ContentType
 import me.rhunk.snapenhance.data.MediaReferenceType
 import me.rhunk.snapenhance.data.wrapper.impl.Message
 import me.rhunk.snapenhance.data.wrapper.impl.SnapUUID
+import me.rhunk.snapenhance.download.data.SplitMediaAssetType
 import me.rhunk.snapenhance.features.Feature
 import me.rhunk.snapenhance.features.FeatureLoadParams
 import me.rhunk.snapenhance.features.impl.Messaging
@@ -27,7 +28,6 @@ import me.rhunk.snapenhance.hook.Hooker
 import me.rhunk.snapenhance.util.CallbackBuilder
 import me.rhunk.snapenhance.util.snap.EncryptionHelper
 import me.rhunk.snapenhance.util.snap.MediaDownloaderHelper
-import me.rhunk.snapenhance.util.snap.MediaType
 import me.rhunk.snapenhance.util.snap.PreviewUtils
 import me.rhunk.snapenhance.util.protobuf.ProtoReader
 
@@ -202,9 +202,9 @@ class Notifications : Feature("Notifications", loadParams = FeatureLoadParams.IN
                                 EncryptionHelper.decryptInputStream(it, contentType, messageReader, isArroyo = false)
                             }
 
-                            var bitmapPreview = PreviewUtils.createPreview(downloadedMediaList[MediaType.ORIGINAL]!!, mediaType.name.contains("VIDEO"))!!
+                            var bitmapPreview = PreviewUtils.createPreview(downloadedMediaList[SplitMediaAssetType.ORIGINAL]!!, mediaType.name.contains("VIDEO"))!!
 
-                            downloadedMediaList[MediaType.OVERLAY]?.let {
+                            downloadedMediaList[SplitMediaAssetType.OVERLAY]?.let {
                                 bitmapPreview = PreviewUtils.mergeBitmapOverlay(bitmapPreview, BitmapFactory.decodeByteArray(it, 0, it.size))
                             }
 

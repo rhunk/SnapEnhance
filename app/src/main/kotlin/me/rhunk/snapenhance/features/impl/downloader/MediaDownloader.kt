@@ -20,6 +20,9 @@ import me.rhunk.snapenhance.data.wrapper.impl.media.opera.Layer
 import me.rhunk.snapenhance.data.wrapper.impl.media.opera.ParamMap
 import me.rhunk.snapenhance.database.objects.FriendInfo
 import me.rhunk.snapenhance.download.DownloadManagerClient
+import me.rhunk.snapenhance.download.data.DownloadMetadata
+import me.rhunk.snapenhance.download.data.InputMedia
+import me.rhunk.snapenhance.download.data.SplitMediaAssetType
 import me.rhunk.snapenhance.download.data.toKeyPair
 import me.rhunk.snapenhance.download.enums.DownloadMediaType
 import me.rhunk.snapenhance.features.Feature
@@ -36,7 +39,6 @@ import me.rhunk.snapenhance.util.protobuf.ProtoReader
 import me.rhunk.snapenhance.util.snap.BitmojiSelfie
 import me.rhunk.snapenhance.util.snap.EncryptionHelper
 import me.rhunk.snapenhance.util.snap.MediaDownloaderHelper
-import me.rhunk.snapenhance.util.snap.MediaType
 import me.rhunk.snapenhance.util.snap.PreviewUtils
 import java.io.File
 import java.nio.file.Paths
@@ -45,11 +47,10 @@ import java.util.Locale
 import kotlin.coroutines.suspendCoroutine
 import kotlin.io.encoding.Base64
 import kotlin.io.encoding.ExperimentalEncodingApi
-import kotlin.io.path.inputStream
 
 @OptIn(ExperimentalEncodingApi::class)
 class MediaDownloader : Feature("MediaDownloader", loadParams = FeatureLoadParams.ACTIVITY_CREATE_ASYNC) {
-    private var lastSeenMediaInfoMap: MutableMap<MediaType, MediaInfo>? = null
+    private var lastSeenMediaInfoMap: MutableMap<SplitMediaAssetType, MediaInfo>? = null
     private var lastSeenMapParams: ParamMap? = null
     private val isFFmpegPresent by lazy {
         runCatching { FFmpegKit.execute("-version") }.isSuccess
@@ -77,15 +78,15 @@ class MediaDownloader : Feature("MediaDownloader", loadParams = FeatureLoadParam
 
         return DownloadManagerClient(
             context = context,
-            mediaDisplaySource = mediaDisplaySource,
-            mediaDisplayType = mediaDisplayType,
-            iconUrl = iconUrl,
-            uniqueHash =
-            // If duplicate is allowed, we don't need to pass the hash
-            if (context.config.options(ConfigProperty.DOWNLOAD_OPTIONS)["allow_duplicate"] == false) {
-                generatedHash
-            } else null,
-            outputPath = outputPath
+            metadata = DownloadMetadata(
+                mediaIdentifier = if (context.config.options(ConfigProperty.DOWNLOAD_OPTIONS)["allow_duplicate"] == false) {
+                    generatedHash
+                } else null,
+                mediaDisplaySource = mediaDisplaySource,
+                mediaDisplayType = mediaDisplayType,
+                iconUrl = iconUrl,
+                outputPath = outputPath
+            )
         )
     }
 
@@ -162,28 +163,31 @@ class MediaDownloader : Feature("MediaDownloader", loadParams = FeatureLoadParam
         }
     }
 
-    private fun downloadOperaMedia(downloadManagerClient: DownloadManagerClient, mediaInfoMap: Map<MediaType, MediaInfo>) {
+    private fun downloadOperaMedia(downloadManagerClient: DownloadManagerClient, mediaInfoMap: Map<SplitMediaAssetType, MediaInfo>) {
         if (mediaInfoMap.isEmpty()) return
 
-        val originalMediaInfo = mediaInfoMap[MediaType.ORIGINAL]!!
-        val overlay = mediaInfoMap[MediaType.OVERLAY]
-
+        val originalMediaInfo = mediaInfoMap[SplitMediaAssetType.ORIGINAL]!!
         val originalMediaInfoReference = handleLocalReferences(originalMediaInfo.uri)
-        val overlayReference = overlay?.let { handleLocalReferences(it.uri) }
 
-        overlay?.let {
+        mediaInfoMap[SplitMediaAssetType.OVERLAY]?.let { overlay ->
+            val overlayReference = handleLocalReferences(overlay.uri)
+
             downloadManagerClient.downloadMediaWithOverlay(
-                originalMediaInfoReference,
-                overlayReference!!,
-                DownloadMediaType.fromUri(Uri.parse(originalMediaInfoReference)),
-                DownloadMediaType.fromUri(Uri.parse(overlayReference)),
-                videoEncryption = originalMediaInfo.encryption?.toKeyPair(),
-                overlayEncryption = overlay.encryption?.toKeyPair()
+                original = InputMedia(
+                    originalMediaInfoReference,
+                    DownloadMediaType.fromUri(Uri.parse(originalMediaInfoReference)),
+                    originalMediaInfo.encryption?.toKeyPair()
+                ),
+                overlay = InputMedia(
+                    overlayReference,
+                    DownloadMediaType.fromUri(Uri.parse(overlayReference)),
+                    overlay.encryption?.toKeyPair()
+                )
             )
             return
         }
 
-        downloadManagerClient.downloadMedia(
+        downloadManagerClient.downloadSingleMedia(
             originalMediaInfoReference,
             DownloadMediaType.fromUri(Uri.parse(originalMediaInfoReference)),
             originalMediaInfo.encryption?.toKeyPair()
@@ -199,7 +203,7 @@ class MediaDownloader : Feature("MediaDownloader", loadParams = FeatureLoadParam
      */
     private fun handleOperaMedia(
         paramMap: ParamMap,
-        mediaInfoMap: Map<MediaType, MediaInfo>,
+        mediaInfoMap: Map<SplitMediaAssetType, MediaInfo>,
         forceDownload: Boolean
     ) {
         //messages
@@ -347,13 +351,13 @@ class MediaDownloader : Feature("MediaDownloader", loadParams = FeatureLoadParam
             if (!mediaParamMap.containsKey("image_media_info") && !mediaParamMap.containsKey("video_media_info_list"))
                 return@onOperaViewStateCallback
 
-            val mediaInfoMap = mutableMapOf<MediaType, MediaInfo>()
+            val mediaInfoMap = mutableMapOf<SplitMediaAssetType, MediaInfo>()
             val isVideo = mediaParamMap.containsKey("video_media_info_list")
-            mediaInfoMap[MediaType.ORIGINAL] = MediaInfo(
+            mediaInfoMap[SplitMediaAssetType.ORIGINAL] = MediaInfo(
                 (if (isVideo) mediaParamMap["video_media_info_list"] else mediaParamMap["image_media_info"])!!
             )
             if (canMergeOverlay() && mediaParamMap.containsKey("overlay_image_media_info")) {
-                mediaInfoMap[MediaType.OVERLAY] =
+                mediaInfoMap[SplitMediaAssetType.OVERLAY] =
                     MediaInfo(mediaParamMap["overlay_image_media_info"]!!)
             }
             lastSeenMapParams = mediaParamMap
@@ -448,7 +452,7 @@ class MediaDownloader : Feature("MediaDownloader", loadParams = FeatureLoadParam
                     mediaDisplaySource = authorName,
                     mediaDisplayType = MediaFilter.CHAT_MEDIA.mediaDisplayType,
                     friendInfo = friendInfo
-                ).downloadMedia(
+                ).downloadSingleMedia(
                     Base64.UrlSafe.encode(urlProto),
                     DownloadMediaType.PROTO_MEDIA,
                     encryption = encryptionKeys?.toKeyPair()
@@ -461,8 +465,8 @@ class MediaDownloader : Feature("MediaDownloader", loadParams = FeatureLoadParam
             }
 
             runCatching {
-                val originalMedia = downloadedMediaList[MediaType.ORIGINAL] ?: return
-                val overlay = downloadedMediaList[MediaType.OVERLAY]
+                val originalMedia = downloadedMediaList[SplitMediaAssetType.ORIGINAL] ?: return
+                val overlay = downloadedMediaList[SplitMediaAssetType.OVERLAY]
 
                 var bitmap: Bitmap? = PreviewUtils.createPreview(originalMedia, isVideo = FileType.fromByteArray(originalMedia).isVideo)
 

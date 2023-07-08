@@ -129,7 +129,7 @@ class DownloadListAdapter(
 
         holder.bitmojiIcon.setImageResource(R.drawable.bitmoji_blank)
 
-        pendingDownload.iconUrl?.let { url ->
+        pendingDownload.metadata.iconUrl?.let { url ->
             thread(start = true) {
                 runCatching {
                     val iconBitmap = URL(url).openStream().use {
@@ -145,12 +145,12 @@ class DownloadListAdapter(
         holder.title.visibility = View.GONE
         holder.subtitle.visibility = View.GONE
 
-        pendingDownload.mediaDisplayType?.let {
+        pendingDownload.metadata.mediaDisplayType?.let {
             holder.title.text = it
             holder.title.visibility = View.VISIBLE
         }
 
-        pendingDownload.mediaDisplaySource?.let {
+        pendingDownload.metadata.mediaDisplaySource?.let {
             holder.subtitle.text = it
             holder.subtitle.visibility = View.VISIBLE
         }

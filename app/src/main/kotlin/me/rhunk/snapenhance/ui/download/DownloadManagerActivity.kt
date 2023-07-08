@@ -133,7 +133,7 @@ class DownloadManagerActivity : Activity() {
                     if (lastVisibleItemPosition == fetchedDownloadTasks.size - 1 && !isLoading) {
                         isLoading = true
 
-                        SharedContext.downloadTaskManager.queryTasks(fetchedDownloadTasks.last().id, filter = listFilter).forEach {
+                        SharedContext.downloadTaskManager.queryTasks(fetchedDownloadTasks.last().downloadId, filter = listFilter).forEach {
                             fetchedDownloadTasks.add(it.value)
                             adapter?.notifyItemInserted(fetchedDownloadTasks.size - 1)
                         }
