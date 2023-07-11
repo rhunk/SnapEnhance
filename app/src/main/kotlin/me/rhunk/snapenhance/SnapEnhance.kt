@@ -1,6 +1,5 @@
 package me.rhunk.snapenhance
 
-import android.annotation.SuppressLint
 import android.app.Activity
 import android.app.Application
 import android.content.Context
@@ -13,6 +12,7 @@ import me.rhunk.snapenhance.data.SnapClassCache
 import me.rhunk.snapenhance.hook.HookStage
 import me.rhunk.snapenhance.hook.Hooker
 import me.rhunk.snapenhance.hook.hook
+import me.rhunk.snapenhance.util.getApplicationInfoCompat
 import kotlin.time.ExperimentalTime
 import kotlin.time.measureTime
 
@@ -35,7 +35,7 @@ class SnapEnhance {
 
             //for lspatch builds, we need to check if the service is correctly installed
             runCatching {
-                appContext.androidContext.packageManager.getApplicationInfo(BuildConfig.APPLICATION_ID, PackageManager.GET_META_DATA)
+                appContext.androidContext.packageManager.getApplicationInfoCompat(BuildConfig.APPLICATION_ID, PackageManager.GET_META_DATA)
             }.onFailure {
                 appContext.crash("SnapEnhance bridge service is not installed. Please download stable version from https://github.com/rhunk/SnapEnhance/releases")
                 return@hook
@@ -89,7 +89,6 @@ class SnapEnhance {
         }
     }
 
-    @SuppressLint("ObsoleteSdkInt")
     private fun provideBridgeClient(): AbstractBridgeClient {
         /*if (Build.VERSION.SDK_INT <= Build.VERSION_CODES.P) {
             return RootBridgeClient()
