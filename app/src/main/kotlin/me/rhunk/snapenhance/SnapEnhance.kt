@@ -24,7 +24,7 @@ class SnapEnhance {
         }
     }
     private val appContext = ModContext()
-    private var isBridgeConnected = false
+    private var isBridgeInitialized = false
 
     init {
         Hooker.hook(Application::class.java, "attach", HookStage.BEFORE) { param ->
@@ -49,11 +49,12 @@ class SnapEnhance {
                         appContext.softRestartApp()
                         return@start
                     }
-                    isBridgeConnected = true
                     runCatching {
                         runBlocking {
                             init()
                         }
+                    }.onSuccess {
+                        isBridgeInitialized = true
                     }.onFailure {
                         Logger.xposedLog("Failed to initialize", it)
                     }
@@ -61,7 +62,7 @@ class SnapEnhance {
             }
         }
 
-        Activity::class.java.hook( "onCreate",  HookStage.AFTER, { isBridgeConnected }) {
+        Activity::class.java.hook( "onCreate",  HookStage.AFTER, { isBridgeInitialized }) {
             val activity = it.thisObject() as Activity
             if (!activity.packageName.equals(Constants.SNAPCHAT_PACKAGE_NAME)) return@hook
             val isMainActivityNotNull = appContext.mainActivity != null
@@ -73,7 +74,7 @@ class SnapEnhance {
         var activityWasResumed = false
 
         //we need to reload the config when the app is resumed
-        Activity::class.java.hook("onResume", HookStage.AFTER, { isBridgeConnected }) {
+        Activity::class.java.hook("onResume", HookStage.AFTER, { isBridgeInitialized }) {
             val activity = it.thisObject() as Activity
 
             if (!activity.packageName.equals(Constants.SNAPCHAT_PACKAGE_NAME)) return@hook
