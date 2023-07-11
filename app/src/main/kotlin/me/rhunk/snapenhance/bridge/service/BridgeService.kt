@@ -9,6 +9,7 @@ import android.os.*
 import me.rhunk.snapenhance.Logger
 import me.rhunk.snapenhance.bridge.MessageLoggerWrapper
 import me.rhunk.snapenhance.bridge.TranslationWrapper
+import me.rhunk.snapenhance.bridge.common.BridgeMessage
 import me.rhunk.snapenhance.bridge.common.BridgeMessageType
 import me.rhunk.snapenhance.bridge.common.impl.*
 import me.rhunk.snapenhance.bridge.common.impl.download.DownloadContentRequest
@@ -23,69 +24,66 @@ import me.rhunk.snapenhance.bridge.common.impl.messagelogger.MessageLoggerReques
 import me.rhunk.snapenhance.bridge.common.impl.messagelogger.MessageLoggerResult
 import java.io.File
 import java.util.*
+import kotlin.reflect.full.createInstance
+import kotlin.system.exitProcess
+
+typealias ReplyCallback = (BridgeMessage) -> Unit
 
 class BridgeService : Service() {
     private lateinit var messageLoggerWrapper: MessageLoggerWrapper
+    private lateinit var bridgeThread: HandlerThread
 
     override fun onBind(intent: Intent): IBinder {
+        bridgeThread = HandlerThread("BridgeService").also { it.start() }
         messageLoggerWrapper = MessageLoggerWrapper(getDatabasePath(BridgeFileType.MESSAGE_LOGGER_DATABASE.fileName)).also { it.init() }
 
-        return Messenger(object : Handler(Looper.getMainLooper()) {
-            override fun handleMessage(msg: Message) {
-                runCatching {
-                    this@BridgeService.handleMessage(msg)
-                }.onFailure {
-                    Logger.error("Failed to handle message ${BridgeMessageType.fromValue(msg.what)}", it)
-                }
+        return Messenger(Handler.createAsync(bridgeThread.looper) { msg ->
+            runCatching {
+                this@BridgeService.handleMessage(msg)
+            }.onFailure {
+                Logger.error("Failed to handle message ${BridgeMessageType.fromValue(msg.what)}", it)
             }
+            true
         }).binder
     }
 
     private fun handleMessage(msg: Message) {
-        val replyMessenger = msg.replyTo
-        when (BridgeMessageType.fromValue(msg.what)) {
-            BridgeMessageType.FILE_ACCESS_REQUEST -> {
-                with(FileAccessRequest()) {
-                    read(msg.data)
-                    handleFileAccess(this) { message ->
-                        replyMessenger.send(message)
-                    }
-                }
+        val replyCallback: ReplyCallback = {
+            val repliedMessage = Message.obtain(Handler.createAsync(bridgeThread.looper), BridgeMessageType.fromClass(it::class).value).apply {
+                it.write(this.data)
             }
-            BridgeMessageType.DOWNLOAD_CONTENT_REQUEST -> {
-                with(DownloadContentRequest()) {
-                    read(msg.data)
-                    handleDownloadContent(this) { message ->
-                        replyMessenger.send(message)
-                    }
-                }
+            try {
+                msg.replyTo.send(repliedMessage)
+            } catch (ignored: DeadObjectException) {
+                Logger.debug("got DeadObjectException, exiting")
+                exitProcess(0)
             }
-            BridgeMessageType.LOCALE_REQUEST -> {
-                with(LocaleRequest()) {
-                    read(msg.data)
-                    handleLocaleRequest { message ->
-                        replyMessenger.send(message)
-                    }
-                }
-            }
-            BridgeMessageType.MESSAGE_LOGGER_REQUEST -> {
-                with(MessageLoggerRequest()) {
-                    read(msg.data)
-                    handleMessageLoggerRequest(this) { message ->
-                        replyMessenger.send(message)
-                    }
-                }
-            }
+        }
 
-            else -> Logger.log("Unknown message type: " + msg.what)
+        val bridgeMessage = BridgeMessageType.fromValue(msg.what).bridgeClass?.createInstance()
+        if (bridgeMessage == null) {
+            Logger.error("Unknown message type: ${BridgeMessageType.fromValue(msg.what)}")
+            return
+        }
+
+        bridgeMessage.read(msg.data)
+
+        when (bridgeMessage) {
+            is FileAccessRequest -> handleFileAccess(bridgeMessage, replyCallback)
+            is DownloadContentRequest -> handleDownloadContent(bridgeMessage, replyCallback)
+            is LocaleRequest -> handleLocaleRequest(replyCallback)
+            is MessageLoggerRequest ->  handleMessageLoggerRequest(bridgeMessage, replyCallback)
+            else -> {
+                Logger.error("Unknown message type: ${bridgeMessage::class}")
+            }
         }
     }
 
-    private fun handleMessageLoggerRequest(msg: MessageLoggerRequest, reply: (Message) -> Unit) {
+    private fun handleMessageLoggerRequest(msg: MessageLoggerRequest, reply: ReplyCallback) {
         when (msg.action) {
-            MessageLoggerRequest.Action.ADD  -> {
+            MessageLoggerRequest.Action.ADD -> {
                 val isSuccess = messageLoggerWrapper.addMessage(msg.conversationId!!, msg.index!!, msg.message!!)
-                reply(MessageLoggerResult(isSuccess).toMessage(BridgeMessageType.MESSAGE_LOGGER_RESULT.value))
+                reply(MessageLoggerResult(isSuccess))
                 return
             }
             MessageLoggerRequest.Action.CLEAR -> {
@@ -96,12 +94,12 @@ class BridgeService : Service() {
             }
             MessageLoggerRequest.Action.GET -> {
                 val (state, messageData) = messageLoggerWrapper.getMessage(msg.conversationId!!, msg.index!!)
-                reply(MessageLoggerResult(state, messageData).toMessage(BridgeMessageType.MESSAGE_LOGGER_RESULT.value))
+                reply(MessageLoggerResult(state, messageData))
                 return
             }
             MessageLoggerRequest.Action.LIST_IDS -> {
                 val messageIds = messageLoggerWrapper.getMessageIds(msg.conversationId!!, msg.index!!.toInt())
-                reply(MessageLoggerListResult(messageIds).toMessage(BridgeMessageType.MESSAGE_LOGGER_LIST_RESULT.value))
+                reply(MessageLoggerListResult(messageIds))
                 return
             }
             else -> {
@@ -109,10 +107,10 @@ class BridgeService : Service() {
             }
         }
 
-        reply(MessageLoggerResult(true).toMessage(BridgeMessageType.MESSAGE_LOGGER_RESULT.value))
+        reply(MessageLoggerResult(true))
     }
 
-    private fun handleLocaleRequest(reply: (Message) -> Unit) {
+    private fun handleLocaleRequest(reply: ReplyCallback) {
         val locales = sortedSetOf<String>()
         val contentArray = sortedSetOf<String>()
 
@@ -121,11 +119,11 @@ class BridgeService : Service() {
             contentArray.add(pair.content)
         }
 
-        reply(LocaleResult(locales.toTypedArray(), contentArray.toTypedArray()).toMessage(BridgeMessageType.LOCALE_RESULT.value))
+        reply(LocaleResult(locales.toTypedArray(), contentArray.toTypedArray()))
     }
 
     @SuppressLint("UnspecifiedRegisterReceiverFlag")
-    private fun handleDownloadContent(msg: DownloadContentRequest, reply: (Message) -> Unit) {
+    private fun handleDownloadContent(msg: DownloadContentRequest, reply: ReplyCallback) {
         if (!msg.url!!.startsWith("http://127.0.0.1:")) return
 
         val outputFile = File(msg.path!!)
@@ -143,12 +141,12 @@ class BridgeService : Service() {
             override fun onReceive(context: Context, intent: Intent) {
                 if (intent.getLongExtra(DownloadManager.EXTRA_DOWNLOAD_ID, -1) != downloadId) return
                 unregisterReceiver(this)
-                reply(DownloadContentResult(true).toMessage(BridgeMessageType.DOWNLOAD_CONTENT_RESULT.value))
+                reply(DownloadContentResult(true))
             }
         }, IntentFilter(DownloadManager.ACTION_DOWNLOAD_COMPLETE))
     }
 
-    private fun handleFileAccess(msg: FileAccessRequest, reply: (Message) -> Unit) {
+    private fun handleFileAccess(msg: FileAccessRequest, reply: ReplyCallback) {
         val fileFolder = if (msg.fileType!!.isDatabase) {
             File(dataDir, "databases")
         } else {
@@ -182,8 +180,7 @@ class BridgeService : Service() {
             FileAccessRequest.FileAccessAction.EXISTS -> FileAccessResult(requestFile.exists(), null)
             else -> throw Exception("Unknown action: " + msg.action)
         }
-
-        reply(result.toMessage(BridgeMessageType.FILE_ACCESS_RESULT.value))
+        reply(result)
     }
 
 }

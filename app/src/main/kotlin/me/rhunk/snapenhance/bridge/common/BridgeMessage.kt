@@ -7,8 +7,8 @@ abstract class BridgeMessage {
     abstract fun write(bundle: Bundle)
     abstract fun read(bundle: Bundle)
 
-    fun toMessage(what: Int): Message {
-        val message = Message.obtain(null, what)
+    fun toMessage(what: BridgeMessageType): Message {
+        val message = Message.obtain(null, what.value)
         message.data = Bundle()
         write(message.data)
         return message

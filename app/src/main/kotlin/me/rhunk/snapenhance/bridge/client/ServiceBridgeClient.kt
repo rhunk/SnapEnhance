@@ -16,6 +16,7 @@ import de.robv.android.xposed.XposedHelpers
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.suspendCancellableCoroutine
 import me.rhunk.snapenhance.BuildConfig
+import me.rhunk.snapenhance.Logger
 import me.rhunk.snapenhance.Logger.xposedLog
 import me.rhunk.snapenhance.bridge.AbstractBridgeClient
 import me.rhunk.snapenhance.bridge.common.BridgeMessage
@@ -34,6 +35,7 @@ import me.rhunk.snapenhance.bridge.service.BridgeService
 import java.util.concurrent.CompletableFuture
 import java.util.concurrent.Executors
 import kotlin.reflect.KClass
+import kotlin.reflect.full.createInstance
 import kotlin.system.exitProcess
 
 
@@ -75,18 +77,10 @@ class ServiceBridgeClient: AbstractBridgeClient(), ServiceConnection {
     private fun handleResponseMessage(
         msg: Message
     ): BridgeMessage {
-        val message: BridgeMessage = when (BridgeMessageType.fromValue(msg.what)) {
-            BridgeMessageType.FILE_ACCESS_RESULT -> FileAccessResult()
-            BridgeMessageType.DOWNLOAD_CONTENT_RESULT -> DownloadContentResult()
-            BridgeMessageType.MESSAGE_LOGGER_RESULT -> MessageLoggerResult()
-            BridgeMessageType.MESSAGE_LOGGER_LIST_RESULT -> MessageLoggerListResult()
-            BridgeMessageType.LOCALE_RESULT -> LocaleResult()
-            else -> throw IllegalStateException("Unknown message type: ${msg.what}")
-        }
+        val message: BridgeMessage = BridgeMessageType.fromValue(msg.what).bridgeClass?.createInstance() ?: throw IllegalArgumentException("Unknown message type: ${msg.what}")
 
-        with(message) {
+        return message.apply {
             read(msg.data)
-            return this
         }
     }
 
@@ -96,6 +90,12 @@ class ServiceBridgeClient: AbstractBridgeClient(), ServiceConnection {
         bridgeMessage: BridgeMessage,
         resultType: KClass<T>? = null
     ) = runBlocking {
+        val timeoutHandler = Handler(handlerThread.looper).apply {
+            postDelayed({
+                Logger.debug("sendMessage for $messageType took more than 3 seconds to respond")
+            }, 3000)
+        }
+
         return@runBlocking suspendCancellableCoroutine<T> { continuation ->
             with(Message.obtain()) {
                 what = messageType.value
@@ -105,6 +105,7 @@ class ServiceBridgeClient: AbstractBridgeClient(), ServiceConnection {
                             continuation.cancel(Throwable("Already completed"))
                             return
                         }
+                        timeoutHandler.removeCallbacksAndMessages(null)
                         continuation.resumeWith(Result.success(handleResponseMessage(msg) as T))
                     }
                 })
