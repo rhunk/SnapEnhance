@@ -40,7 +40,7 @@ import java.util.concurrent.Executors
 import kotlin.reflect.KClass
 
 class FeatureManager(private val context: ModContext) : Manager {
-    private val asyncLoadExecutorService = Executors.newCachedThreadPool()
+    private val asyncLoadExecutorService = Executors.newFixedThreadPool(5)
     private val features = mutableListOf<Feature>()
 
     private fun register(featureClass: KClass<out Feature>) {
