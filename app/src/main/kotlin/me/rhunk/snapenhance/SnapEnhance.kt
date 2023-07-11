@@ -4,6 +4,7 @@ import android.annotation.SuppressLint
 import android.app.Activity
 import android.app.Application
 import android.content.Context
+import android.content.pm.PackageManager
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.withContext
 import me.rhunk.snapenhance.bridge.AbstractBridgeClient
@@ -11,6 +12,7 @@ import me.rhunk.snapenhance.bridge.client.ServiceBridgeClient
 import me.rhunk.snapenhance.data.SnapClassCache
 import me.rhunk.snapenhance.hook.HookStage
 import me.rhunk.snapenhance.hook.Hooker
+import me.rhunk.snapenhance.hook.hook
 import kotlin.time.ExperimentalTime
 import kotlin.time.measureTime
 
@@ -22,6 +24,7 @@ class SnapEnhance {
         }
     }
     private val appContext = ModContext()
+    private var isBridgeConnected = false
 
     init {
         Hooker.hook(Application::class.java, "attach", HookStage.BEFORE) { param ->
@@ -29,6 +32,14 @@ class SnapEnhance {
                 classLoader = it.classLoader
             }
             appContext.bridgeClient = provideBridgeClient()
+
+            //for lspatch builds, we need to check if the service is correctly installed
+            runCatching {
+                appContext.androidContext.packageManager.getApplicationInfo(BuildConfig.APPLICATION_ID, PackageManager.GET_META_DATA)
+            }.onFailure {
+                appContext.crash("SnapEnhance bridge service is not installed. Please download stable version from https://github.com/rhunk/SnapEnhance/releases")
+                return@hook
+            }
 
             appContext.bridgeClient.apply {
                 this.context = appContext
@@ -38,6 +49,7 @@ class SnapEnhance {
                         appContext.softRestartApp()
                         return@start
                     }
+                    isBridgeConnected = true
                     runCatching {
                         runBlocking {
                             init()
@@ -49,7 +61,7 @@ class SnapEnhance {
             }
         }
 
-        Hooker.hook(Activity::class.java, "onCreate", HookStage.AFTER) {
+        Activity::class.java.hook( "onCreate",  HookStage.AFTER, { isBridgeConnected }) {
             val activity = it.thisObject() as Activity
             if (!activity.packageName.equals(Constants.SNAPCHAT_PACKAGE_NAME)) return@hook
             val isMainActivityNotNull = appContext.mainActivity != null
@@ -61,7 +73,7 @@ class SnapEnhance {
         var activityWasResumed = false
 
         //we need to reload the config when the app is resumed
-        Hooker.hook(Activity::class.java, "onResume", HookStage.AFTER) {
+        Activity::class.java.hook("onResume", HookStage.AFTER, { isBridgeConnected }) {
             val activity = it.thisObject() as Activity
 
             if (!activity.packageName.equals(Constants.SNAPCHAT_PACKAGE_NAME)) return@hook
@@ -100,7 +112,7 @@ class SnapEnhance {
                 features.init()
             }
         }.also { time ->
-            Logger.debug("initialized in $time")
+            Logger.debug("init took $time")
         }
     }
 
@@ -112,7 +124,7 @@ class SnapEnhance {
                 actionManager.init()
             }
         }.also { time ->
-            Logger.debug("onActivityCreate in $time")
+            Logger.debug("onActivityCreate took $time")
         }
     }
 }
