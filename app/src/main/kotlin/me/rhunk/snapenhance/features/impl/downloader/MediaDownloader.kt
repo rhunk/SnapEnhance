@@ -337,7 +337,7 @@ class MediaDownloader : Feature("MediaDownloader", loadParams = FeatureLoadParam
     }
 
     override fun asyncOnActivityCreate() {
-        val operaViewerControllerClass: Class<*> = context.mappings.getMappedClass("OperaPageViewController", "Class")
+        val operaViewerControllerClass: Class<*> = context.mappings.getMappedClass("OperaPageViewController", "class")
 
         val onOperaViewStateCallback: (HookAdapter) -> Unit = onOperaViewStateCallback@{ param ->
 
@@ -375,7 +375,7 @@ class MediaDownloader : Feature("MediaDownloader", loadParams = FeatureLoadParam
             }
         }
 
-        arrayOf("onDisplayStateChange", "onDisplayStateChange2").forEach { methodName ->
+        arrayOf("onDisplayStateChange", "onDisplayStateChangeGesture").forEach { methodName ->
             Hooker.hook(
                 operaViewerControllerClass,
                 context.mappings.getMappedValue("OperaPageViewController", methodName),

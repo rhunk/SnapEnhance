@@ -1,0 +1,20 @@
+plugins {
+    id "com.android.library"
+    id 'org.jetbrains.kotlin.android'
+}
+
+
+android {
+    compileSdk 33
+
+    kotlinOptions {
+        jvmTarget = '1.8'
+    }
+    namespace = 'me.rhunk.snapenhance.mapper'
+}
+
+dependencies {
+    implementation 'com.google.code.gson:gson:2.10.1'
+    implementation 'org.jetbrains.kotlinx:kotlinx-coroutines-android:1.7.2'
+    implementation 'org.smali:dexlib2:2.5.2'
+}
