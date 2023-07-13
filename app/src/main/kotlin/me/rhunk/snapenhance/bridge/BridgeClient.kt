@@ -6,6 +6,7 @@ import android.content.Context
 import android.content.Intent
 import android.content.ServiceConnection
 import android.os.Build
+import android.os.Handler
 import android.os.HandlerThread
 import android.os.IBinder
 import de.robv.android.xposed.XposedHelpers
@@ -51,7 +52,9 @@ class BridgeClient(
                     intent,
                     this@BridgeClient,
                     Context.BIND_AUTO_CREATE,
-                    HandlerThread("BridgeClient").looper,
+                    Handler(HandlerThread("BridgeClient").apply {
+                        start()
+                    }.looper),
                     android.os.Process.myUserHandle()
                 )
             }
