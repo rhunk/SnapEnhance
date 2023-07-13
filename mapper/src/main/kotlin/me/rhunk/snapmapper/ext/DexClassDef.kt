@@ -19,5 +19,5 @@ fun DexBackedClassDef.getStaticConstructor() = methods.firstOrNull {
     it.name == "<clinit>"
 }
 
-fun DexBackedClassDef.getClassName() = type.replace("L", "").replace(";", "")
-fun DexBackedClassDef.getSuperClassName() = superclass?.replace("L", "")?.replace(";", "")
+fun DexBackedClassDef.getClassName() = type.replaceFirst("L", "").replaceFirst(";", "")
+fun DexBackedClassDef.getSuperClassName() = superclass?.replaceFirst("L", "")?.replaceFirst(";", "")
