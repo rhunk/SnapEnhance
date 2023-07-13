@@ -67,6 +67,10 @@
             android:theme="@style/AppTheme"
             android:excludeFromRecents="true"
             android:exported="true" />
+        <activity android:name=".bridge.ForceStartActivity"
+            android:theme="@android:style/Theme.NoDisplay"
+            android:exported="true"
+            android:excludeFromRecents="true" />
     </application>
 
 </manifest>

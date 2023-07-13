@@ -19,6 +19,7 @@ import me.rhunk.snapenhance.BuildConfig
 import me.rhunk.snapenhance.Logger
 import me.rhunk.snapenhance.Logger.xposedLog
 import me.rhunk.snapenhance.bridge.AbstractBridgeClient
+import me.rhunk.snapenhance.bridge.ForceStartActivity
 import me.rhunk.snapenhance.bridge.common.BridgeMessage
 import me.rhunk.snapenhance.bridge.common.BridgeMessageType
 import me.rhunk.snapenhance.bridge.common.impl.download.DownloadContentRequest
@@ -34,7 +35,6 @@ import me.rhunk.snapenhance.bridge.common.impl.messagelogger.MessageLoggerResult
 import me.rhunk.snapenhance.bridge.service.BridgeService
 import java.util.concurrent.CompletableFuture
 import java.util.concurrent.Executors
-import kotlin.reflect.KClass
 import kotlin.reflect.full.createInstance
 import kotlin.system.exitProcess
 
@@ -50,6 +50,14 @@ class ServiceBridgeClient: AbstractBridgeClient(), ServiceConnection {
         this.handlerThread.start()
 
         with(context.androidContext) {
+            //ensure the remote process is running
+            startActivity(
+                Intent().apply {
+                    setClassName(BuildConfig.APPLICATION_ID, ForceStartActivity::class.java.name)
+                    addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+                }
+            )
+
             val intent = Intent()
                 .setClassName(BuildConfig.APPLICATION_ID, BridgeService::class.java.name)
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
@@ -88,7 +96,6 @@ class ServiceBridgeClient: AbstractBridgeClient(), ServiceConnection {
     private fun <T : BridgeMessage> sendMessage(
         messageType: BridgeMessageType,
         bridgeMessage: BridgeMessage,
-        resultType: KClass<T>? = null
     ) = runBlocking {
         val timeoutHandler = Handler(handlerThread.looper).apply {
             postDelayed({
@@ -120,10 +127,9 @@ class ServiceBridgeClient: AbstractBridgeClient(), ServiceConnection {
         fileType: BridgeFileType,
         defaultContent: ByteArray
     ): ByteArray {
-        sendMessage(
+        sendMessage<FileAccessResult>(
             BridgeMessageType.FILE_ACCESS_REQUEST,
-            FileAccessRequest(FileAccessRequest.FileAccessAction.EXISTS, fileType, null),
-            FileAccessResult::class
+            FileAccessRequest(FileAccessRequest.FileAccessAction.EXISTS, fileType, null)
         ).run {
             if (state!!) {
                 return readFile(fileType)
@@ -134,10 +140,9 @@ class ServiceBridgeClient: AbstractBridgeClient(), ServiceConnection {
     }
 
     override fun readFile(fileType: BridgeFileType): ByteArray {
-        sendMessage(
+        sendMessage<FileAccessResult>(
             BridgeMessageType.FILE_ACCESS_REQUEST,
-            FileAccessRequest(FileAccessRequest.FileAccessAction.READ, fileType, null),
-            FileAccessResult::class
+            FileAccessRequest(FileAccessRequest.FileAccessAction.READ, fileType, null)
         ).run {
             return content!!
         }
@@ -147,20 +152,18 @@ class ServiceBridgeClient: AbstractBridgeClient(), ServiceConnection {
         fileType: BridgeFileType,
         content: ByteArray?
     ): Boolean {
-        sendMessage(
+        sendMessage<FileAccessResult>(
             BridgeMessageType.FILE_ACCESS_REQUEST,
-            FileAccessRequest(FileAccessRequest.FileAccessAction.WRITE, fileType, content),
-            FileAccessResult::class
+            FileAccessRequest(FileAccessRequest.FileAccessAction.WRITE, fileType, content)
         ).run {
             return state!!
         }
     }
 
     override fun deleteFile(fileType: BridgeFileType): Boolean {
-        sendMessage(
+        sendMessage<FileAccessResult>(
             BridgeMessageType.FILE_ACCESS_REQUEST,
-            FileAccessRequest(FileAccessRequest.FileAccessAction.DELETE, fileType, null),
-            FileAccessResult::class
+            FileAccessRequest(FileAccessRequest.FileAccessAction.DELETE, fileType, null)
         ).run {
             return state!!
         }
@@ -168,74 +171,66 @@ class ServiceBridgeClient: AbstractBridgeClient(), ServiceConnection {
 
 
     override fun isFileExists(fileType: BridgeFileType): Boolean {
-        sendMessage(
+        sendMessage<FileAccessResult>(
             BridgeMessageType.FILE_ACCESS_REQUEST,
-            FileAccessRequest(FileAccessRequest.FileAccessAction.EXISTS, fileType, null),
-            FileAccessResult::class
+            FileAccessRequest(FileAccessRequest.FileAccessAction.EXISTS, fileType, null)
         ).run {
             return state!!
         }
     }
 
     override fun downloadContent(url: String, path: String): Boolean {
-        sendMessage(
+        sendMessage<DownloadContentResult>(
             BridgeMessageType.DOWNLOAD_CONTENT_REQUEST,
-            DownloadContentRequest(url, path),
-            DownloadContentResult::class
+            DownloadContentRequest(url, path)
         ).run {
             return state!!
         }
     }
 
     override fun getLoggedMessageIds(conversationId: String, limit: Int): List<Long> {
-        sendMessage(
+        sendMessage<MessageLoggerListResult>(
             BridgeMessageType.MESSAGE_LOGGER_REQUEST,
-            MessageLoggerRequest(MessageLoggerRequest.Action.LIST_IDS, conversationId, limit.toLong()),
-            MessageLoggerListResult::class
+            MessageLoggerRequest(MessageLoggerRequest.Action.LIST_IDS, conversationId, limit.toLong())
         ).run {
             return messages!!
         }
     }
 
     override fun getMessageLoggerMessage(conversationId: String, id: Long): ByteArray? {
-        sendMessage(
+        sendMessage<MessageLoggerResult>(
             BridgeMessageType.MESSAGE_LOGGER_REQUEST,
-            MessageLoggerRequest(MessageLoggerRequest.Action.GET, conversationId, id),
-            MessageLoggerResult::class
+            MessageLoggerRequest(MessageLoggerRequest.Action.GET, conversationId, id)
         ).run {
             return message
         }
     }
 
     override fun addMessageLoggerMessage(conversationId: String,id: Long, message: ByteArray) {
-        sendMessage(
+        sendMessage<MessageLoggerResult>(
             BridgeMessageType.MESSAGE_LOGGER_REQUEST,
-            MessageLoggerRequest(MessageLoggerRequest.Action.ADD, conversationId, id, message),
-            MessageLoggerResult::class
+            MessageLoggerRequest(MessageLoggerRequest.Action.ADD, conversationId, id, message)
         )
     }
 
     override fun deleteMessageLoggerMessage(conversationId: String,id: Long) {
-        sendMessage(
+        sendMessage<MessageLoggerResult>(
             BridgeMessageType.MESSAGE_LOGGER_REQUEST,
-            MessageLoggerRequest(MessageLoggerRequest.Action.DELETE, conversationId, id),
-            MessageLoggerResult::class
+            MessageLoggerRequest(MessageLoggerRequest.Action.DELETE, conversationId, id)
         )
     }
 
     override fun clearMessageLogger() {
-        sendMessage(
+        sendMessage<MessageLoggerResult>(
             BridgeMessageType.MESSAGE_LOGGER_REQUEST,
-            MessageLoggerRequest(MessageLoggerRequest.Action.CLEAR),
-            MessageLoggerResult::class
+            MessageLoggerRequest(MessageLoggerRequest.Action.CLEAR)
         )
     }
 
     override fun fetchTranslations(): LocaleResult {
-        sendMessage(
+        sendMessage<LocaleResult>(
             BridgeMessageType.LOCALE_REQUEST,
-            LocaleRequest(),
-            LocaleResult::class
+            LocaleRequest()
         ).run {
             return this
         }
