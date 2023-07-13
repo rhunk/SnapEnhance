@@ -12,6 +12,9 @@ class CleanCache : AbstractAction("action.clean_cache") {
             "files/blizzardv2/*",
             "files/streaming/*",
             "cache/*",
+            "databases/media_packages",
+            "databases/simple_db_helper.db",
+            "databases/journal.db",
             "databases/arroyo.db",
             "databases/arroyo.db-wal",
             "databases/native_content_manager/*"
