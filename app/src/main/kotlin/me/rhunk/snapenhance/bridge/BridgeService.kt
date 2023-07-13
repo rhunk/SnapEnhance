@@ -3,9 +3,11 @@ package me.rhunk.snapenhance.bridge
 import android.app.Service
 import android.content.Intent
 import android.os.IBinder
+import me.rhunk.snapenhance.SharedContext
 import me.rhunk.snapenhance.bridge.types.BridgeFileType
 import me.rhunk.snapenhance.bridge.wrapper.MessageLoggerWrapper
 import me.rhunk.snapenhance.bridge.wrapper.TranslationWrapper
+import me.rhunk.snapenhance.download.DownloadProcessor
 
 class BridgeService : Service() {
     private lateinit var messageLoggerWrapper: MessageLoggerWrapper
@@ -93,6 +95,11 @@ class BridgeService : Service() {
 
         override fun setAutoUpdaterTime(time: Long) {
             throw UnsupportedOperationException()
+        }
+
+        override fun enqueueDownload(intent: Intent, callback: DownloadCallback) {
+            SharedContext.ensureInitialized(this@BridgeService)
+            DownloadProcessor(this@BridgeService, callback).onReceive(intent)
         }
     }
 }

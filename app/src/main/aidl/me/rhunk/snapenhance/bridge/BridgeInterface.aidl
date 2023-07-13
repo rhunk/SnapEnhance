@@ -1,6 +1,7 @@
 package me.rhunk.snapenhance.bridge;
 
 import java.util.List;
+import me.rhunk.snapenhance.bridge.DownloadCallback;
 
 interface BridgeInterface {
         /**
@@ -99,4 +100,9 @@ interface BridgeInterface {
          * @param time the time to set
          */
         void setAutoUpdaterTime(long time);
+
+        /**
+         * Enqueue a download
+         */
+        void enqueueDownload(in Intent intent, DownloadCallback callback);
 }

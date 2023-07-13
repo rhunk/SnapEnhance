@@ -9,7 +9,9 @@ import android.widget.ImageView
 import com.arthenica.ffmpegkit.FFmpegKit
 import kotlinx.coroutines.runBlocking
 import me.rhunk.snapenhance.Constants.ARROYO_URL_KEY_PROTO_PATH
+import me.rhunk.snapenhance.Logger
 import me.rhunk.snapenhance.Logger.xposedLog
+import me.rhunk.snapenhance.bridge.DownloadCallback
 import me.rhunk.snapenhance.config.ConfigProperty
 import me.rhunk.snapenhance.data.ContentType
 import me.rhunk.snapenhance.data.FileType
@@ -86,7 +88,27 @@ class MediaDownloader : Feature("MediaDownloader", loadParams = FeatureLoadParam
                 mediaDisplayType = mediaDisplayType,
                 iconUrl = iconUrl,
                 outputPath = outputPath
-            )
+            ),
+            //TODO: implement logging levels
+            callback = object: DownloadCallback.Stub() {
+                override fun onSuccess() {
+                    context.shortToast(context.translation.format("download_manager_receiver.saved_toast", "path" to outputPath.split("/").takeLast(2).joinToString("/")))
+                }
+
+                override fun onProgress(message: String) {
+                    context.shortToast(message)
+                    Logger.debug("onProgress: message=$message")
+                }
+
+                override fun onFailure(message: String, throwable: String?) {
+                    Logger.debug("onFailure: message=$message, throwable=$throwable")
+                    throwable?.let {
+                        context.longToast((message + it.takeIf { it.isNotEmpty() }.orEmpty()))
+                        return
+                    }
+                    context.shortToast(message)
+                }
+            }
         )
     }
 

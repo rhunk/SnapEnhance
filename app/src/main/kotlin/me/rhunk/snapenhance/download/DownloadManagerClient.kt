@@ -2,8 +2,8 @@ package me.rhunk.snapenhance.download
 
 import android.content.Intent
 import android.os.Bundle
-import me.rhunk.snapenhance.BuildConfig
 import me.rhunk.snapenhance.ModContext
+import me.rhunk.snapenhance.bridge.DownloadCallback
 import me.rhunk.snapenhance.download.data.DashOptions
 import me.rhunk.snapenhance.download.data.DownloadMetadata
 import me.rhunk.snapenhance.download.data.DownloadRequest
@@ -13,21 +13,20 @@ import me.rhunk.snapenhance.download.enums.DownloadMediaType
 
 class DownloadManagerClient (
     private val context: ModContext,
-    private val metadata: DownloadMetadata
+    private val metadata: DownloadMetadata,
+    private val callback: DownloadCallback
 ) {
-    private fun sendToBroadcastReceiver(request: DownloadRequest) {
-        val intent = Intent()
-        intent.setClassName(BuildConfig.APPLICATION_ID, DownloadManagerReceiver::class.java.name)
-        intent.action = DownloadManagerReceiver.DOWNLOAD_ACTION
-        intent.putExtras(Bundle().apply {
-            putString(DownloadManagerReceiver.DOWNLOAD_REQUEST_EXTRA, context.gson.toJson(request))
-            putString(DownloadManagerReceiver.DOWNLOAD_METADATA_EXTRA, context.gson.toJson(metadata))
-        })
-        context.androidContext.sendBroadcast(intent)
+    private fun enqueueDownloadRequest(request: DownloadRequest) {
+        context.bridgeClient.enqueueDownload(Intent().apply {
+            putExtras(Bundle().apply {
+                putString(DownloadProcessor.DOWNLOAD_REQUEST_EXTRA, context.gson.toJson(request))
+                putString(DownloadProcessor.DOWNLOAD_METADATA_EXTRA, context.gson.toJson(metadata))
+            })
+        }, callback)
     }
 
     fun downloadDashMedia(playlistUrl: String, offsetTime: Long, duration: Long?) {
-        sendToBroadcastReceiver(
+        enqueueDownloadRequest(
             DownloadRequest(
                 inputMedias = arrayOf(InputMedia(
                     content = playlistUrl,
@@ -40,7 +39,7 @@ class DownloadManagerClient (
     }
 
     fun downloadSingleMedia(mediaData: String, mediaType: DownloadMediaType, encryption: MediaEncryptionKeyPair? = null) {
-        sendToBroadcastReceiver(
+        enqueueDownloadRequest(
             DownloadRequest(
                 inputMedias = arrayOf(InputMedia(
                     content = mediaData,
@@ -55,7 +54,7 @@ class DownloadManagerClient (
         original: InputMedia,
         overlay: InputMedia,
     ) {
-        sendToBroadcastReceiver(
+        enqueueDownloadRequest(
             DownloadRequest(
                 inputMedias = arrayOf(original, overlay),
                 flags = DownloadRequest.Flags.MERGE_OVERLAY

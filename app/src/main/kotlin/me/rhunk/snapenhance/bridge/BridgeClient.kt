@@ -31,10 +31,10 @@ class BridgeClient(
 
         with(context.androidContext) {
             //ensure the remote process is running
-            sendBroadcast(Intent().apply {
-                setClassName(BuildConfig.APPLICATION_ID, ForceStartBroadcast::class.java.name)
-                action = ForceStartBroadcast.ACTION
-            })
+            startActivity(Intent()
+                .setClassName(BuildConfig.APPLICATION_ID, ForceStartActivity::class.java.name)
+                .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_MULTIPLE_TASK)
+            )
 
             val intent = Intent()
                 .setClassName(BuildConfig.APPLICATION_ID, BridgeService::class.java.name)
@@ -121,4 +121,6 @@ class BridgeClient(
     fun setAutoUpdaterTime(time: Long) {
         writeFile(BridgeFileType.AUTO_UPDATER_TIMESTAMP, time.toString().toByteArray())
     }
+
+    fun enqueueDownload(intent: Intent, callback: DownloadCallback) = service.enqueueDownload(intent, callback)
 }

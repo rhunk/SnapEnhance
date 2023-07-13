@@ -37,13 +37,6 @@
             tools:ignore="ExportedService">
         </service>
 
-        <receiver android:name=".download.DownloadManagerReceiver" android:exported="true"
-            tools:ignore="ExportedReceiver">
-            <intent-filter>
-                <action android:name="me.rhunk.snapenhance.download.DownloadManagerReceiver.DOWNLOAD_ACTION" />
-            </intent-filter>
-        </receiver>
-
         <activity
             android:name=".ui.download.DownloadManagerActivity"
             android:theme="@style/AppTheme"
@@ -67,12 +60,10 @@
             android:theme="@style/AppTheme"
             android:excludeFromRecents="true"
             android:exported="true" />
-        <receiver android:name=".bridge.ForceStartBroadcast" android:exported="true"
-            tools:ignore="ExportedReceiver">
-            <intent-filter>
-                <action android:name="me.rhunk.snapenhance.bridge.ForceStartBroadcast.FORCE_START_ACTION" />
-            </intent-filter>
-        </receiver>
+        <activity android:name=".bridge.ForceStartActivity"
+            android:theme="@android:style/Theme.NoDisplay"
+            android:excludeFromRecents="true"
+            android:exported="true" />
     </application>
 
 </manifest>
