@@ -67,10 +67,12 @@
             android:theme="@style/AppTheme"
             android:excludeFromRecents="true"
             android:exported="true" />
-        <activity android:name=".bridge.ForceStartActivity"
-            android:theme="@android:style/Theme.NoDisplay"
-            android:exported="true"
-            android:excludeFromRecents="true" />
+        <receiver android:name=".bridge.ForceStartBroadcast" android:exported="true"
+            tools:ignore="ExportedReceiver">
+            <intent-filter>
+                <action android:name="me.rhunk.snapenhance.bridge.ForceStartBroadcast.FORCE_START_ACTION" />
+            </intent-filter>
+        </receiver>
     </application>
 
 </manifest>

@@ -19,7 +19,7 @@ import me.rhunk.snapenhance.BuildConfig
 import me.rhunk.snapenhance.Logger
 import me.rhunk.snapenhance.Logger.xposedLog
 import me.rhunk.snapenhance.bridge.AbstractBridgeClient
-import me.rhunk.snapenhance.bridge.ForceStartActivity
+import me.rhunk.snapenhance.bridge.ForceStartBroadcast
 import me.rhunk.snapenhance.bridge.common.BridgeMessage
 import me.rhunk.snapenhance.bridge.common.BridgeMessageType
 import me.rhunk.snapenhance.bridge.common.impl.download.DownloadContentRequest
@@ -51,12 +51,10 @@ class ServiceBridgeClient: AbstractBridgeClient(), ServiceConnection {
 
         with(context.androidContext) {
             //ensure the remote process is running
-            startActivity(
-                Intent().apply {
-                    setClassName(BuildConfig.APPLICATION_ID, ForceStartActivity::class.java.name)
-                    addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
-                }
-            )
+            sendBroadcast(Intent().apply {
+                setClassName(BuildConfig.APPLICATION_ID, ForceStartBroadcast::class.java.name)
+                action = ForceStartBroadcast.ACTION
+            })
 
             val intent = Intent()
                 .setClassName(BuildConfig.APPLICATION_ID, BridgeService::class.java.name)
