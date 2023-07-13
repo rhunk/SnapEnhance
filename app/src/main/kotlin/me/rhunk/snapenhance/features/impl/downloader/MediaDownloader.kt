@@ -91,8 +91,8 @@ class MediaDownloader : Feature("MediaDownloader", loadParams = FeatureLoadParam
             ),
             //TODO: implement logging levels
             callback = object: DownloadCallback.Stub() {
-                override fun onSuccess() {
-                    context.shortToast(context.translation.format("download_manager_receiver.saved_toast", "path" to outputPath.split("/").takeLast(2).joinToString("/")))
+                override fun onSuccess(outputFile: String) {
+                    context.shortToast(context.translation.format("download_manager_receiver.saved_toast", "path" to outputFile.split("/").takeLast(2).joinToString("/")))
                 }
 
                 override fun onProgress(message: String) {

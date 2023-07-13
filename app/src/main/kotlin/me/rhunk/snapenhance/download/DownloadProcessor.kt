@@ -131,7 +131,7 @@ class DownloadProcessor (
             }
 
             Logger.debug("download complete")
-            callback.onSuccess()
+            callback.onSuccess(outputFile.absolutePath)
         }.onFailure {
             Logger.error(it)
             callback.onFailure(translation.format("failed_gallery_toast", "error" to it.toString()), it.message)
