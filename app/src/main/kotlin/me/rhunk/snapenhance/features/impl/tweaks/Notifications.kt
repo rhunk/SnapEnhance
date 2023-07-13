@@ -25,6 +25,7 @@ import me.rhunk.snapenhance.features.FeatureLoadParams
 import me.rhunk.snapenhance.features.impl.Messaging
 import me.rhunk.snapenhance.hook.HookStage
 import me.rhunk.snapenhance.hook.Hooker
+import me.rhunk.snapenhance.hook.hook
 import me.rhunk.snapenhance.util.CallbackBuilder
 import me.rhunk.snapenhance.util.snap.EncryptionHelper
 import me.rhunk.snapenhance.util.snap.MediaDownloaderHelper
@@ -54,10 +55,6 @@ class Notifications : Feature("Notifications", loadParams = FeatureLoadParams.IN
         )
     }
 
-    private val cancelAsUserMethod by lazy {
-        XposedHelpers.findMethodExact(NotificationManager::class.java, "cancelAsUser", String::class.java, Int::class.javaPrimitiveType, UserHandle::class.java)
-    }
-
     private val fetchConversationWithMessagesMethod by lazy {
         context.classCache.conversationManager.methods.first { it.name == "fetchConversationWithMessages"}
     }
@@ -66,20 +63,25 @@ class Notifications : Feature("Notifications", loadParams = FeatureLoadParams.IN
         context.androidContext.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
     }
 
-    private fun setNotificationText(notification: Notification, text: String) {
-        with(notification.extras) {
-            putString("android.text", text)
-            putString("android.bigText", text)
-        }
-    }
+    private fun setNotificationText(notification: Notification, conversationId: String) {
+        val messageText = StringBuilder().apply {
+            cachedMessages.computeIfAbsent(conversationId) { mutableListOf() }.forEach {
+                if (isNotEmpty()) append("\n")
+                append(it)
+            }
+        }.toString()
 
-    private fun computeNotificationText(conversationId: String): String {
-        val messageBuilder = StringBuilder()
-        cachedMessages.computeIfAbsent(conversationId) { mutableListOf() }.forEach {
-            if (messageBuilder.isNotEmpty()) messageBuilder.append("\n")
-            messageBuilder.append(it)
+        with(notification.extras) {
+            putString("android.text", messageText)
+            putString("android.bigText", messageText)
+            putParcelableArray("android.messages", messageText.split("\n").map {
+                Bundle().apply {
+                    putBundle("extras", Bundle())
+                    putString("text", it)
+                    putLong("time", System.currentTimeMillis())
+                }
+            }.toTypedArray())
         }
-        return messageBuilder.toString()
     }
 
     private fun setupNotificationActionButtons(conversationId: String, notificationData: NotificationData) {
@@ -140,7 +142,7 @@ class Notifications : Feature("Notifications", loadParams = FeatureLoadParams.IN
                 cachedMessages.computeIfAbsent(conversationId) { mutableListOf() }.add("${myUser.displayName}: $input")
 
                 updateNotification(notificationId) { notification ->
-                    setNotificationText(notification, computeNotificationText(conversationId))
+                    setNotificationText(notification, conversationId)
                 }
 
                 context.messageSender.sendChatMessage(listOf(SnapUUID.fromString(conversationId)), input, onError = {
@@ -173,7 +175,7 @@ class Notifications : Feature("Notifications", loadParams = FeatureLoadParams.IN
 
             val formatUsername: (String) -> String = { "$senderUsername: $it" }
             val notificationCache = cachedMessages.let { it.computeIfAbsent(conversationId) { mutableListOf() } }
-            val appendNotifications: () -> Unit = { setNotificationText(notificationData.notification, computeNotificationText(conversationId))}
+            val appendNotifications: () -> Unit = { setNotificationText(notificationData.notification, conversationId)}
 
             when (contentType) {
                 ContentType.NOTE -> {
@@ -236,16 +238,6 @@ class Notifications : Feature("Notifications", loadParams = FeatureLoadParams.IN
         }.clear()
     }
 
-    private fun shouldIgnoreNotification(type: String): Boolean {
-        val states = context.config.options(ConfigProperty.NOTIFICATION_BLACKLIST)
-
-        states["snap"]?.let { if (type.endsWith("SNAP") && it) return true }
-        states["chat"]?.let { if (type.endsWith("CHAT") && it) return true }
-        states["typing"]?.let { if (type.endsWith("TYPING") && it) return true }
-
-        return false
-    }
-
     override fun init() {
         setupBroadcastReceiverHook()
 
@@ -259,11 +251,6 @@ class Notifications : Feature("Notifications", loadParams = FeatureLoadParams.IN
             val messageId = extras.getString("message_id") ?: return@hook
             val notificationType = extras.getString("notification_type") ?: return@hook
             val conversationId = extras.getString("conversation_id") ?: return@hook
-
-            if (shouldIgnoreNotification(notificationType)) {
-                param.setResult(null)
-                return@hook
-            }
 
             if (context.config.options(ConfigProperty.BETTER_NOTIFICATIONS)
                 .filter { it.value }.none { notificationType.endsWith(it.key.uppercase())}) return@hook
@@ -284,11 +271,31 @@ class Notifications : Feature("Notifications", loadParams = FeatureLoadParams.IN
             param.setResult(null)
         }
 
-        Hooker.hook(cancelAsUserMethod, HookStage.BEFORE) { param ->
+        XposedHelpers.findMethodExact(
+            NotificationManager::class.java,
+            "cancelAsUser", String::class.java,
+            Int::class.javaPrimitiveType,
+            UserHandle::class.java
+        ).hook(HookStage.BEFORE) { param ->
             val notificationId = param.arg<Int>(1)
             notificationIdMap[notificationId]?.let {
                 cachedMessages[it]?.clear()
             }
+        }
+
+        findClass("com.google.firebase.messaging.FirebaseMessagingService").run {
+            methods.first { it.declaringClass == this && it.returnType == Void::class.javaPrimitiveType && it.parameterCount == 1 && it.parameterTypes[0] == Intent::class.java }
+                .hook(HookStage.BEFORE) { param ->
+                    val intent = param.argNullable<Intent>(0) ?: return@hook
+                    val messageType = intent.getStringExtra("type") ?: return@hook
+                    val states = context.config.options(ConfigProperty.NOTIFICATION_BLACKLIST)
+
+                    Logger.xposedLog("received message type: $messageType")
+
+                    if (states[messageType] == true) {
+                        param.setResult(null)
+                    }
+                }
         }
     }
 
