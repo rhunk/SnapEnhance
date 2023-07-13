@@ -9,7 +9,9 @@ import me.rhunk.snapenhance.R
 import me.rhunk.snapenhance.SharedContext
 import me.rhunk.snapenhance.config.ConfigProperty
 
-class ItemHelper {
+class ItemHelper(
+    private val context : Context
+) {
     val positiveButtonText by lazy {
         SharedContext.translation["button.ok"]
     }
@@ -22,7 +24,7 @@ class ItemHelper {
         Toast.makeText(context, message, Toast.LENGTH_LONG).show()
     }
     
-    fun createTranslatedTextView(property: ConfigProperty, shouldTranslatePropertyValue: Boolean = true, context: Context): TextView {
+    fun createTranslatedTextView(property: ConfigProperty, shouldTranslatePropertyValue: Boolean = true): TextView {
         return object: TextView(context) {
             override fun setText(text: CharSequence?, type: BufferType?) {
                 val newText = text?.takeIf { it.isNotEmpty() }?.let {
@@ -41,7 +43,7 @@ class ItemHelper {
         }
     }
     
-    fun askForValue(property: ConfigProperty, requestedInputType: Int, context: Context, callback: (String) -> Unit) {
+    fun askForValue(property: ConfigProperty, requestedInputType: Int, callback: (String) -> Unit) {
         val editText = EditText(context).apply {
             inputType = requestedInputType
             setText(property.valueContainer.value().toString())

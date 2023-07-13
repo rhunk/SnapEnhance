@@ -25,7 +25,7 @@ import me.rhunk.snapenhance.ui.ItemHelper
 
 class ConfigActivity : Activity() {
     private val config = ConfigWrapper()
-    private val itemHelper = ItemHelper()
+    private val itemHelper = ItemHelper(this)
 
     @Deprecated("Deprecated in Java")
     @Suppress("DEPRECATION")
@@ -78,7 +78,7 @@ class ConfigActivity : Activity() {
 
         var currentCategory: ConfigCategory? = null
 
-        config.entries().forEach { (property, value) ->
+        config.entries().filter { !it.key.category.hidden }.forEach { (property, value) ->
             val configItem = layoutInflater.inflate(R.layout.config_activity_item, propertyListLayout, false)
 
             fun addSeparator() {
@@ -138,12 +138,12 @@ class ConfigActivity : Activity() {
                     addValueView(switch)
                 }
                 is ConfigStringValue, is ConfigIntegerValue -> {
-                    val textView = itemHelper.createTranslatedTextView(property, shouldTranslatePropertyValue = false, this).also {
+                    val textView = itemHelper.createTranslatedTextView(property, shouldTranslatePropertyValue = false).also {
                         it.text = value.value().toString()
                     }
                     configItem.setOnClickListener {
                         if (value is ConfigIntegerValue) {
-                            itemHelper.askForValue(property, InputType.TYPE_CLASS_NUMBER, this) {
+                            itemHelper.askForValue(property, InputType.TYPE_CLASS_NUMBER) {
                                 try {
                                     value.writeFrom(it)
                                     textView.text = value.value().toString()
@@ -153,7 +153,7 @@ class ConfigActivity : Activity() {
                             }
                             return@setOnClickListener
                         }
-                        itemHelper.askForValue(property, InputType.TYPE_CLASS_TEXT, this) {
+                        itemHelper.askForValue(property, InputType.TYPE_CLASS_TEXT) {
                             value.writeFrom(it)
                             textView.text = value.value().toString()
                         }
@@ -161,7 +161,7 @@ class ConfigActivity : Activity() {
                     addValueView(textView)
                 }
                 is ConfigStateListValue -> {
-                    val textView = itemHelper.createTranslatedTextView(property, shouldTranslatePropertyValue = false, this)
+                    val textView = itemHelper.createTranslatedTextView(property, shouldTranslatePropertyValue = false)
                     val values = value.value()
 
                     fun updateText() {
@@ -191,7 +191,7 @@ class ConfigActivity : Activity() {
                     addValueView(textView)
                 }
                 is ConfigStateSelection -> {
-                    val textView = itemHelper.createTranslatedTextView(property, shouldTranslatePropertyValue = true, this)
+                    val textView = itemHelper.createTranslatedTextView(property, shouldTranslatePropertyValue = true)
                     textView.text = value.value()
 
                     configItem.setOnClickListener {

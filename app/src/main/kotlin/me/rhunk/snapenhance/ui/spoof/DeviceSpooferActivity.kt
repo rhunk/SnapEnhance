@@ -20,7 +20,7 @@ import me.rhunk.snapenhance.ui.ItemHelper
 
 class DeviceSpooferActivity: Activity() {
     private val config = ConfigWrapper()
-    private val itemHelper = ItemHelper()
+    private val itemHelper = ItemHelper(this)
     
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -76,12 +76,12 @@ class DeviceSpooferActivity: Activity() {
                     addValueView(switch)
                 }
                 is ConfigStringValue, is ConfigIntegerValue -> {
-                    val textView = itemHelper.createTranslatedTextView(property, shouldTranslatePropertyValue = false, this).also {
+                    val textView = itemHelper.createTranslatedTextView(property, shouldTranslatePropertyValue = false).also {
                         it.text = value.value().toString()
                     }
                     configItem.setOnClickListener {
                         if (value is ConfigIntegerValue) {
-                            itemHelper.askForValue(property, InputType.TYPE_CLASS_NUMBER, this) {
+                            itemHelper.askForValue(property, InputType.TYPE_CLASS_NUMBER) {
                                 try {
                                     value.writeFrom(it)
                                     textView.text = value.value().toString()
@@ -91,7 +91,7 @@ class DeviceSpooferActivity: Activity() {
                             }
                             return@setOnClickListener
                         }
-                        itemHelper.askForValue(property, InputType.TYPE_CLASS_TEXT, this) {
+                        itemHelper.askForValue(property, InputType.TYPE_CLASS_TEXT) {
                             value.writeFrom(it)
                             textView.text = value.value().toString()
                         }
