@@ -32,17 +32,10 @@
             android:resource="@array/sc_scope" />
 
         <service
-            android:name=".bridge.service.BridgeService"
+            android:name=".bridge.BridgeService"
             android:exported="true"
             tools:ignore="ExportedService">
         </service>
-
-        <receiver android:name=".download.DownloadManagerReceiver" android:exported="true"
-            tools:ignore="ExportedReceiver">
-            <intent-filter>
-                <action android:name="me.rhunk.snapenhance.download.DownloadManagerReceiver.DOWNLOAD_ACTION" />
-            </intent-filter>
-        </receiver>
 
         <activity
             android:name=".ui.download.DownloadManagerActivity"
@@ -60,6 +53,15 @@
         <activity
             android:name=".ui.config.ConfigActivity"
             android:theme="@style/AppTheme"
+            android:excludeFromRecents="true"
+            android:exported="true" />
+        <activity
+            android:name=".ui.spoof.DeviceSpooferActivity"
+            android:theme="@style/AppTheme"
+            android:excludeFromRecents="true"
+            android:exported="true" />
+        <activity android:name=".bridge.ForceStartActivity"
+            android:theme="@android:style/Theme.NoDisplay"
             android:excludeFromRecents="true"
             android:exported="true" />
     </application>

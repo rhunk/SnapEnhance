@@ -28,4 +28,8 @@ abstract class Feature(
      * called on a dedicated thread when the Snapchat Activity is created
      */
     open fun asyncOnActivityCreate() {}
+
+    protected fun findClass(name: String): Class<*> {
+        return context.androidContext.classLoader.loadClass(name)
+    }
 }

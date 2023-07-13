@@ -11,35 +11,37 @@ import me.rhunk.snapenhance.features.impl.downloader.AntiAutoDownload
 import me.rhunk.snapenhance.features.impl.downloader.MediaDownloader
 import me.rhunk.snapenhance.features.impl.experiments.AmoledDarkMode
 import me.rhunk.snapenhance.features.impl.experiments.AppPasscode
+import me.rhunk.snapenhance.features.impl.experiments.DeviceSpooferHook
 import me.rhunk.snapenhance.features.impl.experiments.InfiniteStoryBoost
 import me.rhunk.snapenhance.features.impl.experiments.MeoPasscodeBypass
 import me.rhunk.snapenhance.features.impl.experiments.UnlimitedMultiSnap
-import me.rhunk.snapenhance.features.impl.tweaks.AntiAutoSave
-import me.rhunk.snapenhance.features.impl.tweaks.AutoSave
-import me.rhunk.snapenhance.features.impl.tweaks.DisableVideoLengthRestriction
-import me.rhunk.snapenhance.features.impl.tweaks.GalleryMediaSendOverride
-import me.rhunk.snapenhance.features.impl.tweaks.LocationSpoofer
-import me.rhunk.snapenhance.features.impl.tweaks.MediaQualityLevelOverride
-import me.rhunk.snapenhance.features.impl.tweaks.Notifications
-import me.rhunk.snapenhance.features.impl.tweaks.SnapchatPlus
-import me.rhunk.snapenhance.features.impl.tweaks.UnlimitedSnapViewTime
 import me.rhunk.snapenhance.features.impl.privacy.DisableMetrics
 import me.rhunk.snapenhance.features.impl.privacy.PreventMessageSending
 import me.rhunk.snapenhance.features.impl.spying.AnonymousStoryViewing
 import me.rhunk.snapenhance.features.impl.spying.MessageLogger
 import me.rhunk.snapenhance.features.impl.spying.PreventReadReceipts
 import me.rhunk.snapenhance.features.impl.spying.StealthMode
+import me.rhunk.snapenhance.features.impl.tweaks.AntiAutoSave
+import me.rhunk.snapenhance.features.impl.tweaks.AutoSave
 import me.rhunk.snapenhance.features.impl.tweaks.CameraTweaks
+import me.rhunk.snapenhance.features.impl.tweaks.DisableVideoLengthRestriction
+import me.rhunk.snapenhance.features.impl.tweaks.GalleryMediaSendOverride
+import me.rhunk.snapenhance.features.impl.tweaks.GooglePlayServicesDialogs
+import me.rhunk.snapenhance.features.impl.tweaks.LocationSpoofer
+import me.rhunk.snapenhance.features.impl.tweaks.MediaQualityLevelOverride
+import me.rhunk.snapenhance.features.impl.tweaks.Notifications
+import me.rhunk.snapenhance.features.impl.tweaks.SnapchatPlus
+import me.rhunk.snapenhance.features.impl.tweaks.UnlimitedSnapViewTime
 import me.rhunk.snapenhance.features.impl.ui.PinConversations
 import me.rhunk.snapenhance.features.impl.ui.StartupPageOverride
 import me.rhunk.snapenhance.features.impl.ui.UITweaks
-import me.rhunk.snapenhance.ui.menu.impl.MenuViewInjector
 import me.rhunk.snapenhance.manager.Manager
+import me.rhunk.snapenhance.ui.menu.impl.MenuViewInjector
 import java.util.concurrent.Executors
 import kotlin.reflect.KClass
 
 class FeatureManager(private val context: ModContext) : Manager {
-    private val asyncLoadExecutorService = Executors.newCachedThreadPool()
+    private val asyncLoadExecutorService = Executors.newFixedThreadPool(5)
     private val features = mutableListOf<Feature>()
 
     private fun register(featureClass: KClass<out Feature>) {
@@ -88,7 +90,9 @@ class FeatureManager(private val context: ModContext) : Manager {
         register(AmoledDarkMode::class)
         register(PinConversations::class)
         register(UnlimitedMultiSnap::class)
+        register(DeviceSpooferHook::class)
         register(StartupPageOverride::class)
+        register(GooglePlayServicesDialogs::class)
 
         initializeFeatures()
     }

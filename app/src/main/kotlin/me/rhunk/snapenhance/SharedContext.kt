@@ -7,7 +7,7 @@ import android.content.Intent
 import android.os.Build
 import android.os.Environment
 import android.provider.Settings
-import me.rhunk.snapenhance.bridge.TranslationWrapper
+import me.rhunk.snapenhance.bridge.wrapper.TranslationWrapper
 import me.rhunk.snapenhance.download.DownloadTaskManager
 import kotlin.system.exitProcess
 

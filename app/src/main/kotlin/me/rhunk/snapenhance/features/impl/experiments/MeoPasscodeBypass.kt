@@ -8,9 +8,11 @@ import me.rhunk.snapenhance.hook.Hooker
 
 class MeoPasscodeBypass : Feature("Meo Passcode Bypass", loadParams = FeatureLoadParams.ACTIVITY_CREATE_ASYNC) {
     override fun asyncOnActivityCreate() {
+        val bcrypt = context.mappings.getMappedMap("BCrypt")
+
         Hooker.hook(
-            context.mappings.getMappedClass("BCryptClass"),
-            context.mappings.getMappedValue("BCryptClassHashMethod"),
+            context.androidContext.classLoader.loadClass(bcrypt["class"].toString()),
+            bcrypt["hashMethod"].toString(),
             HookStage.BEFORE,
             { context.config.bool(ConfigProperty.MEO_PASSCODE_BYPASS) },
         ) { param ->

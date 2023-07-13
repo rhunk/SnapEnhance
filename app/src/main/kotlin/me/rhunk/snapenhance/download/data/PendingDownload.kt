@@ -1,33 +1,16 @@
 package me.rhunk.snapenhance.download.data
 
-import android.os.Bundle
 import kotlinx.coroutines.Job
 import me.rhunk.snapenhance.SharedContext
 import me.rhunk.snapenhance.download.enums.DownloadStage
 
 data class PendingDownload(
+    var downloadId: Int = 0,
     var outputFile: String? = null,
     var job: Job? = null,
 
-    var id: Int = 0,
-    val outputPath: String,
-    val mediaDisplayType: String?,
-    val mediaDisplaySource: String?,
-    val iconUrl: String?,
-    val uniqueHash: String?
+    val metadata : DownloadMetadata
 ) {
-    companion object {
-        fun fromBundle(bundle: Bundle): PendingDownload {
-            return PendingDownload(
-                outputPath = bundle.getString("outputPath")!!,
-                mediaDisplayType = bundle.getString("mediaDisplayType"),
-                mediaDisplaySource = bundle.getString("mediaDisplaySource"),
-                iconUrl = bundle.getString("iconUrl"),
-                uniqueHash = bundle.getString("uniqueHash")
-            )
-        }
-    }
-
     var changeListener = { _: DownloadStage, _: DownloadStage -> }
     private var _stage: DownloadStage = DownloadStage.PENDING
     var downloadStage: DownloadStage

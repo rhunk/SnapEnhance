@@ -3,7 +3,7 @@ package me.rhunk.snapenhance.manager.impl
 import com.google.gson.JsonObject
 import me.rhunk.snapenhance.Logger
 import me.rhunk.snapenhance.ModContext
-import me.rhunk.snapenhance.bridge.common.impl.file.BridgeFileType
+import me.rhunk.snapenhance.bridge.types.BridgeFileType
 import me.rhunk.snapenhance.config.ConfigAccessor
 import me.rhunk.snapenhance.config.ConfigProperty
 import me.rhunk.snapenhance.manager.Manager

@@ -56,7 +56,8 @@ enum class ContentType(val id: Int) {
     CREATIVE_TOOL_ITEM(14),
     FAMILY_CENTER_INVITE(15),
     FAMILY_CENTER_ACCEPT(16),
-    FAMILY_CENTER_LEAVE(17);
+    FAMILY_CENTER_LEAVE(17),
+    STATUS_PLUS_GIFT(18);
 
     companion object {
         fun fromId(i: Int): ContentType {

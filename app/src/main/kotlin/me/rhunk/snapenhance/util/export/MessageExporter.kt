@@ -20,6 +20,7 @@ import me.rhunk.snapenhance.data.wrapper.impl.Message
 import me.rhunk.snapenhance.data.wrapper.impl.SnapUUID
 import me.rhunk.snapenhance.database.objects.FriendFeedInfo
 import me.rhunk.snapenhance.database.objects.FriendInfo
+import me.rhunk.snapenhance.util.getApplicationInfoCompat
 import me.rhunk.snapenhance.util.protobuf.ProtoReader
 import me.rhunk.snapenhance.util.snap.EncryptionHelper
 import me.rhunk.snapenhance.util.snap.MediaDownloaderHelper
@@ -190,7 +191,7 @@ class MessageExporter(
 
         runCatching {
             ZipFile(
-                context.androidContext.packageManager.getApplicationInfo(BuildConfig.APPLICATION_ID, PackageManager.GET_META_DATA).publicSourceDir
+                context.androidContext.packageManager.getApplicationInfoCompat(BuildConfig.APPLICATION_ID, PackageManager.GET_META_DATA).publicSourceDir
             ).use { apkFile ->
                 //export rawinflate.js
                 apkFile.getEntry("assets/web/rawinflate.js").let { entry ->

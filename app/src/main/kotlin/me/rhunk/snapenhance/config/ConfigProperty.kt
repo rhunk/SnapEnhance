@@ -294,7 +294,11 @@ enum class ConfigProperty(
             "OFF"
         )
     ),
-
+    DISABLE_GOOGLE_PLAY_DIALOGS(
+        "disable_google_play_dialogs",
+        ConfigCategory.UI_TWEAKS,
+        ConfigStateValue(false)
+    ),
 
     //CAMERA
     CAMERA_DISABLE(
@@ -376,6 +380,23 @@ enum class ConfigProperty(
         "unlimited_multi_snap",
         ConfigCategory.EXPERIMENTAL_DEBUGGING,
         ConfigStateValue(false)
+    ),
+    
+    //DEVICE SPOOFER
+    DEVICE_SPOOF(
+        "device_spoof",
+        ConfigCategory.DEVICE_SPOOFER,
+        ConfigStateValue(false)
+    ),
+    FINGERPRINT(
+        "device_fingerprint",
+        ConfigCategory.DEVICE_SPOOFER,
+        ConfigStringValue("")
+    ),
+    ANDROID_ID(
+        "android_id",
+        ConfigCategory.DEVICE_SPOOFER,
+        ConfigStringValue("")
     );
 
     companion object {
