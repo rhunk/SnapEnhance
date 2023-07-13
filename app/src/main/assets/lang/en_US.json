@@ -164,6 +164,10 @@
             "name": "Override Startup Page",
             "description": "Overrides the startup page"
         },
+        "disable_google_play_dialogs": {
+            "name": "Disable Google Play Services Dialogs",
+            "description": "Prevent Google Play Services availability dialogs from being shown"
+        },
 
         "auto_updater": {
             "name": "Auto Updater",

@@ -31,6 +31,7 @@ import me.rhunk.snapenhance.features.impl.spying.MessageLogger
 import me.rhunk.snapenhance.features.impl.spying.PreventReadReceipts
 import me.rhunk.snapenhance.features.impl.spying.StealthMode
 import me.rhunk.snapenhance.features.impl.tweaks.CameraTweaks
+import me.rhunk.snapenhance.features.impl.tweaks.GooglePlayServicesDialogs
 import me.rhunk.snapenhance.features.impl.ui.PinConversations
 import me.rhunk.snapenhance.features.impl.ui.StartupPageOverride
 import me.rhunk.snapenhance.features.impl.ui.UITweaks
@@ -91,6 +92,7 @@ class FeatureManager(private val context: ModContext) : Manager {
         register(UnlimitedMultiSnap::class)
         register(DeviceSpooferHook::class)
         register(StartupPageOverride::class)
+        register(GooglePlayServicesDialogs::class)
 
         initializeFeatures()
     }
