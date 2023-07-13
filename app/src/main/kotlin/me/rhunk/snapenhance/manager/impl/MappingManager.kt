@@ -6,7 +6,7 @@ import com.google.gson.JsonParser
 import me.rhunk.snapenhance.Constants
 import me.rhunk.snapenhance.Logger
 import me.rhunk.snapenhance.ModContext
-import me.rhunk.snapenhance.bridge.common.impl.file.BridgeFileType
+import me.rhunk.snapenhance.bridge.types.BridgeFileType
 import me.rhunk.snapenhance.manager.Manager
 import me.rhunk.snapmapper.Mapper
 import me.rhunk.snapmapper.impl.BCryptClassMapper

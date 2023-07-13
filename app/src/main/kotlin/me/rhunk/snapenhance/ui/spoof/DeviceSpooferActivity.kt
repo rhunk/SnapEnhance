@@ -11,7 +11,7 @@ import android.widget.Switch
 import android.widget.TextView
 import me.rhunk.snapenhance.R
 import me.rhunk.snapenhance.SharedContext
-import me.rhunk.snapenhance.bridge.ConfigWrapper
+import me.rhunk.snapenhance.bridge.wrapper.ConfigWrapper
 import me.rhunk.snapenhance.config.ConfigCategory
 import me.rhunk.snapenhance.config.impl.ConfigIntegerValue
 import me.rhunk.snapenhance.config.impl.ConfigStateValue

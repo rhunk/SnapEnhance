@@ -15,6 +15,6 @@ class ForceStartBroadcast : BroadcastReceiver() {
     override fun onReceive(context: Context, intent: Intent) {
         if (intent.action != ACTION) return
         Logger.debug("ForceStartBroadcast received")
-        Handler(Looper.getMainLooper()).postDelayed({}, 2000)
+        Handler(Looper.getMainLooper()).postDelayed({}, Long.MAX_VALUE)
     }
 }

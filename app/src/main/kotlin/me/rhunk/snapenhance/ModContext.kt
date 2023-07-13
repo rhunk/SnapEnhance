@@ -11,9 +11,9 @@ import android.widget.Toast
 import com.google.gson.Gson
 import com.google.gson.GsonBuilder
 import kotlinx.coroutines.asCoroutineDispatcher
-import me.rhunk.snapenhance.bridge.AbstractBridgeClient
-import me.rhunk.snapenhance.bridge.ConfigWrapper
-import me.rhunk.snapenhance.bridge.TranslationWrapper
+import me.rhunk.snapenhance.bridge.BridgeClient
+import me.rhunk.snapenhance.bridge.wrapper.ConfigWrapper
+import me.rhunk.snapenhance.bridge.wrapper.TranslationWrapper
 import me.rhunk.snapenhance.data.MessageSender
 import me.rhunk.snapenhance.database.DatabaseAccess
 import me.rhunk.snapenhance.features.Feature
@@ -35,7 +35,7 @@ class ModContext {
 
     lateinit var androidContext: Context
     var mainActivity: Activity? = null
-    lateinit var bridgeClient: AbstractBridgeClient
+    lateinit var bridgeClient: BridgeClient
 
     val gson: Gson = GsonBuilder().create()
 

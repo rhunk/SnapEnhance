@@ -6,8 +6,7 @@ import android.content.Context
 import android.content.pm.PackageManager
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.withContext
-import me.rhunk.snapenhance.bridge.AbstractBridgeClient
-import me.rhunk.snapenhance.bridge.client.ServiceBridgeClient
+import me.rhunk.snapenhance.bridge.BridgeClient
 import me.rhunk.snapenhance.data.SnapClassCache
 import me.rhunk.snapenhance.hook.HookStage
 import me.rhunk.snapenhance.hook.Hooker
@@ -31,7 +30,7 @@ class SnapEnhance {
             appContext.androidContext = param.arg<Context>(0).also {
                 classLoader = it.classLoader
             }
-            appContext.bridgeClient = provideBridgeClient()
+            appContext.bridgeClient = BridgeClient(appContext)
 
             //for lspatch builds, we need to check if the service is correctly installed
             runCatching {
@@ -42,7 +41,6 @@ class SnapEnhance {
             }
 
             appContext.bridgeClient.apply {
-                this.context = appContext
                 start { bridgeResult ->
                     if (!bridgeResult) {
                         Logger.xposedLog("Cannot connect to bridge service")
@@ -87,13 +85,6 @@ class SnapEnhance {
             Logger.debug("Reloading config")
             appContext.config.loadFromBridge(appContext.bridgeClient)
         }
-    }
-
-    private fun provideBridgeClient(): AbstractBridgeClient {
-        /*if (Build.VERSION.SDK_INT <= Build.VERSION_CODES.P) {
-            return RootBridgeClient()
-        }*/
-        return ServiceBridgeClient()
     }
 
     @OptIn(ExperimentalTime::class)

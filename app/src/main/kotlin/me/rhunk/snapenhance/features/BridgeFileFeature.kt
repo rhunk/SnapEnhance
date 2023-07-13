@@ -1,6 +1,6 @@
 package me.rhunk.snapenhance.features
 
-import me.rhunk.snapenhance.bridge.common.impl.file.BridgeFileType
+import me.rhunk.snapenhance.bridge.types.BridgeFileType
 import java.io.BufferedReader
 import java.io.ByteArrayInputStream
 import java.io.InputStreamReader

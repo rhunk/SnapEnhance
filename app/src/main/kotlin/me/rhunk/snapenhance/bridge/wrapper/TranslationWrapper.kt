@@ -1,9 +1,10 @@
-package me.rhunk.snapenhance.bridge
+package me.rhunk.snapenhance.bridge.wrapper
 
 import android.content.Context
 import com.google.gson.JsonObject
 import com.google.gson.JsonParser
 import me.rhunk.snapenhance.Logger
+import me.rhunk.snapenhance.bridge.BridgeClient
 import me.rhunk.snapenhance.data.LocalePair
 import java.util.Locale
 
@@ -62,8 +63,8 @@ class TranslationWrapper {
         scanObject(translations)
     }
 
-    fun loadFromBridge(bridgeClient: AbstractBridgeClient) {
-        bridgeClient.fetchTranslations().getLocales().forEach {
+    fun loadFromBridge(bridgeClient: BridgeClient) {
+        bridgeClient.fetchTranslations().forEach {
             load(it)
         }
     }

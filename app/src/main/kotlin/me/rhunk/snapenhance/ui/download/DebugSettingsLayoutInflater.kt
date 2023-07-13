@@ -11,7 +11,7 @@ import android.widget.TextView
 import android.widget.Toast
 import me.rhunk.snapenhance.R
 import me.rhunk.snapenhance.SharedContext
-import me.rhunk.snapenhance.bridge.common.impl.file.BridgeFileType
+import me.rhunk.snapenhance.bridge.types.BridgeFileType
 import me.rhunk.snapenhance.ui.config.ConfigActivity
 import me.rhunk.snapenhance.ui.spoof.DeviceSpooferActivity
 import java.io.File

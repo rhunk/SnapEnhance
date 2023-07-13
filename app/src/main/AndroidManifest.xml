@@ -32,7 +32,7 @@
             android:resource="@array/sc_scope" />
 
         <service
-            android:name=".bridge.service.BridgeService"
+            android:name=".bridge.BridgeService"
             android:exported="true"
             tools:ignore="ExportedService">
         </service>

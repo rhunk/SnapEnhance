@@ -27,10 +27,10 @@ import me.rhunk.snapenhance.hook.HookStage
 import me.rhunk.snapenhance.hook.Hooker
 import me.rhunk.snapenhance.hook.hook
 import me.rhunk.snapenhance.util.CallbackBuilder
+import me.rhunk.snapenhance.util.protobuf.ProtoReader
 import me.rhunk.snapenhance.util.snap.EncryptionHelper
 import me.rhunk.snapenhance.util.snap.MediaDownloaderHelper
 import me.rhunk.snapenhance.util.snap.PreviewUtils
-import me.rhunk.snapenhance.util.protobuf.ProtoReader
 
 class Notifications : Feature("Notifications", loadParams = FeatureLoadParams.INIT_SYNC) {
     companion object{

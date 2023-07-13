@@ -1,10 +1,11 @@
-package me.rhunk.snapenhance.bridge
+package me.rhunk.snapenhance.bridge.wrapper
 
 import android.content.Context
 import com.google.gson.GsonBuilder
 import com.google.gson.JsonObject
 import me.rhunk.snapenhance.Logger
-import me.rhunk.snapenhance.bridge.common.impl.file.BridgeFileType
+import me.rhunk.snapenhance.bridge.BridgeClient
+import me.rhunk.snapenhance.bridge.types.BridgeFileType
 import me.rhunk.snapenhance.config.ConfigAccessor
 import me.rhunk.snapenhance.config.ConfigProperty
 
@@ -70,7 +71,7 @@ class ConfigWrapper: ConfigAccessor() {
         load()
     }
 
-    fun loadFromBridge(bridgeClient: AbstractBridgeClient) {
+    fun loadFromBridge(bridgeClient: BridgeClient) {
         isFileExistsAction = { bridgeClient.isFileExists(BridgeFileType.CONFIG) }
         readFileAction = { bridgeClient.createAndReadFile(BridgeFileType.CONFIG, "{}".toByteArray(Charsets.UTF_8)) }
         writeFileAction = { bridgeClient.writeFile(BridgeFileType.CONFIG, it) }

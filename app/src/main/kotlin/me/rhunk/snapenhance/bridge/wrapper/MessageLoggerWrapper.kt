@@ -1,4 +1,4 @@
-package me.rhunk.snapenhance.bridge
+package me.rhunk.snapenhance.bridge.wrapper
 
 import android.content.ContentValues
 import android.database.sqlite.SQLiteDatabase

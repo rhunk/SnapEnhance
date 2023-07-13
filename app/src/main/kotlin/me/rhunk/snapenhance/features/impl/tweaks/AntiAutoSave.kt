@@ -1,6 +1,6 @@
 package me.rhunk.snapenhance.features.impl.tweaks
 
-import me.rhunk.snapenhance.bridge.common.impl.file.BridgeFileType
+import me.rhunk.snapenhance.bridge.types.BridgeFileType
 import me.rhunk.snapenhance.features.BridgeFileFeature
 import me.rhunk.snapenhance.features.FeatureLoadParams
 
