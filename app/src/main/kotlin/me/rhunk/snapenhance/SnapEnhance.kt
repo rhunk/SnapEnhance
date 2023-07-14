@@ -60,12 +60,12 @@ class SnapEnhance {
             }
         }
 
-        Activity::class.java.hook( "onCreate",  HookStage.AFTER, { isBridgeInitialized }) {
+        Activity::class.java.hook("onCreate",  HookStage.AFTER) {
             val activity = it.thisObject() as Activity
             if (!activity.packageName.equals(Constants.SNAPCHAT_PACKAGE_NAME)) return@hook
             val isMainActivityNotNull = appContext.mainActivity != null
             appContext.mainActivity = activity
-            if (isMainActivityNotNull || !appContext.mappings.areMappingsLoaded) return@hook
+            if (!isBridgeInitialized || isMainActivityNotNull || !appContext.mappings.areMappingsLoaded) return@hook
             onActivityCreate()
         }
 
