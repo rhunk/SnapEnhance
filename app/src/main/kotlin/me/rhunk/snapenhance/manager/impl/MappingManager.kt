@@ -11,6 +11,7 @@ import kotlinx.coroutines.runBlocking
 import me.rhunk.snapenhance.Constants
 import me.rhunk.snapenhance.Logger
 import me.rhunk.snapenhance.ModContext
+import me.rhunk.snapenhance.R
 import me.rhunk.snapenhance.bridge.common.impl.file.BridgeFileType
 import me.rhunk.snapenhance.manager.Manager
 import me.rhunk.snapenhance.mapping.Mapper
@@ -68,7 +69,7 @@ class MappingManager(private val context: ModContext) : Manager {
             return
         }
         context.runOnUiThread {
-            val statusDialogBuilder = AlertDialog.Builder(context.mainActivity)
+            val statusDialogBuilder = AlertDialog.Builder(context.mainActivity, AlertDialog.THEME_DEVICE_DEFAULT_DARK)
                 .setMessage("Generating mappings, please wait...")
                 .setCancelable(false)
                 .setView(android.widget.ProgressBar(context.mainActivity).apply {
