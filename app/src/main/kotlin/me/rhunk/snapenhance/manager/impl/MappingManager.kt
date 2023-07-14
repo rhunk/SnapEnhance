@@ -62,8 +62,11 @@ class MappingManager(private val context: ModContext) : Manager {
                 context.bridgeClient.deleteFile(BridgeFileType.MAPPINGS)
                 context.softRestartApp()
             }
-            return
         }
+    }
+
+    override fun onActivityCreate() {
+        if (areMappingsLoaded) return
         context.runOnUiThread {
             val statusDialogBuilder = AlertDialog.Builder(context.mainActivity)
                 .setMessage("Generating mappings, please wait...")
@@ -92,7 +95,7 @@ class MappingManager(private val context: ModContext) : Manager {
                         statusDialogBuilder.show()
                     }
                 }
-             }
+            }
         }
     }
 
