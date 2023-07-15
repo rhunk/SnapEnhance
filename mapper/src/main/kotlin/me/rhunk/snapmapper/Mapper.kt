@@ -9,7 +9,9 @@ import org.jf.dexlib2.Opcodes
 import org.jf.dexlib2.dexbacked.DexBackedClassDef
 import org.jf.dexlib2.dexbacked.DexBackedDexFile
 import java.io.BufferedInputStream
+import java.io.InputStream
 import java.util.zip.ZipFile
+import java.util.zip.ZipInputStream
 import kotlin.reflect.KClass
 
 class Mapper(
@@ -17,18 +19,34 @@ class Mapper(
 ) {
     private val classes = mutableListOf<DexBackedClassDef>()
     fun loadApk(path: String) {
-        ZipFile(path).apply {
-            entries().toList().filter { it.name.startsWith("classes") && it.name.endsWith(".dex") }.forEach { dexEntry ->
-                getInputStream(dexEntry).use {
-                    runCatching {
-                        classes.addAll(
-                            DexBackedDexFile.fromInputStream(Opcodes.getDefault(), BufferedInputStream(it)).classes
-                        )
-                    }.onFailure {
-                        throw Throwable("Failed to load dex file: ${dexEntry.name}", it)
-                    }
+        val apkFile = ZipFile(path)
+        val apkEntries = apkFile.entries().toList()
+
+        fun readClass(stream: InputStream) = runCatching {
+            classes.addAll(
+                DexBackedDexFile.fromInputStream(Opcodes.getDefault(), BufferedInputStream(stream)).classes
+            )
+        }.onFailure {
+            throw Throwable("Failed to load dex file", it)
+        }
+
+        fun filterDexClasses(name: String) = name.startsWith("classes") && name.endsWith(".dex")
+
+        apkEntries.firstOrNull { it.name.endsWith("lspatch/origin.apk") }?.let { origin ->
+            val originApk = ZipInputStream(apkFile.getInputStream(origin))
+            var nextEntry = originApk.nextEntry
+            while (nextEntry != null) {
+                if (filterDexClasses(nextEntry.name)) {
+                    readClass(originApk)
                 }
+                originApk.closeEntry()
+                nextEntry = originApk.nextEntry
             }
+            return
+        }
+
+        apkEntries.toList().filter { filterDexClasses(it.name) }.forEach {
+            readClass(apkFile.getInputStream(it))
         }
     }
 

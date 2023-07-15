@@ -128,10 +128,10 @@ class MappingManager(private val context: ModContext) : Manager {
         val mapper = Mapper(*mappers)
 
         runCatching {
-            mapper.loadApk(context.androidContext.packageManager.getPackageInfo(
+            mapper.loadApk(context.androidContext.packageManager.getApplicationInfo(
                 Constants.SNAPCHAT_PACKAGE_NAME,
                 0
-            ).applicationInfo.sourceDir)
+            ).sourceDir)
         }.onFailure {
             throw Exception("Failed to load APK", it)
         }
