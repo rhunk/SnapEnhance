@@ -12,6 +12,7 @@ import android.widget.EditText
 import me.rhunk.snapenhance.config.ConfigProperty
 import me.rhunk.snapenhance.features.Feature
 import me.rhunk.snapenhance.features.FeatureLoadParams
+import me.rhunk.snapenhance.ui.ViewAppearanceHelper
 
 //TODO: fingerprint unlock
 class AppPasscode : Feature("App Passcode", loadParams = FeatureLoadParams.ACTIVITY_CREATE_SYNC) {
@@ -32,7 +33,7 @@ class AppPasscode : Feature("App Passcode", loadParams = FeatureLoadParams.ACTIV
         val mainActivity = context.mainActivity!!
         setActivityVisibility(false)
 
-        val prompt = AlertDialog.Builder(mainActivity)
+        val prompt = ViewAppearanceHelper.newAlertDialogBuilder(mainActivity)
         val createPrompt  = {
             val alertDialog = prompt.create()
             val textView = EditText(mainActivity)

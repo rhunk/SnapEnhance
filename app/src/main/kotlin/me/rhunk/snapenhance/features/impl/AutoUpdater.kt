@@ -14,6 +14,7 @@ import me.rhunk.snapenhance.Logger
 import me.rhunk.snapenhance.config.ConfigProperty
 import me.rhunk.snapenhance.features.Feature
 import me.rhunk.snapenhance.features.FeatureLoadParams
+import me.rhunk.snapenhance.ui.ViewAppearanceHelper
 import okhttp3.OkHttpClient
 import okhttp3.Request
 import org.json.JSONArray
@@ -61,7 +62,7 @@ class AutoUpdater : Feature("AutoUpdater", loadParams = FeatureLoadParams.ACTIVI
         val downloadEndpoint = latestRelease.getJSONArray("assets").getJSONObject(0).getString("browser_download_url")
 
         context.runOnUiThread {
-            AlertDialog.Builder(context.mainActivity)
+            ViewAppearanceHelper.newAlertDialogBuilder(context.mainActivity)
                 .setTitle(context.translation["auto_updater.dialog_title"])
                 .setMessage(
                     context.translation.format("auto_updater.dialog_message",

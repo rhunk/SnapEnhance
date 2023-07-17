@@ -9,6 +9,7 @@ import me.rhunk.snapenhance.features.Feature
 import me.rhunk.snapenhance.features.FeatureLoadParams
 import me.rhunk.snapenhance.hook.HookStage
 import me.rhunk.snapenhance.hook.Hooker
+import me.rhunk.snapenhance.ui.ViewAppearanceHelper
 import me.rhunk.snapenhance.util.protobuf.ProtoReader
 
 class GalleryMediaSendOverride : Feature("Gallery Media Send Override", loadParams = FeatureLoadParams.INIT_SYNC) {
@@ -24,7 +25,7 @@ class GalleryMediaSendOverride : Feature("Gallery Media Send Override", loadPara
 
             if (messageProtoReader.readPath(3)?.getCount(3) != 1) {
                 context.runOnUiThread {
-                    AlertDialog.Builder(context.mainActivity!!)
+                    ViewAppearanceHelper.newAlertDialogBuilder(context.mainActivity!!)
                         .setMessage("You can only send one media at a time")
                         .setPositiveButton("OK", null)
                         .show()

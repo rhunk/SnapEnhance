@@ -33,7 +33,7 @@ import me.rhunk.snapenhance.features.impl.downloader.AntiAutoDownload
 import me.rhunk.snapenhance.features.impl.spying.StealthMode
 import me.rhunk.snapenhance.features.impl.tweaks.AntiAutoSave
 import me.rhunk.snapenhance.ui.menu.AbstractMenu
-import me.rhunk.snapenhance.ui.menu.ViewAppearanceHelper
+import me.rhunk.snapenhance.ui.ViewAppearanceHelper
 import me.rhunk.snapenhance.util.snap.BitmojiSelfie
 import java.net.HttpURLConnection
 import java.net.URL
@@ -73,7 +73,7 @@ class FriendFeedInfoMenu : AbstractMenu() {
         val finalIcon = icon
         context.runOnUiThread {
             val addedTimestamp: Long = profile.addedTimestamp.coerceAtLeast(profile.reverseAddedTimestamp)
-            val builder = AlertDialog.Builder(context.mainActivity)
+            val builder = ViewAppearanceHelper.newAlertDialogBuilder(context.mainActivity)
             builder.setIcon(finalIcon)
             builder.setTitle(profile.displayName ?: profile.username)
 
@@ -168,7 +168,7 @@ class FriendFeedInfoMenu : AbstractMenu() {
 
 
         //alert dialog
-        val builder = AlertDialog.Builder(context.mainActivity)
+        val builder = ViewAppearanceHelper.newAlertDialogBuilder(context.mainActivity)
         builder.setTitle(context.translation["conversation_preview.title"])
         builder.setMessage(messageBuilder.toString())
         builder.setPositiveButton(

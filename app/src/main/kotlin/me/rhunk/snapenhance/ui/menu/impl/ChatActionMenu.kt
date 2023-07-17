@@ -13,7 +13,7 @@ import me.rhunk.snapenhance.features.impl.Messaging
 import me.rhunk.snapenhance.features.impl.downloader.MediaDownloader
 import me.rhunk.snapenhance.features.impl.spying.MessageLogger
 import me.rhunk.snapenhance.ui.menu.AbstractMenu
-import me.rhunk.snapenhance.ui.menu.ViewAppearanceHelper
+import me.rhunk.snapenhance.ui.ViewAppearanceHelper
 
 
 class ChatActionMenu : AbstractMenu() {

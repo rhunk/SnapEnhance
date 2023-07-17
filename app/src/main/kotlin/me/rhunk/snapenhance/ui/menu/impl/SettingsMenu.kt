@@ -18,7 +18,7 @@ import me.rhunk.snapenhance.config.impl.ConfigStateSelection
 import me.rhunk.snapenhance.config.impl.ConfigStateValue
 import me.rhunk.snapenhance.config.impl.ConfigStringValue
 import me.rhunk.snapenhance.ui.menu.AbstractMenu
-import me.rhunk.snapenhance.ui.menu.ViewAppearanceHelper
+import me.rhunk.snapenhance.ui.ViewAppearanceHelper
 
 class SettingsMenu : AbstractMenu() {
     @SuppressLint("ClickableViewAccessibility")
@@ -55,7 +55,7 @@ class SettingsMenu : AbstractMenu() {
         }
 
         val textEditor: ((String) -> Unit) -> Unit = { updateValue ->
-            val builder = AlertDialog.Builder(context.mainActivity!!)
+            val builder = ViewAppearanceHelper.newAlertDialogBuilder(context.mainActivity!!)
             builder.setTitle(propertyName)
 
             val input = EditText(context.androidContext)
@@ -121,7 +121,7 @@ class SettingsMenu : AbstractMenu() {
                 updateLocalizedText(button, property.valueContainer.value())
 
                 button.setOnClickListener {_ ->
-                    val builder = AlertDialog.Builder(context.mainActivity!!)
+                    val builder = ViewAppearanceHelper.newAlertDialogBuilder(context.mainActivity!!)
                     builder.setTitle(propertyName)
 
                     builder.setSingleChoiceItems(
@@ -148,7 +148,7 @@ class SettingsMenu : AbstractMenu() {
                 updateButtonText(button, "(${property.valueContainer.value().count { it.value }})")
 
                 button.setOnClickListener {_ ->
-                    val builder = AlertDialog.Builder(context.mainActivity!!)
+                    val builder = ViewAppearanceHelper.newAlertDialogBuilder(context.mainActivity!!)
                     builder.setTitle(propertyName)
 
                     val sortedStates = property.valueContainer.value().toSortedMap()

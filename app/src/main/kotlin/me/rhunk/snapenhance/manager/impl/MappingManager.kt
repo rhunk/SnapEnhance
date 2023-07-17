@@ -8,6 +8,7 @@ import me.rhunk.snapenhance.Logger
 import me.rhunk.snapenhance.ModContext
 import me.rhunk.snapenhance.bridge.types.BridgeFileType
 import me.rhunk.snapenhance.manager.Manager
+import me.rhunk.snapenhance.ui.ViewAppearanceHelper
 import me.rhunk.snapmapper.Mapper
 import me.rhunk.snapmapper.impl.BCryptClassMapper
 import me.rhunk.snapmapper.impl.CallbackMapper
@@ -65,7 +66,7 @@ class MappingManager(private val context: ModContext) : Manager {
             return
         }
         context.runOnUiThread {
-            val statusDialogBuilder = AlertDialog.Builder(context.mainActivity, AlertDialog.THEME_DEVICE_DEFAULT_DARK)
+            val statusDialogBuilder = ViewAppearanceHelper.newAlertDialogBuilder(context.mainActivity)
                 .setMessage("Generating mappings, please wait...")
                 .setCancelable(false)
                 .setView(android.widget.ProgressBar(context.mainActivity).apply {

@@ -1,6 +1,8 @@
-package me.rhunk.snapenhance.ui.menu
+package me.rhunk.snapenhance.ui
 
 import android.annotation.SuppressLint
+import android.app.AlertDialog
+import android.content.Context
 import android.content.res.ColorStateList
 import android.graphics.Color
 import android.graphics.drawable.ColorDrawable
@@ -90,4 +92,6 @@ object ViewAppearanceHelper {
             )
         }
     }
+
+    fun newAlertDialogBuilder(context: Context?) = AlertDialog.Builder(context, android.R.style.Theme_DeviceDefault_Dialog_Alert)
 }

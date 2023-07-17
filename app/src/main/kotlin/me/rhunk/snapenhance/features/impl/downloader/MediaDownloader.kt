@@ -1,6 +1,5 @@
 package me.rhunk.snapenhance.features.impl.downloader
 
-import android.app.AlertDialog
 import android.content.DialogInterface
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
@@ -34,6 +33,7 @@ import me.rhunk.snapenhance.features.impl.spying.MessageLogger
 import me.rhunk.snapenhance.hook.HookAdapter
 import me.rhunk.snapenhance.hook.HookStage
 import me.rhunk.snapenhance.hook.Hooker
+import me.rhunk.snapenhance.ui.ViewAppearanceHelper
 import me.rhunk.snapenhance.ui.download.MediaFilter
 import me.rhunk.snapenhance.util.download.RemoteMediaResolver
 import me.rhunk.snapenhance.util.getObjectField
@@ -493,13 +493,12 @@ class MediaDownloader : Feature("MediaDownloader", loadParams = FeatureLoadParam
                     bitmap = PreviewUtils.mergeBitmapOverlay(bitmap!!, BitmapFactory.decodeByteArray(it, 0, it.size))
                 }
 
-                with(AlertDialog.Builder(context.mainActivity)) {
-                    setTitle("Preview")
+                with(ViewAppearanceHelper.newAlertDialogBuilder(context.mainActivity)) {
                     setView(ImageView(context).apply {
                         setImageBitmap(bitmap)
                     })
                     setPositiveButton("Close") { dialog: DialogInterface, _: Int -> dialog.dismiss() }
-                    this@MediaDownloader.context.runOnUiThread { show() }
+                    this@MediaDownloader.context.runOnUiThread { show()}
                 }
             }.onFailure {
                 context.shortToast("Failed to create preview: $it")
