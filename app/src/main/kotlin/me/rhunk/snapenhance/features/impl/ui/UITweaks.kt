@@ -4,7 +4,6 @@ import android.annotation.SuppressLint
 import android.content.res.Resources
 import android.view.View
 import android.view.ViewGroup
-import android.widget.FrameLayout
 import me.rhunk.snapenhance.Constants
 import me.rhunk.snapenhance.config.ConfigProperty
 import me.rhunk.snapenhance.features.Feature
@@ -32,7 +31,7 @@ class UITweaks : Feature("UITweaks", loadParams = FeatureLoadParams.ACTIVITY_CRE
         param.setResult(null)
     }
 
-    @SuppressLint("DiscouragedApi")
+    @SuppressLint("DiscouragedApi", "InternalInsetResource")
     override fun onActivityCreate() {
         val blockAds = context.config.bool(ConfigProperty.BLOCK_ADS)
         val hiddenElements = context.config.options(ConfigProperty.HIDE_UI_ELEMENTS)
@@ -101,9 +100,20 @@ class UITweaks : Feature("UITweaks", loadParams = FeatureLoadParams.ACTIVITY_CRE
                 hideStorySection(param)
             }
 
-            if (isImmersiveCamera && view.id == getIdentifier("full_screen_surface_view", "id")) {
-                Hooker.hookObjectMethod(View::class.java, view, "setLayoutParams", HookStage.BEFORE) {
-                    it.setArg(0, FrameLayout.LayoutParams(displayMetrics.widthPixels, displayMetrics.heightPixels))
+            if (isImmersiveCamera) {
+                if (view.id == getIdentifier("edits_container", "id")) {
+                    val deviceAspectRatio = displayMetrics.widthPixels.toFloat() / displayMetrics.heightPixels.toFloat()
+                    Hooker.hookObjectMethod(View::class.java, view, "layout", HookStage.BEFORE) {
+                        val width = it.arg(2) as Int
+                        val realHeight = (width / deviceAspectRatio).toInt()
+                        it.setArg(3, realHeight)
+                    }
+                }
+                if (view.id == getIdentifier("full_screen_surface_view", "id")) {
+                    Hooker.hookObjectMethod(View::class.java, view, "layout", HookStage.BEFORE) {
+                        it.setArg(1, 1)
+                        it.setArg(3, displayMetrics.heightPixels)
+                    }
                 }
             }
 
