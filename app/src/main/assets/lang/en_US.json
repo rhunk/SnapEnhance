@@ -91,6 +91,10 @@
             "name": "Force Media Source Quality",
             "description": "Overrides the media source quality"
         },
+        "download_logging": {
+            "name": "Download Logging",
+            "description": "Show a toast when media is downloading"
+        },
 
         "enable_friend_feed_menu_bar": {
             "name": "Friend Feed Menu Bar",
@@ -262,6 +266,12 @@
                 "public_stories": "Public Stories",
                 "spotlight": "Spotlight"
             },
+            "download_logging": {
+                "started": "Started",
+                "success": "Success",
+                "progress": "Progress",
+                "failure": "Failure"
+            },
             "auto_save_messages": {
                 "NOTE": "Audio Note",
                 "CHAT": "Chat",
@@ -427,13 +437,17 @@
             "device_spoofer": "Device Spoofer"
         }
     },
-    "download_manager_receiver": {
+    "download_processor": {
+        "download_started_toast": "Download started",
+        "unsupported_content_type_toast": "Unsupported content type!",
+        "failed_no_longer_available_toast": "Media no longer available",
         "already_queued_toast": "Media already in queue!",
         "already_downloaded_toast": "Media already downloaded!",
         "saved_toast": "Saved to {path}",
         "download_toast": "Downloading {path}...",
         "processing_toast": "Processing {path}...",
         "failed_generic_toast": "Failed to download",
+        "failed_to_create_preview_toast": "Failed to create preview",
         "failed_processing_toast": "Failed to process {error}",
         "failed_gallery_toast": "Failed to save to gallery {error}"
     },

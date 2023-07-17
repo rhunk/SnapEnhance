@@ -64,7 +64,7 @@ class DownloadProcessor (
     }
 
     private val translation by lazy {
-        SharedContext.translation.getCategory("download_manager_receiver")
+        SharedContext.translation.getCategory("download_processor")
     }
 
     private val gson by lazy {

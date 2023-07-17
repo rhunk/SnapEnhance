@@ -78,6 +78,10 @@ class MediaDownloader : Feature("MediaDownloader", loadParams = FeatureLoadParam
             createNewFilePath(generatedHash, mediaDisplayType, pathSuffix)
         ).absolutePath
 
+        context.shortToast(context.translation["download_processor.download_started_toast"])
+
+        val downloadLogging = context.config.options(ConfigProperty.DOWNLOAD_LOGGING)
+
         return DownloadManagerClient(
             context = context,
             metadata = DownloadMetadata(
@@ -89,18 +93,21 @@ class MediaDownloader : Feature("MediaDownloader", loadParams = FeatureLoadParam
                 iconUrl = iconUrl,
                 outputPath = outputPath
             ),
-            //TODO: implement logging levels
             callback = object: DownloadCallback.Stub() {
                 override fun onSuccess(outputFile: String) {
-                    context.shortToast(context.translation.format("download_manager_receiver.saved_toast", "path" to outputFile.split("/").takeLast(2).joinToString("/")))
+                    if (downloadLogging["success"] != true) return
+                    Logger.debug("onSuccess: outputFile=$outputFile")
+                    context.shortToast(context.translation.format("download_processor.saved_toast", "path" to outputFile.split("/").takeLast(2).joinToString("/")))
                 }
 
                 override fun onProgress(message: String) {
-                    context.shortToast(message)
+                    if (downloadLogging["progress"] != true) return
                     Logger.debug("onProgress: message=$message")
+                    context.shortToast(message)
                 }
 
                 override fun onFailure(message: String, throwable: String?) {
+                    if (downloadLogging["failure"] != true) return
                     Logger.debug("onFailure: message=$message, throwable=$throwable")
                     throwable?.let {
                         context.longToast((message + it.takeIf { it.isNotEmpty() }.orEmpty()))
@@ -443,10 +450,12 @@ class MediaDownloader : Feature("MediaDownloader", loadParams = FeatureLoadParam
                 }
         }
 
+        val translations = context.translation.getCategory("download_processor")
+
         if (contentType != ContentType.NOTE &&
             contentType != ContentType.SNAP &&
             contentType != ContentType.EXTERNAL_MEDIA) {
-            context.shortToast("Unsupported content type $contentType")
+            context.shortToast(translations["unsupported_content_type_toast"])
             return
         }
 
@@ -474,6 +483,11 @@ class MediaDownloader : Feature("MediaDownloader", loadParams = FeatureLoadParam
                 return
             }
 
+            if (EncryptionHelper.getEncryptionKeys(contentType, messageReader, isArroyo = isArroyoMessage) == null) {
+                context.shortToast(translations["failed_no_longer_available_toast"])
+                return
+            }
+
             val downloadedMediaList = MediaDownloaderHelper.downloadMediaFromReference(urlProto) {
                 EncryptionHelper.decryptInputStream(it, contentType, messageReader, isArroyo = isArroyoMessage)
             }
@@ -485,7 +499,7 @@ class MediaDownloader : Feature("MediaDownloader", loadParams = FeatureLoadParam
                 var bitmap: Bitmap? = PreviewUtils.createPreview(originalMedia, isVideo = FileType.fromByteArray(originalMedia).isVideo)
 
                 if (bitmap == null) {
-                    context.shortToast("Failed to create preview")
+                    context.shortToast(translations["failed_to_create_preview_toast"])
                     return
                 }
 
@@ -501,11 +515,11 @@ class MediaDownloader : Feature("MediaDownloader", loadParams = FeatureLoadParam
                     this@MediaDownloader.context.runOnUiThread { show()}
                 }
             }.onFailure {
-                context.shortToast("Failed to create preview: $it")
+                context.shortToast(translations["failed_to_create_preview_toast"])
                 xposedLog(it)
             }
         }.onFailure {
-            context.longToast("Failed to download " + it.message)
+            context.longToast(translations["failed_generic_toast"])
             xposedLog(it)
         }
     }

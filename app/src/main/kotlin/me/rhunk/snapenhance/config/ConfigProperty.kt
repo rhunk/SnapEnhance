@@ -159,6 +159,19 @@ enum class ConfigProperty(
         ConfigCategory.MEDIA_MANAGEMENT,
         ConfigStateValue(false)
     ),
+    DOWNLOAD_LOGGING(
+        "download_logging",
+        ConfigCategory.MEDIA_MANAGEMENT,
+        ConfigStateListValue(
+            listOf("started", "success", "progress", "failure"),
+            mutableMapOf(
+                "started" to false,
+                "success" to true,
+                "progress" to false,
+                "failure" to true
+            )
+        )
+    ),
     
     //UI AND TWEAKS
     ENABLE_FRIEND_FEED_MENU_BAR(
