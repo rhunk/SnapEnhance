@@ -29,6 +29,7 @@ import me.rhunk.snapenhance.hook.Hooker
 import me.rhunk.snapenhance.hook.hook
 import me.rhunk.snapenhance.util.CallbackBuilder
 import me.rhunk.snapenhance.util.protobuf.ProtoReader
+import me.rhunk.snapenhance.util.setObjectField
 import me.rhunk.snapenhance.util.snap.EncryptionHelper
 import me.rhunk.snapenhance.util.snap.MediaDownloaderHelper
 import me.rhunk.snapenhance.util.snap.PreviewUtils
@@ -159,6 +160,7 @@ class Notifications : Feature("Notifications", loadParams = FeatureLoadParams.IN
                         cachedMessages.computeIfAbsent(conversationId) { mutableListOf() }.add("${myUser.displayName}: $input")
 
                         updateNotification(notificationId) { notification ->
+                            notification.flags = notification.flags or Notification.FLAG_ONLY_ALERT_ONCE
                             setNotificationText(notification, conversationId)
                         }
 
