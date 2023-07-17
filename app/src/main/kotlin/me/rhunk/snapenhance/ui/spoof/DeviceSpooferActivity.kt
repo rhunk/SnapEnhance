@@ -28,7 +28,7 @@ class DeviceSpooferActivity: Activity() {
         SharedContext.ensureInitialized(this)
         setContentView(R.layout.device_spoofer_activity)
         
-        findViewById<TextView>(R.id.title).text = "Device Spoofer"
+        findViewById<TextView>(R.id.title).text = SharedContext.translation["spoof_activity.title"]
         findViewById<ImageButton>(R.id.back_button).setOnClickListener { finish() }
         val propertyListLayout = findViewById<ViewGroup>(R.id.spoof_property_list)
         

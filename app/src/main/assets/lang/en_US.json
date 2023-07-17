@@ -66,7 +66,6 @@
             "name": "Hide Typing Notification",
             "description": "Prevents typing notifications being sent"
         },
-
         "save_folder": {
             "name": "Save Folder",
             "description": "The directory where all media is saved"
@@ -95,7 +94,6 @@
             "name": "Force Media Source Quality",
             "description": "Overrides the media source quality"
         },
-
         "enable_friend_feed_menu_bar": {
             "name": "Friend Feed Menu Bar",
             "description": "Enables the new Friend Feed Menu Bar"
@@ -164,12 +162,10 @@
             "name": "Override Startup Page",
             "description": "Overrides the startup page"
         },
-
         "auto_updater": {
             "name": "Auto Updater",
             "description": "The interval of checking for updates"
         },
-
         "disable_camera": {
             "name": "Disable Camera",
             "description": "Prevents Snapchat from being able to use the camera"
@@ -194,7 +190,6 @@
             "name": "Force Camera Source Encoding",
             "description": "Forces the camera source encoding"
         },
-
         "app_passcode": {
             "name": "Set App Passcode",
             "description": "Sets a passcode to lock the app"
@@ -225,11 +220,27 @@
         },
         "device_fingerprint": {
             "name": "Device Fingerprint",
-            "description": "Spoofs the device fingerprint"
+            "description": "Master switch, if this is off nothing will be spoofed"
         },
         "android_id": {
             "name": "Android ID",
             "description": "Spoofs the devices Android ID"
+        },
+        "installer_package_name": {
+          "name": "Installer Package Name",
+          "description": "Spoofs the package name of the App that installed Snapchat"
+        },
+        "debug_flag": {
+          "name": "Debug Flag",
+          "description": "Make the Snapchat App debuggable"
+        },
+        "mock_location_flag": {
+          "name": "Mock Location Flag",
+          "description": "Spoofs ALLOW_MOCK_LOCATION"
+        },
+        "split_classloader": {
+          "name": "Split Classloader",
+          "description": "Spoofs Split Classloader value"
         }
     },
 

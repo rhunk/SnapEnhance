@@ -396,6 +396,30 @@ enum class ConfigProperty(
         ConfigCategory.DEVICE_SPOOFER,
         ConfigStringValue(""),
         shouldAppearInSettings = false
+    ),
+    INSTALLER_PACKAGE_NAME(
+        "installer_package_name",
+        ConfigCategory.DEVICE_SPOOFER,
+        ConfigStringValue(""),
+        shouldAppearInSettings = false
+    ),
+    DEBUGGABLE_FLAG(
+        "debug_flag",
+        ConfigCategory.DEVICE_SPOOFER,
+        ConfigStateValue(false),
+        shouldAppearInSettings = false
+    ),
+    MOCK_LOCATION_FLAG(
+        "mock_location_flag",
+        ConfigCategory.DEVICE_SPOOFER,
+        ConfigStateValue(false),
+        shouldAppearInSettings = false
+    ),
+    SPLIT_CLASSLOADER(
+        "split_classloader",
+        ConfigCategory.DEVICE_SPOOFER,
+        ConfigStringValue(""),
+        shouldAppearInSettings = false
     );
 
     companion object {
