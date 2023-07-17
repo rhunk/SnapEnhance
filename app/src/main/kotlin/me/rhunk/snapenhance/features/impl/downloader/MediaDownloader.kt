@@ -406,20 +406,12 @@ class MediaDownloader : Feature("MediaDownloader", loadParams = FeatureLoadParam
         }
     }
 
-    /**
-     * Called when a message is focused in chat
-     */
-    //TODO: use snapchat classes instead of database (when content is deleted)
-    fun onMessageActionMenu(isPreviewMode: Boolean) {
-        //check if the message was focused in a conversation
-        val messaging = context.feature(Messaging::class)
+    fun downloadMessageId(messageId: Long, isPreview: Boolean = false) {
         val messageLogger = context.feature(MessageLogger::class)
-
-        if (messaging.openedConversationUUID == null) return
-        val message = context.database.getConversationMessageFromId(messaging.lastFocusedMessageId) ?: return
+        val message = context.database.getConversationMessageFromId(messageId) ?: throw Exception("Message not found in database")
 
         //get the message author
-        val friendInfo: FriendInfo = context.database.getFriendInfo(message.sender_id!!)!!
+        val friendInfo: FriendInfo = context.database.getFriendInfo(message.sender_id!!) ?: throw Exception("Friend not found in database")
         val authorName = friendInfo.usernameForSorting!!
 
         var messageContent = message.message_content!!
@@ -466,7 +458,7 @@ class MediaDownloader : Feature("MediaDownloader", loadParams = FeatureLoadParam
         }
 
         runCatching {
-            if (!isPreviewMode) {
+            if (!isPreview) {
                 val encryptionKeys = EncryptionHelper.getEncryptionKeys(contentType, messageReader, isArroyo = isArroyoMessage)
                 provideClientDownloadManager(
                     pathSuffix = authorName,
@@ -517,5 +509,14 @@ class MediaDownloader : Feature("MediaDownloader", loadParams = FeatureLoadParam
             context.longToast("Failed to download " + it.message)
             xposedLog(it)
         }
+    }
+
+    /**
+     * Called when a message is focused in chat
+     */
+    fun onMessageActionMenu(isPreviewMode: Boolean) {
+        val messaging = context.feature(Messaging::class)
+        if (messaging.openedConversationUUID == null) return
+        downloadMessageId(messaging.lastFocusedMessageId, isPreviewMode)
     }
 }

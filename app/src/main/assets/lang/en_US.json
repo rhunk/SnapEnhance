@@ -238,7 +238,8 @@
             "better_notifications": {
                 "chat": "Show chat messages",
                 "snap": "Show medias",
-                "reply_button": "Add reply button"
+                "reply_button": "Add reply button",
+                "download_button": "Add download button"
             },
             "friend_feed_menu_buttons": {
                 "auto_download_blacklist": "\u2B07\uFE0F Auto Download Blacklist",

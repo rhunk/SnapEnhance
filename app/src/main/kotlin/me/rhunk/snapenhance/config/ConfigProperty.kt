@@ -38,11 +38,12 @@ enum class ConfigProperty(
         "better_notifications",
         ConfigCategory.SPYING_PRIVACY,
         ConfigStateListValue(
-            listOf("snap", "chat", "reply_button"),
+            listOf("snap", "chat", "reply_button", "download_button"),
             mutableMapOf(
                 "snap" to false,
                 "chat" to false,
-                "reply_button" to false
+                "reply_button" to false,
+                "download_button" to false
             )
         )
     ),
