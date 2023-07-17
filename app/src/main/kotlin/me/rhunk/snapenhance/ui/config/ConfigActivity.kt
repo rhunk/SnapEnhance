@@ -179,7 +179,7 @@ class ConfigActivity : Activity() {
                             .setMultiChoiceItems(
                                 values.keys.map {
                                     if (property.disableValueLocalization) it
-                                    else SharedContext.translation["option.property." + property.translationKey + "." + it]
+                                    else SharedContext.translation[property.getOptionTranslationKey(it)]
                                 }.toTypedArray(),
                                 values.map { it.value }.toBooleanArray()
                             ) { _, which, isChecked ->
@@ -201,7 +201,7 @@ class ConfigActivity : Activity() {
                         builder.setSingleChoiceItems(
                             value.keys().toTypedArray().map {
                                 if (property.disableValueLocalization) it
-                                else SharedContext.translation["option.property." + property.translationKey + "." + it]
+                                else SharedContext.translation[property.getOptionTranslationKey(it)]
                             }.toTypedArray(),
                             value.keys().indexOf(value.value())
                         ) { _, which ->

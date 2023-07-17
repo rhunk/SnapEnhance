@@ -1,14 +1,15 @@
 package me.rhunk.snapenhance.features.impl.privacy
 
+import me.rhunk.snapenhance.Logger
 import me.rhunk.snapenhance.config.ConfigProperty
-import me.rhunk.snapenhance.data.ContentType
+import me.rhunk.snapenhance.data.NotificationType
 import me.rhunk.snapenhance.data.wrapper.impl.MessageContent
 import me.rhunk.snapenhance.features.Feature
 import me.rhunk.snapenhance.features.FeatureLoadParams
 import me.rhunk.snapenhance.hook.HookStage
 import me.rhunk.snapenhance.hook.Hooker
 
-class PreventMessageSending : Feature("Send message override", loadParams = FeatureLoadParams.ACTIVITY_CREATE_ASYNC) {
+class PreventMessageSending : Feature("Prevent message sending", loadParams = FeatureLoadParams.ACTIVITY_CREATE_ASYNC) {
     override fun asyncOnActivityCreate() {
         Hooker.hook(
             context.classCache.conversationManager,
@@ -17,20 +18,12 @@ class PreventMessageSending : Feature("Send message override", loadParams = Feat
         ) { param ->
             val message = MessageContent(param.arg(1))
             val contentType = message.contentType
+            val options = context.config.options(ConfigProperty.PREVENT_SENDING_MESSAGES)
+            val associatedType = NotificationType.fromContentType(contentType) ?: return@hook
 
-            if (context.config.bool(ConfigProperty.PREVENT_STATUS_NOTIFICATIONS)) {
-                if (contentType == ContentType.STATUS_SAVE_TO_CAMERA_ROLL ||
-                        contentType == ContentType.STATUS_CALL_MISSED_AUDIO ||
-                        contentType == ContentType.STATUS_CALL_MISSED_VIDEO) {
-                    param.setResult(null)
-                }
-            }
-
-            if (context.config.bool(ConfigProperty.PREVENT_SCREENSHOT_NOTIFICATIONS)) {
-                if (contentType == ContentType.STATUS_CONVERSATION_CAPTURE_SCREENSHOT ||
-                    contentType == ContentType.STATUS_CONVERSATION_CAPTURE_RECORD) {
-                    param.setResult(null)
-                }
+            if (options[associatedType.key] == true) {
+                Logger.debug("Preventing message sending for $associatedType")
+                param.setResult(null)
             }
         }
     }

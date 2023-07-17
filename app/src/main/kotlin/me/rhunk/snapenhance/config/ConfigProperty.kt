@@ -6,6 +6,7 @@ import me.rhunk.snapenhance.config.impl.ConfigStateListValue
 import me.rhunk.snapenhance.config.impl.ConfigStateSelection
 import me.rhunk.snapenhance.config.impl.ConfigStateValue
 import me.rhunk.snapenhance.config.impl.ConfigStringValue
+import me.rhunk.snapenhance.data.NotificationType
 import me.rhunk.snapenhance.features.impl.tweaks.CameraTweaks
 import java.io.File
 
@@ -13,6 +14,7 @@ enum class ConfigProperty(
     val translationKey: String,
     val category: ConfigCategory,
     val valueContainer: ConfigValue<*>,
+    val valueContainerTranslationKey: String? = null,
     val shouldAppearInSettings: Boolean = true,
     val disableValueLocalization: Boolean = false
 ) {
@@ -48,13 +50,10 @@ enum class ConfigProperty(
         "notification_blacklist",
         ConfigCategory.SPYING_PRIVACY,
         ConfigStateListValue(
-            listOf("snap", "chat", "typing"),
-            mutableMapOf(
-                "snap" to false,
-                "chat" to false,
-                "typing" to false
-            )
-        )
+            NotificationType.getIncomingValues().map { it.key },
+            NotificationType.getIncomingValues().associate { it.key to false }.toMutableMap()
+        ),
+        valueContainerTranslationKey = "notifications",
     ),
     DISABLE_METRICS("disable_metrics",
         ConfigCategory.SPYING_PRIVACY,
@@ -68,15 +67,14 @@ enum class ConfigProperty(
         ConfigCategory.SPYING_PRIVACY,
         ConfigStateValue(false)
     ),
-    PREVENT_SCREENSHOT_NOTIFICATIONS(
-        "prevent_screenshot_notifications",
+    PREVENT_SENDING_MESSAGES(
+        "prevent_sending_messages",
         ConfigCategory.SPYING_PRIVACY,
-        ConfigStateValue(false)
-    ),
-    PREVENT_STATUS_NOTIFICATIONS(
-        "prevent_status_notifications",
-        ConfigCategory.SPYING_PRIVACY,
-        ConfigStateValue(false)
+        ConfigStateListValue(
+            NotificationType.getOutgoingValues().map { it.key },
+            NotificationType.getOutgoingValues().associate { it.key to false }.toMutableMap()
+        ),
+        valueContainerTranslationKey = "notifications",
     ),
     ANONYMOUS_STORY_VIEW(
         "anonymous_story_view",
@@ -398,6 +396,8 @@ enum class ConfigProperty(
         ConfigCategory.DEVICE_SPOOFER,
         ConfigStringValue("")
     );
+
+    fun getOptionTranslationKey(key: String) = "option.property.${valueContainerTranslationKey ?: translationKey}.$key"
 
     companion object {
         fun sortedByCategory(): List<ConfigProperty> {

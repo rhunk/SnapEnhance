@@ -23,13 +23,13 @@ class ItemHelper(
     fun longToast(message: String, context: Context) {
         Toast.makeText(context, message, Toast.LENGTH_LONG).show()
     }
-    
+
     fun createTranslatedTextView(property: ConfigProperty, shouldTranslatePropertyValue: Boolean = true): TextView {
         return object: TextView(context) {
             override fun setText(text: CharSequence?, type: BufferType?) {
                 val newText = text?.takeIf { it.isNotEmpty() }?.let {
                     if (!shouldTranslatePropertyValue || property.disableValueLocalization) it
-                    else SharedContext.translation["option.property." + property.translationKey + "." + it]
+                    else SharedContext.translation[property.getOptionTranslationKey(it.toString())]
                 }?.let {
                     if (it.length > 20) {
                         it.substring(0, 20) + "..."

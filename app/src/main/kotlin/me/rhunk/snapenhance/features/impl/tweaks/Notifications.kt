@@ -253,7 +253,9 @@ class Notifications : Feature("Notifications", loadParams = FeatureLoadParams.IN
             val conversationId = extras.getString("conversation_id") ?: return@hook
 
             if (context.config.options(ConfigProperty.BETTER_NOTIFICATIONS)
-                .filter { it.value }.none { notificationType.endsWith(it.key.uppercase())}) return@hook
+                .filter { it.value }.map { it.key.uppercase() }.none {
+                    notificationType.contains(it)
+                }) return@hook
 
             val conversationManager: Any = context.feature(Messaging::class).conversationManager
             notificationDataQueue[messageId.toLong()] = notificationData
@@ -292,7 +294,7 @@ class Notifications : Feature("Notifications", loadParams = FeatureLoadParams.IN
 
                     Logger.xposedLog("received message type: $messageType")
 
-                    if (states[messageType] == true) {
+                    if (states[messageType.replaceFirst("mischief_", "")] == true) {
                         param.setResult(null)
                     }
                 }

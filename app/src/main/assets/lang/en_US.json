@@ -50,13 +50,9 @@
             "name": "Unlimited Snap View Time",
             "description": "Removes the time limit for viewing Snaps"
         },
-        "prevent_screenshot_notifications": {
-            "name": "Prevent Screenshot Notifications",
-            "description": "Prevents anyone from knowing that you've taken a screenshot"
-        },
-        "prevent_status_notifications": {
-            "name": "Prevent Status Notifications",
-            "description": "Prevents sending status notifications\ne.g. Saved to camera roll"
+        "prevent_sending_messages": {
+            "name": "Prevent Sending Messages",
+            "description": "Prevents sending certain types of messages"
         },
         "anonymous_story_view": {
             "name": "Anonymous Story View",
@@ -272,10 +268,19 @@
                 "SNAP": "Snap",
                 "STICKER": "Sticker"
             },
-            "notification_blacklist": {
+            "notifications": {
+                "chat_screenshot": "Screenshot",
+                "chat_screen_record": "Screen Record",
+                "camera_roll_save": "Camera Roll Save",
                 "chat": "Chat",
+                "chat_reply": "Chat Reply",
                 "snap": "Snap",
-                "typing": "Typing"
+                "typing": "Typing",
+                "stories": "Stories",
+                "initiate_audio": "Incoming Audio Call",
+                "abandon_audio": "Missed Audio Call",
+                "initiate_video": "Incoming Video Call",
+                "abandon_video": "Missed Video Call"
             },
             "gallery_media_send_override": {
                 "OFF": "Off",

@@ -48,7 +48,7 @@ class SettingsMenu : AbstractMenu() {
                     if (property.disableValueLocalization) {
                         it
                     } else {
-                        context.translation["option.property." + property.translationKey + "." + it]
+                        context.translation[property.getOptionTranslationKey(it)]
                     }
                 }
             })
@@ -127,7 +127,7 @@ class SettingsMenu : AbstractMenu() {
                     builder.setSingleChoiceItems(
                         property.valueContainer.keys().toTypedArray().map {
                             if (property.disableValueLocalization) it
-                            else context.translation["option.property." + property.translationKey + "." + it]
+                            else context.translation[property.getOptionTranslationKey(it)]
                         }.toTypedArray(),
                         property.valueContainer.keys().indexOf(property.valueContainer.value())
                     ) { _, which ->
@@ -156,7 +156,7 @@ class SettingsMenu : AbstractMenu() {
                     builder.setMultiChoiceItems(
                         sortedStates.toSortedMap().map {
                             if (property.disableValueLocalization) it.key
-                            else context.translation["option.property." + property.translationKey + "." + it.key]
+                            else context.translation[property.getOptionTranslationKey(it.key)]
                         }.toTypedArray(),
                         sortedStates.map { it.value }.toBooleanArray()
                     ) { _, which, isChecked ->
