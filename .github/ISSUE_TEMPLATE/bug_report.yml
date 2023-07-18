@@ -62,5 +62,5 @@ body:
           required: true
         - label: There is no issue already describing my problem.
           required: true
-        - label: This is not a bug Regarding Snapchat+
+        - label: This is not a bug regarding Snapchat+
           required: true
