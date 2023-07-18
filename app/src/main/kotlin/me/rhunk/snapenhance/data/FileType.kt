@@ -1,6 +1,7 @@
 package me.rhunk.snapenhance.data
 
 import java.io.File
+import java.io.InputStream
 
 enum class FileType(
     val fileExtension: String? = null,
@@ -57,6 +58,12 @@ enum class FileType(
             System.arraycopy(array, 0, headerBytes, 0, 16)
             val hex = bytesToHex(headerBytes)
             return fileSignatures.entries.firstOrNull { hex.startsWith(it.key) }?.value ?: UNKNOWN
+        }
+
+        fun fromInputStream(inputStream: InputStream): FileType {
+            val buffer = ByteArray(16)
+            inputStream.read(buffer)
+            return fromByteArray(buffer)
         }
     }
 }

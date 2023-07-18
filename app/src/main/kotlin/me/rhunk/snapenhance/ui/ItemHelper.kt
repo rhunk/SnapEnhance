@@ -32,7 +32,7 @@ class ItemHelper(
                     else SharedContext.translation[property.getOptionTranslationKey(it.toString())]
                 }?.let {
                     if (it.length > 20) {
-                        it.substring(0, 20) + "..."
+                        "...${it.substring(it.length - 20)}"
                     } else {
                         it
                     }

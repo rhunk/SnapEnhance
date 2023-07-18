@@ -15,12 +15,12 @@ import android.widget.Toast
 import androidx.core.graphics.drawable.RoundedBitmapDrawableFactory
 import androidx.recyclerview.widget.RecyclerView
 import androidx.recyclerview.widget.RecyclerView.Adapter
-import kotlinx.coroutines.DelicateCoroutinesApi
+import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.job
 import kotlinx.coroutines.launch
+import me.rhunk.snapenhance.Logger
 import me.rhunk.snapenhance.R
 import me.rhunk.snapenhance.SharedContext
 import me.rhunk.snapenhance.data.FileType
@@ -28,6 +28,7 @@ import me.rhunk.snapenhance.download.data.PendingDownload
 import me.rhunk.snapenhance.download.enums.DownloadStage
 import me.rhunk.snapenhance.util.snap.PreviewUtils
 import java.io.File
+import java.io.FileInputStream
 import java.net.URL
 import kotlin.concurrent.thread
 
@@ -35,6 +36,7 @@ class DownloadListAdapter(
     private val activity: DownloadManagerActivity,
     private val downloadList: MutableList<PendingDownload>
 ): Adapter<DownloadListAdapter.ViewHolder>() {
+    private val coroutineScope = CoroutineScope(Dispatchers.IO)
     private val previewJobs = mutableMapOf<Int, Job>()
 
     inner class ViewHolder(val view: View) : RecyclerView.ViewHolder(view) {
@@ -62,23 +64,49 @@ class DownloadListAdapter(
         return downloadList.size
     }
 
-    @OptIn(DelicateCoroutinesApi::class)
     private fun handlePreview(download: PendingDownload, holder: ViewHolder) {
-        download.outputFile?.let { File(it) }?.takeIf { it.exists() }?.let {
-            GlobalScope.launch(Dispatchers.IO) {
-                val previewBitmap = PreviewUtils.createPreviewFromFile(it)?.let { preview ->
-                    val offsetY = (preview.height / 2 - holder.viewHeight / 2).coerceAtLeast(0)
+        download.outputFile?.let {
+            val uri = Uri.parse(it)
+            runCatching {
+                if (uri.scheme == "content") {
+                    val fileType = activity.contentResolver.openInputStream(uri)!!.use { stream ->
+                        FileType.fromInputStream(stream)
+                    }
+                    fileType to activity.contentResolver.openInputStream(uri)
+                } else {
+                    FileType.fromFile(File(it)) to FileInputStream(it)
+                }
+            }.getOrNull()
+        }?.let { (fileType, assetStream) ->
+            coroutineScope.launch {
+                val previewBitmap = assetStream?.use { stream ->
+                    //don't preview files larger than 30MB
+                    if (stream.available() > 30 * 1024 * 1024) return@launch
 
-                    Bitmap.createScaledBitmap(
-                        Bitmap.createBitmap(preview, 0, offsetY,
-                            preview.width.coerceAtMost(holder.viewWidth),
-                            preview.height.coerceAtMost(holder.viewHeight)
-                        ),
-                        holder.viewWidth,
-                        holder.viewHeight,
-                        false
-                    )
-                }?: return@launch
+                    val tempFile = File.createTempFile("preview", ".${fileType.fileExtension}")
+                    tempFile.outputStream().use { output ->
+                        stream.copyTo(output)
+                    }
+                    runCatching {
+                        PreviewUtils.createPreviewFromFile(tempFile)?.let { preview ->
+                            val offsetY = (preview.height / 2 - holder.viewHeight / 2).coerceAtLeast(0)
+
+                            Bitmap.createScaledBitmap(
+                                Bitmap.createBitmap(preview, 0, offsetY,
+                                    preview.width.coerceAtMost(holder.viewWidth),
+                                    preview.height.coerceAtMost(holder.viewHeight)
+                                ),
+                                holder.viewWidth,
+                                holder.viewHeight,
+                                false
+                            )
+                        }
+                    }.onFailure {
+                        Logger.error("failed to create preview $fileType", it)
+                    }.also {
+                        tempFile.delete()
+                    }.getOrNull()
+                } ?: return@launch
 
                 if (coroutineContext.job.isCancelled) return@launch
                 Handler(holder.view.context.mainLooper).post {
@@ -165,13 +193,38 @@ class DownloadListAdapter(
             }
 
             pendingDownload.outputFile?.let {
-                val file = File(it)
-                if (!file.exists()) {
-                    Toast.makeText(holder.view.context, activity.translation["file_not_found_toast"], Toast.LENGTH_SHORT).show()
+                fun showFileNotFound() {
+                    Toast.makeText(holder.view.context, SharedContext.translation["download_manager_activity.file_not_found_toast"], Toast.LENGTH_SHORT).show()
+                }
+
+                val uri = Uri.parse(it)
+                val fileType = runCatching {
+                    if (uri.scheme == "content") {
+                        activity.contentResolver.openInputStream(uri)?.use { input ->
+                            FileType.fromInputStream(input)
+                        } ?: run {
+                            showFileNotFound()
+                            return@setOnClickListener
+                        }
+                    } else {
+                        val file = File(it)
+                        if (!file.exists()) {
+                            showFileNotFound()
+                            return@setOnClickListener
+                        }
+                        FileType.fromFile(file)
+                    }
+                }.onFailure { exception ->
+                    Logger.error("Failed to open file", exception)
+                }.getOrDefault(FileType.UNKNOWN)
+                if (fileType == FileType.UNKNOWN) {
+                    showFileNotFound()
                     return@setOnClickListener
                 }
+
                 val intent = Intent(Intent.ACTION_VIEW)
-                intent.setDataAndType(Uri.parse(it), FileType.fromFile(File(it)).mimeType)
+                intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_GRANT_READ_URI_PERMISSION
+                intent.setDataAndType(uri, fileType.mimeType)
                 holder.view.context.startActivity(intent)
             }
         }

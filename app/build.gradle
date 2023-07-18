@@ -110,6 +110,7 @@ dependencies {
     implementation libs.ffmpeg.kit
     implementation libs.osmdroid.android
     implementation libs.okhttp
+    implementation 'androidx.documentfile:documentfile:1.1.0-alpha01'
 
     compileOnly files('libs/LSPosed-api-1.0-SNAPSHOT.jar')
 

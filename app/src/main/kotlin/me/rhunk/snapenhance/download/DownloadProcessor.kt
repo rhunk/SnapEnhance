@@ -5,6 +5,7 @@ import android.content.Context
 import android.content.Intent
 import android.net.Uri
 import android.widget.Toast
+import androidx.documentfile.provider.DocumentFile
 import com.google.gson.GsonBuilder
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -17,6 +18,8 @@ import me.rhunk.snapenhance.Constants
 import me.rhunk.snapenhance.Logger
 import me.rhunk.snapenhance.SharedContext
 import me.rhunk.snapenhance.bridge.DownloadCallback
+import me.rhunk.snapenhance.bridge.wrapper.ConfigWrapper
+import me.rhunk.snapenhance.config.ConfigProperty
 import me.rhunk.snapenhance.data.FileType
 import me.rhunk.snapenhance.download.data.DownloadMetadata
 import me.rhunk.snapenhance.download.data.DownloadRequest
@@ -31,7 +34,6 @@ import java.io.File
 import java.io.InputStream
 import java.net.HttpURLConnection
 import java.net.URL
-import java.util.logging.Handler
 import java.util.zip.ZipInputStream
 import javax.crypto.Cipher
 import javax.crypto.CipherInputStream
@@ -115,23 +117,43 @@ class DownloadProcessor (
     private suspend fun saveMediaToGallery(inputFile: File, pendingDownload: PendingDownload) {
         if (coroutineContext.job.isCancelled) return
 
+        val config = ConfigWrapper().apply { loadFromContext(context) }
+
         runCatching {
             val fileType = FileType.fromFile(inputFile)
             if (fileType == FileType.UNKNOWN) {
                 callback.onFailure(translation.format("failed_gallery_toast", "error" to "Unknown media type"), null)
                 return
             }
-            val outputFile = File(pendingDownload.metadata.outputPath + "." + fileType.fileExtension).also { createNeededDirectories(it) }
 
-            inputFile.copyTo(outputFile, overwrite = true)
+            val fileName = pendingDownload.metadata.outputPath.substringAfterLast("/") + "." + fileType.fileExtension
 
-            pendingDownload.outputFile = outputFile.absolutePath
+            val outputFolder = DocumentFile.fromTreeUri(context, Uri.parse(config.string(ConfigProperty.SAVE_FOLDER)))
+                ?: throw Exception("Failed to open output folder")
+
+            val outputFileFolder = pendingDownload.metadata.outputPath.let {
+                if (it.contains("/")) {
+                    it.substringBeforeLast("/").split("/").fold(outputFolder) { folder, name ->
+                        folder.findFile(name) ?: folder.createDirectory(name)!!
+                    }
+                } else {
+                    outputFolder
+                }
+            }
+
+            val outputFile = outputFileFolder.createFile(fileType.mimeType, fileName)!!
+            val outputStream = context.contentResolver.openOutputStream(outputFile.uri)!!
+
+            inputFile.inputStream().use { inputStream ->
+                inputStream.copyTo(outputStream)
+            }
+
+            pendingDownload.outputFile = outputFile.uri.toString()
             pendingDownload.downloadStage = DownloadStage.SAVED
 
             runCatching {
-                val contentUri = Uri.fromFile(outputFile)
                 val mediaScanIntent = Intent("android.intent.action.MEDIA_SCANNER_SCAN_FILE")
-                mediaScanIntent.setData(contentUri)
+                mediaScanIntent.setData(outputFile.uri)
                 context.sendBroadcast(mediaScanIntent)
             }.onFailure {
                 Logger.error("Failed to scan media file", it)
@@ -139,7 +161,7 @@ class DownloadProcessor (
             }
 
             Logger.debug("download complete")
-            outputFile.absolutePath.let {
+            fileName.let {
                 runCatching { callback.onSuccess(it) }.onFailure { fallbackToast(it) }
             }
         }.onFailure { exception ->

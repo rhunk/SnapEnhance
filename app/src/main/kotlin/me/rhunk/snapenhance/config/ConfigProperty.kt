@@ -95,7 +95,7 @@ enum class ConfigProperty(
         ConfigStringValue(File(
             Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DCIM).absolutePath + "/Snapchat",
             "SnapEnhance"
-        ).absolutePath)
+        ).absolutePath,  isFolderPath =true),
     ),
     AUTO_DOWNLOAD_OPTIONS(
         "auto_download_options",

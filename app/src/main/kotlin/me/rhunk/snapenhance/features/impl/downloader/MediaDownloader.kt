@@ -73,14 +73,12 @@ class MediaDownloader : Feature("MediaDownloader", loadParams = FeatureLoadParam
             BitmojiSelfie.getBitmojiSelfie(it.bitmojiSelfieId!!, it.bitmojiAvatarId!!, BitmojiSelfie.BitmojiSelfieType.THREE_D)
         }
 
-        val outputPath = File(
-            context.config.string(ConfigProperty.SAVE_FOLDER),
-            createNewFilePath(generatedHash, mediaDisplayType, pathSuffix)
-        ).absolutePath
-
-        context.shortToast(context.translation["download_processor.download_started_toast"])
-
         val downloadLogging = context.config.options(ConfigProperty.DOWNLOAD_LOGGING)
+        if (downloadLogging["started"] == true) {
+            context.shortToast(context.translation["download_processor.download_started_toast"])
+        }
+
+        val outputPath = createNewFilePath(generatedHash, mediaDisplayType, pathSuffix)
 
         return DownloadManagerClient(
             context = context,

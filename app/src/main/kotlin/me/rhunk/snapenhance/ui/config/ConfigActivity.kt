@@ -2,6 +2,7 @@ package me.rhunk.snapenhance.ui.config
 
 import android.app.Activity
 import android.app.AlertDialog
+import android.content.Intent
 import android.content.res.ColorStateList
 import android.os.Bundle
 import android.text.Html
@@ -22,10 +23,15 @@ import me.rhunk.snapenhance.config.impl.ConfigStateSelection
 import me.rhunk.snapenhance.config.impl.ConfigStateValue
 import me.rhunk.snapenhance.config.impl.ConfigStringValue
 import me.rhunk.snapenhance.ui.ItemHelper
+import kotlin.math.abs
+import kotlin.random.Random
+
+typealias ActivityResultCallback = (requestCode: Int, resultCode: Int, data: Intent?) -> Unit
 
 class ConfigActivity : Activity() {
     private val config = ConfigWrapper()
     private val itemHelper = ItemHelper(this)
+    private val activityResultCallbacks = mutableMapOf<Int, ActivityResultCallback>()
 
     @Deprecated("Deprecated in Java")
     @Suppress("DEPRECATION")
@@ -43,6 +49,11 @@ class ConfigActivity : Activity() {
         super.onPause()
         config.writeConfig()
     }
+
+    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
+        activityResultCallbacks[requestCode]?.invoke(requestCode, resultCode, data)
+    }
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         config.loadFromContext(this)
@@ -142,6 +153,24 @@ class ConfigActivity : Activity() {
                         it.text = value.value().toString()
                     }
                     configItem.setOnClickListener {
+                        if (value is ConfigStringValue && value.isFolderPath) {
+                            val intent = Intent(Intent.ACTION_OPEN_DOCUMENT_TREE)
+                                .addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
+                                .addFlags(Intent.FLAG_GRANT_WRITE_URI_PERMISSION)
+
+                            val requestCode = abs(Random.nextInt())
+                            activityResultCallbacks[requestCode] = let@{ _, resultCode, data ->
+                                if (resultCode != RESULT_OK) return@let
+                                val uri = data?.data ?: return@let
+                                contentResolver.takePersistableUriPermission(uri, Intent.FLAG_GRANT_READ_URI_PERMISSION or Intent.FLAG_GRANT_WRITE_URI_PERMISSION)
+                                value.writeFrom(uri.toString())
+                                textView.text = value.value()
+                            }
+
+                            startActivityForResult(intent, requestCode)
+                            return@setOnClickListener
+                        }
+
                         if (value is ConfigIntegerValue) {
                             itemHelper.askForValue(property, InputType.TYPE_CLASS_NUMBER) {
                                 try {
