@@ -14,6 +14,7 @@ import me.rhunk.snapmapper.impl.BCryptClassMapper
 import me.rhunk.snapmapper.impl.CallbackMapper
 import me.rhunk.snapmapper.impl.DefaultMediaItemMapper
 import me.rhunk.snapmapper.impl.EnumMapper
+import me.rhunk.snapmapper.impl.FriendsFeedEventDispatcherMapper
 import me.rhunk.snapmapper.impl.MediaQualityLevelProviderMapper
 import me.rhunk.snapmapper.impl.OperaPageViewControllerMapper
 import me.rhunk.snapmapper.impl.PlatformAnalyticsCreatorMapper
@@ -36,7 +37,8 @@ class MappingManager(private val context: ModContext) : Manager {
         PlatformAnalyticsCreatorMapper::class,
         PlusSubscriptionMapper::class,
         ScCameraSettingsMapper::class,
-        StoryBoostStateMapper::class
+        StoryBoostStateMapper::class,
+        FriendsFeedEventDispatcherMapper::class
     )
 
     private val mappings = ConcurrentHashMap<String, Any>()
@@ -152,6 +154,10 @@ class MappingManager(private val context: ModContext) : Manager {
             return mappings[key]!!
         }
         throw Exception("No mapping found for $key")
+    }
+
+    fun getMappedObjectNullable(key: String): Any? {
+        return mappings[key]
     }
 
     fun getMappedClass(className: String): Class<*> {
