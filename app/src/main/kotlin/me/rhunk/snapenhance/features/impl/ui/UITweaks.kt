@@ -1,9 +1,12 @@
 package me.rhunk.snapenhance.features.impl.ui
 
 import android.annotation.SuppressLint
+import android.content.Context
 import android.content.res.Resources
+import android.text.SpannableString
 import android.view.View
 import android.view.ViewGroup
+import android.widget.FrameLayout
 import me.rhunk.snapenhance.Constants
 import me.rhunk.snapenhance.config.ConfigProperty
 import me.rhunk.snapenhance.features.Feature
@@ -89,6 +92,20 @@ class UITweaks : Feature("UITweaks", loadParams = FeatureLoadParams.ACTIVITY_CRE
 
             if (hideStorySection["hide_friends"] == true && viewId == getIdentifier("friend_card_frame", "id")) {
                 hideStorySection(param)
+            }
+
+            //mappings?
+            if (hideStorySection["hide_friend_suggestions"] == true && view.javaClass.superclass?.name?.endsWith("StackDrawLayout") == true) {
+                val layoutParams = view.layoutParams as? FrameLayout.LayoutParams ?: return@hook
+                if (layoutParams.width == -1 &&
+                    layoutParams.height == -2 &&
+                    view.javaClass.let { clazz ->
+                        clazz.methods.any { it.returnType == SpannableString::class.java} &&
+                        clazz.constructors.any { it.parameterCount == 1 && it.parameterTypes[0] == Context::class.java }
+                    }
+                ) {
+                    hideStorySection(param)
+                }
             }
 
             if (hideStorySection["hide_following"] == true && (viewId == getIdentifier("df_small_story", "id"))

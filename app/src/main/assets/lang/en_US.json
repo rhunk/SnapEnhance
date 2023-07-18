@@ -319,6 +319,7 @@
                 "VERTICAL_STORY_VIEWER": "Enable Vertical Story Viewer"
             },
             "hide_story_section": {
+                "hide_friend_suggestions": "Hide friend suggestions",
                 "hide_friends": "Hide friends section",
                 "hide_following": "Hide following section",
                 "hide_for_you": "Hide For You section"
