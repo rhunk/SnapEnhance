@@ -11,7 +11,6 @@ import android.widget.Switch
 import android.widget.TextView
 import me.rhunk.snapenhance.R
 import me.rhunk.snapenhance.SharedContext
-import me.rhunk.snapenhance.bridge.wrapper.ConfigWrapper
 import me.rhunk.snapenhance.config.ConfigCategory
 import me.rhunk.snapenhance.config.impl.ConfigIntegerValue
 import me.rhunk.snapenhance.config.impl.ConfigStateValue
@@ -19,12 +18,10 @@ import me.rhunk.snapenhance.config.impl.ConfigStringValue
 import me.rhunk.snapenhance.ui.ItemHelper
 
 class DeviceSpooferActivity: Activity() {
-    private val config = ConfigWrapper()
     private val itemHelper = ItemHelper(this)
     
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        config.loadFromContext(this)
         SharedContext.ensureInitialized(this)
         setContentView(R.layout.device_spoofer_activity)
         
@@ -32,7 +29,7 @@ class DeviceSpooferActivity: Activity() {
         findViewById<ImageButton>(R.id.back_button).setOnClickListener { finish() }
         val propertyListLayout = findViewById<ViewGroup>(R.id.spoof_property_list)
         
-        config.entries().filter { it.key.category == ConfigCategory.DEVICE_SPOOFER }.forEach { (property, value) ->
+        SharedContext.config.entries().filter { it.key.category == ConfigCategory.DEVICE_SPOOFER }.forEach { (property, value) ->
             val configItem = layoutInflater.inflate(R.layout.config_activity_item, propertyListLayout, false)
             
             val propertyName = SharedContext.translation["property.${property.translationKey}.name"]

@@ -1,6 +1,5 @@
 package me.rhunk.snapenhance.config
 
-import android.os.Environment
 import me.rhunk.snapenhance.config.impl.ConfigIntegerValue
 import me.rhunk.snapenhance.config.impl.ConfigStateListValue
 import me.rhunk.snapenhance.config.impl.ConfigStateSelection
@@ -8,7 +7,6 @@ import me.rhunk.snapenhance.config.impl.ConfigStateValue
 import me.rhunk.snapenhance.config.impl.ConfigStringValue
 import me.rhunk.snapenhance.data.NotificationType
 import me.rhunk.snapenhance.features.impl.tweaks.CameraTweaks
-import java.io.File
 
 enum class ConfigProperty(
     val translationKey: String,
@@ -92,10 +90,7 @@ enum class ConfigProperty(
     SAVE_FOLDER(
         "save_folder",
         ConfigCategory.MEDIA_MANAGEMENT,
-        ConfigStringValue(File(
-            Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DCIM).absolutePath + "/Snapchat",
-            "SnapEnhance"
-        ).absolutePath,  isFolderPath =true),
+        ConfigStringValue("",  isFolderPath =true),
     ),
     AUTO_DOWNLOAD_OPTIONS(
         "auto_download_options",

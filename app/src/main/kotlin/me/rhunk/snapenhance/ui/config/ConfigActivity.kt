@@ -12,24 +12,23 @@ import android.view.ViewGroup
 import android.widget.ImageButton
 import android.widget.Switch
 import android.widget.TextView
+import android.widget.Toast
 import me.rhunk.snapenhance.BuildConfig
 import me.rhunk.snapenhance.R
 import me.rhunk.snapenhance.SharedContext
-import me.rhunk.snapenhance.bridge.wrapper.ConfigWrapper
 import me.rhunk.snapenhance.config.ConfigCategory
+import me.rhunk.snapenhance.config.ConfigProperty
 import me.rhunk.snapenhance.config.impl.ConfigIntegerValue
 import me.rhunk.snapenhance.config.impl.ConfigStateListValue
 import me.rhunk.snapenhance.config.impl.ConfigStateSelection
 import me.rhunk.snapenhance.config.impl.ConfigStateValue
 import me.rhunk.snapenhance.config.impl.ConfigStringValue
 import me.rhunk.snapenhance.ui.ItemHelper
-import kotlin.math.abs
-import kotlin.random.Random
+import me.rhunk.snapenhance.util.ActivityResultCallback
+import kotlin.system.exitProcess
 
-typealias ActivityResultCallback = (requestCode: Int, resultCode: Int, data: Intent?) -> Unit
 
 class ConfigActivity : Activity() {
-    private val config = ConfigWrapper()
     private val itemHelper = ItemHelper(this)
     private val activityResultCallbacks = mutableMapOf<Int, ActivityResultCallback>()
 
@@ -42,12 +41,12 @@ class ConfigActivity : Activity() {
 
     override fun onDestroy() {
         super.onDestroy()
-        config.writeConfig()
+        SharedContext.config.writeConfig()
     }
 
     override fun onPause() {
         super.onPause()
-        config.writeConfig()
+        SharedContext.config.writeConfig()
     }
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
@@ -56,7 +55,6 @@ class ConfigActivity : Activity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        config.loadFromContext(this)
         SharedContext.ensureInitialized(this)
         setContentView(R.layout.config_activity)
 
@@ -87,9 +85,37 @@ class ConfigActivity : Activity() {
                 })
         }
 
+        //check if save folder is set
+        //TODO: first run activity
+        run {
+            val saveFolder = SharedContext.config.string(ConfigProperty.SAVE_FOLDER)
+            val itemHelper = ItemHelper(this)
+
+            if (saveFolder.isEmpty() || !saveFolder.startsWith("content://")) {
+                AlertDialog.Builder(this)
+                    .setTitle("Save folder")
+                    .setMessage("Please select a folder where you want to save downloaded files.")
+                    .setPositiveButton("Select") { _, _ ->
+                        val (requestCode, callback) = itemHelper.askForFolder(
+                            this,
+                            ConfigProperty.SAVE_FOLDER
+                        ) {}
+                        activityResultCallbacks[requestCode] = { a1, a2, a3 ->
+                            callback(a1, a2, a3)
+                            Toast.makeText(this, "Save Folder set!", Toast.LENGTH_SHORT).show()
+                            finish()
+                        }
+                    }
+                    .setNegativeButton("Cancel") { _, _ ->
+                        exitProcess(0)
+                    }
+                    .show()
+            }
+        }
+
         var currentCategory: ConfigCategory? = null
 
-        config.entries().filter { !it.key.category.hidden }.forEach { (property, value) ->
+        SharedContext.config.entries().filter { !it.key.category.hidden }.forEach { (property, value) ->
             val configItem = layoutInflater.inflate(R.layout.config_activity_item, propertyListLayout, false)
 
             fun addSeparator() {
@@ -154,20 +180,12 @@ class ConfigActivity : Activity() {
                     }
                     configItem.setOnClickListener {
                         if (value is ConfigStringValue && value.isFolderPath) {
-                            val intent = Intent(Intent.ACTION_OPEN_DOCUMENT_TREE)
-                                .addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
-                                .addFlags(Intent.FLAG_GRANT_WRITE_URI_PERMISSION)
-
-                            val requestCode = abs(Random.nextInt())
-                            activityResultCallbacks[requestCode] = let@{ _, resultCode, data ->
-                                if (resultCode != RESULT_OK) return@let
-                                val uri = data?.data ?: return@let
-                                contentResolver.takePersistableUriPermission(uri, Intent.FLAG_GRANT_READ_URI_PERMISSION or Intent.FLAG_GRANT_WRITE_URI_PERMISSION)
-                                value.writeFrom(uri.toString())
+                            val (requestCode, callback) = itemHelper.askForFolder(this, property) {
+                                value.writeFrom(it)
                                 textView.text = value.value()
                             }
 
-                            startActivityForResult(intent, requestCode)
+                            activityResultCallbacks[requestCode] = callback
                             return@setOnClickListener
                         }
 
