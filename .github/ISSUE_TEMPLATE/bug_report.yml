@@ -1,23 +1,22 @@
 name: "Bug report"
-description: Report an issue to help the project improve.
+description: "Report an issue to help the project improve."
 title: "bug: <title>"
-labels: [
-  "bug"
-]
+labels:
+  - "bug"
 body:
   - type: textarea
     id: description
     attributes:
       label: "Description"
-      description: Please enter an explicit description of your issue
-      placeholder: Short and explicit description of your incident...
+      description: "Please enter an explicit description of your issue"
+      placeholder: "Short and explicit description of your incident..."
     validations:
       required: true
   - type: textarea
     id: reprod
     attributes:
       label: "Reproduction steps"
-      description: Steps to reproduce the behavior
+      description: "Steps to reproduce the behavior"
       value: |
         1. Go to '...'
         2. Click on '....'
@@ -30,7 +29,7 @@ body:
     id: screenshot
     attributes:
       label: "Screenshots"
-      description: If applicable, add screenshots to help explain your problem
+      description: "If applicable, add screenshots to help explain your problem"
       value: |
         ![DESCRIPTION](LINK.png)
       render: bash
@@ -40,7 +39,7 @@ body:
     id: logs
     attributes:
       label: "Logs"
-      description: Please copy and paste any relevant log output if available
+      description: "Please copy and paste any relevant log output if available"
       render: bash
     validations:
       required: false
@@ -48,24 +47,19 @@ body:
     id: snapchat-version
     attributes:
       label: "Snapchat Version"
-      description: On which Snapchat version is this happening?
-      placeholder: ex. 12.35.0.45
+      description: "On which Snapchat version is this happening?"
+      placeholder: "ex. 12.35.0.45"
     validations:
       required: true
   - type: checkboxes
     id: terms
     attributes:
-      label: Agreement
-      description: By creating this issue I made sure that ...
-  - type: checkboxes
-    id: terms
-    attributes:
-      label: Agreement
-      description: By creating this issue, I made sure that ...
+      label: "Agreement"
+      description: "By creating this issue, I made sure that ..."
       options:
         - "I am using the latest stable SnapEnhance version."
         - "There is no issue already describing my problem."
-        - "This is not a bug regarding Snapchat+"
+        - "This is not a bug regarding Snapchat+."
         - "I have a detailed description."
         - "In case of any errors or failures of the functionality of the module, I have a log attached."
         - "It's not a pain to read."
@@ -74,4 +68,3 @@ body:
         - "This issue isn't a duplicate."
     validations:
       required: true
-        
