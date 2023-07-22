@@ -68,5 +68,5 @@ body:
         7. I have Screenshots attached if possible
         8. I have stated (rooted or not, any other modules, etc.)
         9. This issue isnt a duplicate
-        required: true
+          required: true
         
