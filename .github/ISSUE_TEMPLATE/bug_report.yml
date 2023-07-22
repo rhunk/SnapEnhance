@@ -57,7 +57,8 @@ body:
     attributes:
       label: Agreement
       description: By creating this issue I made sure that ...
-        label: |
+      options:
+        - label: 
         1. I am using the latest stable SnapEnhance version.
         2. There is no issue already describing my problem.
         3. This is not a bug regarding Snapchat+
