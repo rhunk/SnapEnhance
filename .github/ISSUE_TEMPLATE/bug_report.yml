@@ -56,15 +56,15 @@ body:
     attributes:
       label: "Agreement"
       description: "By creating this issue, I made sure that ..."
-      options:
-        - "I am using the latest stable SnapEnhance version."
-        - "There is no issue already describing my problem."
-        - "This is not a bug regarding Snapchat+."
-        - "I have a detailed description."
-        - "In case of any errors or failures of the functionality of the module, I have a log attached."
-        - "It's not a pain to read."
-        - "I have screenshots attached if possible."
-        - "I have stated (rooted or not, any other modules, etc.)."
-        - "This issue isn't a duplicate."
+    options:
+      - label: "I am using the latest stable SnapEnhance version."
+      - label: "There is no issue already describing my problem."
+      - label: "This is not a bug regarding Snapchat+."
+      - label: "I have a detailed description."
+      - label: "In case of any errors or failures of the functionality of the module, I have a log attached."
+      - label: "It's not a pain to read."
+      - label: "I have screenshots attached if possible."
+      - label: "I have stated (rooted or not, any other modules, etc.)."
+      - label: "This issue isn't a duplicate."
     validations:
       required: true
