@@ -57,10 +57,15 @@ body:
     attributes:
       label: Agreement
       description: By creating this issue I made sure that ...
-      options:
-        - label: I am using the latest stable SnapEnhance version.
-          required: true
-        - label: There is no issue already describing my problem.
-          required: true
-        - label: This is not a bug regarding Snapchat+
-          required: true
+        label: 
+        1. I am using the latest stable SnapEnhance version.
+        2. There is no issue already describing my problem.
+        3. This is not a bug regarding Snapchat+
+        4. I Have a detailed description
+        5. In case of any errors, or failures of the functionality of the module, have a log attached
+        6. Its not a pain to read
+        7. I have Screenshots attached if possible
+        8. I have stated (rooted or not, any other modules, etc.)
+        9. This issue isnt a duplicate
+        required: true
+        
