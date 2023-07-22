@@ -53,8 +53,9 @@ body:
     id: terms
     attributes:
       label: "Agreement"
-      description: "By creating this issue, I agree that:"
+      description: "By creating this issue, I agree to the following terms:"
       options:
+        - label: "I have read and understood the project's terms of service."
         - label: "I am using the latest stable SnapEnhance version."
         - label: "There is no existing issue describing my problem."
         - label: "This is not a bug regarding Snapchat+."
@@ -64,5 +65,4 @@ body:
         - label: "I have attached screenshots if possible."
         - label: "I have stated my device's root status and any other relevant information."
         - label: "This issue is not a duplicate."
-    validations:
       required: true
