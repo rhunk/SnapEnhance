@@ -1,8 +1,9 @@
 name: "Bug report"
 description: "Report an issue to help the project improve."
-title: "bug: <title>"
+title: "bug <title>"
 labels:
   - "bug"
+  - required: true
 body:
   - type: textarea
     id: description
@@ -18,11 +19,10 @@ body:
       label: "Reproduction steps"
       description: "Steps to reproduce the behavior"
       value: |
-        1. Go to '...'
-        2. Click on '....'
-        3. Scroll down to '....'
-        4. See error
-      render: markdown
+        1. Go to `...`
+        2. Click on `....`
+        3. Scroll down to `....`
+        4. See error.
     validations:
       required: true
   - type: textarea
@@ -30,8 +30,6 @@ body:
     attributes:
       label: "Screenshots"
       description: "If applicable, add screenshots to help explain your problem"
-      value: |
-        ![DESCRIPTION](LINK.png)
       render: markdown
     validations:
       required: false
@@ -58,13 +56,13 @@ body:
       description: "By creating this issue, I made sure that ..."
       options:
         - label: "I am using the latest stable SnapEnhance version."
-        - label: "There is no issue already describing my problem."
+        - label: "There is no existing issue describing my problem."
         - label: "This is not a bug regarding Snapchat+."
-        - label: "I have a detailed description."
-        - label: "In case of any errors or failures of the functionality of the module, I have a log attached."
-        - label: "It's not a pain to read."
-        - label: "I have screenshots attached if possible."
-        - label: "I have stated (rooted or not, any other modules, etc.)."
-        - label: "This issue isn't a duplicate."
+        - label: "I have provided a detailed description of the issue."
+        - label: "I have attached a log if the module is failing."
+        - label: "I have made sure that my issue is easy to read."
+        - label: "I have attached screenshots if possible."
+        - label: "I have stated my device's root status and any other relevant information."
+        - label: "This issue is not a duplicate."
     validations:
       required: true
