@@ -65,4 +65,5 @@ body:
         - label: "I have attached screenshots if possible."
         - label: "I have stated my device's root status and any other relevant information."
         - label: "This issue is not a duplicate."
-      required: true
+      value: |
+        I agree to all of the terms listed above.
