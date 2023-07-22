@@ -57,16 +57,21 @@ body:
     attributes:
       label: Agreement
       description: By creating this issue I made sure that ...
+  - type: checkboxes
+    id: terms
+    attributes:
+      label: Agreement
+      description: By creating this issue, I made sure that ...
       options:
-        - label:
-        1. I am using the latest stable SnapEnhance version.
-        2. There is no issue already describing my problem.
-        3. This is not a bug regarding Snapchat+
-        4. I Have a detailed description
-        5. In case of any errors, or failures of the functionality of the module, have a log attached
-        6. Its not a pain to read
-        7. I have Screenshots attached if possible
-        8. I have stated (rooted or not, any other modules, etc.)
-        9. This issue isnt a duplicate
-          required: true
+        - "I am using the latest stable SnapEnhance version."
+        - "There is no issue already describing my problem."
+        - "This is not a bug regarding Snapchat+"
+        - "I have a detailed description."
+        - "In case of any errors or failures of the functionality of the module, I have a log attached."
+        - "It's not a pain to read."
+        - "I have screenshots attached if possible."
+        - "I have stated (rooted or not, any other modules, etc.)."
+        - "This issue isn't a duplicate."
+    validations:
+      required: true
         
