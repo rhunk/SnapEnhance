@@ -49,23 +49,21 @@ body:
       placeholder: "ex. 12.35.0.45"
     validations:
       required: true
-  - type: textarea
+  - type: checkboxes
     id: terms
     attributes:
       label: "Agreement"
       description: "By creating this issue, I agree to the following terms:"
-      value: |
-        I agree to all of the terms listed below.
-        
-        * I have read and understood the project's terms of service.
-        * I am using the latest stable SnapEnhance version.
-        * There is no existing issue describing my problem.
-        * This is not a bug regarding Snapchat+.
-        * I have provided a detailed description of the issue.
-        * I have attached a log if the module is failing.
-        * I have made sure that my issue is easy to read.
-        * I have attached screenshots if possible.
-        * I have stated my device's root status and any other relevant information.
-        * This issue is not a duplicate.
+      options:
+        - label: "I have read and understood the project's terms of service."
+        - label: "I am using the latest stable SnapEnhance version."
+        - label: "There is no existing issue describing my problem."
+        - label: "This is not a bug regarding Snapchat+."
+        - label: "I have provided a detailed description of the issue."
+        - label: "I have attached a log if the module is failing."
+        - label: "I have made sure that my issue is easy to read."
+        - label: "I have attached screenshots if possible."
+        - label: "I have stated my device's root status and any other relevant information."
+        - label: "This issue is not a duplicate."
     validations:
       required: true
