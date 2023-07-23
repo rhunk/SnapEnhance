@@ -14,6 +14,7 @@ import me.rhunk.snapenhance.bridge.DownloadCallback
 import me.rhunk.snapenhance.config.ConfigProperty
 import me.rhunk.snapenhance.data.ContentType
 import me.rhunk.snapenhance.data.FileType
+import me.rhunk.snapenhance.data.wrapper.impl.SnapUUID
 import me.rhunk.snapenhance.data.wrapper.impl.media.MediaInfo
 import me.rhunk.snapenhance.data.wrapper.impl.media.dash.LongformVideoPlaylistItem
 import me.rhunk.snapenhance.data.wrapper.impl.media.dash.SnapPlaylistItem
@@ -42,7 +43,6 @@ import me.rhunk.snapenhance.util.snap.BitmojiSelfie
 import me.rhunk.snapenhance.util.snap.EncryptionHelper
 import me.rhunk.snapenhance.util.snap.MediaDownloaderHelper
 import me.rhunk.snapenhance.util.snap.PreviewUtils
-import java.io.File
 import java.nio.file.Paths
 import java.text.SimpleDateFormat
 import java.util.Locale
@@ -260,14 +260,32 @@ class MediaDownloader : Feature("MediaDownloader", loadParams = FeatureLoadParam
         }
 
         //private stories
-        paramMap["PLAYLIST_V2_GROUP"]?.toString()?.takeIf {
-            it.contains("storyUserId=") && (forceDownload || canAutoDownload("friend_stories"))
+        paramMap["PLAYLIST_V2_GROUP"]?.takeIf {
+            forceDownload || canAutoDownload("friend_stories")
         }?.let { playlistGroup ->
-            val storyUserId = (playlistGroup.indexOf("storyUserId=") + 12).let {
-                playlistGroup.substring(it, playlistGroup.indexOf(",", it))
+            val playlistGroupString = playlistGroup.toString()
+
+            val storyUserId = if (playlistGroupString.contains("storyUserId=")) {
+                (playlistGroupString.indexOf("storyUserId=") + 12).let {
+                    playlistGroupString.substring(it, playlistGroupString.indexOf(",", it))
+                }
+            } else {
+                //story replies
+                val arroyoMessageId = playlistGroup::class.java.methods.firstOrNull { it.name == "getId" }
+                    ?.invoke(playlistGroup)?.toString()
+                    ?.split(":")?.getOrNull(2) ?: return@let
+
+                val conversationMessage = context.database.getConversationMessageFromId(arroyoMessageId.toLong()) ?: return@let
+                val conversationParticipants = context.database.getConversationParticipants(conversationMessage.client_conversation_id.toString()) ?: return@let
+
+                conversationParticipants.firstOrNull { it != conversationMessage.sender_id }
             }
 
-            val author = context.database.getFriendInfo(if (storyUserId == "null") context.database.getMyUserId()!! else storyUserId) ?: return
+            val author = context.database.getFriendInfo(
+                if (storyUserId == null || storyUserId == "null")
+                    context.database.getMyUserId()!!
+                else storyUserId
+            ) ?: throw Exception("Friend not found in database")
             val authorName = author.usernameForSorting!!
 
             downloadOperaMedia(provideClientDownloadManager(
