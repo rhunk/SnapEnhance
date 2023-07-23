@@ -1,5 +1,6 @@
 package me.rhunk.snapenhance.ui.download
 
+import android.annotation.SuppressLint
 import android.content.Intent
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
@@ -20,6 +21,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.job
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withTimeout
 import me.rhunk.snapenhance.Logger
 import me.rhunk.snapenhance.R
 import me.rhunk.snapenhance.SharedContext
@@ -31,6 +33,7 @@ import java.io.File
 import java.io.FileInputStream
 import java.net.URL
 import kotlin.concurrent.thread
+import kotlin.coroutines.coroutineContext
 
 class DownloadListAdapter(
     private val activity: DownloadManagerActivity,
@@ -64,7 +67,8 @@ class DownloadListAdapter(
         return downloadList.size
     }
 
-    private fun handlePreview(download: PendingDownload, holder: ViewHolder) {
+    @SuppressLint("Recycle")
+    private suspend fun handlePreview(download: PendingDownload, holder: ViewHolder) {
         download.outputFile?.let {
             val uri = Uri.parse(it)
             runCatching {
@@ -77,45 +81,45 @@ class DownloadListAdapter(
                     FileType.fromFile(File(it)) to FileInputStream(it)
                 }
             }.getOrNull()
-        }?.let { (fileType, assetStream) ->
-            coroutineScope.launch {
-                val previewBitmap = assetStream?.use { stream ->
-                    //don't preview files larger than 30MB
-                    if (stream.available() > 30 * 1024 * 1024) return@launch
+        }?.also { (fileType, assetStream) ->
+            val previewBitmap = assetStream?.use { stream ->
+                //don't preview files larger than 30MB
+                if (stream.available() > 30 * 1024 * 1024) return@also
 
-                    val tempFile = File.createTempFile("preview", ".${fileType.fileExtension}")
-                    tempFile.outputStream().use { output ->
-                        stream.copyTo(output)
-                    }
-                    runCatching {
-                        PreviewUtils.createPreviewFromFile(tempFile)?.let { preview ->
-                            val offsetY = (preview.height / 2 - holder.viewHeight / 2).coerceAtLeast(0)
-
-                            Bitmap.createScaledBitmap(
-                                Bitmap.createBitmap(preview, 0, offsetY,
-                                    preview.width.coerceAtMost(holder.viewWidth),
-                                    preview.height.coerceAtMost(holder.viewHeight)
-                                ),
-                                holder.viewWidth,
-                                holder.viewHeight,
-                                false
-                            )
-                        }
-                    }.onFailure {
-                        Logger.error("failed to create preview $fileType", it)
-                    }.also {
-                        tempFile.delete()
-                    }.getOrNull()
-                } ?: return@launch
-
-                if (coroutineContext.job.isCancelled) return@launch
-                Handler(holder.view.context.mainLooper).post {
-                    holder.view.background = RoundedBitmapDrawableFactory.create(holder.view.context.resources, previewBitmap).also {
-                        it.cornerRadius = holder.radius.toFloat()
-                    }
+                val tempFile = File.createTempFile("preview", ".${fileType.fileExtension}")
+                tempFile.outputStream().use { output ->
+                    stream.copyTo(output)
                 }
-            }.also { job ->
-                previewJobs[holder.hashCode()] = job
+                runCatching {
+                    PreviewUtils.createPreviewFromFile(tempFile)?.let { preview ->
+                        val offsetY = (preview.height / 2 - holder.viewHeight / 2).coerceAtLeast(0)
+
+                        Bitmap.createScaledBitmap(
+                            Bitmap.createBitmap(
+                                preview, 0, offsetY,
+                                preview.width.coerceAtMost(holder.viewWidth),
+                                preview.height.coerceAtMost(holder.viewHeight)
+                            ),
+                            holder.viewWidth,
+                            holder.viewHeight,
+                            false
+                        )
+                    }
+                }.onFailure {
+                    Logger.error("failed to create preview $fileType", it)
+                }.also {
+                    tempFile.delete()
+                }.getOrNull()
+            } ?: return@also
+
+            if (coroutineContext.job.isCancelled) return@also
+            Handler(holder.view.context.mainLooper).post {
+                holder.view.background = RoundedBitmapDrawableFactory.create(
+                    holder.view.context.resources,
+                    previewBitmap
+                ).also {
+                    it.cornerRadius = holder.radius.toFloat()
+                }
             }
         }
     }
@@ -124,7 +128,11 @@ class DownloadListAdapter(
         holder.status.text = download.downloadStage.toString()
         holder.view.background = holder.view.context.getDrawable(R.drawable.download_manager_item_background)
 
-        handlePreview(download, holder)
+        coroutineScope.launch {
+            withTimeout(2000) {
+                handlePreview(download, holder)
+            }
+        }
 
         val isSaved = download.downloadStage == DownloadStage.SAVED
         //if the download is in progress, the user can cancel it
