@@ -29,7 +29,6 @@ import me.rhunk.snapenhance.hook.Hooker
 import me.rhunk.snapenhance.hook.hook
 import me.rhunk.snapenhance.util.CallbackBuilder
 import me.rhunk.snapenhance.util.protobuf.ProtoReader
-import me.rhunk.snapenhance.util.setObjectField
 import me.rhunk.snapenhance.util.snap.EncryptionHelper
 import me.rhunk.snapenhance.util.snap.MediaDownloaderHelper
 import me.rhunk.snapenhance.util.snap.PreviewUtils
@@ -193,78 +192,80 @@ class Notifications : Feature("Notifications", loadParams = FeatureLoadParams.IN
             ))
         }
 
-        notificationDataQueue.entries.onEach { (messageId, notificationData) ->
-            val snapMessage = messages.firstOrNull { message -> message.orderKey == messageId } ?: return
-            val senderUsername by lazy {
-                context.database.getFriendInfo(snapMessage.senderId.toString())?.let {
-                    it.displayName ?: it.username
-                }
-            }
-
-            val contentType = snapMessage.messageContent.contentType
-            val contentData = snapMessage.messageContent.content
-
-            val formatUsername: (String) -> String = { "$senderUsername: $it" }
-            val notificationCache = cachedMessages.let { it.computeIfAbsent(conversationId) { mutableListOf() } }
-            val appendNotifications: () -> Unit = { setNotificationText(notificationData.notification, conversationId)}
-
-            setupNotificationActionButtons(contentType, conversationId, snapMessage.messageDescriptor.messageId, notificationData)
-
-            when (contentType) {
-                ContentType.NOTE -> {
-                    notificationCache.add(formatUsername("sent audio note"))
-                    appendNotifications()
-                }
-                ContentType.CHAT -> {
-                    ProtoReader(contentData).getString(2, 1)?.trim()?.let {
-                        notificationCache.add(formatUsername(it))
+        synchronized(notificationDataQueue) {
+            notificationDataQueue.entries.onEach { (messageId, notificationData) ->
+                val snapMessage = messages.firstOrNull { message -> message.orderKey == messageId } ?: return
+                val senderUsername by lazy {
+                    context.database.getFriendInfo(snapMessage.senderId.toString())?.let {
+                        it.displayName ?: it.username
                     }
-                    appendNotifications()
                 }
-                ContentType.SNAP, ContentType.EXTERNAL_MEDIA-> {
-                    //serialize the message content into a json object
-                    val serializedMessageContent = context.gson.toJsonTree(snapMessage.messageContent.instanceNonNull()).asJsonObject
-                    val mediaReferences = serializedMessageContent["mRemoteMediaReferences"]
-                        .asJsonArray.map { it.asJsonObject["mMediaReferences"].asJsonArray }
-                        .flatten()
 
-                    mediaReferences.forEach { media ->
-                        val protoMediaReference = media.asJsonObject["mContentObject"].asJsonArray.map { it.asByte }.toByteArray()
-                        val mediaType = MediaReferenceType.valueOf(media.asJsonObject["mMediaType"].asString)
-                        runCatching {
-                            val messageReader = ProtoReader(contentData)
-                            val downloadedMediaList = MediaDownloaderHelper.downloadMediaFromReference(protoMediaReference) {
-                                EncryptionHelper.decryptInputStream(it, contentType, messageReader, isArroyo = false)
+                val contentType = snapMessage.messageContent.contentType
+                val contentData = snapMessage.messageContent.content
+
+                val formatUsername: (String) -> String = { "$senderUsername: $it" }
+                val notificationCache = cachedMessages.let { it.computeIfAbsent(conversationId) { mutableListOf() } }
+                val appendNotifications: () -> Unit = { setNotificationText(notificationData.notification, conversationId)}
+
+                setupNotificationActionButtons(contentType, conversationId, snapMessage.messageDescriptor.messageId, notificationData)
+
+                when (contentType) {
+                    ContentType.NOTE -> {
+                        notificationCache.add(formatUsername("sent audio note"))
+                        appendNotifications()
+                    }
+                    ContentType.CHAT -> {
+                        ProtoReader(contentData).getString(2, 1)?.trim()?.let {
+                            notificationCache.add(formatUsername(it))
+                        }
+                        appendNotifications()
+                    }
+                    ContentType.SNAP, ContentType.EXTERNAL_MEDIA-> {
+                        //serialize the message content into a json object
+                        val serializedMessageContent = context.gson.toJsonTree(snapMessage.messageContent.instanceNonNull()).asJsonObject
+                        val mediaReferences = serializedMessageContent["mRemoteMediaReferences"]
+                            .asJsonArray.map { it.asJsonObject["mMediaReferences"].asJsonArray }
+                            .flatten()
+
+                        mediaReferences.forEach { media ->
+                            val protoMediaReference = media.asJsonObject["mContentObject"].asJsonArray.map { it.asByte }.toByteArray()
+                            val mediaType = MediaReferenceType.valueOf(media.asJsonObject["mMediaType"].asString)
+                            runCatching {
+                                val messageReader = ProtoReader(contentData)
+                                val downloadedMediaList = MediaDownloaderHelper.downloadMediaFromReference(protoMediaReference) {
+                                    EncryptionHelper.decryptInputStream(it, contentType, messageReader, isArroyo = false)
+                                }
+
+                                var bitmapPreview = PreviewUtils.createPreview(downloadedMediaList[SplitMediaAssetType.ORIGINAL]!!, mediaType.name.contains("VIDEO"))!!
+
+                                downloadedMediaList[SplitMediaAssetType.OVERLAY]?.let {
+                                    bitmapPreview = PreviewUtils.mergeBitmapOverlay(bitmapPreview, BitmapFactory.decodeByteArray(it, 0, it.size))
+                                }
+
+                                val notificationBuilder = XposedHelpers.newInstance(
+                                    Notification.Builder::class.java,
+                                    context.androidContext,
+                                    notificationData.notification
+                                ) as Notification.Builder
+                                notificationBuilder.setLargeIcon(bitmapPreview)
+                                notificationBuilder.style = Notification.BigPictureStyle().bigPicture(bitmapPreview).bigLargeIcon(null as Bitmap?)
+
+                                sendNotificationData(notificationData.copy(notification = notificationBuilder.build()), true)
+                                return@onEach
+                            }.onFailure {
+                                Logger.xposedLog("Failed to send preview notification", it)
                             }
-
-                            var bitmapPreview = PreviewUtils.createPreview(downloadedMediaList[SplitMediaAssetType.ORIGINAL]!!, mediaType.name.contains("VIDEO"))!!
-
-                            downloadedMediaList[SplitMediaAssetType.OVERLAY]?.let {
-                                bitmapPreview = PreviewUtils.mergeBitmapOverlay(bitmapPreview, BitmapFactory.decodeByteArray(it, 0, it.size))
-                            }
-
-                            val notificationBuilder = XposedHelpers.newInstance(
-                                Notification.Builder::class.java,
-                                context.androidContext,
-                                notificationData.notification
-                            ) as Notification.Builder
-                            notificationBuilder.setLargeIcon(bitmapPreview)
-                            notificationBuilder.style = Notification.BigPictureStyle().bigPicture(bitmapPreview).bigLargeIcon(null as Bitmap?)
-
-                            sendNotificationData(notificationData.copy(notification = notificationBuilder.build()), true)
-                            return@onEach
-                        }.onFailure {
-                            Logger.xposedLog("Failed to send preview notification", it)
                         }
                     }
+                    else -> {
+                        notificationCache.add(formatUsername("sent $contentType"))
+                    }
                 }
-                else -> {
-                    notificationCache.add(formatUsername("sent $contentType"))
-                }
-            }
 
-            sendNotificationData(notificationData, false)
-        }.clear()
+                sendNotificationData(notificationData, false)
+            }.clear()
+        }
     }
 
     override fun init() {
@@ -287,7 +288,10 @@ class Notifications : Feature("Notifications", loadParams = FeatureLoadParams.IN
                 }) return@hook
 
             val conversationManager: Any = context.feature(Messaging::class).conversationManager
-            notificationDataQueue[messageId.toLong()] = notificationData
+
+            synchronized(notificationDataQueue) {
+                notificationDataQueue[messageId.toLong()] = notificationData
+            }
 
             val callback = CallbackBuilder(fetchConversationWithMessagesCallback)
                 .override("onFetchConversationWithMessagesComplete") { callbackParam ->
