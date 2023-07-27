@@ -61,12 +61,13 @@ class Messaging : Feature("Messaging", loadParams = FeatureLoadParams.ACTIVITY_C
     }
 
     override fun asyncInit() {
+        val stealthMode = context.feature(StealthMode::class)
 
         arrayOf("activate", "deactivate", "processTypingActivity").forEach { hook ->
-            Hooker.hook(context.classCache.presenceSession, hook, HookStage.BEFORE) {
-                if(context.config.bool(ConfigProperty.HIDE_BITMOJI_PRESENCE) || context.feature(StealthMode::class).isStealth(openedConversationUUID.toString())){
-                    it.setResult(null)
-                }
+            Hooker.hook(context.classCache.presenceSession, hook, HookStage.BEFORE, {
+                context.config.bool(ConfigProperty.HIDE_BITMOJI_PRESENCE) || stealthMode.isStealth(openedConversationUUID.toString())
+            }) {
+                it.setResult(null)
             }
         }
 
@@ -81,10 +82,10 @@ class Messaging : Feature("Messaging", loadParams = FeatureLoadParams.ACTIVITY_C
             lastFocusedMessageId = param.arg(1)
         }
 
-        Hooker.hook(context.classCache.conversationManager, "sendTypingNotification", HookStage.BEFORE) {
-            if(context.config.bool(ConfigProperty.HIDE_TYPING_NOTIFICATION) || context.feature(StealthMode::class).isStealth(openedConversationUUID.toString())){
-                it.setResult(null)
-            }
+        Hooker.hook(context.classCache.conversationManager, "sendTypingNotification", HookStage.BEFORE, {
+            context.config.bool(ConfigProperty.HIDE_TYPING_NOTIFICATION) || stealthMode.isStealth(openedConversationUUID.toString())
+        }) {
+            it.setResult(null)
         }
     }
 }
