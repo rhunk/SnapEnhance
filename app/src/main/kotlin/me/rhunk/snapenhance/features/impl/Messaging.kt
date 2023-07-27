@@ -14,7 +14,6 @@ class Messaging : Feature("Messaging", loadParams = FeatureLoadParams.ACTIVITY_C
     lateinit var conversationManager: Any
 
     var openedConversationUUID: SnapUUID? = null
-    var lastOpenedConversationUUID: SnapUUID? = null
     var lastFetchConversationUserUUID: SnapUUID? = null
     var lastFetchConversationUUID: SnapUUID? = null
     var lastFetchGroupConversationUUID: SnapUUID? = null
