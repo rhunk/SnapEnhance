@@ -5,4 +5,7 @@ plugins {
     alias(libs.plugins.kotlinAndroid) apply false
 }
 
+rootProject.ext.set("appVersionName", "1.1.0")
+rootProject.ext.set("appVersionCode", 7)
+
 true // Needed to make the Suppress annotation work for the plugins block

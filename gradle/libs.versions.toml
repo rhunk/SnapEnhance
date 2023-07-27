@@ -11,6 +11,7 @@ osmdroid-android = "6.1.16"
 okhttp = "5.0.0-alpha.11"
 dexlib2 = "2.5.2"
 androidx-documentfile = "1.1.0-alpha01"
+activity-ktx = "1.7.2"
 
 
 [libraries]
@@ -24,6 +25,7 @@ osmdroid-android = { group = "org.osmdroid", name = "osmdroid-android", version.
 okhttp = { group = "com.squareup.okhttp3", name = "okhttp", version.ref = "okhttp" }
 dexlib2 = { group = "org.smali", name = "dexlib2", version.ref = "dexlib2" }
 androidx-documentfile = { group = "androidx.documentfile", name = "documentfile", version.ref = "androidx-documentfile" }
+androidx-activity-ktx = { group = "androidx.activity", name = "activity-ktx", version.ref = "activity-ktx" }
 
 
 [plugins]

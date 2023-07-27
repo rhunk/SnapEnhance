@@ -15,6 +15,8 @@ dependencyResolutionManagement {
     }
 }
 
+
 rootProject.name = "SnapEnhance"
+include(":core")
 include(":app")
 include(":mapper")

@@ -6,9 +6,6 @@ plugins {
     alias(libs.plugins.kotlinAndroid)
 }
 
-val appVersionName = "1.1.0"
-val appVersionCode = 7
-
 android {
     namespace = "me.rhunk.snapenhance"
     compileSdk = 33
@@ -22,9 +19,6 @@ android {
         minSdk = 28
         //noinspection OldTargetApi
         targetSdk = 33
-
-        versionCode = appVersionCode
-        versionName = appVersionName
         multiDexEnabled = true
     }
 
@@ -66,7 +60,7 @@ android {
 
     applicationVariants.all {
         outputs.map { it as BaseVariantOutputImpl }.forEach { variant ->
-            variant.outputFileName = "app-${appVersionName}-${variant.name}.apk"
+            variant.outputFileName = "app-${rootProject.ext["appVersionName"]}-${variant.name}.apk"
         }
     }
 
@@ -81,24 +75,8 @@ android {
 }
 
 dependencies {
-    compileOnly(files("libs/LSPosed-api-1.0-SNAPSHOT.jar"))
-    implementation(libs.coroutines)
-    implementation(libs.kotlin.reflect)
-    implementation(libs.recyclerview)
-    implementation(libs.gson)
-    implementation(libs.ffmpeg.kit)
-    implementation(libs.osmdroid.android)
-    implementation(libs.okhttp)
-    implementation(libs.androidx.documentfile)
-
-    implementation(project(":mapper"))
-}
-
-tasks.register("getVersion") {
-    doLast {
-        val versionFile = File("app/build/version.txt")
-        versionFile.writeText(android.defaultConfig.versionName.toString())
-    }
+    implementation(project(":core"))
+    implementation(libs.androidx.activity.ktx)
 }
 
 afterEvaluate {
