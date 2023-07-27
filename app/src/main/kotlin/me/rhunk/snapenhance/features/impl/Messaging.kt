@@ -84,13 +84,8 @@ class Messaging : Feature("Messaging", loadParams = FeatureLoadParams.ACTIVITY_C
         }
 
 
-        val isConversationInStealthMode: (SnapUUID) -> Boolean = hook@{
-            if (context.config.bool(ConfigProperty.HIDE_TYPING_NOTIFICATION)) return@hook true
-            context.feature(StealthMode::class).isStealth(it.toString())
-        }
-
         Hooker.hook(context.classCache.conversationManager, "sendTypingNotification", HookStage.BEFORE,
-            { isConversationInStealthMode(SnapUUID(it.arg(0))) }) {
+            {context.config.bool(ConfigProperty.HIDE_TYPING_NOTIFICATION)}) {
             it.setResult(null)
         }
     }
