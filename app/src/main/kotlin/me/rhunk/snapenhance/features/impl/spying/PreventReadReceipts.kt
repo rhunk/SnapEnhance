@@ -13,27 +13,30 @@ class PreventReadReceipts : Feature("PreventReadReceipts", loadParams = FeatureL
             if (context.config.bool(ConfigProperty.PREVENT_READ_RECEIPTS)) return@hook true
             context.feature(StealthMode::class).isStealth(it.toString())
         }
-
+        var isStealth = false
         arrayOf("mediaMessagesDisplayed", "displayedMessages").forEach { methodName: String ->
-            Hooker.hook(context.classCache.conversationManager, methodName, HookStage.BEFORE) {
+            Hooker.hook(context.classCache.conversationManager, methodName, HookStage.BEFORE, { isConversationInStealthMode(SnapUUID(it.arg(0))) }) {
                 it.setResult(null)
+                isStealth = true
             }
         }
         Hooker.hook(context.classCache.snapManager, "onSnapInteraction", HookStage.BEFORE) {
             if (isConversationInStealthMode(SnapUUID(it.arg(1) as Any))) {
                 it.setResult(null)
+                isStealth = true
             }
         }
 
-        Hooker.hook(context.classCache.conversationManager, "sendTypingNotification", HookStage.BEFORE,
-            {isConversationInStealthMode(SnapUUID(it.arg(0)))}) {
-            it.setResult(null)
-        }
-
-        arrayOf("activate", "deactivate", "processTypingActivity").forEach { hook ->
-            Hooker.hook(context.classCache.presenceSession, hook, HookStage.BEFORE) {
+        if(isStealth == true){
+            arrayOf("activate", "deactivate", "processTypingActivity").forEach { hook ->
+                Hooker.hook(context.classCache.presenceSession, hook, HookStage.BEFORE) {
+                    it.setResult(null)
+                }
+            }
+            Hooker.hook(context.classCache.conversationManager, "sendTypingNotification", HookStage.BEFORE) {
                 it.setResult(null)
             }
         }
+
     }
 }
