@@ -26,7 +26,7 @@ class PreventReadReceipts : Feature("PreventReadReceipts", loadParams = FeatureL
         }
 
         arrayOf("activate", "deactivate", "processTypingActivity").forEach { hook ->
-            Hooker.hook(context.classCache.presenceSession, hook, HookStage.BEFORE, { isConversationInStealthMode(SnapUUID(it.arg(0))) }) {
+            Hooker.hook(context.classCache.presenceSession, hook, HookStage.BEFORE, { isConversationInStealthMode(SnapUUID(it.arg(1) as Any)) }) {
                 it.setResult(null)
             }
         }
