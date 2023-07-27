@@ -15,7 +15,7 @@ class PreventReadReceipts : Feature("PreventReadReceipts", loadParams = FeatureL
         }
 
         arrayOf("mediaMessagesDisplayed", "displayedMessages").forEach { methodName: String ->
-            Hooker.hook(context.classCache.conversationManager, methodName, HookStage.BEFORE, { isConversationInStealthMode(SnapUUID(it.arg(0))) }) {
+            Hooker.hook(context.classCache.conversationManager, methodName, HookStage.BEFORE) {
                 it.setResult(null)
             }
         }
@@ -25,16 +25,15 @@ class PreventReadReceipts : Feature("PreventReadReceipts", loadParams = FeatureL
             }
         }
 
-        arrayOf("activate", "deactivate", "processTypingActivity").forEach { hook ->
-            Hooker.hook(context.classCache.presenceSession, hook, HookStage.BEFORE, { isConversationInStealthMode(SnapUUID(it.arg(1) as Any)) }) {
-                it.setResult(null)
-            }
-        }
-
-
         Hooker.hook(context.classCache.conversationManager, "sendTypingNotification", HookStage.BEFORE,
             {isConversationInStealthMode(SnapUUID(it.arg(0)))}) {
             it.setResult(null)
+        }
+
+        arrayOf("activate", "deactivate", "processTypingActivity").forEach { hook ->
+            Hooker.hook(context.classCache.presenceSession, hook, HookStage.BEFORE) {
+                it.setResult(null)
+            }
         }
     }
 }
