@@ -11,7 +11,7 @@ import me.rhunk.snapenhance.Constants
 import me.rhunk.snapenhance.Logger
 import me.rhunk.snapenhance.features.impl.downloader.MediaDownloader
 import me.rhunk.snapenhance.ui.menu.AbstractMenu
-import me.rhunk.snapenhance.ui.menu.ViewAppearanceHelper.applyTheme
+import me.rhunk.snapenhance.ui.ViewAppearanceHelper.applyTheme
 
 @SuppressLint("DiscouragedApi")
 class OperaContextActionMenu : AbstractMenu() {

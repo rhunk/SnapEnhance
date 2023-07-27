@@ -17,8 +17,8 @@ import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.RecyclerView
 import me.rhunk.snapenhance.BuildConfig
 import me.rhunk.snapenhance.R
-import me.rhunk.snapenhance.bridge.TranslationWrapper
 import me.rhunk.snapenhance.SharedContext
+import me.rhunk.snapenhance.bridge.wrapper.TranslationWrapper
 import me.rhunk.snapenhance.download.data.PendingDownload
 
 class DownloadManagerActivity : Activity() {
@@ -133,7 +133,7 @@ class DownloadManagerActivity : Activity() {
                     if (lastVisibleItemPosition == fetchedDownloadTasks.size - 1 && !isLoading) {
                         isLoading = true
 
-                        SharedContext.downloadTaskManager.queryTasks(fetchedDownloadTasks.last().id, filter = listFilter).forEach {
+                        SharedContext.downloadTaskManager.queryTasks(fetchedDownloadTasks.last().downloadId, filter = listFilter).forEach {
                             fetchedDownloadTasks.add(it.value)
                             adapter?.notifyItemInserted(fetchedDownloadTasks.size - 1)
                         }

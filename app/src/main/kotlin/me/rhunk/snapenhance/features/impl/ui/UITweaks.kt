@@ -1,7 +1,9 @@
 package me.rhunk.snapenhance.features.impl.ui
 
 import android.annotation.SuppressLint
+import android.content.Context
 import android.content.res.Resources
+import android.text.SpannableString
 import android.view.View
 import android.view.ViewGroup
 import android.widget.FrameLayout
@@ -32,7 +34,7 @@ class UITweaks : Feature("UITweaks", loadParams = FeatureLoadParams.ACTIVITY_CRE
         param.setResult(null)
     }
 
-    @SuppressLint("DiscouragedApi")
+    @SuppressLint("DiscouragedApi", "InternalInsetResource")
     override fun onActivityCreate() {
         val blockAds = context.config.bool(ConfigProperty.BLOCK_ADS)
         val hiddenElements = context.config.options(ConfigProperty.HIDE_UI_ELEMENTS)
@@ -92,6 +94,20 @@ class UITweaks : Feature("UITweaks", loadParams = FeatureLoadParams.ACTIVITY_CRE
                 hideStorySection(param)
             }
 
+            //mappings?
+            if (hideStorySection["hide_friend_suggestions"] == true && view.javaClass.superclass?.name?.endsWith("StackDrawLayout") == true) {
+                val layoutParams = view.layoutParams as? FrameLayout.LayoutParams ?: return@hook
+                if (layoutParams.width == -1 &&
+                    layoutParams.height == -2 &&
+                    view.javaClass.let { clazz ->
+                        clazz.methods.any { it.returnType == SpannableString::class.java} &&
+                        clazz.constructors.any { it.parameterCount == 1 && it.parameterTypes[0] == Context::class.java }
+                    }
+                ) {
+                    hideStorySection(param)
+                }
+            }
+
             if (hideStorySection["hide_following"] == true && (viewId == getIdentifier("df_small_story", "id"))
             ) {
                 hideStorySection(param)
@@ -101,9 +117,20 @@ class UITweaks : Feature("UITweaks", loadParams = FeatureLoadParams.ACTIVITY_CRE
                 hideStorySection(param)
             }
 
-            if (isImmersiveCamera && view.id == getIdentifier("full_screen_surface_view", "id")) {
-                Hooker.hookObjectMethod(View::class.java, view, "setLayoutParams", HookStage.BEFORE) {
-                    it.setArg(0, FrameLayout.LayoutParams(displayMetrics.widthPixels, displayMetrics.heightPixels))
+            if (isImmersiveCamera) {
+                if (view.id == getIdentifier("edits_container", "id")) {
+                    val deviceAspectRatio = displayMetrics.widthPixels.toFloat() / displayMetrics.heightPixels.toFloat()
+                    Hooker.hookObjectMethod(View::class.java, view, "layout", HookStage.BEFORE) {
+                        val width = it.arg(2) as Int
+                        val realHeight = (width / deviceAspectRatio).toInt()
+                        it.setArg(3, realHeight)
+                    }
+                }
+                if (view.id == getIdentifier("full_screen_surface_view", "id")) {
+                    Hooker.hookObjectMethod(View::class.java, view, "layout", HookStage.BEFORE) {
+                        it.setArg(1, 1)
+                        it.setArg(3, displayMetrics.heightPixels)
+                    }
                 }
             }
 

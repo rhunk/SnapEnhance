@@ -1,5 +1,6 @@
 package me.rhunk.snapenhance.features.impl
 
+import me.rhunk.snapenhance.Logger
 import me.rhunk.snapenhance.config.ConfigProperty
 import me.rhunk.snapenhance.data.wrapper.impl.SnapUUID
 import me.rhunk.snapenhance.features.Feature
@@ -13,9 +14,9 @@ class Messaging : Feature("Messaging", loadParams = FeatureLoadParams.ACTIVITY_C
     lateinit var conversationManager: Any
 
     var openedConversationUUID: SnapUUID? = null
-    var lastOpenedConversationUUID: SnapUUID? = null
     var lastFetchConversationUserUUID: SnapUUID? = null
     var lastFetchConversationUUID: SnapUUID? = null
+    var lastFetchGroupConversationUUID: SnapUUID? = null
     var lastFocusedMessageId: Long = -1
 
     override fun init() {
@@ -25,6 +26,17 @@ class Messaging : Feature("Messaging", loadParams = FeatureLoadParams.ACTIVITY_C
     }
 
     override fun onActivityCreate() {
+        context.mappings.getMappedObjectNullable("FriendsFeedEventDispatcher").let { it as? Map<*, *> }?.let { mappings ->
+            findClass(mappings["class"].toString()).hook("onItemLongPress", HookStage.BEFORE) { param ->
+                val viewItemContainer = param.arg<Any>(0)
+                val viewItem = viewItemContainer.getObjectField(mappings["viewModelField"].toString()).toString()
+                val conversationId = viewItem.substringAfter("conversationId: ").substring(0, 36).also {
+                    if (it.startsWith("null")) return@hook
+                }
+                lastFetchGroupConversationUUID = SnapUUID.fromString(conversationId)
+            }
+        }
+
         context.mappings.getMappedClass("callbacks", "GetOneOnOneConversationIdsCallback").hook("onSuccess", HookStage.BEFORE) { param ->
             val userIdToConversation = (param.arg<ArrayList<*>>(0))
                 .takeIf { it.isNotEmpty() }

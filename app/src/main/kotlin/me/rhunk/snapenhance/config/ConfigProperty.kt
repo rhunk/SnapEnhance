@@ -1,18 +1,18 @@
 package me.rhunk.snapenhance.config
 
-import android.os.Environment
 import me.rhunk.snapenhance.config.impl.ConfigIntegerValue
 import me.rhunk.snapenhance.config.impl.ConfigStateListValue
 import me.rhunk.snapenhance.config.impl.ConfigStateSelection
 import me.rhunk.snapenhance.config.impl.ConfigStateValue
 import me.rhunk.snapenhance.config.impl.ConfigStringValue
+import me.rhunk.snapenhance.data.NotificationType
 import me.rhunk.snapenhance.features.impl.tweaks.CameraTweaks
-import java.io.File
 
 enum class ConfigProperty(
     val translationKey: String,
     val category: ConfigCategory,
     val valueContainer: ConfigValue<*>,
+    val valueContainerTranslationKey: String? = null,
     val shouldAppearInSettings: Boolean = true,
     val disableValueLocalization: Boolean = false
 ) {
@@ -36,11 +36,12 @@ enum class ConfigProperty(
         "better_notifications",
         ConfigCategory.SPYING_PRIVACY,
         ConfigStateListValue(
-            listOf("snap", "chat", "reply_button"),
+            listOf("snap", "chat", "reply_button", "download_button"),
             mutableMapOf(
                 "snap" to false,
                 "chat" to false,
-                "reply_button" to false
+                "reply_button" to false,
+                "download_button" to false
             )
         )
     ),
@@ -48,13 +49,10 @@ enum class ConfigProperty(
         "notification_blacklist",
         ConfigCategory.SPYING_PRIVACY,
         ConfigStateListValue(
-            listOf("snap", "chat", "typing"),
-            mutableMapOf(
-                "snap" to false,
-                "chat" to false,
-                "typing" to false
-            )
-        )
+            NotificationType.getIncomingValues().map { it.key },
+            NotificationType.getIncomingValues().associate { it.key to false }.toMutableMap()
+        ),
+        valueContainerTranslationKey = "notifications",
     ),
     DISABLE_METRICS("disable_metrics",
         ConfigCategory.SPYING_PRIVACY,
@@ -68,15 +66,14 @@ enum class ConfigProperty(
         ConfigCategory.SPYING_PRIVACY,
         ConfigStateValue(false)
     ),
-    PREVENT_SCREENSHOT_NOTIFICATIONS(
-        "prevent_screenshot_notifications",
+    PREVENT_SENDING_MESSAGES(
+        "prevent_sending_messages",
         ConfigCategory.SPYING_PRIVACY,
-        ConfigStateValue(false)
-    ),
-    PREVENT_STATUS_NOTIFICATIONS(
-        "prevent_status_notifications",
-        ConfigCategory.SPYING_PRIVACY,
-        ConfigStateValue(false)
+        ConfigStateListValue(
+            NotificationType.getOutgoingValues().map { it.key },
+            NotificationType.getOutgoingValues().associate { it.key to false }.toMutableMap()
+        ),
+        valueContainerTranslationKey = "notifications",
     ),
     ANONYMOUS_STORY_VIEW(
         "anonymous_story_view",
@@ -93,10 +90,7 @@ enum class ConfigProperty(
     SAVE_FOLDER(
         "save_folder",
         ConfigCategory.MEDIA_MANAGEMENT,
-        ConfigStringValue(File(
-            Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DCIM).absolutePath + "/Snapchat",
-            "SnapEnhance"
-        ).absolutePath)
+        ConfigStringValue("",  isFolderPath =true),
     ),
     AUTO_DOWNLOAD_OPTIONS(
         "auto_download_options",
@@ -160,6 +154,19 @@ enum class ConfigProperty(
         ConfigCategory.MEDIA_MANAGEMENT,
         ConfigStateValue(false)
     ),
+    DOWNLOAD_LOGGING(
+        "download_logging",
+        ConfigCategory.MEDIA_MANAGEMENT,
+        ConfigStateListValue(
+            listOf("started", "success", "progress", "failure"),
+            mutableMapOf(
+                "started" to false,
+                "success" to true,
+                "progress" to false,
+                "failure" to true
+            )
+        )
+    ),
     
     //UI AND TWEAKS
     ENABLE_FRIEND_FEED_MENU_BAR(
@@ -203,8 +210,9 @@ enum class ConfigProperty(
         "hide_story_section",
         ConfigCategory.UI_TWEAKS,
         ConfigStateListValue(
-            listOf("hide_friends", "hide_following", "hide_for_you"),
+            listOf("hide_friend_suggestions", "hide_friends", "hide_following", "hide_for_you"),
             mutableMapOf(
+                "hide_friend_suggestions" to false,
                 "hide_friends" to false,
                 "hide_following" to false,
                 "hide_for_you" to false
@@ -294,7 +302,11 @@ enum class ConfigProperty(
             "OFF"
         )
     ),
-
+    DISABLE_GOOGLE_PLAY_DIALOGS(
+        "disable_google_play_dialogs",
+        ConfigCategory.UI_TWEAKS,
+        ConfigStateValue(false)
+    ),
 
     //CAMERA
     CAMERA_DISABLE(
@@ -376,7 +388,26 @@ enum class ConfigProperty(
         "unlimited_multi_snap",
         ConfigCategory.EXPERIMENTAL_DEBUGGING,
         ConfigStateValue(false)
+    ),
+    
+    //DEVICE SPOOFER
+    DEVICE_SPOOF(
+        "device_spoof",
+        ConfigCategory.DEVICE_SPOOFER,
+        ConfigStateValue(false)
+    ),
+    FINGERPRINT(
+        "device_fingerprint",
+        ConfigCategory.DEVICE_SPOOFER,
+        ConfigStringValue("")
+    ),
+    ANDROID_ID(
+        "android_id",
+        ConfigCategory.DEVICE_SPOOFER,
+        ConfigStringValue("")
     );
+
+    fun getOptionTranslationKey(key: String) = "option.property.${valueContainerTranslationKey ?: translationKey}.$key"
 
     companion object {
         fun sortedByCategory(): List<ConfigProperty> {

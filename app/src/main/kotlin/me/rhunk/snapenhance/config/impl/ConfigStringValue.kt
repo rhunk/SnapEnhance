@@ -4,6 +4,7 @@ import me.rhunk.snapenhance.config.ConfigValue
 
 class ConfigStringValue(
     private var value: String = "",
+    val isFolderPath: Boolean = false,
     val isHidden: Boolean = false
 ) : ConfigValue<String>() {
     override fun value() = value

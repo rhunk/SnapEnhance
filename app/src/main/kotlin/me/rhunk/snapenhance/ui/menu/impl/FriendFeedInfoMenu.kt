@@ -1,7 +1,6 @@
 package me.rhunk.snapenhance.ui.menu.impl
 
 import android.annotation.SuppressLint
-import android.app.AlertDialog
 import android.content.Context
 import android.content.DialogInterface
 import android.content.res.Resources
@@ -32,8 +31,8 @@ import me.rhunk.snapenhance.features.impl.Messaging
 import me.rhunk.snapenhance.features.impl.downloader.AntiAutoDownload
 import me.rhunk.snapenhance.features.impl.spying.StealthMode
 import me.rhunk.snapenhance.features.impl.tweaks.AntiAutoSave
+import me.rhunk.snapenhance.ui.ViewAppearanceHelper
 import me.rhunk.snapenhance.ui.menu.AbstractMenu
-import me.rhunk.snapenhance.ui.menu.ViewAppearanceHelper
 import me.rhunk.snapenhance.util.snap.BitmojiSelfie
 import java.net.HttpURLConnection
 import java.net.URL
@@ -73,7 +72,7 @@ class FriendFeedInfoMenu : AbstractMenu() {
         val finalIcon = icon
         context.runOnUiThread {
             val addedTimestamp: Long = profile.addedTimestamp.coerceAtLeast(profile.reverseAddedTimestamp)
-            val builder = AlertDialog.Builder(context.mainActivity)
+            val builder = ViewAppearanceHelper.newAlertDialogBuilder(context.mainActivity)
             builder.setIcon(finalIcon)
             builder.setTitle(profile.displayName ?: profile.username)
 
@@ -168,7 +167,7 @@ class FriendFeedInfoMenu : AbstractMenu() {
 
 
         //alert dialog
-        val builder = AlertDialog.Builder(context.mainActivity)
+        val builder = ViewAppearanceHelper.newAlertDialogBuilder(context.mainActivity)
         builder.setTitle(context.translation["conversation_preview.title"])
         builder.setMessage(messageBuilder.toString())
         builder.setPositiveButton(
@@ -200,10 +199,20 @@ class FriendFeedInfoMenu : AbstractMenu() {
         return BitmapDrawable(context.resources, bitmap)
     }
 
-    private fun getCurrentConversationId(): Pair<String, String?> {
+    private fun getCurrentConversationInfo(): Pair<String, String?> {
         val messaging = context.feature(Messaging::class)
         val focusedConversationTargetUser: String? = messaging.lastFetchConversationUserUUID?.toString()
 
+        //mapped conversation fetch (may not work with legacy sc versions)
+        messaging.lastFetchGroupConversationUUID?.let {
+            context.database.getFriendFeedInfoByConversationId(it.toString())?.let { friendFeedInfo ->
+                val participantSize = friendFeedInfo.participantsSize
+                return it.toString() to if (participantSize == 1) focusedConversationTargetUser else null
+            }
+            throw IllegalStateException("No conversation found")
+        }
+
+        //old conversation fetch
         val conversationId = if (messaging.lastFetchConversationUUID == null && focusedConversationTargetUser != null) {
             val conversation: UserConversationLink = context.database.getDMConversationIdFromUserId(focusedConversationTargetUser) ?: throw IllegalStateException("No conversation found")
             conversation.client_conversation_id!!.trim().lowercase()
@@ -211,7 +220,7 @@ class FriendFeedInfoMenu : AbstractMenu() {
             messaging.lastFetchConversationUUID.toString()
         }
 
-        return Pair(conversationId, focusedConversationTargetUser)
+        return conversationId to focusedConversationTargetUser
     }
 
     private fun createToggleFeature(viewConsumer: ((View) -> Unit), text: String, isChecked: () -> Boolean, toggle: (Boolean) -> Unit) {
@@ -234,7 +243,7 @@ class FriendFeedInfoMenu : AbstractMenu() {
         val friendFeedMenuOptions = context.config.options(ConfigProperty.FRIEND_FEED_MENU_BUTTONS)
         if (friendFeedMenuOptions.none { it.value }) return
 
-        val (conversationId, targetUser) = getCurrentConversationId()
+        val (conversationId, targetUser) = getCurrentConversationInfo()
 
         if (!context.config.bool(ConfigProperty.ENABLE_FRIEND_FEED_MENU_BAR)) {
             //preview button

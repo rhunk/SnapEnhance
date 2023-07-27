@@ -50,13 +50,9 @@
             "name": "Unlimited Snap View Time",
             "description": "Removes the time limit for viewing Snaps"
         },
-        "prevent_screenshot_notifications": {
-            "name": "Prevent Screenshot Notifications",
-            "description": "Prevents anyone from knowing that you've taken a screenshot"
-        },
-        "prevent_status_notifications": {
-            "name": "Prevent Status Notifications",
-            "description": "Prevents sending status notifications\ne.g. Saved to camera roll"
+        "prevent_sending_messages": {
+            "name": "Prevent Sending Messages",
+            "description": "Prevents sending certain types of messages"
         },
         "anonymous_story_view": {
             "name": "Anonymous Story View",
@@ -94,6 +90,10 @@
         "force_media_source_quality": {
             "name": "Force Media Source Quality",
             "description": "Overrides the media source quality"
+        },
+        "download_logging": {
+            "name": "Download Logging",
+            "description": "Show a toast when media is downloading"
         },
 
         "enable_friend_feed_menu_bar": {
@@ -164,6 +164,10 @@
             "name": "Override Startup Page",
             "description": "Overrides the startup page"
         },
+        "disable_google_play_dialogs": {
+            "name": "Disable Google Play Services Dialogs",
+            "description": "Prevent Google Play Services availability dialogs from being shown"
+        },
 
         "auto_updater": {
             "name": "Auto Updater",
@@ -218,6 +222,18 @@
         "unlimited_multi_snap": {
             "name": "Unlimited Multi Snap",
             "description": "Allows you to take an unlimited amount of multi snaps"
+        },
+        "device_spoof": {
+            "name": "Spoof Device Values",
+            "description": "Spoofs the devices values"
+        },
+        "device_fingerprint": {
+            "name": "Device Fingerprint",
+            "description": "Spoofs the device fingerprint"
+        },
+        "android_id": {
+            "name": "Android ID",
+            "description": "Spoofs the devices Android ID"
         }
     },
 
@@ -226,7 +242,8 @@
             "better_notifications": {
                 "chat": "Show chat messages",
                 "snap": "Show medias",
-                "reply_button": "Add reply button"
+                "reply_button": "Add reply button",
+                "download_button": "Add download button"
             },
             "friend_feed_menu_buttons": {
                 "auto_download_blacklist": "\u2B07\uFE0F Auto Download Blacklist",
@@ -249,6 +266,12 @@
                 "public_stories": "Public Stories",
                 "spotlight": "Spotlight"
             },
+            "download_logging": {
+                "started": "Started",
+                "success": "Success",
+                "progress": "Progress",
+                "failure": "Failure"
+            },
             "auto_save_messages": {
                 "NOTE": "Audio Note",
                 "CHAT": "Chat",
@@ -256,10 +279,19 @@
                 "SNAP": "Snap",
                 "STICKER": "Sticker"
             },
-            "notification_blacklist": {
+            "notifications": {
+                "chat_screenshot": "Screenshot",
+                "chat_screen_record": "Screen Record",
+                "camera_roll_save": "Camera Roll Save",
                 "chat": "Chat",
+                "chat_reply": "Chat Reply",
                 "snap": "Snap",
-                "typing": "Typing"
+                "typing": "Typing",
+                "stories": "Stories",
+                "initiate_audio": "Incoming Audio Call",
+                "abandon_audio": "Missed Audio Call",
+                "initiate_video": "Incoming Video Call",
+                "abandon_video": "Missed Video Call"
             },
             "gallery_media_send_override": {
                 "OFF": "Off",
@@ -287,6 +319,7 @@
                 "VERTICAL_STORY_VIEWER": "Enable Vertical Story Viewer"
             },
             "hide_story_section": {
+                "hide_friend_suggestions": "Hide friend suggestions",
                 "hide_friends": "Hide friends section",
                 "hide_following": "Hide following section",
                 "hide_for_you": "Hide For You section"
@@ -401,16 +434,21 @@
             "clear_cache_title": "Clear Cache",
             "reset_all_title": "Reset all settings",
             "reset_all_confirmation": "Are you sure you want to reset all settings?",
-            "success_toast": "Success!"
+            "success_toast": "Success!",
+            "device_spoofer": "Device Spoofer"
         }
     },
-    "download_manager_receiver": {
+    "download_processor": {
+        "download_started_toast": "Download started",
+        "unsupported_content_type_toast": "Unsupported content type!",
+        "failed_no_longer_available_toast": "Media no longer available",
         "already_queued_toast": "Media already in queue!",
         "already_downloaded_toast": "Media already downloaded!",
         "saved_toast": "Saved to {path}",
         "download_toast": "Downloading {path}...",
         "processing_toast": "Processing {path}...",
         "failed_generic_toast": "Failed to download",
+        "failed_to_create_preview_toast": "Failed to create preview",
         "failed_processing_toast": "Failed to process {error}",
         "failed_gallery_toast": "Failed to save to gallery {error}"
     },
@@ -418,5 +456,8 @@
         "title": "SnapEnhance Settings",
         "selected_text": "{count} selected",
         "invalid_number_toast": "Invalid number!"
+    },
+    "spoof_activity": {
+        "title": "Spoof Settings"
     }
 }

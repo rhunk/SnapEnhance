@@ -18,7 +18,7 @@ import me.rhunk.snapenhance.config.impl.ConfigStateSelection
 import me.rhunk.snapenhance.config.impl.ConfigStateValue
 import me.rhunk.snapenhance.config.impl.ConfigStringValue
 import me.rhunk.snapenhance.ui.menu.AbstractMenu
-import me.rhunk.snapenhance.ui.menu.ViewAppearanceHelper
+import me.rhunk.snapenhance.ui.ViewAppearanceHelper
 
 class SettingsMenu : AbstractMenu() {
     @SuppressLint("ClickableViewAccessibility")
@@ -48,14 +48,14 @@ class SettingsMenu : AbstractMenu() {
                     if (property.disableValueLocalization) {
                         it
                     } else {
-                        context.translation["option.property." + property.translationKey + "." + it]
+                        context.translation[property.getOptionTranslationKey(it)]
                     }
                 }
             })
         }
 
         val textEditor: ((String) -> Unit) -> Unit = { updateValue ->
-            val builder = AlertDialog.Builder(context.mainActivity!!)
+            val builder = ViewAppearanceHelper.newAlertDialogBuilder(context.mainActivity!!)
             builder.setTitle(propertyName)
 
             val input = EditText(context.androidContext)
@@ -121,13 +121,13 @@ class SettingsMenu : AbstractMenu() {
                 updateLocalizedText(button, property.valueContainer.value())
 
                 button.setOnClickListener {_ ->
-                    val builder = AlertDialog.Builder(context.mainActivity!!)
+                    val builder = ViewAppearanceHelper.newAlertDialogBuilder(context.mainActivity!!)
                     builder.setTitle(propertyName)
 
                     builder.setSingleChoiceItems(
                         property.valueContainer.keys().toTypedArray().map {
                             if (property.disableValueLocalization) it
-                            else context.translation["option.property." + property.translationKey + "." + it]
+                            else context.translation[property.getOptionTranslationKey(it)]
                         }.toTypedArray(),
                         property.valueContainer.keys().indexOf(property.valueContainer.value())
                     ) { _, which ->
@@ -148,7 +148,7 @@ class SettingsMenu : AbstractMenu() {
                 updateButtonText(button, "(${property.valueContainer.value().count { it.value }})")
 
                 button.setOnClickListener {_ ->
-                    val builder = AlertDialog.Builder(context.mainActivity!!)
+                    val builder = ViewAppearanceHelper.newAlertDialogBuilder(context.mainActivity!!)
                     builder.setTitle(propertyName)
 
                     val sortedStates = property.valueContainer.value().toSortedMap()
@@ -156,7 +156,7 @@ class SettingsMenu : AbstractMenu() {
                     builder.setMultiChoiceItems(
                         sortedStates.toSortedMap().map {
                             if (property.disableValueLocalization) it.key
-                            else context.translation["option.property." + property.translationKey + "." + it.key]
+                            else context.translation[property.getOptionTranslationKey(it.key)]
                         }.toTypedArray(),
                         sortedStates.map { it.value }.toBooleanArray()
                     ) { _, which, isChecked ->

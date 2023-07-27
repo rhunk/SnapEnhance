@@ -1,0 +1,36 @@
+[versions]
+agp = "8.1.0"
+junit = "4.13.2"
+kotlin = "1.8.21"
+kotlinx-coroutines-android = "1.7.2"
+kotlin-reflect = "1.8.21"
+recyclerview = "1.3.0"
+gson = "2.10.1"
+ffmpeg-kit = "5.1.LTS"
+osmdroid-android = "6.1.16"
+okhttp = "5.0.0-alpha.11"
+dexlib2 = "2.5.2"
+androidx-documentfile = "1.1.0-alpha01"
+
+
+[libraries]
+coroutines = { group = "org.jetbrains.kotlinx", name = "kotlinx-coroutines-android", version.ref = "kotlinx-coroutines-android" }
+junit = { module = "junit:junit", version.ref = "junit" }
+kotlin-reflect = { group = "org.jetbrains.kotlin", name = "kotlin-reflect", version.ref = "kotlin-reflect" }
+recyclerview = { group = "androidx.recyclerview", name = "recyclerview", version.ref = "recyclerview" }
+gson = { group = "com.google.code.gson", name = "gson", version.ref = "gson" }
+ffmpeg-kit = { group = "com.arthenica", name = "ffmpeg-kit-full-gpl", version.ref = "ffmpeg-kit" }
+osmdroid-android = { group = "org.osmdroid", name = "osmdroid-android", version.ref = "osmdroid-android" }
+okhttp = { group = "com.squareup.okhttp3", name = "okhttp", version.ref = "okhttp" }
+dexlib2 = { group = "org.smali", name = "dexlib2", version.ref = "dexlib2" }
+androidx-documentfile = { group = "androidx.documentfile", name = "documentfile", version.ref = "androidx-documentfile" }
+
+
+[plugins]
+androidApplication = { id = "com.android.application", version.ref = "agp" }
+androidLibrary = { id = "com.android.library", version.ref = "agp" }
+kotlinAndroid = { id = "org.jetbrains.kotlin.android", version.ref = "kotlin" }
+
+
+[bundles]
+

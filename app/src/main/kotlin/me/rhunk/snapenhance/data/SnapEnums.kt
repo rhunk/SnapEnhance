@@ -4,39 +4,39 @@ enum class MessageState {
     PREPARING, SENDING, COMMITTED, FAILED, CANCELING
 }
 
-enum class ChatMediaType (
-    val value: Int
+enum class NotificationType (
+    val key: String,
+    val isIncoming: Boolean = false,
+    val associatedOutgoingContentType: ContentType? = null,
 ) {
-    IMAGE(0),
-    VIDEO(1),
-    VIDEO_NO_SOUND(2),
-    FRIEND_DEPRECATED(3),
-    BLOB(4),
-    LAGUNA_SOUND(5),
-    LAGUNA_NO_SOUND(6),
-    GIF(7),
-    FINGERPRINT_HEADER_SIZE(8),
-    AUDIO_STITCH(9),
-    PSYCHOMANTIS(10),
-    SCREAMINGMANTIS(11),
-    MALIBU_SOUND(12),
-    MALIBU_NO_SOUND(13),
-    LAGUNAHD_SOUND(14),
-    LAGUNAHD_NO_SOUND(15),
-    GHOSTMANTIS(16),
-    NEWPORT_SOUND(17),
-    NEWPORT_NO_SOUND(18),
-    AUDIO(19),
-    BLOOP(20),
-    SPECTACLES_IMAGE(21),
-    SPECTACLES_VIDEO(22),
-    SPECTACLES_VIDEO_NO_SOUND(23),
-    CHEERIOS_IMAGE(24),
-    CHEERIOS_VIDEO_SOUND(25),
-    CHEERIOS_VIDEO_NO_SOUND(26),
-    WEB(27),
-    UNRECOGNIZED_VALUE(-9999);
+    SCREENSHOT("chat_screenshot", true, ContentType.STATUS_CONVERSATION_CAPTURE_SCREENSHOT),
+    SCREEN_RECORD("chat_screen_record", true, ContentType.STATUS_CONVERSATION_CAPTURE_RECORD),
+    CAMERA_ROLL_SAVE("camera_roll_save", true, ContentType.STATUS_SAVE_TO_CAMERA_ROLL),
+    SNAP("snap",true),
+    CHAT("chat",true),
+    CHAT_REPLY("chat_reply",true),
+    TYPING("typing", true),
+    STORIES("stories",true),
+    INITIATE_AUDIO("initiate_audio",true),
+    ABANDON_AUDIO("abandon_audio", false, ContentType.STATUS_CALL_MISSED_AUDIO),
+    INITIATE_VIDEO("initiate_video",true),
+    ABANDON_VIDEO("abandon_video", false, ContentType.STATUS_CALL_MISSED_VIDEO);
+
+    companion object {
+        fun getIncomingValues(): List<NotificationType> {
+            return values().filter { it.isIncoming }.toList()
+        }
+
+        fun getOutgoingValues(): List<NotificationType> {
+            return values().filter { it.associatedOutgoingContentType != null }.toList()
+        }
+
+        fun fromContentType(contentType: ContentType): NotificationType? {
+            return values().firstOrNull { it.associatedOutgoingContentType == contentType }
+        }
+    }
 }
+
 enum class ContentType(val id: Int) {
     UNKNOWN(-1),
     SNAP(0),
@@ -56,7 +56,8 @@ enum class ContentType(val id: Int) {
     CREATIVE_TOOL_ITEM(14),
     FAMILY_CENTER_INVITE(15),
     FAMILY_CENTER_ACCEPT(16),
-    FAMILY_CENTER_LEAVE(17);
+    FAMILY_CENTER_LEAVE(17),
+    STATUS_PLUS_GIFT(18);
 
     companion object {
         fun fromId(i: Int): ContentType {
