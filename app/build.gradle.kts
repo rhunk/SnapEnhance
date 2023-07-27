@@ -41,7 +41,7 @@ android {
     productFlavors {
         create("armv8") {
             ndk {
-                abiFilters.add(name)
+                abiFilters.add("arm64-v8a")
             }
 
             dimension = "abi"
@@ -49,7 +49,7 @@ android {
 
         create("armv7") {
             ndk {
-                abiFilters.add(name)
+                abiFilters.add("armeabi-v7a")
             }
             packaging {
                 jniLibs {
