@@ -2,17 +2,22 @@ package me.rhunk.snapmapper
 
 import com.google.gson.GsonBuilder
 import com.google.gson.JsonObject
-import org.jf.dexlib2.dexbacked.DexBackedClassDef
+import org.jf.dexlib2.iface.ClassDef
 
 class MapperContext(
-    private val classMap: Map<String, DexBackedClassDef>
+    private val classMap: Map<String, ClassDef>
 ) {
-    val classes: Collection<DexBackedClassDef>
+    val classes: Collection<ClassDef>
         get() = classMap.values
 
-    fun getClass(name: String?): DexBackedClassDef? {
+    fun getClass(name: String?): ClassDef? {
         if (name == null) return null
         return classMap[name]
+    }
+
+    fun getClass(name: CharSequence?): ClassDef? {
+        if (name == null) return null
+        return classMap[name.toString()]
     }
 
     private val mappings = mutableMapOf<String, Any>()

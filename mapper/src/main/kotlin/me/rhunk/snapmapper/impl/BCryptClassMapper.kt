@@ -4,7 +4,7 @@ import me.rhunk.snapmapper.AbstractClassMapper
 import me.rhunk.snapmapper.MapperContext
 import me.rhunk.snapmapper.ext.getStaticConstructor
 import me.rhunk.snapmapper.ext.isFinal
-import org.jf.dexlib2.dexbacked.instruction.DexBackedArrayPayload
+import org.jf.dexlib2.iface.instruction.formats.ArrayPayload
 
 class BCryptClassMapper : AbstractClassMapper() {
     override fun run(context: MapperContext) {
@@ -12,7 +12,7 @@ class BCryptClassMapper : AbstractClassMapper() {
             if (!clazz.isFinal()) continue
 
             val isBcryptClass = clazz.getStaticConstructor()?.let { constructor ->
-                constructor.implementation?.instructions?.filterIsInstance<DexBackedArrayPayload>()?.any { it.elementCount == 18 && it.arrayElements[0] == 608135816 }
+                constructor.implementation?.instructions?.filterIsInstance<ArrayPayload>()?.any { it.arrayElements.size == 18 && it.arrayElements[0] == 608135816 }
             }
 
             if (isBcryptClass == true) {
