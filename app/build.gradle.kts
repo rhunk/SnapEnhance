@@ -90,6 +90,12 @@ dependencies {
     implementation(project(":mapper"))
 }
 
+tasks.register("getVersion") {
+    doLast {
+        val versionFile = File("app/build/version.txt")
+        versionFile.writeText(android.defaultConfig.versionName.toString())
+    }
+}
 
 afterEvaluate {
     properties["debug_assemble_task"]?.let { tasks.named(it.toString()) }?.orNull?.doLast {
