@@ -24,5 +24,17 @@ class PreventReadReceipts : Feature("PreventReadReceipts", loadParams = FeatureL
                 it.setResult(null)
             }
         }
+
+        arrayOf("activate", "deactivate", "processTypingActivity").forEach { hook ->
+            Hooker.hook(context.classCache.presenceSession, hook, HookStage.BEFORE, { isConversationInStealthMode(SnapUUID(it.arg(0))) }) {
+                it.setResult(null)
+            }
+        }
+
+
+        Hooker.hook(context.classCache.conversationManager, "sendTypingNotification", HookStage.BEFORE,
+            {isConversationInStealthMode(SnapUUID(it.arg(0)))}) {
+            it.setResult(null)
+        }
     }
 }
