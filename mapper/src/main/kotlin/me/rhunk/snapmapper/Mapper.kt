@@ -6,8 +6,8 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.withContext
 import org.jf.dexlib2.Opcodes
-import org.jf.dexlib2.dexbacked.DexBackedClassDef
 import org.jf.dexlib2.dexbacked.DexBackedDexFile
+import org.jf.dexlib2.iface.ClassDef
 import java.io.BufferedInputStream
 import java.io.InputStream
 import java.util.zip.ZipFile
@@ -17,7 +17,7 @@ import kotlin.reflect.KClass
 class Mapper(
     private vararg val mappers: KClass<out AbstractClassMapper> = arrayOf()
 ) {
-    private val classes = mutableListOf<DexBackedClassDef>()
+    private val classes = mutableListOf<ClassDef>()
     fun loadApk(path: String) {
         val apkFile = ZipFile(path)
         val apkEntries = apkFile.entries().toList()

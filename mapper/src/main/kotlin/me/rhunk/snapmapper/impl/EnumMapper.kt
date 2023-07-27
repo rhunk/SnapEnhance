@@ -7,10 +7,10 @@ import me.rhunk.snapmapper.ext.getStaticConstructor
 import me.rhunk.snapmapper.ext.hasStaticConstructorString
 import me.rhunk.snapmapper.ext.isEnum
 import org.jf.dexlib2.Opcode
-import org.jf.dexlib2.dexbacked.DexBackedMethod
-import org.jf.dexlib2.dexbacked.instruction.DexBackedInstruction21c
-import org.jf.dexlib2.dexbacked.reference.DexBackedFieldReference
-import org.jf.dexlib2.dexbacked.reference.DexBackedStringReference
+import org.jf.dexlib2.iface.Method
+import org.jf.dexlib2.iface.instruction.formats.Instruction21c
+import org.jf.dexlib2.iface.reference.FieldReference
+import org.jf.dexlib2.iface.reference.StringReference
 
 class EnumMapper : AbstractClassMapper() {
     override fun run(context: MapperContext) {
@@ -35,10 +35,10 @@ class EnumMapper : AbstractClassMapper() {
 
             //search for constant field instruction sget-object
 
-            fun getFirstFieldReference21c(opcode: Opcode, method: DexBackedMethod) = method.implementation!!.instructions.firstOrNull {
-                it.opcode == opcode && it is DexBackedInstruction21c
-            }.let { it as? DexBackedInstruction21c }?.let {
-                it.reference as? DexBackedFieldReference
+            fun getFirstFieldReference21c(opcode: Opcode, method: Method) = method.implementation!!.instructions.firstOrNull {
+                it.opcode == opcode && it is Instruction21c
+            }.let { it as? Instruction21c }?.let {
+                it.reference as? FieldReference
             }
 
             val fieldReference = getFirstFieldReference21c(Opcode.SGET_OBJECT, getEnumMethod) ?:
@@ -51,12 +51,12 @@ class EnumMapper : AbstractClassMapper() {
                 var lastEnumClassName = ""
                 constructor.implementation!!.instructions.forEach {
                     if (it.opcode == Opcode.CONST_STRING) {
-                        lastEnumClassName = ((it as DexBackedInstruction21c).reference as DexBackedStringReference).string
+                        lastEnumClassName = ((it as Instruction21c).reference as StringReference).string
                         return@forEach
                     }
 
-                    if (it.opcode == Opcode.SPUT_OBJECT && it is DexBackedInstruction21c) {
-                        val field = it.reference as? DexBackedFieldReference ?: return@forEach
+                    if (it.opcode == Opcode.SPUT_OBJECT && it is Instruction21c) {
+                        val field = it.reference as? FieldReference ?: return@forEach
                         if (field.name != fieldReference.name || field.type != fieldReference.type) return@forEach
 
                         enums.add(lastEnumClassName to enumClass.getClassName())

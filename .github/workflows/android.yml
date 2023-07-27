@@ -71,7 +71,9 @@ jobs:
           path: app/build/outputs/apk/armv7/debug/*.apk
           
       - name: CI Upload armv8
+        if: github.ref_name == 'main'
         run: node ./.github/workflows/upload.js -t "${{ secrets.TELEGRAM_BOT_TOKEN }}" -f "app/build/outputs/apk/armv8/debug/app-${{ env.version }}-armv8-${{ steps.version-env.outputs.sha_short }}.apk" --caption "A new commit has been pushed to the ${{ env.GIT_BRANCH_NAME }} branch! ${{ steps.version-env.outputs.sha_short }}" --chatid "${{ secrets.TELEGRAM_CHAT_ID }}" 
 
       - name: CI Upload armv7
+        if: github.ref_name == 'main'
         run: node ./.github/workflows/upload.js -t "${{ secrets.TELEGRAM_BOT_TOKEN }}" -f "app/build/outputs/apk/armv7/debug/app-${{ env.version }}-armv7-${{ steps.version-env.outputs.sha_short }}.apk" --chatid "${{ secrets.TELEGRAM_CHAT_ID }}" 
