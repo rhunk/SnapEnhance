@@ -67,7 +67,7 @@ class Messaging : Feature("Messaging", loadParams = FeatureLoadParams.ACTIVITY_C
 
 
         arrayOf("activate", "deactivate", "processTypingActivity").forEach { hook ->
-            Hooker.hook(context.classCache.presenceSession, hook, HookStage.BEFORE, { isConversationInStealthMode(SnapUUID(it.arg(0))) }) {
+            Hooker.hook(context.classCache.presenceSession, hook, HookStage.BEFORE, { isConversationInStealthMode(SnapUUID(lastFetchConversationUUID)) }) {
                 it.setResult(null)
             }
         }
