@@ -1,5 +1,6 @@
 package me.rhunk.snapenhance.features.impl
 
+import android.util.Log
 import me.rhunk.snapenhance.config.ConfigProperty
 import me.rhunk.snapenhance.data.wrapper.impl.SnapUUID
 import me.rhunk.snapenhance.features.Feature
@@ -8,6 +9,8 @@ import me.rhunk.snapenhance.hook.HookStage
 import me.rhunk.snapenhance.hook.Hooker
 import me.rhunk.snapenhance.hook.hook
 import me.rhunk.snapenhance.util.getObjectField
+import me.rhunk.snapenhance.features.impl.spying.StealthMode;
+
 
 class Messaging : Feature("Messaging", loadParams = FeatureLoadParams.ACTIVITY_CREATE_SYNC or FeatureLoadParams.INIT_ASYNC or FeatureLoadParams.INIT_SYNC) {
     lateinit var conversationManager: Any
@@ -58,9 +61,12 @@ class Messaging : Feature("Messaging", loadParams = FeatureLoadParams.ACTIVITY_C
     }
 
     override fun asyncInit() {
+
         arrayOf("activate", "deactivate", "processTypingActivity").forEach { hook ->
-            Hooker.hook(context.classCache.presenceSession, hook, HookStage.BEFORE, { context.config.bool(ConfigProperty.HIDE_BITMOJI_PRESENCE) }) {
-                it.setResult(null)
+            Hooker.hook(context.classCache.presenceSession, hook, HookStage.BEFORE) {
+                if(context.config.bool(ConfigProperty.HIDE_BITMOJI_PRESENCE) || context.feature(StealthMode::class).isStealth(openedConversationUUID.toString())){
+                    it.setResult(null)
+                }
             }
         }
 
@@ -75,9 +81,10 @@ class Messaging : Feature("Messaging", loadParams = FeatureLoadParams.ACTIVITY_C
             lastFocusedMessageId = param.arg(1)
         }
 
-        Hooker.hook(context.classCache.conversationManager, "sendTypingNotification", HookStage.BEFORE,
-            {context.config.bool(ConfigProperty.HIDE_TYPING_NOTIFICATION)}) {
-            it.setResult(null)
+        Hooker.hook(context.classCache.conversationManager, "sendTypingNotification", HookStage.BEFORE) {
+            if(context.config.bool(ConfigProperty.HIDE_TYPING_NOTIFICATION) || context.feature(StealthMode::class).isStealth(openedConversationUUID.toString())){
+                it.setResult(null)
+            }
         }
     }
 }
