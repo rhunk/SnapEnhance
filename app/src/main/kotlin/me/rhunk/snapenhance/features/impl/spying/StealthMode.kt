@@ -4,7 +4,6 @@ import me.rhunk.snapenhance.bridge.types.BridgeFileType
 import me.rhunk.snapenhance.features.BridgeFileFeature
 import me.rhunk.snapenhance.features.FeatureLoadParams
 
-
 class StealthMode : BridgeFileFeature("StealthMode", BridgeFileType.STEALTH, loadParams = FeatureLoadParams.ACTIVITY_CREATE_SYNC) {
     override fun onActivityCreate() {
         readFile()
