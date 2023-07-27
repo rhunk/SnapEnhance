@@ -60,6 +60,10 @@ android {
         }
     }
 
+    properties["debug_flavor"]?.let {
+        android.productFlavors[it.toString()].setIsDefault(true)
+    }
+
     applicationVariants.all {
         outputs.map { it as BaseVariantOutputImpl }.forEach { variant ->
             variant.outputFileName = "app-${appVersionName}-${variant.name}.apk"
