@@ -1,5 +1,6 @@
 [versions]
 agp = "8.1.0"
+junit = "4.13.2"
 kotlin = "1.8.21"
 kotlinx-coroutines-android = "1.7.2"
 kotlin-reflect = "1.8.21"
@@ -14,6 +15,7 @@ androidx-documentfile = "1.1.0-alpha01"
 
 [libraries]
 coroutines = { group = "org.jetbrains.kotlinx", name = "kotlinx-coroutines-android", version.ref = "kotlinx-coroutines-android" }
+junit = { module = "junit:junit", version.ref = "junit" }
 kotlin-reflect = { group = "org.jetbrains.kotlin", name = "kotlin-reflect", version.ref = "kotlin-reflect" }
 recyclerview = { group = "androidx.recyclerview", name = "recyclerview", version.ref = "recyclerview" }
 gson = { group = "com.google.code.gson", name = "gson", version.ref = "gson" }

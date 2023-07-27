@@ -17,4 +17,5 @@ dependencies {
     implementation(libs.gson)
     implementation(libs.coroutines)
     implementation(libs.dexlib2)
+    testImplementation(libs.junit)
 }
