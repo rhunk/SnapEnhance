@@ -11,7 +11,7 @@ class OpenMap: AbstractAction("action.open_map", dependsOnProperty = ConfigPrope
     override fun run() {
         context.runOnUiThread {
             val mapActivityIntent = Intent()
-            mapActivityIntent.setClassName(BuildConfig.LIBRARY_PACKAGE_NAME, MapActivity::class.java.name)
+            mapActivityIntent.setClassName(BuildConfig.APPLICATION_ID, MapActivity::class.java.name)
             mapActivityIntent.putExtra("location", Bundle().apply {
                 putDouble("latitude", context.config.string(ConfigProperty.LATITUDE).toDouble())
                 putDouble("longitude", context.config.string(ConfigProperty.LONGITUDE).toDouble())

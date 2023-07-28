@@ -191,7 +191,7 @@ class MessageExporter(
 
         runCatching {
             ZipFile(
-                context.androidContext.packageManager.getApplicationInfoCompat(BuildConfig.LIBRARY_PACKAGE_NAME, PackageManager.GET_META_DATA).publicSourceDir
+                context.androidContext.packageManager.getApplicationInfoCompat(BuildConfig.APPLICATION_ID, PackageManager.GET_META_DATA).publicSourceDir
             ).use { apkFile ->
                 //export rawinflate.js
                 apkFile.getEntry("assets/web/rawinflate.js").let { entry ->

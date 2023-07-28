@@ -7,5 +7,6 @@ plugins {
 
 rootProject.ext.set("appVersionName", "1.1.0")
 rootProject.ext.set("appVersionCode", 7)
+rootProject.ext.set("applicationId", "me.rhunk.snapenhance")
 
 true // Needed to make the Suppress annotation work for the plugins block

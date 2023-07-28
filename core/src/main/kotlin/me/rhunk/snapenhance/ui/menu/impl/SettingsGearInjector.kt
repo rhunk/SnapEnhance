@@ -48,7 +48,7 @@ class SettingsGearInjector : AbstractMenu() {
 
             setOnClickListener {
                 val intent = Intent().apply {
-                    setClassName(BuildConfig.LIBRARY_PACKAGE_NAME, ConfigActivity::class.java.name)
+                    setClassName(BuildConfig.APPLICATION_ID, ConfigActivity::class.java.name)
                 }
                 intent.putExtra("lspatched", File(context.cacheDir, "lspatch/origin").exists())
                 context.startActivity(intent)

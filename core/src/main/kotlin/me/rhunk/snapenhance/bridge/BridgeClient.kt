@@ -32,12 +32,12 @@ class BridgeClient(
         with(context.androidContext) {
             //ensure the remote process is running
             startActivity(Intent()
-                .setClassName(BuildConfig.LIBRARY_PACKAGE_NAME, ForceStartActivity::class.java.name)
+                .setClassName(BuildConfig.APPLICATION_ID, ForceStartActivity::class.java.name)
                 .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_MULTIPLE_TASK)
             )
 
             val intent = Intent()
-                .setClassName(BuildConfig.LIBRARY_PACKAGE_NAME, BridgeService::class.java.name)
+                .setClassName(BuildConfig.APPLICATION_ID, BridgeService::class.java.name)
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
                 bindService(
                     intent,

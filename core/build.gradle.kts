@@ -5,16 +5,18 @@ plugins {
 }
 android {
     namespace = "me.rhunk.snapenhance.core"
-    compileSdk = 33
+    compileSdk = 34
 
     buildFeatures {
         aidl = true
+        buildConfig = true
     }
 
     defaultConfig {
         minSdk = 28
         buildConfigField("String", "VERSION_NAME", "\"${rootProject.ext["appVersionName"]}\"")
         buildConfigField("int", "VERSION_CODE", "${rootProject.ext["appVersionCode"]}")
+        buildConfigField("String", "APPLICATION_ID", "\"${rootProject.ext["applicationId"]}\"")
     }
 
     kotlinOptions {

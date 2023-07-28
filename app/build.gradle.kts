@@ -8,20 +8,24 @@ plugins {
 
 android {
     namespace = "me.rhunk.snapenhance"
-    compileSdk = 33
+    compileSdk = 34
 
     buildFeatures {
         aidl = true
+        compose = true
+    }
+
+    composeOptions {
+        kotlinCompilerExtensionVersion = "1.4.8"
     }
 
     defaultConfig {
-        applicationId = "me.rhunk.snapenhance"
+        applicationId = rootProject.ext["applicationId"].toString()
         minSdk = 28
         //noinspection OldTargetApi
         targetSdk = 33
         multiDexEnabled = true
     }
-
 
     buildTypes {
         release {
@@ -76,7 +80,11 @@ android {
 
 dependencies {
     implementation(project(":core"))
+    implementation(libs.androidx.material.icons.extended)
+    implementation(libs.androidx.navigation.compose)
     implementation(libs.androidx.activity.ktx)
+    implementation(libs.androidx.material3)
+    implementation(libs.androidx.material)
 }
 
 afterEvaluate {

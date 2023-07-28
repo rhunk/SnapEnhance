@@ -35,7 +35,7 @@ class SnapEnhance {
 
             //for lspatch builds, we need to check if the service is correctly installed
             runCatching {
-                appContext.androidContext.packageManager.getApplicationInfoCompat(BuildConfig.LIBRARY_PACKAGE_NAME, PackageManager.GET_META_DATA)
+                appContext.androidContext.packageManager.getApplicationInfoCompat(BuildConfig.APPLICATION_ID, PackageManager.GET_META_DATA)
             }.onFailure {
                 appContext.crash("SnapEnhance bridge service is not installed. Please download stable version from https://github.com/rhunk/SnapEnhance/releases")
                 return@hook

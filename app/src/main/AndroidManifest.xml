@@ -38,7 +38,7 @@
         </service>
 
         <activity
-            android:name=".ui.download.DownloadManagerActivity"
+            android:name=".manager.MainActivity"
             android:theme="@style/AppTheme"
             android:exported="true">
             <intent-filter>
