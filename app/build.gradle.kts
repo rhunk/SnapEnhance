@@ -85,6 +85,10 @@ dependencies {
     implementation(libs.androidx.activity.ktx)
     implementation(libs.androidx.material3)
     implementation(libs.androidx.material)
+
+    debugImplementation("androidx.compose.ui:ui-tooling:1.4.3")
+    implementation("androidx.compose.ui:ui-tooling-preview:1.4.3")
+    implementation(kotlin("reflect"))
 }
 
 afterEvaluate {

@@ -91,7 +91,6 @@ class BridgeClient(
 
     fun deleteFile(fileType: BridgeFileType) = service.deleteFile(fileType.value)
 
-
     fun isFileExists(fileType: BridgeFileType) = service.isFileExists(fileType.value)
 
     fun getLoggedMessageIds(conversationId: String, limit: Int): LongArray = service.getLoggedMessageIds(conversationId, limit)

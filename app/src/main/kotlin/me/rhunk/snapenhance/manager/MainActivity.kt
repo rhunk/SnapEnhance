@@ -16,10 +16,12 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.navigation
 import androidx.navigation.compose.rememberNavController
+import me.rhunk.snapenhance.manager.data.ManagerContext
 
 class MainActivity : ComponentActivity() {
     @SuppressLint("UnusedMaterialScaffoldPaddingParameter")
@@ -27,39 +29,23 @@ class MainActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
 
         setContent {
-            App()
+            App(ManagerContext(this))
         }
     }
 }
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun App() {
+fun App(
+    context: ManagerContext
+) {
     val navController = rememberNavController()
+    val navigation = Navigation(context)
     AppMaterialTheme {
         Scaffold(
-            topBar = {
-                TopAppBar(
-                    title = { Text(text = "SnapEnhance") },
-                    actions = {
-                        IconButton(onClick = { /*TODO*/ }) {
-                            Icon(Icons.Filled.Settings, contentDescription = "Settings")
-                        }
-                    }
-                )
-            },
             containerColor = MaterialTheme.colorScheme.background,
-            bottomBar = { NavBar(navController = navController) }
+            bottomBar = { navigation.NavBar(navController = navController) }
         ) { innerPadding ->
-            NavHost(navController, startDestination = "main", Modifier.padding(innerPadding)) {
-                navigation(MainSections.HOME.route, "main") {
-                    MainSections.values().toList().forEach { section ->
-                        composable(section.route) {
-                            section.content()
-                        }
-                    }
-                }
-            }
+            navigation.NavigationHost(navController = navController, innerPadding = innerPadding)
         }
     }
 }

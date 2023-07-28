@@ -74,8 +74,6 @@ val md_theme_dark_scrim = Color(0xFF000000)
 val seed = Color(0xFF6750A4)
 
 
-
-
 private val LightThemeColors = lightColorScheme(
     primary = md_theme_light_primary,
     onPrimary = md_theme_light_onPrimary,

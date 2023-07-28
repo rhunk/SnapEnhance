@@ -5,6 +5,7 @@ import com.google.gson.GsonBuilder
 import com.google.gson.JsonObject
 import me.rhunk.snapenhance.Logger
 import me.rhunk.snapenhance.bridge.BridgeClient
+import me.rhunk.snapenhance.bridge.FileLoaderWrapper
 import me.rhunk.snapenhance.bridge.types.BridgeFileType
 import me.rhunk.snapenhance.config.ConfigAccessor
 import me.rhunk.snapenhance.config.ConfigProperty
@@ -14,16 +15,14 @@ class ConfigWrapper: ConfigAccessor() {
         private val gson = GsonBuilder().setPrettyPrinting().create()
     }
 
-    private lateinit var isFileExistsAction: () -> Boolean
-    private lateinit var writeFileAction: (ByteArray) -> Unit
-    private lateinit var readFileAction: () -> ByteArray
+    private val file = FileLoaderWrapper(BridgeFileType.CONFIG, "{}".toByteArray(Charsets.UTF_8))
 
     fun load() {
         ConfigProperty.sortedByCategory().forEach { key ->
             set(key, key.valueContainer)
         }
 
-        if (!isFileExistsAction()) {
+        if (!file.isFileExists()) {
             writeConfig()
             return
         }
@@ -37,7 +36,7 @@ class ConfigWrapper: ConfigAccessor() {
     }
 
     private fun loadConfig() {
-        val configContent = readFileAction()
+        val configContent = file.read()
 
         val configObject: JsonObject = gson.fromJson(
             configContent.toString(Charsets.UTF_8),
@@ -54,27 +53,17 @@ class ConfigWrapper: ConfigAccessor() {
         entries().forEach { (key, value) ->
             configObject.addProperty(key.name, value.read())
         }
-        writeFileAction(gson.toJson(configObject).toByteArray(Charsets.UTF_8))
+
+        file.write(gson.toJson(configObject).toByteArray(Charsets.UTF_8))
     }
 
     fun loadFromContext(context: Context) {
-        val configFile = BridgeFileType.CONFIG.resolve(context)
-        isFileExistsAction = { configFile.exists() }
-        readFileAction = {
-            if (!configFile.exists()) {
-                configFile.createNewFile()
-                configFile.writeBytes("{}".toByteArray(Charsets.UTF_8))
-            }
-            configFile.readBytes()
-        }
-        writeFileAction = { configFile.writeBytes(it) }
+        file.loadFromContext(context)
         load()
     }
 
     fun loadFromBridge(bridgeClient: BridgeClient) {
-        isFileExistsAction = { bridgeClient.isFileExists(BridgeFileType.CONFIG) }
-        readFileAction = { bridgeClient.createAndReadFile(BridgeFileType.CONFIG, "{}".toByteArray(Charsets.UTF_8)) }
-        writeFileAction = { bridgeClient.writeFile(BridgeFileType.CONFIG, it) }
+        file.loadFromBridge(bridgeClient)
         load()
     }
 }
