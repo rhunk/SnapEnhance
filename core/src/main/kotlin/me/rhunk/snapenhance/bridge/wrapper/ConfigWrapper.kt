@@ -35,6 +35,10 @@ class ConfigWrapper: ConfigAccessor() {
         }
     }
 
+    fun save() {
+        writeConfig()
+    }
+
     private fun loadConfig() {
         val configContent = file.read()
 
