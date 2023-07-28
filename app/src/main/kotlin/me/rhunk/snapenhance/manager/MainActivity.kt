@@ -27,9 +27,10 @@ class MainActivity : ComponentActivity() {
     @SuppressLint("UnusedMaterialScaffoldPaddingParameter")
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        val managerContext = ManagerContext(this)
 
         setContent {
-            App(ManagerContext(this))
+            App(managerContext)
         }
     }
 }

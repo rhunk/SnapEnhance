@@ -8,9 +8,9 @@ import me.rhunk.snapenhance.bridge.wrapper.TranslationWrapper
 class ManagerContext(
     private val context: Context
 ) {
-    private val config = ConfigWrapper()
-    private val translation = TranslationWrapper()
-    private val mappings = MappingsWrapper(context)
+    val config = ConfigWrapper()
+    val translation = TranslationWrapper()
+    val mappings = MappingsWrapper(context)
 
     init {
         config.loadFromContext(context)
