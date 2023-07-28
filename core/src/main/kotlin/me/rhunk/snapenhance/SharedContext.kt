@@ -80,6 +80,6 @@ object SharedContext {
             config = ConfigWrapper().apply { loadFromContext(context) }
         }
 
-        askForPermissions(context)
+        //askForPermissions(context)
     }
 }
