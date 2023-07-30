@@ -39,9 +39,8 @@ class Navigation(
             instance.manager = context
             instance.navController = navController
         } }
-        val homeSection = EnumSection.HOME
 
-        NavHost(navController, startDestination = homeSection.route, Modifier.padding(innerPadding)) {
+        NavHost(navController, startDestination = EnumSection.FEATURES.route, Modifier.padding(innerPadding)) {
             sections.forEach { (section, instance) ->
                 composable(section.route) {
                     instance.Content()

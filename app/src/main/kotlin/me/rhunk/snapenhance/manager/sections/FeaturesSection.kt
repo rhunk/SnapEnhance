@@ -3,8 +3,7 @@ package me.rhunk.snapenhance.manager.sections
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.ExperimentalLayoutApi
-import androidx.compose.foundation.layout.FlowRow
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
@@ -35,6 +34,8 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.compose.ui.window.Dialog
+import androidx.compose.ui.window.DialogProperties
 import kotlinx.coroutines.launch
 import me.rhunk.snapenhance.config.ConfigProperty
 import me.rhunk.snapenhance.config.impl.ConfigIntegerValue
@@ -42,60 +43,81 @@ import me.rhunk.snapenhance.config.impl.ConfigStateListValue
 import me.rhunk.snapenhance.config.impl.ConfigStateSelection
 import me.rhunk.snapenhance.config.impl.ConfigStateValue
 import me.rhunk.snapenhance.config.impl.ConfigStringValue
+import me.rhunk.snapenhance.manager.StateListDialog
 import me.rhunk.snapenhance.manager.Section
+import me.rhunk.snapenhance.manager.StateSelectionDialog
+import me.rhunk.snapenhance.manager.KeyboardInputDialog
 
 typealias ClickCallback = (Boolean) -> Unit
-typealias AddClickCallback = (ClickCallback) -> ClickCallback
+typealias RegisterClickCallback = (ClickCallback) -> ClickCallback
 
 class FeaturesSection : Section() {
     @Composable
-    private fun PropertyAction(item: ConfigProperty, clickCallback: AddClickCallback) {
-        when (val configValueContainer = remember { item.valueContainer }) {
-            is ConfigStateValue -> {
-                val state = remember {
-                    mutableStateOf(configValueContainer.value())
-                }
+    private fun PropertyAction(item: ConfigProperty, registerClickCallback: RegisterClickCallback) {
+        val showDialog = remember { mutableStateOf(false) }
+        val dialogComposable = remember { mutableStateOf<@Composable () -> Unit>({})}
 
+        fun registerDialogOnClickCallback() = registerClickCallback {
+            showDialog.value = true
+        }
+
+        if (showDialog.value) {
+            Dialog(onDismissRequest = { showDialog.value = false }, properties = DialogProperties()) {
+                dialogComposable.value()
+            }
+        }
+
+        when (val container = remember { item.valueContainer }) {
+            is ConfigStateValue -> {
+                val state = remember { mutableStateOf(container.value()) }
                 Switch(
                     checked = state.value,
-                    onCheckedChange = clickCallback {
-                        state.value = !state.value
-                        configValueContainer.writeFrom(state.value.toString())
+                    onCheckedChange = registerClickCallback {
+                        state.value = state.value.not()
+                        container.writeFrom(state.value.toString())
                     }
                 )
             }
 
             is ConfigStateSelection -> {
+                registerDialogOnClickCallback()
+                dialogComposable.value = {
+                    StateSelectionDialog(item)
+                }
                 Text(
-                    text = configValueContainer.value().let {
+                    text = container.value().let {
                         it.substring(0, it.length.coerceAtMost(20))
                     }
                 )
             }
 
-            is ConfigStateListValue -> {
-                IconButton(onClick = { }) {
-                    Icon(Icons.Filled.OpenInNew, contentDescription = null)
-                }
-            }
-
-            is ConfigIntegerValue -> {
-                FilledIconButton(onClick = { }) {
-                    Text(text = configValueContainer.value().toString())
-                }
-            }
-
-            is ConfigStringValue -> {
-                Text(
-                    text = configValueContainer.value().let {
-                        it.substring(0, it.length.coerceAtMost(20))
+            is ConfigStateListValue, is ConfigStringValue, is ConfigIntegerValue -> {
+                dialogComposable.value = {
+                    when (container) {
+                        is ConfigStateListValue -> {
+                            StateListDialog(item)
+                        }
+                        is ConfigStringValue, is ConfigIntegerValue -> {
+                            KeyboardInputDialog(item) { showDialog.value = false }
+                        }
                     }
-                )
+                }
+
+                registerDialogOnClickCallback().let { { it.invoke(true) } }.also {
+                    if (container is ConfigIntegerValue) {
+                        FilledIconButton(onClick = it) {
+                            Text(text = container.value().toString())
+                        }
+                    } else {
+                        IconButton(onClick = it) {
+                            Icon(Icons.Filled.OpenInNew, contentDescription = null)
+                        }
+                    }
+                }
             }
         }
     }
 
-    @OptIn(ExperimentalLayoutApi::class)
     @Composable
     private fun PropertyCard(item: ConfigProperty) {
         val clickCallback = remember { mutableStateOf<ClickCallback?>(null) }
@@ -107,7 +129,7 @@ class FeaturesSection : Section() {
                 }
                 .padding(start = 10.dp, end = 10.dp, top = 5.dp, bottom = 5.dp)
         ) {
-            FlowRow(
+            Row(
                 modifier = Modifier
                     .fillMaxSize()
                     .padding(all = 10.dp),
@@ -132,7 +154,7 @@ class FeaturesSection : Section() {
                         .align(Alignment.CenterVertically)
                         .padding(all = 10.dp)
                 ) {
-                    PropertyAction(item, clickCallback = { callback ->
+                    PropertyAction(item, registerClickCallback = { callback ->
                         clickCallback.value = callback
                         callback
                     })
@@ -161,6 +183,7 @@ class FeaturesSection : Section() {
                         }
                     },
                     containerColor = MaterialTheme.colors.primary,
+                    contentColor = MaterialTheme.colors.onPrimary,
                     shape = RoundedCornerShape(16.dp),
                 ) {
                     Icon(
