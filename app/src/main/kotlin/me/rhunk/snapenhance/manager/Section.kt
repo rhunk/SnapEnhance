@@ -48,6 +48,12 @@ enum class EnumSection(
         title = "Debug",
         icon = Icons.Filled.BugReport
     );
+
+    companion object {
+        fun fromRoute(route: String): EnumSection {
+            return values().first { it.route == route }
+        }
+    }
 }
 
 

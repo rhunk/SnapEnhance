@@ -22,8 +22,7 @@ android {
     defaultConfig {
         applicationId = rootProject.ext["applicationId"].toString()
         minSdk = 28
-        //noinspection OldTargetApi
-        targetSdk = 33
+        targetSdk = 34
         multiDexEnabled = true
     }
 
@@ -37,11 +36,12 @@ android {
     flavorDimensions += "abi"
 
     productFlavors {
+
+
         create("armv8") {
             ndk {
                 abiFilters.add("arm64-v8a")
             }
-
             dimension = "abi"
         }
 
@@ -81,13 +81,13 @@ android {
 dependencies {
     implementation(project(":core"))
     implementation(libs.androidx.material.icons.extended)
-    implementation(libs.androidx.navigation.compose)
-    implementation(libs.androidx.activity.ktx)
     implementation(libs.androidx.material3)
     implementation(libs.androidx.material)
+    implementation(libs.androidx.activity.ktx)
+    implementation(libs.androidx.navigation.compose)
 
     debugImplementation("androidx.compose.ui:ui-tooling:1.4.3")
-    implementation("androidx.compose.ui:ui-tooling-preview:1.4.3")
+    debugImplementation("androidx.compose.ui:ui-tooling-preview:1.4.3")
     implementation(kotlin("reflect"))
 }
 

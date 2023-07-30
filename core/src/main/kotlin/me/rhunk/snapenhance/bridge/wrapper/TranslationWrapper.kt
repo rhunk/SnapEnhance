@@ -88,6 +88,10 @@ class TranslationWrapper {
         return get("property.${property.translationKey}.description")
     }
 
+    fun propertyOption(property: ConfigProperty, item: String): String {
+        return get(property.getOptionTranslationKey(item))
+    }
+
     fun format(key: String, vararg args: Pair<String, String>): String {
         return args.fold(get(key)) { acc, pair ->
             acc.replace("{${pair.first}}", pair.second)

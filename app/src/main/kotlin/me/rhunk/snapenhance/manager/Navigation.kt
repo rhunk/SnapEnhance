@@ -30,6 +30,7 @@ class Navigation(
 ) {
     @Composable
     fun NavigationHost(
+        startDestination: EnumSection,
         navController: NavHostController,
         innerPadding: PaddingValues
     ) {
@@ -40,7 +41,7 @@ class Navigation(
             instance.navController = navController
         } }
 
-        NavHost(navController, startDestination = EnumSection.FEATURES.route, Modifier.padding(innerPadding)) {
+        NavHost(navController, startDestination = startDestination.route, Modifier.padding(innerPadding)) {
             sections.forEach { (section, instance) ->
                 composable(section.route) {
                     instance.Content()

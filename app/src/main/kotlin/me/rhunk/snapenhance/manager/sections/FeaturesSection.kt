@@ -4,9 +4,12 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.widthIn
+import androidx.compose.foundation.layout.wrapContentWidth
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -31,6 +34,7 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -43,15 +47,15 @@ import me.rhunk.snapenhance.config.impl.ConfigStateListValue
 import me.rhunk.snapenhance.config.impl.ConfigStateSelection
 import me.rhunk.snapenhance.config.impl.ConfigStateValue
 import me.rhunk.snapenhance.config.impl.ConfigStringValue
-import me.rhunk.snapenhance.manager.StateListDialog
+import me.rhunk.snapenhance.manager.Dialogs
 import me.rhunk.snapenhance.manager.Section
-import me.rhunk.snapenhance.manager.StateSelectionDialog
-import me.rhunk.snapenhance.manager.KeyboardInputDialog
 
 typealias ClickCallback = (Boolean) -> Unit
 typealias RegisterClickCallback = (ClickCallback) -> ClickCallback
 
 class FeaturesSection : Section() {
+    private val dialogs by lazy { Dialogs(manager) }
+
     @Composable
     private fun PropertyAction(item: ConfigProperty, registerClickCallback: RegisterClickCallback) {
         val showDialog = remember { mutableStateOf(false) }
@@ -82,12 +86,15 @@ class FeaturesSection : Section() {
             is ConfigStateSelection -> {
                 registerDialogOnClickCallback()
                 dialogComposable.value = {
-                    StateSelectionDialog(item)
+                    dialogs.StateSelectionDialog(item)
                 }
                 Text(
-                    text = container.value().let {
-                        it.substring(0, it.length.coerceAtMost(20))
-                    }
+                    overflow = TextOverflow.Ellipsis,
+                    maxLines = 1,
+                    modifier = Modifier.widthIn(0.dp, 120.dp),
+                    text = if (item.disableValueLocalization) container.value() else {
+                        manager.translation.propertyOption(item, container.value())
+                    },
                 )
             }
 
@@ -95,10 +102,10 @@ class FeaturesSection : Section() {
                 dialogComposable.value = {
                     when (container) {
                         is ConfigStateListValue -> {
-                            StateListDialog(item)
+                            dialogs.StateListDialog(item)
                         }
                         is ConfigStringValue, is ConfigIntegerValue -> {
-                            KeyboardInputDialog(item) { showDialog.value = false }
+                            dialogs.KeyboardInputDialog(item) { showDialog.value = false }
                         }
                     }
                 }
@@ -106,7 +113,7 @@ class FeaturesSection : Section() {
                 registerDialogOnClickCallback().let { { it.invoke(true) } }.also {
                     if (container is ConfigIntegerValue) {
                         FilledIconButton(onClick = it) {
-                            Text(text = container.value().toString())
+                            Text(text = container.value().toString(), modifier = Modifier.wrapContentWidth(), overflow = TextOverflow.Ellipsis)
                         }
                     } else {
                         IconButton(onClick = it) {
@@ -132,7 +139,7 @@ class FeaturesSection : Section() {
             Row(
                 modifier = Modifier
                     .fillMaxSize()
-                    .padding(all = 10.dp),
+                    .padding(all = 4.dp),
                 horizontalArrangement = Arrangement.SpaceBetween
             ) {
                 Column(
@@ -206,10 +213,11 @@ class FeaturesSection : Section() {
                     )
                     LazyColumn(
                         modifier = Modifier
-                            .fillMaxSize(),
+                            .fillMaxHeight(),
                         verticalArrangement = Arrangement.Center
                     ) {
                         items(configItems) { item ->
+                            if (item.shouldAppearInSettings.not()) return@items
                             PropertyCard(item)
                         }
                     }

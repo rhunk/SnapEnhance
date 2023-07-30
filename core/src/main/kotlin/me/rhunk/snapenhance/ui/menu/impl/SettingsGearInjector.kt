@@ -48,9 +48,10 @@ class SettingsGearInjector : AbstractMenu() {
 
             setOnClickListener {
                 val intent = Intent().apply {
-                    setClassName(BuildConfig.APPLICATION_ID, ConfigActivity::class.java.name)
+                    setClassName(BuildConfig.APPLICATION_ID, "me.rhunk.snapenhance.manager.MainActivity")
+                    putExtra("route", "features")
+                    putExtra("lspatched", File(context.cacheDir, "lspatch/origin").exists())
                 }
-                intent.putExtra("lspatched", File(context.cacheDir, "lspatch/origin").exists())
                 context.startActivity(intent)
             }
 
