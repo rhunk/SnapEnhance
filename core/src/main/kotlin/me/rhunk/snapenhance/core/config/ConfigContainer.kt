@@ -57,7 +57,6 @@ open class ConfigContainer(
     fun toJson(): JsonObject {
         val json = JsonObject()
         properties.forEach { (propertyKey, propertyValue) ->
-            Logger.debug("${propertyKey.name} => $propertyValue")
             val serializedValue = propertyValue.getNullable()?.let { propertyKey.dataProcessor.serializeAny(it) }
             json.add(propertyKey.name, serializedValue)
         }
