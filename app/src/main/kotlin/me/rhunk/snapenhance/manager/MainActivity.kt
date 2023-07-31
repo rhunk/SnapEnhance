@@ -1,20 +1,36 @@
 package me.rhunk.snapenhance.manager
 
 import android.annotation.SuppressLint
+import android.content.Intent
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.navigation.compose.rememberNavController
+import me.rhunk.snapenhance.Logger
 import me.rhunk.snapenhance.manager.data.ManagerContext
+import me.rhunk.snapenhance.manager.util.SaveFolderChecker
+import me.rhunk.snapenhance.util.ActivityResultCallback
 
 class MainActivity : ComponentActivity() {
+    private val activityResultCallbacks = mutableMapOf<Int, ActivityResultCallback>()
+
     @SuppressLint("UnusedMaterialScaffoldPaddingParameter")
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+
         val startDestination = intent.getStringExtra("route")?.let { EnumSection.fromRoute(it) } ?: EnumSection.HOME
         val managerContext = ManagerContext(this)
+
+        //FIXME: temporary save folder
+        SaveFolderChecker.askForFolder(
+            this,
+            managerContext.config.root.downloader.saveFolder)
+        {
+            managerContext.config.writeConfig()
+        }
 
         setContent {
             val navController = rememberNavController()

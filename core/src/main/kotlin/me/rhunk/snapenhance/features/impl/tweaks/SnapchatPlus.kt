@@ -11,7 +11,7 @@ class SnapchatPlus: Feature("SnapchatPlus", loadParams = FeatureLoadParams.ACTIV
     private val expirationTimeMillis = (System.currentTimeMillis() + 15552000000L)
 
     override fun asyncOnActivityCreate() {
-        if (!context.config.bool(ConfigProperty.SNAPCHAT_PLUS)) return
+        if (!context.config.global.snapchatPlus.get()) return
 
         val subscriptionInfoClass = context.mappings.getMappedClass("SubscriptionInfoClass")
 

@@ -25,9 +25,7 @@ class StartupPageOverride : Feature("StartupPageOverride", loadParams = FeatureL
      */
 
     override fun onActivityCreate() {
-        val ngsIconName = context.config.state(ConfigProperty.STARTUP_PAGE_OVERRIDE).also {
-            if (it == "OFF") return
-        }
+        val ngsIconName = context.config.userInterface.startupTab.getNullable() ?: return
 
         context.androidContext.classLoader.loadClass("com.snap.mushroom.MainActivity").apply {
             hook("onPostCreate", HookStage.AFTER) {

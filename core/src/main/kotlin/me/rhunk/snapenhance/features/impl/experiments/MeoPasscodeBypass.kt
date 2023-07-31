@@ -14,7 +14,7 @@ class MeoPasscodeBypass : Feature("Meo Passcode Bypass", loadParams = FeatureLoa
             context.androidContext.classLoader.loadClass(bcrypt["class"].toString()),
             bcrypt["hashMethod"].toString(),
             HookStage.BEFORE,
-            { context.config.bool(ConfigProperty.MEO_PASSCODE_BYPASS) },
+            { context.config.experimental.meoPasscodeBypass.get() },
         ) { param ->
             //set the hash to the result of the method
             param.setResult(param.arg(1))

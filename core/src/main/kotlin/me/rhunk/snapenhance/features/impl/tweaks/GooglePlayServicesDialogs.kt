@@ -11,7 +11,7 @@ import java.lang.reflect.Modifier
 
 class GooglePlayServicesDialogs : Feature("Disable GMS Dialogs", loadParams = FeatureLoadParams.ACTIVITY_CREATE_ASYNC) {
     override fun asyncOnActivityCreate() {
-        if (!context.config.bool(ConfigProperty.DISABLE_GOOGLE_PLAY_DIALOGS)) return
+        if (!context.config.global.disableGooglePlayDialogs.get()) return
 
         findClass("com.google.android.gms.common.GoogleApiAvailability").methods
             .first { Modifier.isStatic(it.modifiers) && it.returnType == AlertDialog::class.java }.let { method ->

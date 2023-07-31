@@ -61,9 +61,12 @@ class Messaging : Feature("Messaging", loadParams = FeatureLoadParams.ACTIVITY_C
     override fun asyncInit() {
         val stealthMode = context.feature(StealthMode::class)
 
+        val hideBitmojiPresence by context.config.messaging.hideBitmojiPresence
+        val hideTypingNotification by context.config.messaging.hideTypingNotifications
+
         arrayOf("activate", "deactivate", "processTypingActivity").forEach { hook ->
             Hooker.hook(context.classCache.presenceSession, hook, HookStage.BEFORE, {
-                context.config.bool(ConfigProperty.HIDE_BITMOJI_PRESENCE) || stealthMode.isStealth(openedConversationUUID.toString())
+                hideBitmojiPresence || stealthMode.isStealth(openedConversationUUID.toString())
             }) {
                 it.setResult(null)
             }
@@ -81,7 +84,7 @@ class Messaging : Feature("Messaging", loadParams = FeatureLoadParams.ACTIVITY_C
         }
 
         Hooker.hook(context.classCache.conversationManager, "sendTypingNotification", HookStage.BEFORE, {
-            context.config.bool(ConfigProperty.HIDE_TYPING_NOTIFICATION) || stealthMode.isStealth(openedConversationUUID.toString())
+            hideTypingNotification || stealthMode.isStealth(openedConversationUUID.toString())
         }) {
             it.setResult(null)
         }

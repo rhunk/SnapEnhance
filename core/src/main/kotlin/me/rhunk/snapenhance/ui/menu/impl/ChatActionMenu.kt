@@ -104,7 +104,7 @@ class ChatActionMenu : AbstractMenu() {
             }
         }
 
-        if (context.config.bool(ConfigProperty.CHAT_DOWNLOAD_CONTEXT_MENU)) {
+        if (context.config.downloader.chatDownloadContextMenu.get()) {
             injectButton(Button(viewGroup.context).apply {
                 text = this@ChatActionMenu.context.translation["chat_action_menu.preview_button"]
                 setOnClickListener {
@@ -127,7 +127,7 @@ class ChatActionMenu : AbstractMenu() {
         }
 
         //delete logged message button
-        if (context.config.bool(ConfigProperty.MESSAGE_LOGGER)) {
+        if (context.config.messaging.messageLogger.get()) {
             injectButton(Button(viewGroup.context).apply {
                 text = this@ChatActionMenu.context.translation["chat_action_menu.delete_logged_message_button"]
                 setOnClickListener {

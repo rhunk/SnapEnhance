@@ -27,7 +27,9 @@ class AppPasscode : Feature("App Passcode", loadParams = FeatureLoadParams.ACTIV
     fun lock() {
         if (isLocked) return
         isLocked = true
-        val passcode = context.config.string(ConfigProperty.APP_PASSCODE).also { if (it.isEmpty()) return }
+        val passcode by context.config.experimental.appPasscode.also {
+            if (it.getNullable()?.isEmpty() != false) return
+        }
         val isDigitPasscode = passcode.all { it.isDigit() }
 
         val mainActivity = context.mainActivity!!
@@ -89,7 +91,7 @@ class AppPasscode : Feature("App Passcode", loadParams = FeatureLoadParams.ACTIV
             lock()
         }
 
-        if (!context.config.bool(ConfigProperty.APP_LOCK_ON_RESUME)) return
+        if (!context.config.experimental.appLockOnResume.get()) return
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
             context.mainActivity?.registerActivityLifecycleCallbacks(object: android.app.Application.ActivityLifecycleCallbacks {

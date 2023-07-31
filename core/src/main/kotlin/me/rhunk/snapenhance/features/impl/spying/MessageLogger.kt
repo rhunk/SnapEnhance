@@ -52,11 +52,6 @@ class MessageLogger : Feature("MessageLogger",
 
     @OptIn(ExperimentalTime::class)
     override fun asyncOnActivityCreate() {
-        ConfigProperty.MESSAGE_LOGGER.valueContainer.addPropertyChangeListener {
-            context.config.writeConfig()
-            context.softRestartApp()
-        }
-
         if (!context.database.hasArroyo()) {
             return
         }
@@ -130,9 +125,8 @@ class MessageLogger : Feature("MessageLogger",
     }
 
     override fun init() {
-        Hooker.hookConstructor(context.classCache.message, HookStage.AFTER, {
-            context.config.bool(ConfigProperty.MESSAGE_LOGGER)
-        }) { param ->
+        val messageLogger by context.config.messaging.messageLogger
+        Hooker.hookConstructor(context.classCache.message, HookStage.AFTER, { messageLogger }) { param ->
             processSnapMessage(param.thisObject())
         }
     }

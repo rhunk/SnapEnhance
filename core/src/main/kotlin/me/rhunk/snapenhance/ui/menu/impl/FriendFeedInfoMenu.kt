@@ -104,7 +104,7 @@ class FriendFeedInfoMenu : AbstractMenu() {
         //query message
         val messages: List<ConversationMessage>? = context.database.getMessagesFromConversationId(
             conversationId,
-            context.config.int(ConfigProperty.MESSAGE_PREVIEW_LENGTH)
+            context.config.messaging.messagePreviewLength.get()
         )?.reversed()
 
         if (messages.isNullOrEmpty()) {
@@ -240,12 +240,12 @@ class FriendFeedInfoMenu : AbstractMenu() {
     fun inject(viewModel: View, viewConsumer: ((View) -> Unit)) {
         val modContext = context
 
-        val friendFeedMenuOptions = context.config.options(ConfigProperty.FRIEND_FEED_MENU_BUTTONS)
-        if (friendFeedMenuOptions.none { it.value }) return
+        val friendFeedMenuOptions by context.config.userInterface.friendFeedMenuButtons
+        if (friendFeedMenuOptions.isEmpty()) return
 
         val (conversationId, targetUser) = getCurrentConversationInfo()
 
-        if (!context.config.bool(ConfigProperty.ENABLE_FRIEND_FEED_MENU_BAR)) {
+        if (!context.config.userInterface.enableFriendFeedMenuBar.get()) {
             //preview button
             val previewButton = Button(viewModel.context).apply {
                 text = modContext.translation["friend_menu_option.preview"]
@@ -272,7 +272,7 @@ class FriendFeedInfoMenu : AbstractMenu() {
                 }
             }
 
-            if (friendFeedMenuOptions["anti_auto_save"] == true) {
+            if (friendFeedMenuOptions.contains("anti_auto_save")) {
                 createToggleFeature(viewConsumer,
                     "friend_menu_option.anti_auto_save",
                     { context.feature(AntiAutoSave::class).isConversationIgnored(conversationId) },
@@ -282,7 +282,7 @@ class FriendFeedInfoMenu : AbstractMenu() {
 
             run {
                 val userId = context.database.getFriendFeedInfoByConversationId(conversationId)?.friendUserId ?: return@run
-                if (friendFeedMenuOptions["auto_download_blacklist"] == true) {
+                if (friendFeedMenuOptions.contains("auto_download_blacklist")) {
                     createToggleFeature(viewConsumer,
                         "friend_menu_option.auto_download_blacklist",
                         { context.feature(AntiAutoDownload::class).isUserIgnored(userId) },
@@ -291,10 +291,10 @@ class FriendFeedInfoMenu : AbstractMenu() {
                 }
             }
 
-            if (friendFeedMenuOptions["stealth_mode"] == true) {
+            if (friendFeedMenuOptions.contains("stealth_mode")) {
                 viewConsumer(stealthSwitch)
             }
-            if (friendFeedMenuOptions["conversation_info"] == true) {
+            if (friendFeedMenuOptions.contains("conversation_info")) {
                 viewConsumer(previewButton)
             }
             return
@@ -338,7 +338,7 @@ class FriendFeedInfoMenu : AbstractMenu() {
             })
         }
 
-        if (friendFeedMenuOptions["auto_download_blacklist"] == true) {
+        if (friendFeedMenuOptions.contains("auto_download_blacklist")) {
             run {
                 val userId =
                     context.database.getFriendFeedInfoByConversationId(conversationId)?.friendUserId
@@ -352,7 +352,7 @@ class FriendFeedInfoMenu : AbstractMenu() {
             }
         }
 
-        if (friendFeedMenuOptions["anti_auto_save"] == true) {
+        if (friendFeedMenuOptions.contains("anti_auto_save")) {
             //diskette
             createActionButton("\uD83D\uDCAC",
                 isDisabled = !context.feature(AntiAutoSave::class)
@@ -363,7 +363,7 @@ class FriendFeedInfoMenu : AbstractMenu() {
         }
 
 
-        if (friendFeedMenuOptions["stealth_mode"] == true) {
+        if (friendFeedMenuOptions.contains("stealth_mode")) {
             //eyes
             createActionButton(
                 "\uD83D\uDC7B",
@@ -376,7 +376,7 @@ class FriendFeedInfoMenu : AbstractMenu() {
             }
         }
 
-        if (friendFeedMenuOptions["conversation_info"] == true) {
+        if (friendFeedMenuOptions.contains("conversation_info")) {
             //user
             createActionButton("\uD83D\uDC64") {
                 showPreview(

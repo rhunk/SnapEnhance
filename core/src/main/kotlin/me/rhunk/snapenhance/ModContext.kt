@@ -12,8 +12,9 @@ import com.google.gson.Gson
 import com.google.gson.GsonBuilder
 import kotlinx.coroutines.asCoroutineDispatcher
 import me.rhunk.snapenhance.bridge.BridgeClient
-import me.rhunk.snapenhance.bridge.wrapper.ConfigWrapper
 import me.rhunk.snapenhance.bridge.wrapper.TranslationWrapper
+import me.rhunk.snapenhance.core.config.ModConfig
+import me.rhunk.snapenhance.core.config.impl.RootConfig
 import me.rhunk.snapenhance.data.MessageSender
 import me.rhunk.snapenhance.database.DatabaseAccess
 import me.rhunk.snapenhance.features.Feature
@@ -39,8 +40,10 @@ class ModContext {
 
     val gson: Gson = GsonBuilder().create()
 
+    private val modConfig = ModConfig()
+    val config by modConfig
+
     val translation = TranslationWrapper()
-    val config = ConfigWrapper()
     val features = FeatureManager(this)
     val mappings = MappingManager(this)
     val actionManager = ActionManager(this)
@@ -87,7 +90,7 @@ class ModContext {
 
     fun softRestartApp(saveSettings: Boolean = false) {
         if (saveSettings) {
-            config.writeConfig()
+            modConfig.writeConfig()
         }
         val intent: Intent? = androidContext.packageManager.getLaunchIntentForPackage(
             Constants.SNAPCHAT_PACKAGE_NAME
@@ -112,5 +115,9 @@ class ModContext {
     fun forceCloseApp() {
         Process.killProcess(Process.myPid())
         exitProcess(1)
+    }
+
+    fun reloadConfig() {
+        modConfig.loadFromBridge(bridgeClient)
     }
 }

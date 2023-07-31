@@ -9,7 +9,8 @@ import me.rhunk.snapenhance.util.getObjectField
 
 class AnonymousStoryViewing : Feature("Anonymous Story Viewing", loadParams = FeatureLoadParams.ACTIVITY_CREATE_ASYNC) {
     override fun asyncOnActivityCreate() {
-        Hooker.hook(context.classCache.networkApi,"submit", HookStage.BEFORE, { context.config.bool(ConfigProperty.ANONYMOUS_STORY_VIEW) }) {
+        val anonymousStoryViewProperty by context.config.messaging.anonymousStoryViewing
+        Hooker.hook(context.classCache.networkApi,"submit", HookStage.BEFORE, { anonymousStoryViewProperty }) {
             val httpRequest: Any = it.arg(0)
             val url = httpRequest.getObjectField("mUrl") as String
             if (url.endsWith("readreceipt-indexer/batchuploadreadreceipts") || url.endsWith("v2/batch_cta")) {

@@ -32,6 +32,10 @@ class AutoSave : Feature("Auto Save", loadParams = FeatureLoadParams.ACTIVITY_CR
         context.classCache.conversationManager.methods.first { it.name == "fetchConversationWithMessagesPaginated" }
     }
 
+    private val autoSaveFilter by lazy {
+        context.config.messaging.autoSaveMessagesInConversations.get()
+    }
+
     private fun saveMessage(conversationId: SnapUUID, message: Message) {
         val messageId = message.messageDescriptor.messageId
         if (messageLogger.isMessageRemoved(messageId)) return
@@ -62,11 +66,11 @@ class AutoSave : Feature("Auto Save", loadParams = FeatureLoadParams.ACTIVITY_CR
         if (message.messageMetadata.savedBy.any { uuid -> uuid.toString() == myUserId }) return false
         val contentType = message.messageContent.contentType.toString()
 
-        return context.config.options(ConfigProperty.AUTO_SAVE_MESSAGES).filter { it.value }.any { it.key == contentType }
+        return autoSaveFilter.any { it == contentType }
     }
 
     private fun canSave(): Boolean {
-        if (context.config.options(ConfigProperty.AUTO_SAVE_MESSAGES).none { it.value }) return false
+        if (autoSaveFilter.isEmpty()) return false
 
         with(context.feature(Messaging::class)) {
             if (openedConversationUUID == null) return@canSave false

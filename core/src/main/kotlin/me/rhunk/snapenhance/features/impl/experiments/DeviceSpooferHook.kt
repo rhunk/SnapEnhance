@@ -9,39 +9,29 @@ import me.rhunk.snapenhance.hook.Hooker
 
 class DeviceSpooferHook: Feature("device_spoofer", loadParams = FeatureLoadParams.ACTIVITY_CREATE_ASYNC)  {
 	override fun asyncOnActivityCreate() {
-		//FINGERPRINT
-		if(getFingerprint().isNotEmpty()) {
+		val fingerprint by context.config.spoof.device.fingerprint
+		val androidId by context.config.spoof.device.androidId
+
+		if (fingerprint.isNotEmpty()) {
 			val fingerprintClass = android.os.Build::class.java
 			Hooker.hook(fingerprintClass, "FINGERPRINT", HookStage.BEFORE) { hookAdapter ->
-				hookAdapter.setResult(getFingerprint())
+				hookAdapter.setResult(fingerprint)
+				Logger.debug("Fingerprint spoofed to $fingerprint")
 			}
 			Hooker.hook(fingerprintClass, "deriveFingerprint", HookStage.BEFORE) { hookAdapter ->
-				hookAdapter.setResult(getFingerprint())
+				hookAdapter.setResult(fingerprint)
+				Logger.debug("Fingerprint spoofed to $fingerprint")
 			}
 		}
-		else {
-			Logger.xposedLog("Fingerprint is null, not spoofing")
-		}
-		
-		//ANDROID ID
-		if(getAndroidId().isNotEmpty()) {
+
+		if (androidId.isNotEmpty()) {
 			val settingsSecureClass = android.provider.Settings.Secure::class.java
 			Hooker.hook(settingsSecureClass, "getString", HookStage.BEFORE) { hookAdapter ->
 				if(hookAdapter.args()[1] == "android_id") {
-					hookAdapter.setResult(getAndroidId())
+					hookAdapter.setResult(androidId)
+					Logger.debug("Android ID spoofed to $androidId")
 				}
 			}
 		}
-		else {
-			Logger.xposedLog("Android ID is null, not spoofing")
-		}
 	}
-	private fun getFingerprint():String {
-		return context.config.string(ConfigProperty.FINGERPRINT)
-	}
-	
-	private fun getAndroidId():String {
-		return context.config.string(ConfigProperty.ANDROID_ID)
-	}
-	
 }

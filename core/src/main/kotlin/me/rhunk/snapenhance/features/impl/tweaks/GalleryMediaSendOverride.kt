@@ -15,7 +15,7 @@ import me.rhunk.snapenhance.util.protobuf.ProtoReader
 class GalleryMediaSendOverride : Feature("Gallery Media Send Override", loadParams = FeatureLoadParams.INIT_SYNC) {
     override fun init() {
         Hooker.hook(context.classCache.conversationManager, "sendMessageWithContent", HookStage.BEFORE) { param ->
-            val overrideType = context.config.state(ConfigProperty.GALLERY_MEDIA_SEND_OVERRIDE).also { if (it == "OFF") return@hook }
+            val overrideType = context.config.messaging.galleryMediaSendOverride.getNullable() ?: return@hook
 
             val localMessageContent = MessageContent(param.arg(1))
             if (localMessageContent.contentType != ContentType.EXTERNAL_MEDIA) return@hook

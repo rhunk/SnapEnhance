@@ -1,7 +1,6 @@
 package me.rhunk.snapenhance.features.impl
 
 import android.annotation.SuppressLint
-import android.app.AlertDialog
 import android.app.DownloadManager
 import android.content.BroadcastReceiver
 import android.content.Context
@@ -9,23 +8,22 @@ import android.content.Intent
 import android.content.IntentFilter
 import android.net.Uri
 import android.os.Environment
-import me.rhunk.snapenhance.core.BuildConfig
+import com.google.gson.JsonParser
 import me.rhunk.snapenhance.Logger
-import me.rhunk.snapenhance.config.ConfigProperty
+import me.rhunk.snapenhance.core.BuildConfig
 import me.rhunk.snapenhance.features.Feature
 import me.rhunk.snapenhance.features.FeatureLoadParams
 import me.rhunk.snapenhance.ui.ViewAppearanceHelper
 import okhttp3.OkHttpClient
 import okhttp3.Request
-import org.json.JSONArray
 
 class AutoUpdater : Feature("AutoUpdater", loadParams = FeatureLoadParams.ACTIVITY_CREATE_ASYNC) {
     override fun asyncOnActivityCreate() {
-        val checkForUpdateMode = context.config.state(ConfigProperty.AUTO_UPDATER)
+        val autoUpdaterTime = context.config.global.autoUpdater.getNullable() ?: return
         val currentTimeMillis = System.currentTimeMillis()
         val checkForUpdatesTimestamp = context.bridgeClient.getAutoUpdaterTime()
 
-        val delayTimestamp = when (checkForUpdateMode) {
+        val delayTimestamp = when (autoUpdaterTime) {
             "EVERY_LAUNCH" -> currentTimeMillis - checkForUpdatesTimestamp
             "DAILY" -> 86400000L
             "WEEKLY" -> 604800000L
@@ -50,16 +48,16 @@ class AutoUpdater : Feature("AutoUpdater", loadParams = FeatureLoadParams.ACTIVI
 
         if (!response.isSuccessful) throw Throwable("Failed to fetch releases: ${response.code}")
 
-        val releases = JSONArray(response.body.string()).also {
-            if (it.length() == 0) throw Throwable("No releases found")
+        val releases = JsonParser.parseString(response.body.string()).asJsonArray.also {
+            if (it.size() == 0) throw Throwable("No releases found")
         }
 
-        val latestRelease = releases.getJSONObject(0)
-        val latestVersion = latestRelease.getString("tag_name")
+        val latestRelease = releases.get(0).asJsonObject
+        val latestVersion = latestRelease.getAsJsonPrimitive("tag_name").asString
         if (latestVersion.removePrefix("v") == BuildConfig.VERSION_NAME) return null
 
-        val releaseContentBody = latestRelease.getString("body")
-        val downloadEndpoint = latestRelease.getJSONArray("assets").getJSONObject(0).getString("browser_download_url")
+        val releaseContentBody = latestRelease.getAsJsonPrimitive("body").asString
+        val downloadEndpoint = latestRelease.getAsJsonArray("assets").get(0).asJsonObject.getAsJsonPrimitive("browser_download_url").asString
 
         context.runOnUiThread {
             ViewAppearanceHelper.newAlertDialogBuilder(context.mainActivity)

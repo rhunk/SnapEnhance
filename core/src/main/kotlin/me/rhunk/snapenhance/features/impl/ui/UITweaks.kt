@@ -36,10 +36,10 @@ class UITweaks : Feature("UITweaks", loadParams = FeatureLoadParams.ACTIVITY_CRE
 
     @SuppressLint("DiscouragedApi", "InternalInsetResource")
     override fun onActivityCreate() {
-        val blockAds = context.config.bool(ConfigProperty.BLOCK_ADS)
-        val hiddenElements = context.config.options(ConfigProperty.HIDE_UI_ELEMENTS)
-        val hideStorySection = context.config.options(ConfigProperty.HIDE_STORY_SECTION)
-        val isImmersiveCamera = context.config.bool(ConfigProperty.IMMERSIVE_CAMERA_PREVIEW)
+        val blockAds by context.config.userInterface.blockAds
+        val hiddenElements by context.config.userInterface.hideUiComponents
+        val hideStorySections by context.config.userInterface.hideStorySections
+        val isImmersiveCamera by context.config.camera.immersiveCameraPreview
 
         val displayMetrics = context.resources.displayMetrics
 
@@ -61,11 +61,11 @@ class UITweaks : Feature("UITweaks", loadParams = FeatureLoadParams.ACTIVITY_CRE
 
         Hooker.hook(View::class.java, "setVisibility", HookStage.BEFORE) { methodParam ->
             val viewId = (methodParam.thisObject() as View).id
-            if (viewId == chatNoteRecordButton && hiddenElements["remove_voice_record_button"] == true) {
+            if (viewId == chatNoteRecordButton && hiddenElements.contains("hide_voice_record_button")) {
                 methodParam.setArg(0, View.GONE)
             }
             if (viewId == callButton1 || viewId == callButton2) {
-                if (hiddenElements["remove_call_buttons"] == false) return@hook
+                if (!hiddenElements.contains("hide_call_buttons")) return@hook
                 methodParam.setArg(0, View.GONE)
             }
         }
@@ -79,7 +79,7 @@ class UITweaks : Feature("UITweaks", loadParams = FeatureLoadParams.ACTIVITY_CRE
             val view: View = param.arg(0)
             val viewId = view.id
 
-            if (hideStorySection["hide_for_you"] == true) {
+            if (hideStorySections.contains("hide_for_you")) {
                 if (viewId == getIdentifier("df_large_story", "id") ||
                             viewId == getIdentifier("df_promoted_story", "id")) {
                     hideStorySection(param)
@@ -90,12 +90,12 @@ class UITweaks : Feature("UITweaks", loadParams = FeatureLoadParams.ACTIVITY_CRE
                 }
             }
 
-            if (hideStorySection["hide_friends"] == true && viewId == getIdentifier("friend_card_frame", "id")) {
+            if (hideStorySections.contains("hide_friends") && viewId == getIdentifier("friend_card_frame", "id")) {
                 hideStorySection(param)
             }
 
             //mappings?
-            if (hideStorySection["hide_friend_suggestions"] == true && view.javaClass.superclass?.name?.endsWith("StackDrawLayout") == true) {
+            if (hideStorySections.contains("hide_friend_suggestions") && view.javaClass.superclass?.name?.endsWith("StackDrawLayout") == true) {
                 val layoutParams = view.layoutParams as? FrameLayout.LayoutParams ?: return@hook
                 if (layoutParams.width == -1 &&
                     layoutParams.height == -2 &&
@@ -108,7 +108,7 @@ class UITweaks : Feature("UITweaks", loadParams = FeatureLoadParams.ACTIVITY_CRE
                 }
             }
 
-            if (hideStorySection["hide_following"] == true && (viewId == getIdentifier("df_small_story", "id"))
+            if (hideStorySections.contains("hide_following") && (viewId == getIdentifier("df_small_story", "id"))
             ) {
                 hideStorySection(param)
             }
@@ -134,26 +134,26 @@ class UITweaks : Feature("UITweaks", loadParams = FeatureLoadParams.ACTIVITY_CRE
                 }
             }
 
-            if (viewId == chatNoteRecordButton && hiddenElements["remove_voice_record_button"] == true) {
+            if (viewId == chatNoteRecordButton && hiddenElements.contains("hide_voice_record_button")) {
                 view.isEnabled = false
                 view.setWillNotDraw(true)
             }
 
-            if (getIdentifier("chat_input_bar_cognac", "id") == viewId && hiddenElements["remove_cognac_button"] == true) {
+            if (getIdentifier("chat_input_bar_cognac", "id") == viewId && hiddenElements.contains("hide_cognac_button")) {
                 view.visibility = View.GONE
             }
-            if (getIdentifier("chat_input_bar_sticker", "id") == viewId && hiddenElements["remove_stickers_button"] == true) {
+            if (getIdentifier("chat_input_bar_sticker", "id") == viewId && hiddenElements.contains("hide_stickers_button")) {
                 view.visibility = View.GONE
             }
-            if (getIdentifier("chat_input_bar_sharing_drawer_button", "id") == viewId && hiddenElements["remove_live_location_share_button"] == true) {
+            if (getIdentifier("chat_input_bar_sharing_drawer_button", "id") == viewId && hiddenElements.contains("hide_live_location_share_button")) {
                 param.setResult(null)
             }
             if (viewId == callButton1 || viewId == callButton2) {
-                if (hiddenElements["remove_call_buttons"] == false) return@hook
+                if (!hiddenElements.contains("hide_call_buttons")) return@hook
                 if (view.visibility == View.GONE) return@hook
             }
             if (viewId == callButtonsStub) {
-                if (hiddenElements["remove_call_buttons"] == false) return@hook
+                if (!hiddenElements.contains("hide_call_buttons")) return@hook
                 param.setResult(null)
             }
         }

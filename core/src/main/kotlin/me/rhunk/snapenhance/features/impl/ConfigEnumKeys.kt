@@ -55,7 +55,7 @@ class ConfigEnumKeys : Feature("Config enum keys", loadParams = FeatureLoadParam
 
     @SuppressLint("PrivateApi")
     override fun onActivityCreate() {
-        if (context.config.bool(ConfigProperty.NEW_MAP_UI)) {
+        if (context.config.userInterface.mapFriendNameTags.get()) {
             hookAllEnums(context.mappings.getMappedClass("enums", "PLUS")) {
                 if (key == "REDUCE_MY_PROFILE_UI_COMPLEXITY") set(true)
             }
@@ -63,17 +63,17 @@ class ConfigEnumKeys : Feature("Config enum keys", loadParams = FeatureLoadParam
 
         hookAllEnums(context.mappings.getMappedClass("enums", "ARROYO")) {
             if (key == "ENABLE_LONG_SNAP_SENDING") {
-                if (context.config.bool(ConfigProperty.DISABLE_SNAP_SPLITTING)) set(true)
+                if (context.config.global.disableSnapSplitting.get()) set(true)
             }
         }
 
-        if (context.config.bool(ConfigProperty.STREAK_EXPIRATION_INFO)) {
+        if (context.config.userInterface.streakExpirationInfo.get()) {
             hookAllEnums(context.mappings.getMappedClass("enums", "FRIENDS_FEED")) {
                 if (key == "STREAK_EXPIRATION_INFO") set(true)
             }
         }
 
-        if (context.config.bool(ConfigProperty.BLOCK_ADS)) {
+        if (context.config.userInterface.blockAds.get()) {
             hookAllEnums(context.mappings.getMappedClass("enums", "SNAPADS")) {
                 if (key == "BYPASS_AD_FEATURE_GATE") {
                     set(true)
@@ -84,14 +84,12 @@ class ConfigEnumKeys : Feature("Config enum keys", loadParams = FeatureLoadParam
             }
         }
 
-        context.config.state(ConfigProperty.STORY_VIEWER_OVERRIDE).let { state ->
-            if (state == "OFF") return@let
-
+        context.config.userInterface.storyViewerOverride.getNullable()?.let { value ->
             hookAllEnums(context.mappings.getMappedClass("enums", "DISCOVER_FEED")) {
-                if (key == "DF_ENABLE_SHOWS_PAGE_CONTROLS" && state == "DISCOVER_PLAYBACK_SEEKBAR") {
+                if (key == "DF_ENABLE_SHOWS_PAGE_CONTROLS" && value == "DISCOVER_PLAYBACK_SEEKBAR") {
                     set(true)
                 }
-                if (key == "DF_VOPERA_FOR_STORIES" && state == "VERTICAL_STORY_VIEWER") {
+                if (key == "DF_VOPERA_FOR_STORIES" && value == "VERTICAL_STORY_VIEWER") {
                     set(true)
                 }
             }
@@ -105,8 +103,8 @@ class ConfigEnumKeys : Feature("Config enum keys", loadParams = FeatureLoadParam
 
         sharedPreferencesImpl.methods.first { it.name == "getBoolean" }.hook(HookStage.BEFORE) { param ->
             when (param.arg<String>(0)) {
-                "SIG_APP_APPEARANCE_SETTING" -> if (context.config.bool(ConfigProperty.ENABLE_APP_APPEARANCE)) param.setResult(true)
-                "SPOTLIGHT_5TH_TAB_ENABLED" -> if (context.config.bool(ConfigProperty.DISABLE_SPOTLIGHT)) param.setResult(false)
+                "SIG_APP_APPEARANCE_SETTING" -> if (context.config.userInterface.enableAppAppearance.get()) param.setResult(true)
+                "SPOTLIGHT_5TH_TAB_ENABLED" -> if (context.config.userInterface.disableSpotlight.get()) param.setResult(false)
             }
         }
     }

@@ -84,7 +84,7 @@ class SnapEnhance {
             }
 
             Logger.debug("Reloading config")
-            appContext.config.loadFromBridge(appContext.bridgeClient)
+            appContext.reloadConfig()
         }
     }
 
@@ -97,7 +97,7 @@ class SnapEnhance {
 
         measureTime {
             with(appContext) {
-                config.loadFromBridge(bridgeClient)
+                reloadConfig()
                 mappings.init()
                 //if mappings aren't loaded, we can't initialize features
                 if (!mappings.areMappingsLoaded) return

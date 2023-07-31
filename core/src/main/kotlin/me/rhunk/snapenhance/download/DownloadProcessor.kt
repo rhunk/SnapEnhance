@@ -20,6 +20,7 @@ import me.rhunk.snapenhance.SharedContext
 import me.rhunk.snapenhance.bridge.DownloadCallback
 import me.rhunk.snapenhance.bridge.wrapper.ConfigWrapper
 import me.rhunk.snapenhance.config.ConfigProperty
+import me.rhunk.snapenhance.core.config.ModConfig
 import me.rhunk.snapenhance.data.FileType
 import me.rhunk.snapenhance.download.data.DownloadMetadata
 import me.rhunk.snapenhance.download.data.DownloadRequest
@@ -117,7 +118,7 @@ class DownloadProcessor (
     private suspend fun saveMediaToGallery(inputFile: File, pendingDownload: PendingDownload) {
         if (coroutineContext.job.isCancelled) return
 
-        val config = ConfigWrapper().apply { loadFromContext(context) }
+        val config by ModConfig().apply { loadFromContext(context) }
 
         runCatching {
             val fileType = FileType.fromFile(inputFile)
@@ -128,7 +129,7 @@ class DownloadProcessor (
 
             val fileName = pendingDownload.metadata.outputPath.substringAfterLast("/") + "." + fileType.fileExtension
 
-            val outputFolder = DocumentFile.fromTreeUri(context, Uri.parse(config.string(ConfigProperty.SAVE_FOLDER)))
+            val outputFolder = DocumentFile.fromTreeUri(context, Uri.parse(config.downloader.saveFolder.get()))
                 ?: throw Exception("Failed to open output folder")
 
             val outputFileFolder = pendingDownload.metadata.outputPath.let {

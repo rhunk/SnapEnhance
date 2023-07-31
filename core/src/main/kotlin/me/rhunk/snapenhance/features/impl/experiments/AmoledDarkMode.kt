@@ -14,7 +14,7 @@ import me.rhunk.snapenhance.hook.hook
 class AmoledDarkMode : Feature("Amoled Dark Mode", loadParams = FeatureLoadParams.ACTIVITY_CREATE_SYNC) {
     @SuppressLint("DiscouragedApi")
     override fun onActivityCreate() {
-        if (!context.config.bool(ConfigProperty.AMOLED_DARK_MODE)) return
+        if (!context.config.userInterface.amoledDarkMode.get()) return
         val attributeCache = mutableMapOf<String, Int>()
 
         fun getAttribute(name: String): Int {

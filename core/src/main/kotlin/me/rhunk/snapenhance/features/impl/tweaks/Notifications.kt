@@ -65,6 +65,10 @@ class Notifications : Feature("Notifications", loadParams = FeatureLoadParams.IN
         context.androidContext.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
     }
 
+    private val betterNotificationFilter by lazy {
+        context.config.global.betterNotifications.get()
+    }
+
     private fun setNotificationText(notification: Notification, conversationId: String) {
         val messageText = StringBuilder().apply {
             cachedMessages.computeIfAbsent(conversationId) { mutableListOf() }.forEach {
@@ -87,7 +91,6 @@ class Notifications : Feature("Notifications", loadParams = FeatureLoadParams.IN
     }
 
     private fun setupNotificationActionButtons(contentType: ContentType, conversationId: String, messageId: Long, notificationData: NotificationData) {
-        val betterNotifications = context.config.options(ConfigProperty.BETTER_NOTIFICATIONS)
 
         val notificationBuilder = XposedHelpers.newInstance(
             Notification.Builder::class.java,
@@ -115,7 +118,7 @@ class Notifications : Feature("Notifications", loadParams = FeatureLoadParams.IN
         }
 
         newAction("Reply", ACTION_REPLY, {
-            betterNotifications["reply_button"] == true && contentType == ContentType.CHAT
+            betterNotificationFilter.contains("reply_button") && contentType == ContentType.CHAT
         }) {
             val chatReplyInput = RemoteInput.Builder("chat_reply_input")
                 .setLabel("Reply")
@@ -124,7 +127,7 @@ class Notifications : Feature("Notifications", loadParams = FeatureLoadParams.IN
         }
 
         newAction("Download", ACTION_DOWNLOAD, {
-            betterNotifications["download_button"] == true && (contentType == ContentType.EXTERNAL_MEDIA || contentType == ContentType.SNAP)
+            betterNotificationFilter.contains("download_button") && (contentType == ContentType.EXTERNAL_MEDIA || contentType == ContentType.SNAP)
         }) {}
 
         notificationBuilder.setActions(*actions.toTypedArray())
@@ -282,8 +285,7 @@ class Notifications : Feature("Notifications", loadParams = FeatureLoadParams.IN
             val notificationType = extras.getString("notification_type") ?: return@hook
             val conversationId = extras.getString("conversation_id") ?: return@hook
 
-            if (context.config.options(ConfigProperty.BETTER_NOTIFICATIONS)
-                .filter { it.value }.map { it.key.uppercase() }.none {
+            if (betterNotificationFilter.map { it.uppercase() }.none {
                     notificationType.contains(it)
                 }) return@hook
 
@@ -319,15 +321,15 @@ class Notifications : Feature("Notifications", loadParams = FeatureLoadParams.IN
         }
 
         findClass("com.google.firebase.messaging.FirebaseMessagingService").run {
+            val states by context.config.global.notificationBlacklist
             methods.first { it.declaringClass == this && it.returnType == Void::class.javaPrimitiveType && it.parameterCount == 1 && it.parameterTypes[0] == Intent::class.java }
                 .hook(HookStage.BEFORE) { param ->
                     val intent = param.argNullable<Intent>(0) ?: return@hook
                     val messageType = intent.getStringExtra("type") ?: return@hook
-                    val states = context.config.options(ConfigProperty.NOTIFICATION_BLACKLIST)
 
                     Logger.xposedLog("received message type: $messageType")
 
-                    if (states[messageType.replaceFirst("mischief_", "")] == true) {
+                    if (states.contains(messageType.replaceFirst("mischief_", ""))) {
                         param.setResult(null)
                     }
                 }

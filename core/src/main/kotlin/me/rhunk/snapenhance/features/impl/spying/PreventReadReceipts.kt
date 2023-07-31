@@ -9,8 +9,9 @@ import me.rhunk.snapenhance.hook.Hooker
 
 class PreventReadReceipts : Feature("PreventReadReceipts", loadParams = FeatureLoadParams.ACTIVITY_CREATE_SYNC) {
     override fun onActivityCreate() {
+        val preventReadReceipts by context.config.messaging.preventReadReceipts
         val isConversationInStealthMode: (SnapUUID) -> Boolean = hook@{
-            if (context.config.bool(ConfigProperty.PREVENT_READ_RECEIPTS)) return@hook true
+            if (preventReadReceipts) return@hook true
             context.feature(StealthMode::class).isStealth(it.toString())
         }
 

@@ -11,7 +11,7 @@ class InfiniteStoryBoost : Feature("InfiniteStoryBoost", loadParams = FeatureLoa
         val storyBoostStateClass = context.mappings.getMappedClass("StoryBoostStateClass")
 
         storyBoostStateClass.hookConstructor(HookStage.BEFORE, {
-            context.config.bool(ConfigProperty.INFINITE_STORY_BOOST)
+            context.config.experimental.infiniteStoryBoost.get()
         }) { param ->
             val startTimeMillis = param.arg<Long>(1)
             //reset timestamp if it's more than 24 hours

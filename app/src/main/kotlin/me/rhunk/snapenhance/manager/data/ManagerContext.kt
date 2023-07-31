@@ -4,11 +4,12 @@ import android.content.Context
 import me.rhunk.snapenhance.bridge.wrapper.ConfigWrapper
 import me.rhunk.snapenhance.bridge.wrapper.MappingsWrapper
 import me.rhunk.snapenhance.bridge.wrapper.TranslationWrapper
+import me.rhunk.snapenhance.core.config.ModConfig
 
 class ManagerContext(
     private val context: Context
 ) {
-    val config = ConfigWrapper()
+    val config = ModConfig()
     val translation = TranslationWrapper()
     val mappings = MappingsWrapper(context)
 

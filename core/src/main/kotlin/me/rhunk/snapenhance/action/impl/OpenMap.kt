@@ -13,8 +13,8 @@ class OpenMap: AbstractAction("action.open_map", dependsOnProperty = ConfigPrope
             val mapActivityIntent = Intent()
             mapActivityIntent.setClassName(BuildConfig.APPLICATION_ID, MapActivity::class.java.name)
             mapActivityIntent.putExtra("location", Bundle().apply {
-                putDouble("latitude", context.config.string(ConfigProperty.LATITUDE).toDouble())
-                putDouble("longitude", context.config.string(ConfigProperty.LONGITUDE).toDouble())
+                putDouble("latitude", context.config.spoof.location.latitude.get().toDouble())
+                putDouble("longitude", context.config.spoof.location.longitude.get().toDouble())
             })
 
             context.mainActivity!!.startActivityForResult(mapActivityIntent, 0x1337)

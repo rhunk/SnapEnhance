@@ -14,9 +14,8 @@ import me.rhunk.snapenhance.util.protobuf.ProtoReader
 class UnlimitedSnapViewTime :
     Feature("UnlimitedSnapViewTime", loadParams = FeatureLoadParams.ACTIVITY_CREATE_SYNC) {
     override fun onActivityCreate() {
-        Hooker.hookConstructor(context.classCache.message, HookStage.AFTER, {
-            context.config.bool(ConfigProperty.UNLIMITED_SNAP_VIEW_TIME)
-        }) { param ->
+        val state by context.config.messaging.unlimitedSnapViewTime
+        Hooker.hookConstructor(context.classCache.message, HookStage.AFTER, { state }) { param ->
             val message = Message(param.thisObject())
             if (message.messageState != MessageState.COMMITTED) return@hookConstructor
             if (message.messageContent.contentType != ContentType.SNAP) return@hookConstructor

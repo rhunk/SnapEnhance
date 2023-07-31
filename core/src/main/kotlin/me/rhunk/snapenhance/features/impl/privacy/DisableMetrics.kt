@@ -10,11 +10,10 @@ import me.rhunk.snapenhance.hook.Hooker
 
 class DisableMetrics : Feature("DisableMetrics", loadParams = FeatureLoadParams.INIT_SYNC) {
     override fun init() {
-        val disableMetricsFilter: (HookAdapter) -> Boolean = {
-            context.config.bool(ConfigProperty.DISABLE_METRICS)
-        }
+        val disableMetrics by context.config.global.disableMetrics
 
-        Hooker.hook(context.classCache.unifiedGrpcService, "unaryCall", HookStage.BEFORE, disableMetricsFilter) { param ->
+        Hooker.hook(context.classCache.unifiedGrpcService, "unaryCall", HookStage.BEFORE,
+            {  disableMetrics }) { param ->
             val url: String = param.arg(0)
             if (url.endsWith("snapchat.valis.Valis/SendClientUpdate") ||
                 url.endsWith("targetingQuery")
@@ -23,7 +22,8 @@ class DisableMetrics : Feature("DisableMetrics", loadParams = FeatureLoadParams.
             }
         }
 
-        Hooker.hook(context.classCache.networkApi, "submit", HookStage.BEFORE, disableMetricsFilter) { param ->
+        Hooker.hook(context.classCache.networkApi, "submit", HookStage.BEFORE,
+            { disableMetrics }) { param ->
             val httpRequest: Any = param.arg(0)
             val url = XposedHelpers.getObjectField(httpRequest, "mUrl").toString()
             /*if (url.contains("resolve?co=")) {

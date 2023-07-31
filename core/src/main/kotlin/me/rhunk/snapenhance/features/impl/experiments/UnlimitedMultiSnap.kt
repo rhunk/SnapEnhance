@@ -10,7 +10,7 @@ import me.rhunk.snapenhance.util.setObjectField
 class UnlimitedMultiSnap : Feature("UnlimitedMultiSnap", loadParams = FeatureLoadParams.ACTIVITY_CREATE_ASYNC) {
     override fun asyncOnActivityCreate() {
         android.util.Pair::class.java.hookConstructor(HookStage.AFTER, {
-            context.config.bool(ConfigProperty.UNLIMITED_MULTI_SNAP)
+            context.config.experimental.unlimitedMultiSnap.get()
         }) { param ->
             val first = param.arg<Any>(0)
             val second = param.arg<Any>(1)

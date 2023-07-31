@@ -41,6 +41,7 @@ import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
 import kotlinx.coroutines.launch
+import me.rhunk.snapenhance.Logger
 import me.rhunk.snapenhance.config.ConfigProperty
 import me.rhunk.snapenhance.config.impl.ConfigIntegerValue
 import me.rhunk.snapenhance.config.impl.ConfigStateListValue
@@ -170,13 +171,28 @@ class FeaturesSection : Section() {
         }
     }
 
+    @Composable
+    private fun PropertyContainer() {
+        val properties = remember {
+            val items by manager.config
+            items.properties.map { it.key to it.value }
+        }
+
+        LazyColumn(
+            modifier = Modifier
+                .fillMaxHeight(),
+            verticalArrangement = Arrangement.Center
+        ) {
+            items(properties) { (key, value) ->
+               // Logger.debug("key: $key, value: $value")
+            }
+        }
+    }
+
 
     @Composable
     @Preview
     override fun Content() {
-        val configItems = remember {
-            ConfigProperty.sortedByCategory()
-        }
         val scope = rememberCoroutineScope()
         val scaffoldState = rememberScaffoldState()
         Scaffold(
@@ -184,7 +200,7 @@ class FeaturesSection : Section() {
             floatingActionButton = {
                 FloatingActionButton(
                     onClick = {
-                        manager.config.save()
+                        //manager.config.writeConfig()
                         scope.launch {
                             scaffoldState.snackbarHostState.showSnackbar("Saved")
                         }
@@ -211,16 +227,7 @@ class FeaturesSection : Section() {
                         modifier = Modifier.padding(all = 10.dp),
                         fontSize = 20.sp
                     )
-                    LazyColumn(
-                        modifier = Modifier
-                            .fillMaxHeight(),
-                        verticalArrangement = Arrangement.Center
-                    ) {
-                        items(configItems) { item ->
-                            if (item.shouldAppearInSettings.not()) return@items
-                            PropertyCard(item)
-                        }
-                    }
+                    PropertyContainer()
                 }
             }
         )

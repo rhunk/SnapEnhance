@@ -14,7 +14,6 @@ import me.rhunk.snapenhance.bridge.DownloadCallback
 import me.rhunk.snapenhance.config.ConfigProperty
 import me.rhunk.snapenhance.data.ContentType
 import me.rhunk.snapenhance.data.FileType
-import me.rhunk.snapenhance.data.wrapper.impl.SnapUUID
 import me.rhunk.snapenhance.data.wrapper.impl.media.MediaInfo
 import me.rhunk.snapenhance.data.wrapper.impl.media.dash.LongformVideoPlaylistItem
 import me.rhunk.snapenhance.data.wrapper.impl.media.dash.SnapPlaylistItem
@@ -73,8 +72,8 @@ class MediaDownloader : Feature("MediaDownloader", loadParams = FeatureLoadParam
             BitmojiSelfie.getBitmojiSelfie(it.bitmojiSelfieId!!, it.bitmojiAvatarId!!, BitmojiSelfie.BitmojiSelfieType.THREE_D)
         }
 
-        val downloadLogging = context.config.options(ConfigProperty.DOWNLOAD_LOGGING)
-        if (downloadLogging["started"] == true) {
+        val downloadLogging by context.config.downloader.logging
+        if (downloadLogging.contains("started")) {
             context.shortToast(context.translation["download_processor.download_started_toast"])
         }
 
@@ -83,7 +82,7 @@ class MediaDownloader : Feature("MediaDownloader", loadParams = FeatureLoadParam
         return DownloadManagerClient(
             context = context,
             metadata = DownloadMetadata(
-                mediaIdentifier = if (context.config.options(ConfigProperty.DOWNLOAD_OPTIONS)["allow_duplicate"] == false) {
+                mediaIdentifier = if (!context.config.downloader.allowDuplicate.get()) {
                     generatedHash
                 } else null,
                 mediaDisplaySource = mediaDisplaySource,
@@ -93,19 +92,19 @@ class MediaDownloader : Feature("MediaDownloader", loadParams = FeatureLoadParam
             ),
             callback = object: DownloadCallback.Stub() {
                 override fun onSuccess(outputFile: String) {
-                    if (downloadLogging["success"] != true) return
+                    if (!downloadLogging.contains("success")) return
                     Logger.debug("onSuccess: outputFile=$outputFile")
                     context.shortToast(context.translation.format("download_processor.saved_toast", "path" to outputFile.split("/").takeLast(2).joinToString("/")))
                 }
 
                 override fun onProgress(message: String) {
-                    if (downloadLogging["progress"] != true) return
+                    if (!downloadLogging.contains("progress")) return
                     Logger.debug("onProgress: message=$message")
                     context.shortToast(message)
                 }
 
                 override fun onFailure(message: String, throwable: String?) {
-                    if (downloadLogging["failure"] != true) return
+                    if (!downloadLogging.contains("failure")) return
                     Logger.debug("onFailure: message=$message, throwable=$throwable")
                     throwable?.let {
                         context.longToast((message + it.takeIf { it.isNotEmpty() }.orEmpty()))
@@ -118,13 +117,13 @@ class MediaDownloader : Feature("MediaDownloader", loadParams = FeatureLoadParam
     }
 
     private fun canMergeOverlay(): Boolean {
-        if (context.config.options(ConfigProperty.DOWNLOAD_OPTIONS)["merge_overlay"] == false) return false
+        if (!context.config.downloader.autoDownloadOptions.get().contains("merge_overlay")) return false
         return isFFmpegPresent
     }
 
     //TODO: implement subfolder argument
     private fun createNewFilePath(hexHash: String, mediaDisplayType: String?, pathPrefix: String): String {
-        val downloadOptions = context.config.options(ConfigProperty.DOWNLOAD_OPTIONS)
+        val pathFormat by context.config.downloader.pathFormat
         val sanitizedPathPrefix = pathPrefix
             .replace(" ", "_")
             .replace(Regex("[\\\\:*?\"<>|]"), "")
@@ -142,21 +141,21 @@ class MediaDownloader : Feature("MediaDownloader", loadParams = FeatureLoadParam
             }
         }
 
-        if (downloadOptions["create_user_folder"] == true) {
+        if (pathFormat.contains("create_user_folder")) {
             finalPath.append(sanitizedPathPrefix).append("/")
         }
-        if (downloadOptions["append_hash"] == true) {
+        if (pathFormat.contains("append_hash")) {
             appendFileName(hexHash)
         }
         mediaDisplayType?.let {
-            if (downloadOptions["append_type"] == true) {
+            if (pathFormat.contains("append_type")) {
                 appendFileName(it.lowercase().replace(" ", "-"))
             }
         }
-        if (downloadOptions["append_username"] == true) {
+        if (pathFormat.contains("append_username")) {
             appendFileName(sanitizedPathPrefix)
         }
-        if (downloadOptions["append_date_time"] == true) {
+        if (pathFormat.contains("append_date_time")) {
             appendFileName(currentDateTime)
         }
 
@@ -377,8 +376,8 @@ class MediaDownloader : Feature("MediaDownloader", loadParams = FeatureLoadParam
     }
 
     private fun canAutoDownload(keyFilter: String? = null): Boolean {
-        val options = context.config.options(ConfigProperty.AUTO_DOWNLOAD_OPTIONS)
-        return options.filter { it.value }.any { keyFilter == null || it.key.contains(keyFilter, true) }
+        val options by context.config.downloader.autoDownloadOptions
+        return options.any { keyFilter == null || it.contains(keyFilter, true) }
     }
 
     override fun asyncOnActivityCreate() {
