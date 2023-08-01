@@ -1,15 +1,12 @@
 package me.rhunk.snapenhance.manager
 
 import android.annotation.SuppressLint
-import android.content.Intent
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
-import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.navigation.compose.rememberNavController
-import me.rhunk.snapenhance.Logger
 import me.rhunk.snapenhance.manager.data.ManagerContext
 import me.rhunk.snapenhance.manager.util.SaveFolderChecker
 import me.rhunk.snapenhance.util.ActivityResultCallback

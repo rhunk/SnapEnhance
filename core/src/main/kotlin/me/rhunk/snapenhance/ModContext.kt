@@ -14,7 +14,6 @@ import kotlinx.coroutines.asCoroutineDispatcher
 import me.rhunk.snapenhance.bridge.BridgeClient
 import me.rhunk.snapenhance.bridge.wrapper.TranslationWrapper
 import me.rhunk.snapenhance.core.config.ModConfig
-import me.rhunk.snapenhance.core.config.impl.RootConfig
 import me.rhunk.snapenhance.data.MessageSender
 import me.rhunk.snapenhance.database.DatabaseAccess
 import me.rhunk.snapenhance.features.Feature

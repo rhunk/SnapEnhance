@@ -10,10 +10,10 @@ import android.os.Handler
 import android.os.HandlerThread
 import android.os.IBinder
 import de.robv.android.xposed.XposedHelpers
-import me.rhunk.snapenhance.core.BuildConfig
 import me.rhunk.snapenhance.Logger.xposedLog
 import me.rhunk.snapenhance.ModContext
 import me.rhunk.snapenhance.bridge.types.BridgeFileType
+import me.rhunk.snapenhance.core.BuildConfig
 import me.rhunk.snapenhance.data.LocalePair
 import java.util.concurrent.CompletableFuture
 import java.util.concurrent.Executors

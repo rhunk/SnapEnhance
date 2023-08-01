@@ -1,12 +1,20 @@
 package me.rhunk.snapenhance.core.config
 
-import me.rhunk.snapenhance.Logger
 import kotlin.reflect.KProperty
+
+
+data class PropertyPair<T>(
+    val key: PropertyKey<T>,
+    val value: PropertyValue<*>
+) {
+    val name get() = key.name
+}
 
 class ConfigParams(
     var shouldTranslate: Boolean = false,
     var hidden: Boolean = false,
-    var isFolder: Boolean = false
+    var isFolder: Boolean = false,
+    val disabledKey: String? = null
 )
 
 class PropertyValue<T>(
@@ -34,7 +42,7 @@ class PropertyValue<T>(
 
 class PropertyKey<T>(
     val name: String,
-    val dataProcessor: DataProcessors.PropertyDataProcessor<T>,
+    val dataType: DataProcessors.PropertyDataProcessor<T>,
     val params: ConfigParams = ConfigParams(),
 )
 

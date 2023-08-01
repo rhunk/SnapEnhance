@@ -1,10 +1,9 @@
 package me.rhunk.snapenhance.action.impl
 
 import me.rhunk.snapenhance.action.AbstractAction
-import me.rhunk.snapenhance.config.ConfigProperty
 import me.rhunk.snapenhance.features.impl.AutoUpdater
 
-class CheckForUpdates : AbstractAction("action.check_for_updates", dependsOnProperty = ConfigProperty.AUTO_UPDATER) {
+class CheckForUpdates : AbstractAction("action.check_for_updates") {
     override fun run() {
         context.executeAsync {
             runCatching {

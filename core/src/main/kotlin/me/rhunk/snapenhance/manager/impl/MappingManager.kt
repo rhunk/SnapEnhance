@@ -1,6 +1,5 @@
 package me.rhunk.snapenhance.manager.impl
 
-import android.app.AlertDialog
 import com.google.gson.JsonElement
 import com.google.gson.JsonParser
 import me.rhunk.snapenhance.Constants

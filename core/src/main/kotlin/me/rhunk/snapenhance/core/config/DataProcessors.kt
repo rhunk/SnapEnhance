@@ -65,7 +65,7 @@ object DataProcessors {
         type = Type.STRING_MULTIPLE_SELECTION,
         serialize = { JsonArray().apply { it.forEach { add(it) } } },
         deserialize = { obj ->
-            obj.asJsonArray.map { it.asString }
+            obj.asJsonArray.map { it.asString }.toMutableList()
         },
     )
 

@@ -10,9 +10,9 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.async
 import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.withContext
-import me.rhunk.snapenhance.core.BuildConfig
 import me.rhunk.snapenhance.Logger
 import me.rhunk.snapenhance.ModContext
+import me.rhunk.snapenhance.core.BuildConfig
 import me.rhunk.snapenhance.data.ContentType
 import me.rhunk.snapenhance.data.FileType
 import me.rhunk.snapenhance.data.MediaReferenceType

@@ -5,7 +5,7 @@ import me.rhunk.snapenhance.data.NotificationType
 
 class Global : ConfigContainer() {
     val snapchatPlus = boolean("snapchat_plus")
-    val autoUpdater = unique("auto_updater", "DAILY","EVERY_LAUNCH", "DAILY", "WEEKLY")
+    val autoUpdater = unique("auto_updater", "EVERY_LAUNCH", "DAILY", "WEEKLY")
     val disableMetrics = boolean("disable_metrics")
     val disableVideoLengthRestrictions = boolean("disable_video_length_restrictions")
     val disableGooglePlayDialogs = boolean("disable_google_play_dialogs")

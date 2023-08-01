@@ -5,7 +5,6 @@ import com.google.gson.JsonObject
 import com.google.gson.JsonParser
 import me.rhunk.snapenhance.Logger
 import me.rhunk.snapenhance.bridge.BridgeClient
-import me.rhunk.snapenhance.config.ConfigProperty
 import me.rhunk.snapenhance.data.LocalePair
 import java.util.Locale
 
@@ -78,18 +77,6 @@ class TranslationWrapper {
 
     operator fun get(key: String): String {
         return translationMap[key] ?: key.also { Logger.debug("Missing translation for $key") }
-    }
-
-    fun propertyName(property: ConfigProperty): String {
-        return get("property.${property.translationKey}.name")
-    }
-
-    fun propertyDescription(property: ConfigProperty): String {
-        return get("property.${property.translationKey}.description")
-    }
-
-    fun propertyOption(property: ConfigProperty, item: String): String {
-        return get(property.getOptionTranslationKey(item))
     }
 
     fun format(key: String, vararg args: Pair<String, String>): String {

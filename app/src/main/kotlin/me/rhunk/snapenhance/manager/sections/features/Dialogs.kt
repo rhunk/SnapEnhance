@@ -1,4 +1,4 @@
-package me.rhunk.snapenhance.manager
+package me.rhunk.snapenhance.manager.sections.features
 
 import androidx.compose.foundation.ScrollState
 import androidx.compose.foundation.clickable
@@ -29,16 +29,11 @@ import androidx.compose.ui.text.TextRange
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.unit.dp
-import me.rhunk.snapenhance.config.ConfigProperty
-import me.rhunk.snapenhance.config.impl.ConfigIntegerValue
-import me.rhunk.snapenhance.config.impl.ConfigStateListValue
-import me.rhunk.snapenhance.config.impl.ConfigStateSelection
-import me.rhunk.snapenhance.manager.data.ManagerContext
+import me.rhunk.snapenhance.core.config.DataProcessors
+import me.rhunk.snapenhance.core.config.PropertyPair
 
 
-class Dialogs(
-    private val context: ManagerContext
-) {
+class Dialogs {
     @Composable
     fun DefaultDialogCard(content: @Composable ColumnScope.() -> Unit) {
         Card(
@@ -65,17 +60,25 @@ class Dialogs(
     }
 
     @Composable
-    fun StateSelectionDialog(config: ConfigProperty) {
-        assert(config.valueContainer is ConfigStateSelection)
-        val keys = (config.valueContainer as ConfigStateSelection).keys()
-        val selectedValue = remember {
-            mutableStateOf(config.valueContainer.value())
+    @Suppress("UNCHECKED_CAST")
+    fun UniqueSelectionDialog(property: PropertyPair<*>) {
+        val keys = (property.value.defaultValues as List<String>).toMutableList().apply {
+            add(0, "disabled")
         }
+
+        val selectedValue = remember {
+            mutableStateOf(property.value.getNullable()?.toString() ?: "disabled")
+        }
+
         DefaultDialogCard {
-            keys.forEach { item ->
+            keys.forEachIndexed { index, item ->
                 fun select() {
                     selectedValue.value = item
-                    config.valueContainer.writeFrom(item)
+                    property.value.setAny(if (index == 0) {
+                        null
+                    } else {
+                        item
+                    })
                 }
 
                 Row(
@@ -83,9 +86,7 @@ class Dialogs(
                     verticalAlignment = Alignment.CenterVertically
                 ) {
                     DefaultEntryText(
-                        text = if (config.disableValueLocalization)
-                            item
-                        else context.translation.propertyOption(config, item),
+                        text = item,
                         modifier = Modifier.weight(1f)
                     )
                     RadioButton(
@@ -98,12 +99,12 @@ class Dialogs(
     }
 
     @Composable
-    fun KeyboardInputDialog(config: ConfigProperty, dismiss: () -> Unit = {}) {
+    fun KeyboardInputDialog(property: PropertyPair<*>, dismiss: () -> Unit = {}) {
         val focusRequester = remember { FocusRequester() }
 
         DefaultDialogCard {
             val fieldValue = remember {
-                mutableStateOf(config.valueContainer.read().let {
+                mutableStateOf(property.value.get().toString().let {
                     TextFieldValue(
                         text = it,
                         selection = TextRange(it.length)
@@ -123,8 +124,8 @@ class Dialogs(
                 onValueChange = {
                     fieldValue.value = it
                 },
-                keyboardOptions = when (config.valueContainer) {
-                    is ConfigIntegerValue -> {
+                keyboardOptions = when (property.key.dataType.type) {
+                    DataProcessors.Type.INTEGER -> {
                         KeyboardOptions(keyboardType = KeyboardType.Number)
                     }
                     else -> {
@@ -142,7 +143,15 @@ class Dialogs(
                     Text(text = "Cancel")
                 }
                 Button(onClick = {
-                    config.valueContainer.writeFrom(fieldValue.value.text)
+                    if (property.key.dataType.type == DataProcessors.Type.INTEGER) {
+                        runCatching {
+                            property.value.setAny(fieldValue.value.text.toInt())
+                        }.onFailure {
+                            property.value.setAny(0)
+                        }
+                    } else {
+                        property.value.setAny(fieldValue.value.text)
+                    }
                     dismiss()
                 }) {
                     Text(text = "Ok")
@@ -152,18 +161,23 @@ class Dialogs(
     }
 
     @Composable
-    fun StateListDialog(config: ConfigProperty) {
-        assert(config.valueContainer is ConfigStateListValue)
-        val stateList = (config.valueContainer as ConfigStateListValue).value()
+    @Suppress("UNCHECKED_CAST")
+    fun MultipleSelectionDialog(property: PropertyPair<*>) {
+        val defaultItems = property.value.defaultValues as List<String>
+        val toggledStates = property.value.get() as MutableList<String>
         DefaultDialogCard {
-            stateList.keys.forEach { key ->
+            defaultItems.forEach { key ->
                 val state = remember {
-                    mutableStateOf(stateList[key] ?: false)
+                    mutableStateOf(toggledStates.contains(key))
                 }
 
                 fun toggle(value: Boolean? = null) {
                     state.value = value ?: !state.value
-                    stateList[key] = state.value
+                    if (state.value) {
+                        toggledStates.add(key)
+                    } else {
+                        toggledStates.remove(key)
+                    }
                 }
 
                 Row(
@@ -171,9 +185,7 @@ class Dialogs(
                     verticalAlignment = Alignment.CenterVertically
                 ) {
                     DefaultEntryText(
-                        text = if (config.disableValueLocalization)
-                            key
-                        else context.translation.propertyOption(config, key),
+                        text = key,
                         modifier = Modifier
                             .weight(1f)
                     )

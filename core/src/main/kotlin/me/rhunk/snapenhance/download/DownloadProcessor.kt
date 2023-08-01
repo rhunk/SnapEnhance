@@ -18,8 +18,6 @@ import me.rhunk.snapenhance.Constants
 import me.rhunk.snapenhance.Logger
 import me.rhunk.snapenhance.SharedContext
 import me.rhunk.snapenhance.bridge.DownloadCallback
-import me.rhunk.snapenhance.bridge.wrapper.ConfigWrapper
-import me.rhunk.snapenhance.config.ConfigProperty
 import me.rhunk.snapenhance.core.config.ModConfig
 import me.rhunk.snapenhance.data.FileType
 import me.rhunk.snapenhance.download.data.DownloadMetadata

@@ -4,7 +4,6 @@ import android.annotation.SuppressLint
 import android.content.res.TypedArray
 import android.graphics.drawable.ColorDrawable
 import me.rhunk.snapenhance.Constants
-import me.rhunk.snapenhance.config.ConfigProperty
 import me.rhunk.snapenhance.features.Feature
 import me.rhunk.snapenhance.features.FeatureLoadParams
 import me.rhunk.snapenhance.hook.HookStage

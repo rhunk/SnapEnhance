@@ -4,7 +4,6 @@ import android.os.DeadObjectException
 import com.google.gson.JsonObject
 import com.google.gson.JsonParser
 import me.rhunk.snapenhance.Logger
-import me.rhunk.snapenhance.config.ConfigProperty
 import me.rhunk.snapenhance.data.ContentType
 import me.rhunk.snapenhance.data.MessageState
 import me.rhunk.snapenhance.data.wrapper.impl.Message

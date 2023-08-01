@@ -6,9 +6,8 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.FrameLayout
 import android.widget.ImageView
-import me.rhunk.snapenhance.core.BuildConfig
 import me.rhunk.snapenhance.Constants
-import me.rhunk.snapenhance.ui.config.ConfigActivity
+import me.rhunk.snapenhance.core.BuildConfig
 import me.rhunk.snapenhance.ui.menu.AbstractMenu
 import java.io.File
 

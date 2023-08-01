@@ -1,6 +1,5 @@
 package me.rhunk.snapenhance.features.impl.tweaks
 
-import me.rhunk.snapenhance.config.ConfigProperty
 import me.rhunk.snapenhance.data.ContentType
 import me.rhunk.snapenhance.data.MessageState
 import me.rhunk.snapenhance.data.wrapper.impl.Message

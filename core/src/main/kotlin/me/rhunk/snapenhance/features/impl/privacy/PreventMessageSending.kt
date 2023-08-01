@@ -1,7 +1,6 @@
 package me.rhunk.snapenhance.features.impl.privacy
 
 import me.rhunk.snapenhance.Logger
-import me.rhunk.snapenhance.config.ConfigProperty
 import me.rhunk.snapenhance.data.NotificationType
 import me.rhunk.snapenhance.data.wrapper.impl.MessageContent
 import me.rhunk.snapenhance.features.Feature

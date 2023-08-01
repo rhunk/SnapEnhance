@@ -1,7 +1,6 @@
 package me.rhunk.snapenhance.features.impl.tweaks
 
 import me.rhunk.snapenhance.Logger
-import me.rhunk.snapenhance.config.ConfigProperty
 import me.rhunk.snapenhance.data.MessageState
 import me.rhunk.snapenhance.data.wrapper.impl.Message
 import me.rhunk.snapenhance.data.wrapper.impl.SnapUUID

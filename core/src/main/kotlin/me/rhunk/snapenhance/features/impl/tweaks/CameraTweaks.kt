@@ -5,7 +5,6 @@ import android.annotation.SuppressLint
 import android.content.ContextWrapper
 import android.content.pm.PackageManager
 import android.hardware.camera2.CameraManager
-import me.rhunk.snapenhance.config.ConfigProperty
 import me.rhunk.snapenhance.data.wrapper.impl.ScSize
 import me.rhunk.snapenhance.features.Feature
 import me.rhunk.snapenhance.features.FeatureLoadParams

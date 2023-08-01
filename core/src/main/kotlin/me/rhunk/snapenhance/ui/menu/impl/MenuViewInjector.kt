@@ -6,9 +6,7 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.FrameLayout
 import android.widget.LinearLayout
-import de.robv.android.xposed.XC_MethodHook.Unhook
 import me.rhunk.snapenhance.Constants
-import me.rhunk.snapenhance.config.ConfigProperty
 import me.rhunk.snapenhance.features.Feature
 import me.rhunk.snapenhance.features.FeatureLoadParams
 import me.rhunk.snapenhance.features.impl.Messaging

@@ -1,7 +1,6 @@
 package me.rhunk.snapenhance.features.impl
 
 import android.annotation.SuppressLint
-import me.rhunk.snapenhance.config.ConfigProperty
 import me.rhunk.snapenhance.features.Feature
 import me.rhunk.snapenhance.features.FeatureLoadParams
 import me.rhunk.snapenhance.hook.HookStage
@@ -93,10 +92,6 @@ class ConfigEnumKeys : Feature("Config enum keys", loadParams = FeatureLoadParam
                     set(true)
                 }
             }
-        }
-
-        ConfigProperty.ENABLE_APP_APPEARANCE.valueContainer.addPropertyChangeListener {
-            context.softRestartApp(true)
         }
 
         val sharedPreferencesImpl = context.androidContext.classLoader.loadClass("android.app.SharedPreferencesImpl")

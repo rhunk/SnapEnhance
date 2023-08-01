@@ -1,7 +1,6 @@
 package me.rhunk.snapenhance.ui.download
 
 import android.app.AlertDialog
-import android.content.Intent
 import android.view.View
 import android.view.ViewGroup
 import android.widget.ArrayAdapter
@@ -9,11 +8,9 @@ import android.widget.ImageButton
 import android.widget.ListView
 import android.widget.TextView
 import android.widget.Toast
-import me.rhunk.snapenhance.core.R
 import me.rhunk.snapenhance.SharedContext
 import me.rhunk.snapenhance.bridge.types.BridgeFileType
-import me.rhunk.snapenhance.ui.config.ConfigActivity
-import me.rhunk.snapenhance.ui.spoof.DeviceSpooferActivity
+import me.rhunk.snapenhance.core.R
 import java.io.File
 
 class ActionListAdapter(
@@ -68,12 +65,6 @@ class DebugSettingsLayoutInflater(
 
         debugSettingsLayout.findViewById<ListView>(R.id.setting_page_list).apply {
             adapter = ActionListAdapter(activity, R.layout.debug_setting_item, mutableListOf<Pair<String, () -> Unit>>().apply {
-                add(SharedContext.translation["config_activity.title"] to {
-                    activity.startActivity(Intent(activity, ConfigActivity::class.java))
-                })
-                add(SharedContext.translation["spoof_activity.title"] to {
-                    activity.startActivity(Intent(activity, DeviceSpooferActivity::class.java))
-                })
                 add(debugSettingsTranslation["clear_cache_title"] to {
                     context.cacheDir.listFiles()?.forEach {
                         it.deleteRecursively()

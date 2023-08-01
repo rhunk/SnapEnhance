@@ -2,7 +2,6 @@ package me.rhunk.snapenhance.features.impl.tweaks
 
 import android.app.AlertDialog
 import me.rhunk.snapenhance.Logger
-import me.rhunk.snapenhance.config.ConfigProperty
 import me.rhunk.snapenhance.features.Feature
 import me.rhunk.snapenhance.features.FeatureLoadParams
 import me.rhunk.snapenhance.hook.HookStage

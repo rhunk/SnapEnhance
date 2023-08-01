@@ -1,6 +1,5 @@
 package me.rhunk.snapenhance.manager.impl
 
-import me.rhunk.snapenhance.core.BuildConfig
 import me.rhunk.snapenhance.ModContext
 import me.rhunk.snapenhance.action.AbstractAction
 import me.rhunk.snapenhance.action.impl.CheckForUpdates
@@ -9,6 +8,7 @@ import me.rhunk.snapenhance.action.impl.ClearMessageLogger
 import me.rhunk.snapenhance.action.impl.ExportChatMessages
 import me.rhunk.snapenhance.action.impl.OpenMap
 import me.rhunk.snapenhance.action.impl.RefreshMappings
+import me.rhunk.snapenhance.core.BuildConfig
 import me.rhunk.snapenhance.manager.Manager
 import kotlin.reflect.KClass
 

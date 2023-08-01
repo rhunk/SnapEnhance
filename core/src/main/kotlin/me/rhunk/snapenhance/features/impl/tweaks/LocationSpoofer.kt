@@ -1,7 +1,6 @@
 package me.rhunk.snapenhance.features.impl.tweaks
 
 import android.content.Intent
-import me.rhunk.snapenhance.config.ConfigProperty
 import me.rhunk.snapenhance.features.Feature
 import me.rhunk.snapenhance.features.FeatureLoadParams
 import me.rhunk.snapenhance.hook.HookStage

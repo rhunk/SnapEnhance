@@ -7,7 +7,6 @@ import android.content.Intent
 import android.os.Build
 import android.os.Environment
 import android.provider.Settings
-import me.rhunk.snapenhance.bridge.wrapper.ConfigWrapper
 import me.rhunk.snapenhance.bridge.wrapper.TranslationWrapper
 import me.rhunk.snapenhance.download.DownloadTaskManager
 import kotlin.system.exitProcess
@@ -18,7 +17,6 @@ import kotlin.system.exitProcess
 object SharedContext {
     lateinit var downloadTaskManager: DownloadTaskManager
     lateinit var translation: TranslationWrapper
-    lateinit var config: ConfigWrapper
 
     private fun askForStoragePermission(context: Context) {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
@@ -76,10 +74,6 @@ object SharedContext {
                 loadFromContext(context)
             }
         }
-        if (!this::config.isInitialized) {
-            config = ConfigWrapper().apply { loadFromContext(context) }
-        }
-
         //askForPermissions(context)
     }
 }

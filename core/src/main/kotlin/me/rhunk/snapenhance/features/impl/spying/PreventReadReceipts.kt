@@ -1,6 +1,5 @@
 package me.rhunk.snapenhance.features.impl.spying
 
-import me.rhunk.snapenhance.config.ConfigProperty
 import me.rhunk.snapenhance.data.wrapper.impl.SnapUUID
 import me.rhunk.snapenhance.features.Feature
 import me.rhunk.snapenhance.features.FeatureLoadParams

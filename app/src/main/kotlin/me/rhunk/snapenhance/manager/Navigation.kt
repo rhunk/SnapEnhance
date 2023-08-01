@@ -20,7 +20,6 @@ import androidx.navigation.NavDestination.Companion.hierarchy
 import androidx.navigation.NavGraph.Companion.findStartDestination
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
-import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import me.rhunk.snapenhance.manager.data.ManagerContext
 
@@ -36,16 +35,15 @@ class Navigation(
     ) {
         val sections = remember { EnumSection.values().toList().map {
             it to it.section.constructors.first().call()
-        }.onEach { (_, instance) ->
+        }.onEach { (section, instance) ->
+            instance.enumSection = section
             instance.manager = context
             instance.navController = navController
         } }
 
         NavHost(navController, startDestination = startDestination.route, Modifier.padding(innerPadding)) {
-            sections.forEach { (section, instance) ->
-                composable(section.route) {
-                    instance.Content()
-                }
+            sections.forEach { (_, instance) ->
+                instance.build(this)
             }
         }
     }

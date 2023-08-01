@@ -1,8 +1,6 @@
 package me.rhunk.snapenhance.core.config.impl
 
 import me.rhunk.snapenhance.core.config.ConfigContainer
-import me.rhunk.snapenhance.data.NotificationType
-import me.rhunk.snapenhance.features.impl.tweaks.CameraTweaks
 
 class RootConfig : ConfigContainer() {
     val downloader = container("downloader", DownloaderConfig())

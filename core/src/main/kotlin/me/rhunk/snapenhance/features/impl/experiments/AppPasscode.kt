@@ -1,7 +1,6 @@
 package me.rhunk.snapenhance.features.impl.experiments
 
 import android.annotation.SuppressLint
-import android.app.AlertDialog
 import android.content.Context
 import android.os.Build
 import android.text.Editable
@@ -9,7 +8,6 @@ import android.text.InputType
 import android.text.TextWatcher
 import android.view.inputmethod.InputMethodManager
 import android.widget.EditText
-import me.rhunk.snapenhance.config.ConfigProperty
 import me.rhunk.snapenhance.features.Feature
 import me.rhunk.snapenhance.features.FeatureLoadParams
 import me.rhunk.snapenhance.ui.ViewAppearanceHelper

@@ -1,7 +1,6 @@
 package me.rhunk.snapenhance.core.config
 
 import com.google.gson.JsonObject
-import me.rhunk.snapenhance.Logger
 import kotlin.reflect.KProperty
 
 typealias ConfigParamsBuilder = ConfigParams.() -> Unit
@@ -57,7 +56,7 @@ open class ConfigContainer(
     fun toJson(): JsonObject {
         val json = JsonObject()
         properties.forEach { (propertyKey, propertyValue) ->
-            val serializedValue = propertyValue.getNullable()?.let { propertyKey.dataProcessor.serializeAny(it) }
+            val serializedValue = propertyValue.getNullable()?.let { propertyKey.dataType.serializeAny(it) }
             json.add(propertyKey.name, serializedValue)
         }
         return json
@@ -66,7 +65,7 @@ open class ConfigContainer(
     fun fromJson(json: JsonObject) {
         properties.forEach { (key, _) ->
             val jsonElement = json.get(key.name) ?: return@forEach
-            key.dataProcessor.deserializeAny(jsonElement)?.let {
+            key.dataType.deserializeAny(jsonElement)?.let {
                 properties[key]?.setAny(it)
             }
         }

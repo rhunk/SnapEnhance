@@ -21,7 +21,6 @@ import android.widget.LinearLayout
 import android.widget.Switch
 import android.widget.Toast
 import me.rhunk.snapenhance.Logger
-import me.rhunk.snapenhance.config.ConfigProperty
 import me.rhunk.snapenhance.data.ContentType
 import me.rhunk.snapenhance.data.wrapper.impl.FriendActionButton
 import me.rhunk.snapenhance.database.objects.ConversationMessage

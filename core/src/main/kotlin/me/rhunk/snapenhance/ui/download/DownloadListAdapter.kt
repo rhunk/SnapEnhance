@@ -23,8 +23,8 @@ import kotlinx.coroutines.job
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withTimeout
 import me.rhunk.snapenhance.Logger
-import me.rhunk.snapenhance.core.R
 import me.rhunk.snapenhance.SharedContext
+import me.rhunk.snapenhance.core.R
 import me.rhunk.snapenhance.data.FileType
 import me.rhunk.snapenhance.download.data.PendingDownload
 import me.rhunk.snapenhance.download.enums.DownloadStage

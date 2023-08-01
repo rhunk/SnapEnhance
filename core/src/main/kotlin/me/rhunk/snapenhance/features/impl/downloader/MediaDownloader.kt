@@ -11,7 +11,6 @@ import me.rhunk.snapenhance.Constants.ARROYO_URL_KEY_PROTO_PATH
 import me.rhunk.snapenhance.Logger
 import me.rhunk.snapenhance.Logger.xposedLog
 import me.rhunk.snapenhance.bridge.DownloadCallback
-import me.rhunk.snapenhance.config.ConfigProperty
 import me.rhunk.snapenhance.data.ContentType
 import me.rhunk.snapenhance.data.FileType
 import me.rhunk.snapenhance.data.wrapper.impl.media.MediaInfo
