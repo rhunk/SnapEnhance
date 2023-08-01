@@ -47,6 +47,12 @@
             </intent-filter>
         </activity>
         <activity
+            android:name=".manager.setup.SetupActivity"
+            android:exported="true"
+            android:theme="@style/AppTheme"
+            android:excludeFromRecents="true">
+        </activity>
+        <activity
             android:name=".ui.map.MapActivity"
             android:exported="true"
             android:excludeFromRecents="true" />
