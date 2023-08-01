@@ -286,7 +286,7 @@
                 "abandon_video": "Appel vidéo manqué"
             },
             "gallery_media_send_override": {
-                "OFF": "Désactivé",
+                "ORIGINAL": "Originale",
                 "NOTE": "Message vocal",
                 "SNAP": "Snap",
                 "LIVE_SNAP": "Snap avec audio"
@@ -348,6 +348,9 @@
     "modal_option": {
         "profile_info": "Informations du profil",
         "close": "Fermer"
+    },
+    "gallery_media_send_override": {
+        "multiple_media_toast": "Vous ne pouvez envoyer qu'un seul média à la fois"
     },
     "conversation_preview": {
         "streak_expiration": "expire dans {day} jour(s) {hour} heure(s) {minute} minute(s)",

@@ -137,10 +137,7 @@ enum class ConfigProperty(
     GALLERY_MEDIA_SEND_OVERRIDE(
         "gallery_media_send_override",
         ConfigCategory.MEDIA_MANAGEMENT,
-        ConfigStateSelection(
-            listOf("OFF", "NOTE", "SNAP", "LIVE_SNAP"),
-            "OFF"
-        )
+        ConfigStateValue(false)
     ),
     AUTO_SAVE_MESSAGES("auto_save_messages",
         ConfigCategory.MEDIA_MANAGEMENT,

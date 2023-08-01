@@ -286,7 +286,7 @@
                 "abandon_video": "Cevapsız Görüntülü Arama"
             },
             "gallery_media_send_override": {
-                "OFF": "Kapalı",
+                "ORIGINAL": "Orijinal",
                 "NOTE": "Sesli Not",
                 "SNAP": "Snap",
                 "LIVE_SNAP": "Sesli Snap"
@@ -348,6 +348,9 @@
     "modal_option": {
         "profile_info": "Profil Bilgisi",
         "close": "Kapat"
+    },
+    "gallery_media_send_override": {
+        "multiple_media_toast": "Bir seferde yalnızca bir medya gönderebilirsiniz"
     },
     "conversation_preview": {
         "streak_expiration": "{day} gün {hour} saat {minute} dakika içinde sona eriyor",

@@ -286,7 +286,7 @@
                 "abandon_video": "Verpasster Videoanruf"
             },
             "gallery_media_send_override": {
-                "OFF": "Aus",
+                "ORIGINAL": "Original",
                 "NOTE": "Audio Hinweis",
                 "SNAP": "Snap",
                 "LIVE_SNAP": "Snap mit ton"
@@ -348,6 +348,9 @@
     "modal_option": {
         "profile_info": "Profil Info",
         "close": "Schließen"
+    },
+    "gallery_media_send_override": {
+        "multiple_media_toast": "Du kannst nur eine Datei auf einmal senden"
     },
     "conversation_preview": {
         "streak_expiration": "läuft in {day} Tagen, {hour} Stunden, {minute} Minuten ab",

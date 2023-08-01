@@ -286,7 +286,7 @@
                 "abandon_video": "مكالمة فيديو فائتة"
             },
             "gallery_media_send_override": {
-                "OFF": "إيقاف",
+                "ORIGINAL": "أصليّة",
                 "NOTE": "الملاحظات الصوتية",
                 "SNAP": "السنابة",
                 "LIVE_SNAP": "السنابة مع الصوت"
@@ -348,6 +348,9 @@
     "modal_option": {
         "profile_info": "معلومات الملَفّ الشخصي",
         "close": "إغلاق"
+    },
+    "gallery_media_send_override": {
+        "multiple_media_toast": "يمكنك إرسال مِلَفّ واحد فقط في وقت واحد"
     },
     "conversation_preview": {
         "streak_expiration": "تنتهي الصَّلاحِيَة في {day} يوم {hour} ساعة {minute} دقيقة",

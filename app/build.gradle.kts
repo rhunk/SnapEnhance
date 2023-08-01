@@ -6,8 +6,8 @@ plugins {
     alias(libs.plugins.kotlinAndroid)
 }
 
-val appVersionName = "1.2.0"
-val appVersionCode = 8
+val appVersionName = "1.2.1"
+val appVersionCode = 9
 
 android {
     namespace = "me.rhunk.snapenhance"
