@@ -16,7 +16,7 @@
         "check_for_updates": "Check for updates",
         "export_chat_messages": "Export chat messages"
     },
-   
+
     "property": {
         "message_logger": {
             "name": "Message Logger",
@@ -294,7 +294,7 @@
                 "abandon_video": "Missed Video Call"
             },
             "gallery_media_send_override": {
-                "OFF": "Off",
+                "ORIGINAL": "Original",
                 "NOTE": "Audio Note",
                 "SNAP": "Snap",
                 "LIVE_SNAP": "Snap with audio"
@@ -361,6 +361,10 @@
     "modal_option": {
         "profile_info": "Profile Info",
         "close": "Close"
+    },
+
+    "gallery_media_send_override": {
+        "multiple_media_toast": "You can only send one media at a time"
     },
 
     "conversation_preview": {
