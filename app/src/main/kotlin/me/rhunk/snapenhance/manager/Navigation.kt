@@ -60,7 +60,7 @@ class Navigation(
 
                 NavigationBarItem(
                     modifier = Modifier
-                        .requiredWidth(120.dp)
+                        .requiredWidth(75.dp)
                         .fillMaxHeight(),
                     icon = {
                         val iconOffset by animateDpAsState(

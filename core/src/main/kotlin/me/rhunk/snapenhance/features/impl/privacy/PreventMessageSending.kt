@@ -1,9 +1,8 @@
 package me.rhunk.snapenhance.features.impl.privacy
 
 import me.rhunk.snapenhance.Logger
-import me.rhunk.snapenhance.core.event.impl.SendMessageWithContentEvent
+import me.rhunk.snapenhance.core.eventbus.events.impl.SendMessageWithContentEvent
 import me.rhunk.snapenhance.data.NotificationType
-import me.rhunk.snapenhance.data.wrapper.impl.MessageContent
 import me.rhunk.snapenhance.features.Feature
 import me.rhunk.snapenhance.features.FeatureLoadParams
 import me.rhunk.snapenhance.hook.HookStage

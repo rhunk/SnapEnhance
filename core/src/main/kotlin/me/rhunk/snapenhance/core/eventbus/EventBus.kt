@@ -1,4 +1,4 @@
-package me.rhunk.snapenhance.core.event
+package me.rhunk.snapenhance.core.eventbus
 
 import me.rhunk.snapenhance.Logger
 import me.rhunk.snapenhance.ModContext
@@ -25,9 +25,12 @@ class EventBus(
         subscribers[event]!!.add(listener)
     }
 
-    inline fun <T : Event> subscribe(event: KClass<T>, crossinline listener: (T) -> Unit): () -> Unit {
+    inline fun <T : Event> subscribe(event: KClass<T>, crossinline listener: (T) -> Unit) = subscribe(event, { true }, listener)
+
+    inline fun <T : Event> subscribe(event: KClass<T>, crossinline filter: (T) -> Boolean, crossinline listener: (T) -> Unit): () -> Unit {
         val obj = object : IListener<T> {
             override fun handle(event: T) {
+                if (!filter(event)) return
                 listener(event)
             }
         }

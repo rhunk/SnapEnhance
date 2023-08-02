@@ -1,14 +1,10 @@
 package me.rhunk.snapenhance.features.impl.tweaks
 
-import android.app.AlertDialog
-import me.rhunk.snapenhance.config.ConfigProperty
+import me.rhunk.snapenhance.core.eventbus.events.impl.SendMessageWithContentEvent
 import me.rhunk.snapenhance.data.ContentType
 import me.rhunk.snapenhance.data.MessageSender
-import me.rhunk.snapenhance.data.wrapper.impl.MessageContent
 import me.rhunk.snapenhance.features.Feature
 import me.rhunk.snapenhance.features.FeatureLoadParams
-import me.rhunk.snapenhance.hook.HookStage
-import me.rhunk.snapenhance.hook.Hooker
 import me.rhunk.snapenhance.ui.ViewAppearanceHelper
 import me.rhunk.snapenhance.util.protobuf.ProtoReader
 
@@ -20,20 +16,21 @@ class GalleryMediaSendOverride : Feature("Gallery Media Send Override", loadPara
             "LIVE_SNAP",
             "NOTE"
         ).associateWith {
-            context.translation[ConfigProperty.GALLERY_MEDIA_SEND_OVERRIDE.getOptionTranslationKey(it)]
+           it
         }
 
-        Hooker.hook(context.classCache.conversationManager, "sendMessageWithContent", HookStage.BEFORE, {
-            context.config.bool(ConfigProperty.GALLERY_MEDIA_SEND_OVERRIDE)
-        }) { param ->
-            val localMessageContent = MessageContent(param.arg(1))
-            if (localMessageContent.contentType != ContentType.EXTERNAL_MEDIA) return@hook
+        context.event.subscribe(SendMessageWithContentEvent::class, {
+            context.config.messaging.galleryMediaSendOverride.get()
+        }) { event ->
+
+            val localMessageContent = event.messageContent
+            if (localMessageContent.contentType != ContentType.EXTERNAL_MEDIA) return@subscribe
 
             //prevent story replies
             val messageProtoReader = ProtoReader(localMessageContent.content)
-            if (messageProtoReader.exists(7)) return@hook
+            if (messageProtoReader.exists(7)) return@subscribe
 
-            param.setResult(null)
+            event.canceled = true
 
             context.runOnUiThread {
                 ViewAppearanceHelper.newAlertDialogBuilder(context.mainActivity!!)
@@ -66,7 +63,7 @@ class GalleryMediaSendOverride : Feature("Gallery Media Send Override", loadPara
                             }
                         }
 
-                        param.invokeOriginal()
+                        event.adapter.invokeOriginal()
                     }
                     .setNegativeButton(context.translation["button.cancel"], null)
                     .show()

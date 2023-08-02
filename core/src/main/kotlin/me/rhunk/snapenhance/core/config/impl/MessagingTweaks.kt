@@ -19,7 +19,7 @@ class MessagingTweaks : ConfigContainer() {
         "STICKER"
     )
 
-    val galleryMediaSendOverride = unique("gallery_media_send_override",  "NOTE", "SNAP", "LIVE_SNAP")
+    val galleryMediaSendOverride = boolean("gallery_media_send_override")
     val messagePreviewLength = integer("message_preview_length", defaultValue = 20)
 
 }
