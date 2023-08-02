@@ -99,6 +99,7 @@ class SnapEnhance {
             with(appContext) {
                 reloadConfig()
                 mappings.init()
+                eventDispatcher.init()
                 //if mappings aren't loaded, we can't initialize features
                 if (!mappings.areMappingsLoaded) return
                 features.init()

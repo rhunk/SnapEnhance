@@ -1,5 +1,6 @@
 package me.rhunk.snapenhance.features.impl
 
+import me.rhunk.snapenhance.core.event.impl.OnSnapInteractionEvent
 import me.rhunk.snapenhance.data.wrapper.impl.SnapUUID
 import me.rhunk.snapenhance.features.Feature
 import me.rhunk.snapenhance.features.FeatureLoadParams
@@ -72,9 +73,9 @@ class Messaging : Feature("Messaging", loadParams = FeatureLoadParams.ACTIVITY_C
         }
 
         //get last opened snap for media downloader
-        Hooker.hook(context.classCache.snapManager, "onSnapInteraction", HookStage.BEFORE) { param ->
-            openedConversationUUID = SnapUUID(param.arg(1))
-            lastFocusedMessageId = param.arg(2)
+        context.event.subscribe(OnSnapInteractionEvent::class) { event ->
+            openedConversationUUID = event.conversationId
+            lastFocusedMessageId = event.messageId
         }
 
         Hooker.hook(context.classCache.conversationManager, "fetchMessage", HookStage.BEFORE) { param ->

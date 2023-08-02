@@ -1,6 +1,7 @@
 package me.rhunk.snapenhance.features.impl.privacy
 
 import me.rhunk.snapenhance.Logger
+import me.rhunk.snapenhance.core.event.impl.SendMessageWithContentEvent
 import me.rhunk.snapenhance.data.NotificationType
 import me.rhunk.snapenhance.data.wrapper.impl.MessageContent
 import me.rhunk.snapenhance.features.Feature
@@ -23,14 +24,13 @@ class PreventMessageSending : Feature("Prevent message sending", loadParams = Fe
             }
         }
 
-        context.classCache.conversationManager.hook("sendMessageWithContent", HookStage.BEFORE) { param ->
-            val message = MessageContent(param.arg(1))
-            val contentType = message.contentType
-            val associatedType = NotificationType.fromContentType(contentType) ?: return@hook
+        context.event.subscribe(SendMessageWithContentEvent::class) { event ->
+            val contentType = event.messageContent.contentType
+            val associatedType = NotificationType.fromContentType(contentType) ?: return@subscribe
 
             if (preventMessageSending.contains(associatedType.key)) {
                 Logger.debug("Preventing message sending for $associatedType")
-                param.setResult(null)
+                event.canceled = true
             }
         }
     }

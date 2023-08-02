@@ -1,10 +1,12 @@
-package me.rhunk.snapenhance.event
+package me.rhunk.snapenhance.core.event
 
+import me.rhunk.snapenhance.Logger
 import me.rhunk.snapenhance.ModContext
 import kotlin.reflect.KClass
 
 abstract class Event {
     lateinit var context: ModContext
+    var canceled = false
 }
 
 interface IListener<T> {
@@ -23,12 +25,14 @@ class EventBus(
         subscribers[event]!!.add(listener)
     }
 
-    fun <T : Event> subscribe(event: KClass<T>, listener: (T) -> Unit) {
-        subscribe(event, object : IListener<T> {
+    inline fun <T : Event> subscribe(event: KClass<T>, crossinline listener: (T) -> Unit): () -> Unit {
+        val obj = object : IListener<T> {
             override fun handle(event: T) {
                 listener(event)
             }
-        })
+        }
+        subscribe(event, obj)
+        return { unsubscribe(event, obj) }
     }
 
     fun <T : Event> unsubscribe(event: KClass<T>, listener: IListener<T>) {
@@ -38,22 +42,22 @@ class EventBus(
         subscribers[event]!!.remove(listener)
     }
 
-    fun <T : Event> post(event: T) {
+    fun <T : Event> post(event: T): T? {
         if (!subscribers.containsKey(event::class)) {
-            return
+            return null
         }
 
         event.context = context
 
-        subscribers[event::class]!!.forEach { listener ->
+        subscribers[event::class]?.forEach { listener ->
             @Suppress("UNCHECKED_CAST")
-            try {
+            runCatching {
                 (listener as IListener<T>).handle(event)
-            } catch (t: Throwable) {
-                println("Error while handling event ${event::class.simpleName} by ${listener::class.simpleName}")
-                t.printStackTrace()
+            }.onFailure { t ->
+                Logger.error("Error while handling event ${event::class.simpleName} by ${listener::class.simpleName}", t)
             }
         }
+        return event
     }
 
     fun clear() {

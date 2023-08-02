@@ -1,5 +1,6 @@
 package me.rhunk.snapenhance.features.impl.spying
 
+import me.rhunk.snapenhance.core.event.impl.OnSnapInteractionEvent
 import me.rhunk.snapenhance.data.wrapper.impl.SnapUUID
 import me.rhunk.snapenhance.features.Feature
 import me.rhunk.snapenhance.features.FeatureLoadParams
@@ -19,9 +20,10 @@ class PreventReadReceipts : Feature("PreventReadReceipts", loadParams = FeatureL
                 it.setResult(null)
             }
         }
-        Hooker.hook(context.classCache.snapManager, "onSnapInteraction", HookStage.BEFORE) {
-            if (isConversationInStealthMode(SnapUUID(it.arg(1) as Any))) {
-                it.setResult(null)
+
+        context.event.subscribe(OnSnapInteractionEvent::class) { event ->
+            if (isConversationInStealthMode(event.conversationId)) {
+                event.canceled = true
             }
         }
     }
