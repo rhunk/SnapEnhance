@@ -16,13 +16,13 @@ import android.widget.TextView
 import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.RecyclerView
 import me.rhunk.snapenhance.SharedContext
-import me.rhunk.snapenhance.bridge.wrapper.TranslationWrapper
+import me.rhunk.snapenhance.bridge.wrapper.LocaleWrapper
 import me.rhunk.snapenhance.core.BuildConfig
 import me.rhunk.snapenhance.core.R
 import me.rhunk.snapenhance.download.data.PendingDownload
 
 class DownloadManagerActivity : Activity() {
-    lateinit var translation: TranslationWrapper
+    lateinit var translation: LocaleWrapper
 
     private val backCallbacks = mutableListOf<() -> Unit>()
     private val fetchedDownloadTasks = mutableListOf<PendingDownload>()

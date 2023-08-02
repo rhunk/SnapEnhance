@@ -1,4 +1,4 @@
-package me.rhunk.snapenhance.manager.setup
+package me.rhunk.snapenhance.ui.setup
 
 import android.os.Bundle
 import androidx.activity.ComponentActivity
@@ -28,13 +28,13 @@ import androidx.compose.ui.unit.dp
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
-import me.rhunk.snapenhance.manager.AppMaterialTheme
-import me.rhunk.snapenhance.manager.setup.screens.SetupScreen
-import me.rhunk.snapenhance.manager.setup.screens.impl.FfmpegScreen
-import me.rhunk.snapenhance.manager.setup.screens.impl.LanguageScreen
-import me.rhunk.snapenhance.manager.setup.screens.impl.MappingsScreen
-import me.rhunk.snapenhance.manager.setup.screens.impl.SaveFolderScreen
-import me.rhunk.snapenhance.manager.setup.screens.impl.WelcomeScreen
+import me.rhunk.snapenhance.ui.AppMaterialTheme
+import me.rhunk.snapenhance.ui.setup.screens.SetupScreen
+import me.rhunk.snapenhance.ui.setup.screens.impl.FfmpegScreen
+import me.rhunk.snapenhance.ui.setup.screens.impl.LanguageScreen
+import me.rhunk.snapenhance.ui.setup.screens.impl.MappingsScreen
+import me.rhunk.snapenhance.ui.setup.screens.impl.SaveFolderScreen
+import me.rhunk.snapenhance.ui.setup.screens.impl.WelcomeScreen
 
 
 class SetupActivity : ComponentActivity() {

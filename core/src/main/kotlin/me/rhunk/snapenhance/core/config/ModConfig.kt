@@ -8,17 +8,21 @@ import me.rhunk.snapenhance.Logger
 import me.rhunk.snapenhance.bridge.BridgeClient
 import me.rhunk.snapenhance.bridge.FileLoaderWrapper
 import me.rhunk.snapenhance.bridge.types.BridgeFileType
+import me.rhunk.snapenhance.bridge.wrapper.LocaleWrapper
 import me.rhunk.snapenhance.core.config.impl.RootConfig
 
-class ModConfig() {
-    val root = RootConfig()
+class ModConfig {
 
-    companion object {
-        val gson: Gson = GsonBuilder().setPrettyPrinting().create()
-    }
+    var locale: String = LocaleWrapper.DEFAULT_LOCALE
+        set(value) {
+            field = value
+            writeConfig()
+        }
 
+    private val gson: Gson = GsonBuilder().setPrettyPrinting().create()
     private val file = FileLoaderWrapper(BridgeFileType.CONFIG, "{}".toByteArray(Charsets.UTF_8))
 
+    val root = RootConfig()
     operator fun getValue(thisRef: Any?, property: Any?) = root
 
     private fun load() {
@@ -36,12 +40,14 @@ class ModConfig() {
     }
 
     private fun loadConfig() {
-        val configContent = file.read()
-        root.fromJson(gson.fromJson(configContent.toString(Charsets.UTF_8), JsonObject::class.java))
+        val configFileContent = file.read()
+        val configObject = gson.fromJson(configFileContent.toString(Charsets.UTF_8), JsonObject::class.java)
+        locale = configObject.get("language")?.asString ?: LocaleWrapper.DEFAULT_LOCALE
     }
 
     fun writeConfig() {
         val configObject = root.toJson()
+        configObject.addProperty("language", locale)
         file.write(configObject.toString().toByteArray(Charsets.UTF_8))
     }
 

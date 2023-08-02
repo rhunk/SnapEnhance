@@ -1,4 +1,4 @@
-package me.rhunk.snapenhance.manager.setup.screens
+package me.rhunk.snapenhance.ui.setup.screens
 
 import androidx.compose.runtime.Composable
 

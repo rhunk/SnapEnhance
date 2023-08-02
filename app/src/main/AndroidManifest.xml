@@ -38,7 +38,7 @@
         </service>
 
         <activity
-            android:name=".manager.MainActivity"
+            android:name=".ui.manager.MainActivity"
             android:theme="@style/AppTheme"
             android:exported="true">
             <intent-filter>
@@ -47,7 +47,7 @@
             </intent-filter>
         </activity>
         <activity
-            android:name=".manager.setup.SetupActivity"
+            android:name=".ui.setup.SetupActivity"
             android:exported="true"
             android:theme="@style/AppTheme"
             android:excludeFromRecents="true">

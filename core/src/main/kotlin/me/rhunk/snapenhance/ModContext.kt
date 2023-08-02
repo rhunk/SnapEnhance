@@ -12,7 +12,7 @@ import com.google.gson.Gson
 import com.google.gson.GsonBuilder
 import kotlinx.coroutines.asCoroutineDispatcher
 import me.rhunk.snapenhance.bridge.BridgeClient
-import me.rhunk.snapenhance.bridge.wrapper.TranslationWrapper
+import me.rhunk.snapenhance.bridge.wrapper.LocaleWrapper
 import me.rhunk.snapenhance.core.config.ModConfig
 import me.rhunk.snapenhance.core.eventbus.EventBus
 import me.rhunk.snapenhance.data.MessageSender
@@ -45,7 +45,7 @@ class ModContext {
     val event = EventBus(this)
     val eventDispatcher = EventDispatcher(this)
 
-    val translation = TranslationWrapper()
+    val translation = LocaleWrapper()
     val features = FeatureManager(this)
     val mappings = MappingManager(this)
     val actionManager = ActionManager(this)

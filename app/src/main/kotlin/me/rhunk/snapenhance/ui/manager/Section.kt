@@ -1,4 +1,4 @@
-package me.rhunk.snapenhance.manager
+package me.rhunk.snapenhance.ui.manager
 
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.BugReport
@@ -11,10 +11,9 @@ import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.navigation.NavController
 import androidx.navigation.NavGraphBuilder
 import androidx.navigation.compose.composable
-import me.rhunk.snapenhance.manager.data.ManagerContext
-import me.rhunk.snapenhance.manager.sections.HomeSection
-import me.rhunk.snapenhance.manager.sections.NotImplemented
-import me.rhunk.snapenhance.manager.sections.features.FeaturesSection
+import me.rhunk.snapenhance.ui.manager.sections.HomeSection
+import me.rhunk.snapenhance.ui.manager.sections.NotImplemented
+import me.rhunk.snapenhance.ui.manager.sections.features.FeaturesSection
 import kotlin.reflect.KClass
 
 enum class EnumSection(

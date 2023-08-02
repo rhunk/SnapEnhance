@@ -1,4 +1,4 @@
-package me.rhunk.snapenhance.manager
+package me.rhunk.snapenhance.ui.manager
 
 import android.annotation.SuppressLint
 import android.os.Bundle
@@ -7,8 +7,8 @@ import androidx.activity.compose.setContent
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.navigation.compose.rememberNavController
-import me.rhunk.snapenhance.manager.data.ManagerContext
-import me.rhunk.snapenhance.manager.util.SaveFolderChecker
+import me.rhunk.snapenhance.ui.AppMaterialTheme
+import me.rhunk.snapenhance.ui.manager.util.SaveFolderChecker
 import me.rhunk.snapenhance.util.ActivityResultCallback
 
 class MainActivity : ComponentActivity() {

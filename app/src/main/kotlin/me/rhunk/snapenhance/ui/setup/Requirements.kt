@@ -1,4 +1,4 @@
-package me.rhunk.snapenhance.manager.setup
+package me.rhunk.snapenhance.ui.setup
 
 import android.os.Bundle
 

@@ -1,4 +1,4 @@
-package me.rhunk.snapenhance.manager.sections
+package me.rhunk.snapenhance.ui.manager.sections
 
 import androidx.compose.foundation.ScrollState
 import androidx.compose.foundation.layout.Arrangement
@@ -23,8 +23,8 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import me.rhunk.snapenhance.manager.Section
-import me.rhunk.snapenhance.manager.data.InstallationSummary
+import me.rhunk.snapenhance.ui.manager.Section
+import me.rhunk.snapenhance.ui.manager.data.InstallationSummary
 
 class HomeSection : Section() {
     companion object {

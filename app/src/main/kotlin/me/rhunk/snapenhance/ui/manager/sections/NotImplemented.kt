@@ -1,9 +1,9 @@
-package me.rhunk.snapenhance.manager.sections
+package me.rhunk.snapenhance.ui.manager.sections
 
 import androidx.compose.foundation.layout.Column
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import me.rhunk.snapenhance.manager.Section
+import me.rhunk.snapenhance.ui.manager.Section
 
 class NotImplemented : Section() {
     @Composable

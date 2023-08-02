@@ -1,4 +1,4 @@
-package me.rhunk.snapenhance.manager
+package me.rhunk.snapenhance.ui.manager
 
 import androidx.compose.animation.core.animateDpAsState
 import androidx.compose.foundation.layout.PaddingValues
@@ -21,7 +21,6 @@ import androidx.navigation.NavGraph.Companion.findStartDestination
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.currentBackStackEntryAsState
-import me.rhunk.snapenhance.manager.data.ManagerContext
 
 
 class Navigation(

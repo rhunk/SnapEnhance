@@ -1,4 +1,4 @@
-package me.rhunk.snapenhance.manager
+package me.rhunk.snapenhance.ui
 
 import android.os.Build
 import androidx.compose.foundation.isSystemInDarkTheme

@@ -1,4 +1,4 @@
-package me.rhunk.snapenhance.manager.util
+package me.rhunk.snapenhance.ui.manager.util
 
 import android.app.Activity
 import android.app.AlertDialog

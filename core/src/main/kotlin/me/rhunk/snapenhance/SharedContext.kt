@@ -7,7 +7,7 @@ import android.content.Intent
 import android.os.Build
 import android.os.Environment
 import android.provider.Settings
-import me.rhunk.snapenhance.bridge.wrapper.TranslationWrapper
+import me.rhunk.snapenhance.bridge.wrapper.LocaleWrapper
 import me.rhunk.snapenhance.download.DownloadTaskManager
 import kotlin.system.exitProcess
 
@@ -16,7 +16,7 @@ import kotlin.system.exitProcess
  */
 object SharedContext {
     lateinit var downloadTaskManager: DownloadTaskManager
-    lateinit var translation: TranslationWrapper
+    lateinit var translation: LocaleWrapper
 
     private fun askForStoragePermission(context: Context) {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
@@ -70,7 +70,7 @@ object SharedContext {
             }
         }
         if (!this::translation.isInitialized) {
-            translation = TranslationWrapper().apply {
+            translation = LocaleWrapper().apply {
                 loadFromContext(context)
             }
         }

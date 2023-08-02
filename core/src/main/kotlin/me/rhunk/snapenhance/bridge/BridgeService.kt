@@ -6,7 +6,7 @@ import android.os.IBinder
 import me.rhunk.snapenhance.SharedContext
 import me.rhunk.snapenhance.bridge.types.BridgeFileType
 import me.rhunk.snapenhance.bridge.wrapper.MessageLoggerWrapper
-import me.rhunk.snapenhance.bridge.wrapper.TranslationWrapper
+import me.rhunk.snapenhance.bridge.wrapper.LocaleWrapper
 import me.rhunk.snapenhance.download.DownloadProcessor
 
 class BridgeService : Service() {
@@ -85,7 +85,7 @@ class BridgeService : Service() {
 
         override fun clearMessageLogger() = messageLoggerWrapper.clearMessages()
 
-        override fun fetchTranslations() = TranslationWrapper.fetchLocales(context = this@BridgeService).associate {
+        override fun fetchTranslations() = LocaleWrapper.fetchLocales(context = this@BridgeService).associate {
             it.locale to it.content
         }
 

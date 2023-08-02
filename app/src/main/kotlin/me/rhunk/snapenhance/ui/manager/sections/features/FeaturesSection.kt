@@ -1,4 +1,4 @@
-package me.rhunk.snapenhance.manager.sections.features
+package me.rhunk.snapenhance.ui.manager.sections.features
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -54,7 +54,7 @@ import kotlinx.coroutines.launch
 import me.rhunk.snapenhance.core.config.ConfigContainer
 import me.rhunk.snapenhance.core.config.DataProcessors
 import me.rhunk.snapenhance.core.config.PropertyPair
-import me.rhunk.snapenhance.manager.Section
+import me.rhunk.snapenhance.ui.manager.Section
 
 class FeaturesSection : Section() {
     private val dialogs by lazy { Dialogs() }

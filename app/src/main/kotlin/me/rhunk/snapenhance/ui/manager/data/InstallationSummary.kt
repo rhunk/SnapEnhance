@@ -1,4 +1,4 @@
-package me.rhunk.snapenhance.manager.data
+package me.rhunk.snapenhance.ui.manager.data
 
 
 data class SnapchatAppInfo(

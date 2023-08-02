@@ -1,4 +1,4 @@
-package me.rhunk.snapenhance.manager.sections.features
+package me.rhunk.snapenhance.ui.manager.sections.features
 
 import androidx.compose.foundation.ScrollState
 import androidx.compose.foundation.clickable

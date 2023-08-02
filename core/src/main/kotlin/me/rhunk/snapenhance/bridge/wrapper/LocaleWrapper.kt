@@ -9,9 +9,9 @@ import me.rhunk.snapenhance.data.LocalePair
 import java.util.Locale
 
 
-class TranslationWrapper {
+class LocaleWrapper {
     companion object {
-        private const val DEFAULT_LOCALE = "en_US"
+        const val DEFAULT_LOCALE = "en_US"
 
         fun fetchLocales(context: Context): List<LocalePair> {
             val deviceLocale = Locale.getDefault().toString()
@@ -85,10 +85,10 @@ class TranslationWrapper {
         }
     }
 
-    fun getCategory(key: String): TranslationWrapper {
-        return TranslationWrapper().apply {
+    fun getCategory(key: String): LocaleWrapper {
+        return LocaleWrapper().apply {
             translationMap.putAll(
-                this@TranslationWrapper.translationMap
+                this@LocaleWrapper.translationMap
                     .filterKeys { it.startsWith("$key.") }
                     .mapKeys { it.key.substring(key.length + 1) }
             )
