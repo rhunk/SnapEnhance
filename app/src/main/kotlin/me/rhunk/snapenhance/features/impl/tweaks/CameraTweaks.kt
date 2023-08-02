@@ -9,7 +9,6 @@ import me.rhunk.snapenhance.config.ConfigProperty
 import me.rhunk.snapenhance.data.wrapper.impl.ScSize
 import me.rhunk.snapenhance.features.Feature
 import me.rhunk.snapenhance.features.FeatureLoadParams
-import me.rhunk.snapenhance.features.impl.ConfigEnumKeys
 import me.rhunk.snapenhance.hook.HookStage
 import me.rhunk.snapenhance.hook.hook
 import me.rhunk.snapenhance.hook.hookConstructor
@@ -35,15 +34,6 @@ class CameraTweaks : Feature("Camera Tweaks", loadParams = FeatureLoadParams.ACT
 
             CameraManager::class.java.hook("openCamera", HookStage.BEFORE) { param ->
                 param.setResult(null)
-            }
-        }
-
-        ConfigEnumKeys.hookAllEnums(context.mappings.getMappedClass("enums", "CAMERA")) {
-            if (key == "FORCE_CAMERA_HIGHEST_FPS" && context.config.bool(ConfigProperty.FORCE_HIGHEST_FRAME_RATE)) {
-                set(true)
-            }
-            if (key == "MEDIA_RECORDER_MAX_QUALITY_LEVEL" && context.config.bool(ConfigProperty.FORCE_CAMERA_SOURCE_ENCODING)) {
-                value!!.javaClass.enumConstants?.let { enumData -> set(enumData.filter { it.toString() == "LEVEL_MAX" }) }
             }
         }
 

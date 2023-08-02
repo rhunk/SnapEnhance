@@ -1,6 +1,5 @@
 package me.rhunk.snapenhance.manager.impl
 
-import android.app.AlertDialog
 import com.google.gson.JsonElement
 import com.google.gson.JsonParser
 import me.rhunk.snapenhance.Constants
@@ -12,6 +11,7 @@ import me.rhunk.snapenhance.ui.ViewAppearanceHelper
 import me.rhunk.snapmapper.Mapper
 import me.rhunk.snapmapper.impl.BCryptClassMapper
 import me.rhunk.snapmapper.impl.CallbackMapper
+import me.rhunk.snapmapper.impl.CompositeConfigurationProviderMapper
 import me.rhunk.snapmapper.impl.DefaultMediaItemMapper
 import me.rhunk.snapmapper.impl.EnumMapper
 import me.rhunk.snapmapper.impl.FriendsFeedEventDispatcherMapper
@@ -38,7 +38,8 @@ class MappingManager(private val context: ModContext) : Manager {
         PlusSubscriptionMapper::class,
         ScCameraSettingsMapper::class,
         StoryBoostStateMapper::class,
-        FriendsFeedEventDispatcherMapper::class
+        FriendsFeedEventDispatcherMapper::class,
+        CompositeConfigurationProviderMapper::class
     )
 
     private val mappings = ConcurrentHashMap<String, Any>()
@@ -95,7 +96,7 @@ class MappingManager(private val context: ModContext) : Manager {
                         statusDialogBuilder.show()
                     }
                 }
-             }
+            }
         }
     }
 
