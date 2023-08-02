@@ -1,13 +1,17 @@
 package me.rhunk.snapenhance.manager.sections.features
 
+import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.layout.wrapContentWidth
 import androidx.compose.foundation.lazy.LazyColumn
@@ -106,7 +110,7 @@ class FeaturesSection : Section() {
                 )
             }
 
-            DataProcessors.Type.STRING_MULTIPLE_SELECTION, DataProcessors.Type.STRING, DataProcessors.Type.INTEGER -> {
+            DataProcessors.Type.STRING_MULTIPLE_SELECTION, DataProcessors.Type.STRING, DataProcessors.Type.INTEGER, DataProcessors.Type.FLOAT -> {
                 dialogComposable.value = {
                     when (dataType) {
                         DataProcessors.Type.STRING_MULTIPLE_SELECTION -> {
@@ -120,7 +124,7 @@ class FeaturesSection : Section() {
                 }
 
                 registerDialogOnClickCallback().let { { it.invoke(true) } }.also {
-                    if (dataType == DataProcessors.Type.INTEGER) {
+                    if (dataType == DataProcessors.Type.INTEGER || dataType == DataProcessors.Type.FLOAT) {
                         FilledIconButton(onClick = it) {
                             Text(
                                 text = propertyValue.get().toString(),
@@ -135,7 +139,36 @@ class FeaturesSection : Section() {
                     }
                 }
             }
-            else -> {}
+            DataProcessors.Type.CONTAINER -> {
+                val container = propertyValue.get() as ConfigContainer
+
+                registerClickCallback {
+                    navController.navigate("container/${property.name}")
+                }
+
+                if (container.globalState == null) return
+
+                val state = remember { mutableStateOf(container.globalState!!) }
+
+                Box(
+                    modifier = Modifier
+                        .padding(end = 15.dp),
+                ) {
+
+                    Box(modifier = Modifier
+                        .height(50.dp)
+                        .width(1.dp)
+                        .background(color = MaterialTheme.colors.onBackground.copy(alpha = 0.12f), shape = RoundedCornerShape(5.dp)))
+                }
+
+                Switch(
+                    checked = state.value,
+                    onCheckedChange = {
+                        state.value = state.value.not()
+                        container.globalState = state.value
+                    }
+                )
+            }
         }
 
     }
@@ -175,24 +208,16 @@ class FeaturesSection : Section() {
                     )
                 }
 
-                when (property.key.dataType.type) {
-                    DataProcessors.Type.CONTAINER -> {
-                        clickCallback.value = {
-                            navController.navigate("container/${property.name}")
-                        }
-                    }
-                    else -> {
-                        Column(
-                            modifier = Modifier
-                                .align(Alignment.CenterVertically)
-                                .padding(all = 10.dp)
-                        ) {
-                            PropertyAction(property, registerClickCallback = { callback ->
-                                clickCallback.value = callback
-                                callback
-                            })
-                        }
-                    }
+                Row(
+                    modifier = Modifier
+                        .align(Alignment.CenterVertically)
+                        .padding(all = 10.dp),
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    PropertyAction(property, registerClickCallback = { callback ->
+                        clickCallback.value = callback
+                        callback
+                    })
                 }
             }
         }
@@ -249,7 +274,9 @@ class FeaturesSection : Section() {
             },
             content = { innerPadding ->
                 LazyColumn(
-                    modifier = Modifier.fillMaxHeight().padding(innerPadding),
+                    modifier = Modifier
+                        .fillMaxHeight()
+                        .padding(innerPadding),
                     verticalArrangement = Arrangement.Center
                 ) {
                     items(properties) {

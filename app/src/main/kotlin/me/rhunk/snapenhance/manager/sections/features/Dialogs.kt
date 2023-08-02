@@ -125,12 +125,9 @@ class Dialogs {
                     fieldValue.value = it
                 },
                 keyboardOptions = when (property.key.dataType.type) {
-                    DataProcessors.Type.INTEGER -> {
-                        KeyboardOptions(keyboardType = KeyboardType.Number)
-                    }
-                    else -> {
-                        KeyboardOptions(keyboardType = KeyboardType.Text)
-                    }
+                    DataProcessors.Type.INTEGER -> KeyboardOptions(keyboardType = KeyboardType.Number)
+                    DataProcessors.Type.FLOAT -> KeyboardOptions(keyboardType = KeyboardType.Decimal)
+                    else -> KeyboardOptions(keyboardType = KeyboardType.Text)
                 },
                 singleLine = true
             )
