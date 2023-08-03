@@ -3,7 +3,6 @@ description: "Report an issue to help the project improve."
 title: "bug: TITLE"
 labels:
   - "bug"
-  - required: true
 body:
   - type: textarea
     id: description
