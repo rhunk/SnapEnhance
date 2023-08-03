@@ -3,6 +3,7 @@ package me.rhunk.snapenhance.hook
 import de.robv.android.xposed.XC_MethodHook
 import de.robv.android.xposed.XposedBridge
 import java.lang.reflect.Member
+import java.lang.reflect.Method
 
 object Hooker {
     inline fun newMethodHook(
@@ -25,24 +26,9 @@ object Hooker {
         clazz: Class<*>,
         methodName: String,
         stage: HookStage,
-        crossinline consumer: (HookAdapter) -> Unit
-    ): Set<XC_MethodHook.Unhook> = hook(clazz, methodName, stage, { true }, consumer)
-
-    inline fun hook(
-        clazz: Class<*>,
-        methodName: String,
-        stage: HookStage,
         crossinline filter: (HookAdapter) -> Boolean,
-        crossinline consumer: (HookAdapter) -> Unit
+        noinline consumer: (HookAdapter) -> Unit
     ): Set<XC_MethodHook.Unhook> = XposedBridge.hookAllMethods(clazz, methodName, newMethodHook(stage, consumer, filter))
-
-    inline fun hook(
-        member: Member,
-        stage: HookStage,
-        crossinline consumer: (HookAdapter) -> Unit
-    ): XC_MethodHook.Unhook {
-        return hook(member, stage, { true }, consumer)
-    }
 
     inline fun hook(
         member: Member,
@@ -53,20 +39,34 @@ object Hooker {
         return XposedBridge.hookMethod(member, newMethodHook(stage, consumer, filter))
     }
 
+    fun hook(
+        clazz: Class<*>,
+        methodName: String,
+        stage: HookStage,
+        consumer: (HookAdapter) -> Unit
+    ): Set<XC_MethodHook.Unhook> = hook(clazz, methodName, stage, { true }, consumer)
 
-    inline fun hookConstructor(
+    fun hook(
+        member: Member,
+        stage: HookStage,
+        consumer: (HookAdapter) -> Unit
+    ): XC_MethodHook.Unhook {
+        return hook(member, stage, { true }, consumer)
+    }
+
+    fun hookConstructor(
         clazz: Class<*>,
         stage: HookStage,
-        crossinline consumer: (HookAdapter) -> Unit
+        consumer: (HookAdapter) -> Unit
     ) {
         XposedBridge.hookAllConstructors(clazz, newMethodHook(stage, consumer))
     }
 
-    inline fun hookConstructor(
+    fun hookConstructor(
         clazz: Class<*>,
         stage: HookStage,
-        crossinline filter: ((HookAdapter) -> Boolean),
-        crossinline consumer: (HookAdapter) -> Unit
+        filter: ((HookAdapter) -> Boolean),
+        consumer: (HookAdapter) -> Unit
     ) {
         XposedBridge.hookAllConstructors(clazz, newMethodHook(stage, consumer, filter))
     }
@@ -117,37 +117,43 @@ object Hooker {
     }
 }
 
-inline fun Class<*>.hookConstructor(
+fun Class<*>.hookConstructor(
     stage: HookStage,
-    crossinline consumer: (HookAdapter) -> Unit
+    consumer: (HookAdapter) -> Unit
 ) = Hooker.hookConstructor(this, stage, consumer)
 
-inline fun Class<*>.hookConstructor(
+fun Class<*>.hookConstructor(
     stage: HookStage,
-    crossinline filter: ((HookAdapter) -> Boolean),
-    crossinline consumer: (HookAdapter) -> Unit
+    filter: ((HookAdapter) -> Boolean),
+    consumer: (HookAdapter) -> Unit
 ) = Hooker.hookConstructor(this, stage, filter, consumer)
 
-inline fun Class<*>.hook(
+fun Class<*>.hook(
     methodName: String,
     stage: HookStage,
-    crossinline consumer: (HookAdapter) -> Unit
+    consumer: (HookAdapter) -> Unit
 ): Set<XC_MethodHook.Unhook> = Hooker.hook(this, methodName, stage, consumer)
 
-inline fun Class<*>.hook(
+fun Class<*>.hook(
     methodName: String,
     stage: HookStage,
-    crossinline filter: (HookAdapter) -> Boolean,
-    crossinline consumer: (HookAdapter) -> Unit
+    filter: (HookAdapter) -> Boolean,
+    consumer: (HookAdapter) -> Unit
 ): Set<XC_MethodHook.Unhook> = Hooker.hook(this, methodName, stage, filter, consumer)
 
-inline fun Member.hook(
+fun Member.hook(
     stage: HookStage,
-    crossinline consumer: (HookAdapter) -> Unit
+    consumer: (HookAdapter) -> Unit
 ): XC_MethodHook.Unhook = Hooker.hook(this, stage, consumer)
 
-inline fun Member.hook(
+fun Member.hook(
     stage: HookStage,
-    crossinline filter: ((HookAdapter) -> Boolean),
-    crossinline consumer: (HookAdapter) -> Unit
+    filter: ((HookAdapter) -> Boolean),
+    consumer: (HookAdapter) -> Unit
 ): XC_MethodHook.Unhook = Hooker.hook(this, stage, filter, consumer)
+
+fun Array<Method>.hookAll(stage: HookStage, param: (HookAdapter) -> Unit) {
+    filter { it.declaringClass != Object::class.java }.forEach {
+        it.hook(stage, param)
+    }
+}
