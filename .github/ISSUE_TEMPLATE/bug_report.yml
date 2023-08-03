@@ -1,6 +1,6 @@
 name: "Bug report"
 description: "Report an issue to help the project improve."
-title: "bug <title>"
+title: "bug: TITLE"
 labels:
   - "bug"
   - required: true
@@ -26,14 +26,6 @@ body:
     validations:
       required: true
   - type: textarea
-    id: screenshot
-    attributes:
-      label: "Screenshots"
-      description: "If applicable, add screenshots to help explain your problem"
-      render: markdown
-    validations:
-      required: false
-  - type: textarea
     id: logs
     attributes:
       label: "Logs"
@@ -57,13 +49,9 @@ body:
       options:
         - label: "I have read and understood the project's terms of service."
         - label: "I am using the latest stable SnapEnhance version."
-        - label: "There is no existing issue describing my problem."
         - label: "This is not a bug regarding Snapchat+."
         - label: "I have provided a detailed description of the issue."
-        - label: "I have attached a log if the module is failing."
-        - label: "I have made sure that my issue is easy to read."
-        - label: "I have attached screenshots if possible."
-        - label: "I have stated my device's root status and any other relevant information."
+        - label: "I have attached a log if deemed neccessary."
         - label: "This issue is not a duplicate."
     validations:
       required: true
