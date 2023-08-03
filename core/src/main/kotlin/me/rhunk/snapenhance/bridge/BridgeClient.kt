@@ -36,8 +36,9 @@ class BridgeClient(
                 .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_MULTIPLE_TASK)
             )
 
+            //TODO: randomize package name
             val intent = Intent()
-                .setClassName(BuildConfig.APPLICATION_ID, BridgeService::class.java.name)
+                .setClassName(BuildConfig.APPLICATION_ID, "me.rhunk.snapenhance.bridge.BridgeService")
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
                 bindService(
                     intent,
@@ -103,7 +104,7 @@ class BridgeClient(
 
     fun clearMessageLogger() = service.clearMessageLogger()
 
-    fun fetchTranslations() = service.fetchTranslations().map {
+    fun fetchLocales(userLocale: String) = service.fetchLocales(userLocale).map {
         LocalePair(it.key, it.value)
     }
 

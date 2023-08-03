@@ -90,14 +90,14 @@ class SnapEnhance {
 
     @OptIn(ExperimentalTime::class)
     private suspend fun init() {
-        //load translations in a coroutine to speed up initialization
-        withContext(appContext.coroutineDispatcher) {
-            appContext.translation.loadFromBridge(appContext.bridgeClient)
-        }
-
         measureTime {
             with(appContext) {
                 reloadConfig()
+                withContext(appContext.coroutineDispatcher) {
+                    translation.userLocale = getConfigLocale()
+                    translation.loadFromBridge(appContext.bridgeClient)
+                }
+
                 mappings.init()
                 eventDispatcher.init()
                 //if mappings aren't loaded, we can't initialize features

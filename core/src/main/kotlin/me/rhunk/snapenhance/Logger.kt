@@ -16,6 +16,11 @@ object Logger {
         Log.d(TAG, message.toString())
     }
 
+    fun debug(tag: String, message: Any?) {
+        if (!BuildConfig.DEBUG) return
+        Log.d(tag, message.toString())
+    }
+
     fun error(throwable: Throwable) {
         Log.e(TAG, "", throwable)
     }

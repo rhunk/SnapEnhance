@@ -83,11 +83,11 @@ interface BridgeInterface {
         void clearMessageLogger();
 
         /**
-         * Fetch the translations
+         * Fetch the locales
          *
-         * @return the translations result
+         * @return the locale result
          */
-        Map<String, String> fetchTranslations();
+        Map<String, String> fetchLocales(String userLocale);
 
         /**
          * Get check for updates last time

@@ -85,6 +85,8 @@ dependencies {
     implementation(libs.androidx.material)
     implementation(libs.androidx.activity.ktx)
     implementation(libs.androidx.navigation.compose)
+    implementation(libs.androidx.documentfile)
+    implementation(libs.gson)
 
     debugImplementation("androidx.compose.ui:ui-tooling:1.4.3")
     debugImplementation("androidx.compose.ui:ui-tooling-preview:1.4.3")

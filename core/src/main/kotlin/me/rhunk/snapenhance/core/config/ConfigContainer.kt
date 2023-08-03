@@ -38,7 +38,7 @@ open class ConfigContainer(
         vararg values: String = emptyArray(),
         params: ConfigParamsBuilder = {}
     ) = registerProperty(key,
-        DataProcessors.STRING_MULTIPLE_SELECTION, PropertyValue(emptyList<String>(), defaultValues = values.toList()), params)
+        DataProcessors.STRING_MULTIPLE_SELECTION, PropertyValue(mutableListOf<String>(), defaultValues = values.toList()), params)
 
     //null value is considered as Off/Disabled
     protected fun unique(

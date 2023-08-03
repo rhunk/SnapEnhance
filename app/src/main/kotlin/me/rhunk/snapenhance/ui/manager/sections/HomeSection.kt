@@ -25,6 +25,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import me.rhunk.snapenhance.ui.manager.Section
 import me.rhunk.snapenhance.ui.manager.data.InstallationSummary
+import me.rhunk.snapenhance.ui.setup.Requirements
 
 class HomeSection : Section() {
     companion object {
@@ -76,7 +77,9 @@ class HomeSection : Section() {
                 )
 
                 //inline button
-                Button(onClick = {}, modifier = Modifier.height(40.dp)) {
+                Button(onClick = {
+                     context.checkForRequirements(Requirements.MAPPINGS)
+                }, modifier = Modifier.height(40.dp)) {
                     Icon(Icons.Filled.Refresh, contentDescription = "Refresh")
                 }
             }
@@ -102,7 +105,7 @@ class HomeSection : Section() {
                 modifier = Modifier.padding(16.dp)
             )
 
-            SummaryCards(manager.getInstallationSummary())
+            SummaryCards(context.getInstallationSummary())
         }
     }
 }

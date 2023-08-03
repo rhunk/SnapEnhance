@@ -140,14 +140,22 @@ class Dialogs {
                     Text(text = "Cancel")
                 }
                 Button(onClick = {
-                    if (property.key.dataType.type == DataProcessors.Type.INTEGER) {
-                        runCatching {
-                            property.value.setAny(fieldValue.value.text.toInt())
-                        }.onFailure {
-                            property.value.setAny(0)
+                    when (property.key.dataType.type) {
+                        DataProcessors.Type.INTEGER -> {
+                            runCatching {
+                                property.value.setAny(fieldValue.value.text.toInt())
+                            }.onFailure {
+                                property.value.setAny(0)
+                            }
                         }
-                    } else {
-                        property.value.setAny(fieldValue.value.text)
+                        DataProcessors.Type.FLOAT -> {
+                            runCatching {
+                                property.value.setAny(fieldValue.value.text.toFloat())
+                            }.onFailure {
+                                property.value.setAny(0f)
+                            }
+                        }
+                        else -> property.value.setAny(fieldValue.value.text)
                     }
                     dismiss()
                 }) {

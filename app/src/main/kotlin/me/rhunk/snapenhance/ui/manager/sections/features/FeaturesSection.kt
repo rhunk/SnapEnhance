@@ -1,5 +1,6 @@
 package me.rhunk.snapenhance.ui.manager.sections.features
 
+import androidx.activity.ComponentActivity
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -20,6 +21,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.MaterialTheme
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
+import androidx.compose.material.icons.filled.FolderOpen
 import androidx.compose.material.icons.filled.OpenInNew
 import androidx.compose.material.icons.rounded.Save
 import androidx.compose.material3.Card
@@ -55,12 +57,22 @@ import me.rhunk.snapenhance.core.config.ConfigContainer
 import me.rhunk.snapenhance.core.config.DataProcessors
 import me.rhunk.snapenhance.core.config.PropertyPair
 import me.rhunk.snapenhance.ui.manager.Section
+import me.rhunk.snapenhance.ui.util.ChooseFolderHelper
 
 class FeaturesSection : Section() {
     private val dialogs by lazy { Dialogs() }
 
     companion object {
         private const val MAIN_ROUTE = "root"
+    }
+
+    private lateinit var openFolderCallback: (uri: String) -> Unit
+    private lateinit var openFolderLauncher: () -> Unit
+
+    override fun init() {
+        openFolderLauncher = ChooseFolderHelper.createChooseFolder(context.activity!! as ComponentActivity) {
+            openFolderCallback(it)
+        }
     }
 
     @Composable
@@ -82,6 +94,18 @@ class FeaturesSection : Section() {
         }
 
         val propertyValue = property.value
+
+        if (property.key.params.isFolder) {
+            IconButton(onClick = registerClickCallback {
+                openFolderCallback = { uri ->
+                    propertyValue.setAny(uri)
+                }
+                openFolderLauncher()
+            }.let { { it.invoke(true) } }) {
+                Icon(Icons.Filled.FolderOpen, contentDescription = null)
+            }
+            return
+        }
 
         when (val dataType = remember { property.key.dataType.type }) {
             DataProcessors.Type.BOOLEAN -> {
@@ -116,7 +140,7 @@ class FeaturesSection : Section() {
                         DataProcessors.Type.STRING_MULTIPLE_SELECTION -> {
                             dialogs.MultipleSelectionDialog(property)
                         }
-                        DataProcessors.Type.STRING, DataProcessors.Type.INTEGER -> {
+                        DataProcessors.Type.STRING, DataProcessors.Type.INTEGER, DataProcessors.Type.FLOAT -> {
                             dialogs.KeyboardInputDialog(property) { showDialog.value = false }
                         }
                         else -> {}
@@ -124,7 +148,8 @@ class FeaturesSection : Section() {
                 }
 
                 registerDialogOnClickCallback().let { { it.invoke(true) } }.also {
-                    if (dataType == DataProcessors.Type.INTEGER || dataType == DataProcessors.Type.FLOAT) {
+                    if (dataType == DataProcessors.Type.INTEGER ||
+                        dataType == DataProcessors.Type.FLOAT) {
                         FilledIconButton(onClick = it) {
                             Text(
                                 text = propertyValue.get().toString(),
@@ -256,7 +281,7 @@ class FeaturesSection : Section() {
             floatingActionButton = {
                 FloatingActionButton(
                     onClick = {
-                        manager.config.writeConfig()
+                        context.config.writeConfig()
                         scope.launch {
                             scaffoldState.snackbarHostState.showSnackbar("Saved")
                         }
@@ -299,13 +324,13 @@ class FeaturesSection : Section() {
                     }
                 }
             }
-            queryContainerRecursive(manager.config.root)
+            queryContainerRecursive(context.config.root)
             containers
         }
 
         navGraphBuilder.navigation(route = "features", startDestination = MAIN_ROUTE) {
             composable(MAIN_ROUTE) {
-                Container(MAIN_ROUTE, manager.config.root)
+                Container(MAIN_ROUTE, context.config.root)
             }
 
             composable("container/{name}") { backStackEntry ->

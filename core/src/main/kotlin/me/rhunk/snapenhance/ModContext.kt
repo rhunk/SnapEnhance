@@ -122,4 +122,8 @@ class ModContext {
     fun reloadConfig() {
         modConfig.loadFromBridge(bridgeClient)
     }
+
+    fun getConfigLocale(): String {
+        return modConfig.locale
+    }
 }

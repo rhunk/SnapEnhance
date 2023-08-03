@@ -46,7 +46,6 @@ class MappingsWrapper(
     private val mappings = ConcurrentHashMap<String, Any>()
     private var snapBuildNumber: Long = 0
 
-    @Suppress("deprecation")
     fun init() {
         snapBuildNumber = getSnapchatVersionCode()
 
@@ -54,6 +53,7 @@ class MappingsWrapper(
             runCatching {
                 loadCached()
             }.onFailure {
+                Logger.error("Failed to load cached mappings", it)
                 delete()
             }
         }
@@ -100,6 +100,7 @@ class MappingsWrapper(
     }
 
     fun refresh() {
+        snapBuildNumber = getSnapchatVersionCode()
         val mapper = Mapper(*mappers)
 
         runCatching {
@@ -114,7 +115,7 @@ class MappingsWrapper(
             }
             write(result.toString().toByteArray())
         }.also {
-            Logger.xposedLog("Generated mappings in $it ms")
+            Logger.debug("Generated mappings in $it ms")
         }
     }
 

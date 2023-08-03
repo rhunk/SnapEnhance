@@ -59,10 +59,6 @@ class DownloadProcessor (
     private val context: Context,
     private val callback: DownloadCallback
 ) {
-    companion object {
-        const val DOWNLOAD_REQUEST_EXTRA = "request"
-        const val DOWNLOAD_METADATA_EXTRA = "metadata"
-    }
 
     private val translation by lazy {
         SharedContext.translation.getCategory("download_processor")
@@ -184,7 +180,9 @@ class DownloadProcessor (
             fun handleInputStream(inputStream: InputStream) {
                 createMediaTempFile().apply {
                     if (inputMedia.encryption != null) {
-                        decryptInputStream(inputStream, inputMedia.encryption).use { decryptedInputStream ->
+                        decryptInputStream(inputStream,
+                            inputMedia.encryption!!
+                        ).use { decryptedInputStream ->
                             decryptedInputStream.copyTo(outputStream())
                         }
                     } else {
@@ -286,8 +284,8 @@ class DownloadProcessor (
 
     fun onReceive(intent: Intent) {
         CoroutineScope(Dispatchers.IO).launch {
-            val downloadMetadata = gson.fromJson(intent.getStringExtra(DOWNLOAD_METADATA_EXTRA)!!, DownloadMetadata::class.java)
-            val downloadRequest = gson.fromJson(intent.getStringExtra(DOWNLOAD_REQUEST_EXTRA)!!, DownloadRequest::class.java)
+            val downloadMetadata = gson.fromJson(intent.getStringExtra(DownloadManagerClient.DOWNLOAD_METADATA_EXTRA)!!, DownloadMetadata::class.java)
+            val downloadRequest = gson.fromJson(intent.getStringExtra(DownloadManagerClient.DOWNLOAD_REQUEST_EXTRA)!!, DownloadRequest::class.java)
 
             SharedContext.downloadTaskManager.canDownloadMedia(downloadMetadata.mediaIdentifier)?.let { downloadStage ->
                 translation[if (downloadStage.isFinalStage) {

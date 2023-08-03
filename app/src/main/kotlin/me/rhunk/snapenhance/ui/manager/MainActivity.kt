@@ -1,43 +1,49 @@
 package me.rhunk.snapenhance.ui.manager
 
-import android.annotation.SuppressLint
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
+import androidx.compose.runtime.remember
 import androidx.navigation.compose.rememberNavController
+import me.rhunk.snapenhance.SharedContextHolder
 import me.rhunk.snapenhance.ui.AppMaterialTheme
-import me.rhunk.snapenhance.ui.manager.util.SaveFolderChecker
-import me.rhunk.snapenhance.util.ActivityResultCallback
 
 class MainActivity : ComponentActivity() {
-    private val activityResultCallbacks = mutableMapOf<Int, ActivityResultCallback>()
-
-    @SuppressLint("UnusedMaterialScaffoldPaddingParameter")
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
         val startDestination = intent.getStringExtra("route")?.let { EnumSection.fromRoute(it) } ?: EnumSection.HOME
-        val managerContext = ManagerContext(this)
+        val managerContext = SharedContextHolder.remote(this).apply {
+            activity = this@MainActivity
+            checkForRequirements()
+        }
 
-        //FIXME: temporary save folder
-        SaveFolderChecker.askForFolder(
-            this,
-            managerContext.config.root.downloader.saveFolder)
-        {
-            managerContext.config.writeConfig()
+        val sections = EnumSection.values().toList().associateWith {
+            it.section.constructors.first().call()
+        }.onEach { (section, instance) ->
+            with(instance) {
+                enumSection = section
+                context = managerContext
+                init()
+            }
         }
 
         setContent {
             val navController = rememberNavController()
-            val navigation = Navigation(managerContext)
+            val navigation = remember { Navigation() }
             AppMaterialTheme {
                 Scaffold(
                     containerColor = MaterialTheme.colorScheme.background,
                     bottomBar = { navigation.NavBar(navController = navController) }
                 ) { innerPadding ->
-                    navigation.NavigationHost(navController = navController, innerPadding = innerPadding, startDestination = startDestination)
+                    navigation.NavigationHost(
+                        sections = sections,
+                        navController = navController,
+                        innerPadding = innerPadding,
+                        startDestination = startDestination
+                    )
                 }
             }
         }

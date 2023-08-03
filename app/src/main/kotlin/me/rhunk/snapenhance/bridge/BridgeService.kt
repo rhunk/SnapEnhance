@@ -3,7 +3,9 @@ package me.rhunk.snapenhance.bridge
 import android.app.Service
 import android.content.Intent
 import android.os.IBinder
+import me.rhunk.snapenhance.RemoteSideContext
 import me.rhunk.snapenhance.SharedContext
+import me.rhunk.snapenhance.SharedContextHolder
 import me.rhunk.snapenhance.bridge.types.BridgeFileType
 import me.rhunk.snapenhance.bridge.wrapper.MessageLoggerWrapper
 import me.rhunk.snapenhance.bridge.wrapper.LocaleWrapper
@@ -11,7 +13,12 @@ import me.rhunk.snapenhance.download.DownloadProcessor
 
 class BridgeService : Service() {
     private lateinit var messageLoggerWrapper: MessageLoggerWrapper
+    private lateinit var remoteSideContext: RemoteSideContext
+
     override fun onBind(intent: Intent): IBinder {
+        remoteSideContext = SharedContextHolder.remote(this).apply {
+            checkForRequirements()
+        }
         messageLoggerWrapper = MessageLoggerWrapper(getDatabasePath(BridgeFileType.MESSAGE_LOGGER_DATABASE.fileName)).also { it.init() }
         return BridgeBinder()
     }
@@ -85,7 +92,7 @@ class BridgeService : Service() {
 
         override fun clearMessageLogger() = messageLoggerWrapper.clearMessages()
 
-        override fun fetchTranslations() = LocaleWrapper.fetchLocales(context = this@BridgeService).associate {
+        override fun fetchLocales(userLocale: String) = LocaleWrapper.fetchLocales(context = this@BridgeService, userLocale).associate {
             it.locale to it.content
         }
 
@@ -98,6 +105,8 @@ class BridgeService : Service() {
         }
 
         override fun enqueueDownload(intent: Intent, callback: DownloadCallback) {
+            SharedContextHolder.remote(this@BridgeService)
+            //TODO: refactor shared context
             SharedContext.ensureInitialized(this@BridgeService)
             DownloadProcessor(this@BridgeService, callback).onReceive(intent)
         }

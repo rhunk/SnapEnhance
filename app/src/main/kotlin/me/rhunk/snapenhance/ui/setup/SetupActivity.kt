@@ -1,7 +1,9 @@
 package me.rhunk.snapenhance.ui.setup
 
+import android.annotation.SuppressLint
 import android.os.Bundle
 import androidx.activity.ComponentActivity
+import androidx.activity.compose.BackHandler
 import androidx.activity.compose.setContent
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.foundation.background
@@ -14,6 +16,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowForwardIos
+import androidx.compose.material.icons.filled.Check
 import androidx.compose.material3.FilledIconButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
@@ -28,38 +31,54 @@ import androidx.compose.ui.unit.dp
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
+import me.rhunk.snapenhance.SharedContextHolder
 import me.rhunk.snapenhance.ui.AppMaterialTheme
 import me.rhunk.snapenhance.ui.setup.screens.SetupScreen
 import me.rhunk.snapenhance.ui.setup.screens.impl.FfmpegScreen
-import me.rhunk.snapenhance.ui.setup.screens.impl.LanguageScreen
 import me.rhunk.snapenhance.ui.setup.screens.impl.MappingsScreen
+import me.rhunk.snapenhance.ui.setup.screens.impl.PickLanguageScreen
 import me.rhunk.snapenhance.ui.setup.screens.impl.SaveFolderScreen
-import me.rhunk.snapenhance.ui.setup.screens.impl.WelcomeScreen
 
 
 class SetupActivity : ComponentActivity() {
+    @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        val requirements = intent.getBundleExtra("requirements")?.let {
-            Requirements.fromBundle(it)
-        } ?: Requirements(firstRun = true)
+        val setupContext = SharedContextHolder.remote(this).apply {
+            activity = this@SetupActivity
+        }
+        val requirements = intent.getIntExtra("requirements", Requirements.FIRST_RUN)
+
+        fun hasRequirement(requirement: Int) = requirements and requirement == requirement
 
         val requiredScreens = mutableListOf<SetupScreen>()
 
         with(requiredScreens) {
-            with(requirements) {
-                if (firstRun || language) add(LanguageScreen().apply { route = "language" })
-                if (firstRun) add(WelcomeScreen().apply { route = "welcome" })
-                if (firstRun || saveFolder) add(SaveFolderScreen().apply { route = "saveFolder" })
-                if (firstRun || mappings) add(MappingsScreen().apply { route = "mappings" })
-                if (firstRun || ffmpeg) add(FfmpegScreen().apply { route = "ffmpeg" })
+            val isFirstRun = hasRequirement(Requirements.FIRST_RUN)
+            if (isFirstRun || hasRequirement(Requirements.LANGUAGE)) {
+                add(PickLanguageScreen().apply { route = "language" })
+            }
+            if (isFirstRun || hasRequirement(Requirements.SAVE_FOLDER)) {
+                add(SaveFolderScreen().apply { route = "saveFolder" })
+            }
+            if (isFirstRun || hasRequirement(Requirements.MAPPINGS)) {
+                add(MappingsScreen().apply { route = "mappings" })
+            }
+            if (isFirstRun || hasRequirement(Requirements.FFMPEG)) {
+                add(FfmpegScreen().apply { route = "ffmpeg" })
             }
         }
 
+        // If there are no required screens, we can just finish the activity
         if (requiredScreens.isEmpty()) {
             finish()
             return
+        }
+
+        requiredScreens.forEach { screen ->
+            screen.context = setupContext
+            screen.init()
         }
 
         setContent {
@@ -68,8 +87,8 @@ class SetupActivity : ComponentActivity() {
 
             fun nextScreen() {
                 if (!canGoNext.value) return
-                canGoNext.value = false
                 if (requiredScreens.size > 1) {
+                    canGoNext.value = false
                     requiredScreens.removeFirst()
                     navController.navigate(requiredScreens.first().route)
                 } else {
@@ -98,18 +117,21 @@ class SetupActivity : ComponentActivity() {
                                     .alpha(alpha)
                             ) {
                                 Icon(
-                                    imageVector = Icons.Default.ArrowForwardIos,
+                                    imageVector = if (requiredScreens.size <= 1 && canGoNext.value) {
+                                        Icons.Default.Check
+                                    } else {
+                                        Icons.Default.ArrowForwardIos
+                                    },
                                     contentDescription = null
                                 )
                             }
                         }
                     },
-                ) { paddingValues ->
+                ) {
                     Column(
                         modifier = Modifier
                             .background(MaterialTheme.colorScheme.background)
                             .fillMaxSize()
-                            .padding(paddingValues)
                     ) {
                         NavHost(
                             navController = navController,
@@ -118,6 +140,7 @@ class SetupActivity : ComponentActivity() {
                             requiredScreens.forEach { screen ->
                                 screen.allowNext = { canGoNext.value = it }
                                 composable(screen.route) {
+                                    BackHandler(true) {}
                                     Column(
                                         modifier = Modifier.fillMaxSize(),
                                         verticalArrangement = Arrangement.Center,

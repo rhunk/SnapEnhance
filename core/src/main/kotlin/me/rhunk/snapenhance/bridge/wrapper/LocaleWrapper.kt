@@ -13,15 +13,14 @@ class LocaleWrapper {
     companion object {
         const val DEFAULT_LOCALE = "en_US"
 
-        fun fetchLocales(context: Context): List<LocalePair> {
-            val deviceLocale = Locale.getDefault().toString()
-            val locales = mutableListOf<LocalePair>()
+        fun fetchLocales(context: Context, locale: String = DEFAULT_LOCALE): List<LocalePair> {
+            val locales = mutableListOf<LocalePair>().apply {
+                add(LocalePair(DEFAULT_LOCALE, context.resources.assets.open("lang/$DEFAULT_LOCALE.json").bufferedReader().use { it.readText() }))
+            }
 
-            locales.add(LocalePair(DEFAULT_LOCALE, context.resources.assets.open("lang/$DEFAULT_LOCALE.json").bufferedReader().use { it.readText() }))
+            if (locale == DEFAULT_LOCALE) return locales
 
-            if (deviceLocale == DEFAULT_LOCALE) return locales
-
-            val compatibleLocale = context.resources.assets.list("lang")?.firstOrNull { it.startsWith(deviceLocale) }?.substring(0, 5) ?: return locales
+            val compatibleLocale = context.resources.assets.list("lang")?.firstOrNull { it.startsWith(locale) }?.substring(0, 5) ?: return locales
 
             context.resources.assets.open("lang/$compatibleLocale.json").use { inputStream ->
                 locales.add(LocalePair(compatibleLocale, inputStream.bufferedReader().use { it.readText() }))
@@ -29,19 +28,24 @@ class LocaleWrapper {
 
             return locales
         }
+
+        fun fetchAvailableLocales(context: Context): List<String> {
+            return context.resources.assets.list("lang")?.map { it.substring(0, 5) } ?: listOf()
+        }
     }
 
+    var userLocale = DEFAULT_LOCALE
 
     private val translationMap = linkedMapOf<String, String>()
-    private lateinit var _locale: String
+    private lateinit var _loadedLocaleString: String
 
-    val locale by lazy {
-        Locale(_locale.substring(0, 2), _locale.substring(3, 5))
+    val loadedLocale by lazy {
+        Locale(_loadedLocaleString.substring(0, 2), _loadedLocaleString.substring(3, 5))
     }
 
     private fun load(localePair: LocalePair) {
-        if (!::_locale.isInitialized) {
-            _locale = localePair.locale
+        if (!::_loadedLocaleString.isInitialized) {
+            _loadedLocaleString = localePair.locale
         }
 
         val translations = JsonParser.parseString(localePair.content).asJsonObject
@@ -64,15 +68,21 @@ class LocaleWrapper {
     }
 
     fun loadFromBridge(bridgeClient: BridgeClient) {
-        bridgeClient.fetchTranslations().forEach {
+        bridgeClient.fetchLocales(userLocale).forEach {
             load(it)
         }
     }
 
     fun loadFromContext(context: Context) {
-        fetchLocales(context).forEach {
+        fetchLocales(context, userLocale).forEach {
             load(it)
         }
+    }
+
+    fun reloadFromContext(context: Context, locale: String) {
+        userLocale = locale
+        translationMap.clear()
+        loadFromContext(context)
     }
 
     operator fun get(key: String): String {

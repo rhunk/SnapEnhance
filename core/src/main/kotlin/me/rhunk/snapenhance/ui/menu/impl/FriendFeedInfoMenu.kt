@@ -84,7 +84,7 @@ class FriendFeedInfoMenu : AbstractMenu() {
                 ${birthday.getDisplayName(
                     Calendar.MONTH,
                     Calendar.LONG,
-                    context.translation.locale
+                    context.translation.loadedLocale
                 )?.let {
                     context.translation.format("profile_info.birthday",
                         "month" to it,

@@ -12,7 +12,6 @@ import androidx.compose.material3.NavigationBarItem
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
@@ -23,25 +22,17 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.currentBackStackEntryAsState
 
 
-class Navigation(
-    private val context: ManagerContext
-) {
+class Navigation{
     @Composable
     fun NavigationHost(
+        sections: Map<EnumSection, Section>,
         startDestination: EnumSection,
         navController: NavHostController,
         innerPadding: PaddingValues
     ) {
-        val sections = remember { EnumSection.values().toList().map {
-            it to it.section.constructors.first().call()
-        }.onEach { (section, instance) ->
-            instance.enumSection = section
-            instance.manager = context
-            instance.navController = navController
-        } }
-
         NavHost(navController, startDestination = startDestination.route, Modifier.padding(innerPadding)) {
             sections.forEach { (_, instance) ->
+                instance.navController = navController
                 instance.build(this)
             }
         }

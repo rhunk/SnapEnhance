@@ -50,8 +50,7 @@
             android:name=".ui.setup.SetupActivity"
             android:exported="true"
             android:theme="@style/AppTheme"
-            android:excludeFromRecents="true">
-        </activity>
+            android:excludeFromRecents="true" />
         <activity
             android:name=".ui.map.MapActivity"
             android:exported="true"

@@ -1,33 +1,21 @@
 package me.rhunk.snapenhance.ui.setup
 
-import android.os.Bundle
+object Requirements {
+    const val FIRST_RUN = 0b00001
+    const val LANGUAGE = 0b00010
+    const val MAPPINGS = 0b00100
+    const val SAVE_FOLDER = 0b01000
+    const val FFMPEG = 0b10000
 
-data class Requirements(
-    val firstRun: Boolean = false,
-    val language: Boolean = false,
-    val mappings: Boolean = false,
-    val saveFolder: Boolean = false,
-    val ffmpeg: Boolean = false
-) {
-    companion object {
-        fun fromBundle(bundle: Bundle): Requirements {
-            return Requirements(
-                firstRun = bundle.getBoolean("firstRun"),
-                language = bundle.getBoolean("language"),
-                mappings = bundle.getBoolean("mappings"),
-                saveFolder = bundle.getBoolean("saveFolder"),
-                ffmpeg = bundle.getBoolean("ffmpeg")
-            )
-        }
-
-        fun toBundle(requirements: Requirements): Bundle {
-            return Bundle().apply {
-                putBoolean("firstRun", requirements.firstRun)
-                putBoolean("language", requirements.language)
-                putBoolean("mappings", requirements.mappings)
-                putBoolean("saveFolder", requirements.saveFolder)
-                putBoolean("ffmpeg", requirements.ffmpeg)
-            }
+    fun getName(requirement: Int): String {
+        return when (requirement) {
+            FIRST_RUN -> "FIRST_RUN"
+            LANGUAGE -> "LANGUAGE"
+            MAPPINGS -> "MAPPINGS"
+            SAVE_FOLDER -> "SAVE_FOLDER"
+            FFMPEG -> "FFMPEG"
+            else -> "UNKNOWN"
         }
     }
 }
+

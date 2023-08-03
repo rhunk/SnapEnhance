@@ -10,22 +10,20 @@ import me.rhunk.snapenhance.bridge.FileLoaderWrapper
 import me.rhunk.snapenhance.bridge.types.BridgeFileType
 import me.rhunk.snapenhance.bridge.wrapper.LocaleWrapper
 import me.rhunk.snapenhance.core.config.impl.RootConfig
+import kotlin.properties.Delegates
 
 class ModConfig {
-
     var locale: String = LocaleWrapper.DEFAULT_LOCALE
-        set(value) {
-            field = value
-            writeConfig()
-        }
 
     private val gson: Gson = GsonBuilder().setPrettyPrinting().create()
     private val file = FileLoaderWrapper(BridgeFileType.CONFIG, "{}".toByteArray(Charsets.UTF_8))
+    var wasPresent by Delegates.notNull<Boolean>()
 
     val root = RootConfig()
     operator fun getValue(thisRef: Any?, property: Any?) = root
 
     private fun load() {
+        wasPresent = file.isFileExists()
         if (!file.isFileExists()) {
             writeConfig()
             return
@@ -42,12 +40,13 @@ class ModConfig {
     private fun loadConfig() {
         val configFileContent = file.read()
         val configObject = gson.fromJson(configFileContent.toString(Charsets.UTF_8), JsonObject::class.java)
-        locale = configObject.get("language")?.asString ?: LocaleWrapper.DEFAULT_LOCALE
+        locale = configObject.get("_locale")?.asString ?: LocaleWrapper.DEFAULT_LOCALE
+        root.fromJson(configObject)
     }
 
     fun writeConfig() {
         val configObject = root.toJson()
-        configObject.addProperty("language", locale)
+        configObject.addProperty("_locale", locale)
         file.write(configObject.toString().toByteArray(Charsets.UTF_8))
     }
 

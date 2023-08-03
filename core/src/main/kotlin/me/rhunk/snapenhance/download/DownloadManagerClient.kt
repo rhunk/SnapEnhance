@@ -16,11 +16,16 @@ class DownloadManagerClient (
     private val metadata: DownloadMetadata,
     private val callback: DownloadCallback
 ) {
+    companion object {
+        const val DOWNLOAD_REQUEST_EXTRA = "request"
+        const val DOWNLOAD_METADATA_EXTRA = "metadata"
+    }
+
     private fun enqueueDownloadRequest(request: DownloadRequest) {
         context.bridgeClient.enqueueDownload(Intent().apply {
             putExtras(Bundle().apply {
-                putString(DownloadProcessor.DOWNLOAD_REQUEST_EXTRA, context.gson.toJson(request))
-                putString(DownloadProcessor.DOWNLOAD_METADATA_EXTRA, context.gson.toJson(metadata))
+                putString(DOWNLOAD_REQUEST_EXTRA, context.gson.toJson(request))
+                putString(DOWNLOAD_METADATA_EXTRA, context.gson.toJson(metadata))
             })
         }, callback)
     }

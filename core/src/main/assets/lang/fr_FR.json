@@ -1,4 +1,12 @@
 {
+    "setup": {
+        "dialogs": {
+            "select_language": "Selectionner une langue",
+            "save_folder": "Pour télécharger les médias Snapchat, vous devez choisir un emplacement de sauvegarde. Cela peut être modifié plus tard dans les paramètres de l'application.",
+            "select_save_folder_button": "Choisir un emplacement de sauvegarde"
+        }
+    },
+
     "category": {
         "spying_privacy": "Espionnage et vie privée",
         "media_manager": "Gestionnaire de média",

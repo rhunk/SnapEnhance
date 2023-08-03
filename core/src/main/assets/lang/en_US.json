@@ -1,4 +1,21 @@
 {
+    "setup": {
+        "dialogs": {
+            "select_language": "Select Language",
+            "save_folder": "For downloading snapchat media, you'll need to choose a save location. This can be changed later in the application settings.",
+            "select_save_folder_button": "Select Save Folder",
+            "mappings": "To support a wide range of versions, mappings need to be generated for the current snapchat version."
+        },
+        "mappings": {
+            "dialog": "To support a wide range of versions, mappings need to be generated for the current snapchat version.",
+            "snapchat_not_found": "Snapchat could not be found on your device. Please install Snapchat and try again.",
+            "snapchat_not_supported": "Snapchat is not supported. Please update Snapchat and try again.",
+            "generate_button": "Generate",
+            "generate_error": "An error occurred while generating mappings. Please try again.",
+            "generate_success": "Mappings generated successfully."
+        }
+    },
+
     "category": {
         "spying_privacy": "Spying & Privacy",
         "media_manager": "Media Manager",
