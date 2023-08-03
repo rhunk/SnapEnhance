@@ -14,6 +14,7 @@ import me.rhunk.snapenhance.features.impl.experiments.AppPasscode
 import me.rhunk.snapenhance.features.impl.experiments.DeviceSpooferHook
 import me.rhunk.snapenhance.features.impl.experiments.InfiniteStoryBoost
 import me.rhunk.snapenhance.features.impl.experiments.MeoPasscodeBypass
+import me.rhunk.snapenhance.features.impl.experiments.NoFriendScoreDelay
 import me.rhunk.snapenhance.features.impl.experiments.UnlimitedMultiSnap
 import me.rhunk.snapenhance.features.impl.privacy.DisableMetrics
 import me.rhunk.snapenhance.features.impl.privacy.PreventMessageSending
@@ -93,6 +94,7 @@ class FeatureManager(private val context: ModContext) : Manager {
         register(DeviceSpooferHook::class)
         register(StartupPageOverride::class)
         register(GooglePlayServicesDialogs::class)
+        register(NoFriendScoreDelay::class)
 
         initializeFeatures()
     }

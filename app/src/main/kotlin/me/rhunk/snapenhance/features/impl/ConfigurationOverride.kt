@@ -1,7 +1,6 @@
 package me.rhunk.snapenhance.features.impl
 
 import de.robv.android.xposed.XposedHelpers
-import me.rhunk.snapenhance.Logger
 import me.rhunk.snapenhance.config.ConfigProperty
 import me.rhunk.snapenhance.features.Feature
 import me.rhunk.snapenhance.features.FeatureLoadParams

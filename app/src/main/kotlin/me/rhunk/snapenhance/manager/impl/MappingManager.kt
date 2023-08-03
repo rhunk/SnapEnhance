@@ -20,6 +20,7 @@ import me.rhunk.snapmapper.impl.OperaPageViewControllerMapper
 import me.rhunk.snapmapper.impl.PlatformAnalyticsCreatorMapper
 import me.rhunk.snapmapper.impl.PlusSubscriptionMapper
 import me.rhunk.snapmapper.impl.ScCameraSettingsMapper
+import me.rhunk.snapmapper.impl.ScoreUpdateMapper
 import me.rhunk.snapmapper.impl.StoryBoostStateMapper
 import java.nio.charset.StandardCharsets
 import java.util.concurrent.ConcurrentHashMap
@@ -39,7 +40,8 @@ class MappingManager(private val context: ModContext) : Manager {
         ScCameraSettingsMapper::class,
         StoryBoostStateMapper::class,
         FriendsFeedEventDispatcherMapper::class,
-        CompositeConfigurationProviderMapper::class
+        CompositeConfigurationProviderMapper::class,
+        ScoreUpdateMapper::class
     )
 
     private val mappings = ConcurrentHashMap<String, Any>()

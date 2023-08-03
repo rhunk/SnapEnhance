@@ -223,6 +223,10 @@
             "name": "Unlimited Multi Snap",
             "description": "Allows you to take an unlimited amount of multi snaps"
         },
+        "no_friend_score_delay": {
+            "name": "No Friend Score Delay",
+            "description": "Removes the delay in displaying friends scores. It will be updated immediately when you open a profile page"
+        },
         "device_spoof": {
             "name": "Spoof Device Values",
             "description": "Spoofs the devices values"

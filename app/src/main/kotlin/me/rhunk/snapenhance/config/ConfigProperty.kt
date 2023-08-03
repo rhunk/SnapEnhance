@@ -386,7 +386,12 @@ enum class ConfigProperty(
         ConfigCategory.EXPERIMENTAL_DEBUGGING,
         ConfigStateValue(false)
     ),
-    
+    NO_FRIEND_SCORE_DELAY(
+        "no_friend_score_delay",
+        ConfigCategory.EXPERIMENTAL_DEBUGGING,
+        ConfigStateValue(false)
+    ),
+
     //DEVICE SPOOFER
     DEVICE_SPOOF(
         "device_spoof",
