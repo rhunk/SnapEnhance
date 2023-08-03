@@ -49,6 +49,7 @@ class CompositeConfigurationProviderMapper : AbstractClassMapper() {
                     "defaultValueField" to defaultValueField.name
                 )
             )
+            return
         }
     }
 }

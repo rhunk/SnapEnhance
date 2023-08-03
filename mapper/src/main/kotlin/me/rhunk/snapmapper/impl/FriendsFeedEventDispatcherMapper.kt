@@ -22,6 +22,7 @@ class FriendsFeedEventDispatcherMapper : AbstractClassMapper() {
                 "class" to clazz.getClassName(),
                 "viewModelField" to viewModelField
             )
+            return
         }
     }
 }
