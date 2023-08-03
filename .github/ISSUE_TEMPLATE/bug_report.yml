@@ -47,7 +47,6 @@ body:
       label: "Agreement"
       description: "By creating this issue, I agree to the following terms:"
       options:
-        - label: "I have read and understood the project's terms of service."
         - label: "I am using the latest stable SnapEnhance version."
         - label: "This is not a bug regarding Snapchat+."
         - label: "I have provided a detailed description of the issue."
