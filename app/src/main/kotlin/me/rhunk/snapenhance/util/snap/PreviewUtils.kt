@@ -8,7 +8,6 @@ import android.media.MediaDataSource
 import android.media.MediaMetadataRetriever
 import me.rhunk.snapenhance.data.FileType
 import java.io.File
-import kotlin.math.roundToInt
 
 object PreviewUtils {
     fun createPreview(data: ByteArray, isVideo: Boolean): Bitmap? {

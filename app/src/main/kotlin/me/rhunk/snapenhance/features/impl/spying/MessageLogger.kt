@@ -1,5 +1,6 @@
 package me.rhunk.snapenhance.features.impl.spying
 
+import android.os.DeadObjectException
 import com.google.gson.JsonObject
 import com.google.gson.JsonParser
 import me.rhunk.snapenhance.Logger
@@ -11,6 +12,7 @@ import me.rhunk.snapenhance.features.Feature
 import me.rhunk.snapenhance.features.FeatureLoadParams
 import me.rhunk.snapenhance.hook.HookStage
 import me.rhunk.snapenhance.hook.Hooker
+import java.util.concurrent.Executors
 import kotlin.time.ExperimentalTime
 import kotlin.time.measureTime
 
@@ -22,6 +24,8 @@ class MessageLogger : Feature("MessageLogger",
         const val PREFETCH_MESSAGE_COUNT = 20
         const val PREFETCH_FEED_COUNT = 20
     }
+
+    private val threadPool = Executors.newFixedThreadPool(10)
 
     //two level of cache to avoid querying the database
     private val fetchedMessages = mutableListOf<Long>()
@@ -59,7 +63,7 @@ class MessageLogger : Feature("MessageLogger",
 
         measureTime {
             context.database.getFriendFeed(PREFETCH_FEED_COUNT).forEach { friendFeedInfo ->
-                fetchedMessages.addAll(context.bridgeClient.getLoggedMessageIds(friendFeedInfo.key!!, PREFETCH_MESSAGE_COUNT))
+                fetchedMessages.addAll(context.bridgeClient.getLoggedMessageIds(friendFeedInfo.key!!, PREFETCH_MESSAGE_COUNT).toList())
             }
         }.also { Logger.debug("Loaded ${fetchedMessages.size} cached messages in $it") }
     }
@@ -79,11 +83,13 @@ class MessageLogger : Feature("MessageLogger",
             if (fetchedMessages.contains(messageId)) return
             fetchedMessages.add(messageId)
 
-            context.executeAsync {
-                context.bridgeClient.getMessageLoggerMessage(conversationId, messageId)?.let {
-                    return@executeAsync
-                }
-                context.bridgeClient.addMessageLoggerMessage(conversationId, messageId, context.gson.toJson(messageInstance).toByteArray(Charsets.UTF_8))
+            threadPool.execute {
+                try {
+                    context.bridgeClient.getMessageLoggerMessage(conversationId, messageId)?.let {
+                        return@execute
+                    }
+                    context.bridgeClient.addMessageLoggerMessage(conversationId, messageId, context.gson.toJson(messageInstance).toByteArray(Charsets.UTF_8))
+                } catch (ignored: DeadObjectException) {}
             }
 
             return

@@ -4,6 +4,7 @@ import me.rhunk.snapenhance.data.wrapper.AbstractWrapper
 import me.rhunk.snapenhance.util.getObjectField
 import me.rhunk.snapenhance.util.setObjectField
 
+@Suppress("UNCHECKED_CAST")
 class MessageDestinations(obj: Any) : AbstractWrapper(obj){
     var conversations get() = (instanceNonNull().getObjectField("mConversations") as ArrayList<*>).map { SnapUUID(it) }
         set(value) = instanceNonNull().setObjectField("mConversations", value.map { it.instanceNonNull() }.toCollection(ArrayList()))

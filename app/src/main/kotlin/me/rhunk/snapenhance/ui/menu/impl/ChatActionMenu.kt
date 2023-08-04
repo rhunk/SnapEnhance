@@ -7,13 +7,15 @@ import android.view.View
 import android.view.ViewGroup
 import android.view.ViewGroup.MarginLayoutParams
 import android.widget.Button
+import android.widget.LinearLayout
+import me.rhunk.snapenhance.Constants
 import me.rhunk.snapenhance.Constants.VIEW_INJECTED_CODE
 import me.rhunk.snapenhance.config.ConfigProperty
 import me.rhunk.snapenhance.features.impl.Messaging
 import me.rhunk.snapenhance.features.impl.downloader.MediaDownloader
 import me.rhunk.snapenhance.features.impl.spying.MessageLogger
+import me.rhunk.snapenhance.ui.ViewAppearanceHelper
 import me.rhunk.snapenhance.ui.menu.AbstractMenu
-import me.rhunk.snapenhance.ui.menu.ViewAppearanceHelper
 
 
 class ChatActionMenu : AbstractMenu() {
@@ -23,7 +25,7 @@ class ChatActionMenu : AbstractMenu() {
         return false
     }
 
-    @SuppressLint("SetTextI18n")
+    @SuppressLint("SetTextI18n", "DiscouragedApi")
     fun inject(viewGroup: ViewGroup) {
         val parent = viewGroup.parent.parent as ViewGroup
         if (wasInjectedView(parent)) return
@@ -41,17 +43,64 @@ class ChatActionMenu : AbstractMenu() {
             )
         }
 
+        val defaultGap = viewGroup.resources.getDimensionPixelSize(
+            viewGroup.resources.getIdentifier(
+                "default_gap",
+                "dimen",
+                Constants.SNAPCHAT_PACKAGE_NAME
+            )
+        )
+
+        val chatActionMenuItemMargin = viewGroup.resources.getDimensionPixelSize(
+            viewGroup.resources.getIdentifier(
+                "chat_action_menu_item_margin",
+                "dimen",
+                Constants.SNAPCHAT_PACKAGE_NAME
+            )
+        )
+
+        val actionMenuItemHeight = viewGroup.resources.getDimensionPixelSize(
+            viewGroup.resources.getIdentifier(
+                "action_menu_item_height",
+                "dimen",
+                Constants.SNAPCHAT_PACKAGE_NAME
+            )
+        )
+
+        val buttonContainer = LinearLayout(viewGroup.context).apply layout@{
+            orientation = LinearLayout.VERTICAL
+            layoutParams = MarginLayoutParams(
+                ViewGroup.LayoutParams.MATCH_PARENT,
+                ViewGroup.LayoutParams.WRAP_CONTENT
+            ).apply {
+                ViewAppearanceHelper.applyTheme(this@layout, parent.width, true)
+                setMargins(chatActionMenuItemMargin, 0, chatActionMenuItemMargin, defaultGap)
+            }
+        }
+
         val injectButton = { button: Button ->
-            ViewAppearanceHelper.applyTheme(button, parent.width, hasRadius = true)
+            if (buttonContainer.childCount > 0) {
+                buttonContainer.addView(View(viewGroup.context).apply {
+                    layoutParams = MarginLayoutParams(
+                        ViewGroup.LayoutParams.MATCH_PARENT,
+                        ViewGroup.LayoutParams.WRAP_CONTENT
+                    ).apply {
+                        height = 1
+                    }
+                    setBackgroundColor(0x1A000000)
+                })
+            }
+
+            ViewAppearanceHelper.applyTheme(button, parent.width, true)
 
             with(button) {
                 layoutParams = MarginLayoutParams(
                     ViewGroup.LayoutParams.MATCH_PARENT,
                     ViewGroup.LayoutParams.WRAP_CONTENT
                 ).apply {
-                    setMargins(40, 0, 40, 15)
+                    height = actionMenuItemHeight + defaultGap
                 }
-                parent.addView(this)
+                buttonContainer.addView(this)
             }
         }
 
@@ -91,5 +140,7 @@ class ChatActionMenu : AbstractMenu() {
                 }
             })
         }
+
+        parent.addView(buttonContainer)
     }
 }

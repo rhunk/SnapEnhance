@@ -2,45 +2,44 @@ package me.rhunk.snapenhance.manager.impl
 
 import android.app.AlertDialog
 import com.google.gson.JsonElement
-import com.google.gson.JsonObject
 import com.google.gson.JsonParser
-import kotlinx.coroutines.Job
-import kotlinx.coroutines.joinAll
-import kotlinx.coroutines.launch
-import kotlinx.coroutines.runBlocking
 import me.rhunk.snapenhance.Constants
 import me.rhunk.snapenhance.Logger
 import me.rhunk.snapenhance.ModContext
-import me.rhunk.snapenhance.R
-import me.rhunk.snapenhance.bridge.common.impl.file.BridgeFileType
+import me.rhunk.snapenhance.bridge.types.BridgeFileType
 import me.rhunk.snapenhance.manager.Manager
-import me.rhunk.snapenhance.mapping.Mapper
-import me.rhunk.snapenhance.mapping.impl.BCryptClassMapper
-import me.rhunk.snapenhance.mapping.impl.CallbackMapper
-import me.rhunk.snapenhance.mapping.impl.DefaultMediaItemMapper
-import me.rhunk.snapenhance.mapping.impl.EnumMapper
-import me.rhunk.snapenhance.mapping.impl.OperaPageViewControllerMapper
-import me.rhunk.snapenhance.mapping.impl.PlatformAnalyticsCreatorMapper
-import me.rhunk.snapenhance.mapping.impl.PlusSubscriptionMapper
-import me.rhunk.snapenhance.mapping.impl.ScCameraSettingsMapper
-import me.rhunk.snapenhance.mapping.impl.StoryBoostStateMapper
-import me.rhunk.snapenhance.util.getObjectField
+import me.rhunk.snapenhance.ui.ViewAppearanceHelper
+import me.rhunk.snapmapper.Mapper
+import me.rhunk.snapmapper.impl.BCryptClassMapper
+import me.rhunk.snapmapper.impl.CallbackMapper
+import me.rhunk.snapmapper.impl.DefaultMediaItemMapper
+import me.rhunk.snapmapper.impl.EnumMapper
+import me.rhunk.snapmapper.impl.FriendsFeedEventDispatcherMapper
+import me.rhunk.snapmapper.impl.MediaQualityLevelProviderMapper
+import me.rhunk.snapmapper.impl.OperaPageViewControllerMapper
+import me.rhunk.snapmapper.impl.PlatformAnalyticsCreatorMapper
+import me.rhunk.snapmapper.impl.PlusSubscriptionMapper
+import me.rhunk.snapmapper.impl.ScCameraSettingsMapper
+import me.rhunk.snapmapper.impl.StoryBoostStateMapper
 import java.nio.charset.StandardCharsets
 import java.util.concurrent.ConcurrentHashMap
+import kotlin.system.measureTimeMillis
 
 @Suppress("UNCHECKED_CAST")
 class MappingManager(private val context: ModContext) : Manager {
-    private val mappers = mutableListOf<Mapper>().apply {
-        add(CallbackMapper())
-        add(EnumMapper())
-        add(OperaPageViewControllerMapper())
-        add(PlusSubscriptionMapper())
-        add(DefaultMediaItemMapper())
-        add(BCryptClassMapper())
-        add(PlatformAnalyticsCreatorMapper())
-        add(ScCameraSettingsMapper())
-        add(StoryBoostStateMapper())
-    }
+    private val mappers = arrayOf(
+        BCryptClassMapper::class,
+        CallbackMapper::class,
+        DefaultMediaItemMapper::class,
+        MediaQualityLevelProviderMapper::class,
+        EnumMapper::class,
+        OperaPageViewControllerMapper::class,
+        PlatformAnalyticsCreatorMapper::class,
+        PlusSubscriptionMapper::class,
+        ScCameraSettingsMapper::class,
+        StoryBoostStateMapper::class,
+        FriendsFeedEventDispatcherMapper::class
+    )
 
     private val mappings = ConcurrentHashMap<String, Any>()
     val areMappingsLoaded: Boolean
@@ -69,7 +68,7 @@ class MappingManager(private val context: ModContext) : Manager {
             return
         }
         context.runOnUiThread {
-            val statusDialogBuilder = AlertDialog.Builder(context.mainActivity, AlertDialog.THEME_DEVICE_DEFAULT_DARK)
+            val statusDialogBuilder = ViewAppearanceHelper.newAlertDialogBuilder(context.mainActivity)
                 .setMessage("Generating mappings, please wait...")
                 .setCancelable(false)
                 .setView(android.widget.ProgressBar(context.mainActivity).apply {
@@ -127,70 +126,27 @@ class MappingManager(private val context: ModContext) : Manager {
         }
     }
 
-    private fun executeMappers(classes: List<Class<*>>) = runBlocking {
-        val jobs = mutableListOf<Job>()
-        mappers.forEach { mapper ->
-            mapper.context = context
-            launch {
-                runCatching {
-                    mapper.useClasses(context.androidContext.classLoader, classes, mappings)
-                }.onFailure {
-                    Logger.xposedLog("Failed to execute mapper ${mapper.javaClass.simpleName}", it)
-                }
-            }.also { jobs.add(it) }
-        }
-        jobs.joinAll()
-    }
-
-    @Suppress("UNCHECKED_CAST", "DEPRECATION")
+    @Suppress("DEPRECATION")
     private fun refresh() {
-        val classes: MutableList<Class<*>> = ArrayList()
+        val mapper = Mapper(*mappers)
 
-        val classLoader = context.androidContext.classLoader
-        val dexPathList = classLoader.getObjectField("pathList")!!
-        val dexElements = dexPathList.getObjectField("dexElements") as Array<Any>
-
-        dexElements.forEach { dexElement: Any ->
-            (dexElement.getObjectField("dexFile") as dalvik.system.DexFile?)?.apply {
-                entries().toList().forEach fileList@{ className ->
-                    //ignore classes without a dot in them
-                    if (className.contains(".") && !className.startsWith("com.snap")) return@fileList
-                    runCatching {
-                        classLoader.loadClass(className)?.let {
-                            //force load fields to avoid ClassNotFoundExceptions when executing mappers
-                            it.declaredFields
-                            classes.add(it)
-                        }
-                    }.onFailure {
-                        Logger.debug("Failed to load class $className")
-                    }
-                }
-            }
+        runCatching {
+            mapper.loadApk(context.androidContext.packageManager.getApplicationInfo(
+                Constants.SNAPCHAT_PACKAGE_NAME,
+                0
+            ).sourceDir)
+        }.onFailure {
+            throw Exception("Failed to load APK", it)
         }
 
-        executeMappers(classes)
-        write()
-    }
-
-    private fun write() {
-        val mappingsObject = JsonObject()
-        mappingsObject.addProperty("snap_build_number", snapBuildNumber)
-        mappings.forEach { (key, value) ->
-            if (value is List<*>) {
-                mappingsObject.add(key, context.gson.toJsonTree(value))
-                return@forEach
+        measureTimeMillis {
+            val result = mapper.start().apply {
+                addProperty("snap_build_number", snapBuildNumber)
             }
-            if (value is Map<*, *>) {
-                mappingsObject.add(key, context.gson.toJsonTree(value))
-                return@forEach
-            }
-            mappingsObject.addProperty(key, value.toString())
+            context.bridgeClient.writeFile(BridgeFileType.MAPPINGS, result.toString().toByteArray())
+        }.also {
+            Logger.xposedLog("Generated mappings in $it ms")
         }
-
-        context.bridgeClient.writeFile(
-            BridgeFileType.MAPPINGS,
-            mappingsObject.toString().toByteArray()
-        )
     }
 
     fun getMappedObject(key: String): Any {
@@ -198,6 +154,10 @@ class MappingManager(private val context: ModContext) : Manager {
             return mappings[key]!!
         }
         throw Exception("No mapping found for $key")
+    }
+
+    fun getMappedObjectNullable(key: String): Any? {
+        return mappings[key]
     }
 
     fun getMappedClass(className: String): Class<*> {

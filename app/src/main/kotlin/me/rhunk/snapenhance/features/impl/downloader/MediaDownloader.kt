@@ -1,6 +1,5 @@
 package me.rhunk.snapenhance.features.impl.downloader
 
-import android.app.AlertDialog
 import android.content.DialogInterface
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
@@ -9,10 +8,13 @@ import android.widget.ImageView
 import com.arthenica.ffmpegkit.FFmpegKit
 import kotlinx.coroutines.runBlocking
 import me.rhunk.snapenhance.Constants.ARROYO_URL_KEY_PROTO_PATH
+import me.rhunk.snapenhance.Logger
 import me.rhunk.snapenhance.Logger.xposedLog
+import me.rhunk.snapenhance.bridge.DownloadCallback
 import me.rhunk.snapenhance.config.ConfigProperty
 import me.rhunk.snapenhance.data.ContentType
 import me.rhunk.snapenhance.data.FileType
+import me.rhunk.snapenhance.data.wrapper.impl.SnapUUID
 import me.rhunk.snapenhance.data.wrapper.impl.media.MediaInfo
 import me.rhunk.snapenhance.data.wrapper.impl.media.dash.LongformVideoPlaylistItem
 import me.rhunk.snapenhance.data.wrapper.impl.media.dash.SnapPlaylistItem
@@ -20,6 +22,9 @@ import me.rhunk.snapenhance.data.wrapper.impl.media.opera.Layer
 import me.rhunk.snapenhance.data.wrapper.impl.media.opera.ParamMap
 import me.rhunk.snapenhance.database.objects.FriendInfo
 import me.rhunk.snapenhance.download.DownloadManagerClient
+import me.rhunk.snapenhance.download.data.DownloadMetadata
+import me.rhunk.snapenhance.download.data.InputMedia
+import me.rhunk.snapenhance.download.data.SplitMediaAssetType
 import me.rhunk.snapenhance.download.data.toKeyPair
 import me.rhunk.snapenhance.download.enums.DownloadMediaType
 import me.rhunk.snapenhance.features.Feature
@@ -29,6 +34,7 @@ import me.rhunk.snapenhance.features.impl.spying.MessageLogger
 import me.rhunk.snapenhance.hook.HookAdapter
 import me.rhunk.snapenhance.hook.HookStage
 import me.rhunk.snapenhance.hook.Hooker
+import me.rhunk.snapenhance.ui.ViewAppearanceHelper
 import me.rhunk.snapenhance.ui.download.MediaFilter
 import me.rhunk.snapenhance.util.download.RemoteMediaResolver
 import me.rhunk.snapenhance.util.getObjectField
@@ -36,20 +42,17 @@ import me.rhunk.snapenhance.util.protobuf.ProtoReader
 import me.rhunk.snapenhance.util.snap.BitmojiSelfie
 import me.rhunk.snapenhance.util.snap.EncryptionHelper
 import me.rhunk.snapenhance.util.snap.MediaDownloaderHelper
-import me.rhunk.snapenhance.util.snap.MediaType
 import me.rhunk.snapenhance.util.snap.PreviewUtils
-import java.io.File
 import java.nio.file.Paths
 import java.text.SimpleDateFormat
 import java.util.Locale
 import kotlin.coroutines.suspendCoroutine
 import kotlin.io.encoding.Base64
 import kotlin.io.encoding.ExperimentalEncodingApi
-import kotlin.io.path.inputStream
 
 @OptIn(ExperimentalEncodingApi::class)
 class MediaDownloader : Feature("MediaDownloader", loadParams = FeatureLoadParams.ACTIVITY_CREATE_ASYNC) {
-    private var lastSeenMediaInfoMap: MutableMap<MediaType, MediaInfo>? = null
+    private var lastSeenMediaInfoMap: MutableMap<SplitMediaAssetType, MediaInfo>? = null
     private var lastSeenMapParams: ParamMap? = null
     private val isFFmpegPresent by lazy {
         runCatching { FFmpegKit.execute("-version") }.isSuccess
@@ -70,22 +73,47 @@ class MediaDownloader : Feature("MediaDownloader", loadParams = FeatureLoadParam
             BitmojiSelfie.getBitmojiSelfie(it.bitmojiSelfieId!!, it.bitmojiAvatarId!!, BitmojiSelfie.BitmojiSelfieType.THREE_D)
         }
 
-        val outputPath = File(
-            context.config.string(ConfigProperty.SAVE_FOLDER),
-            createNewFilePath(generatedHash, mediaDisplayType, pathSuffix)
-        ).absolutePath
+        val downloadLogging = context.config.options(ConfigProperty.DOWNLOAD_LOGGING)
+        if (downloadLogging["started"] == true) {
+            context.shortToast(context.translation["download_processor.download_started_toast"])
+        }
+
+        val outputPath = createNewFilePath(generatedHash, mediaDisplayType, pathSuffix)
 
         return DownloadManagerClient(
             context = context,
-            mediaDisplaySource = mediaDisplaySource,
-            mediaDisplayType = mediaDisplayType,
-            iconUrl = iconUrl,
-            uniqueHash =
-            // If duplicate is allowed, we don't need to pass the hash
-            if (context.config.options(ConfigProperty.DOWNLOAD_OPTIONS)["allow_duplicate"] == false) {
-                generatedHash
-            } else null,
-            outputPath = outputPath
+            metadata = DownloadMetadata(
+                mediaIdentifier = if (context.config.options(ConfigProperty.DOWNLOAD_OPTIONS)["allow_duplicate"] == false) {
+                    generatedHash
+                } else null,
+                mediaDisplaySource = mediaDisplaySource,
+                mediaDisplayType = mediaDisplayType,
+                iconUrl = iconUrl,
+                outputPath = outputPath
+            ),
+            callback = object: DownloadCallback.Stub() {
+                override fun onSuccess(outputFile: String) {
+                    if (downloadLogging["success"] != true) return
+                    Logger.debug("onSuccess: outputFile=$outputFile")
+                    context.shortToast(context.translation.format("download_processor.saved_toast", "path" to outputFile.split("/").takeLast(2).joinToString("/")))
+                }
+
+                override fun onProgress(message: String) {
+                    if (downloadLogging["progress"] != true) return
+                    Logger.debug("onProgress: message=$message")
+                    context.shortToast(message)
+                }
+
+                override fun onFailure(message: String, throwable: String?) {
+                    if (downloadLogging["failure"] != true) return
+                    Logger.debug("onFailure: message=$message, throwable=$throwable")
+                    throwable?.let {
+                        context.longToast((message + it.takeIf { it.isNotEmpty() }.orEmpty()))
+                        return
+                    }
+                    context.shortToast(message)
+                }
+            }
         )
     }
 
@@ -162,28 +190,31 @@ class MediaDownloader : Feature("MediaDownloader", loadParams = FeatureLoadParam
         }
     }
 
-    private fun downloadOperaMedia(downloadManagerClient: DownloadManagerClient, mediaInfoMap: Map<MediaType, MediaInfo>) {
+    private fun downloadOperaMedia(downloadManagerClient: DownloadManagerClient, mediaInfoMap: Map<SplitMediaAssetType, MediaInfo>) {
         if (mediaInfoMap.isEmpty()) return
 
-        val originalMediaInfo = mediaInfoMap[MediaType.ORIGINAL]!!
-        val overlay = mediaInfoMap[MediaType.OVERLAY]
-
+        val originalMediaInfo = mediaInfoMap[SplitMediaAssetType.ORIGINAL]!!
         val originalMediaInfoReference = handleLocalReferences(originalMediaInfo.uri)
-        val overlayReference = overlay?.let { handleLocalReferences(it.uri) }
 
-        overlay?.let {
+        mediaInfoMap[SplitMediaAssetType.OVERLAY]?.let { overlay ->
+            val overlayReference = handleLocalReferences(overlay.uri)
+
             downloadManagerClient.downloadMediaWithOverlay(
-                originalMediaInfoReference,
-                overlayReference!!,
-                DownloadMediaType.fromUri(Uri.parse(originalMediaInfoReference)),
-                DownloadMediaType.fromUri(Uri.parse(overlayReference)),
-                videoEncryption = originalMediaInfo.encryption?.toKeyPair(),
-                overlayEncryption = overlay.encryption?.toKeyPair()
+                original = InputMedia(
+                    originalMediaInfoReference,
+                    DownloadMediaType.fromUri(Uri.parse(originalMediaInfoReference)),
+                    originalMediaInfo.encryption?.toKeyPair()
+                ),
+                overlay = InputMedia(
+                    overlayReference,
+                    DownloadMediaType.fromUri(Uri.parse(overlayReference)),
+                    overlay.encryption?.toKeyPair()
+                )
             )
             return
         }
 
-        downloadManagerClient.downloadMedia(
+        downloadManagerClient.downloadSingleMedia(
             originalMediaInfoReference,
             DownloadMediaType.fromUri(Uri.parse(originalMediaInfoReference)),
             originalMediaInfo.encryption?.toKeyPair()
@@ -199,7 +230,7 @@ class MediaDownloader : Feature("MediaDownloader", loadParams = FeatureLoadParam
      */
     private fun handleOperaMedia(
         paramMap: ParamMap,
-        mediaInfoMap: Map<MediaType, MediaInfo>,
+        mediaInfoMap: Map<SplitMediaAssetType, MediaInfo>,
         forceDownload: Boolean
     ) {
         //messages
@@ -229,14 +260,32 @@ class MediaDownloader : Feature("MediaDownloader", loadParams = FeatureLoadParam
         }
 
         //private stories
-        paramMap["PLAYLIST_V2_GROUP"]?.toString()?.takeIf {
-            it.contains("storyUserId=") && (forceDownload || canAutoDownload("friend_stories"))
+        paramMap["PLAYLIST_V2_GROUP"]?.takeIf {
+            forceDownload || canAutoDownload("friend_stories")
         }?.let { playlistGroup ->
-            val storyUserId = (playlistGroup.indexOf("storyUserId=") + 12).let {
-                playlistGroup.substring(it, playlistGroup.indexOf(",", it))
+            val playlistGroupString = playlistGroup.toString()
+
+            val storyUserId = if (playlistGroupString.contains("storyUserId=")) {
+                (playlistGroupString.indexOf("storyUserId=") + 12).let {
+                    playlistGroupString.substring(it, playlistGroupString.indexOf(",", it))
+                }
+            } else {
+                //story replies
+                val arroyoMessageId = playlistGroup::class.java.methods.firstOrNull { it.name == "getId" }
+                    ?.invoke(playlistGroup)?.toString()
+                    ?.split(":")?.getOrNull(2) ?: return@let
+
+                val conversationMessage = context.database.getConversationMessageFromId(arroyoMessageId.toLong()) ?: return@let
+                val conversationParticipants = context.database.getConversationParticipants(conversationMessage.client_conversation_id.toString()) ?: return@let
+
+                conversationParticipants.firstOrNull { it != conversationMessage.sender_id }
             }
 
-            val author = context.database.getFriendInfo(if (storyUserId == "null") context.database.getMyUserId()!! else storyUserId) ?: return
+            val author = context.database.getFriendInfo(
+                if (storyUserId == null || storyUserId == "null")
+                    context.database.getMyUserId()!!
+                else storyUserId
+            ) ?: throw Exception("Friend not found in database")
             val authorName = author.usernameForSorting!!
 
             downloadOperaMedia(provideClientDownloadManager(
@@ -333,7 +382,7 @@ class MediaDownloader : Feature("MediaDownloader", loadParams = FeatureLoadParam
     }
 
     override fun asyncOnActivityCreate() {
-        val operaViewerControllerClass: Class<*> = context.mappings.getMappedClass("OperaPageViewController", "Class")
+        val operaViewerControllerClass: Class<*> = context.mappings.getMappedClass("OperaPageViewController", "class")
 
         val onOperaViewStateCallback: (HookAdapter) -> Unit = onOperaViewStateCallback@{ param ->
 
@@ -347,13 +396,13 @@ class MediaDownloader : Feature("MediaDownloader", loadParams = FeatureLoadParam
             if (!mediaParamMap.containsKey("image_media_info") && !mediaParamMap.containsKey("video_media_info_list"))
                 return@onOperaViewStateCallback
 
-            val mediaInfoMap = mutableMapOf<MediaType, MediaInfo>()
+            val mediaInfoMap = mutableMapOf<SplitMediaAssetType, MediaInfo>()
             val isVideo = mediaParamMap.containsKey("video_media_info_list")
-            mediaInfoMap[MediaType.ORIGINAL] = MediaInfo(
+            mediaInfoMap[SplitMediaAssetType.ORIGINAL] = MediaInfo(
                 (if (isVideo) mediaParamMap["video_media_info_list"] else mediaParamMap["image_media_info"])!!
             )
             if (canMergeOverlay() && mediaParamMap.containsKey("overlay_image_media_info")) {
-                mediaInfoMap[MediaType.OVERLAY] =
+                mediaInfoMap[SplitMediaAssetType.OVERLAY] =
                     MediaInfo(mediaParamMap["overlay_image_media_info"]!!)
             }
             lastSeenMapParams = mediaParamMap
@@ -371,7 +420,7 @@ class MediaDownloader : Feature("MediaDownloader", loadParams = FeatureLoadParam
             }
         }
 
-        arrayOf("onDisplayStateChange", "onDisplayStateChange2").forEach { methodName ->
+        arrayOf("onDisplayStateChange", "onDisplayStateChangeGesture").forEach { methodName ->
             Hooker.hook(
                 operaViewerControllerClass,
                 context.mappings.getMappedValue("OperaPageViewController", methodName),
@@ -380,20 +429,12 @@ class MediaDownloader : Feature("MediaDownloader", loadParams = FeatureLoadParam
         }
     }
 
-    /**
-     * Called when a message is focused in chat
-     */
-    //TODO: use snapchat classes instead of database (when content is deleted)
-    fun onMessageActionMenu(isPreviewMode: Boolean) {
-        //check if the message was focused in a conversation
-        val messaging = context.feature(Messaging::class)
+    fun downloadMessageId(messageId: Long, isPreview: Boolean = false) {
         val messageLogger = context.feature(MessageLogger::class)
-
-        if (messaging.openedConversationUUID == null) return
-        val message = context.database.getConversationMessageFromId(messaging.lastFocusedMessageId) ?: return
+        val message = context.database.getConversationMessageFromId(messageId) ?: throw Exception("Message not found in database")
 
         //get the message author
-        val friendInfo: FriendInfo = context.database.getFriendInfo(message.sender_id!!)!!
+        val friendInfo: FriendInfo = context.database.getFriendInfo(message.sender_id!!) ?: throw Exception("Friend not found in database")
         val authorName = friendInfo.usernameForSorting!!
 
         var messageContent = message.message_content!!
@@ -425,10 +466,12 @@ class MediaDownloader : Feature("MediaDownloader", loadParams = FeatureLoadParam
                 }
         }
 
+        val translations = context.translation.getCategory("download_processor")
+
         if (contentType != ContentType.NOTE &&
             contentType != ContentType.SNAP &&
             contentType != ContentType.EXTERNAL_MEDIA) {
-            context.shortToast("Unsupported content type $contentType")
+            context.shortToast(translations["unsupported_content_type_toast"])
             return
         }
 
@@ -440,7 +483,7 @@ class MediaDownloader : Feature("MediaDownloader", loadParams = FeatureLoadParam
         }
 
         runCatching {
-            if (!isPreviewMode) {
+            if (!isPreview) {
                 val encryptionKeys = EncryptionHelper.getEncryptionKeys(contentType, messageReader, isArroyo = isArroyoMessage)
                 provideClientDownloadManager(
                     pathSuffix = authorName,
@@ -448,11 +491,16 @@ class MediaDownloader : Feature("MediaDownloader", loadParams = FeatureLoadParam
                     mediaDisplaySource = authorName,
                     mediaDisplayType = MediaFilter.CHAT_MEDIA.mediaDisplayType,
                     friendInfo = friendInfo
-                ).downloadMedia(
+                ).downloadSingleMedia(
                     Base64.UrlSafe.encode(urlProto),
                     DownloadMediaType.PROTO_MEDIA,
                     encryption = encryptionKeys?.toKeyPair()
                 )
+                return
+            }
+
+            if (EncryptionHelper.getEncryptionKeys(contentType, messageReader, isArroyo = isArroyoMessage) == null) {
+                context.shortToast(translations["failed_no_longer_available_toast"])
                 return
             }
 
@@ -461,13 +509,13 @@ class MediaDownloader : Feature("MediaDownloader", loadParams = FeatureLoadParam
             }
 
             runCatching {
-                val originalMedia = downloadedMediaList[MediaType.ORIGINAL] ?: return
-                val overlay = downloadedMediaList[MediaType.OVERLAY]
+                val originalMedia = downloadedMediaList[SplitMediaAssetType.ORIGINAL] ?: return
+                val overlay = downloadedMediaList[SplitMediaAssetType.OVERLAY]
 
                 var bitmap: Bitmap? = PreviewUtils.createPreview(originalMedia, isVideo = FileType.fromByteArray(originalMedia).isVideo)
 
                 if (bitmap == null) {
-                    context.shortToast("Failed to create preview")
+                    context.shortToast(translations["failed_to_create_preview_toast"])
                     return
                 }
 
@@ -475,21 +523,29 @@ class MediaDownloader : Feature("MediaDownloader", loadParams = FeatureLoadParam
                     bitmap = PreviewUtils.mergeBitmapOverlay(bitmap!!, BitmapFactory.decodeByteArray(it, 0, it.size))
                 }
 
-                with(AlertDialog.Builder(context.mainActivity)) {
-                    setTitle("Preview")
+                with(ViewAppearanceHelper.newAlertDialogBuilder(context.mainActivity)) {
                     setView(ImageView(context).apply {
                         setImageBitmap(bitmap)
                     })
                     setPositiveButton("Close") { dialog: DialogInterface, _: Int -> dialog.dismiss() }
-                    this@MediaDownloader.context.runOnUiThread { show() }
+                    this@MediaDownloader.context.runOnUiThread { show()}
                 }
             }.onFailure {
-                context.shortToast("Failed to create preview: $it")
+                context.shortToast(translations["failed_to_create_preview_toast"])
                 xposedLog(it)
             }
         }.onFailure {
-            context.longToast("Failed to download " + it.message)
+            context.longToast(translations["failed_generic_toast"])
             xposedLog(it)
         }
+    }
+
+    /**
+     * Called when a message is focused in chat
+     */
+    fun onMessageActionMenu(isPreviewMode: Boolean) {
+        val messaging = context.feature(Messaging::class)
+        if (messaging.openedConversationUUID == null) return
+        downloadMessageId(messaging.lastFocusedMessageId, isPreviewMode)
     }
 }

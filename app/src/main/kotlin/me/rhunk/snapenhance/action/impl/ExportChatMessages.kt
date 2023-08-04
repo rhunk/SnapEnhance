@@ -19,6 +19,7 @@ import me.rhunk.snapenhance.data.wrapper.impl.Message
 import me.rhunk.snapenhance.data.wrapper.impl.SnapUUID
 import me.rhunk.snapenhance.database.objects.FriendFeedInfo
 import me.rhunk.snapenhance.features.impl.Messaging
+import me.rhunk.snapenhance.ui.ViewAppearanceHelper
 import me.rhunk.snapenhance.util.CallbackBuilder
 import me.rhunk.snapenhance.util.export.ExportFormat
 import me.rhunk.snapenhance.util.export.MessageExporter
@@ -61,7 +62,7 @@ class ExportChatMessages : AbstractAction("action.export_chat_messages") {
 
     private suspend fun askExportType() = suspendCancellableCoroutine { cont ->
         context.runOnUiThread {
-            AlertDialog.Builder(context.mainActivity)
+            ViewAppearanceHelper.newAlertDialogBuilder(context.mainActivity)
                 .setTitle(context.translation["chat_export.select_export_format"])
                 .setItems(ExportFormat.values().map { it.name }.toTypedArray()) { _, which ->
                     cont.resumeWith(Result.success(ExportFormat.values()[which]))
@@ -82,7 +83,7 @@ class ExportChatMessages : AbstractAction("action.export_chat_messages") {
                 ContentType.NOTE,
                 ContentType.STICKER
             )
-            AlertDialog.Builder(context.mainActivity)
+            ViewAppearanceHelper.newAlertDialogBuilder(context.mainActivity)
                 .setTitle(context.translation["chat_export.select_media_type"])
                 .setMultiChoiceItems(contentTypes.map { it.name }.toTypedArray(), BooleanArray(contentTypes.size) { false }) { _, which, isChecked ->
                     val media = contentTypes[which]
@@ -110,7 +111,7 @@ class ExportChatMessages : AbstractAction("action.export_chat_messages") {
             val friendFeedEntries = context.database.getFriendFeed(20)
             val selectedConversations = mutableListOf<FriendFeedInfo>()
 
-            AlertDialog.Builder(context.mainActivity)
+            ViewAppearanceHelper.newAlertDialogBuilder(context.mainActivity)
                 .setTitle(context.translation["chat_export.select_conversation"])
                 .setMultiChoiceItems(
                     friendFeedEntries.map { it.feedDisplayName ?: it.friendDisplayName!!.split("|").firstOrNull() }.toTypedArray(),
@@ -248,7 +249,7 @@ class ExportChatMessages : AbstractAction("action.export_chat_messages") {
         dialogLogs.clear()
         val jobs = mutableListOf<Job>()
 
-        currentActionDialog = AlertDialog.Builder(context.mainActivity)
+        currentActionDialog = ViewAppearanceHelper.newAlertDialogBuilder(context.mainActivity)
             .setTitle(context.translation["chat_export.exporting_chats"])
             .setCancelable(false)
             .setMessage("")

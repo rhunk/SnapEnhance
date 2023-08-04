@@ -28,14 +28,6 @@ class MenuViewInjector : Feature("MenuViewInjector", loadParams = FeatureLoadPar
         context.resources.getString(context.resources.getIdentifier("new_chat", "string", Constants.SNAPCHAT_PACKAGE_NAME))
     }
 
-    private val fetchConversationHooks = mutableSetOf<Unhook>()
-
-    private fun unhookFetchConversation() {
-        fetchConversationHooks.let {
-            it.removeIf { hook -> hook.unhook() ; true}
-        }
-    }
-
     @SuppressLint("ResourceType")
     override fun asyncOnActivityCreate() {
         friendFeedInfoMenu.context = context
@@ -86,19 +78,25 @@ class MenuViewInjector : Feature("MenuViewInjector", loadParams = FeatureLoadPar
             }
 
             //TODO: inject in group chat menus
-            if (viewGroup.id == actionSheetContainer && childView.id == actionMenu) {
+            if (viewGroup.id == actionSheetContainer && childView.id == actionMenu && messaging.lastFetchGroupConversationUUID != null) {
                 val injectedLayout = LinearLayout(childView.context).apply {
                     orientation = LinearLayout.VERTICAL
                     gravity = Gravity.BOTTOM
                     layoutParams = ViewGroup.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT)
                     addView(childView)
+                    addOnAttachStateChangeListener(object: View.OnAttachStateChangeListener {
+                        override fun onViewAttachedToWindow(v: View) {}
+                        override fun onViewDetachedFromWindow(v: View) {
+                            messaging.lastFetchGroupConversationUUID = null
+                        }
+                    })
                 }
 
-                fun injectView() {
-                    val viewList = mutableListOf<View>()
+                val viewList = mutableListOf<View>()
+                context.runOnUiThread {
                     friendFeedInfoMenu.inject(injectedLayout) { view ->
                         view.layoutParams = LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT).apply {
-                            setMargins(0, 10, 0, 10)
+                            setMargins(0, 3, 0, 3)
                         }
                         viewList.add(view)
                     }
