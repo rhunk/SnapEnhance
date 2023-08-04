@@ -1,0 +1,447 @@
+{
+    "category": {
+        "spying_privacy": "Kémkedés & Adatvédelem",
+        "media_manager": "Médiakezelő",
+        "ui_tweaks": "Felhasználói felület és Módosítások",
+        "camera": "Kamera",
+        "updates": "Frissítések",
+        "experimental_debugging": "Kísérleti"
+    },
+    "action": {
+        "clean_cache": "Gyorsítótár Törlése",
+        "clear_message_logger": "Üzenetnapló Törlése",
+        "refresh_mappings": "Hozzárendelések frissítése",
+        "open_map": "Válassz egy helyet a térképen",
+        "check_for_updates": "Frissítések keresése",
+        "export_chat_messages": "Chat üzenetek exportálása"
+    },
+    "property": {
+        "message_logger": {
+            "name": "Üzenetnapló",
+            "description": "Megakadályozza az üzenetek törlését"
+        },
+        "prevent_read_receipts": {
+            "name": "Olvasási Visszaigazolások Megakadályozása",
+            "description": "Megakadályozhatja, hogy bárki megtudja, hogy megnyitottad a Snapjeiket"
+        },
+        "hide_bitmoji_presence": {
+            "name": "Bitmojik elrejtése",
+            "description": "Elrejti a Bitmojidat a beszélgetésből"
+        },
+        "better_notifications": {
+            "name": "Jobb Értesítések",
+            "description": "Több információt mutat az értesítésekben"
+        },
+        "notification_blacklist": {
+            "name": "Értesítési Tiltólista",
+            "description": "Elrejti a kiválasztott típusú értesítéseket"
+        },
+        "disable_metrics": {
+            "name": "Mérések letiltása",
+            "description": "Letiltja a Snapchatnek küldött adatokat"
+        },
+        "block_ads": {
+            "name": "Hirdetések Blokkolása",
+            "description": "Letiltja a megjelenő hirdetéseket"
+        },
+        "unlimited_snap_view_time": {
+            "name": "Korlátlan Snap Megtekintés",
+            "description": "Eltávolítja a Snap megtekintési időkorlátot"
+        },
+        "prevent_sending_messages": {
+            "name": "Üzenetek Küldésének Megakadályozása",
+            "description": "Megakadályozza bizonyos típusú üzenenetek küldését"
+        },
+        "anonymous_story_view": {
+            "name": "Anonim Story nézés",
+            "description": "Megakadályozza, hogy megtudják, hogy láttad a történetüket"
+        },
+        "hide_typing_notification": {
+            "name": "Gépelési értesítés elrejtése",
+            "description": "Megakadályozza a gépelési értesítések küldését"
+        },
+        "save_folder": {
+            "name": "Letöltések mappa",
+            "description": "A mappa, ahová az összes médiát lemented"
+        },
+        "auto_download_options": {
+            "name": "Automatikus letöltési beállítások",
+            "description": "Válaszd ki az automatikusan letölthető médiákat"
+        },
+        "download_options": {
+            "name": "Letöltési beállítások",
+            "description": "A fájl elérési útvonal formátumának megadása"
+        },
+        "chat_download_context_menu": {
+            "name": "Chat letöltés kontextusmenü",
+            "description": "A chat letöltés kontextusmenüjének engedélyezése"
+        },
+        "gallery_media_send_override": {
+            "name": "Galéria Média küldés felülbírálása",
+            "description": "A galériából küldött média felülírása"
+        },
+        "auto_save_messages": {
+            "name": "Üzenetek automatikus mentése",
+            "description": "Válaszd ki az automatikusan mentendő üzenetek típusát"
+        },
+        "force_media_source_quality": {
+            "name": "Médiaforrás minőségének kikényszerítése",
+            "description": "Felülírja a médiaforrás minőségét"
+        },
+        "download_logging": {
+            "name": "Napló letöltése",
+            "description": "Felugró buborék mutatása média letöltésekor"
+        },
+        "enable_friend_feed_menu_bar": {
+            "name": "Barát beállítások menüsor",
+            "description": "Engedélyezi az új barát beállítások menüsort"
+        },
+        "friend_feed_menu_buttons": {
+            "name": "Barát beállítások menü gombok",
+            "description": "Válaszd ki, hogy mely gombok jelenjenek meg a barát beállítások menüsorban"
+        },
+        "friend_feed_menu_buttons_position": {
+            "name": "Barát beállítások pozíciójának indexe",
+            "description": "A barát beállítások menügombok pozíciója"
+        },
+        "hide_ui_elements": {
+            "name": "UI Elemek elrejtése",
+            "description": "Válaszd ki, mely UI-elemeket szeretnéd elrejteni"
+        },
+        "hide_story_section": {
+            "name": "Sztori rész elrejtése",
+            "description": "Bizonyos UI-elemek elrejtése a történet szekcióban"
+        },
+        "story_viewer_override": {
+            "name": "Történet megtekintő felülírása",
+            "description": "Bekapcsol bizonyos funkciókat, amelyeket a Snapchat elrejtett"
+        },
+        "streak_expiration_info": {
+            "name": "Mutassa a streak lejárati adatait",
+            "description": "Megjeleníti a streak lejárati adatait a streak-ek mellett"
+        },
+        "disable_snap_splitting": {
+            "name": "Snap osztás kikapcsolása",
+            "description": "Megakadályozza a Snapek több részre osztását"
+        },
+        "disable_video_length_restriction": {
+            "name": "Videóhossz-korlátozás letiltása",
+            "description": "Letiltja a videó hosszára vonatkozó korlátozásokat"
+        },
+        "snapchat_plus": {
+            "name": "Snapchat Plusz",
+            "description": "Engedélyezi a Snapchat Plusz funkciókat"
+        },
+        "new_map_ui": {
+            "name": "Új térkép UI",
+            "description": "Engedélyezi a térkép új UI"
+        },
+        "location_spoof": {
+            "name": "Snapmap helymeghatározás átállító",
+            "description": "Meghamisítja az tartózkodási helyed a Snapmap-en"
+        },
+        "message_preview_length": {
+            "name": "Üzenet előnézet hossza",
+            "description": "Az előnézetben megjelenítendő üzenetek mennyiségének megadása"
+        },
+        "unlimited_conversation_pinning": {
+            "name": "Korlátlan beszélgetés kitűzés",
+            "description": "Lehetővé teszi korlátlan számú beszélgetés kitűzését"
+        },
+        "disable_spotlight": {
+            "name": "Spotlight letiltása",
+            "description": "Letiltja a Spotlight oldalt"
+        },
+        "enable_app_appearance": {
+            "name": "Az alkalmazás megjelenési beállításainak engedélyezése",
+            "description": "Engedélyezi a rejtett alkalmazás megjelenési beállításait"
+        },
+        "startup_page_override": {
+            "name": "Kezdőoldal felülírása",
+            "description": "Felülírja az indítóoldalt"
+        },
+        "disable_google_play_dialogs": {
+            "name": "A Google Play Szolgáltatások Párbeszédablakainak Letiltása",
+            "description": "Elrejti a Google Play Szolgáltatások elérhetőségére vonatkozó párbeszédablakokat"
+        },
+        "auto_updater": {
+            "name": "Automatikus frissítő",
+            "description": "A frissítések ellenőrzésének időintervalluma"
+        },
+        "disable_camera": {
+            "name": "Kamera letiltása",
+            "description": "Megakadályozza, hogy a Snapchat használhassa a kamerát"
+        },
+        "immersive_camera_preview": {
+            "name": "Merev kamera előnézet",
+            "description": "Megakadályozza, hogy a Snapchat levágja a kamera előnézetét"
+        },
+        "preview_resolution": {
+            "name": "Előnézet Felbontás",
+            "description": "Felülírja a kamera előnézeti felbontását"
+        },
+        "picture_resolution": {
+            "name": "Képfelbontás",
+            "description": "Felülírja a képfelbontást"
+        },
+        "force_highest_frame_rate": {
+            "name": "Legmagasabb képkocka sebesség kikényszerítése",
+            "description": "A lehető legmagasabb képkocka sebességet kényszeríti ki"
+        },
+        "force_camera_source_encoding": {
+            "name": "Kamera forráskódolás kikényszerítése",
+            "description": "Kényszeríti a kamera forráskódolását"
+        },
+        "app_passcode": {
+            "name": "App jelszó beállítása",
+            "description": "Beállít egy jelszót az alkalmazás zárolásához"
+        },
+        "app_lock_on_resume": {
+            "name": "Alkalmazás zárolása folytatáskor",
+            "description": "Zárolja az alkalmazást az újbóli megnyitásakor"
+        },
+        "infinite_story_boost": {
+            "name": "Végtelen történet Boost",
+            "description": "Végtelenül feldobja a történetedet"
+        },
+        "meo_passcode_bypass": {
+            "name": "My Eyes Only jelszó megkerülése",
+            "description": "A My Eyes Only jelszó megkerülése\nEz csak akkor működik, ha a jelszót korábban helyesen adta meg"
+        },
+        "amoled_dark_mode": {
+            "name": "AMOLED Sötét mód",
+            "description": "Engedélyezi az AMOLED sötét üzemmódot\nGyőződj meg róla, hogy a Snapchat sötét módja engedélyezve van"
+        },
+        "unlimited_multi_snap": {
+            "name": "Korlátlan Multi Snap",
+            "description": "Lehetővé teszi, hogy korlátlan számú többszörös pillanatfelvételt készítsen"
+        },
+        "device_spoof": {
+            "name": "Eszközértékek hamisítása",
+            "description": "Meghamisítja az eszközök értékeit"
+        },
+        "device_fingerprint": {
+            "name": "Eszköz Ujjlenyomata",
+            "description": "Eszköz ujjlenyomatának meghamisítása"
+        },
+        "android_id": {
+            "name": "Android Azonosítója",
+            "description": "Meghamísítja az eszköz Android Azonosítóját"
+        }
+    },
+    "option": {
+        "property": {
+            "better_notifications": {
+                "chat": "Chat-üzenetek megjelenítése",
+                "snap": "Média megjelenítése",
+                "reply_button": "Válasz gomb hozzáadása",
+                "download_button": "Letöltés gomb hozzáadása"
+            },
+            "friend_feed_menu_buttons": {
+                "auto_download_blacklist": "⬇️ Automatikus letöltési kivételek",
+                "anti_auto_save": "💬 Ne mentse le automatikusan az üzeneteket",
+                "stealth_mode": "👻 Lopakodó üzemmód",
+                "conversation_info": "👤 Beszélgetés információk"
+            },
+            "download_options": {
+                "allow_duplicate": "Duplikált letöltések engedélyezése",
+                "create_user_folder": "Mappa létrehozása minden felhasználó számára",
+                "append_hash": "Egyedi hash hozzáadása a fájlnévhez",
+                "append_username": "Felhasználónév hozzáadása a fájl nevéhez",
+                "append_date_time": "Dátum és idő hozzáadása a fájl nevéhez",
+                "append_type": "Média típusa hozzáadása a fájl nevéhez",
+                "merge_overlay": "Snap képfelületek összevonása"
+            },
+            "auto_download_options": {
+                "friend_snaps": "Barát Snap-ek",
+                "friend_stories": "Barát történetek",
+                "public_stories": "Nyilvános történeket",
+                "spotlight": "Spotlight"
+            },
+            "download_logging": {
+                "started": "Elkezdődött",
+                "success": "Sikeres",
+                "progress": "Folyamat",
+                "failure": "Sikertelen"
+            },
+            "auto_save_messages": {
+                "NOTE": "Hangüzenet",
+                "CHAT": "Üzenet",
+                "EXTERNAL_MEDIA": "Külső média",
+                "SNAP": "Snap",
+                "STICKER": "Matrica"
+            },
+            "notifications": {
+                "chat_screenshot": "Képernyőkép",
+                "chat_screen_record": "Képernyőfelvétel",
+                "camera_roll_save": "Camera Roll mentése",
+                "chat": "Üzenet",
+                "chat_reply": "Chat Válasz",
+                "snap": "Snap",
+                "typing": "Gépelés",
+                "stories": "Történetek",
+                "initiate_audio": "Bejövő Hanghívás",
+                "abandon_audio": "Nem Fogadott Hanghívás",
+                "initiate_video": "Bejövő Videohívás",
+                "abandon_video": "Nem Fogadott Videohívás"
+            },
+            "gallery_media_send_override": {
+                "ORIGINAL": "Eredeti",
+                "NOTE": "Hangüzenet",
+                "SNAP": "Snap",
+                "LIVE_SNAP": "Snap hanggal"
+            },
+            "hide_ui_elements": {
+                "remove_call_buttons": "Hívás gombok eltávolítása",
+                "remove_cognac_button": "Cognac gomb eltávolítása",
+                "remove_live_location_share_button": "Élő helymegosztó gomb eltávolítása",
+                "remove_stickers_button": "Matricák eltávolítása gomb",
+                "remove_voice_record_button": "Hangfelvétel gomb eltávolítása",
+                "remove_camera_borders": "Kamerakeret eltávolítása"
+            },
+            "auto_updater": {
+                "DISABLED": "Kikapcsolva",
+                "EVERY_LAUNCH": "Minden indításnál",
+                "DAILY": "Naponta",
+                "WEEKLY": "Hetente"
+            },
+            "story_viewer_override": {
+                "OFF": "Ki",
+                "DISCOVER_PLAYBACK_SEEKBAR": "A lejátszás felfedezésének engedélyezése",
+                "VERTICAL_STORY_VIEWER": "Függőleges történetnézegető engedélyezése"
+            },
+            "hide_story_section": {
+                "hide_friend_suggestions": "Barátjavaslatok elrejtése",
+                "hide_friends": "Barátok szekció elrejtése",
+                "hide_following": "Követések szakasz elrejtése",
+                "hide_for_you": "Neked szakasz elrejtése"
+            },
+            "startup_page_override": {
+                "OFF": "Ki",
+                "ngs_map_icon_container": "Térkép",
+                "ngs_chat_icon_container": "Üzenetek",
+                "ngs_camera_icon_container": "Kamera",
+                "ngs_community_icon_container": "Közösség / Történetek",
+                "ngs_spotlight_icon_container": "Spotlight",
+                "ngs_search_icon_container": "Keresés"
+            }
+        }
+    },
+    "friend_menu_option": {
+        "preview": "Előnézet",
+        "stealth_mode": "Lopakodás mód",
+        "auto_download_blacklist": "Automatikus letöltési kivételek",
+        "anti_auto_save": "Ne mentse automatikusan"
+    },
+    "message_context_menu_option": {
+        "download": "Letöltés",
+        "preview": "Előnézet"
+    },
+    "chat_action_menu": {
+        "preview_button": "Előnézet",
+        "download_button": "Letöltés",
+        "delete_logged_message_button": "Naplózott üzenet törlése"
+    },
+    "opera_context_menu": {
+        "download": "Média letöltése"
+    },
+    "modal_option": {
+        "profile_info": "Profil Infó",
+        "close": "Bezár"
+    },
+    "gallery_media_send_override": {
+        "multiple_media_toast": "Egyszerre csak egy médiát küldhet"
+    },
+    "conversation_preview": {
+        "streak_expiration": "Lejár {day} nap {hour} óra {minute} perc múlva",
+        "total_messages": "Összes kapott/küldött üzenetek: {count}",
+        "title": "Előnézet",
+        "unknown_user": "Ismeretlen felhasználó"
+    },
+    "profile_info": {
+        "title": "Profil Infó",
+        "username": "Felhasználónév",
+        "display_name": "Megjelenített név",
+        "added_date": "Hozzáadás dátuma",
+        "birthday": "Születésnap : {month} {day}"
+    },
+    "auto_updater": {
+        "no_update_available": "Nincs elérhető frissítés!",
+        "dialog_title": "Új frissítés elérhető!",
+        "dialog_message": "Új frissítés érhető el a SnapEnhance számára! ({version})\n\n{body}",
+        "dialog_positive_button": "Letöltés és telepítés",
+        "dialog_negative_button": "Mégsem",
+        "downloading_toast": "Frissítés letöltése...",
+        "download_manager_notification_title": "SnapEnhance APK letöltése..."
+    },
+    "chat_export": {
+        "select_export_format": "Válassz export formátumot",
+        "select_media_type": "Válaszd ki az exportálandó médiatípusokat",
+        "select_conversation": "Válaszd ki az exportálandó beszélgetést",
+        "dialog_negative_button": "Mégsem",
+        "dialog_neutral_button": "Minden exportálása",
+        "dialog_positive_button": "Exportálás",
+        "exported_to": "Exportálva ide {path}",
+        "exporting_chats": "Üzenetek exportálása...",
+        "processing_chats": "{amount} beszélgetések feldolgozása...",
+        "export_fail": "Nem sikerült exportálni a beszélgetést {conversation}",
+        "writing_output": "Kimenet írása...",
+        "finished": "Kész! Most már ezt bezárhatod.",
+        "no_messages_found": "Nincsenek üzenetek!",
+        "exporting_message": "Expotálás {conversation}..."
+    },
+    "button": {
+        "ok": "OK",
+        "positive": "Igen",
+        "negative": "Nem",
+        "cancel": "Mégsem",
+        "open": "Megnyitás"
+    },
+    "download_manager_activity": {
+        "remove_all_title": "Összel letöltés eltávolítása",
+        "remove_all_text": "Biztos vagy benne?",
+        "remove_all": "Eltávolítás",
+        "no_downloads": "Nincsenek letöltések",
+        "cancel": "Mégsem",
+        "file_not_found_toast": "A fájl nem létezik!",
+        "category": {
+            "all_category": "Összes",
+            "pending_category": "Függőben",
+            "snap_category": "Snapek",
+            "story_category": "Sztorik",
+            "spotlight_category": "Spotlight"
+        },
+        "debug_settings": "Hibakeresési beállítások",
+        "debug_settings_page": {
+            "clear_file_title": "{file_name} fájl törlése",
+            "clear_file_confirmation": "Biztos, hogy törölni akarod a {file_name} fájlt?",
+            "clear_cache_title": "Gyorsítótár törlése",
+            "reset_all_title": "Beállítások visszaállítása",
+            "reset_all_confirmation": "Biztos alapra szeretnéd helyezni?",
+            "success_toast": "Siker!",
+            "device_spoofer": "Eszköz hamisító"
+        }
+    },
+    "download_processor": {
+        "download_started_toast": "A letöltés megkezdődött",
+        "unsupported_content_type_toast": "A tartalom típusa nem támogatott!",
+        "failed_no_longer_available_toast": "A média már nem érhető el",
+        "already_queued_toast": "A média már várólistán van!",
+        "already_downloaded_toast": "Ez már le lett töltve!",
+        "saved_toast": "Lementve {path}",
+        "download_toast": "Letöltés {path}...",
+        "processing_toast": "Feldolgozás {path}...",
+        "failed_generic_toast": "Letöltés sikertelen",
+        "failed_to_create_preview_toast": "Előnézet létrehozása sikertelen",
+        "failed_processing_toast": "Nem sikerült feldolgozni {error}",
+        "failed_gallery_toast": "Nem sikerült lementeni a galériába {error}"
+    },
+    "config_activity": {
+        "title": "SnapEnhance Beállítások",
+        "selected_text": "{count} kiváltasztva",
+        "invalid_number_toast": "Érvénytelen szám!"
+    },
+    "spoof_activity": {
+        "title": "Hamisítási Beállítások"
+    }
+}

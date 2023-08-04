@@ -286,7 +286,7 @@
                 "abandon_video": "مكالمة فيديو فائتة"
             },
             "gallery_media_send_override": {
-                "ORIGINAL": "أصليّة",
+                "ORIGINAL": "الأصل",
                 "NOTE": "الملاحظات الصوتية",
                 "SNAP": "السنابة",
                 "LIVE_SNAP": "السنابة مع الصوت"
@@ -350,7 +350,7 @@
         "close": "إغلاق"
     },
     "gallery_media_send_override": {
-        "multiple_media_toast": "يمكنك إرسال مِلَفّ واحد فقط في وقت واحد"
+        "multiple_media_toast": "يمكنك إرسال مِلَفّ وسائط واحد فقط في وقت واحد"
     },
     "conversation_preview": {
         "streak_expiration": "تنتهي الصَّلاحِيَة في {day} يوم {hour} ساعة {minute} دقيقة",
