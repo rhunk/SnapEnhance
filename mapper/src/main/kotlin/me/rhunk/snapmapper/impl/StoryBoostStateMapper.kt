@@ -18,6 +18,7 @@ class StoryBoostStateMapper : AbstractClassMapper() {
             if (storyBoostEnumClass.getStaticConstructor()?.implementation?.findConstString("NeedSubscriptionCannotSubscribe") != true) continue
 
             context.addMapping("StoryBoostStateClass", clazz.type.replace("L", "").replace(";", ""))
+            return
         }
     }
 }

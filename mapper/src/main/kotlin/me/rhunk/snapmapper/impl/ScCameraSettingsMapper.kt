@@ -15,6 +15,7 @@ class ScCameraSettingsMapper : AbstractClassMapper() {
             if (!firstParameter.isEnum() || firstParameter.getStaticConstructor()?.implementation?.findConstString("CONTINUOUS_PICTURE") != true) continue
 
             context.addMapping("ScCameraSettings", clazz.type.replace("L", "").replace(";", ""))
+            return
         }
     }
 }

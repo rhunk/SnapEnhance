@@ -5,7 +5,7 @@ import me.rhunk.snapenhance.ModContext
 import me.rhunk.snapenhance.features.Feature
 import me.rhunk.snapenhance.features.FeatureLoadParams
 import me.rhunk.snapenhance.features.impl.AutoUpdater
-import me.rhunk.snapenhance.features.impl.ConfigEnumKeys
+import me.rhunk.snapenhance.features.impl.ConfigurationOverride
 import me.rhunk.snapenhance.features.impl.Messaging
 import me.rhunk.snapenhance.features.impl.downloader.AntiAutoDownload
 import me.rhunk.snapenhance.features.impl.downloader.MediaDownloader
@@ -14,6 +14,7 @@ import me.rhunk.snapenhance.features.impl.experiments.AppPasscode
 import me.rhunk.snapenhance.features.impl.experiments.DeviceSpooferHook
 import me.rhunk.snapenhance.features.impl.experiments.InfiniteStoryBoost
 import me.rhunk.snapenhance.features.impl.experiments.MeoPasscodeBypass
+import me.rhunk.snapenhance.features.impl.experiments.NoFriendScoreDelay
 import me.rhunk.snapenhance.features.impl.experiments.UnlimitedMultiSnap
 import me.rhunk.snapenhance.features.impl.privacy.DisableMetrics
 import me.rhunk.snapenhance.features.impl.privacy.PreventMessageSending
@@ -74,7 +75,7 @@ class FeatureManager(private val context: ModContext) : Manager {
         register(Notifications::class)
         register(AutoSave::class)
         register(UITweaks::class)
-        register(ConfigEnumKeys::class)
+        register(ConfigurationOverride::class)
         register(AntiAutoDownload::class)
         register(GalleryMediaSendOverride::class)
         register(AntiAutoSave::class)
@@ -93,6 +94,7 @@ class FeatureManager(private val context: ModContext) : Manager {
         register(DeviceSpooferHook::class)
         register(StartupPageOverride::class)
         register(GooglePlayServicesDialogs::class)
+        register(NoFriendScoreDelay::class)
 
         initializeFeatures()
     }

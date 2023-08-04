@@ -16,6 +16,7 @@ class DefaultMediaItemMapper : AbstractClassMapper() {
             if (constructorParameters.size < 6 || constructorParameters[5] != "J") continue
 
             context.addMapping("DefaultMediaItem", clazz.type.replace("L", "").replace(";", ""))
+            return
         }
     }
 }

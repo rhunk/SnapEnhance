@@ -1,6 +1,6 @@
 name: "Feature suggestion"
 description: Suggest a new feature to help the project improve.
-title: "feat: <title>"
+title: "feat: TITLE"
 labels: [
   "enhancement"
 ]
