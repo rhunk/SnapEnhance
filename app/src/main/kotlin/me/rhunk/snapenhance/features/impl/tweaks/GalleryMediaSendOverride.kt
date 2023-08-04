@@ -12,18 +12,6 @@ import me.rhunk.snapenhance.ui.ViewAppearanceHelper
 import me.rhunk.snapenhance.util.protobuf.ProtoReader
 
 class GalleryMediaSendOverride : Feature("Gallery Media Send Override", loadParams = FeatureLoadParams.INIT_SYNC) {
-    private fun ByteArray.isCameos(): Boolean {
-        val cameosHeaderTypeA = byteArrayOf(0x1A, 0x2F, 0x1A, 0x2D, 0x2A, 0x19, 0x0A, 0x11)
-        val cameosHeaderTypeB = byteArrayOf(0x1A, 0x2E, 0x1A, 0x2C, 0x2A, 0x19, 0x0A, 0x11)
-
-        return if (this.size < 8) {
-            false
-        } else {
-            val firstEightBytes = this.copyOfRange(0, 8)
-            firstEightBytes.contentEquals(cameosHeaderTypeA) || firstEightBytes.contentEquals(cameosHeaderTypeB)
-        }
-    }
-
     override fun init() {
         val typeNames = listOf(
             "ORIGINAL",
@@ -39,8 +27,7 @@ class GalleryMediaSendOverride : Feature("Gallery Media Send Override", loadPara
         }) { param ->
             val localMessageContent = MessageContent(param.arg(1))
             if (localMessageContent.contentType != ContentType.EXTERNAL_MEDIA) return@hook
-            if (localMessageContent.content.isCameos()) return@hook
-
+            
             //prevent story replies
             val messageProtoReader = ProtoReader(localMessageContent.content)
             if (messageProtoReader.exists(7)) return@hook
