@@ -14,6 +14,7 @@ import androidx.navigation.compose.composable
 import me.rhunk.snapenhance.RemoteSideContext
 import me.rhunk.snapenhance.ui.manager.sections.HomeSection
 import me.rhunk.snapenhance.ui.manager.sections.NotImplemented
+import me.rhunk.snapenhance.ui.manager.sections.download.DownloadSection
 import me.rhunk.snapenhance.ui.manager.sections.features.FeaturesSection
 import kotlin.reflect.KClass
 
@@ -26,7 +27,8 @@ enum class EnumSection(
     DOWNLOADS(
         route = "downloads",
         title = "Downloads",
-        icon = Icons.Filled.Download
+        icon = Icons.Filled.Download,
+        section = DownloadSection::class
     ),
     FEATURES(
         route = "features",
@@ -66,6 +68,7 @@ open class Section {
     lateinit var navController: NavController
 
     open fun init() {}
+    open fun onResumed() {}
 
     @Composable
     open fun Content() { NotImplemented() }

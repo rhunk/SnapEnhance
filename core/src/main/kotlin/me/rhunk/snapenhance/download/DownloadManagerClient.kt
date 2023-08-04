@@ -9,7 +9,7 @@ import me.rhunk.snapenhance.download.data.DownloadMetadata
 import me.rhunk.snapenhance.download.data.DownloadRequest
 import me.rhunk.snapenhance.download.data.InputMedia
 import me.rhunk.snapenhance.download.data.MediaEncryptionKeyPair
-import me.rhunk.snapenhance.download.enums.DownloadMediaType
+import me.rhunk.snapenhance.download.data.DownloadMediaType
 
 class DownloadManagerClient (
     private val context: ModContext,

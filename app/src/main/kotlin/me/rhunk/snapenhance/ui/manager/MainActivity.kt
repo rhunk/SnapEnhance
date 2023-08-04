@@ -11,6 +11,13 @@ import me.rhunk.snapenhance.SharedContextHolder
 import me.rhunk.snapenhance.ui.AppMaterialTheme
 
 class MainActivity : ComponentActivity() {
+    lateinit var sections: Map<EnumSection, Section>
+
+    override fun onPostResume() {
+        super.onPostResume()
+        sections.values.forEach { it.onResumed() }
+    }
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
@@ -20,8 +27,12 @@ class MainActivity : ComponentActivity() {
             checkForRequirements()
         }
 
-        val sections = EnumSection.values().toList().associateWith {
-            it.section.constructors.first().call()
+        sections = EnumSection.values().toList().associateWith {
+            runCatching {
+                it.section.constructors.first().call()
+            }.onFailure {
+                it.printStackTrace()
+            }.getOrThrow()
         }.onEach { (section, instance) ->
             with(instance) {
                 enumSection = section

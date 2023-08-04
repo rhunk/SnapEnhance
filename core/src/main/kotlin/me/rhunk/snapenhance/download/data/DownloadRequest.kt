@@ -1,7 +1,5 @@
 package me.rhunk.snapenhance.download.data
 
-import me.rhunk.snapenhance.download.enums.DownloadMediaType
-
 
 data class DashOptions(val offsetTime: Long, val duration: Long?)
 data class InputMedia(

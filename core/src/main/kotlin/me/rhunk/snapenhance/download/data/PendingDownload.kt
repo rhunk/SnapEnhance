@@ -2,15 +2,16 @@ package me.rhunk.snapenhance.download.data
 
 import kotlinx.coroutines.Job
 import me.rhunk.snapenhance.SharedContext
-import me.rhunk.snapenhance.download.enums.DownloadStage
+import me.rhunk.snapenhance.download.DownloadTaskManager
 
 data class PendingDownload(
     var downloadId: Int = 0,
     var outputFile: String? = null,
-    var job: Job? = null,
-
     val metadata : DownloadMetadata
 ) {
+    lateinit var downloadTaskManager: DownloadTaskManager
+    var job: Job? = null
+
     var changeListener = { _: DownloadStage, _: DownloadStage -> }
     private var _stage: DownloadStage = DownloadStage.PENDING
     var downloadStage: DownloadStage
@@ -20,15 +21,13 @@ data class PendingDownload(
         set(value) = synchronized(this) {
             changeListener(_stage, value)
             _stage = value
-            SharedContext.downloadTaskManager.updateTask(this)
+            downloadTaskManager.updateTask(this)
         }
 
-    fun isJobActive(): Boolean {
-        return job?.isActive ?: false
-    }
+    fun isJobActive() = job?.isActive == true
 
     fun cancel() {
-        job?.cancel()
         downloadStage = DownloadStage.CANCELLED
+        job?.cancel()
     }
 }

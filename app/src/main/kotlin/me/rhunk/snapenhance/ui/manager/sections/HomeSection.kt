@@ -18,11 +18,13 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.OutlinedCard
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import me.rhunk.snapenhance.Logger
 import me.rhunk.snapenhance.ui.manager.Section
 import me.rhunk.snapenhance.ui.manager.data.InstallationSummary
 import me.rhunk.snapenhance.ui.setup.Requirements
@@ -31,6 +33,7 @@ class HomeSection : Section() {
     companion object {
         val cardMargin = 10.dp
     }
+    private val installationSummary = mutableStateOf(null as InstallationSummary?)
 
     @OptIn(ExperimentalLayoutApi::class)
     @Composable
@@ -72,7 +75,8 @@ class HomeSection : Section() {
                     "Mappings ${if (installationSummary.mappingsInfo == null) "not generated" else "outdated"}"
                 } else {
                     "Mappings version ${installationSummary.mappingsInfo.generatedSnapchatVersion}"
-                }, modifier = Modifier.weight(1f)
+                }, modifier = Modifier
+                    .weight(1f)
                     .align(Alignment.CenterVertically)
                 )
 
@@ -84,6 +88,14 @@ class HomeSection : Section() {
                 }
             }
         }
+    }
+
+    override fun onResumed() {
+        Logger.debug("HomeSection resumed")
+        if (!context.mappings.isMappingsLoaded()) {
+            context.mappings.init()
+        }
+        installationSummary.value = context.getInstallationSummary()
     }
 
     @Composable
@@ -105,7 +117,7 @@ class HomeSection : Section() {
                 modifier = Modifier.padding(16.dp)
             )
 
-            SummaryCards(context.getInstallationSummary())
+            SummaryCards(installationSummary = installationSummary.value ?: return)
         }
     }
 }

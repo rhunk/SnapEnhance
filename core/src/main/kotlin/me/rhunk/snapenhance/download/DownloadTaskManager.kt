@@ -5,7 +5,7 @@ import android.content.Context
 import android.database.sqlite.SQLiteDatabase
 import me.rhunk.snapenhance.download.data.DownloadMetadata
 import me.rhunk.snapenhance.download.data.PendingDownload
-import me.rhunk.snapenhance.download.enums.DownloadStage
+import me.rhunk.snapenhance.download.data.DownloadStage
 import me.rhunk.snapenhance.ui.download.MediaFilter
 import me.rhunk.snapenhance.util.SQLiteDatabaseHelper
 
@@ -158,6 +158,7 @@ class DownloadTaskManager {
                     iconUrl = cursor.getString(cursor.getColumnIndex("iconUrl"))
                 )
             ).apply {
+                downloadTaskManager = this@DownloadTaskManager
                 downloadStage = DownloadStage.valueOf(cursor.getString(cursor.getColumnIndex("downloadStage")))
                 //if downloadStage is not saved, it means the app was killed before the download was finished
                 if (downloadStage != DownloadStage.SAVED) {

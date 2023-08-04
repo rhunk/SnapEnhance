@@ -4,11 +4,10 @@ import android.app.Service
 import android.content.Intent
 import android.os.IBinder
 import me.rhunk.snapenhance.RemoteSideContext
-import me.rhunk.snapenhance.SharedContext
 import me.rhunk.snapenhance.SharedContextHolder
 import me.rhunk.snapenhance.bridge.types.BridgeFileType
-import me.rhunk.snapenhance.bridge.wrapper.MessageLoggerWrapper
 import me.rhunk.snapenhance.bridge.wrapper.LocaleWrapper
+import me.rhunk.snapenhance.bridge.wrapper.MessageLoggerWrapper
 import me.rhunk.snapenhance.download.DownloadProcessor
 
 class BridgeService : Service() {
@@ -105,10 +104,10 @@ class BridgeService : Service() {
         }
 
         override fun enqueueDownload(intent: Intent, callback: DownloadCallback) {
-            SharedContextHolder.remote(this@BridgeService)
-            //TODO: refactor shared context
-            SharedContext.ensureInitialized(this@BridgeService)
-            DownloadProcessor(this@BridgeService, callback).onReceive(intent)
+            DownloadProcessor(
+                remoteSideContext = SharedContextHolder.remote(this@BridgeService),
+                callback = callback
+            ).onReceive(intent)
         }
     }
 }

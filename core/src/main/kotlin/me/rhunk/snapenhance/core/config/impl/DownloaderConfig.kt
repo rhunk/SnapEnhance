@@ -16,9 +16,11 @@ class DownloaderConfig : ConfigContainer() {
         "append_date_time",
         "append_type",
         "append_username"
-    )
+    ).apply { set(mutableListOf("append_hash", "append_date_time", "append_type", "append_username")) }
     val allowDuplicate = boolean("allow_duplicate")
     val mergeOverlays = boolean("merge_overlays")
     val chatDownloadContextMenu = boolean("chat_download_context_menu")
-    val logging = multiple("logging", "started", "success", "progress", "failure")
+    val logging = multiple("logging", "started", "success", "progress", "failure").apply {
+        set(mutableListOf("started", "success"))
+    }
 }

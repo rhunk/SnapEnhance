@@ -40,7 +40,7 @@ class PickLanguageScreen : SetupScreen(){
 
         fun getLocaleDisplayName(locale: String): String {
             locale.split("_").let {
-                return java.util.Locale(it[0], it[1]).getDisplayName(java.util.Locale.getDefault())
+                return Locale(it[0], it[1]).getDisplayName(Locale.getDefault())
             }
         }
 

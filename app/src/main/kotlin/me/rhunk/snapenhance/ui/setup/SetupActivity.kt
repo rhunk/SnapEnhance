@@ -34,7 +34,6 @@ import androidx.navigation.compose.rememberNavController
 import me.rhunk.snapenhance.SharedContextHolder
 import me.rhunk.snapenhance.ui.AppMaterialTheme
 import me.rhunk.snapenhance.ui.setup.screens.SetupScreen
-import me.rhunk.snapenhance.ui.setup.screens.impl.FfmpegScreen
 import me.rhunk.snapenhance.ui.setup.screens.impl.MappingsScreen
 import me.rhunk.snapenhance.ui.setup.screens.impl.PickLanguageScreen
 import me.rhunk.snapenhance.ui.setup.screens.impl.SaveFolderScreen
@@ -64,9 +63,6 @@ class SetupActivity : ComponentActivity() {
             }
             if (isFirstRun || hasRequirement(Requirements.MAPPINGS)) {
                 add(MappingsScreen().apply { route = "mappings" })
-            }
-            if (isFirstRun || hasRequirement(Requirements.FFMPEG)) {
-                add(FfmpegScreen().apply { route = "ffmpeg" })
             }
         }
 

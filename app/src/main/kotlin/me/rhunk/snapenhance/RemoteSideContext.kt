@@ -8,6 +8,7 @@ import androidx.documentfile.provider.DocumentFile
 import me.rhunk.snapenhance.bridge.wrapper.LocaleWrapper
 import me.rhunk.snapenhance.bridge.wrapper.MappingsWrapper
 import me.rhunk.snapenhance.core.config.ModConfig
+import me.rhunk.snapenhance.download.DownloadTaskManager
 import me.rhunk.snapenhance.ui.manager.data.InstallationSummary
 import me.rhunk.snapenhance.ui.manager.data.ModMappingsInfo
 import me.rhunk.snapenhance.ui.manager.data.SnapchatAppInfo
@@ -17,24 +18,40 @@ import java.lang.ref.WeakReference
 import kotlin.system.exitProcess
 
 class RemoteSideContext(
-    val androidContext: Context
+    ctx: Context
 ) {
+    private var _context: WeakReference<Context> = WeakReference(ctx)
     private var _activity: WeakReference<Activity>? = null
+
+    var androidContext: Context
+        get() = synchronized(this) {
+            _context.get() ?: error("Context is null")
+        }
+        set(value) { synchronized(this) {
+            _context.clear(); _context = WeakReference(value)
+        } }
+
     var activity: Activity?
         get() = _activity?.get()
-        set(value) { _activity = WeakReference(value) }
+        set(value) { _activity?.clear(); _activity = WeakReference(value) }
 
     val config = ModConfig()
     val translation = LocaleWrapper()
     val mappings = MappingsWrapper(androidContext)
+    val downloadTaskManager = DownloadTaskManager()
 
     init {
-        config.loadFromContext(androidContext)
-        translation.userLocale = config.locale
-        translation.loadFromContext(androidContext)
-        mappings.apply {
-            loadFromContext(androidContext)
-            init()
+        runCatching {
+            config.loadFromContext(androidContext)
+            translation.userLocale = config.locale
+            translation.loadFromContext(androidContext)
+            mappings.apply {
+                loadFromContext(androidContext)
+                init()
+            }
+            downloadTaskManager.init(androidContext)
+        }.onFailure {
+            Logger.error("Failed to initialize RemoteSideContext", it)
         }
     }
 

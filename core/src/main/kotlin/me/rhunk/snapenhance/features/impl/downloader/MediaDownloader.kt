@@ -5,7 +5,6 @@ import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import android.net.Uri
 import android.widget.ImageView
-import com.arthenica.ffmpegkit.FFmpegKit
 import kotlinx.coroutines.runBlocking
 import me.rhunk.snapenhance.Constants.ARROYO_URL_KEY_PROTO_PATH
 import me.rhunk.snapenhance.Logger
@@ -20,11 +19,11 @@ import me.rhunk.snapenhance.data.wrapper.impl.media.opera.Layer
 import me.rhunk.snapenhance.data.wrapper.impl.media.opera.ParamMap
 import me.rhunk.snapenhance.database.objects.FriendInfo
 import me.rhunk.snapenhance.download.DownloadManagerClient
+import me.rhunk.snapenhance.download.data.DownloadMediaType
 import me.rhunk.snapenhance.download.data.DownloadMetadata
 import me.rhunk.snapenhance.download.data.InputMedia
 import me.rhunk.snapenhance.download.data.SplitMediaAssetType
 import me.rhunk.snapenhance.download.data.toKeyPair
-import me.rhunk.snapenhance.download.enums.DownloadMediaType
 import me.rhunk.snapenhance.features.Feature
 import me.rhunk.snapenhance.features.FeatureLoadParams
 import me.rhunk.snapenhance.features.impl.Messaging
@@ -52,11 +51,8 @@ import kotlin.io.encoding.ExperimentalEncodingApi
 class MediaDownloader : Feature("MediaDownloader", loadParams = FeatureLoadParams.ACTIVITY_CREATE_ASYNC) {
     private var lastSeenMediaInfoMap: MutableMap<SplitMediaAssetType, MediaInfo>? = null
     private var lastSeenMapParams: ParamMap? = null
-    private val isFFmpegPresent by lazy {
-        runCatching { FFmpegKit.execute("-version") }.isSuccess
-    }
 
-    private fun provideClientDownloadManager(
+    private fun provideDownloadManagerClient(
         pathSuffix: String,
         mediaIdentifier: String,
         mediaDisplaySource: String? = null,
@@ -115,10 +111,6 @@ class MediaDownloader : Feature("MediaDownloader", loadParams = FeatureLoadParam
         )
     }
 
-    private fun canMergeOverlay(): Boolean {
-        if (!context.config.downloader.autoDownloadOptions.get().contains("merge_overlay")) return false
-        return isFFmpegPresent
-    }
 
     //TODO: implement subfolder argument
     private fun createNewFilePath(hexHash: String, mediaDisplayType: String?, pathPrefix: String): String {
@@ -246,7 +238,7 @@ class MediaDownloader : Feature("MediaDownloader", loadParams = FeatureLoadParam
             val author = context.database.getFriendInfo(senderId) ?: return
             val authorUsername = author.usernameForSorting!!
 
-            downloadOperaMedia(provideClientDownloadManager(
+            downloadOperaMedia(provideDownloadManagerClient(
                 pathSuffix = authorUsername,
                 mediaIdentifier = "$conversationId$senderId${conversationMessage.server_message_id}",
                 mediaDisplaySource = authorUsername,
@@ -286,7 +278,7 @@ class MediaDownloader : Feature("MediaDownloader", loadParams = FeatureLoadParam
             ) ?: throw Exception("Friend not found in database")
             val authorName = author.usernameForSorting!!
 
-            downloadOperaMedia(provideClientDownloadManager(
+            downloadOperaMedia(provideDownloadManagerClient(
                 pathSuffix = authorName,
                 mediaIdentifier = paramMap["MEDIA_ID"].toString(),
                 mediaDisplaySource = authorName,
@@ -305,7 +297,7 @@ class MediaDownloader : Feature("MediaDownloader", loadParams = FeatureLoadParam
                     "[^\\x00-\\x7F]".toRegex(),
                     "")
 
-            downloadOperaMedia(provideClientDownloadManager(
+            downloadOperaMedia(provideDownloadManagerClient(
                 pathSuffix = "Public-Stories/$userDisplayName",
                 mediaIdentifier = paramMap["SNAP_ID"].toString(),
                 mediaDisplayType = userDisplayName,
@@ -316,7 +308,7 @@ class MediaDownloader : Feature("MediaDownloader", loadParams = FeatureLoadParam
 
         //spotlight
         if (snapSource == "SINGLE_SNAP_STORY" && (forceDownload || canAutoDownload("spotlight"))) {
-            downloadOperaMedia(provideClientDownloadManager(
+            downloadOperaMedia(provideDownloadManagerClient(
                 pathSuffix = "Spotlight",
                 mediaIdentifier = paramMap["SNAP_ID"].toString(),
                 mediaDisplayType = MediaFilter.SPOTLIGHT.mediaDisplayType,
@@ -328,11 +320,6 @@ class MediaDownloader : Feature("MediaDownloader", loadParams = FeatureLoadParam
         //stories with mpeg dash media
         //TODO: option to download multiple chapters
         if (paramMap.containsKey("LONGFORM_VIDEO_PLAYLIST_ITEM") && forceDownload) {
-            if (!isFFmpegPresent) {
-                context.shortToast("Can't download media. ffmpeg was not found")
-                return
-            }
-
             val storyName = paramMap["STORY_NAME"].toString().replace(
                 "[^\\x00-\\x7F]".toRegex(),
                 "")
@@ -361,7 +348,7 @@ class MediaDownloader : Feature("MediaDownloader", loadParams = FeatureLoadParam
                 }
             }
 
-            provideClientDownloadManager(
+            provideDownloadManagerClient(
                 pathSuffix = "Pro-Stories/${storyName}",
                 mediaIdentifier = "${paramMap["STORY_ID"]}-${snapItem.snapId}",
                 mediaDisplaySource = storyName,
@@ -396,10 +383,12 @@ class MediaDownloader : Feature("MediaDownloader", loadParams = FeatureLoadParam
 
             val mediaInfoMap = mutableMapOf<SplitMediaAssetType, MediaInfo>()
             val isVideo = mediaParamMap.containsKey("video_media_info_list")
+            val canMergeOverlay = context.config.downloader.autoDownloadOptions.get().contains("merge_overlay")
+
             mediaInfoMap[SplitMediaAssetType.ORIGINAL] = MediaInfo(
                 (if (isVideo) mediaParamMap["video_media_info_list"] else mediaParamMap["image_media_info"])!!
             )
-            if (canMergeOverlay() && mediaParamMap.containsKey("overlay_image_media_info")) {
+            if (canMergeOverlay && mediaParamMap.containsKey("overlay_image_media_info")) {
                 mediaInfoMap[SplitMediaAssetType.OVERLAY] =
                     MediaInfo(mediaParamMap["overlay_image_media_info"]!!)
             }
@@ -483,7 +472,7 @@ class MediaDownloader : Feature("MediaDownloader", loadParams = FeatureLoadParam
         runCatching {
             if (!isPreview) {
                 val encryptionKeys = EncryptionHelper.getEncryptionKeys(contentType, messageReader, isArroyo = isArroyoMessage)
-                provideClientDownloadManager(
+                provideDownloadManagerClient(
                     pathSuffix = authorName,
                     mediaIdentifier = "${message.client_conversation_id}${message.sender_id}${message.server_message_id}",
                     mediaDisplaySource = authorName,

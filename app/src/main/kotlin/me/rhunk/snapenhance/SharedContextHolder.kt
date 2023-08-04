@@ -1,15 +1,19 @@
 package me.rhunk.snapenhance
 
 import android.content.Context
-import java.lang.ref.WeakReference
 
 object SharedContextHolder {
-    private lateinit var _remoteSideContext: WeakReference<RemoteSideContext>
+    private lateinit var _remoteSideContext: RemoteSideContext
 
     fun remote(context: Context): RemoteSideContext {
-        if (!::_remoteSideContext.isInitialized || _remoteSideContext.get() == null) {
-            _remoteSideContext = WeakReference(RemoteSideContext(context.applicationContext))
+        if (!::_remoteSideContext.isInitialized) {
+            _remoteSideContext = RemoteSideContext(context)
         }
-        return _remoteSideContext.get()!!
+
+        if (_remoteSideContext.androidContext != context) {
+            _remoteSideContext.androidContext = context
+        }
+
+        return _remoteSideContext
     }
 }
