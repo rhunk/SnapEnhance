@@ -28,31 +28,42 @@ android {
 
     buildTypes {
         release {
+            isMinifyEnabled = true
+            proguardFiles += file("proguard-rules.pro")
+        }
+        debug {
+            isDebuggable = true
             isMinifyEnabled = false
-            isShrinkResources = false
         }
     }
 
     flavorDimensions += "abi"
 
+    //noinspection ChromeOsAbiSupport
     productFlavors {
-
-
+        packaging {
+            jniLibs {
+                excludes += "**/*_neon.so"
+            }
+            resources {
+                excludes += "DebugProbesKt.bin"
+                excludes += "okhttp3/internal/publicsuffix/**"
+                excludes += "META-INF/*.version"
+                excludes += "META-INF/services/**"
+                excludes += "META-INF/*.kotlin_builtins"
+                excludes += "META-INF/*.kotlin_module"
+            }
+        }
         create("armv8") {
             ndk {
-                abiFilters.add("arm64-v8a")
+                abiFilters += "arm64-v8a"
             }
             dimension = "abi"
         }
 
         create("armv7") {
             ndk {
-                abiFilters.add("armeabi-v7a")
-            }
-            packaging {
-                jniLibs {
-                    excludes += "**/*_neon.so"
-                }
+                abiFilters += "armeabi-v7a"
             }
             dimension = "abi"
         }
@@ -89,7 +100,7 @@ dependencies {
     implementation(libs.gson)
 
     debugImplementation("androidx.compose.ui:ui-tooling:1.4.3")
-    debugImplementation("androidx.compose.ui:ui-tooling-preview:1.4.3")
+    implementation("androidx.compose.ui:ui-tooling-preview:1.4.3")
     implementation(kotlin("reflect"))
 }
 

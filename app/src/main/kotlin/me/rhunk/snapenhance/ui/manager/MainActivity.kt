@@ -28,11 +28,7 @@ class MainActivity : ComponentActivity() {
         }
 
         sections = EnumSection.values().toList().associateWith {
-            runCatching {
-                it.section.constructors.first().call()
-            }.onFailure {
-                it.printStackTrace()
-            }.getOrThrow()
+            it.section.constructors.first().call()
         }.onEach { (section, instance) ->
             with(instance) {
                 enumSection = section
