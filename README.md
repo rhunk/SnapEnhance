@@ -99,3 +99,4 @@ When redistributing the software, it must remain under the same [GPLv3](https://
 - [RevealedSoulEven](https://github.com/revealedsouleven)
 - [iBasim](https://github.com/ibasim)
 - [xerta555](https://github.com/xerta555)
+- [TheVisual](https://github.com/TheVisual)
