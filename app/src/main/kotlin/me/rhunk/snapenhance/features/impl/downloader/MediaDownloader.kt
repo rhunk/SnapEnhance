@@ -127,7 +127,7 @@ class MediaDownloader : Feature("MediaDownloader", loadParams = FeatureLoadParam
         val downloadOptions = context.config.options(ConfigProperty.DOWNLOAD_OPTIONS)
         val sanitizedPathPrefix = pathPrefix
             .replace(" ", "_")
-            .replace(Regex("[\\\\:*?\"<>|]"), "")
+            .replace(Regex("[\\\\/:*?\"<>|\\p{C}]"), "")
             .ifEmpty { hexHash }
 
         val currentDateTime = SimpleDateFormat("yyyy-MM-dd_HH-mm-ss", Locale.ENGLISH).format(System.currentTimeMillis())
