@@ -6,15 +6,20 @@ import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.requiredWidth
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.ArrowBack
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.NavigationBar
 import androidx.compose.material3.NavigationBarItem
 import androidx.compose.material3.Text
+import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
-import androidx.navigation.NavController
+import androidx.navigation.NavDestination
 import androidx.navigation.NavDestination.Companion.hierarchy
 import androidx.navigation.NavGraph.Companion.findStartDestination
 import androidx.navigation.NavHostController
@@ -22,30 +27,55 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.currentBackStackEntryAsState
 
 
-class Navigation{
+class Navigation(
+    private val sections: Map<EnumSection, Section>,
+    private val navHostController: NavHostController
+){
     @Composable
     fun NavigationHost(
-        sections: Map<EnumSection, Section>,
         startDestination: EnumSection,
-        navController: NavHostController,
         innerPadding: PaddingValues
     ) {
-        NavHost(navController, startDestination = startDestination.route, Modifier.padding(innerPadding)) {
+        NavHost(navHostController, startDestination = startDestination.route, Modifier.padding(innerPadding)) {
             sections.forEach { (_, instance) ->
-                instance.navController = navController
+                instance.navController = navHostController
                 instance.build(this)
             }
         }
     }
 
+    private fun getCurrentSection(navDestination: NavDestination) = sections.firstNotNullOf { (section, instance) ->
+        if (navDestination.hierarchy.any { it.route == section.route }) {
+            instance
+        } else {
+            null
+        }
+    }
+
+    @OptIn(ExperimentalMaterial3Api::class)
     @Composable
-    fun NavBar(
-        navController: NavController
-    ) {
+    fun TopBar() {
+        val navBackStackEntry by navHostController.currentBackStackEntryAsState()
+        val currentDestination = navBackStackEntry?.destination ?: return
+        val currentSection = getCurrentSection(currentDestination)
+
+        TopAppBar(title = {
+            Text(text = currentSection.sectionTopBarName())
+        }, navigationIcon =  {
+            if (currentSection.canGoBack()) {
+                IconButton(onClick = { navHostController.popBackStack() }) {
+                    Icon(Icons.Filled.ArrowBack, contentDescription = null)
+                }
+            }
+        })
+    }
+
+    @Composable
+    fun NavBar() {
         NavigationBar {
-            val navBackStackEntry by navController.currentBackStackEntryAsState()
+            val navBackStackEntry by navHostController.currentBackStackEntryAsState()
             val currentDestination = navBackStackEntry?.destination
-            EnumSection.values().toList().forEach { section ->
+            sections.keys.forEach { section ->
                 fun selected() = currentDestination?.hierarchy?.any { it.route == section.route } == true
 
                 NavigationBarItem(
@@ -73,8 +103,8 @@ class Navigation{
                     },
                     selected = selected(),
                     onClick = {
-                        navController.navigate(section.route) {
-                            popUpTo(navController.graph.findStartDestination().id) {
+                        navHostController.navigate(section.route) {
+                            popUpTo(navHostController.graph.findStartDestination().id) {
                                 saveState = true
                             }
                             launchSingleTop = true

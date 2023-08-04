@@ -16,13 +16,16 @@
         }
     },
 
-    "category": {
-        "spying_privacy": "Spying & Privacy",
-        "media_manager": "Media Manager",
-        "ui_tweaks": "UI & Tweaks",
-        "camera": "Camera",
-        "updates": "Updates",
-        "experimental_debugging": "Experimental"
+    "manager": {
+        "routes": {
+            "downloads": "Downloads",
+            "features": "Features",
+            "friends": "Friends",
+            "debug": "Debug"
+        },
+        "features": {
+            "disabled": "Disabled"
+        }
     },
 
     "action": {
@@ -34,228 +37,270 @@
         "export_chat_messages": "Export chat messages"
     },
 
-    "property": {
-        "message_logger": {
-            "name": "Message Logger",
-            "description": "Prevents messages from being deleted"
+    "features": {
+        "spoof": {
+            "name": "Spoof",
+            "description": "Spoof your information",
+            "properties": {
+                "location": {
+                    "name": "Location",
+                    "description": "Spoof your location"
+                },
+                "device": {
+                    "name": "Device",
+                    "description": "Spoof your device"
+                }
+            }
         },
-        "prevent_read_receipts": {
-            "name": "Prevent Read Receipts",
-            "description": "Prevent anyone from knowing you've opened their Snaps"
+        "downloader": {
+            "name": "Downloader",
+            "description": "Download Snaps and Stories",
+            "properties": {
+                "save_folder": {
+                    "name": "Save Folder",
+                    "description": "The directory where all media is saved"
+                },
+                "auto_download_options": {
+                    "name": "Auto Download Options",
+                    "description": "Select which medias to auto download"
+                }
+            }
         },
-        "hide_bitmoji_presence": {
-            "name": "Hide Bitmoji Presence",
-            "description": "Hides your Bitmoji presence from the chat"
+        "user_interface": {
+            "name": "User Interface",
+            "description": "Change the look and feel of Snapchat",
+            "properties": {
+                "enable_app_appearance": {
+                    "name": "Enable App Appearance Settings",
+                    "description": "Enables the hidden app appearance settings"
+                },
+                "amoled_dark_mode": {
+                    "name": "AMOLED Dark Mode",
+                    "description": "Enables AMOLED dark mode\nMake sure Snapchat's dark mode is enabled"
+                },
+                "map_friend_nametags": {
+                    "name": "Enhanced Friend Map Nametags",
+                    "description": "Enhances the nametags of friends on the map"
+                },
+                "streak_expiration_info": {
+                    "name": "Show Streak Expiration Info",
+                    "description": "Shows Streak expiration info next to streaks"
+                },
+                "hide_story_section": {
+                    "name": "Hide Story Section",
+                    "description": "Hide certain UI Elements shown in the story section"
+                },
+                "hide_ui_components": {
+                    "name": "Hide UI Components",
+                    "description": "Select which UI components to hide"
+                },
+                "disable_spotlight": {
+                    "name": "Disable Spotlight",
+                    "description": "Disables the Spotlight page"
+                },
+                "startup_tab": {
+                    "name": "Startup Tab",
+                    "description": "Change the tab that opens on startup"
+                },
+                "story_viewer_override": {
+                    "name": "Story Viewer Override",
+                    "description": "Turns on certain features which Snapchat hid"
+                },
+                "friend_feed_menu_buttons": {
+                    "name": "Friend Feed Menu Buttons",
+                    "description": "Select which buttons to show in the Friend Feed Menu Bar"
+                },
+                "friend_feed_menu_position": {
+                    "name": "Friend Feed Position Index",
+                    "description": "The position of the Friend Feed Menu component"
+                },
+                "enable_friend_feed_menu_bar": {
+                    "name": "Friend Feed Menu Bar",
+                    "description": "Enables the new Friend Feed Menu Bar"
+                }
+            }
         },
-        "better_notifications": {
-            "name": "Better Notifications",
-            "description": "Shows more information in notifications"
+        "messaging": {
+            "name": "Messaging",
+            "description": "Change how you interact with friends"
         },
-        "notification_blacklist": {
-            "name": "Notification Blacklist",
-            "description": "Hides selected notification type"
+        "global": {
+            "name": "Global",
+            "description": "Tweak Snapchat globally"
         },
-        "disable_metrics": {
-            "name": "Disable Metrics",
-            "description": "Disables metrics sent to Snapchat"
+        "camera": {
+            "name": "Camera",
+            "description": "Adjust the right settings for the perfect snap"
         },
-        "block_ads": {
-            "name": "Block Ads",
-            "description": "Blocks ads from being displayed"
-        },
-        "unlimited_snap_view_time": {
-            "name": "Unlimited Snap View Time",
-            "description": "Removes the time limit for viewing Snaps"
-        },
-        "prevent_sending_messages": {
-            "name": "Prevent Sending Messages",
-            "description": "Prevents sending certain types of messages"
-        },
-        "anonymous_story_view": {
-            "name": "Anonymous Story View",
-            "description": "Prevents anyone from knowing you've seen their story"
-        },
-        "hide_typing_notification": {
-            "name": "Hide Typing Notification",
-            "description": "Prevents typing notifications being sent"
-        },
-
-        "save_folder": {
-            "name": "Save Folder",
-            "description": "The directory where all media is saved"
-        },
-        "auto_download_options": {
-            "name": "Auto Download Options",
-            "description": "Select which medias to auto download"
-        },
-        "download_options": {
-            "name": "Download Options",
-            "description": "Specify the file path format"
-        },
-        "chat_download_context_menu": {
-            "name": "Chat Download Context Menu",
-            "description": "Enable the chat download context menu"
-        },
-        "gallery_media_send_override": {
-            "name": "Gallery Media Send Override",
-            "description": "Overrides media sent from the gallery"
-        },
-        "auto_save_messages": {
-            "name": "Auto Save Messages",
-            "description": "Select which type of messages to auto save"
-        },
-        "force_media_source_quality": {
-            "name": "Force Media Source Quality",
-            "description": "Overrides the media source quality"
-        },
-        "download_logging": {
-            "name": "Download Logging",
-            "description": "Show a toast when media is downloading"
-        },
-
-        "enable_friend_feed_menu_bar": {
-            "name": "Friend Feed Menu Bar",
-            "description": "Enables the new Friend Feed Menu Bar"
-        },
-        "friend_feed_menu_buttons": {
-            "name": "Friend Feed Menu Buttons",
-            "description": "Select which buttons to show in the Friend Feed Menu Bar"
-        },
-        "friend_feed_menu_buttons_position": {
-            "name": "Friend Feed Buttons Position Index",
-            "description": "The position of the Friend Feed Menu Buttons"
-        },
-        "hide_ui_elements": {
-            "name": "Hide UI Elements",
-            "description": "Select which UI elements to hide"
-        },
-        "hide_story_section": {
-            "name": "Hide Story Section",
-            "description": "Hide certain UI Elements shown in the story section"
-        },
-        "story_viewer_override": {
-            "name": "Story Viewer Override",
-            "description": "Turns on certain features which Snapchat hid"
-        },
-        "streak_expiration_info": {
-            "name": "Show Streak Expiration Info",
-            "description": "Shows Streak expiration info next to streaks"
-        },
-        "disable_snap_splitting": {
-            "name": "Disable Snap Splitting",
-            "description": "Prevents Snaps from being split into multiple parts"
-        },
-        "disable_video_length_restriction": {
-            "name": "Disable Video Length Restriction",
-            "description": "Disables video length restrictions"
-        },
-        "snapchat_plus": {
-            "name": "Snapchat Plus",
-            "description": "Enables Snapchat Plus features"
-        },
-        "new_map_ui": {
-            "name": "New Map UI",
-            "description": "Enables the new map UI"
-        },
-        "location_spoof": {
-            "name": "Snapmap Location Spoofer",
-            "description": "Spoofs your location on the Snapmap"
-        },
-        "message_preview_length": {
-            "name": "Message Preview Length",
-            "description": "Specify the amount of messages to be previewed"
-        },
-        "unlimited_conversation_pinning": {
-            "name": "Unlimited Conversation Pinning",
-            "description": "Enables the ability to pin unlimited conversations"
-        },
-        "disable_spotlight": {
-            "name": "Disable Spotlight",
-            "description": "Disables the Spotlight page"
-        },
-        "enable_app_appearance": {
-            "name": "Enable App Appearance Settings",
-            "description": "Enables the hidden app appearance settings"
-        },
-        "startup_page_override": {
-            "name": "Override Startup Page",
-            "description": "Overrides the startup page"
-        },
-        "disable_google_play_dialogs": {
-            "name": "Disable Google Play Services Dialogs",
-            "description": "Prevent Google Play Services availability dialogs from being shown"
+        "experimental": {
+            "name": "Experimental",
+            "description": "Experimental features"
         },
 
-        "auto_updater": {
-            "name": "Auto Updater",
-            "description": "The interval of checking for updates"
-        },
+        "properties": {
+            "message_logger": {
+                "name": "Message Logger",
+                "description": "Prevents messages from being deleted"
+            },
+            "prevent_read_receipts": {
+                "name": "Prevent Read Receipts",
+                "description": "Prevent anyone from knowing you've opened their Snaps"
+            },
+            "hide_bitmoji_presence": {
+                "name": "Hide Bitmoji Presence",
+                "description": "Hides your Bitmoji presence from the chat"
+            },
+            "better_notifications": {
+                "name": "Better Notifications",
+                "description": "Shows more information in notifications"
+            },
+            "notification_blacklist": {
+                "name": "Notification Blacklist",
+                "description": "Hides selected notification type"
+            },
+            "disable_metrics": {
+                "name": "Disable Metrics",
+                "description": "Disables metrics sent to Snapchat"
+            },
+            "block_ads": {
+                "name": "Block Ads",
+                "description": "Blocks ads from being displayed"
+            },
+            "unlimited_snap_view_time": {
+                "name": "Unlimited Snap View Time",
+                "description": "Removes the time limit for viewing Snaps"
+            },
+            "prevent_sending_messages": {
+                "name": "Prevent Sending Messages",
+                "description": "Prevents sending certain types of messages"
+            },
+            "anonymous_story_view": {
+                "name": "Anonymous Story View",
+                "description": "Prevents anyone from knowing you've seen their story"
+            },
+            "hide_typing_notification": {
+                "name": "Hide Typing Notification",
+                "description": "Prevents typing notifications being sent"
+            },
 
-        "disable_camera": {
-            "name": "Disable Camera",
-            "description": "Prevents Snapchat from being able to use the camera"
-        },
-        "immersive_camera_preview": {
-            "name": "Immersive Camera Preview",
-            "description": "Stops Snapchat from cropping the camera preview"
-        },
-        "preview_resolution": {
-            "name": "Preview Resolution",
-            "description": "Overrides the camera preview resolution"
-        },
-        "picture_resolution": {
-            "name": "Picture Resolution",
-            "description": "Overrides the picture resolution"
-        },
-        "force_highest_frame_rate": {
-            "name": "Force Highest Frame Rate",
-            "description": "Forces the highest possible frame rate"
-        },
-        "force_camera_source_encoding": {
-            "name": "Force Camera Source Encoding",
-            "description": "Forces the camera source encoding"
-        },
+            "download_options": {
+                "name": "Download Options",
+                "description": "Specify the file path format"
+            },
+            "chat_download_context_menu": {
+                "name": "Chat Download Context Menu",
+                "description": "Enable the chat download context menu"
+            },
+            "gallery_media_send_override": {
+                "name": "Gallery Media Send Override",
+                "description": "Overrides media sent from the gallery"
+            },
+            "auto_save_messages": {
+                "name": "Auto Save Messages",
+                "description": "Select which type of messages to auto save"
+            },
+            "force_media_source_quality": {
+                "name": "Force Media Source Quality",
+                "description": "Overrides the media source quality"
+            },
+            "download_logging": {
+                "name": "Download Logging",
+                "description": "Show a toast when media is downloading"
+            },
 
-        "app_passcode": {
-            "name": "Set App Passcode",
-            "description": "Sets a passcode to lock the app"
-        },
-        "app_lock_on_resume": {
-            "name": "App Lock On Resume",
-            "description": "Locks the app when it's reopened"
-        },
-        "infinite_story_boost": {
-            "name": "Infinite Story Boost",
-            "description": "Infinitely boosts your story"
-        },
-        "meo_passcode_bypass": {
-            "name": "My Eyes Only Passcode Bypass",
-            "description": "Bypass the My Eyes Only passcode\nThis will only work if the passcode has been entered correctly before"
-        },
-        "amoled_dark_mode": {
-            "name": "AMOLED Dark Mode",
-            "description": "Enables AMOLED dark mode\nMake sure Snapchat's dark mode is enabled"
-        },
-        "unlimited_multi_snap": {
-            "name": "Unlimited Multi Snap",
-            "description": "Allows you to take an unlimited amount of multi snaps"
-        },
-        "device_spoof": {
-            "name": "Spoof Device Values",
-            "description": "Spoofs the devices values"
-        },
-        "device_fingerprint": {
-            "name": "Device Fingerprint",
-            "description": "Spoofs the device fingerprint"
-        },
-        "android_id": {
-            "name": "Android ID",
-            "description": "Spoofs the devices Android ID"
-        }
-    },
+            "disable_snap_splitting": {
+                "name": "Disable Snap Splitting",
+                "description": "Prevents Snaps from being split into multiple parts"
+            },
+            "disable_video_length_restriction": {
+                "name": "Disable Video Length Restriction",
+                "description": "Disables video length restrictions"
+            },
+            "snapchat_plus": {
+                "name": "Snapchat Plus",
+                "description": "Enables Snapchat Plus features"
+            },
+            "location_spoof": {
+                "name": "Snapmap Location Spoofer",
+                "description": "Spoofs your location on the Snapmap"
+            },
+            "message_preview_length": {
+                "name": "Message Preview Length",
+                "description": "Specify the amount of messages to be previewed"
+            },
+            "unlimited_conversation_pinning": {
+                "name": "Unlimited Conversation Pinning",
+                "description": "Enables the ability to pin unlimited conversations"
+            },
+            "disable_google_play_dialogs": {
+                "name": "Disable Google Play Services Dialogs",
+                "description": "Prevent Google Play Services availability dialogs from being shown"
+            },
 
-    "option": {
-        "property": {
+            "auto_updater": {
+                "name": "Auto Updater",
+                "description": "The interval of checking for updates"
+            },
+
+            "disable_camera": {
+                "name": "Disable Camera",
+                "description": "Prevents Snapchat from being able to use the camera"
+            },
+            "immersive_camera_preview": {
+                "name": "Immersive Camera Preview",
+                "description": "Stops Snapchat from cropping the camera preview"
+            },
+            "preview_resolution": {
+                "name": "Preview Resolution",
+                "description": "Overrides the camera preview resolution"
+            },
+            "picture_resolution": {
+                "name": "Picture Resolution",
+                "description": "Overrides the picture resolution"
+            },
+            "force_highest_frame_rate": {
+                "name": "Force Highest Frame Rate",
+                "description": "Forces the highest possible frame rate"
+            },
+            "force_camera_source_encoding": {
+                "name": "Force Camera Source Encoding",
+                "description": "Forces the camera source encoding"
+            },
+
+            "app_passcode": {
+                "name": "Set App Passcode",
+                "description": "Sets a passcode to lock the app"
+            },
+            "app_lock_on_resume": {
+                "name": "App Lock On Resume",
+                "description": "Locks the app when it's reopened"
+            },
+            "infinite_story_boost": {
+                "name": "Infinite Story Boost",
+                "description": "Infinitely boosts your story"
+            },
+            "meo_passcode_bypass": {
+                "name": "My Eyes Only Passcode Bypass",
+                "description": "Bypass the My Eyes Only passcode\nThis will only work if the passcode has been entered correctly before"
+            },
+            "unlimited_multi_snap": {
+                "name": "Unlimited Multi Snap",
+                "description": "Allows you to take an unlimited amount of multi snaps"
+            },
+            "device_spoof": {
+                "name": "Spoof Device Values",
+                "description": "Spoofs the devices values"
+            },
+            "device_fingerprint": {
+                "name": "Device Fingerprint",
+                "description": "Spoofs the device fingerprint"
+            },
+            "android_id": {
+                "name": "Android ID",
+                "description": "Spoofs the devices Android ID"
+            }
+        },
+        "option": {
             "better_notifications": {
                 "chat": "Show chat messages",
                 "snap": "Show medias",

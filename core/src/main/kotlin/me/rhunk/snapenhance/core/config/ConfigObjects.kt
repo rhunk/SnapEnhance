@@ -12,7 +12,7 @@ data class PropertyPair<T>(
 
 class ConfigParams(
     var shouldTranslate: Boolean = false,
-    var hidden: Boolean = false,
+    var isHidden: Boolean = false,
     var isFolder: Boolean = false,
     val disabledKey: String? = null
 )
@@ -40,9 +40,20 @@ class PropertyValue<T>(
     operator fun setValue(t: Any?, property: KProperty<*>, t1: T?) = set(t1)
 }
 
-class PropertyKey<T>(
+data class PropertyKey<T>(
+    private val _parent: () -> PropertyKey<*>?,
     val name: String,
     val dataType: DataProcessors.PropertyDataProcessor<T>,
     val params: ConfigParams = ConfigParams(),
-)
+) {
+    val parentKey by lazy { _parent() }
+
+    fun propertyTranslationPath(): String {
+        return if (parentKey != null) {
+            "${parentKey!!.propertyTranslationPath()}.properties.$name"
+        } else {
+            "features.$name"
+        }
+    }
+}
 

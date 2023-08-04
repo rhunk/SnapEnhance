@@ -27,8 +27,7 @@ class UserInterfaceTweaks : ConfigContainer() {
         "ngs_search_icon_container"
     )
     val storyViewerOverride = unique("story_viewer_override", "DISCOVER_PLAYBACK_SEEKBAR", "VERTICAL_STORY_VIEWER")
-
     val friendFeedMenuButtons = multiple("friend_feed_menu_buttons", "auto_download_blacklist", "anti_auto_save", "stealth_mode", "conversation_info")
-    val enableFriendFeedMenuBar = boolean("enable_friend_feed_menu_bar")
     val friendFeedMenuPosition = integer("friend_feed_menu_position", defaultValue = 1)
+    val enableFriendFeedMenuBar = boolean("enable_friend_feed_menu_bar")
 }

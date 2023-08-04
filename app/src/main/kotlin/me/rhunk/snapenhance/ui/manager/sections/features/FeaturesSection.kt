@@ -6,6 +6,7 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
@@ -20,7 +21,6 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.MaterialTheme
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.filled.FolderOpen
 import androidx.compose.material.icons.filled.OpenInNew
 import androidx.compose.material.icons.rounded.Save
@@ -34,7 +34,6 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
-import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.rememberBottomSheetScaffoldState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.mutableStateOf
@@ -43,7 +42,6 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -63,15 +61,72 @@ class FeaturesSection : Section() {
     private val dialogs by lazy { Dialogs() }
 
     companion object {
-        private const val MAIN_ROUTE = "root"
+        const val MAIN_ROUTE = "feature_root"
+        const val FEATURE_CONTAINER_ROOT = "feature_container/{name}"
     }
 
     private lateinit var openFolderCallback: (uri: String) -> Unit
     private lateinit var openFolderLauncher: () -> Unit
 
+    private val featuresRouteName by lazy { context.translation["manager.routes.features"] }
+
+    private val allContainers by lazy {
+        val containers = mutableMapOf<String, PropertyPair<*>>()
+        fun queryContainerRecursive(container: ConfigContainer) {
+            container.properties.forEach {
+                if (it.key.dataType.type == DataProcessors.Type.CONTAINER) {
+                    containers[it.key.name] = PropertyPair(it.key, it.value)
+                    queryContainerRecursive(it.value.get() as ConfigContainer)
+                }
+            }
+        }
+        queryContainerRecursive(context.config.root)
+        containers
+    }
+
     override fun init() {
         openFolderLauncher = ChooseFolderHelper.createChooseFolder(context.activity!! as ComponentActivity) {
             openFolderCallback(it)
+        }
+    }
+
+    override fun canGoBack() = sectionTopBarName() != featuresRouteName
+
+    override fun sectionTopBarName(): String {
+        navController.currentBackStackEntry?.arguments?.getString("name")?.let { routeName ->
+            val currentContainerPair = allContainers[routeName]
+            val propertyTree = run {
+                var key = currentContainerPair?.key
+                val tree = mutableListOf<String>()
+                while (key != null) {
+                    tree.add(key.propertyTranslationPath())
+                    key = key.parentKey
+                }
+                tree
+            }
+
+            val translatedKey = propertyTree.reversed().joinToString(" > ") {
+                context.translation["$it.name"]
+            }
+
+            return "$featuresRouteName > $translatedKey"
+        }
+        return featuresRouteName
+    }
+
+    override fun build(navGraphBuilder: NavGraphBuilder) {
+        navGraphBuilder.navigation(route = "features", startDestination = MAIN_ROUTE) {
+            composable(MAIN_ROUTE) {
+                Container(context.config.root)
+            }
+
+            composable(FEATURE_CONTAINER_ROOT) { backStackEntry ->
+                backStackEntry.arguments?.getString("name")?.let { containerName ->
+                    allContainers[containerName]?.let {
+                        Container(it.value.get() as ConfigContainer)
+                    }
+                }
+            }
         }
     }
 
@@ -130,7 +185,7 @@ class FeaturesSection : Section() {
                     overflow = TextOverflow.Ellipsis,
                     maxLines = 1,
                     modifier = Modifier.widthIn(0.dp, 120.dp),
-                    text = (propertyValue.getNullable() as? String) ?: "Disabled",
+                    text = (propertyValue.getNullable() as? String) ?: context.translation["manager.features.disabled"],
                 )
             }
 
@@ -168,7 +223,7 @@ class FeaturesSection : Section() {
                 val container = propertyValue.get() as ConfigContainer
 
                 registerClickCallback {
-                    navController.navigate("container/${property.name}")
+                    navController.navigate(FEATURE_CONTAINER_ROOT.replace("{name}", property.name))
                 }
 
                 if (container.globalState == null) return
@@ -183,7 +238,10 @@ class FeaturesSection : Section() {
                     Box(modifier = Modifier
                         .height(50.dp)
                         .width(1.dp)
-                        .background(color = MaterialTheme.colors.onBackground.copy(alpha = 0.12f), shape = RoundedCornerShape(5.dp)))
+                        .background(
+                            color = MaterialTheme.colors.onBackground.copy(alpha = 0.12f),
+                            shape = RoundedCornerShape(5.dp)
+                        ))
                 }
 
                 Switch(
@@ -222,12 +280,12 @@ class FeaturesSection : Section() {
                         .padding(all = 10.dp)
                 ) {
                     Text(
-                        text = property.name,
+                        text = context.translation["${property.key.propertyTranslationPath()}.name"],
                         fontSize = 16.sp,
                         fontWeight = FontWeight.Bold
                     )
                     Text(
-                        text = property.name,
+                        text = context.translation["${property.key.propertyTranslationPath()}.description"],
                         fontSize = 12.sp,
                         lineHeight = 15.sp
                     )
@@ -252,7 +310,6 @@ class FeaturesSection : Section() {
     @OptIn(ExperimentalMaterial3Api::class)
     @Composable
     private fun Container(
-        containerName: String,
         configContainer: ConfigContainer
     ) {
         val properties = remember {
@@ -264,20 +321,6 @@ class FeaturesSection : Section() {
         Scaffold(
             snackbarHost = { SnackbarHost(scaffoldState.snackbarHostState) },
             modifier = Modifier.fillMaxSize(),
-            topBar = {
-                TopAppBar(
-                    title = {
-                        Text(text = containerName, textAlign = TextAlign.Center)
-                    },
-                    navigationIcon = {
-                        if (navController.currentBackStackEntry?.destination?.route != MAIN_ROUTE) {
-                            IconButton(onClick = { navController.popBackStack() }) {
-                                Icon(Icons.Filled.ArrowBack, contentDescription = null)
-                            }
-                        }
-                    }
-                )
-            },
             floatingActionButton = {
                 FloatingActionButton(
                     onClick = {
@@ -302,6 +345,8 @@ class FeaturesSection : Section() {
                     modifier = Modifier
                         .fillMaxHeight()
                         .padding(innerPadding),
+                    //save button space
+                    contentPadding = PaddingValues(top = 10.dp, bottom = 110.dp),
                     verticalArrangement = Arrangement.Center
                 ) {
                     items(properties) {
@@ -310,36 +355,6 @@ class FeaturesSection : Section() {
                 }
             }
         )
-
     }
 
-    override fun build(navGraphBuilder: NavGraphBuilder) {
-        val allContainers by lazy {
-            val containers = mutableMapOf<String, ConfigContainer>()
-            fun queryContainerRecursive(container: ConfigContainer) {
-                container.properties.forEach {
-                    if (it.key.dataType.type == DataProcessors.Type.CONTAINER) {
-                        containers[it.key.name] = it.value.get() as ConfigContainer
-                        queryContainerRecursive(it.value.get() as ConfigContainer)
-                    }
-                }
-            }
-            queryContainerRecursive(context.config.root)
-            containers
-        }
-
-        navGraphBuilder.navigation(route = "features", startDestination = MAIN_ROUTE) {
-            composable(MAIN_ROUTE) {
-                Container(MAIN_ROUTE, context.config.root)
-            }
-
-            composable("container/{name}") { backStackEntry ->
-                backStackEntry.arguments?.getString("name")?.let { containerName ->
-                    allContainers[containerName]?.let {
-                        Container(containerName, it)
-                    }
-                }
-            }
-        }
-    }
 }

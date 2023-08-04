@@ -70,6 +70,9 @@ open class Section {
     open fun init() {}
     open fun onResumed() {}
 
+    open fun sectionTopBarName(): String = context.translation["manager.routes.${enumSection.route}"]
+    open fun canGoBack(): Boolean = false
+
     @Composable
     open fun Content() { NotImplemented() }
 

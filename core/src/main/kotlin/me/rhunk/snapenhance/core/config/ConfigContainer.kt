@@ -8,16 +8,19 @@ typealias ConfigParamsBuilder = ConfigParams.() -> Unit
 open class ConfigContainer(
     var globalState: Boolean? = null
 ) {
+    var parentContainerKey: PropertyKey<*>? = null
     val properties = mutableMapOf<PropertyKey<*>, PropertyValue<*>>()
 
     private inline fun <T> registerProperty(
         key: String,
         type: DataProcessors.PropertyDataProcessor<*>,
         defaultValue: PropertyValue<T>,
-        params: ConfigParams.() -> Unit = {}
+        params: ConfigParams.() -> Unit = {},
+        propertyKeyCallback: (PropertyKey<*>) -> Unit = {}
     ): PropertyValue<T> {
-        val propertyKey = PropertyKey(key, type, ConfigParams().also { it.params() })
+        val propertyKey = PropertyKey({ parentContainerKey }, key, type, ConfigParams().also { it.params() })
         properties[propertyKey] = defaultValue
+        propertyKeyCallback(propertyKey)
         return defaultValue
     }
 
@@ -51,7 +54,9 @@ open class ConfigContainer(
     protected fun <T : ConfigContainer> container(
         key: String,
         container: T
-    ) = registerProperty(key, DataProcessors.container(container), PropertyValue(container)).get()
+    ) = registerProperty(key, DataProcessors.container(container), PropertyValue(container)) {
+        container.parentContainerKey = it
+    }.get()
 
     fun toJson(): JsonObject {
         val json = JsonObject()

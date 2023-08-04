@@ -23,8 +23,6 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
-import me.rhunk.snapenhance.Logger
 import me.rhunk.snapenhance.ui.manager.Section
 import me.rhunk.snapenhance.ui.manager.data.InstallationSummary
 import me.rhunk.snapenhance.ui.setup.Requirements
@@ -91,12 +89,13 @@ class HomeSection : Section() {
     }
 
     override fun onResumed() {
-        Logger.debug("HomeSection resumed")
         if (!context.mappings.isMappingsLoaded()) {
             context.mappings.init()
         }
         installationSummary.value = context.getInstallationSummary()
     }
+
+    override fun sectionTopBarName() = "SnapEnhance"
 
     @Composable
     @Preview
@@ -106,12 +105,6 @@ class HomeSection : Section() {
                 .fillMaxSize()
                 .verticalScroll(ScrollState(0))
         ) {
-            Text(
-                "SnapEnhance",
-                fontSize = 32.sp,
-                modifier = Modifier.padding(32.dp)
-            )
-
             Text(
                 text = "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Donec euismod, nisl eget ultricies ultrices, nunc nisl aliquam nunc, quis aliquam nisl nunc eu nisl. Donec euismod, nisl eget ultricies ultrices, nunc nisl aliquam nunc, quis aliquam nisl nunc eu nisl.",
                 modifier = Modifier.padding(16.dp)

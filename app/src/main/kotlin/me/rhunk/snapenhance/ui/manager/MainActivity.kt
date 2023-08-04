@@ -39,15 +39,14 @@ class MainActivity : ComponentActivity() {
 
         setContent {
             val navController = rememberNavController()
-            val navigation = remember { Navigation() }
+            val navigation = remember { Navigation(sections, navController) }
             AppMaterialTheme {
                 Scaffold(
                     containerColor = MaterialTheme.colorScheme.background,
-                    bottomBar = { navigation.NavBar(navController = navController) }
+                    topBar = { navigation.TopBar() },
+                    bottomBar = { navigation.NavBar() }
                 ) { innerPadding ->
                     navigation.NavigationHost(
-                        sections = sections,
-                        navController = navController,
                         innerPadding = innerPadding,
                         startDestination = startDestination
                     )
