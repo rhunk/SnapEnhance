@@ -33,7 +33,9 @@ class Messaging : Feature("Messaging", loadParams = FeatureLoadParams.ACTIVITY_C
                 val conversationId = viewItem.substringAfter("conversationId: ").substring(0, 36).also {
                     if (it.startsWith("null")) return@hook
                 }
-                lastFetchGroupConversationUUID = SnapUUID.fromString(conversationId)
+                context.database.getConversationType(conversationId)?.takeIf { it == 1 }?.run {
+                    lastFetchGroupConversationUUID = SnapUUID.fromString(conversationId)
+                }
             }
         }
 

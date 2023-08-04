@@ -141,6 +141,22 @@ class DatabaseAccess(private val context: ModContext) : Manager {
         }
     }
 
+    fun getConversationType(conversationId: String): Int? {
+        return safeDatabaseOperation(openArroyo()) {
+            val cursor = it.rawQuery(
+                "SELECT * FROM user_conversation WHERE client_conversation_id = ?",
+                arrayOf(conversationId)
+            )
+            if (!cursor.moveToFirst()) {
+                cursor.close()
+                return@safeDatabaseOperation null
+            }
+            val type = cursor.getInt(cursor.getColumnIndex("conversation_type"))
+            cursor.close()
+            type
+        }
+    }
+
     fun getDMConversationIdFromUserId(userId: String): UserConversationLink? {
         return safeDatabaseOperation(openArroyo()) {
             readDatabaseObject(
