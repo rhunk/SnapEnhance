@@ -19,8 +19,8 @@ class GalleryMediaSendOverride : Feature("Gallery Media Send Override", loadPara
         return if (this.size < 8) {
             false
         } else {
-            val firstSixBytes = this.copyOfRange(0, 8)
-            firstSixBytes.contentEquals(cameosHeaderTypeA) || firstSixBytes.contentEquals(cameosHeaderTypeB)
+            val firstEightBytes = this.copyOfRange(0, 8)
+            firstEightBytes.contentEquals(cameosHeaderTypeA) || firstEightBytes.contentEquals(cameosHeaderTypeB)
         }
     }
 
