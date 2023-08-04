@@ -18,6 +18,7 @@ class PlatformAnalyticsCreatorMapper : AbstractClassMapper() {
             if (firstParameterClass.getStaticConstructor()?.implementation?.findConstString("IN_APP_NOTIFICATION") != true) continue
 
             context.addMapping("PlatformAnalyticsCreator", clazz.type.replace("L", "").replace(";", ""))
+            return
         }
     }
 }

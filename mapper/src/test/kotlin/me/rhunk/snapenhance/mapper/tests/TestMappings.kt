@@ -21,7 +21,9 @@ class TestMappings {
             PlusSubscriptionMapper::class,
             ScCameraSettingsMapper::class,
             StoryBoostStateMapper::class,
-            FriendsFeedEventDispatcherMapper::class
+            FriendsFeedEventDispatcherMapper::class,
+            CompositeConfigurationProviderMapper::class,
+            ScoreUpdateMapper::class,
         )
 
         val gson = GsonBuilder().setPrettyPrinting().create()
