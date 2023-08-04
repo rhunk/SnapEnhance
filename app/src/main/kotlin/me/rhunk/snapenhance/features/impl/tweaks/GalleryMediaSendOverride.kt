@@ -1,7 +1,5 @@
 package me.rhunk.snapenhance.features.impl.tweaks
 
-import android.app.AlertDialog
-import de.robv.android.xposed.XposedBridge
 import me.rhunk.snapenhance.config.ConfigProperty
 import me.rhunk.snapenhance.data.ContentType
 import me.rhunk.snapenhance.data.MessageSender
