@@ -1,6 +1,7 @@
 package me.rhunk.snapenhance.features.impl.ui
 
 import android.annotation.SuppressLint
+import android.os.Handler
 import android.view.View
 import android.view.ViewGroup
 import android.widget.LinearLayout
@@ -23,17 +24,17 @@ class StartupPageOverride : Feature("StartupPageOverride", loadParams = FeatureL
         ngs_search_icon_container
      */
 
+    private fun clickNgsIcon() {
+        Handler(context.androidContext.mainLooper).postDelayed({
+            ngsIcon?.callOnClick()
+        }, 300)
+    }
+
     override fun onActivityCreate() {
         val ngsIconName = context.config.userInterface.startupTab.getNullable() ?: return
 
         context.androidContext.classLoader.loadClass("com.snap.mushroom.MainActivity").apply {
-            hook("onPostCreate", HookStage.AFTER) {
-                ngsIcon?.callOnClick()
-            }
-
-            hook("onResume", HookStage.AFTER) {
-                ngsIcon?.callOnClick()
-            }
+            hook("onResume", HookStage.AFTER) { clickNgsIcon() }
         }
 
         val ngsIconId = context.androidContext.resources.getIdentifier(ngsIconName, "id", Constants.SNAPCHAT_PACKAGE_NAME)
