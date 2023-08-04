@@ -67,5 +67,18 @@ class ConfigurationOverride : Feature("Configuration Override", loadParams = Fea
                 param.setResult(value)
             }
         }
+
+        arrayOf("getBoolean", "getInt", "getLong", "getFloat", "getString").forEach { methodName ->
+            findClass("android.app.SharedPreferencesImpl").hook(
+                methodName,
+                HookStage.BEFORE
+            ) { param ->
+                val key = param.argNullable<Any>(0).toString()
+                propertyOverrides[key]?.let { (filter, value) ->
+                    if (!filter()) return@let
+                    param.setResult(value)
+                }
+            }
+        }
     }
 }
