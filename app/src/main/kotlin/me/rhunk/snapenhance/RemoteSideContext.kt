@@ -18,18 +18,9 @@ import java.lang.ref.WeakReference
 import kotlin.system.exitProcess
 
 class RemoteSideContext(
-    ctx: Context
+    val androidContext: Context
 ) {
-    private var _context: WeakReference<Context> = WeakReference(ctx)
     private var _activity: WeakReference<Activity>? = null
-
-    var androidContext: Context
-        get() = synchronized(this) {
-            _context.get() ?: error("Context is null")
-        }
-        set(value) { synchronized(this) {
-            _context.clear(); _context = WeakReference(value)
-        } }
 
     var activity: Activity?
         get() = _activity?.get()
@@ -99,13 +90,9 @@ class RemoteSideContext(
             if (currentContext !is Activity) {
                 addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
                 currentContext.startActivity(this)
-                return@apply
+                exitProcess(0)
             }
-            currentContext.startActivityForResult(this, 22)
-        }
-
-        if (currentContext !is Activity) {
-            exitProcess(0)
+            currentContext.startActivity(this)
         }
     }
 }
