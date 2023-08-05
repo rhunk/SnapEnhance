@@ -7,6 +7,19 @@
         }
     },
 
+    "manager": {
+        "routes": {
+            "downloads": "Téléchargements",
+            "features": "Fonctionnalités",
+            "home": "Accueil",
+            "friends": "Amis",
+            "debug": "Débogage"
+        },
+        "features": {
+            "disabled": "Désactivé"
+        }
+    },
+
     "category": {
         "spying_privacy": "Espionnage et vie privée",
         "media_manager": "Gestionnaire de média",

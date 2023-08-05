@@ -115,7 +115,7 @@ class FeaturesSection : Section() {
     }
 
     override fun build(navGraphBuilder: NavGraphBuilder) {
-        navGraphBuilder.navigation(route = "features", startDestination = MAIN_ROUTE) {
+        navGraphBuilder.navigation(route = enumSection.route, startDestination = MAIN_ROUTE) {
             composable(MAIN_ROUTE) {
                 Container(context.config.root)
             }
@@ -141,8 +141,7 @@ class FeaturesSection : Section() {
 
         if (showDialog.value) {
             Dialog(
-                onDismissRequest = { showDialog.value = false },
-                properties = DialogProperties()
+                onDismissRequest = { showDialog.value = false }
             ) {
                 dialogComposable.value()
             }
@@ -329,7 +328,7 @@ class FeaturesSection : Section() {
                             scaffoldState.snackbarHostState.showSnackbar("Saved")
                         }
                     },
-                    modifier = Modifier.padding(25.dp),
+                    modifier = Modifier.padding(10.dp),
                     containerColor = MaterialTheme.colors.primary,
                     contentColor = MaterialTheme.colors.onPrimary,
                     shape = RoundedCornerShape(16.dp),

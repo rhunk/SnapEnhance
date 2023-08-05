@@ -39,7 +39,7 @@ class MainActivity : ComponentActivity() {
 
         setContent {
             val navController = rememberNavController()
-            val navigation = remember { Navigation(sections, navController) }
+            val navigation = remember { Navigation(managerContext, sections, navController) }
             AppMaterialTheme {
                 Scaffold(
                     containerColor = MaterialTheme.colorScheme.background,

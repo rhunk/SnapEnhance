@@ -20,6 +20,7 @@
         "routes": {
             "downloads": "Downloads",
             "features": "Features",
+            "home": "Home",
             "friends": "Friends",
             "debug": "Debug"
         },

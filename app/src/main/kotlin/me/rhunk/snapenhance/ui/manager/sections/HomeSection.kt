@@ -3,15 +3,16 @@ package me.rhunk.snapenhance.ui.manager.sections
 import androidx.compose.foundation.ScrollState
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.ExperimentalLayoutApi
-import androidx.compose.foundation.layout.FlowRow
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Language
 import androidx.compose.material.icons.filled.Map
+import androidx.compose.material.icons.filled.OpenInNew
 import androidx.compose.material.icons.filled.Refresh
 import androidx.compose.material3.Button
 import androidx.compose.material3.Icon
@@ -26,14 +27,15 @@ import androidx.compose.ui.unit.dp
 import me.rhunk.snapenhance.ui.manager.Section
 import me.rhunk.snapenhance.ui.manager.data.InstallationSummary
 import me.rhunk.snapenhance.ui.setup.Requirements
+import java.util.Locale
 
 class HomeSection : Section() {
     companion object {
         val cardMargin = 10.dp
     }
     private val installationSummary = mutableStateOf(null as InstallationSummary?)
+    private val userLocale = mutableStateOf(null as String?)
 
-    @OptIn(ExperimentalLayoutApi::class)
     @Composable
     private fun SummaryCards(installationSummary: InstallationSummary) {
         //installation summary
@@ -57,7 +59,7 @@ class HomeSection : Section() {
                 .padding(all = cardMargin)
                 .fillMaxWidth()
         ) {
-            FlowRow(
+            Row(
                 modifier = Modifier.padding(all = 16.dp),
                 horizontalArrangement = Arrangement.SpaceBetween
             ) {
@@ -86,6 +88,34 @@ class HomeSection : Section() {
                 }
             }
         }
+        OutlinedCard(
+            modifier = Modifier
+                .padding(all = cardMargin)
+                .fillMaxWidth()
+        ) {
+            Row(
+                modifier = Modifier.padding(all = 16.dp),
+            ) {
+                Icon(
+                    Icons.Filled.Language,
+                    contentDescription = "Language",
+                    modifier = Modifier
+                        .padding(end = 10.dp)
+                        .align(Alignment.CenterVertically)
+                )
+                Text(text = userLocale.value ?: "Unknown", modifier = Modifier
+                    .weight(1f)
+                    .align(Alignment.CenterVertically)
+                )
+
+                //inline button
+                Button(onClick = {
+                    context.checkForRequirements(Requirements.LANGUAGE)
+                }, modifier = Modifier.height(40.dp)) {
+                    Icon(Icons.Filled.OpenInNew, contentDescription = null)
+                }
+            }
+        }
     }
 
     override fun onResumed() {
@@ -93,6 +123,7 @@ class HomeSection : Section() {
             context.mappings.init()
         }
         installationSummary.value = context.getInstallationSummary()
+        userLocale.value = context.translation.loadedLocale.getDisplayName(Locale.getDefault())
     }
 
     override fun sectionTopBarName() = "SnapEnhance"

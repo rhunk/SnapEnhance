@@ -20,36 +20,30 @@ import kotlin.reflect.KClass
 
 enum class EnumSection(
     val route: String,
-    val title: String,
     val icon: ImageVector,
     val section: KClass<out Section> = NotImplemented::class
 ) {
     DOWNLOADS(
         route = "downloads",
-        title = "Downloads",
         icon = Icons.Filled.Download,
         section = DownloadSection::class
     ),
     FEATURES(
         route = "features",
-        title = "Features",
         icon = Icons.Filled.Stars,
         section = FeaturesSection::class
     ),
     HOME(
         route = "home",
-        title = "Home",
         icon = Icons.Filled.Home,
         section = HomeSection::class
     ),
     FRIENDS(
         route = "friends",
-        title = "Friends",
         icon = Icons.Filled.Group
     ),
     DEBUG(
         route = "debug",
-        title = "Debug",
         icon = Icons.Filled.BugReport
     );
 

@@ -35,7 +35,6 @@ class MappingsScreen : SetupScreen() {
             }) {
                 Surface(
                     modifier = Modifier.padding(16.dp).fillMaxWidth(),
-                    color = MaterialTheme.colors.surface,
                     shape = RoundedCornerShape(16.dp),
                 ) {
                     Column(
@@ -86,8 +85,8 @@ class MappingsScreen : SetupScreen() {
         }) {
             if (isGenerating.value) {
                 CircularProgressIndicator(
-                    modifier = Modifier.padding(end = 5.dp).size(25.dp),
-                    strokeWidth = 2.dp,
+                    modifier = Modifier.padding().size(30.dp),
+                    strokeWidth = 3.dp,
                     color = MaterialTheme.colors.onPrimary
                 )
             } else {
