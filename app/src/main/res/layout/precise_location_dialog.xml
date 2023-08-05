@@ -11,18 +11,18 @@
         android:id="@+id/dialog_latitude"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:autofillHints=""
         android:ems="10"
-        android:inputType="numberDecimal"
         android:hint="Latitude"
-        android:autofillHints="" />
+        android:inputType="number|numberDecimal|numberSigned" />
 
     <EditText
         android:id="@+id/dialog_longitude"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:autofillHints=""
         android:ems="10"
-        android:inputType="numberDecimal"
         android:hint="Longitude"
-        android:autofillHints="" />
+        android:inputType="number|numberDecimal|numberSigned" />
 
 </LinearLayout>

@@ -1,6 +1,5 @@
 package me.rhunk.snapenhance.features.impl.tweaks
 
-import android.app.AlertDialog
 import me.rhunk.snapenhance.config.ConfigProperty
 import me.rhunk.snapenhance.data.ContentType
 import me.rhunk.snapenhance.data.MessageSender
@@ -28,7 +27,7 @@ class GalleryMediaSendOverride : Feature("Gallery Media Send Override", loadPara
         }) { param ->
             val localMessageContent = MessageContent(param.arg(1))
             if (localMessageContent.contentType != ContentType.EXTERNAL_MEDIA) return@hook
-
+            
             //prevent story replies
             val messageProtoReader = ProtoReader(localMessageContent.content)
             if (messageProtoReader.exists(7)) return@hook
