@@ -12,53 +12,69 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.material.Surface
 import androidx.compose.material.Text
+import androidx.compose.material3.Button
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.OutlinedButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
 import me.rhunk.snapenhance.bridge.wrapper.LocaleWrapper
-import me.rhunk.snapenhance.ui.util.ObservableMutableState
 import me.rhunk.snapenhance.ui.setup.screens.SetupScreen
+import me.rhunk.snapenhance.ui.util.ObservableMutableState
 import java.util.Locale
 
 
 class PickLanguageScreen : SetupScreen(){
-    @Composable
-    override fun Content() {
-        val androidContext = LocalContext.current
-        val availableLocales = remember { LocaleWrapper.fetchAvailableLocales(androidContext) }
+    private val availableLocales by lazy {
+        LocaleWrapper.fetchAvailableLocales(context.androidContext)
+    }
 
-        allowNext(true)
+    private lateinit var selectedLocale: ObservableMutableState<String>
 
-        fun getLocaleDisplayName(locale: String): String {
-            locale.split("_").let {
-                return Locale(it[0], it[1]).getDisplayName(Locale.getDefault())
-            }
+    private fun getLocaleDisplayName(locale: String): String {
+        locale.split("_").let {
+            return Locale(it[0], it[1]).getDisplayName(Locale.getDefault())
         }
+    }
 
-        val selectedLocale = remember {
-            val deviceLocale = Locale.getDefault().toString()
-            fun reloadTranslation(selectedLocale: String) {
-                context.translation.reloadFromContext(androidContext, selectedLocale)
-            }
+    private fun reloadTranslation(selectedLocale: String) {
+        context.translation.reloadFromContext(context.androidContext, selectedLocale)
+    }
+
+    private fun setLocale(locale: String) {
+        with(context) {
+            config.locale = locale
+            config.writeConfig()
+            translation.reloadFromContext(androidContext, locale)
+            reloadTranslation(locale)
+        }
+    }
+
+    override fun onLeave() {
+        context.config.locale = selectedLocale.value
+        context.config.writeConfig()
+    }
+
+    override fun init() {
+        val deviceLocale = Locale.getDefault().toString()
+        selectedLocale =
             ObservableMutableState(
                 defaultValue = availableLocales.firstOrNull {
                         locale -> locale == deviceLocale
                 } ?: LocaleWrapper.DEFAULT_LOCALE
             ) { _, newValue ->
-                context.config.locale = newValue
-                context.config.writeConfig()
-                reloadTranslation(newValue)
+                setLocale(newValue)
             }.also { reloadTranslation(it.value) }
-        }
+    }
+
+    @Composable
+    override fun Content() {
+        allowNext(true)
 
         DialogText(text = context.translation["setup.dialogs.select_language"])
 
@@ -105,10 +121,11 @@ class PickLanguageScreen : SetupScreen(){
                 .fillMaxWidth(),
             contentAlignment = Alignment.Center
         ) {
-            OutlinedButton(onClick = {
+            Button(onClick = {
                 isDialog.value = true
             }) {
-                Text(text = getLocaleDisplayName(selectedLocale.value), fontSize = 16.sp, fontWeight = FontWeight.Light)
+                Text(text = getLocaleDisplayName(selectedLocale.value), fontSize = 16.sp,
+                    fontWeight = FontWeight.Normal)
             }
         }
     }

@@ -37,16 +37,11 @@ class LocaleWrapper {
     var userLocale = DEFAULT_LOCALE
 
     private val translationMap = linkedMapOf<String, String>()
-    private lateinit var _loadedLocaleString: String
 
-    val loadedLocale by lazy {
-        Locale(_loadedLocaleString.substring(0, 2), _loadedLocaleString.substring(3, 5))
-    }
+    lateinit var loadedLocale: Locale
 
     private fun load(localePair: LocalePair) {
-        if (!::_loadedLocaleString.isInitialized) {
-            _loadedLocaleString = localePair.locale
-        }
+        loadedLocale = localePair.locale.let { Locale(it.substring(0, 2), it.substring(3, 5)) }
 
         val translations = JsonParser.parseString(localePair.content).asJsonObject
         if (translations == null || translations.isJsonNull) {

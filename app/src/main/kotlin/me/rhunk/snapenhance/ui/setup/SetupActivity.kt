@@ -83,6 +83,7 @@ class SetupActivity : ComponentActivity() {
 
             fun nextScreen() {
                 if (!canGoNext.value) return
+                requiredScreens.firstOrNull()?.onLeave()
                 if (requiredScreens.size > 1) {
                     canGoNext.value = false
                     requiredScreens.removeFirst()

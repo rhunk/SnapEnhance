@@ -25,6 +25,7 @@ abstract class SetupScreen {
     }
 
     open fun init() {}
+    open fun onLeave() {}
 
     @Composable
     abstract fun Content()
