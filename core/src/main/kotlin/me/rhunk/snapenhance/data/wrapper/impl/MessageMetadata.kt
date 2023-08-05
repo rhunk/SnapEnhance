@@ -7,11 +7,7 @@ import me.rhunk.snapenhance.util.getObjectField
 class MessageMetadata(obj: Any?) : AbstractWrapper(obj){
     val createdAt: Long get() = instanceNonNull().getObjectField("mCreatedAt") as Long
     val readAt: Long get() = instanceNonNull().getObjectField("mReadAt") as Long
-    var playableSnapState: PlayableSnapState
-    get() = getEnumValue("mPlayableSnapState", PlayableSnapState.PLAYABLE)
-    set(value) {
-        setEnumValue("mPlayableSnapState", value)
-    }
+    var playableSnapState by enum("mPlayableSnapState", PlayableSnapState.PLAYABLE)
 
     private fun getUUIDList(name: String): List<SnapUUID> {
         return (instanceNonNull().getObjectField(name) as List<*>).map { SnapUUID(it!!) }
