@@ -30,8 +30,8 @@ class LocationSpoofer: Feature("LocationSpoof", loadParams = FeatureLoadParams.A
         val locationClass = android.location.Location::class.java
         val locationManagerClass = android.location.LocationManager::class.java
 
-        locationClass.hook("getLatitude", HookStage.BEFORE) { it.setResult(latitude) }
-        locationClass.hook("getLongitude", HookStage.BEFORE) { it.setResult(longitude) }
+        locationClass.hook("getLatitude", HookStage.BEFORE) { it.setResult(latitude.toDouble()) }
+        locationClass.hook("getLongitude", HookStage.BEFORE) { it.setResult(longitude.toDouble()) }
         locationClass.hook("getAccuracy", HookStage.BEFORE) { it.setResult(0.0F) }
 
         //Might be redundant because it calls isProviderEnabledForUser which we also hook, meaning if isProviderEnabledForUser returns true this will also return true
