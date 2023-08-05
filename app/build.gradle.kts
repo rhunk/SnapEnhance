@@ -91,13 +91,16 @@ android {
 
 dependencies {
     implementation(project(":core"))
+    implementation(libs.androidx.material.icons.core)
+    implementation(libs.androidx.material.ripple)
     implementation(libs.androidx.material.icons.extended)
     implementation(libs.androidx.material3)
-    implementation(libs.androidx.material)
     implementation(libs.androidx.activity.ktx)
     implementation(libs.androidx.navigation.compose)
     implementation(libs.androidx.documentfile)
     implementation(libs.gson)
+    implementation(libs.coil.compose)
+    implementation(libs.coil.video)
 
     debugImplementation("androidx.compose.ui:ui-tooling:1.4.3")
     implementation("androidx.compose.ui:ui-tooling-preview:1.4.3")

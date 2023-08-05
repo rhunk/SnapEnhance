@@ -1,5 +1,6 @@
 package me.rhunk.snapenhance.ui.manager
 
+import androidx.compose.foundation.layout.RowScope
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.BugReport
 import androidx.compose.material.icons.filled.Download
@@ -14,7 +15,7 @@ import androidx.navigation.compose.composable
 import me.rhunk.snapenhance.RemoteSideContext
 import me.rhunk.snapenhance.ui.manager.sections.HomeSection
 import me.rhunk.snapenhance.ui.manager.sections.NotImplemented
-import me.rhunk.snapenhance.ui.manager.sections.download.DownloadSection
+import me.rhunk.snapenhance.ui.manager.sections.downloads.DownloadsSection
 import me.rhunk.snapenhance.ui.manager.sections.features.FeaturesSection
 import kotlin.reflect.KClass
 
@@ -26,7 +27,7 @@ enum class EnumSection(
     DOWNLOADS(
         route = "downloads",
         icon = Icons.Filled.Download,
-        section = DownloadSection::class
+        section = DownloadsSection::class
     ),
     FEATURES(
         route = "features",
@@ -69,6 +70,9 @@ open class Section {
 
     @Composable
     open fun Content() { NotImplemented() }
+
+    @Composable
+    open fun TopBarActions(rowScope: RowScope) {}
 
     open fun build(navGraphBuilder: NavGraphBuilder) {
         navGraphBuilder.composable(enumSection.route) {

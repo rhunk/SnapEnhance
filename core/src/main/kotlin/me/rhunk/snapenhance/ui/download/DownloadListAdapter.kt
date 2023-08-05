@@ -26,7 +26,7 @@ import me.rhunk.snapenhance.Logger
 import me.rhunk.snapenhance.SharedContext
 import me.rhunk.snapenhance.core.R
 import me.rhunk.snapenhance.data.FileType
-import me.rhunk.snapenhance.download.data.PendingDownload
+import me.rhunk.snapenhance.download.data.DownloadObject
 import me.rhunk.snapenhance.download.data.DownloadStage
 import me.rhunk.snapenhance.util.snap.PreviewUtils
 import java.io.File
@@ -37,7 +37,7 @@ import kotlin.coroutines.coroutineContext
 
 class DownloadListAdapter(
     private val activity: DownloadManagerActivity,
-    private val downloadList: MutableList<PendingDownload>
+    private val downloadList: MutableList<DownloadObject>
 ): Adapter<DownloadListAdapter.ViewHolder>() {
     private val coroutineScope = CoroutineScope(Dispatchers.IO)
     private val previewJobs = mutableMapOf<Int, Job>()
@@ -68,7 +68,7 @@ class DownloadListAdapter(
     }
 
     @SuppressLint("Recycle")
-    private suspend fun handlePreview(download: PendingDownload, holder: ViewHolder) {
+    private suspend fun handlePreview(download: DownloadObject, holder: ViewHolder) {
         download.outputFile?.let {
             val uri = Uri.parse(it)
             runCatching {
@@ -124,7 +124,7 @@ class DownloadListAdapter(
         }
     }
 
-    private fun updateViewHolder(download: PendingDownload, holder: ViewHolder) {
+    private fun updateViewHolder(download: DownloadObject, holder: ViewHolder) {
         holder.status.text = download.downloadStage.toString()
         holder.view.background = holder.view.context.getDrawable(R.drawable.download_manager_item_background)
 
@@ -163,7 +163,7 @@ class DownloadListAdapter(
             }
         }
 
-        holder.bitmojiIcon.setImageResource(R.drawable.bitmoji_blank)
+       // holder.bitmojiIcon.setImageResource(R.drawable.bitmoji_blank)
 
         pendingDownload.metadata.iconUrl?.let { url ->
             thread(start = true) {

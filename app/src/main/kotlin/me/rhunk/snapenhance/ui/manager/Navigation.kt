@@ -71,6 +71,8 @@ class Navigation(
                     Icon(Icons.Filled.ArrowBack, contentDescription = null)
                 }
             }
+        }, actions = {
+            currentSection.TopBarActions(this)
         })
     }
 

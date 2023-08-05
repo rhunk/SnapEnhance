@@ -242,7 +242,7 @@ class MediaDownloader : Feature("MediaDownloader", loadParams = FeatureLoadParam
                 pathSuffix = authorUsername,
                 mediaIdentifier = "$conversationId$senderId${conversationMessage.server_message_id}",
                 mediaDisplaySource = authorUsername,
-                mediaDisplayType = MediaFilter.CHAT_MEDIA.mediaDisplayType,
+                mediaDisplayType = MediaFilter.CHAT_MEDIA.key,
                 friendInfo = author
             ), mediaInfoMap)
 
@@ -282,7 +282,7 @@ class MediaDownloader : Feature("MediaDownloader", loadParams = FeatureLoadParam
                 pathSuffix = authorName,
                 mediaIdentifier = paramMap["MEDIA_ID"].toString(),
                 mediaDisplaySource = authorName,
-                mediaDisplayType = MediaFilter.STORY.mediaDisplayType,
+                mediaDisplayType = MediaFilter.STORY.key,
                 friendInfo = author
             ), mediaInfoMap)
             return
@@ -311,7 +311,7 @@ class MediaDownloader : Feature("MediaDownloader", loadParams = FeatureLoadParam
             downloadOperaMedia(provideDownloadManagerClient(
                 pathSuffix = "Spotlight",
                 mediaIdentifier = paramMap["SNAP_ID"].toString(),
-                mediaDisplayType = MediaFilter.SPOTLIGHT.mediaDisplayType,
+                mediaDisplayType = MediaFilter.SPOTLIGHT.key,
                 mediaDisplaySource = paramMap["TIME_STAMP"].toString()
             ), mediaInfoMap)
             return
@@ -476,7 +476,7 @@ class MediaDownloader : Feature("MediaDownloader", loadParams = FeatureLoadParam
                     pathSuffix = authorName,
                     mediaIdentifier = "${message.client_conversation_id}${message.sender_id}${message.server_message_id}",
                     mediaDisplaySource = authorName,
-                    mediaDisplayType = MediaFilter.CHAT_MEDIA.mediaDisplayType,
+                    mediaDisplayType = MediaFilter.CHAT_MEDIA.key,
                     friendInfo = friendInfo
                 ).downloadSingleMedia(
                     Base64.UrlSafe.encode(urlProto),

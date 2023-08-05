@@ -1,17 +1,17 @@
 package me.rhunk.snapenhance.ui.download
 
 enum class MediaFilter(
-    val mediaDisplayType: String? = null
+    val key: String,
+    val shouldIgnoreFilter: Boolean = false
 ) {
-    NONE,
-    PENDING,
-    CHAT_MEDIA("Chat Media"),
-    STORY("Story"),
-    SPOTLIGHT("Spotlight");
+    NONE("none", true),
+    PENDING("pending", true),
+    CHAT_MEDIA("chat_media"),
+    STORY("story"),
+    SPOTLIGHT("spotlight");
 
     fun matches(source: String?): Boolean {
-        if (mediaDisplayType == null) return true
         if (source == null) return false
-        return source.contains(mediaDisplayType, ignoreCase = true)
+        return source.contains(key, ignoreCase = true)
     }
 }

@@ -19,13 +19,13 @@ import me.rhunk.snapenhance.SharedContext
 import me.rhunk.snapenhance.bridge.wrapper.LocaleWrapper
 import me.rhunk.snapenhance.core.BuildConfig
 import me.rhunk.snapenhance.core.R
-import me.rhunk.snapenhance.download.data.PendingDownload
+import me.rhunk.snapenhance.download.data.DownloadObject
 
 class DownloadManagerActivity : Activity() {
     lateinit var translation: LocaleWrapper
 
     private val backCallbacks = mutableListOf<() -> Unit>()
-    private val fetchedDownloadTasks = mutableListOf<PendingDownload>()
+    private val fetchedDownloadTasks = mutableListOf<DownloadObject>()
     private var listFilter = MediaFilter.NONE
 
     private val preferences by lazy {
@@ -42,7 +42,7 @@ class DownloadManagerActivity : Activity() {
     @SuppressLint("NotifyDataSetChanged")
     private fun updateListContent() {
         fetchedDownloadTasks.clear()
-        fetchedDownloadTasks.addAll(SharedContext.downloadTaskManager.queryAllTasks(filter = listFilter).values)
+        fetchedDownloadTasks.addAll(SharedContext.downloadTaskManager.queryFirstTasks(filter = listFilter).values)
 
         with(findViewById<RecyclerView>(R.id.download_list)) {
             adapter?.notifyDataSetChanged()

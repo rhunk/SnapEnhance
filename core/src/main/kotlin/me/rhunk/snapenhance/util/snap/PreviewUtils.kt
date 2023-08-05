@@ -48,9 +48,7 @@ object PreviewUtils {
                 setDataSource(file.absolutePath)
             }.getFrameAtTime(0, MediaMetadataRetriever.OPTION_CLOSEST_SYNC)
         } else {
-            BitmapFactory.decodeFile(file.absolutePath, BitmapFactory.Options().apply {
-                inSampleSize = 1
-            })
+            BitmapFactory.decodeFile(file.absolutePath, BitmapFactory.Options())
         }
     }
 

@@ -1,10 +1,9 @@
 package me.rhunk.snapenhance.download.data
 
 import kotlinx.coroutines.Job
-import me.rhunk.snapenhance.SharedContext
 import me.rhunk.snapenhance.download.DownloadTaskManager
 
-data class PendingDownload(
+data class DownloadObject(
     var downloadId: Int = 0,
     var outputFile: String? = null,
     val metadata : DownloadMetadata

@@ -16,16 +16,15 @@ import kotlinx.coroutines.runBlocking
 import me.rhunk.snapenhance.Constants
 import me.rhunk.snapenhance.Logger
 import me.rhunk.snapenhance.RemoteSideContext
-import me.rhunk.snapenhance.SharedContext
 import me.rhunk.snapenhance.bridge.DownloadCallback
 import me.rhunk.snapenhance.data.FileType
 import me.rhunk.snapenhance.download.data.DownloadMediaType
 import me.rhunk.snapenhance.download.data.DownloadMetadata
+import me.rhunk.snapenhance.download.data.DownloadObject
 import me.rhunk.snapenhance.download.data.DownloadRequest
 import me.rhunk.snapenhance.download.data.DownloadStage
 import me.rhunk.snapenhance.download.data.InputMedia
 import me.rhunk.snapenhance.download.data.MediaEncryptionKeyPair
-import me.rhunk.snapenhance.download.data.PendingDownload
 import me.rhunk.snapenhance.util.download.RemoteMediaResolver
 import me.rhunk.snapenhance.util.snap.MediaDownloaderHelper
 import java.io.File
@@ -60,7 +59,7 @@ class DownloadProcessor (
 ) {
 
     private val translation by lazy {
-        SharedContext.translation.getCategory("download_processor")
+        remoteSideContext.translation.getCategory("download_processor")
     }
 
     private val gson by lazy {
@@ -118,7 +117,7 @@ class DownloadProcessor (
     }
 
     @SuppressLint("UnspecifiedRegisterReceiverFlag")
-    private suspend fun saveMediaToGallery(inputFile: File, pendingDownload: PendingDownload) {
+    private suspend fun saveMediaToGallery(inputFile: File, downloadObject: DownloadObject) {
         if (coroutineContext.job.isCancelled) return
 
         runCatching {
@@ -128,12 +127,12 @@ class DownloadProcessor (
                 return
             }
 
-            val fileName = pendingDownload.metadata.outputPath.substringAfterLast("/") + "." + fileType.fileExtension
+            val fileName = downloadObject.metadata.outputPath.substringAfterLast("/") + "." + fileType.fileExtension
 
             val outputFolder = DocumentFile.fromTreeUri(remoteSideContext.androidContext, Uri.parse(remoteSideContext.config.root.downloader.saveFolder.get()))
                 ?: throw Exception("Failed to open output folder")
 
-            val outputFileFolder = pendingDownload.metadata.outputPath.let {
+            val outputFileFolder = downloadObject.metadata.outputPath.let {
                 if (it.contains("/")) {
                     it.substringBeforeLast("/").split("/").fold(outputFolder) { folder, name ->
                         folder.findFile(name) ?: folder.createDirectory(name)!!
@@ -150,8 +149,8 @@ class DownloadProcessor (
                 inputStream.copyTo(outputStream)
             }
 
-            pendingDownload.outputFile = outputFile.uri.toString()
-            pendingDownload.downloadStage = DownloadStage.SAVED
+            downloadObject.outputFile = outputFile.uri.toString()
+            downloadObject.downloadStage = DownloadStage.SAVED
 
             runCatching {
                 val mediaScanIntent = Intent("android.intent.action.MEDIA_SCANNER_SCAN_FILE")
@@ -167,7 +166,7 @@ class DownloadProcessor (
         }.onFailure { exception ->
             Logger.error(exception)
             callbackOnFailure(translation.format("failed_gallery_toast", "error" to exception.toString()), exception.message)
-            pendingDownload.downloadStage = DownloadStage.FAILED
+            downloadObject.downloadStage = DownloadStage.FAILED
         }
     }
 
@@ -226,13 +225,13 @@ class DownloadProcessor (
         downloadedMedias
     }
 
-    private suspend fun downloadRemoteMedia(pendingDownloadObject: PendingDownload, downloadedMedias: Map<InputMedia, DownloadedFile>, downloadRequest: DownloadRequest) {
+    private suspend fun downloadRemoteMedia(downloadObjectObject: DownloadObject, downloadedMedias: Map<InputMedia, DownloadedFile>, downloadRequest: DownloadRequest) {
         downloadRequest.inputMedias.first().let { inputMedia ->
             val mediaType = inputMedia.type
             val media = downloadedMedias[inputMedia]!!
 
             if (!downloadRequest.isDashPlaylist) {
-                saveMediaToGallery(media.file, pendingDownloadObject)
+                saveMediaToGallery(media.file, downloadObjectObject)
                 media.file.delete()
                 return
             }
@@ -261,12 +260,12 @@ class DownloadProcessor (
                     output = outputFile,
                     startTime = dashOptions.offsetTime,
                     duration = dashOptions.duration)
-                saveMediaToGallery(outputFile, pendingDownloadObject)
+                saveMediaToGallery(outputFile, downloadObjectObject)
             }.onFailure { exception ->
                 if (coroutineContext.job.isCancelled) return@onFailure
                 Logger.error(exception)
                 callbackOnFailure(translation.format("failed_processing_toast", "error" to exception.toString()), exception.message)
-                pendingDownloadObject.downloadStage = DownloadStage.FAILED
+                downloadObjectObject.downloadStage = DownloadStage.FAILED
             }
 
             dashPlaylistFile.delete()
@@ -297,11 +296,11 @@ class DownloadProcessor (
                 return@launch
             }
 
-            val pendingDownloadObject = PendingDownload(
+            val downloadObjectObject = DownloadObject(
                 metadata = downloadMetadata
             ).apply { downloadTaskManager = remoteSideContext.downloadTaskManager }
 
-            pendingDownloadObject.also {
+            downloadObjectObject.also {
                 remoteSideContext.downloadTaskManager.addTask(it)
             }.apply {
                 job = coroutineContext.job
@@ -345,7 +344,7 @@ class DownloadProcessor (
                     val mergedOverlay: File = File.createTempFile("merged", "." + media.fileType.fileExtension)
                     runCatching {
                         callbackOnProgress(translation.format("download_toast", "path" to media.file.nameWithoutExtension))
-                        pendingDownloadObject.downloadStage = DownloadStage.MERGING
+                        downloadObjectObject.downloadStage = DownloadStage.MERGING
 
                         MediaDownloaderHelper.mergeOverlayFile(
                             media = renamedMedia,
@@ -353,12 +352,12 @@ class DownloadProcessor (
                             output = mergedOverlay
                         )
 
-                        saveMediaToGallery(mergedOverlay, pendingDownloadObject)
+                        saveMediaToGallery(mergedOverlay, downloadObjectObject)
                     }.onFailure { exception ->
                         if (coroutineContext.job.isCancelled) return@onFailure
                         Logger.error(exception)
                         callbackOnFailure(translation.format("failed_processing_toast", "error" to exception.toString()), exception.message)
-                        pendingDownloadObject.downloadStage = DownloadStage.MERGE_FAILED
+                        downloadObjectObject.downloadStage = DownloadStage.MERGE_FAILED
                     }
 
                     mergedOverlay.delete()
@@ -367,9 +366,9 @@ class DownloadProcessor (
                     return@launch
                 }
 
-                downloadRemoteMedia(pendingDownloadObject, downloadedMedias, downloadRequest)
+                downloadRemoteMedia(downloadObjectObject, downloadedMedias, downloadRequest)
             }.onFailure { exception ->
-                pendingDownloadObject.downloadStage = DownloadStage.FAILED
+                downloadObjectObject.downloadStage = DownloadStage.FAILED
                 Logger.error(exception)
                 callbackOnFailure(translation["failed_generic_toast"], exception.message)
             }
