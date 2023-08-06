@@ -18,6 +18,7 @@ class MediaQualityLevelProviderMapper : AbstractClassMapper(EnumMapper::class) {
                     "class" to clazz.type.replace("L", "").replace(";", ""),
                     "method" to it.name
                 )
+                return
             }
         }
     }
