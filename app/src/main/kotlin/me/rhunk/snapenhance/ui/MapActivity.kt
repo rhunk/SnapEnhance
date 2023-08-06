@@ -1,4 +1,4 @@
-package me.rhunk.snapenhance.ui.map
+package me.rhunk.snapenhance.ui
 
 import android.annotation.SuppressLint
 import android.app.Activity

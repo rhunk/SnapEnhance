@@ -38,7 +38,6 @@ dependencies {
     implementation(libs.recyclerview)
     implementation(libs.gson)
     implementation(libs.ffmpeg.kit)
-    implementation(libs.osmdroid.android)
     implementation(libs.okhttp)
     implementation(libs.androidx.documentfile)
 

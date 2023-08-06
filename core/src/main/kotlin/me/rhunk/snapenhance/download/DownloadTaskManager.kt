@@ -6,7 +6,7 @@ import android.database.sqlite.SQLiteDatabase
 import me.rhunk.snapenhance.download.data.DownloadMetadata
 import me.rhunk.snapenhance.download.data.DownloadObject
 import me.rhunk.snapenhance.download.data.DownloadStage
-import me.rhunk.snapenhance.ui.download.MediaFilter
+import me.rhunk.snapenhance.download.data.MediaFilter
 import me.rhunk.snapenhance.util.SQLiteDatabaseHelper
 import me.rhunk.snapenhance.util.getIntOrNull
 import me.rhunk.snapenhance.util.getStringOrNull

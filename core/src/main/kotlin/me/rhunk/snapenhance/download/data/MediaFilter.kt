@@ -1,4 +1,4 @@
-package me.rhunk.snapenhance.ui.download
+package me.rhunk.snapenhance.download.data
 
 enum class MediaFilter(
     val key: String,

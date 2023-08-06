@@ -58,7 +58,7 @@ import kotlinx.coroutines.launch
 import me.rhunk.snapenhance.R
 import me.rhunk.snapenhance.data.FileType
 import me.rhunk.snapenhance.download.data.DownloadObject
-import me.rhunk.snapenhance.ui.download.MediaFilter
+import me.rhunk.snapenhance.download.data.MediaFilter
 import me.rhunk.snapenhance.ui.manager.Section
 
 class DownloadsSection : Section() {

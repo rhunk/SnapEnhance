@@ -32,7 +32,7 @@ import me.rhunk.snapenhance.hook.HookAdapter
 import me.rhunk.snapenhance.hook.HookStage
 import me.rhunk.snapenhance.hook.Hooker
 import me.rhunk.snapenhance.ui.ViewAppearanceHelper
-import me.rhunk.snapenhance.ui.download.MediaFilter
+import me.rhunk.snapenhance.download.data.MediaFilter
 import me.rhunk.snapenhance.util.download.RemoteMediaResolver
 import me.rhunk.snapenhance.util.getObjectField
 import me.rhunk.snapenhance.util.protobuf.ProtoReader
