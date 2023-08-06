@@ -11,6 +11,7 @@ import me.rhunk.snapenhance.ui.ViewAppearanceHelper
 import me.rhunk.snapmapper.Mapper
 import me.rhunk.snapmapper.impl.BCryptClassMapper
 import me.rhunk.snapmapper.impl.CallbackMapper
+import me.rhunk.snapmapper.impl.CompositeConfigurationProviderMapper
 import me.rhunk.snapmapper.impl.DefaultMediaItemMapper
 import me.rhunk.snapmapper.impl.EnumMapper
 import me.rhunk.snapmapper.impl.FriendsFeedEventDispatcherMapper
@@ -19,6 +20,7 @@ import me.rhunk.snapmapper.impl.OperaPageViewControllerMapper
 import me.rhunk.snapmapper.impl.PlatformAnalyticsCreatorMapper
 import me.rhunk.snapmapper.impl.PlusSubscriptionMapper
 import me.rhunk.snapmapper.impl.ScCameraSettingsMapper
+import me.rhunk.snapmapper.impl.ScoreUpdateMapper
 import me.rhunk.snapmapper.impl.StoryBoostStateMapper
 import java.nio.charset.StandardCharsets
 import java.util.concurrent.ConcurrentHashMap
@@ -37,7 +39,9 @@ class MappingManager(private val context: ModContext) : Manager {
         PlusSubscriptionMapper::class,
         ScCameraSettingsMapper::class,
         StoryBoostStateMapper::class,
-        FriendsFeedEventDispatcherMapper::class
+        FriendsFeedEventDispatcherMapper::class,
+        CompositeConfigurationProviderMapper::class,
+        ScoreUpdateMapper::class
     )
 
     private val mappings = ConcurrentHashMap<String, Any>()
@@ -94,7 +98,7 @@ class MappingManager(private val context: ModContext) : Manager {
                         statusDialogBuilder.show()
                     }
                 }
-             }
+            }
         }
     }
 

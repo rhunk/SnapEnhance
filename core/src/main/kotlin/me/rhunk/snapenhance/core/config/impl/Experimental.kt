@@ -8,4 +8,5 @@ class Experimental : ConfigContainer() {
     val infiniteStoryBoost = boolean("infinite_story_boost")
     val meoPasscodeBypass = boolean("meo_passcode_bypass")
     val unlimitedMultiSnap = boolean("unlimited_multi_snap")
+    val noFriendScoreDelay = boolean("no_friend_score_delay")
 }

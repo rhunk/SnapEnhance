@@ -117,7 +117,7 @@ class MediaDownloader : Feature("MediaDownloader", loadParams = FeatureLoadParam
         val pathFormat by context.config.downloader.pathFormat
         val sanitizedPathPrefix = pathPrefix
             .replace(" ", "_")
-            .replace(Regex("[\\\\:*?\"<>|]"), "")
+            .replace(Regex("[\\p{Cntrl}]"), "")
             .ifEmpty { hexHash }
 
         val currentDateTime = SimpleDateFormat("yyyy-MM-dd_HH-mm-ss", Locale.ENGLISH).format(System.currentTimeMillis())
@@ -294,7 +294,7 @@ class MediaDownloader : Feature("MediaDownloader", loadParams = FeatureLoadParam
         if ((snapSource == "PUBLIC_USER" || snapSource == "SAVED_STORY") &&
             (forceDownload || canAutoDownload("public_stories"))) {
             val userDisplayName = (if (paramMap.containsKey("USER_DISPLAY_NAME")) paramMap["USER_DISPLAY_NAME"].toString() else "").replace(
-                    "[^\\x00-\\x7F]".toRegex(),
+                     "[\\p{Cntrl}]".toRegex(),
                     "")
 
             downloadOperaMedia(provideDownloadManagerClient(
@@ -321,7 +321,7 @@ class MediaDownloader : Feature("MediaDownloader", loadParams = FeatureLoadParam
         //TODO: option to download multiple chapters
         if (paramMap.containsKey("LONGFORM_VIDEO_PLAYLIST_ITEM") && forceDownload) {
             val storyName = paramMap["STORY_NAME"].toString().replace(
-                "[^\\x00-\\x7F]".toRegex(),
+                 "[\\p{Cntrl}]".toRegex(),
                 "")
 
             //get the position of the media in the playlist and the duration
