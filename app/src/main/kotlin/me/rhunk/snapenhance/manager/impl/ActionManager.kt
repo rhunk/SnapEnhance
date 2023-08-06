@@ -26,11 +26,8 @@ class ActionManager(
         load(CleanCache::class)
         load(ExportChatMessages::class)
         load(OpenMap::class)
-
-        if(!BuildConfig.DEBUG) {
-            load(CheckForUpdates::class)
-        }
-        else {
+        load(CheckForUpdates::class)
+        if(BuildConfig.DEBUG) {
             load(ClearMessageLogger::class)
             load(RefreshMappings::class)
         }
