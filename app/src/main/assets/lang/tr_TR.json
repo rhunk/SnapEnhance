@@ -1,0 +1,447 @@
+{
+    "category": {
+        "spying_privacy": "Casusluk ve Gizlilik",
+        "media_manager": "Medya Yöneticisi",
+        "ui_tweaks": "Arayüz ve İnce Ayarlar",
+        "camera": "Kamera",
+        "updates": "Güncellemeler",
+        "experimental_debugging": "Deneysel"
+    },
+    "action": {
+        "clean_cache": "Temiz Önbellek",
+        "clear_message_logger": "Mesaj Kaydediciyi Temizle",
+        "refresh_mappings": "Haritalamaları Yenile",
+        "open_map": "Harita üzerinde konum seçin",
+        "check_for_updates": "Güncellemeleri kontrol edin",
+        "export_chat_messages": "Sohbet mesajlarını dışa aktar"
+    },
+    "property": {
+        "message_logger": {
+            "name": "Mesaj Kaydedici",
+            "description": "Mesajların silinmesini önler"
+        },
+        "prevent_read_receipts": {
+            "name": "Okundu Bilgisini Önle",
+            "description": "Herhangi birinin Snap'lerini açtığınızı bilmesini önleyin"
+        },
+        "hide_bitmoji_presence": {
+            "name": "Bitmoji'yi Gizle",
+            "description": "Bitmoji'nizi sohbetten gizler"
+        },
+        "better_notifications": {
+            "name": "Daha İyi Bildirimler",
+            "description": "Bildirimlerde daha fazla bilgi gösterir"
+        },
+        "notification_blacklist": {
+            "name": "Bildirim Kara Listesi",
+            "description": "Seçilen bildirimin türünü gizler"
+        },
+        "disable_metrics": {
+            "name": "Ölçümleri Devre Dışı Bırak",
+            "description": "Snapchat'e gönderilen ölçüm verilerini devre dışı bırakır"
+        },
+        "block_ads": {
+            "name": "Reklamları Engelle",
+            "description": "Reklamların görüntülenmesini engeller"
+        },
+        "unlimited_snap_view_time": {
+            "name": "Sınırsız Snap Görüntüleme Süresi",
+            "description": "Snap'leri görüntülemek için zaman sınırını kaldırır"
+        },
+        "prevent_sending_messages": {
+            "name": "Mesaj Göndermeyi Engelle",
+            "description": "Belirli mesaj türlerinin gönderilmesini engeller"
+        },
+        "anonymous_story_view": {
+            "name": "Anonim Hikaye Görünümü",
+            "description": "Herhangi birinin hikayelerini gördüğünüzü bilmesini engeller"
+        },
+        "hide_typing_notification": {
+            "name": "Yazıyor Bildirimini Gizle",
+            "description": "Yazma bildirimlerinin gönderilmesini önler"
+        },
+        "save_folder": {
+            "name": "Kayıt Klasörü",
+            "description": "Tüm medyanın kaydedildiği klasör"
+        },
+        "auto_download_options": {
+            "name": "Otomatik İndirme Seçenekleri",
+            "description": "Hangi medyaların otomatik indirileceğini seçin"
+        },
+        "download_options": {
+            "name": "İndirme Seçenekleri",
+            "description": "Dosya yolu biçimini belirleyin"
+        },
+        "chat_download_context_menu": {
+            "name": "Sohbet İndirme İçerik Menüsü",
+            "description": "Sohbet indirme içerik menüsünü etkinleştirin"
+        },
+        "gallery_media_send_override": {
+            "name": "Galeri Medya Yüklemesini Aç",
+            "description": "Galeriden medya yüklenmesine olanak verir"
+        },
+        "auto_save_messages": {
+            "name": "Mesajları Otomatik Kaydet",
+            "description": "Hangi tür mesajların otomatik olarak kaydedileceğini seçin"
+        },
+        "force_media_source_quality": {
+            "name": "Medya Kaynak Kalitesini Zorla",
+            "description": "Medya kaynağı kalitesini düşürmez"
+        },
+        "download_logging": {
+            "name": "İndirme Günlüğü",
+            "description": "Medya indirilirken bir tost mesajı göster"
+        },
+        "enable_friend_feed_menu_bar": {
+            "name": "Arkadaş Akışı Menü Çubuğu",
+            "description": "Yeni Arkadaş Akışı Menü Çubuğunu etkinleştirir"
+        },
+        "friend_feed_menu_buttons": {
+            "name": "Arkadaş Akışı Menü Düğmeleri",
+            "description": "Arkadaş Akışı Menü Çubuğunda hangi düğmelerin gösterileceğini seçin"
+        },
+        "friend_feed_menu_buttons_position": {
+            "name": "Arkadaş Akışı Düğmeleri Pozisyonu Dizini",
+            "description": "Arkadaş Akışı Menü Düğmelerinin konumu"
+        },
+        "hide_ui_elements": {
+            "name": "Arayüz Öğelerini Gizle",
+            "description": "Hangi arayüz öğelerinin gizleneceğini seçin"
+        },
+        "hide_story_section": {
+            "name": "Hikaye Bölümünü Gizle",
+            "description": "Hikaye bölümünde gösterilen belirli arayüz öğelerini gizle"
+        },
+        "story_viewer_override": {
+            "name": "Hikaye Görüntüleyici Geçersiz Kılma",
+            "description": "Snapchat'in gizlediği belirli özellikleri açar"
+        },
+        "streak_expiration_info": {
+            "name": "Seri Sona Erme Bilgisini Göster",
+            "description": "Serilerin yanında Seri sona erme bilgisini gösterir"
+        },
+        "disable_snap_splitting": {
+            "name": "Snap Bölmeyi Devre Dışı Bırak",
+            "description": "Snap'lerin birden fazla parçaya bölünmesini önler"
+        },
+        "disable_video_length_restriction": {
+            "name": "Video Uzunluğu Kısıtlamasını Devre Dışı Bırak",
+            "description": "Video uzunluğu kısıtlamalarını devre dışı bırakır"
+        },
+        "snapchat_plus": {
+            "name": "Snapchat Plus",
+            "description": "Snapchat Plus özelliklerini etkinleştirir"
+        },
+        "new_map_ui": {
+            "name": "Yeni Harita Arayüzü",
+            "description": "Yeni harita arayüzünü etkinleştirir"
+        },
+        "location_spoof": {
+            "name": "Snapmap Konum Değiştirici",
+            "description": "Snapmap'te konumunuzu taklit eder"
+        },
+        "message_preview_length": {
+            "name": "Mesaj Önizleme Uzunluğu",
+            "description": "Önizlenecek mesaj miktarını belirtir"
+        },
+        "unlimited_conversation_pinning": {
+            "name": "Sınırsız Konuşma Sabitleme",
+            "description": "Sınırsız konuşmayı sabitleme olanağı sağlar"
+        },
+        "disable_spotlight": {
+            "name": "Spotlight'ı Devre Dışı Bırak",
+            "description": "Spotlight sayfasını devre dışı bırakır"
+        },
+        "enable_app_appearance": {
+            "name": "Uygulama Görünüm Ayarlarını Etkinleştir",
+            "description": "Gizli uygulama görünümü ayarlarını etkinleştirir"
+        },
+        "startup_page_override": {
+            "name": "Başlangıç Sayfasını Geçersiz Kıl",
+            "description": "Başlangıç sayfasını geçersiz kılar"
+        },
+        "disable_google_play_dialogs": {
+            "name": "Google Play Hizmetleri İletişim Kutularını Devre Dışı Bırak",
+            "description": "Google Play Hizmetleri kullanılabilirlik iletişim kutularının gösterilmesini önler"
+        },
+        "auto_updater": {
+            "name": "Otomatik Güncelleyici",
+            "description": "Güncellemeleri kontrol etme aralığı"
+        },
+        "disable_camera": {
+            "name": "Kamerayı Devre Dışı Bırak",
+            "description": "Snapchat'in kamerayı kullanabilmesini engeller"
+        },
+        "immersive_camera_preview": {
+            "name": "Sürükleyici Kamera Önizlemesi",
+            "description": "Snapchat'in kamera önizlemesini kırpmasını engeller"
+        },
+        "preview_resolution": {
+            "name": "Önizleme Çözünürlüğü",
+            "description": "Kamera önizleme çözünürlüğünü değiştirir"
+        },
+        "picture_resolution": {
+            "name": "Fotoğraf Çözünürlüğü",
+            "description": "Fotoğraf çözünürlüğünü değiştirir"
+        },
+        "force_highest_frame_rate": {
+            "name": "En Yüksek Kare Hızını Zorla",
+            "description": "Mümkün olan en yüksek kare hızını zorlar"
+        },
+        "force_camera_source_encoding": {
+            "name": "Kamera Kaynağı Kodlamasını Zorla",
+            "description": "Kamera kaynak kodlamasını zorlar"
+        },
+        "app_passcode": {
+            "name": "Uygulama Parolasını Ayarla",
+            "description": "Uygulamayı kilitlemek için bir parola ayarlar"
+        },
+        "app_lock_on_resume": {
+            "name": "Uygulama Yeniden Açıldığında Kilit",
+            "description": "Uygulama yeniden açıldığında kilitlenir"
+        },
+        "infinite_story_boost": {
+            "name": "Sınırsız Hikaye Desteği",
+            "description": "Hikayenizi sınırsız güçlendirir"
+        },
+        "meo_passcode_bypass": {
+            "name": "My Eyes Only Şifresini Kır",
+            "description": "My Eyes Only şifresini atlayın\nBu yalnızca parola daha önce doğru girilmişse çalışacaktır"
+        },
+        "amoled_dark_mode": {
+            "name": "AMOLED Karanlık Mod",
+            "description": "AMOLED karanlık modunu etkinleştirir\nSnapchat'in karanlık modunun etkin olduğundan emin olun"
+        },
+        "unlimited_multi_snap": {
+            "name": "Sınırsız Çoklu Snap",
+            "description": "Sınırsız sayıda çoklu snap çekmenizi sağlar"
+        },
+        "device_spoof": {
+            "name": "Sahte Cihaz Değerleri",
+            "description": "Cihaz değerlerini taklit eder"
+        },
+        "device_fingerprint": {
+            "name": "Cihaz Parmak İzi",
+            "description": "Cihaz parmak izini taklit eder"
+        },
+        "android_id": {
+            "name": "Android Kimliği",
+            "description": "Cihazların Android kimliğini taklit eder"
+        }
+    },
+    "option": {
+        "property": {
+            "better_notifications": {
+                "chat": "Sohbet mesajlarını göster",
+                "snap": "Medyaları göster",
+                "reply_button": "Yanıtlama düğmesi ekle",
+                "download_button": "İndirme düğmesi ekle"
+            },
+            "friend_feed_menu_buttons": {
+                "auto_download_blacklist": "⬇️ Kara Liste Otomatik İndirme",
+                "anti_auto_save": "💬 Anti Otomatik Mesaj Kaydetme",
+                "stealth_mode": "👻 Gizli Mod",
+                "conversation_info": "👤 Konuşma Bilgileri"
+            },
+            "download_options": {
+                "allow_duplicate": "Çift indirmelere izin ver",
+                "create_user_folder": "Her kullanıcı için klasör oluştur",
+                "append_hash": "Dosya adına benzersiz bir hash ekle",
+                "append_username": "Dosya adına kullanıcı adını ekle",
+                "append_date_time": "Dosya adına tarih ve saati ekle",
+                "append_type": "Medya türünü dosya adına ekle",
+                "merge_overlay": "Snap Görüntü Kaplamalarını Birleştirme"
+            },
+            "auto_download_options": {
+                "friend_snaps": "Arkadaş Snapleri",
+                "friend_stories": "Arkadaş Hikayeleri",
+                "public_stories": "Herkese Açık Hikayeler",
+                "spotlight": "Spotlight"
+            },
+            "download_logging": {
+                "started": "Başladı",
+                "success": "Başarılı",
+                "progress": "Süreç",
+                "failure": "Hata"
+            },
+            "auto_save_messages": {
+                "NOTE": "Sesli Not",
+                "CHAT": "Sohbet",
+                "EXTERNAL_MEDIA": "Harici Medya",
+                "SNAP": "Snap",
+                "STICKER": "Çıkartma"
+            },
+            "notifications": {
+                "chat_screenshot": "Ekran Görüntüsü",
+                "chat_screen_record": "Ekran Kaydı",
+                "camera_roll_save": "Film Rulosu Kaydı",
+                "chat": "Sohbet",
+                "chat_reply": "Sohbet Cevabı",
+                "snap": "Snap",
+                "typing": "Yazıyor",
+                "stories": "Hikayeler",
+                "initiate_audio": "Gelen Sesli Arama",
+                "abandon_audio": "Cevapsız Sesli Arama",
+                "initiate_video": "Gelen Görüntülü Arama",
+                "abandon_video": "Cevapsız Görüntülü Arama"
+            },
+            "gallery_media_send_override": {
+                "ORIGINAL": "Orijinal",
+                "NOTE": "Sesli Not",
+                "SNAP": "Snap",
+                "LIVE_SNAP": "Sesli Snap"
+            },
+            "hide_ui_elements": {
+                "remove_call_buttons": "Arama Butonlarını Kaldır",
+                "remove_cognac_button": "Konyak Butonunu Kaldır",
+                "remove_live_location_share_button": "Canlı Konum Paylaş Butonunu Kaldır",
+                "remove_stickers_button": "Çıkartmalar Butonunu Kaldır",
+                "remove_voice_record_button": "Ses Kayıt Butonunu Kaldır",
+                "remove_camera_borders": "Kamera Kenarlıklarını Kaldır"
+            },
+            "auto_updater": {
+                "DISABLED": "Devre dışı",
+                "EVERY_LAUNCH": "Her Açılışta",
+                "DAILY": "Günlük",
+                "WEEKLY": "Haftalık"
+            },
+            "story_viewer_override": {
+                "OFF": "Kapalı",
+                "DISCOVER_PLAYBACK_SEEKBAR": "Keşfet Oynatma Seekbarını Etkinleştir",
+                "VERTICAL_STORY_VIEWER": "Dikey Hikaye Görüntüleyiciyi Etkinleştir"
+            },
+            "hide_story_section": {
+                "hide_friend_suggestions": "Arkadaş önerilerini gizle",
+                "hide_friends": "Arkadaşlar bölümünü gizle",
+                "hide_following": "Takip edilenler bölümünü gizle",
+                "hide_for_you": "Sizin İçin Bölümünü Gizle"
+            },
+            "startup_page_override": {
+                "OFF": "Kapalı",
+                "ngs_map_icon_container": "Harita",
+                "ngs_chat_icon_container": "Sohbet",
+                "ngs_camera_icon_container": "Kamera",
+                "ngs_community_icon_container": "Topluluk / Hikayeler",
+                "ngs_spotlight_icon_container": "Spotlight",
+                "ngs_search_icon_container": "Ara"
+            }
+        }
+    },
+    "friend_menu_option": {
+        "preview": "Önizleme",
+        "stealth_mode": "Gizli Mod",
+        "auto_download_blacklist": "Kara Liste Otomatik İndirme",
+        "anti_auto_save": "Anti Otomatik Kaydetme"
+    },
+    "message_context_menu_option": {
+        "download": "İndir",
+        "preview": "Önizleme"
+    },
+    "chat_action_menu": {
+        "preview_button": "Önizleme",
+        "download_button": "İndir",
+        "delete_logged_message_button": "Kaydedilen Mesajı Sil"
+    },
+    "opera_context_menu": {
+        "download": "Medyayı İndir"
+    },
+    "modal_option": {
+        "profile_info": "Profil Bilgisi",
+        "close": "Kapat"
+    },
+    "gallery_media_send_override": {
+        "multiple_media_toast": "Bir seferde yalnızca bir medya gönderebilirsiniz"
+    },
+    "conversation_preview": {
+        "streak_expiration": "{day} gün {hour} saat {minute} dakika içinde sona eriyor",
+        "total_messages": "Toplam gönderilen/alınan mesajlar: {count}",
+        "title": "Önizleme",
+        "unknown_user": "Bilinmeyen Kullanıcı"
+    },
+    "profile_info": {
+        "title": "Profil Bilgisi",
+        "username": "Kullanıcı Adı",
+        "display_name": "Görünen İsim",
+        "added_date": "Eklenme Tarihi",
+        "birthday": "Doğum Günü: {day} {month}"
+    },
+    "auto_updater": {
+        "no_update_available": "Güncelleme yok!",
+        "dialog_title": "Güncelleme mevcut!",
+        "dialog_message": "SnapEnhance için yeni bir güncelleme mevcut! ({version})\n\n{body}",
+        "dialog_positive_button": "İndir ve Yükle",
+        "dialog_negative_button": "İptal",
+        "downloading_toast": "Güncelleme İndiriliyor...",
+        "download_manager_notification_title": "SnapEnhance APK'sı indiriliyor..."
+    },
+    "chat_export": {
+        "select_export_format": "Dışa Aktarma Formatını Seçin",
+        "select_media_type": "Dışa Aktarılacak Medya Türlerini Seçin",
+        "select_conversation": "Dışa aktarmak için bir Konuşma seçin",
+        "dialog_negative_button": "İptal",
+        "dialog_neutral_button": "Tümünü Dışa Aktar",
+        "dialog_positive_button": "Dışa Aktar",
+        "exported_to": "{path}'a aktarıldı",
+        "exporting_chats": "Sohbetler Dışa Aktarılıyor...",
+        "processing_chats": "{amount} konuşma işleniyor...",
+        "export_fail": "Konuşma {conversation} dışa aktarılamadı",
+        "writing_output": "Çıktı yazılıyor...",
+        "finished": "Bitti! Artık bu iletişim kutusunu kapatabilirsiniz.",
+        "no_messages_found": "Mesaj bulunamadı!",
+        "exporting_message": "{conversation} dışa aktarılıyor..."
+    },
+    "button": {
+        "ok": "Tamam",
+        "positive": "Evet",
+        "negative": "Hayır",
+        "cancel": "İptal",
+        "open": "Aç"
+    },
+    "download_manager_activity": {
+        "remove_all_title": "Tüm İndirmeleri Kaldır",
+        "remove_all_text": "Bunu yapmak istediğine emin misin?",
+        "remove_all": "Tümünü Kaldır",
+        "no_downloads": "İndirme yok",
+        "cancel": "İptal",
+        "file_not_found_toast": "Dosya yok!",
+        "category": {
+            "all_category": "Tümü",
+            "pending_category": "Beklemede",
+            "snap_category": "Snapler",
+            "story_category": "Hikayeler",
+            "spotlight_category": "Spotlight"
+        },
+        "debug_settings": "Hata Ayıklama Ayarları",
+        "debug_settings_page": {
+            "clear_file_title": "{file_name} dosyasını temizle",
+            "clear_file_confirmation": "{file_name} dosyasını temizlemek istediğinizden emin misiniz?",
+            "clear_cache_title": "Önbelleği Temizle",
+            "reset_all_title": "Tüm ayarları sıfırla",
+            "reset_all_confirmation": "Tüm ayarları sıfırlamak istediğinizden emin misiniz?",
+            "success_toast": "Başarılı!",
+            "device_spoofer": "Cihaz Spoofer"
+        }
+    },
+    "download_processor": {
+        "download_started_toast": "İndirme başladı",
+        "unsupported_content_type_toast": "Desteklenmeyen içerik türü!",
+        "failed_no_longer_available_toast": "Medya artık mevcut değil",
+        "already_queued_toast": "Medya zaten sırada!",
+        "already_downloaded_toast": "Medya zaten indirildi!",
+        "saved_toast": "{path}'a kaydedildi",
+        "download_toast": "{path} indiriliyor...",
+        "processing_toast": "{path} işleniyor...",
+        "failed_generic_toast": "İndirme başarısız oldu",
+        "failed_to_create_preview_toast": "Önizleme oluşturulamadı",
+        "failed_processing_toast": "{error} işlenemedi",
+        "failed_gallery_toast": "Galeriye kaydedilemedi {error}"
+    },
+    "config_activity": {
+        "title": "SnapEnhance Ayarları",
+        "selected_text": "{count} seçildi",
+        "invalid_number_toast": "Geçersiz sayı!"
+    },
+    "spoof_activity": {
+        "title": "Spoof Ayarları"
+    }
+}
