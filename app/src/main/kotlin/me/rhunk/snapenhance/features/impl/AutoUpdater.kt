@@ -2,7 +2,6 @@ package me.rhunk.snapenhance.features.impl
 
 import android.annotation.SuppressLint
 import android.app.DownloadManager
-import android.content.ActivityNotFoundException
 import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
