@@ -29,11 +29,14 @@ import androidx.compose.ui.text.TextRange
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.unit.dp
+import me.rhunk.snapenhance.bridge.wrapper.LocaleWrapper
 import me.rhunk.snapenhance.core.config.DataProcessors
 import me.rhunk.snapenhance.core.config.PropertyPair
 
 
-class Dialogs {
+class Dialogs(
+    private val translation: LocaleWrapper,
+){
     @Composable
     fun DefaultDialogCard(content: @Composable ColumnScope.() -> Unit) {
         Card(
@@ -50,9 +53,12 @@ class Dialogs {
     }
 
     @Composable
-    fun DefaultEntryText(text: String, modifier: Modifier = Modifier) {
+    fun TranslatedText(property: PropertyPair<*>, key: String, modifier: Modifier = Modifier) {
         Text(
-            text = text,
+            text = when (key) {
+                "null" -> translation["manager.features.disabled"]
+                else -> if (property.key.params.shouldTranslate) translation["features.options.${property.key.name}.$key"] else key
+            },
             modifier = Modifier
                 .padding(10.dp, 10.dp, 10.dp, 10.dp)
                 .then(modifier)
@@ -63,11 +69,11 @@ class Dialogs {
     @Suppress("UNCHECKED_CAST")
     fun UniqueSelectionDialog(property: PropertyPair<*>) {
         val keys = (property.value.defaultValues as List<String>).toMutableList().apply {
-            add(0, "disabled")
+            add(0, "null")
         }
 
         val selectedValue = remember {
-            mutableStateOf(property.value.getNullable()?.toString() ?: "disabled")
+            mutableStateOf(property.value.getNullable()?.toString() ?: "null")
         }
 
         DefaultDialogCard {
@@ -85,8 +91,9 @@ class Dialogs {
                     modifier = Modifier.clickable { select() },
                     verticalAlignment = Alignment.CenterVertically
                 ) {
-                    DefaultEntryText(
-                        text = item,
+                    TranslatedText(
+                        property = property,
+                        key = item,
                         modifier = Modifier.weight(1f)
                     )
                     RadioButton(
@@ -189,8 +196,9 @@ class Dialogs {
                     modifier = Modifier.clickable { toggle() },
                     verticalAlignment = Alignment.CenterVertically
                 ) {
-                    DefaultEntryText(
-                        text = key,
+                    TranslatedText(
+                        property = property,
+                        key = key,
                         modifier = Modifier
                             .weight(1f)
                     )

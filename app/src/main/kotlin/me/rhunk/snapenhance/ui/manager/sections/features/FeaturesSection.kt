@@ -57,7 +57,7 @@ import me.rhunk.snapenhance.ui.manager.Section
 import me.rhunk.snapenhance.ui.util.ChooseFolderHelper
 
 class FeaturesSection : Section() {
-    private val dialogs by lazy { Dialogs() }
+    private val dialogs by lazy { Dialogs(context.translation) }
 
     companion object {
         const val MAIN_ROUTE = "feature_root"
@@ -183,7 +183,9 @@ class FeaturesSection : Section() {
                     overflow = TextOverflow.Ellipsis,
                     maxLines = 1,
                     modifier = Modifier.widthIn(0.dp, 120.dp),
-                    text = (propertyValue.getNullable() as? String) ?: context.translation["manager.features.disabled"],
+                    text = (propertyValue.getNullable() as? String)?.let{
+                        context.translation["features.options.${property.name}.$it"]
+                    } ?: context.translation["manager.features.disabled"],
                 )
             }
 

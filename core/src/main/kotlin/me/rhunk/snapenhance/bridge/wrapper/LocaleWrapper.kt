@@ -80,9 +80,7 @@ class LocaleWrapper {
         loadFromContext(context)
     }
 
-    operator fun get(key: String): String {
-        return translationMap[key] ?: key.also { Logger.debug("Missing translation for $key") }
-    }
+    operator fun get(key: String) = translationMap[key] ?: key.also { Logger.debug("Missing translation for $key") }
 
     fun format(key: String, vararg args: Pair<String, String>): String {
         return args.fold(get(key)) { acc, pair ->

@@ -11,7 +11,7 @@ data class PropertyPair<T>(
 }
 
 class ConfigParams(
-    var shouldTranslate: Boolean = false,
+    var shouldTranslate: Boolean = true,
     var isHidden: Boolean = false,
     var isFolder: Boolean = false,
     val disabledKey: String? = null
@@ -52,7 +52,7 @@ data class PropertyKey<T>(
         return if (parentKey != null) {
             "${parentKey!!.propertyTranslationPath()}.properties.$name"
         } else {
-            "features.$name"
+            "features.properties.$name"
         }
     }
 }

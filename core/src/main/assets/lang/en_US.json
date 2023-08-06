@@ -39,106 +39,203 @@
     },
 
     "features": {
-        "spoof": {
-            "name": "Spoof",
-            "description": "Spoof your information",
-            "properties": {
-                "location": {
-                    "name": "Location",
-                    "description": "Spoof your location"
-                },
-                "device": {
-                    "name": "Device",
-                    "description": "Spoof your device"
+        "properties": {
+            "spoof": {
+                "name": "Spoof",
+                "description": "Spoof your information",
+                "properties": {
+                    "location": {
+                        "name": "Location",
+                        "description": "Spoof your location"
+                    },
+                    "device": {
+                        "name": "Device",
+                        "description": "Spoof your device"
+                    }
                 }
+            },
+            "downloader": {
+                "name": "Downloader",
+                "description": "Download Snaps and Stories",
+                "properties": {
+                    "save_folder": {
+                        "name": "Save Folder",
+                        "description": "The directory where all media is saved"
+                    },
+                    "auto_download_options": {
+                        "name": "Auto Download Options",
+                        "description": "Select which medias to auto download"
+                    }
+                }
+            },
+            "user_interface": {
+                "name": "User Interface",
+                "description": "Change the look and feel of Snapchat",
+                "properties": {
+                    "enable_app_appearance": {
+                        "name": "Enable App Appearance Settings",
+                        "description": "Enables the hidden app appearance settings"
+                    },
+                    "amoled_dark_mode": {
+                        "name": "AMOLED Dark Mode",
+                        "description": "Enables AMOLED dark mode\nMake sure Snapchat's dark mode is enabled"
+                    },
+                    "map_friend_nametags": {
+                        "name": "Enhanced Friend Map Nametags",
+                        "description": "Enhances the nametags of friends on the map"
+                    },
+                    "streak_expiration_info": {
+                        "name": "Show Streak Expiration Info",
+                        "description": "Shows Streak expiration info next to streaks"
+                    },
+                    "hide_story_sections": {
+                        "name": "Hide Story Section",
+                        "description": "Hide certain UI Elements shown in the story section"
+                    },
+                    "hide_ui_components": {
+                        "name": "Hide UI Components",
+                        "description": "Select which UI components to hide"
+                    },
+                    "disable_spotlight": {
+                        "name": "Disable Spotlight",
+                        "description": "Disables the Spotlight page"
+                    },
+                    "startup_tab": {
+                        "name": "Startup Tab",
+                        "description": "Change the tab that opens on startup"
+                    },
+                    "story_viewer_override": {
+                        "name": "Story Viewer Override",
+                        "description": "Turns on certain features which Snapchat hid"
+                    },
+                    "friend_feed_menu_buttons": {
+                        "name": "Friend Feed Menu Buttons",
+                        "description": "Select which buttons to show in the Friend Feed Menu Bar"
+                    },
+                    "friend_feed_menu_position": {
+                        "name": "Friend Feed Position Index",
+                        "description": "The position of the Friend Feed Menu component"
+                    },
+                    "enable_friend_feed_menu_bar": {
+                        "name": "Friend Feed Menu Bar",
+                        "description": "Enables the new Friend Feed Menu Bar"
+                    }
+                }
+            },
+            "messaging": {
+                "name": "Messaging",
+                "description": "Change how you interact with friends"
+            },
+            "global": {
+                "name": "Global",
+                "description": "Tweak Snapchat globally"
+            },
+            "camera": {
+                "name": "Camera",
+                "description": "Adjust the right settings for the perfect snap"
+            },
+            "experimental": {
+                "name": "Experimental",
+                "description": "Experimental features"
             }
         },
-        "downloader": {
-            "name": "Downloader",
-            "description": "Download Snaps and Stories",
-            "properties": {
-                "save_folder": {
-                    "name": "Save Folder",
-                    "description": "The directory where all media is saved"
-                },
-                "auto_download_options": {
-                    "name": "Auto Download Options",
-                    "description": "Select which medias to auto download"
-                }
+        "options": {
+            "better_notifications": {
+                "chat": "Show chat messages",
+                "snap": "Show medias",
+                "reply_button": "Add reply button",
+                "download_button": "Add download button"
+            },
+            "friend_feed_menu_buttons": {
+                "auto_download_blacklist": "\u2B07\uFE0F Auto Download Blacklist",
+                "anti_auto_save": "\uD83D\uDCAC Anti Auto Save Messages",
+                "stealth_mode": "\uD83D\uDC7B Stealth Mode",
+                "conversation_info": "\uD83D\uDC64 Conversation Info"
+            },
+            "download_options": {
+                "allow_duplicate": "Allow duplicate downloads",
+                "create_user_folder": "Create folder for each user",
+                "append_hash": "Add a unique hash to the file name",
+                "append_username": "Add the username to the file name",
+                "append_date_time": "Add the date and time to the file name",
+                "append_type": "Add the media type to the file name",
+                "merge_overlay": "Merge Snap Image Overlays"
+            },
+            "auto_download_options": {
+                "friend_snaps": "Friend Snaps",
+                "friend_stories": "Friend Stories",
+                "public_stories": "Public Stories",
+                "spotlight": "Spotlight"
+            },
+            "download_logging": {
+                "started": "Started",
+                "success": "Success",
+                "progress": "Progress",
+                "failure": "Failure"
+            },
+            "auto_save_messages": {
+                "NOTE": "Audio Note",
+                "CHAT": "Chat",
+                "EXTERNAL_MEDIA": "External Media",
+                "SNAP": "Snap",
+                "STICKER": "Sticker"
+            },
+            "notifications": {
+                "chat_screenshot": "Screenshot",
+                "chat_screen_record": "Screen Record",
+                "camera_roll_save": "Camera Roll Save",
+                "chat": "Chat",
+                "chat_reply": "Chat Reply",
+                "snap": "Snap",
+                "typing": "Typing",
+                "stories": "Stories",
+                "initiate_audio": "Incoming Audio Call",
+                "abandon_audio": "Missed Audio Call",
+                "initiate_video": "Incoming Video Call",
+                "abandon_video": "Missed Video Call"
+            },
+            "gallery_media_send_override": {
+                "ORIGINAL": "Original",
+                "NOTE": "Audio Note",
+                "SNAP": "Snap",
+                "LIVE_SNAP": "Snap with audio"
+            },
+            "hide_ui_components": {
+                "hide_call_buttons": "Remove Call Buttons",
+                "hide_cognac_button": "Remove Cognac Button",
+                "hide_live_location_share_button": "Remove Live Location Share Button",
+                "hide_stickers_button": "Remove Stickers Button",
+                "hide_voice_record_button": "Remove Voice Record Button"
+            },
+            "auto_updater": {
+                "DISABLED": "Disabled",
+                "EVERY_LAUNCH": "Every Launch",
+                "DAILY": "Daily",
+                "WEEKLY": "Weekly"
+            },
+            "story_viewer_override": {
+                "OFF": "Off",
+                "DISCOVER_PLAYBACK_SEEKBAR": "Enable Discover Playback Seekbar",
+                "VERTICAL_STORY_VIEWER": "Enable Vertical Story Viewer"
+            },
+            "hide_story_sections": {
+                "hide_friend_suggestions": "Hide friend suggestions",
+                "hide_friends": "Hide friends section",
+                "hide_following": "Hide following section",
+                "hide_for_you": "Hide For You section"
+            },
+            "startup_tab": {
+                "OFF": "Off",
+                "ngs_map_icon_container": "Map",
+                "ngs_chat_icon_container": "Chat",
+                "ngs_camera_icon_container": "Camera",
+                "ngs_community_icon_container": "Community / Stories",
+                "ngs_spotlight_icon_container": "Spotlight",
+                "ngs_search_icon_container": "Search"
             }
-        },
-        "user_interface": {
-            "name": "User Interface",
-            "description": "Change the look and feel of Snapchat",
-            "properties": {
-                "enable_app_appearance": {
-                    "name": "Enable App Appearance Settings",
-                    "description": "Enables the hidden app appearance settings"
-                },
-                "amoled_dark_mode": {
-                    "name": "AMOLED Dark Mode",
-                    "description": "Enables AMOLED dark mode\nMake sure Snapchat's dark mode is enabled"
-                },
-                "map_friend_nametags": {
-                    "name": "Enhanced Friend Map Nametags",
-                    "description": "Enhances the nametags of friends on the map"
-                },
-                "streak_expiration_info": {
-                    "name": "Show Streak Expiration Info",
-                    "description": "Shows Streak expiration info next to streaks"
-                },
-                "hide_story_section": {
-                    "name": "Hide Story Section",
-                    "description": "Hide certain UI Elements shown in the story section"
-                },
-                "hide_ui_components": {
-                    "name": "Hide UI Components",
-                    "description": "Select which UI components to hide"
-                },
-                "disable_spotlight": {
-                    "name": "Disable Spotlight",
-                    "description": "Disables the Spotlight page"
-                },
-                "startup_tab": {
-                    "name": "Startup Tab",
-                    "description": "Change the tab that opens on startup"
-                },
-                "story_viewer_override": {
-                    "name": "Story Viewer Override",
-                    "description": "Turns on certain features which Snapchat hid"
-                },
-                "friend_feed_menu_buttons": {
-                    "name": "Friend Feed Menu Buttons",
-                    "description": "Select which buttons to show in the Friend Feed Menu Bar"
-                },
-                "friend_feed_menu_position": {
-                    "name": "Friend Feed Position Index",
-                    "description": "The position of the Friend Feed Menu component"
-                },
-                "enable_friend_feed_menu_bar": {
-                    "name": "Friend Feed Menu Bar",
-                    "description": "Enables the new Friend Feed Menu Bar"
-                }
-            }
-        },
-        "messaging": {
-            "name": "Messaging",
-            "description": "Change how you interact with friends"
-        },
-        "global": {
-            "name": "Global",
-            "description": "Tweak Snapchat globally"
-        },
-        "camera": {
-            "name": "Camera",
-            "description": "Adjust the right settings for the perfect snap"
-        },
-        "experimental": {
-            "name": "Experimental",
-            "description": "Experimental features"
         },
 
-        "properties": {
+        "temp": {
             "message_logger": {
                 "name": "Message Logger",
                 "description": "Prevents messages from being deleted"
@@ -299,102 +396,6 @@
             "android_id": {
                 "name": "Android ID",
                 "description": "Spoofs the devices Android ID"
-            }
-        },
-        "option": {
-            "better_notifications": {
-                "chat": "Show chat messages",
-                "snap": "Show medias",
-                "reply_button": "Add reply button",
-                "download_button": "Add download button"
-            },
-            "friend_feed_menu_buttons": {
-                "auto_download_blacklist": "\u2B07\uFE0F Auto Download Blacklist",
-                "anti_auto_save": "\uD83D\uDCAC Anti Auto Save Messages",
-                "stealth_mode": "\uD83D\uDC7B Stealth Mode",
-                "conversation_info": "\uD83D\uDC64 Conversation Info"
-            },
-            "download_options": {
-                "allow_duplicate": "Allow duplicate downloads",
-                "create_user_folder": "Create folder for each user",
-                "append_hash": "Add a unique hash to the file name",
-                "append_username": "Add the username to the file name",
-                "append_date_time": "Add the date and time to the file name",
-                "append_type": "Add the media type to the file name",
-                "merge_overlay": "Merge Snap Image Overlays"
-            },
-            "auto_download_options": {
-                "friend_snaps": "Friend Snaps",
-                "friend_stories": "Friend Stories",
-                "public_stories": "Public Stories",
-                "spotlight": "Spotlight"
-            },
-            "download_logging": {
-                "started": "Started",
-                "success": "Success",
-                "progress": "Progress",
-                "failure": "Failure"
-            },
-            "auto_save_messages": {
-                "NOTE": "Audio Note",
-                "CHAT": "Chat",
-                "EXTERNAL_MEDIA": "External Media",
-                "SNAP": "Snap",
-                "STICKER": "Sticker"
-            },
-            "notifications": {
-                "chat_screenshot": "Screenshot",
-                "chat_screen_record": "Screen Record",
-                "camera_roll_save": "Camera Roll Save",
-                "chat": "Chat",
-                "chat_reply": "Chat Reply",
-                "snap": "Snap",
-                "typing": "Typing",
-                "stories": "Stories",
-                "initiate_audio": "Incoming Audio Call",
-                "abandon_audio": "Missed Audio Call",
-                "initiate_video": "Incoming Video Call",
-                "abandon_video": "Missed Video Call"
-            },
-            "gallery_media_send_override": {
-                "ORIGINAL": "Original",
-                "NOTE": "Audio Note",
-                "SNAP": "Snap",
-                "LIVE_SNAP": "Snap with audio"
-            },
-            "hide_ui_elements": {
-                "remove_call_buttons": "Remove Call Buttons",
-                "remove_cognac_button": "Remove Cognac Button",
-                "remove_live_location_share_button": "Remove Live Location Share Button",
-                "remove_stickers_button": "Remove Stickers Button",
-                "remove_voice_record_button": "Remove Voice Record Button",
-                "remove_camera_borders": "Remove Camera Borders"
-            },
-            "auto_updater": {
-                "DISABLED": "Disabled",
-                "EVERY_LAUNCH": "Every Launch",
-                "DAILY": "Daily",
-                "WEEKLY": "Weekly"
-            },
-            "story_viewer_override": {
-                "OFF": "Off",
-                "DISCOVER_PLAYBACK_SEEKBAR": "Enable Discover Playback Seekbar",
-                "VERTICAL_STORY_VIEWER": "Enable Vertical Story Viewer"
-            },
-            "hide_story_section": {
-                "hide_friend_suggestions": "Hide friend suggestions",
-                "hide_friends": "Hide friends section",
-                "hide_following": "Hide following section",
-                "hide_for_you": "Hide For You section"
-            },
-            "startup_page_override": {
-                "OFF": "Off",
-                "ngs_map_icon_container": "Map",
-                "ngs_chat_icon_container": "Chat",
-                "ngs_camera_icon_container": "Camera",
-                "ngs_community_icon_container": "Community / Stories",
-                "ngs_spotlight_icon_container": "Spotlight",
-                "ngs_search_icon_container": "Search"
             }
         }
     },
