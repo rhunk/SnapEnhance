@@ -4,7 +4,6 @@ class SnapClassCache (
     private val classLoader: ClassLoader
 ) {
     val snapUUID by lazy { findClass("com.snapchat.client.messaging.UUID") }
-    val composerLocalSubscriptionStore by lazy { findClass("com.snap.plus.lib.common.ComposerLocalSubscriptionStore") }
     val snapManager by lazy { findClass("com.snapchat.client.messaging.SnapManager\$CppProxy") }
     val conversationManager by lazy { findClass("com.snapchat.client.messaging.ConversationManager\$CppProxy") }
     val presenceSession by lazy { findClass("com.snapchat.talkcorev3.PresenceSession\$CppProxy") }

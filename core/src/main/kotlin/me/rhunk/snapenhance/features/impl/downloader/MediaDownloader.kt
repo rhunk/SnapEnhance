@@ -228,8 +228,8 @@ class MediaDownloader : Feature("MediaDownloader", loadParams = FeatureLoadParam
             val messageId = id.substring(id.lastIndexOf(":") + 1).toLong()
             val conversationMessage = context.database.getConversationMessageFromId(messageId)!!
 
-            val senderId = conversationMessage.sender_id!!
-            val conversationId = conversationMessage.client_conversation_id!!
+            val senderId = conversationMessage.senderId!!
+            val conversationId = conversationMessage.clientConversationId!!
 
             if (!forceDownload && context.feature(AntiAutoDownload::class).isUserIgnored(senderId)) {
                 return
@@ -240,7 +240,7 @@ class MediaDownloader : Feature("MediaDownloader", loadParams = FeatureLoadParam
 
             downloadOperaMedia(provideDownloadManagerClient(
                 pathSuffix = authorUsername,
-                mediaIdentifier = "$conversationId$senderId${conversationMessage.server_message_id}",
+                mediaIdentifier = "$conversationId$senderId${conversationMessage.serverMessageId}",
                 mediaDisplaySource = authorUsername,
                 mediaDisplayType = MediaFilter.CHAT_MEDIA.key,
                 friendInfo = author
@@ -266,9 +266,9 @@ class MediaDownloader : Feature("MediaDownloader", loadParams = FeatureLoadParam
                     ?.split(":")?.getOrNull(2) ?: return@let
 
                 val conversationMessage = context.database.getConversationMessageFromId(arroyoMessageId.toLong()) ?: return@let
-                val conversationParticipants = context.database.getConversationParticipants(conversationMessage.client_conversation_id.toString()) ?: return@let
+                val conversationParticipants = context.database.getConversationParticipants(conversationMessage.clientConversationId.toString()) ?: return@let
 
-                conversationParticipants.firstOrNull { it != conversationMessage.sender_id }
+                conversationParticipants.firstOrNull { it != conversationMessage.senderId }
             }
 
             val author = context.database.getFriendInfo(
@@ -421,18 +421,18 @@ class MediaDownloader : Feature("MediaDownloader", loadParams = FeatureLoadParam
         val message = context.database.getConversationMessageFromId(messageId) ?: throw Exception("Message not found in database")
 
         //get the message author
-        val friendInfo: FriendInfo = context.database.getFriendInfo(message.sender_id!!) ?: throw Exception("Friend not found in database")
+        val friendInfo: FriendInfo = context.database.getFriendInfo(message.senderId!!) ?: throw Exception("Friend not found in database")
         val authorName = friendInfo.usernameForSorting!!
 
-        var messageContent = message.message_content!!
+        var messageContent = message.messageContent!!
         var isArroyoMessage = true
         var deletedMediaReference: ByteArray? = null
 
         //check if the messageId
-        var contentType: ContentType = ContentType.fromId(message.content_type)
+        var contentType: ContentType = ContentType.fromId(message.contentType)
 
-        if (messageLogger.isMessageRemoved(message.client_message_id.toLong())) {
-            val messageObject = messageLogger.getMessageObject(message.client_conversation_id!!, message.client_message_id.toLong()) ?: throw Exception("Message not found in database")
+        if (messageLogger.isMessageRemoved(message.clientMessageId.toLong())) {
+            val messageObject = messageLogger.getMessageObject(message.clientConversationId!!, message.clientMessageId.toLong()) ?: throw Exception("Message not found in database")
             isArroyoMessage = false
             val messageContentObject = messageObject.getAsJsonObject("mMessageContent")
 
@@ -474,7 +474,7 @@ class MediaDownloader : Feature("MediaDownloader", loadParams = FeatureLoadParam
                 val encryptionKeys = EncryptionHelper.getEncryptionKeys(contentType, messageReader, isArroyo = isArroyoMessage)
                 provideDownloadManagerClient(
                     pathSuffix = authorName,
-                    mediaIdentifier = "${message.client_conversation_id}${message.sender_id}${message.server_message_id}",
+                    mediaIdentifier = "${message.clientConversationId}${message.senderId}${message.serverMessageId}",
                     mediaDisplaySource = authorName,
                     mediaDisplayType = MediaFilter.CHAT_MEDIA.key,
                     friendInfo = friendInfo

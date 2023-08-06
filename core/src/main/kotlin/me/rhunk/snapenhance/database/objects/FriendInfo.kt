@@ -3,6 +3,9 @@ package me.rhunk.snapenhance.database.objects
 import android.annotation.SuppressLint
 import android.database.Cursor
 import me.rhunk.snapenhance.database.DatabaseObject
+import me.rhunk.snapenhance.util.getInteger
+import me.rhunk.snapenhance.util.getLong
+import me.rhunk.snapenhance.util.getStringOrNull
 
 data class FriendInfo(
     var id: Int = 0,
@@ -30,29 +33,31 @@ data class FriendInfo(
 ) : DatabaseObject {
     @SuppressLint("Range")
     override fun write(cursor: Cursor) {
-        id = cursor.getInt(cursor.getColumnIndex("_id"))
-        lastModifiedTimestamp = cursor.getLong(cursor.getColumnIndex("_lastModifiedTimestamp"))
-        username = cursor.getString(cursor.getColumnIndex("username"))
-        userId = cursor.getString(cursor.getColumnIndex("userId"))
-        displayName = cursor.getString(cursor.getColumnIndex("displayName"))
-        bitmojiAvatarId = cursor.getString(cursor.getColumnIndex("bitmojiAvatarId"))
-        bitmojiSelfieId = cursor.getString(cursor.getColumnIndex("bitmojiSelfieId"))
-        bitmojiSceneId = cursor.getString(cursor.getColumnIndex("bitmojiSceneId"))
-        bitmojiBackgroundId = cursor.getString(cursor.getColumnIndex("bitmojiBackgroundId"))
-        friendmojis = cursor.getString(cursor.getColumnIndex("friendmojis"))
-        friendmojiCategories = cursor.getString(cursor.getColumnIndex("friendmojiCategories"))
-        snapScore = cursor.getInt(cursor.getColumnIndex("score"))
-        birthday = cursor.getLong(cursor.getColumnIndex("birthday"))
-        addedTimestamp = cursor.getLong(cursor.getColumnIndex("addedTimestamp"))
-        reverseAddedTimestamp = cursor.getLong(cursor.getColumnIndex("reverseAddedTimestamp"))
-        serverDisplayName = cursor.getString(cursor.getColumnIndex("serverDisplayName"))
-        streakLength = cursor.getInt(cursor.getColumnIndex("streakLength"))
-        streakExpirationTimestamp = cursor.getLong(cursor.getColumnIndex("streakExpiration"))
-        reverseBestFriendRanking = cursor.getInt(cursor.getColumnIndex("reverseBestFriendRanking"))
-        usernameForSorting = cursor.getString(cursor.getColumnIndex("usernameForSorting"))
-        if (cursor.getColumnIndex("isPinnedBestFriend") != -1) isPinnedBestFriend =
-            cursor.getInt(cursor.getColumnIndex("isPinnedBestFriend"))
-        if (cursor.getColumnIndex("plusBadgeVisibility") != -1) plusBadgeVisibility =
-            cursor.getInt(cursor.getColumnIndex("plusBadgeVisibility"))
+        with(cursor) {
+            id = getInteger("_id")
+            lastModifiedTimestamp = getLong("_lastModifiedTimestamp")
+            username = getStringOrNull("username")
+            userId = getStringOrNull("userId")
+            displayName = getStringOrNull("displayName")
+            bitmojiAvatarId = getStringOrNull("bitmojiAvatarId")
+            bitmojiSelfieId = getStringOrNull("bitmojiSelfieId")
+            bitmojiSceneId = getStringOrNull("bitmojiSceneId")
+            bitmojiBackgroundId = getStringOrNull("bitmojiBackgroundId")
+            friendmojis = getStringOrNull("friendmojis")
+            friendmojiCategories = getStringOrNull("friendmojiCategories")
+            snapScore = getInteger("score")
+            birthday = getLong("birthday")
+            addedTimestamp = getLong("addedTimestamp")
+            reverseAddedTimestamp = getLong("reverseAddedTimestamp")
+            serverDisplayName = getStringOrNull("serverDisplayName")
+            streakLength = getInteger("streakLength")
+            streakExpirationTimestamp = getLong("streakExpiration")
+            reverseBestFriendRanking = getInteger("reverseBestFriendRanking")
+            usernameForSorting = getStringOrNull("usernameForSorting")
+            if (getColumnIndex("isPinnedBestFriend") != -1) isPinnedBestFriend =
+                getInteger("isPinnedBestFriend")
+            if (getColumnIndex("plusBadgeVisibility") != -1) plusBadgeVisibility =
+                getInteger("plusBadgeVisibility")
+        }
     }
 }

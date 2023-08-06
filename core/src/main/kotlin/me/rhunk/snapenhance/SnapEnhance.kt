@@ -66,7 +66,7 @@ class SnapEnhance {
             if (!activity.packageName.equals(Constants.SNAPCHAT_PACKAGE_NAME)) return@hook
             val isMainActivityNotNull = appContext.mainActivity != null
             appContext.mainActivity = activity
-            if (isMainActivityNotNull || !appContext.mappings.areMappingsLoaded) return@hook
+            if (isMainActivityNotNull || !appContext.mappings.isMappingsLoaded()) return@hook
             onActivityCreate()
         }
 
@@ -95,13 +95,14 @@ class SnapEnhance {
                 reloadConfig()
                 withContext(appContext.coroutineDispatcher) {
                     translation.userLocale = getConfigLocale()
-                    translation.loadFromBridge(appContext.bridgeClient)
+                    translation.loadFromBridge(bridgeClient)
                 }
 
-                mappings.init()
+                mappings.loadFromBridge(bridgeClient)
+                mappings.init(androidContext)
                 eventDispatcher.init()
                 //if mappings aren't loaded, we can't initialize features
-                if (!mappings.areMappingsLoaded) return
+                if (!mappings.isMappingsLoaded()) return
                 features.init()
             }
         }.also { time ->

@@ -12,6 +12,15 @@ fun Cursor.getIntOrNull(columnName: String): Int? {
     return if (columnIndex == -1) null else getInt(columnIndex)
 }
 
+fun Cursor.getInteger(columnName: String) = getIntOrNull(columnName) ?: throw NullPointerException("Column $columnName is null")
+fun Cursor.getLong(columnName: String) = getLongOrNull(columnName) ?: throw NullPointerException("Column $columnName is null")
+
+fun Cursor.getBlobOrNull(columnName: String): ByteArray? {
+    val columnIndex = getColumnIndex(columnName)
+    return if (columnIndex == -1) null else getBlob(columnIndex)
+}
+
+
 fun Cursor.getLongOrNull(columnName: String): Long? {
     val columnIndex = getColumnIndex(columnName)
     return if (columnIndex == -1) null else getLong(columnIndex)

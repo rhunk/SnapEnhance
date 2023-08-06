@@ -13,6 +13,7 @@ import com.google.gson.GsonBuilder
 import kotlinx.coroutines.asCoroutineDispatcher
 import me.rhunk.snapenhance.bridge.BridgeClient
 import me.rhunk.snapenhance.bridge.wrapper.LocaleWrapper
+import me.rhunk.snapenhance.bridge.wrapper.MappingsWrapper
 import me.rhunk.snapenhance.core.config.ModConfig
 import me.rhunk.snapenhance.core.eventbus.EventBus
 import me.rhunk.snapenhance.data.MessageSender
@@ -20,7 +21,6 @@ import me.rhunk.snapenhance.database.DatabaseAccess
 import me.rhunk.snapenhance.features.Feature
 import me.rhunk.snapenhance.manager.impl.ActionManager
 import me.rhunk.snapenhance.manager.impl.FeatureManager
-import me.rhunk.snapenhance.manager.impl.MappingManager
 import me.rhunk.snapenhance.util.download.DownloadServer
 import java.util.concurrent.ExecutorService
 import java.util.concurrent.Executors
@@ -47,7 +47,7 @@ class ModContext {
 
     val translation = LocaleWrapper()
     val features = FeatureManager(this)
-    val mappings = MappingManager(this)
+    val mappings = MappingsWrapper()
     val actionManager = ActionManager(this)
     val database = DatabaseAccess(this)
     val downloadServer = DownloadServer()

@@ -3,6 +3,9 @@ package me.rhunk.snapenhance.database.objects
 import android.annotation.SuppressLint
 import android.database.Cursor
 import me.rhunk.snapenhance.database.DatabaseObject
+import me.rhunk.snapenhance.util.getInteger
+import me.rhunk.snapenhance.util.getLong
+import me.rhunk.snapenhance.util.getStringOrNull
 
 data class FriendFeedInfo(
     var id: Int = 0,
@@ -19,15 +22,17 @@ data class FriendFeedInfo(
 
     @SuppressLint("Range")
     override fun write(cursor: Cursor) {
-        id = cursor.getInt(cursor.getColumnIndex("_id"))
-        feedDisplayName = cursor.getString(cursor.getColumnIndex("feedDisplayName"))
-        participantsSize = cursor.getInt(cursor.getColumnIndex("participantsSize"))
-        lastInteractionTimestamp = cursor.getLong(cursor.getColumnIndex("lastInteractionTimestamp"))
-        displayTimestamp = cursor.getLong(cursor.getColumnIndex("displayTimestamp"))
-        displayInteractionType = cursor.getString(cursor.getColumnIndex("displayInteractionType"))
-        lastInteractionUserId = cursor.getInt(cursor.getColumnIndex("lastInteractionUserId"))
-        key = cursor.getString(cursor.getColumnIndex("key"))
-        friendUserId = cursor.getString(cursor.getColumnIndex("friendUserId"))
-        friendDisplayName = cursor.getString(cursor.getColumnIndex("friendDisplayUsername"))
+        with(cursor) {
+            id = getInteger("_id")
+            feedDisplayName = getStringOrNull("feedDisplayName")
+            participantsSize = getInteger("participantsSize")
+            lastInteractionTimestamp = getLong("lastInteractionTimestamp")
+            displayTimestamp = getLong("displayTimestamp")
+            displayInteractionType = getStringOrNull("displayInteractionType")
+            lastInteractionUserId = getInteger("lastInteractionUserId")
+            key = getStringOrNull("key")
+            friendUserId = getStringOrNull("friendUserId")
+            friendDisplayName = getStringOrNull("friendDisplayUsername")
+        }
     }
 }

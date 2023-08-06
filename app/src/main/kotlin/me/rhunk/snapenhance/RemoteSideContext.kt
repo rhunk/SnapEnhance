@@ -28,7 +28,7 @@ class RemoteSideContext(
 
     val config = ModConfig()
     val translation = LocaleWrapper()
-    val mappings = MappingsWrapper(androidContext)
+    val mappings = MappingsWrapper()
     val downloadTaskManager = DownloadTaskManager()
 
     init {
@@ -38,7 +38,7 @@ class RemoteSideContext(
             translation.loadFromContext(androidContext)
             mappings.apply {
                 loadFromContext(androidContext)
-                init()
+                init(androidContext)
             }
             downloadTaskManager.init(androidContext)
         }.onFailure {

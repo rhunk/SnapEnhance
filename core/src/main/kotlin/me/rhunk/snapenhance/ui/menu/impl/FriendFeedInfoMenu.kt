@@ -117,12 +117,12 @@ class FriendFeedInfoMenu : AbstractMenu() {
         val messageBuilder = StringBuilder()
 
         messages.forEach{ message: ConversationMessage ->
-            val sender: FriendInfo? = participants[message.sender_id]
+            val sender: FriendInfo? = participants[message.senderId]
 
-            var messageString: String = message.getMessageAsString() ?: ContentType.fromId(message.content_type).name
+            var messageString: String = message.getMessageAsString() ?: ContentType.fromId(message.contentType).name
 
-            if (message.content_type == ContentType.SNAP.id) {
-                val readTimeStamp: Long = message.read_timestamp
+            if (message.contentType == ContentType.SNAP.id) {
+                val readTimeStamp: Long = message.readTimestamp
                 messageString = "\uD83D\uDFE5" //red square
                 if (readTimeStamp > 0) {
                     messageString += " \uD83D\uDC40 " //eyes
@@ -160,7 +160,7 @@ class FriendFeedInfoMenu : AbstractMenu() {
         messages.lastOrNull()?.let {
             messageBuilder
                 .append("\n\n")
-                .append(context.translation.format("conversation_preview.total_messages", "count" to it.server_message_id.toString()))
+                .append(context.translation.format("conversation_preview.total_messages", "count" to it.serverMessageId.toString()))
                 .append("\n")
         }
 
@@ -214,7 +214,7 @@ class FriendFeedInfoMenu : AbstractMenu() {
         //old conversation fetch
         val conversationId = if (messaging.lastFetchConversationUUID == null && focusedConversationTargetUser != null) {
             val conversation: UserConversationLink = context.database.getDMConversationIdFromUserId(focusedConversationTargetUser) ?: throw IllegalStateException("No conversation found")
-            conversation.client_conversation_id!!.trim().lowercase()
+            conversation.clientConversationId!!.trim().lowercase()
         } else {
             messaging.lastFetchConversationUUID.toString()
         }

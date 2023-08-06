@@ -11,6 +11,7 @@ import me.rhunk.snapenhance.bridge.types.BridgeFileType
 import me.rhunk.snapmapper.Mapper
 import me.rhunk.snapmapper.impl.BCryptClassMapper
 import me.rhunk.snapmapper.impl.CallbackMapper
+import me.rhunk.snapmapper.impl.CompositeConfigurationProviderMapper
 import me.rhunk.snapmapper.impl.DefaultMediaItemMapper
 import me.rhunk.snapmapper.impl.EnumMapper
 import me.rhunk.snapmapper.impl.FriendsFeedEventDispatcherMapper
@@ -19,13 +20,12 @@ import me.rhunk.snapmapper.impl.OperaPageViewControllerMapper
 import me.rhunk.snapmapper.impl.PlatformAnalyticsCreatorMapper
 import me.rhunk.snapmapper.impl.PlusSubscriptionMapper
 import me.rhunk.snapmapper.impl.ScCameraSettingsMapper
+import me.rhunk.snapmapper.impl.ScoreUpdateMapper
 import me.rhunk.snapmapper.impl.StoryBoostStateMapper
 import java.util.concurrent.ConcurrentHashMap
 import kotlin.system.measureTimeMillis
 
-class MappingsWrapper(
-    private val context: Context,
-) : FileLoaderWrapper(BridgeFileType.MAPPINGS, "{}".toByteArray(Charsets.UTF_8)) {
+class MappingsWrapper : FileLoaderWrapper(BridgeFileType.MAPPINGS, "{}".toByteArray(Charsets.UTF_8)) {
     companion object {
         private val gson = GsonBuilder().setPrettyPrinting().create()
         private val mappers = arrayOf(
@@ -39,14 +39,19 @@ class MappingsWrapper(
             PlusSubscriptionMapper::class,
             ScCameraSettingsMapper::class,
             StoryBoostStateMapper::class,
-            FriendsFeedEventDispatcherMapper::class
+            FriendsFeedEventDispatcherMapper::class,
+            CompositeConfigurationProviderMapper::class,
+            ScoreUpdateMapper::class
         )
     }
+
+    private lateinit var context: Context
 
     private val mappings = ConcurrentHashMap<String, Any>()
     private var snapBuildNumber: Long = 0
 
-    fun init() {
+    fun init(context: Context) {
+        this.context = context
         snapBuildNumber = getSnapchatVersionCode()
 
         if (isFileExists()) {
@@ -56,6 +61,8 @@ class MappingsWrapper(
                 Logger.error("Failed to load cached mappings", it)
                 delete()
             }
+        } else {
+            Logger.debug("Mappings file does not exist")
         }
     }
 
