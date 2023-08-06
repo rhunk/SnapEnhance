@@ -1,9 +1,7 @@
 package me.rhunk.snapenhance.ui.manager
 
-import androidx.compose.animation.core.animateDpAsState
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxHeight
-import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.wrapContentWidth
 import androidx.compose.material.icons.Icons
@@ -19,7 +17,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavDestination
 import androidx.navigation.NavDestination.Companion.hierarchy
@@ -85,30 +82,22 @@ class Navigation(
                 fun selected() = currentDestination?.hierarchy?.any { it.route == section.route } == true
 
                 NavigationBarItem(
+                    alwaysShowLabel = false,
                     modifier = Modifier
                         .fillMaxHeight(),
                     icon = {
-                        val iconOffset by animateDpAsState(
-                            if (selected()) 0.dp else 10.dp,
-                            label = ""
-                        )
                         Icon(
                             imageVector = section.icon,
-                            contentDescription = null,
-                            modifier = Modifier.offset(y = iconOffset)
+                            contentDescription = null
                         )
                     },
 
                     label = {
-                        val labelOffset by animateDpAsState(
-                            if (selected()) 0.dp else (-5).dp,
-                            label = ""
-                        )
                         Text(
                             textAlign = TextAlign.Center,
                             softWrap = false,
                             fontSize = 12.sp,
-                            modifier = Modifier.wrapContentWidth(unbounded = true).offset(y = labelOffset),
+                            modifier = Modifier.wrapContentWidth(unbounded = true),
                             text = if (selected()) context.translation["manager.routes.${section.route}"] else "",
                         )
                     },
