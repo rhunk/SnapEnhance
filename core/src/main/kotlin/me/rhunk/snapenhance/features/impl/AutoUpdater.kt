@@ -41,6 +41,11 @@ class AutoUpdater : Feature("AutoUpdater", loadParams = FeatureLoadParams.ACTIVI
         }
     }
 
+    @Suppress("DEPRECATION")
+    private fun getCPUArchitecture(): String {
+        return Build.CPU_ABI
+    }
+
     @SuppressLint("UnspecifiedRegisterReceiverFlag")
     fun checkForUpdates(): String? {
         val endpoint = Request.Builder().url("https://api.github.com/repos/rhunk/SnapEnhance/releases").build()
@@ -56,8 +61,14 @@ class AutoUpdater : Feature("AutoUpdater", loadParams = FeatureLoadParams.ACTIVI
         val latestVersion = latestRelease.getAsJsonPrimitive("tag_name").asString
         if (latestVersion.removePrefix("v") == BuildConfig.VERSION_NAME) return null
 
+        val architectureName = when (getCPUArchitecture()) {
+            "armeabi-v7a", "armeabi" -> "armv7"
+            "arm64-v8a" -> "armv8"
+            else -> { throw Throwable("Failed getting architecture") }
+        }
+
         val releaseContentBody = latestRelease.getAsJsonPrimitive("body").asString
-        val downloadEndpoint = latestRelease.getAsJsonArray("assets").get(0).asJsonObject.getAsJsonPrimitive("browser_download_url").asString
+        val downloadEndpoint = "https://github.com/rhunk/SnapEnhance/releases/download/${latestVersion}/app-${latestVersion.removePrefix("v")}-${architectureName}-release-signed.apk"
 
         context.runOnUiThread {
             ViewAppearanceHelper.newAlertDialogBuilder(context.mainActivity)
