@@ -52,6 +52,7 @@ import coil.compose.rememberAsyncImagePainter
 import coil.decode.VideoFrameDecoder
 import coil.memory.MemoryCache
 import coil.request.ImageRequest
+import coil.size.Precision
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import me.rhunk.snapenhance.R
@@ -150,25 +151,26 @@ class DownloadsSection : Section() {
                 .fillMaxWidth()
                 .clip(MaterialTheme.shapes.medium)
         ) {
-            Box(modifier = Modifier.height(120.dp)) {
+            Box(modifier = Modifier.height(100.dp)) {
                 Image(
                     painter = rememberAsyncImagePainter(
                         model = ImageRequest.Builder(context.androidContext)
                             .data(download.outputFile)
                             .memoryCacheKey(download.outputFile)
+                            .crossfade(true)
                             .build(),
                         imageLoader = imageLoader
                     ),
                     modifier = Modifier
                         .matchParentSize()
-                        .blur(5.dp),
+                        .blur(12.dp),
                     contentDescription = null,
                     contentScale = ContentScale.FillWidth
                 )
 
                 Row(
                     modifier = Modifier
-                        .padding(start = 16.dp, end = 16.dp)
+                        .padding(start = 10.dp, end = 10.dp)
                         .fillMaxWidth()
                         .fillMaxHeight(),
                     verticalAlignment = Alignment.CenterVertically
@@ -188,6 +190,8 @@ class DownloadsSection : Section() {
                                 model = ImageRequest.Builder(context.androidContext)
                                     .data(download.metadata.iconUrl)
                                     .fallback(R.drawable.bitmoji_blank)
+                                    .precision(Precision.INEXACT)
+                                    .crossfade(true)
                                     .memoryCacheKey(download.metadata.iconUrl)
                                     .build(),
                                 imageLoader = imageLoader
