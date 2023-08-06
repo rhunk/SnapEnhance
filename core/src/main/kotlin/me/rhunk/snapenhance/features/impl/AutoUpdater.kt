@@ -7,6 +7,7 @@ import android.content.Context
 import android.content.Intent
 import android.content.IntentFilter
 import android.net.Uri
+import android.os.Build
 import android.os.Environment
 import com.google.gson.JsonParser
 import me.rhunk.snapenhance.Logger
@@ -41,11 +42,6 @@ class AutoUpdater : Feature("AutoUpdater", loadParams = FeatureLoadParams.ACTIVI
         }
     }
 
-    @Suppress("DEPRECATION")
-    private fun getCPUArchitecture(): String {
-        return Build.CPU_ABI
-    }
-
     @SuppressLint("UnspecifiedRegisterReceiverFlag")
     fun checkForUpdates(): String? {
         val endpoint = Request.Builder().url("https://api.github.com/repos/rhunk/SnapEnhance/releases").build()
@@ -61,10 +57,10 @@ class AutoUpdater : Feature("AutoUpdater", loadParams = FeatureLoadParams.ACTIVI
         val latestVersion = latestRelease.getAsJsonPrimitive("tag_name").asString
         if (latestVersion.removePrefix("v") == BuildConfig.VERSION_NAME) return null
 
-        val architectureName = when (getCPUArchitecture()) {
-            "armeabi-v7a", "armeabi" -> "armv7"
-            "arm64-v8a" -> "armv8"
-            else -> { throw Throwable("Failed getting architecture") }
+        val architectureName = Build.SUPPORTED_ABIS.let {
+            if (it.contains("arm64-v8a")) return@let "armv8"
+            if (it.contains("armeabi-v7a") || it.contains("armeabi")) return@let "armv7"
+            throw Throwable("Failed getting architecture")
         }
 
         val releaseContentBody = latestRelease.getAsJsonPrimitive("body").asString
