@@ -15,6 +15,13 @@ import java.util.concurrent.Executors
 import kotlin.time.ExperimentalTime
 import kotlin.time.measureTime
 
+private fun Any.longHashCode(): Long {
+    var h = 1125899906842597L
+    val value = this.toString()
+    for (element in value) h = 31 * h + element.code.toLong()
+    return h
+}
+
 class MessageLogger : Feature("MessageLogger",
     loadParams = FeatureLoadParams.INIT_SYNC or
         FeatureLoadParams.ACTIVITY_CREATE_ASYNC
@@ -32,21 +39,29 @@ class MessageLogger : Feature("MessageLogger",
 
     private val myUserId by lazy { context.database.getMyUserId() }
 
-    fun isMessageRemoved(messageId: Long) = deletedMessageCache.containsKey(messageId)
+    fun isMessageRemoved(conversationId: String, orderKey: Long) = deletedMessageCache.containsKey(computeMessageIdentifier(conversationId, orderKey))
 
-    fun deleteMessage(conversationId: String, messageId: Long) {
-        fetchedMessages.remove(messageId)
-        deletedMessageCache.remove(messageId)
-        context.bridgeClient.deleteMessageLoggerMessage(conversationId, messageId)
+    fun deleteMessage(conversationId: String, clientMessageId: Long) {
+        val serverMessageId = getServerMessageIdentifier(conversationId, clientMessageId) ?: return
+        fetchedMessages.remove(serverMessageId)
+        deletedMessageCache.remove(serverMessageId)
+        context.bridgeClient.deleteMessageLoggerMessage(conversationId, serverMessageId)
     }
 
-    fun getMessageObject(conversationId: String, messageId: Long): JsonObject? {
-        if (deletedMessageCache.containsKey(messageId)) {
-            return deletedMessageCache[messageId]
+    fun getMessageObject(conversationId: String, orderKey: Long): JsonObject? {
+        val messageIdentifier = computeMessageIdentifier(conversationId, orderKey)
+        if (deletedMessageCache.containsKey(messageIdentifier)) {
+            return deletedMessageCache[messageIdentifier]
         }
-        return context.bridgeClient.getMessageLoggerMessage(conversationId, messageId)?.let {
+        return context.bridgeClient.getMessageLoggerMessage(conversationId, messageIdentifier)?.let {
             JsonParser.parseString(it.toString(Charsets.UTF_8)).asJsonObject
         }
+    }
+
+    private fun computeMessageIdentifier(conversationId: String, orderKey: Long) = (orderKey.toString() + conversationId).longHashCode()
+    private fun getServerMessageIdentifier(conversationId: String, clientMessageId: Long): Long? {
+        val serverMessageId = context.database.getConversationMessageFromId(clientMessageId)?.serverMessageId?.toLong() ?: return null
+        return computeMessageIdentifier(conversationId, serverMessageId)
     }
 
     @OptIn(ExperimentalTime::class)
@@ -70,19 +85,19 @@ class MessageLogger : Feature("MessageLogger",
         //exclude messages sent by me
         if (message.senderId.toString() == myUserId) return
 
-        val messageId = message.messageDescriptor.messageId
         val conversationId = message.messageDescriptor.conversationId.toString()
+        val serverIdentifier = computeMessageIdentifier(conversationId, message.orderKey)
 
         if (message.messageContent.contentType != ContentType.STATUS) {
-            if (fetchedMessages.contains(messageId)) return
-            fetchedMessages.add(messageId)
+            if (fetchedMessages.contains(serverIdentifier)) return
+            fetchedMessages.add(serverIdentifier)
 
             threadPool.execute {
                 try {
-                    context.bridgeClient.getMessageLoggerMessage(conversationId, messageId)?.let {
+                    context.bridgeClient.getMessageLoggerMessage(conversationId, serverIdentifier)?.let {
                         return@execute
                     }
-                    context.bridgeClient.addMessageLoggerMessage(conversationId, messageId, context.gson.toJson(messageInstance).toByteArray(Charsets.UTF_8))
+                    context.bridgeClient.addMessageLoggerMessage(conversationId, serverIdentifier, context.gson.toJson(messageInstance).toByteArray(Charsets.UTF_8))
                 } catch (ignored: DeadObjectException) {}
             }
 
@@ -90,10 +105,10 @@ class MessageLogger : Feature("MessageLogger",
         }
 
         //query the deleted message
-        val deletedMessageObject: JsonObject = if (deletedMessageCache.containsKey(messageId))
-            deletedMessageCache[messageId]
+        val deletedMessageObject: JsonObject = if (deletedMessageCache.containsKey(serverIdentifier))
+            deletedMessageCache[serverIdentifier]
         else {
-            context.bridgeClient.getMessageLoggerMessage(conversationId, messageId)?.let {
+            context.bridgeClient.getMessageLoggerMessage(conversationId, serverIdentifier)?.let {
                 JsonParser.parseString(it.toString(Charsets.UTF_8)).asJsonObject
             }
         } ?: return
@@ -120,7 +135,7 @@ class MessageLogger : Feature("MessageLogger",
             }
         }
 
-        deletedMessageCache[messageId] = deletedMessageObject
+        deletedMessageCache[serverIdentifier] = deletedMessageObject
     }
 
     override fun init() {

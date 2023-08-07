@@ -98,7 +98,7 @@ class BridgeClient(
 
     fun getMessageLoggerMessage(conversationId: String, id: Long): ByteArray? = service.getMessageLoggerMessage(conversationId, id)
 
-    fun addMessageLoggerMessage(conversationId: String,id: Long, message: ByteArray) = service.addMessageLoggerMessage(conversationId, id, message)
+    fun addMessageLoggerMessage(conversationId: String, id: Long, message: ByteArray) = service.addMessageLoggerMessage(conversationId, id, message)
 
     fun deleteMessageLoggerMessage(conversationId: String, id: Long) = service.deleteMessageLoggerMessage(conversationId, id)
 

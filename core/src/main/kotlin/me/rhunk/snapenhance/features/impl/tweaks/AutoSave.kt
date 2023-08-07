@@ -37,7 +37,7 @@ class AutoSave : Feature("Auto Save", loadParams = FeatureLoadParams.ACTIVITY_CR
 
     private fun saveMessage(conversationId: SnapUUID, message: Message) {
         val messageId = message.messageDescriptor.messageId
-        if (messageLogger.isMessageRemoved(messageId)) return
+        if (messageLogger.isMessageRemoved(conversationId.toString(), message.orderKey)) return
         if (message.messageState != MessageState.COMMITTED) return
 
         val callback = CallbackBuilder(callbackClass)

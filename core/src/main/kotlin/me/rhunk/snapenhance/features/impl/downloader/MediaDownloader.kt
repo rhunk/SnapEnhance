@@ -431,8 +431,8 @@ class MediaDownloader : Feature("MediaDownloader", loadParams = FeatureLoadParam
         //check if the messageId
         var contentType: ContentType = ContentType.fromId(message.contentType)
 
-        if (messageLogger.isMessageRemoved(message.clientMessageId.toLong())) {
-            val messageObject = messageLogger.getMessageObject(message.clientConversationId!!, message.clientMessageId.toLong()) ?: throw Exception("Message not found in database")
+        if (messageLogger.isMessageRemoved(message.clientConversationId!!, message.serverMessageId.toLong())) {
+            val messageObject = messageLogger.getMessageObject(message.clientConversationId!!, message.serverMessageId.toLong()) ?: throw Exception("Message not found in database")
             isArroyoMessage = false
             val messageContentObject = messageObject.getAsJsonObject("mMessageContent")
 
