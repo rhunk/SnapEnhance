@@ -215,18 +215,6 @@
         "unlimited_multi_snap": {
             "name": "Unbegrenzte Multi-Snaps",
             "description": "Ermöglicht die Aufnahme einer unbegrenzten Anzahl von Multi-Snaps"
-        },
-        "device_spoof": {
-            "name": "Device Values Spoofen",
-            "description": "Spoofed bestimmte Werte des Geräts"
-        },
-        "device_fingerprint": {
-            "name": "Gerät Fingerabdruck",
-            "description": "Spoofed den Geräte-Fingerabdruck"
-        },
-        "android_id": {
-            "name": "Android ID",
-            "description": "Spoofed die Android-ID"
         }
     },
     "option": {
@@ -418,8 +406,7 @@
             "clear_cache_title": "Lösche den Zwischenspeicher",
             "reset_all_title": "Alle Einstellungen zurücksetzen",
             "reset_all_confirmation": "Bist du sicher, dass du alle Einstellungen zurücksetzen möchten?",
-            "success_toast": "Erfolgreich!",
-            "device_spoofer": "Device Spoofer"
+            "success_toast": "Erfolgreich!"
         }
     },
     "download_processor": {
@@ -440,8 +427,5 @@
         "title": "SnapEnhance Einstellungen",
         "selected_text": "{count} ausgewählt",
         "invalid_number_toast": "Ungültige Nummer!"
-    },
-    "spoof_activity": {
-        "title": "Spoof Einstellungen"
     }
 }

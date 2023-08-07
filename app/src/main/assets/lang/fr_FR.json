@@ -215,18 +215,6 @@
         "unlimited_multi_snap": {
             "name": "Multi Snap illimité",
             "description": "Vous permet d'avoir un nombre illimité de multi snap"
-        },
-        "device_spoof": {
-            "name": "Falsifier les valeures de l'appareil",
-            "description": "Falsifie les valeures de l'appareil"
-        },
-        "device_fingerprint": {
-            "name": "Empreinte numérique de l’appareil",
-            "description": "Falsifie l'empreinte numérique de l'appareil"
-        },
-        "android_id": {
-            "name": "Identifiant Android",
-            "description": "Falsifie l'identifiant Android"
         }
     },
     "option": {
@@ -418,8 +406,7 @@
             "clear_cache_title": "Vider le cache",
             "reset_all_title": "Réinitialiser tous les réglages",
             "reset_all_confirmation": "Êtes vous sûr de vouloir réinitialiser tous les réglages?",
-            "success_toast": "Succèss!",
-            "device_spoofer": "Falsification de l'appareil"
+            "success_toast": "Succèss!"
         }
     },
     "download_processor": {
@@ -440,8 +427,5 @@
         "title": "Réglages de SnapEnhance",
         "selected_text": "{count} élément(s) sélectionné(s)",
         "invalid_number_toast": "Numéro invalide!"
-    },
-    "spoof_activity": {
-        "title": "Paramètres du Falsificateur"
     }
 }

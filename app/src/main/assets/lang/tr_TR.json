@@ -215,18 +215,6 @@
         "unlimited_multi_snap": {
             "name": "Sınırsız Çoklu Snap",
             "description": "Sınırsız sayıda çoklu snap çekmenizi sağlar"
-        },
-        "device_spoof": {
-            "name": "Sahte Cihaz Değerleri",
-            "description": "Cihaz değerlerini taklit eder"
-        },
-        "device_fingerprint": {
-            "name": "Cihaz Parmak İzi",
-            "description": "Cihaz parmak izini taklit eder"
-        },
-        "android_id": {
-            "name": "Android Kimliği",
-            "description": "Cihazların Android kimliğini taklit eder"
         }
     },
     "option": {
@@ -418,8 +406,7 @@
             "clear_cache_title": "Önbelleği Temizle",
             "reset_all_title": "Tüm ayarları sıfırla",
             "reset_all_confirmation": "Tüm ayarları sıfırlamak istediğinizden emin misiniz?",
-            "success_toast": "Başarılı!",
-            "device_spoofer": "Cihaz Spoofer"
+            "success_toast": "Başarılı!"
         }
     },
     "download_processor": {
@@ -440,8 +427,5 @@
         "title": "SnapEnhance Ayarları",
         "selected_text": "{count} seçildi",
         "invalid_number_toast": "Geçersiz sayı!"
-    },
-    "spoof_activity": {
-        "title": "Spoof Ayarları"
     }
 }

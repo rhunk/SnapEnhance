@@ -215,18 +215,6 @@
         "unlimited_multi_snap": {
             "name": "अनलिमिटेड मल्टी स्नैप भेजे",
             "description": "आपको अनलिमिटेड मल्टी स्नैप भेजने दे"
-        },
-        "device_spoof": {
-            "name": "डिवाइस की वैल्यू बदले",
-            "description": "डिवाइस की वैल्यू छुपाये"
-        },
-        "device_fingerprint": {
-            "name": "डिवाइस की फिंगगर्प्रिन्ट",
-            "description": "डिवाइस की फिंगगर्प्रिन्ट बदले"
-        },
-        "android_id": {
-            "name": "एंड्रॉयड आइडी",
-            "description": "एंड्रॉयड की आइडी बदले"
         }
     },
     "option": {
@@ -418,8 +406,7 @@
             "clear_cache_title": "कैश को साफ़ करें",
             "reset_all_title": "सभी सेटिंग्स रीसेट करें",
             "reset_all_confirmation": "क्या आप वाकई सभी सेटिंग्स को रीसेट करना चाहते हैं?",
-            "success_toast": "सफलता!",
-            "device_spoofer": "डिवाइस छुपाये"
+            "success_toast": "सफलता!"
         }
     },
     "download_processor": {
@@ -440,8 +427,5 @@
         "title": "SnapEnhance सेटिंग्स",
         "selected_text": "{count} चयनित",
         "invalid_number_toast": "अमान्य संख्या!"
-    },
-    "spoof_activity": {
-        "title": "स्पूफ सेटिंग्स"
     }
 }

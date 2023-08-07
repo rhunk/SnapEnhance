@@ -215,18 +215,6 @@
         "unlimited_multi_snap": {
             "name": "سناب متعدد غير محدود",
             "description": "يسمح لك بأخذ كمية غير محدودة من السنابات المتعددة"
-        },
-        "device_spoof": {
-            "name": "خداع قِيَم الجهاز",
-            "description": "محاكاة لقيم الأجهزة"
-        },
-        "device_fingerprint": {
-            "name": "بصمة الجهاز",
-            "description": "Spoofs the device fingerprint"
-        },
-        "android_id": {
-            "name": "Android ID",
-            "description": "Spoofs the devices Android ID"
         }
     },
     "option": {
@@ -418,8 +406,7 @@
             "clear_cache_title": "تنظيف ذاكرة التخزين المؤقت",
             "reset_all_title": "إعادة تعيين كل الإعدادات",
             "reset_all_confirmation": "هل أنت متأكد من أنك تريد إعادة تعيين كل الإعدادات؟",
-            "success_toast": "نجح!",
-            "device_spoofer": "خداع الجهاز"
+            "success_toast": "نجح!"
         }
     },
     "download_processor": {
@@ -440,8 +427,5 @@
         "title": "إعدادات SnapEnhance",
         "selected_text": "{count} المحدد",
         "invalid_number_toast": "رقم غير صالح!"
-    },
-    "spoof_activity": {
-        "title": "خداع الإعدادات"
     }
 }

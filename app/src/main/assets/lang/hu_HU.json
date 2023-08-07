@@ -215,18 +215,6 @@
         "unlimited_multi_snap": {
             "name": "Korlátlan Multi Snap",
             "description": "Lehetővé teszi, hogy korlátlan számú többszörös pillanatfelvételt készítsen"
-        },
-        "device_spoof": {
-            "name": "Eszközértékek hamisítása",
-            "description": "Meghamisítja az eszközök értékeit"
-        },
-        "device_fingerprint": {
-            "name": "Eszköz Ujjlenyomata",
-            "description": "Eszköz ujjlenyomatának meghamisítása"
-        },
-        "android_id": {
-            "name": "Android Azonosítója",
-            "description": "Meghamísítja az eszköz Android Azonosítóját"
         }
     },
     "option": {
@@ -418,8 +406,7 @@
             "clear_cache_title": "Gyorsítótár törlése",
             "reset_all_title": "Beállítások visszaállítása",
             "reset_all_confirmation": "Biztos alapra szeretnéd helyezni?",
-            "success_toast": "Siker!",
-            "device_spoofer": "Eszköz hamisító"
+            "success_toast": "Siker!"
         }
     },
     "download_processor": {
@@ -440,8 +427,5 @@
         "title": "SnapEnhance Beállítások",
         "selected_text": "{count} kiváltasztva",
         "invalid_number_toast": "Érvénytelen szám!"
-    },
-    "spoof_activity": {
-        "title": "Hamisítási Beállítások"
     }
 }
