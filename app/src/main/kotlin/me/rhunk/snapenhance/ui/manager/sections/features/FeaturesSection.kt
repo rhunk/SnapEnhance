@@ -184,7 +184,9 @@ class FeaturesSection : Section() {
                     maxLines = 1,
                     modifier = Modifier.widthIn(0.dp, 120.dp),
                     text = (propertyValue.getNullable() as? String)?.let{
-                        context.translation["features.options.${property.name}.$it"]
+                        if (property.key.params.shouldTranslate) {
+                            context.translation["features.options.${property.name}.$it"]
+                        } else it
                     } ?: context.translation["manager.features.disabled"],
                 )
             }

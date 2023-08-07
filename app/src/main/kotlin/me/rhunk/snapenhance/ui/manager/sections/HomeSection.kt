@@ -120,7 +120,7 @@ class HomeSection : Section() {
 
     override fun onResumed() {
         if (!context.mappings.isMappingsLoaded()) {
-            context.mappings.init()
+            context.mappings.init(context.androidContext)
         }
         installationSummary.value = context.getInstallationSummary()
         userLocale.value = context.translation.loadedLocale.getDisplayName(Locale.getDefault())
