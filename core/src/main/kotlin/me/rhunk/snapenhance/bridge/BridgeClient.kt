@@ -13,6 +13,7 @@ import de.robv.android.xposed.XposedHelpers
 import me.rhunk.snapenhance.Logger.xposedLog
 import me.rhunk.snapenhance.ModContext
 import me.rhunk.snapenhance.bridge.types.BridgeFileType
+import me.rhunk.snapenhance.bridge.types.FileActionType
 import me.rhunk.snapenhance.core.BuildConfig
 import me.rhunk.snapenhance.data.LocalePair
 import java.util.concurrent.CompletableFuture
@@ -81,18 +82,18 @@ class BridgeClient(
     fun createAndReadFile(
         fileType: BridgeFileType,
         defaultContent: ByteArray
-    ): ByteArray = service.createAndReadFile(fileType.value, defaultContent)
+    ): ByteArray = service.fileOperation(FileActionType.CREATE_AND_READ.ordinal, fileType.value, defaultContent)
 
-    fun readFile(fileType: BridgeFileType): ByteArray = service.readFile(fileType.value)
+    fun readFile(fileType: BridgeFileType): ByteArray = service.fileOperation(FileActionType.READ.ordinal, fileType.value, null)
 
     fun writeFile(
         fileType: BridgeFileType,
         content: ByteArray?
-    ): Boolean = service.writeFile(fileType.value, content)
+    ) { service.fileOperation(FileActionType.WRITE.ordinal, fileType.value, content) }
 
-    fun deleteFile(fileType: BridgeFileType) = service.deleteFile(fileType.value)
+    fun deleteFile(fileType: BridgeFileType) { service.fileOperation(FileActionType.DELETE.ordinal, fileType.value, null) }
 
-    fun isFileExists(fileType: BridgeFileType) = service.isFileExists(fileType.value)
+    fun isFileExists(fileType: BridgeFileType) = service.fileOperation(FileActionType.EXISTS.ordinal, fileType.value, null).isNotEmpty()
 
     fun getLoggedMessageIds(conversationId: String, limit: Int): LongArray = service.getLoggedMessageIds(conversationId, limit)
 

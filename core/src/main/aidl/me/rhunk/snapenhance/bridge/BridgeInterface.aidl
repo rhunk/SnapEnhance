@@ -5,46 +5,9 @@ import me.rhunk.snapenhance.bridge.DownloadCallback;
 
 interface BridgeInterface {
         /**
-         * Create a file if it doesn't exist, and read it
-         *
-         * @param fileType       the type of file to create and read
-         * @param defaultContent the default content to write to the file if it doesn't exist
-         * @return the content of the file
-         */
-        byte[] createAndReadFile(int fileType, in byte[] defaultContent);
-
-        /**
-         * Read a file
-         *
-         * @param fileType the type of file to read
-         * @return the content of the file
-         */
-        byte[] readFile(int fileType);
-
-        /**
-         * Write a file
-         *
-         * @param fileType the type of file to write
-         * @param content  the content to write to the file
-         * @return true if the file was written successfully
-         */
-        boolean writeFile(int fileType, in byte[] content);
-
-        /**
-         * Delete a file
-         *
-         * @param fileType the type of file to delete
-         * @return true if the file was deleted successfully
-         */
-        boolean deleteFile(int fileType);
-
-        /**
-         * Check if a file exists
-         *
-         * @param fileType the type of file to check
-         * @return true if the file exists
-         */
-        boolean isFileExists(int fileType);
+        * Execute a file operation
+        */
+        byte[] fileOperation(int action, int fileType, in @nullable byte[] content);
 
         /**
          * Get the content of a logged message from the database
@@ -88,18 +51,6 @@ interface BridgeInterface {
          * @return the locale result
          */
         Map<String, String> fetchLocales(String userLocale);
-
-        /**
-         * Get check for updates last time
-         * @return the last time check for updates was done
-         */
-        long getAutoUpdaterTime();
-
-        /**
-         * Set check for updates last time
-         * @param time the time to set
-         */
-        void setAutoUpdaterTime(long time);
 
         /**
          * Enqueue a download

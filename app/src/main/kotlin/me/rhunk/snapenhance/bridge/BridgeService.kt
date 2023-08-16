@@ -6,6 +6,7 @@ import android.os.IBinder
 import me.rhunk.snapenhance.RemoteSideContext
 import me.rhunk.snapenhance.SharedContextHolder
 import me.rhunk.snapenhance.bridge.types.BridgeFileType
+import me.rhunk.snapenhance.bridge.types.FileActionType
 import me.rhunk.snapenhance.bridge.wrapper.LocaleWrapper
 import me.rhunk.snapenhance.bridge.wrapper.MessageLoggerWrapper
 import me.rhunk.snapenhance.download.DownloadProcessor
@@ -23,60 +24,35 @@ class BridgeService : Service() {
     }
 
     inner class BridgeBinder : BridgeInterface.Stub() {
-        override fun createAndReadFile(fileType: Int, defaultContent: ByteArray?): ByteArray {
-            val file = BridgeFileType.fromValue(fileType)?.resolve(this@BridgeService)
-                ?: return defaultContent ?: ByteArray(0)
+        override fun fileOperation(action: Int, fileType: Int, content: ByteArray?): ByteArray {
+            val resolvedFile by lazy { BridgeFileType.fromValue(fileType)?.resolve(this@BridgeService) }
 
-            if (!file.exists()) {
-                if (defaultContent == null) {
-                    return ByteArray(0)
+            return when (FileActionType.values()[action]) {
+                FileActionType.CREATE_AND_READ -> {
+                    resolvedFile?.let {
+                        if (!it.exists()) {
+                            return content?.also { content -> it.writeBytes(content) } ?: ByteArray(0)
+                        }
+
+                        it.readBytes()
+                    } ?: ByteArray(0)
                 }
-
-                file.writeBytes(defaultContent)
+                FileActionType.READ -> {
+                    resolvedFile?.takeIf { it.exists() }?.readBytes() ?: ByteArray(0)
+                }
+                FileActionType.WRITE -> {
+                    content?.also { resolvedFile?.writeBytes(content) } ?: ByteArray(0)
+                }
+                FileActionType.DELETE -> {
+                    resolvedFile?.takeIf { it.exists() }?.delete()
+                    ByteArray(0)
+                }
+                FileActionType.EXISTS -> {
+                    if (resolvedFile?.exists() == true)
+                        ByteArray(1)
+                    else ByteArray(0)
+                }
             }
-
-            return file.readBytes()
-        }
-
-        override fun readFile(fileType: Int): ByteArray {
-            val file = BridgeFileType.fromValue(fileType)?.resolve(this@BridgeService)
-                ?: return ByteArray(0)
-
-            if (!file.exists()) {
-                return ByteArray(0)
-            }
-
-            return file.readBytes()
-        }
-
-        override fun writeFile(fileType: Int, content: ByteArray?): Boolean {
-            val file = BridgeFileType.fromValue(fileType)?.resolve(this@BridgeService)
-                ?: return false
-
-            if (content == null) {
-                return false
-            }
-
-            file.writeBytes(content)
-            return true
-        }
-
-        override fun deleteFile(fileType: Int): Boolean {
-            val file = BridgeFileType.fromValue(fileType)?.resolve(this@BridgeService)
-                ?: return false
-
-            if (!file.exists()) {
-                return false
-            }
-
-            return file.delete()
-        }
-
-        override fun isFileExists(fileType: Int): Boolean {
-            val file = BridgeFileType.fromValue(fileType)?.resolve(this@BridgeService)
-                ?: return false
-
-            return file.exists()
         }
 
         override fun getLoggedMessageIds(conversationId: String, limit: Int) = messageLoggerWrapper.getMessageIds(conversationId, limit).toLongArray()
@@ -93,14 +69,6 @@ class BridgeService : Service() {
 
         override fun fetchLocales(userLocale: String) = LocaleWrapper.fetchLocales(context = this@BridgeService, userLocale).associate {
             it.locale to it.content
-        }
-
-        override fun getAutoUpdaterTime(): Long {
-            throw UnsupportedOperationException()
-        }
-
-        override fun setAutoUpdaterTime(time: Long) {
-            throw UnsupportedOperationException()
         }
 
         override fun enqueueDownload(intent: Intent, callback: DownloadCallback) {
