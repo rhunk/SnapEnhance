@@ -9,6 +9,7 @@ import me.rhunk.snapenhance.bridge.wrapper.LocaleWrapper
 import me.rhunk.snapenhance.bridge.wrapper.MappingsWrapper
 import me.rhunk.snapenhance.core.config.ModConfig
 import me.rhunk.snapenhance.download.DownloadTaskManager
+import me.rhunk.snapenhance.messaging.ModDatabase
 import me.rhunk.snapenhance.ui.manager.data.InstallationSummary
 import me.rhunk.snapenhance.ui.manager.data.ModMappingsInfo
 import me.rhunk.snapenhance.ui.manager.data.SnapchatAppInfo
@@ -30,6 +31,7 @@ class RemoteSideContext(
     val translation = LocaleWrapper()
     val mappings = MappingsWrapper()
     val downloadTaskManager = DownloadTaskManager()
+    val modDatabase = ModDatabase(this)
 
     init {
         runCatching {
@@ -41,6 +43,7 @@ class RemoteSideContext(
                 init(androidContext)
             }
             downloadTaskManager.init(androidContext)
+            modDatabase.init()
         }.onFailure {
             Logger.error("Failed to initialize RemoteSideContext", it)
         }
