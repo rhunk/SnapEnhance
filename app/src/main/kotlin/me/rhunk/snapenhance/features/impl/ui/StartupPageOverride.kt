@@ -1,6 +1,7 @@
 package me.rhunk.snapenhance.features.impl.ui
 
 import android.annotation.SuppressLint
+import android.os.Handler
 import android.view.View
 import android.view.ViewGroup
 import android.widget.LinearLayout
@@ -30,12 +31,10 @@ class StartupPageOverride : Feature("StartupPageOverride", loadParams = FeatureL
         }
 
         context.androidContext.classLoader.loadClass("com.snap.mushroom.MainActivity").apply {
-            hook("onPostCreate", HookStage.AFTER) {
-                ngsIcon?.callOnClick()
-            }
-
             hook("onResume", HookStage.AFTER) {
-                ngsIcon?.callOnClick()
+                Handler(context.androidContext.mainLooper).postDelayed({
+                    ngsIcon?.callOnClick()
+                }, 300)
             }
         }
 

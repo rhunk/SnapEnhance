@@ -43,7 +43,11 @@ android {
             ndk {
                 abiFilters.add("arm64-v8a")
             }
-
+            packaging {
+                jniLibs {
+                    excludes += "**/*_neon.so"
+                }
+            }
             dimension = "abi"
         }
 

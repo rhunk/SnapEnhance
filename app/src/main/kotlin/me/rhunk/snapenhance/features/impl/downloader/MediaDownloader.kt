@@ -265,7 +265,7 @@ class MediaDownloader : Feature("MediaDownloader", loadParams = FeatureLoadParam
         }?.let { playlistGroup ->
             val playlistGroupString = playlistGroup.toString()
 
-            val storyUserId = if (playlistGroupString.contains("storyUserId=")) {
+            val storyUserId = paramMap["TOPIC_SNAP_CREATOR_USER_ID"]?.toString() ?: if (playlistGroupString.contains("storyUserId=")) {
                 (playlistGroupString.indexOf("storyUserId=") + 12).let {
                     playlistGroupString.substring(it, playlistGroupString.indexOf(",", it))
                 }

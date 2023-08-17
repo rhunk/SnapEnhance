@@ -226,18 +226,6 @@
         "no_friend_score_delay": {
             "name": "No Friend Score Delay",
             "description": "Removes the delay in displaying friends scores. It will be updated immediately when you open a profile page"
-        },
-        "device_spoof": {
-            "name": "Spoof Device Values",
-            "description": "Spoofs the devices values"
-        },
-        "device_fingerprint": {
-            "name": "Device Fingerprint",
-            "description": "Spoofs the device fingerprint"
-        },
-        "android_id": {
-            "name": "Android ID",
-            "description": "Spoofs the devices Android ID"
         }
     },
 
@@ -442,8 +430,7 @@
             "clear_cache_title": "Clear Cache",
             "reset_all_title": "Reset all settings",
             "reset_all_confirmation": "Are you sure you want to reset all settings?",
-            "success_toast": "Success!",
-            "device_spoofer": "Device Spoofer"
+            "success_toast": "Success!"
         }
     },
     "download_processor": {
@@ -464,8 +451,5 @@
         "title": "SnapEnhance Settings",
         "selected_text": "{count} selected",
         "invalid_number_toast": "Invalid number!"
-    },
-    "spoof_activity": {
-        "title": "Spoof Settings"
     }
 }

@@ -18,10 +18,10 @@ body:
       label: "Reproduction steps"
       description: "Steps to reproduce the behavior"
       value: |
-        1. Go to `...`
-        2. Click on `....`
-        3. Scroll down to `....`
-        4. See error.
+        1. Go to ...
+        2. Click on ...
+        3. Scroll down to ...
+        4. See error
     validations:
       required: true
   - type: textarea
@@ -47,9 +47,12 @@ body:
       description: "By creating this issue, I agree to the following terms:"
       options:
         - label: "I am using the latest stable SnapEnhance version."
+          required: true
         - label: "This is not a bug regarding Snapchat+."
+          required: true
         - label: "I have provided a detailed description of the issue."
+          required: true
         - label: "I have attached a log if deemed neccessary."
+          required: true
         - label: "This issue is not a duplicate."
-    validations:
-      required: true
+          required: true
