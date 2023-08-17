@@ -11,11 +11,18 @@ data class PropertyPair<T>(
 }
 
 class ConfigParams(
+    private var _notices: Int? = null,
     var shouldTranslate: Boolean = true,
     var isHidden: Boolean = false,
     var isFolder: Boolean = false,
-    val disabledKey: String? = null
-)
+    var disabledKey: String? = null,
+    var icon: String? = null
+) {
+    val notices get() = _notices?.let { FeatureNotice.values().filter { flag -> it and flag.id != 0 } } ?: emptyList()
+    fun addNotices(vararg flags: FeatureNotice) {
+        this._notices = (this._notices ?: 0) or flags.fold(0) { acc, featureNotice -> acc or featureNotice.id }
+    }
+}
 
 class PropertyValue<T>(
     private var value: T? = null,

@@ -2,8 +2,8 @@ package me.rhunk.snapenhance.ui.manager
 
 import androidx.compose.foundation.layout.RowScope
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.BugReport
 import androidx.compose.material.icons.filled.Download
+import androidx.compose.material.icons.filled.Extension
 import androidx.compose.material.icons.filled.Group
 import androidx.compose.material.icons.filled.Home
 import androidx.compose.material.icons.filled.Stars
@@ -43,9 +43,9 @@ enum class EnumSection(
         route = "friends",
         icon = Icons.Filled.Group
     ),
-    DEBUG(
-        route = "debug",
-        icon = Icons.Filled.BugReport
+    PLUGINS(
+        route = "plugins",
+        icon = Icons.Filled.Extension
     );
 
     companion object {

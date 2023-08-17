@@ -383,12 +383,12 @@ class MediaDownloader : Feature("MediaDownloader", loadParams = FeatureLoadParam
 
             val mediaInfoMap = mutableMapOf<SplitMediaAssetType, MediaInfo>()
             val isVideo = mediaParamMap.containsKey("video_media_info_list")
-            val canMergeOverlay = context.config.downloader.autoDownloadOptions.get().contains("merge_overlay")
 
             mediaInfoMap[SplitMediaAssetType.ORIGINAL] = MediaInfo(
                 (if (isVideo) mediaParamMap["video_media_info_list"] else mediaParamMap["image_media_info"])!!
             )
-            if (canMergeOverlay && mediaParamMap.containsKey("overlay_image_media_info")) {
+
+            if (context.config.downloader.mergeOverlays.get() && mediaParamMap.containsKey("overlay_image_media_info")) {
                 mediaInfoMap[SplitMediaAssetType.OVERLAY] =
                     MediaInfo(mediaParamMap["overlay_image_media_info"]!!)
             }

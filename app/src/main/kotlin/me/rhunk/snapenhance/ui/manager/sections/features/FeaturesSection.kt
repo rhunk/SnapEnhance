@@ -8,6 +8,7 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -41,6 +42,8 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
@@ -275,6 +278,26 @@ class FeaturesSection : Section() {
                     .padding(all = 4.dp),
                 horizontalArrangement = Arrangement.SpaceBetween
             ) {
+                property.key.params.icon?.let { iconName ->
+                    //TODO: find a better way to load icons
+                    val icon: ImageVector? = remember(iconName) {
+                        runCatching {
+                            val cl = Class.forName("androidx.compose.material.icons.filled.${iconName}Kt")
+                            val method = cl.declaredMethods.first()
+                            method.invoke(null, Icons.Filled) as ImageVector
+                        }.getOrNull()
+                    }
+                    if (icon != null) {
+                        Icon(
+                            imageVector = icon,
+                            contentDescription = null,
+                            modifier = Modifier
+                                .align(Alignment.CenterVertically)
+                                .padding(start = 10.dp)
+                        )
+                    }
+                }
+
                 Column(
                     modifier = Modifier
                         .align(Alignment.CenterVertically)
@@ -291,6 +314,16 @@ class FeaturesSection : Section() {
                         fontSize = 12.sp,
                         lineHeight = 15.sp
                     )
+                    property.key.params.notices.also {
+                        if (it.isNotEmpty()) Spacer(modifier = Modifier.height(5.dp))
+                    }.forEach {
+                        Text(
+                            text = context.translation["features.notices.${it.key}"],
+                            color = Color.Yellow,
+                            fontSize = 12.sp,
+                            lineHeight = 15.sp
+                        )
+                    }
                 }
 
                 Row(

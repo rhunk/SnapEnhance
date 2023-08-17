@@ -53,8 +53,9 @@ open class ConfigContainer(
 
     protected fun <T : ConfigContainer> container(
         key: String,
-        container: T
-    ) = registerProperty(key, DataProcessors.container(container), PropertyValue(container)) {
+        container: T,
+        params: ConfigParamsBuilder = {}
+    ) = registerProperty(key, DataProcessors.container(container), PropertyValue(container), params) {
         container.parentContainerKey = it
     }.get()
 

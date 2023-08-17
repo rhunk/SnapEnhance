@@ -35,7 +35,7 @@ class UITweaks : Feature("UITweaks", loadParams = FeatureLoadParams.ACTIVITY_CRE
 
     @SuppressLint("DiscouragedApi", "InternalInsetResource")
     override fun onActivityCreate() {
-        val blockAds by context.config.userInterface.blockAds
+        val blockAds by context.config.global.blockAds
         val hiddenElements by context.config.userInterface.hideUiComponents
         val hideStorySections by context.config.userInterface.hideStorySections
         val isImmersiveCamera by context.config.camera.immersiveCameraPreview

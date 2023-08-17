@@ -1,6 +1,7 @@
 package me.rhunk.snapenhance.core.config.impl
 
 import me.rhunk.snapenhance.core.config.ConfigContainer
+import me.rhunk.snapenhance.core.config.FeatureNotice
 
 class DownloaderConfig : ConfigContainer() {
     val saveFolder = string("save_folder") { isFolder = true }
@@ -18,7 +19,7 @@ class DownloaderConfig : ConfigContainer() {
         "append_username"
     ).apply { set(mutableListOf("append_hash", "append_date_time", "append_type", "append_username")) }
     val allowDuplicate = boolean("allow_duplicate")
-    val mergeOverlays = boolean("merge_overlays")
+    val mergeOverlays = boolean("merge_overlays") { addNotices(FeatureNotice.MAY_CAUSE_CRASHES) }
     val chatDownloadContextMenu = boolean("chat_download_context_menu")
     val logging = multiple("logging", "started", "success", "progress", "failure").apply {
         set(mutableListOf("started", "success"))
