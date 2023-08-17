@@ -145,6 +145,17 @@ enum class ConfigProperty(
             listOf("CHAT", "SNAP", "NOTE", "EXTERNAL_MEDIA", "STICKER")
         )
     ),
+    AUTO_PURGE_MESSAGES("auto_purge_messages",
+        ConfigCategory.SPYING_PRIVACY,
+        ConfigStateListValue(
+            listOf("CHAT", "SNAP", "NOTE", "EXTERNAL_MEDIA", "STICKER")
+        )
+    ),
+    AUTO_PURGE_SPEED(
+        "auto_purge_speed",
+        ConfigCategory.SPYING_PRIVACY,
+        ConfigIntegerValue(1),
+    ),
 
     FORCE_MEDIA_SOURCE_QUALITY(
         "force_media_source_quality",

@@ -87,6 +87,14 @@
             "name": "Auto Save Messages",
             "description": "Select which type of messages to auto save"
         },
+		"auto_purge_messages": {
+            "name": "Auto Purge Messages",
+            "description": "Select which type of messages to auto purge"
+        },
+		"auto_purge_speed": {
+            "name": "Auto Purge Speed",
+            "description": "Speed in seconds to delete the messages"
+        },
         "force_media_source_quality": {
             "name": "Force Media Source Quality",
             "description": "Overrides the media source quality"
@@ -265,6 +273,13 @@
                 "failure": "Failure"
             },
             "auto_save_messages": {
+                "NOTE": "Audio Note",
+                "CHAT": "Chat",
+                "EXTERNAL_MEDIA": "External Media",
+                "SNAP": "Snap",
+                "STICKER": "Sticker"
+            },
+			"auto_purge_messages": {
                 "NOTE": "Audio Note",
                 "CHAT": "Chat",
                 "EXTERNAL_MEDIA": "External Media",

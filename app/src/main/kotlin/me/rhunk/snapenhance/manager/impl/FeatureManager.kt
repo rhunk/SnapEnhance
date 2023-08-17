@@ -24,6 +24,7 @@ import me.rhunk.snapenhance.features.impl.spying.StealthMode
 import me.rhunk.snapenhance.features.impl.tweaks.AntiAutoSave
 import me.rhunk.snapenhance.features.impl.tweaks.AutoSave
 import me.rhunk.snapenhance.features.impl.tweaks.CameraTweaks
+import me.rhunk.snapenhance.features.impl.tweaks.ChatPurge
 import me.rhunk.snapenhance.features.impl.tweaks.DisableVideoLengthRestriction
 import me.rhunk.snapenhance.features.impl.tweaks.GalleryMediaSendOverride
 import me.rhunk.snapenhance.features.impl.tweaks.GooglePlayServicesDialogs
@@ -73,6 +74,7 @@ class FeatureManager(private val context: ModContext) : Manager {
         register(PreventMessageSending::class)
         register(Notifications::class)
         register(AutoSave::class)
+        register(ChatPurge::class)
         register(UITweaks::class)
         register(ConfigurationOverride::class)
         register(AntiAutoDownload::class)
