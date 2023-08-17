@@ -40,6 +40,7 @@ Although using this in an unrooted enviroment using something like LSPatch shoul
   - Prevent Status Notifications
   - Anonymous Story View
   - Prevent Typing Notification
+  - Purge Chats
 </details>
 
 <details open>
