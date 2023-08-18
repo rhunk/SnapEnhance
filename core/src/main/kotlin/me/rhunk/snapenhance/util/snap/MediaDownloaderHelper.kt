@@ -25,7 +25,17 @@ object MediaDownloaderHelper {
         return when (contentType) {
             ContentType.NOTE -> messageContainerPath.readPath(*mediaContainerPath)
             ContentType.SNAP -> messageContainerPath.readPath(*(intArrayOf(11) + mediaContainerPath))
-            ContentType.EXTERNAL_MEDIA -> messageContainerPath.readPath(*(intArrayOf(3, 3) + mediaContainerPath))
+            ContentType.EXTERNAL_MEDIA -> {
+                val externalMediaTypes = arrayOf(
+                    intArrayOf(3, 3), //normal external media
+                    intArrayOf(7, 12, 3), //attached story reply
+                    intArrayOf(7, 3) //original story reply
+                )
+                externalMediaTypes.forEach { path ->
+                    messageContainerPath.readPath(*(path + mediaContainerPath))?.also { return it }
+                }
+                null
+            }
             else -> null
         }
     }
