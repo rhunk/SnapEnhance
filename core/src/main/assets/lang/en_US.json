@@ -332,7 +332,7 @@
                 "progress": "Progress",
                 "failure": "Failure"
             },
-            "auto_save_messages": {
+            "auto_save_messages_in_conversations": {
                 "NOTE": "Audio Note",
                 "CHAT": "Chat",
                 "EXTERNAL_MEDIA": "External Media",

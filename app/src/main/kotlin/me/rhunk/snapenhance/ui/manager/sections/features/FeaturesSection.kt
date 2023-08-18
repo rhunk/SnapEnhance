@@ -8,6 +8,7 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.RowScope
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
@@ -20,9 +21,12 @@ import androidx.compose.foundation.layout.wrapContentWidth
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.FolderOpen
 import androidx.compose.material.icons.filled.OpenInNew
+import androidx.compose.material.icons.filled.Search
 import androidx.compose.material.icons.rounded.Save
 import androidx.compose.material3.Card
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -35,13 +39,18 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextField
+import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.material3.rememberBottomSheetScaffoldState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.focus.FocusRequester
+import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.text.font.FontWeight
@@ -50,12 +59,17 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
 import androidx.navigation.NavGraphBuilder
+import androidx.navigation.NavOptions
 import androidx.navigation.compose.composable
 import androidx.navigation.navigation
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import me.rhunk.snapenhance.core.config.ConfigContainer
 import me.rhunk.snapenhance.core.config.DataProcessors
+import me.rhunk.snapenhance.core.config.PropertyKey
 import me.rhunk.snapenhance.core.config.PropertyPair
+import me.rhunk.snapenhance.core.config.PropertyValue
 import me.rhunk.snapenhance.ui.manager.Section
 import me.rhunk.snapenhance.ui.util.ChooseFolderHelper
 
@@ -64,7 +78,8 @@ class FeaturesSection : Section() {
 
     companion object {
         const val MAIN_ROUTE = "feature_root"
-        const val FEATURE_CONTAINER_ROOT = "feature_container/{name}"
+        const val FEATURE_CONTAINER_ROUTE = "feature_container/{name}"
+        const val SEARCH_FEATURE_ROUTE = "search_feature/{keyword}"
     }
 
     private lateinit var openFolderCallback: (uri: String) -> Unit
@@ -84,6 +99,17 @@ class FeaturesSection : Section() {
         }
         queryContainerRecursive(context.config.root)
         containers
+    }
+
+    private val allProperties by lazy {
+        val properties = mutableMapOf<PropertyKey<*>, PropertyValue<*>>()
+        allContainers.values.forEach {
+            val container = it.value.get() as ConfigContainer
+            container.properties.forEach { property ->
+                properties[property.key] = property.value
+            }
+        }
+        properties
     }
 
     override fun init() {
@@ -122,11 +148,23 @@ class FeaturesSection : Section() {
                 Container(context.config.root)
             }
 
-            composable(FEATURE_CONTAINER_ROOT) { backStackEntry ->
+            composable(FEATURE_CONTAINER_ROUTE) { backStackEntry ->
                 backStackEntry.arguments?.getString("name")?.let { containerName ->
                     allContainers[containerName]?.let {
                         Container(it.value.get() as ConfigContainer)
                     }
+                }
+            }
+
+            composable(SEARCH_FEATURE_ROUTE) { backStackEntry ->
+                backStackEntry.arguments?.getString("keyword")?.let { keyword ->
+                    val properties = allProperties.filter {
+                        it.key.name.contains(keyword, ignoreCase = true) ||
+                                context.translation["${it.key.propertyTranslationPath()}.name"].contains(keyword, ignoreCase = true) ||
+                                context.translation["${it.key.propertyTranslationPath()}.description"].contains(keyword, ignoreCase = true)
+                    }.map { PropertyPair(it.key, it.value) }
+
+                    PropertiesView(properties)
                 }
             }
         }
@@ -228,7 +266,7 @@ class FeaturesSection : Section() {
                 val container = propertyValue.get() as ConfigContainer
 
                 registerClickCallback {
-                    navController.navigate(FEATURE_CONTAINER_ROOT.replace("{name}", property.name))
+                    navController.navigate(FEATURE_CONTAINER_ROUTE.replace("{name}", property.name))
                 }
 
                 if (container.globalState == null) return
@@ -341,16 +379,84 @@ class FeaturesSection : Section() {
         }
     }
 
+    @Composable
+    private fun FeatureSearchBar(rowScope: RowScope, focusRequester: FocusRequester) {
+        val searchValue = remember { mutableStateOf("") }
+        val scope = rememberCoroutineScope()
+        val currentSearchJob = remember { mutableStateOf<Job?>(null) }
+
+        rowScope.apply {
+            TextField(
+                value = searchValue.value,
+                onValueChange = { keyword ->
+                    searchValue.value = keyword
+                    if (keyword.isEmpty()) {
+                        navController.navigate(MAIN_ROUTE)
+                        return@TextField
+                    }
+                    currentSearchJob.value?.cancel()
+                    scope.launch {
+                        delay(300)
+                        navController.navigate(SEARCH_FEATURE_ROUTE.replace("{keyword}", keyword), NavOptions.Builder()
+                            .setLaunchSingleTop(true)
+                            .setPopUpTo(MAIN_ROUTE, false)
+                            .build()
+                        )
+                    }.also { currentSearchJob.value = it }
+                },
+
+                keyboardActions = KeyboardActions(onDone = {
+                    focusRequester.freeFocus()
+                }),
+                modifier = Modifier
+                    .focusRequester(focusRequester)
+                    .weight(1f, fill = true)
+                    .padding(end = 10.dp)
+                    .height(70.dp),
+                singleLine = true,
+                colors = TextFieldDefaults.colors(
+                    unfocusedContainerColor = MaterialTheme.colorScheme.surface,
+                    focusedContainerColor = MaterialTheme.colorScheme.surface,
+                    focusedIndicatorColor = Color.Transparent,
+                    unfocusedIndicatorColor = Color.Transparent,
+                    disabledIndicatorColor = Color.Transparent,
+                    cursorColor = MaterialTheme.colorScheme.primary
+                )
+            )
+        }
+    }
+
+    @Composable
+    override fun TopBarActions(rowScope: RowScope) {
+        val showSearchBar = remember { mutableStateOf(false) }
+        val focusRequester = remember { FocusRequester() }
+
+        if (showSearchBar.value) {
+            FeatureSearchBar(rowScope, focusRequester)
+            LaunchedEffect(true) {
+                focusRequester.requestFocus()
+            }
+        }
+
+        IconButton(onClick = {
+            showSearchBar.value = showSearchBar.value.not()
+            if (!showSearchBar.value && navController.currentBackStackEntry?.destination?.route == SEARCH_FEATURE_ROUTE) {
+                navController.navigate(MAIN_ROUTE)
+            }
+        }) {
+            Icon(
+                imageVector = if (showSearchBar.value) Icons.Filled.Close
+                    else Icons.Filled.Search,
+                contentDescription = null
+            )
+        }
+    }
 
     @OptIn(ExperimentalMaterial3Api::class)
     @Composable
-    private fun Container(
-        configContainer: ConfigContainer
+    private fun PropertiesView(
+        properties: List<PropertyPair<*>>
     ) {
-        val properties = remember {
-            configContainer.properties.map { PropertyPair(it.key, it.value) }
-        }
-
         val scope = rememberCoroutineScope()
         val scaffoldState = rememberBottomSheetScaffoldState()
         Scaffold(
@@ -392,4 +498,15 @@ class FeaturesSection : Section() {
         )
     }
 
+
+    @Composable
+    private fun Container(
+        configContainer: ConfigContainer
+    ) {
+        val properties = remember {
+            configContainer.properties.map { PropertyPair(it.key, it.value) }
+        }
+
+        PropertiesView(properties)
+    }
 }
