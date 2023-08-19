@@ -21,14 +21,27 @@ import kotlin.system.measureTimeMillis
 class BridgeService : Service() {
     private lateinit var messageLoggerWrapper: MessageLoggerWrapper
     private lateinit var remoteSideContext: RemoteSideContext
-    private lateinit var syncCallback: SyncCallback
+    lateinit var syncCallback: SyncCallback
 
     override fun onBind(intent: Intent): IBinder {
         remoteSideContext = SharedContextHolder.remote(this).apply {
             checkForRequirements()
         }
+        remoteSideContext.bridgeService = this
         messageLoggerWrapper = MessageLoggerWrapper(getDatabasePath(BridgeFileType.MESSAGE_LOGGER_DATABASE.fileName)).also { it.init() }
         return BridgeBinder()
+    }
+
+    fun triggerFriendSync(friendId: String) {
+        SerializableDataObject.fromJson<FriendInfo>(syncCallback.syncFriend(friendId)).let {
+            remoteSideContext.modDatabase.syncFriend(it)
+        }
+    }
+
+    fun triggerGroupSync(groupId: String) {
+        SerializableDataObject.fromJson<MessagingGroupInfo>(syncCallback.syncGroup(groupId)).let {
+            remoteSideContext.modDatabase.syncGroupInfo(it)
+        }
     }
 
     inner class BridgeBinder : BridgeInterface.Stub() {
@@ -111,18 +124,14 @@ class BridgeService : Service() {
             measureTimeMillis {
                 remoteSideContext.modDatabase.getFriendsIds().forEach { friendId ->
                     runCatching {
-                        SerializableDataObject.fromJson<FriendInfo>(callback.syncFriend(friendId)).let {
-                            remoteSideContext.modDatabase.syncFriend(it)
-                        }
+                        triggerFriendSync(friendId)
                     }.onFailure {
                         Logger.error("Failed to sync friend $friendId", it)
                     }
                 }
                 remoteSideContext.modDatabase.getGroupsIds().forEach { groupId ->
                     runCatching {
-                        SerializableDataObject.fromJson<MessagingGroupInfo>(callback.syncGroup(groupId)).let {
-                            remoteSideContext.modDatabase.syncGroupInfo(it)
-                        }
+                        triggerGroupSync(groupId)
                     }.onFailure {
                         Logger.error("Failed to sync group $groupId", it)
                     }

@@ -5,6 +5,7 @@ import android.content.Context
 import android.content.Intent
 import android.net.Uri
 import androidx.documentfile.provider.DocumentFile
+import me.rhunk.snapenhance.bridge.BridgeService
 import me.rhunk.snapenhance.bridge.wrapper.LocaleWrapper
 import me.rhunk.snapenhance.bridge.wrapper.MappingsWrapper
 import me.rhunk.snapenhance.core.config.ModConfig
@@ -22,6 +23,7 @@ class RemoteSideContext(
     val androidContext: Context
 ) {
     private var _activity: WeakReference<Activity>? = null
+    lateinit var bridgeService: BridgeService
 
     var activity: Activity?
         get() = _activity?.get()

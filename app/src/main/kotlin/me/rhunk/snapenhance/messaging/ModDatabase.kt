@@ -25,6 +25,9 @@ class ModDatabase(
 
     var receiveMessagingDataCallback: (friends: List<MessagingFriendInfo>, groups: List<MessagingGroupInfo>) -> Unit = { _, _ -> }
 
+    fun executeAsync(block: () -> Unit) {
+        executor.execute(block)
+    }
 
     fun init() {
         database = context.androidContext.openOrCreateDatabase("main.db", 0, null)
@@ -126,7 +129,7 @@ class ModDatabase(
 
 
     fun syncGroupInfo(conversationInfo: MessagingGroupInfo) {
-        executor.execute {
+        executeAsync {
             try {
                 database.execSQL("INSERT OR REPLACE INTO groups VALUES (?, ?, ?)", arrayOf(
                     conversationInfo.conversationId,
@@ -140,12 +143,12 @@ class ModDatabase(
     }
 
     fun syncFriend(friend: FriendInfo) {
-        executor.execute {
+        executeAsync {
             try {
                 database.execSQL("INSERT OR REPLACE INTO friends VALUES (?, ?, ?, ?, ?)", arrayOf(
                     friend.userId,
                     friend.displayName,
-                    friend.usernameForSorting!!.split("|")[1],
+                    friend.usernameForSorting!!,
                     friend.bitmojiAvatarId,
                     friend.bitmojiSelfieId
                 ))

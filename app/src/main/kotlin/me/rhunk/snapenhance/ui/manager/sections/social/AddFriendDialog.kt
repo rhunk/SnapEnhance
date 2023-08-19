@@ -1,5 +1,6 @@
 package me.rhunk.snapenhance.ui.manager.sections.social
 
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
@@ -39,9 +40,9 @@ class AddFriendDialog(
 
 
     @Composable
-    private fun ListCardEntry(name: String) {
+    private fun ListCardEntry(name: String, modifier: Modifier = Modifier) {
         Card(
-            modifier = Modifier.padding(5.dp),
+            modifier = Modifier.padding(5.dp).then(modifier),
         ) {
             Text(text = name, modifier = Modifier.padding(10.dp))
         }
@@ -108,14 +109,24 @@ class AddFriendDialog(
                     Spacer(modifier = Modifier.padding(5.dp))
                 }
                 items(cachedGroups!!.size) {
-                    ListCardEntry(name = cachedGroups!![it].name)
+                    ListCardEntry(name = cachedGroups!![it].name, modifier = Modifier.clickable {
+                        context.bridgeService.triggerGroupSync(cachedGroups!![it].conversationId)
+                        context.modDatabase.executeAsync {
+                            section.onResumed()
+                        }
+                    })
                 }
                 item {
                     Text(text = "Friends", fontSize = 20.sp)
                     Spacer(modifier = Modifier.padding(5.dp))
                 }
                 items(cachedFriends!!.size) {
-                    ListCardEntry(name = cachedFriends!![it].displayName ?: cachedFriends!![it].mutableUsername)
+                    ListCardEntry(name = cachedFriends!![it].displayName ?: cachedFriends!![it].mutableUsername, modifier = Modifier.clickable {
+                        context.bridgeService.triggerFriendSync(cachedFriends!![it].userId)
+                        context.modDatabase.executeAsync {
+                            section.onResumed()
+                        }
+                    })
                 }
             }
         }
