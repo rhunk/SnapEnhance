@@ -1,6 +1,9 @@
 package me.rhunk.snapenhance.ui.manager
 
 import androidx.compose.animation.core.animateFloatAsState
+import androidx.compose.animation.core.tween
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxHeight
@@ -44,7 +47,13 @@ class Navigation(
         startDestination: EnumSection,
         innerPadding: PaddingValues
     ) {
-        NavHost(navHostController, startDestination = startDestination.route, Modifier.padding(innerPadding)) {
+        NavHost(
+            navHostController,
+            startDestination = startDestination.route,
+            Modifier.padding(innerPadding),
+            enterTransition = { fadeIn(tween(200)) },
+            exitTransition = { fadeOut(tween(200)) }
+        ) {
             sections.forEach { (_, instance) ->
                 instance.navController = navHostController
                 instance.build(this)

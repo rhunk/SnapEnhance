@@ -1,6 +1,8 @@
 package me.rhunk.snapenhance.ui.manager.sections.features
 
 import androidx.activity.ComponentActivity
+import androidx.compose.animation.AnimatedContentTransitionScope
+import androidx.compose.animation.core.tween
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -150,7 +152,11 @@ class FeaturesSection : Section() {
                 Container(context.config.root)
             }
 
-            composable(FEATURE_CONTAINER_ROUTE) { backStackEntry ->
+            composable(FEATURE_CONTAINER_ROUTE, enterTransition = {
+                slideIntoContainer(AnimatedContentTransitionScope.SlideDirection.Left, animationSpec = tween(100))
+            }, exitTransition = {
+                slideOutOfContainer(AnimatedContentTransitionScope.SlideDirection.Right, animationSpec = tween(300))
+            }) { backStackEntry ->
                 backStackEntry.arguments?.getString("name")?.let { containerName ->
                     allContainers[containerName]?.let {
                         Container(it.value.get() as ConfigContainer)
