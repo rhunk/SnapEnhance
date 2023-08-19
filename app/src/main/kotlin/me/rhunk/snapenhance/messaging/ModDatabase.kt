@@ -8,7 +8,7 @@ import me.rhunk.snapenhance.core.messaging.MessagingFriendInfo
 import me.rhunk.snapenhance.core.messaging.MessagingGroupInfo
 import me.rhunk.snapenhance.core.messaging.MessagingRule
 import me.rhunk.snapenhance.core.messaging.Mode
-import me.rhunk.snapenhance.core.messaging.RuleScope
+import me.rhunk.snapenhance.core.messaging.MessagingScope
 import me.rhunk.snapenhance.database.objects.FriendInfo
 import me.rhunk.snapenhance.util.SQLiteDatabaseHelper
 import me.rhunk.snapenhance.util.ktx.getInteger
@@ -33,14 +33,16 @@ class ModDatabase(
         database = context.androidContext.openOrCreateDatabase("main.db", 0, null)
         SQLiteDatabaseHelper.createTablesFromSchema(database, mapOf(
             "friends" to listOf(
-                "userId VARCHAR PRIMARY KEY",
+                "id INTEGER PRIMARY KEY AUTOINCREMENT",
+                "userId VARCHAR UNIQUE",
                 "displayName VARCHAR",
                 "mutableUsername VARCHAR",
                 "bitmojiId VARCHAR",
                 "selfieId VARCHAR"
             ),
             "groups" to listOf(
-                "conversationId VARCHAR PRIMARY KEY",
+                "id INTEGER PRIMARY KEY AUTOINCREMENT",
+                "conversationId VARCHAR UNIQUE",
                 "name VARCHAR",
                 "participantsCount INTEGER"
             ),
@@ -73,26 +75,6 @@ class ModDatabase(
         ))
     }
 
-    fun getFriendsIds(): List<String> {
-        return database.rawQuery("SELECT userId FROM friends", null).use { cursor ->
-            val ids = mutableListOf<String>()
-            while (cursor.moveToNext()) {
-                ids.add(cursor.getString(0))
-            }
-            ids
-        }
-    }
-
-    fun getGroupsIds(): List<String> {
-        return database.rawQuery("SELECT conversationId FROM groups", null).use { cursor ->
-            val ids = mutableListOf<String>()
-            while (cursor.moveToNext()) {
-                ids.add(cursor.getString(0))
-            }
-            ids
-        }
-    }
-
     fun getGroups(): List<MessagingGroupInfo> {
         return database.rawQuery("SELECT * FROM groups", null).use { cursor ->
             val groups = mutableListOf<MessagingGroupInfo>()
@@ -107,8 +89,8 @@ class ModDatabase(
         }
     }
 
-    fun getFriends(): List<MessagingFriendInfo> {
-        return database.rawQuery("SELECT * FROM friends", null).use { cursor ->
+    fun getFriends(descOrder: Boolean = false): List<MessagingFriendInfo> {
+        return database.rawQuery("SELECT * FROM friends ORDER BY id ${if (descOrder) "DESC" else "ASC"}", null).use { cursor ->
             val friends = mutableListOf<MessagingFriendInfo>()
             while (cursor.moveToNext()) {
                 runCatching {
@@ -131,7 +113,7 @@ class ModDatabase(
     fun syncGroupInfo(conversationInfo: MessagingGroupInfo) {
         executeAsync {
             try {
-                database.execSQL("INSERT OR REPLACE INTO groups VALUES (?, ?, ?)", arrayOf(
+                database.execSQL("INSERT OR REPLACE INTO groups (conversationId, name, participantsCount) VALUES (?, ?, ?)", arrayOf(
                     conversationInfo.conversationId,
                     conversationInfo.name,
                     conversationInfo.participantsCount
@@ -145,13 +127,16 @@ class ModDatabase(
     fun syncFriend(friend: FriendInfo) {
         executeAsync {
             try {
-                database.execSQL("INSERT OR REPLACE INTO friends VALUES (?, ?, ?, ?, ?)", arrayOf(
-                    friend.userId,
-                    friend.displayName,
-                    friend.usernameForSorting!!,
-                    friend.bitmojiAvatarId,
-                    friend.bitmojiSelfieId
-                ))
+                database.execSQL(
+                    "INSERT OR REPLACE INTO friends (userId, displayName, mutableUsername, bitmojiId, selfieId) VALUES (?, ?, ?, ?, ?)",
+                    arrayOf(
+                        friend.userId,
+                        friend.displayName,
+                        friend.usernameForSorting!!,
+                        friend.bitmojiAvatarId,
+                        friend.bitmojiSelfieId
+                    )
+                )
                 //sync streaks
                 if (friend.streakLength > 0) {
                     database.execSQL("INSERT OR REPLACE INTO streaks (userId, expirationTimestamp, count) VALUES (?, ?, ?)", arrayOf(
@@ -168,13 +153,13 @@ class ModDatabase(
         }
     }
 
-    fun getRulesFromId(type: RuleScope, targetUuid: String): List<MessagingRule> {
+    fun getRulesFromId(type: MessagingScope, targetUuid: String): List<MessagingRule> {
         return database.rawQuery("SELECT * FROM rules WHERE objectType = ? AND targetUuid = ?", arrayOf(type.name, targetUuid)).use { cursor ->
             val rules = mutableListOf<MessagingRule>()
             while (cursor.moveToNext()) {
                 rules.add(MessagingRule(
                     id = cursor.getInteger("id"),
-                    ruleScope = RuleScope.valueOf(cursor.getStringOrNull("scope")!!),
+                    messagingScope = MessagingScope.valueOf(cursor.getStringOrNull("scope")!!),
                     targetUuid = cursor.getStringOrNull("targetUuid")!!,
                     enabled = cursor.getInteger("enabled") == 1,
                     mode = Mode.valueOf(cursor.getStringOrNull("mode")!!),
@@ -182,6 +167,42 @@ class ModDatabase(
                 ))
             }
             rules
+        }
+    }
+
+    fun getFriendInfo(userId: String): MessagingFriendInfo? {
+        return database.rawQuery("SELECT * FROM friends WHERE userId = ?", arrayOf(userId)).use { cursor ->
+            if (!cursor.moveToFirst()) return@use null
+            MessagingFriendInfo(
+                userId = cursor.getStringOrNull("userId")!!,
+                displayName = cursor.getStringOrNull("displayName"),
+                mutableUsername = cursor.getStringOrNull("mutableUsername")!!,
+                bitmojiId = cursor.getStringOrNull("bitmojiId"),
+                selfieId = cursor.getStringOrNull("selfieId")
+            )
+        }
+    }
+
+    fun deleteFriend(userId: String) {
+        executeAsync {
+            database.execSQL("DELETE FROM friends WHERE userId = ?", arrayOf(userId))
+        }
+    }
+
+    fun deleteGroup(conversationId: String) {
+        executeAsync {
+            database.execSQL("DELETE FROM groups WHERE conversationId = ?", arrayOf(conversationId))
+        }
+    }
+
+    fun getGroupInfo(conversationId: String): MessagingGroupInfo? {
+        return database.rawQuery("SELECT * FROM groups WHERE conversationId = ?", arrayOf(conversationId)).use { cursor ->
+            if (!cursor.moveToFirst()) return@use null
+            MessagingGroupInfo(
+                conversationId = cursor.getStringOrNull("conversationId")!!,
+                name = cursor.getStringOrNull("name")!!,
+                participantsCount = cursor.getInteger("participantsCount")
+            )
         }
     }
 

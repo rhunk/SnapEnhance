@@ -8,18 +8,18 @@ enum class Mode {
     WHITELIST
 }
 
-enum class RuleScope {
+enum class MessagingScope {
     FRIEND,
     GROUP
 }
 
 enum class ConversationFeature(
     val value: String,
-    val ruleScope: RuleScope,
+    val messagingScope: MessagingScope,
 ) {
-    DOWNLOAD("download", RuleScope.FRIEND),
-    STEALTH("stealth", RuleScope.GROUP),
-    AUTO_SAVE("auto_save", RuleScope.GROUP);
+    DOWNLOAD("download", MessagingScope.FRIEND),
+    STEALTH("stealth", MessagingScope.GROUP),
+    AUTO_SAVE("auto_save", MessagingScope.GROUP);
 }
 
 data class FriendStreaks(
@@ -47,7 +47,7 @@ data class MessagingFriendInfo(
 
 data class MessagingRule(
     val id: Int,
-    val ruleScope: RuleScope,
+    val messagingScope: MessagingScope,
     val targetUuid: String,
     val enabled: Boolean,
     val mode: Mode?,

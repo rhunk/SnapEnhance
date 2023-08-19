@@ -130,49 +130,51 @@ class SnapEnhance {
     private fun syncRemote() {
         val database = appContext.database
 
-        appContext.bridgeClient.sync(object : SyncCallback.Stub() {
-            override fun syncFriend(uuid: String): String? {
-                return database.getFriendInfo(uuid)?.toJson()
-            }
+        appContext.executeAsync {
+            appContext.bridgeClient.sync(object : SyncCallback.Stub() {
+                override fun syncFriend(uuid: String): String? {
+                    return database.getFriendInfo(uuid)?.toJson()
+                }
 
-            override fun syncGroup(uuid: String): String? {
-                return database.getFeedEntryByConversationId(uuid)?.let {
+                override fun syncGroup(uuid: String): String? {
+                    return database.getFeedEntryByConversationId(uuid)?.let {
+                        MessagingGroupInfo(
+                            it.key!!,
+                            it.feedDisplayName!!,
+                            it.participantsSize
+                        ).toJson()
+                    }
+                }
+            })
+
+            appContext.event.subscribe(SnapWidgetBroadcastReceiveEvent::class) { event ->
+                if (event.action != BridgeClient.BRIDGE_SYNC_ACTION) return@subscribe
+                event.canceled = true
+                val feedEntries = appContext.database.getFeedEntries(Int.MAX_VALUE)
+
+                val groups = feedEntries.filter { it.friendUserId == null }.map {
                     MessagingGroupInfo(
                         it.key!!,
                         it.feedDisplayName!!,
                         it.participantsSize
-                    ).toJson()
+                    )
                 }
-            }
-        })
 
-        appContext.event.subscribe(SnapWidgetBroadcastReceiveEvent::class) { event ->
-            if (event.action != BridgeClient.BRIDGE_SYNC_ACTION) return@subscribe
-            event.canceled = true
-            val feedEntries = appContext.database.getFeedEntries(Int.MAX_VALUE)
+                val friends = feedEntries.filter { it.friendUserId != null }.map {
+                    MessagingFriendInfo(
+                        it.friendUserId!!,
+                        it.friendDisplayName,
+                        it.friendDisplayUsername!!.split("|")[1],
+                        it.bitmojiAvatarId,
+                        it.bitmojiSelfieId
+                    )
+                }
 
-            val groups = feedEntries.filter { it.friendUserId == null }.map {
-                MessagingGroupInfo(
-                    it.key!!,
-                    it.feedDisplayName!!,
-                    it.participantsSize
+                appContext.bridgeClient.passGroupsAndFriends(
+                    groups.map { it.toJson() },
+                    friends.map { it.toJson() }
                 )
             }
-
-            val friends = feedEntries.filter { it.friendUserId != null }.map {
-                MessagingFriendInfo(
-                    it.friendUserId!!,
-                    it.friendDisplayName,
-                    it.friendDisplayUsername!!.split("|")[1],
-                    it.bitmojiAvatarId,
-                    it.bitmojiSelfieId
-                )
-            }
-
-            appContext.bridgeClient.passGroupsAndFriends(
-                groups.map { it.toJson() },
-                friends.map { it.toJson() }
-            )
         }
     }
 }
