@@ -1,4 +1,4 @@
-package me.rhunk.snapenhance.util
+package me.rhunk.snapenhance.util.ktx
 
 import android.database.Cursor
 

@@ -5,10 +5,10 @@ import android.database.Cursor
 import me.rhunk.snapenhance.Constants
 import me.rhunk.snapenhance.data.ContentType
 import me.rhunk.snapenhance.database.DatabaseObject
-import me.rhunk.snapenhance.util.getBlobOrNull
-import me.rhunk.snapenhance.util.getInteger
-import me.rhunk.snapenhance.util.getLong
-import me.rhunk.snapenhance.util.getStringOrNull
+import me.rhunk.snapenhance.util.ktx.getBlobOrNull
+import me.rhunk.snapenhance.util.ktx.getInteger
+import me.rhunk.snapenhance.util.ktx.getLong
+import me.rhunk.snapenhance.util.ktx.getStringOrNull
 import me.rhunk.snapenhance.util.protobuf.ProtoReader
 
 @Suppress("ArrayInDataClass")

@@ -12,8 +12,8 @@ import android.os.Bundle
 import android.os.UserHandle
 import de.robv.android.xposed.XposedBridge
 import de.robv.android.xposed.XposedHelpers
-import me.rhunk.snapenhance.Constants
 import me.rhunk.snapenhance.Logger
+import me.rhunk.snapenhance.core.eventbus.events.impl.SnapWidgetBroadcastReceiveEvent
 import me.rhunk.snapenhance.data.ContentType
 import me.rhunk.snapenhance.data.MediaReferenceType
 import me.rhunk.snapenhance.data.wrapper.impl.Message
@@ -31,6 +31,7 @@ import me.rhunk.snapenhance.util.protobuf.ProtoReader
 import me.rhunk.snapenhance.util.snap.EncryptionHelper
 import me.rhunk.snapenhance.util.snap.MediaDownloaderHelper
 import me.rhunk.snapenhance.util.snap.PreviewUtils
+import me.rhunk.snapenhance.util.snap.SnapWidgetBroadcastReceiverHelper
 
 class Notifications : Feature("Notifications", loadParams = FeatureLoadParams.INIT_SYNC) {
     companion object{
@@ -41,10 +42,6 @@ class Notifications : Feature("Notifications", loadParams = FeatureLoadParams.IN
     private val notificationDataQueue = mutableMapOf<Long, NotificationData>() // messageId => notification
     private val cachedMessages = mutableMapOf<String, MutableList<String>>() // conversationId => cached messages
     private val notificationIdMap = mutableMapOf<Int, String>() // notificationId => conversationId
-
-    private val broadcastReceiverClass by lazy {
-        context.androidContext.classLoader.loadClass("com.snap.widgets.core.BestFriendsWidgetProvider")
-    }
 
     private val notifyAsUserMethod by lazy {
         XposedHelpers.findMethodExact(
@@ -102,16 +99,18 @@ class Notifications : Feature("Notifications", loadParams = FeatureLoadParams.IN
 
         fun newAction(title: String, remoteAction: String, filter: (() -> Boolean), builder: (Notification.Action.Builder) -> Unit) {
             if (!filter()) return
-            val intent = Intent().setClassName(Constants.SNAPCHAT_PACKAGE_NAME, broadcastReceiverClass.name)
-                .putExtra("conversation_id", conversationId)
-                .putExtra("notification_id", notificationData.id)
-                .putExtra("message_id", messageId)
-                .setAction(remoteAction)
+
+            val intent = SnapWidgetBroadcastReceiverHelper.create(remoteAction) {
+                putExtra("conversation_id", conversationId)
+                putExtra("notification_id", notificationData.id)
+                putExtra("message_id", messageId)
+            }
+
             val action = Notification.Action.Builder(null, title, PendingIntent.getBroadcast(
                 context.androidContext,
                 System.nanoTime().toInt(),
                 intent,
-                PendingIntent.FLAG_CANCEL_CURRENT or PendingIntent.FLAG_MUTABLE
+                PendingIntent.FLAG_MUTABLE
             )).apply(builder).build()
             actions.add(action)
         }
@@ -134,14 +133,12 @@ class Notifications : Feature("Notifications", loadParams = FeatureLoadParams.IN
     }
 
     private fun setupBroadcastReceiverHook() {
-        Hooker.hook(broadcastReceiverClass, "onReceive", HookStage.BEFORE) { param ->
-            val androidContext = param.arg<Context>(0)
-            val intent = param.arg<Intent>(1)
-
-            val conversationId = intent.getStringExtra("conversation_id") ?: return@hook
+        context.event.subscribe(SnapWidgetBroadcastReceiveEvent::class) { event ->
+            val intent = event.intent ?: return@subscribe
+            val conversationId = intent.getStringExtra("conversation_id") ?: return@subscribe
             val messageId = intent.getLongExtra("message_id", -1)
             val notificationId = intent.getIntExtra("notification_id", -1)
-            val notificationManager = androidContext.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
+            val notificationManager = event.androidContext.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
 
             val updateNotification: (Int, (Notification) -> Unit) -> Unit = { id, notificationBuilder ->
                 notificationManager.activeNotifications.firstOrNull { it.id == id }?.let {
@@ -152,7 +149,7 @@ class Notifications : Feature("Notifications", loadParams = FeatureLoadParams.IN
                 }
             }
 
-            when (intent.action) {
+            when (event.action) {
                 ACTION_REPLY -> {
                     val input = RemoteInput.getResultsFromIntent(intent).getCharSequence("chat_reply_input")
                         .toString()
@@ -177,10 +174,10 @@ class Notifications : Feature("Notifications", loadParams = FeatureLoadParams.IN
                         context.longToast(it)
                     }
                 }
-                else -> return@hook
+                else -> return@subscribe
             }
 
-            param.setResult(null)
+            event.canceled = true
         }
     }
 

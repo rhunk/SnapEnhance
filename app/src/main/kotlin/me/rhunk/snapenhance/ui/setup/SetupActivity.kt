@@ -24,6 +24,7 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
@@ -79,13 +80,13 @@ class SetupActivity : ComponentActivity() {
 
         setContent {
             val navController = rememberNavController()
-            val canGoNext = remember { mutableStateOf(false) }
+            var canGoNext by remember { mutableStateOf(false) }
 
             fun nextScreen() {
-                if (!canGoNext.value) return
+                if (!canGoNext) return
                 requiredScreens.firstOrNull()?.onLeave()
                 if (requiredScreens.size > 1) {
-                    canGoNext.value = false
+                    canGoNext = false
                     requiredScreens.removeFirst()
                     navController.navigate(requiredScreens.first().route)
                 } else {
@@ -102,7 +103,7 @@ class SetupActivity : ComponentActivity() {
                                 .fillMaxWidth(),
                             horizontalAlignment = Alignment.CenterHorizontally
                         ) {
-                            val alpha: Float by animateFloatAsState(if (canGoNext.value) 1f else 0f,
+                            val alpha: Float by animateFloatAsState(if (canGoNext) 1f else 0f,
                                 label = "NextButton"
                             )
 
@@ -114,7 +115,7 @@ class SetupActivity : ComponentActivity() {
                                     .alpha(alpha)
                             ) {
                                 Icon(
-                                    imageVector = if (requiredScreens.size <= 1 && canGoNext.value) {
+                                    imageVector = if (requiredScreens.size <= 1 && canGoNext) {
                                         Icons.Default.Check
                                     } else {
                                         Icons.Default.ArrowForwardIos
@@ -135,7 +136,7 @@ class SetupActivity : ComponentActivity() {
                             startDestination = requiredScreens.first().route
                         ) {
                             requiredScreens.forEach { screen ->
-                                screen.allowNext = { canGoNext.value = it }
+                                screen.allowNext = { canGoNext = it }
                                 composable(screen.route) {
                                     BackHandler(true) {}
                                     Column(

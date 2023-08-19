@@ -34,9 +34,11 @@ import androidx.compose.material3.RadioButton
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.blur
@@ -102,15 +104,15 @@ class DownloadsSection : Section() {
     @Composable
     private fun FilterList() {
         val coroutineScope = rememberCoroutineScope()
-        val showMenu = remember { mutableStateOf(false) }
-        IconButton(onClick = { showMenu.value = !showMenu.value}) {
+        var showMenu by remember { mutableStateOf(false) }
+        IconButton(onClick = { showMenu = !showMenu}) {
             Icon(
                 imageVector = Icons.Default.FilterList,
                 contentDescription = null
             )
         }
 
-        DropdownMenu(expanded = showMenu.value, onDismissRequest = { showMenu.value = false }) {
+        DropdownMenu(expanded = showMenu, onDismissRequest = { showMenu = false }) {
             MediaFilter.values().toList().forEach { filter ->
                 DropdownMenuItem(
                     text = {
@@ -130,7 +132,7 @@ class DownloadsSection : Section() {
                     onClick = {
                         coroutineScope.launch {
                             loadByFilter(filter)
-                            showMenu.value = false
+                            showMenu = false
                         }
                     }
                 )

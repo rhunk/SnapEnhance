@@ -7,12 +7,16 @@ import android.content.pm.PackageManager
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.withContext
 import me.rhunk.snapenhance.bridge.BridgeClient
+import me.rhunk.snapenhance.bridge.SyncCallback
 import me.rhunk.snapenhance.core.BuildConfig
+import me.rhunk.snapenhance.core.eventbus.events.impl.SnapWidgetBroadcastReceiveEvent
+import me.rhunk.snapenhance.core.messaging.MessagingFriendInfo
+import me.rhunk.snapenhance.core.messaging.MessagingGroupInfo
 import me.rhunk.snapenhance.data.SnapClassCache
 import me.rhunk.snapenhance.hook.HookStage
 import me.rhunk.snapenhance.hook.Hooker
 import me.rhunk.snapenhance.hook.hook
-import me.rhunk.snapenhance.util.getApplicationInfoCompat
+import me.rhunk.snapenhance.util.ktx.getApplicationInfoCompat
 import kotlin.time.ExperimentalTime
 import kotlin.time.measureTime
 
@@ -104,6 +108,7 @@ class SnapEnhance {
                 //if mappings aren't loaded, we can't initialize features
                 if (!mappings.isMappingsLoaded()) return
                 features.init()
+                syncRemote()
             }
         }.also { time ->
             Logger.debug("init took $time")
@@ -119,6 +124,55 @@ class SnapEnhance {
             }
         }.also { time ->
             Logger.debug("onActivityCreate took $time")
+        }
+    }
+
+    private fun syncRemote() {
+        val database = appContext.database
+
+        appContext.bridgeClient.sync(object : SyncCallback.Stub() {
+            override fun syncFriend(uuid: String): String? {
+                return database.getFriendInfo(uuid)?.toJson()
+            }
+
+            override fun syncGroup(uuid: String): String? {
+                return database.getFeedEntryByConversationId(uuid)?.let {
+                    MessagingGroupInfo(
+                        it.key!!,
+                        it.feedDisplayName!!,
+                        it.participantsSize
+                    ).toJson()
+                }
+            }
+        })
+
+        appContext.event.subscribe(SnapWidgetBroadcastReceiveEvent::class) { event ->
+            if (event.action != BridgeClient.BRIDGE_SYNC_ACTION) return@subscribe
+            event.canceled = true
+            val feedEntries = appContext.database.getFeedEntries(Int.MAX_VALUE)
+
+            val groups = feedEntries.filter { it.friendUserId == null }.map {
+                MessagingGroupInfo(
+                    it.key!!,
+                    it.feedDisplayName!!,
+                    it.participantsSize
+                )
+            }
+
+            val friends = feedEntries.filter { it.friendUserId != null }.map {
+                MessagingFriendInfo(
+                    it.friendUserId!!,
+                    it.friendDisplayName,
+                    it.friendDisplayUsername!!.split("|")[1],
+                    it.bitmojiAvatarId,
+                    it.bitmojiSelfieId
+                )
+            }
+
+            appContext.bridgeClient.passGroupsAndFriends(
+                groups.map { it.toJson() },
+                friends.map { it.toJson() }
+            )
         }
     }
 }

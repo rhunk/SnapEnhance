@@ -12,7 +12,7 @@ import me.rhunk.snapenhance.features.impl.spying.StealthMode
 import me.rhunk.snapenhance.hook.HookStage
 import me.rhunk.snapenhance.hook.Hooker
 import me.rhunk.snapenhance.util.CallbackBuilder
-import me.rhunk.snapenhance.util.getObjectField
+import me.rhunk.snapenhance.util.ktx.getObjectField
 import java.util.concurrent.Executors
 
 class AutoSave : Feature("Auto Save", loadParams = FeatureLoadParams.ACTIVITY_CREATE_ASYNC) {

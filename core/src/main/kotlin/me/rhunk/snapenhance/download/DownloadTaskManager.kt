@@ -8,8 +8,8 @@ import me.rhunk.snapenhance.download.data.DownloadObject
 import me.rhunk.snapenhance.download.data.DownloadStage
 import me.rhunk.snapenhance.download.data.MediaFilter
 import me.rhunk.snapenhance.util.SQLiteDatabaseHelper
-import me.rhunk.snapenhance.util.getIntOrNull
-import me.rhunk.snapenhance.util.getStringOrNull
+import me.rhunk.snapenhance.util.ktx.getIntOrNull
+import me.rhunk.snapenhance.util.ktx.getStringOrNull
 
 class DownloadTaskManager {
     private lateinit var taskDatabase: SQLiteDatabase

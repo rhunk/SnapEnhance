@@ -3,8 +3,8 @@ package me.rhunk.snapenhance.database.objects
 import android.annotation.SuppressLint
 import android.database.Cursor
 import me.rhunk.snapenhance.database.DatabaseObject
-import me.rhunk.snapenhance.util.getInteger
-import me.rhunk.snapenhance.util.getStringOrNull
+import me.rhunk.snapenhance.util.ktx.getInteger
+import me.rhunk.snapenhance.util.ktx.getStringOrNull
 
 class UserConversationLink(
     var userId: String? = null,

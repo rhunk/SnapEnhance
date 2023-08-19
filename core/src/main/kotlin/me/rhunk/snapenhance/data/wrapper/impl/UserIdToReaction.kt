@@ -1,7 +1,7 @@
 package me.rhunk.snapenhance.data.wrapper.impl
 
 import me.rhunk.snapenhance.data.wrapper.AbstractWrapper
-import me.rhunk.snapenhance.util.getObjectField
+import me.rhunk.snapenhance.util.ktx.getObjectField
 
 class UserIdToReaction(obj: Any?) : AbstractWrapper(obj) {
     val userId = SnapUUID(instanceNonNull().getObjectField("mUserId"))

@@ -204,7 +204,7 @@ class FriendFeedInfoMenu : AbstractMenu() {
 
         //mapped conversation fetch (may not work with legacy sc versions)
         messaging.lastFetchGroupConversationUUID?.let {
-            context.database.getFriendFeedInfoByConversationId(it.toString())?.let { friendFeedInfo ->
+            context.database.getFeedEntryByConversationId(it.toString())?.let { friendFeedInfo ->
                 val participantSize = friendFeedInfo.participantsSize
                 return it.toString() to if (participantSize == 1) focusedConversationTargetUser else null
             }
@@ -280,7 +280,7 @@ class FriendFeedInfoMenu : AbstractMenu() {
             }
 
             run {
-                val userId = context.database.getFriendFeedInfoByConversationId(conversationId)?.friendUserId ?: return@run
+                val userId = context.database.getFeedEntryByConversationId(conversationId)?.friendUserId ?: return@run
                 if (friendFeedMenuOptions.contains("auto_download_blacklist")) {
                     createToggleFeature(viewConsumer,
                         "friend_menu_option.auto_download_blacklist",
@@ -340,7 +340,7 @@ class FriendFeedInfoMenu : AbstractMenu() {
         if (friendFeedMenuOptions.contains("auto_download_blacklist")) {
             run {
                 val userId =
-                    context.database.getFriendFeedInfoByConversationId(conversationId)?.friendUserId
+                    context.database.getFeedEntryByConversationId(conversationId)?.friendUserId
                         ?: return@run
                 createActionButton(
                     "\u2B07\uFE0F",

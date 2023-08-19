@@ -6,7 +6,6 @@ import android.graphics.BitmapFactory
 import android.net.Uri
 import android.widget.ImageView
 import kotlinx.coroutines.runBlocking
-import me.rhunk.snapenhance.Constants.ARROYO_URL_KEY_PROTO_PATH
 import me.rhunk.snapenhance.Logger
 import me.rhunk.snapenhance.Logger.xposedLog
 import me.rhunk.snapenhance.bridge.DownloadCallback
@@ -22,6 +21,7 @@ import me.rhunk.snapenhance.download.DownloadManagerClient
 import me.rhunk.snapenhance.download.data.DownloadMediaType
 import me.rhunk.snapenhance.download.data.DownloadMetadata
 import me.rhunk.snapenhance.download.data.InputMedia
+import me.rhunk.snapenhance.download.data.MediaFilter
 import me.rhunk.snapenhance.download.data.SplitMediaAssetType
 import me.rhunk.snapenhance.download.data.toKeyPair
 import me.rhunk.snapenhance.features.Feature
@@ -32,9 +32,8 @@ import me.rhunk.snapenhance.hook.HookAdapter
 import me.rhunk.snapenhance.hook.HookStage
 import me.rhunk.snapenhance.hook.Hooker
 import me.rhunk.snapenhance.ui.ViewAppearanceHelper
-import me.rhunk.snapenhance.download.data.MediaFilter
 import me.rhunk.snapenhance.util.download.RemoteMediaResolver
-import me.rhunk.snapenhance.util.getObjectField
+import me.rhunk.snapenhance.util.ktx.getObjectField
 import me.rhunk.snapenhance.util.protobuf.ProtoReader
 import me.rhunk.snapenhance.util.snap.BitmojiSelfie
 import me.rhunk.snapenhance.util.snap.EncryptionHelper

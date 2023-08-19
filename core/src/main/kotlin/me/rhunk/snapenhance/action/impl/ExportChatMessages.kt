@@ -17,7 +17,7 @@ import me.rhunk.snapenhance.action.AbstractAction
 import me.rhunk.snapenhance.data.ContentType
 import me.rhunk.snapenhance.data.wrapper.impl.Message
 import me.rhunk.snapenhance.data.wrapper.impl.SnapUUID
-import me.rhunk.snapenhance.database.objects.FriendFeedInfo
+import me.rhunk.snapenhance.database.objects.FriendFeedEntry
 import me.rhunk.snapenhance.features.impl.Messaging
 import me.rhunk.snapenhance.ui.ViewAppearanceHelper
 import me.rhunk.snapenhance.util.CallbackBuilder
@@ -108,8 +108,8 @@ class ExportChatMessages : AbstractAction("action.export_chat_messages") {
             exportType = askExportType() ?: return@launch
             mediaToDownload = if (exportType == ExportFormat.HTML) askMediaToDownload() else null
 
-            val friendFeedEntries = context.database.getFriendFeed(20)
-            val selectedConversations = mutableListOf<FriendFeedInfo>()
+            val friendFeedEntries = context.database.getFeedEntries(20)
+            val selectedConversations = mutableListOf<FriendFeedEntry>()
 
             ViewAppearanceHelper.newAlertDialogBuilder(context.mainActivity)
                 .setTitle(context.translation["chat_export.select_conversation"])
@@ -182,12 +182,12 @@ class ExportChatMessages : AbstractAction("action.export_chat_messages") {
         )
     }
 
-    private suspend fun exportFullConversation(friendFeedInfo: FriendFeedInfo) {
+    private suspend fun exportFullConversation(friendFeedEntry: FriendFeedEntry) {
         //first fetch the first message
-        val conversationId = friendFeedInfo.key!!
-        val conversationName = friendFeedInfo.feedDisplayName ?: friendFeedInfo.friendDisplayName!!.split("|").lastOrNull() ?: "unknown"
+        val conversationId = friendFeedEntry.key!!
+        val conversationName = friendFeedEntry.feedDisplayName ?: friendFeedEntry.friendDisplayName!!.split("|").lastOrNull() ?: "unknown"
 
-        conversationAction(true, conversationId, if (friendFeedInfo.feedDisplayName != null) "USERCREATEDGROUP" else "ONEONONE")
+        conversationAction(true, conversationId, if (friendFeedEntry.feedDisplayName != null) "USERCREATEDGROUP" else "ONEONONE")
         
         logDialog(context.translation.format("chat_export.exporting_message", "conversation" to conversationName))
 
@@ -215,7 +215,7 @@ class ExportChatMessages : AbstractAction("action.export_chat_messages") {
         logDialog(context.translation["chat_export.writing_output"])
         MessageExporter(
             context = context,
-            friendFeedInfo = friendFeedInfo,
+            friendFeedEntry = friendFeedEntry,
             outputFile = outputFile,
             mediaToDownload = mediaToDownload,
             printLog = ::logDialog
@@ -245,7 +245,7 @@ class ExportChatMessages : AbstractAction("action.export_chat_messages") {
         }
     }
 
-    private fun exportChatForConversations(conversations: List<FriendFeedInfo>) {
+    private fun exportChatForConversations(conversations: List<FriendFeedEntry>) {
         dialogLogs.clear()
         val jobs = mutableListOf<Job>()
 

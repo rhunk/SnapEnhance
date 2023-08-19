@@ -15,8 +15,10 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
@@ -78,10 +80,10 @@ class PickLanguageScreen : SetupScreen(){
 
         DialogText(text = context.translation["setup.dialogs.select_language"])
 
-        val isDialog = remember { mutableStateOf(false) }
+        var isDialog by remember { mutableStateOf(false) }
 
-        if (isDialog.value) {
-            Dialog(onDismissRequest = { isDialog.value = false }) {
+        if (isDialog) {
+            Dialog(onDismissRequest = { isDialog = false }) {
                 Surface(
                     modifier = Modifier
                         .padding(10.dp)
@@ -98,7 +100,7 @@ class PickLanguageScreen : SetupScreen(){
                                     .fillMaxWidth()
                                     .clickable {
                                         selectedLocale.value = locale
-                                        isDialog.value = false
+                                        isDialog = false
                                     },
                                 contentAlignment = Alignment.Center
                             ) {
@@ -121,7 +123,7 @@ class PickLanguageScreen : SetupScreen(){
             contentAlignment = Alignment.Center
         ) {
             Button(onClick = {
-                isDialog.value = true
+                isDialog = true
             }) {
                 Text(text = getLocaleDisplayName(selectedLocale.value), fontSize = 16.sp,
                     fontWeight = FontWeight.Normal)

@@ -18,8 +18,10 @@ import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusRequester
@@ -72,14 +74,14 @@ class Dialogs(
             add(0, "null")
         }
 
-        val selectedValue = remember {
+        var selectedValue by remember {
             mutableStateOf(property.value.getNullable()?.toString() ?: "null")
         }
 
         DefaultDialogCard {
             keys.forEachIndexed { index, item ->
                 fun select() {
-                    selectedValue.value = item
+                    selectedValue = item
                     property.value.setAny(if (index == 0) {
                         null
                     } else {
@@ -97,7 +99,7 @@ class Dialogs(
                         modifier = Modifier.weight(1f)
                     )
                     RadioButton(
-                        selected = selectedValue.value == item,
+                        selected = selectedValue == item,
                         onClick = { select() }
                     )
                 }
@@ -179,13 +181,11 @@ class Dialogs(
         val toggledStates = property.value.get() as MutableList<String>
         DefaultDialogCard {
             defaultItems.forEach { key ->
-                val state = remember {
-                    mutableStateOf(toggledStates.contains(key))
-                }
+                var state by remember { mutableStateOf(toggledStates.contains(key)) }
 
                 fun toggle(value: Boolean? = null) {
-                    state.value = value ?: !state.value
-                    if (state.value) {
+                    state = value ?: !state
+                    if (state) {
                         toggledStates.add(key)
                     } else {
                         toggledStates.remove(key)
@@ -203,7 +203,7 @@ class Dialogs(
                             .weight(1f)
                     )
                     Switch(
-                        checked = state.value,
+                        checked = state,
                         onCheckedChange = {
                             toggle(it)
                         }

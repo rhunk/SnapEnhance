@@ -2,7 +2,7 @@ package me.rhunk.snapenhance.data.wrapper.impl
 
 import me.rhunk.snapenhance.SnapEnhance
 import me.rhunk.snapenhance.data.wrapper.AbstractWrapper
-import me.rhunk.snapenhance.util.getObjectField
+import me.rhunk.snapenhance.util.ktx.getObjectField
 import java.nio.ByteBuffer
 import java.util.UUID
 

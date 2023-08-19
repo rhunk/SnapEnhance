@@ -17,6 +17,7 @@ import me.rhunk.snapenhance.ui.manager.sections.HomeSection
 import me.rhunk.snapenhance.ui.manager.sections.NotImplemented
 import me.rhunk.snapenhance.ui.manager.sections.downloads.DownloadsSection
 import me.rhunk.snapenhance.ui.manager.sections.features.FeaturesSection
+import me.rhunk.snapenhance.ui.manager.sections.social.SocialSection
 import kotlin.reflect.KClass
 
 enum class EnumSection(
@@ -39,9 +40,10 @@ enum class EnumSection(
         icon = Icons.Filled.Home,
         section = HomeSection::class
     ),
-    FRIENDS(
-        route = "friends",
-        icon = Icons.Filled.Group
+    SOCIAL(
+        route = "social",
+        icon = Icons.Filled.Group,
+        section = SocialSection::class
     ),
     PLUGINS(
         route = "plugins",

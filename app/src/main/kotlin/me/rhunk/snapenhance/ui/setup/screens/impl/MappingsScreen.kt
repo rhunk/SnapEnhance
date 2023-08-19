@@ -11,9 +11,11 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
@@ -26,12 +28,12 @@ class MappingsScreen : SetupScreen() {
     @Composable
     override fun Content() {
         val coroutineScope = rememberCoroutineScope()
-        val infoText = remember { mutableStateOf(null as String?) }
-        val isGenerating = remember { mutableStateOf(false) }
+        var infoText by remember { mutableStateOf(null as String?) }
+        var isGenerating by remember { mutableStateOf(false) }
 
-        if (infoText.value != null) {
+        if (infoText != null) {
             Dialog(onDismissRequest = {
-                infoText.value = null
+                infoText = null
             }) {
                 Surface(
                     modifier = Modifier.padding(16.dp).fillMaxWidth(),
@@ -40,9 +42,9 @@ class MappingsScreen : SetupScreen() {
                     Column(
                         modifier = Modifier.padding(16.dp)
                     ) {
-                        Text(text = infoText.value!!)
+                        Text(text = infoText!!)
                         Button(onClick = {
-                            infoText.value = null
+                            infoText = null
                         },
                         modifier = Modifier.padding(top = 5.dp).align(alignment = androidx.compose.ui.Alignment.End)) {
                             Text(text = "OK")
@@ -63,27 +65,27 @@ class MappingsScreen : SetupScreen() {
             }
         }
 
-        val hasMappings = remember { mutableStateOf(false) }
+        var hasMappings by remember { mutableStateOf(false) }
 
         DialogText(text = context.translation["setup.mappings.dialog"])
-        if (hasMappings.value) return
+        if (hasMappings) return
         Button(onClick = {
-            if (isGenerating.value) return@Button
-            isGenerating.value = true
+            if (isGenerating) return@Button
+            isGenerating = true
             coroutineScope.launch(Dispatchers.IO) {
                 runCatching {
                     tryToGenerateMappings()
                     allowNext(true)
-                    infoText.value = context.translation["setup.mappings.generate_success"]
-                    hasMappings.value = true
+                    infoText = context.translation["setup.mappings.generate_success"]
+                    hasMappings = true
                 }.onFailure {
-                    isGenerating.value = false
-                    infoText.value = context.translation["setup.mappings.generate_failure"] + "\n\n" + it.message
+                    isGenerating = false
+                    infoText = context.translation["setup.mappings.generate_failure"] + "\n\n" + it.message
                     Logger.error("Failed to generate mappings", it)
                 }
             }
         }) {
-            if (isGenerating.value) {
+            if (isGenerating) {
                 CircularProgressIndicator(
                     modifier = Modifier.padding().size(30.dp),
                     strokeWidth = 3.dp,

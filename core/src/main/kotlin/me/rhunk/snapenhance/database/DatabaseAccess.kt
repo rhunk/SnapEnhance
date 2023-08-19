@@ -74,10 +74,10 @@ class DatabaseAccess(private val context: ModContext) : Manager {
         return obj
     }
 
-    fun getFriendFeedInfoByUserId(userId: String): FriendFeedInfo? {
+    fun getFeedEntryByUserId(userId: String): FriendFeedEntry? {
         return safeDatabaseOperation(openMain()) { database ->
             readDatabaseObject(
-                FriendFeedInfo(),
+                FriendFeedEntry(),
                 database,
                 "FriendsFeedView",
                 "friendUserId = ?",
@@ -86,10 +86,10 @@ class DatabaseAccess(private val context: ModContext) : Manager {
         }
     }
 
-    fun getFriendFeedInfoByConversationId(conversationId: String): FriendFeedInfo? {
+    fun getFeedEntryByConversationId(conversationId: String): FriendFeedEntry? {
         return safeDatabaseOperation(openMain()) {
             readDatabaseObject(
-                FriendFeedInfo(),
+                FriendFeedEntry(),
                 it,
                 "FriendsFeedView",
                 "key = ?",
@@ -110,19 +110,19 @@ class DatabaseAccess(private val context: ModContext) : Manager {
         }
     }
 
-    fun getFriendFeed(limit: Int): List<FriendFeedInfo> {
+    fun getFeedEntries(limit: Int): List<FriendFeedEntry> {
         return safeDatabaseOperation(openMain()) { database ->
             val cursor = database.rawQuery(
                 "SELECT * FROM FriendsFeedView ORDER BY _id LIMIT ?",
                 arrayOf(limit.toString())
             )
-            val list = mutableListOf<FriendFeedInfo>()
+            val list = mutableListOf<FriendFeedEntry>()
             while (cursor.moveToNext()) {
-                val friendFeedInfo = FriendFeedInfo()
+                val friendFeedEntry = FriendFeedEntry()
                 try {
-                    friendFeedInfo.write(cursor)
+                    friendFeedEntry.write(cursor)
                 } catch (_: Throwable) {}
-                list.add(friendFeedInfo)
+                list.add(friendFeedEntry)
             }
             cursor.close()
             list

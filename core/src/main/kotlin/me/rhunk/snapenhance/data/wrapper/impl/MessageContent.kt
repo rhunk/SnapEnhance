@@ -2,8 +2,8 @@ package me.rhunk.snapenhance.data.wrapper.impl
 
 import me.rhunk.snapenhance.data.ContentType
 import me.rhunk.snapenhance.data.wrapper.AbstractWrapper
-import me.rhunk.snapenhance.util.getObjectField
-import me.rhunk.snapenhance.util.setObjectField
+import me.rhunk.snapenhance.util.ktx.getObjectField
+import me.rhunk.snapenhance.util.ktx.setObjectField
 
 class MessageContent(obj: Any?) : AbstractWrapper(obj) {
     var content

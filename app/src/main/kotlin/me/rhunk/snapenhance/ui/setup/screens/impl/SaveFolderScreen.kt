@@ -9,9 +9,9 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import me.rhunk.snapenhance.Logger
-import me.rhunk.snapenhance.ui.util.ObservableMutableState
 import me.rhunk.snapenhance.ui.setup.screens.SetupScreen
 import me.rhunk.snapenhance.ui.util.ChooseFolderHelper
+import me.rhunk.snapenhance.ui.util.ObservableMutableState
 
 class SaveFolderScreen : SetupScreen() {
     private lateinit var saveFolder: ObservableMutableState<String>

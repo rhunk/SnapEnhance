@@ -18,9 +18,9 @@ import me.rhunk.snapenhance.data.FileType
 import me.rhunk.snapenhance.data.MediaReferenceType
 import me.rhunk.snapenhance.data.wrapper.impl.Message
 import me.rhunk.snapenhance.data.wrapper.impl.SnapUUID
-import me.rhunk.snapenhance.database.objects.FriendFeedInfo
+import me.rhunk.snapenhance.database.objects.FriendFeedEntry
 import me.rhunk.snapenhance.database.objects.FriendInfo
-import me.rhunk.snapenhance.util.getApplicationInfoCompat
+import me.rhunk.snapenhance.util.ktx.getApplicationInfoCompat
 import me.rhunk.snapenhance.util.protobuf.ProtoReader
 import me.rhunk.snapenhance.util.snap.EncryptionHelper
 import me.rhunk.snapenhance.util.snap.MediaDownloaderHelper
@@ -50,7 +50,7 @@ enum class ExportFormat(
 class MessageExporter(
     private val context: ModContext,
     private val outputFile: File,
-    private val friendFeedInfo: FriendFeedInfo,
+    private val friendFeedEntry: FriendFeedEntry,
     private val mediaToDownload: List<ContentType>? = null,
     private val printLog: (String) -> Unit = {},
 ) {
@@ -59,13 +59,13 @@ class MessageExporter(
 
     fun readMessages(messages: List<Message>) {
         conversationParticipants =
-            context.database.getConversationParticipants(friendFeedInfo.key!!)
+            context.database.getConversationParticipants(friendFeedEntry.key!!)
                 ?.mapNotNull {
                     context.database.getFriendInfo(it)
                 }?.associateBy { it.userId!! } ?: emptyMap()
 
         if (conversationParticipants.isEmpty())
-            throw Throwable("Failed to get conversation participants for ${friendFeedInfo.key}")
+            throw Throwable("Failed to get conversation participants for ${friendFeedEntry.key}")
 
         this.messages = messages.sortedBy { it.orderKey }
     }
@@ -78,8 +78,8 @@ class MessageExporter(
 
     private fun exportText(output: OutputStream) {
         val writer = output.bufferedWriter()
-        writer.write("Conversation key: ${friendFeedInfo.key}\n")
-        writer.write("Conversation Name: ${friendFeedInfo.feedDisplayName}\n")
+        writer.write("Conversation key: ${friendFeedEntry.key}\n")
+        writer.write("Conversation Name: ${friendFeedEntry.feedDisplayName}\n")
         writer.write("Participants:\n")
         conversationParticipants.forEach { (userId, friendInfo) ->
             writer.write("  $userId: ${friendInfo.displayName}\n")
@@ -233,8 +233,8 @@ class MessageExporter(
 
     private fun exportJson(output: OutputStream) {
         val rootObject = JsonObject().apply {
-            addProperty("conversationId", friendFeedInfo.key)
-            addProperty("conversationName", friendFeedInfo.feedDisplayName)
+            addProperty("conversationId", friendFeedEntry.key)
+            addProperty("conversationName", friendFeedEntry.feedDisplayName)
 
             var index = 0
             val participants = mutableMapOf<String, Int>()

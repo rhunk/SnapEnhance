@@ -31,7 +31,11 @@ class EventBus(
         val obj = object : IListener<T> {
             override fun handle(event: T) {
                 if (!filter(event)) return
-                listener(event)
+                runCatching {
+                    listener(event)
+                }.onFailure {
+                    Logger.error("Error while handling event ${event::class.simpleName}", it)
+                }
             }
         }
         subscribe(event, obj)

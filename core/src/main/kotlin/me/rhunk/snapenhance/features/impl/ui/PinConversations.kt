@@ -7,8 +7,8 @@ import me.rhunk.snapenhance.features.FeatureLoadParams
 import me.rhunk.snapenhance.hook.HookStage
 import me.rhunk.snapenhance.hook.hook
 import me.rhunk.snapenhance.hook.hookConstructor
-import me.rhunk.snapenhance.util.getObjectField
-import me.rhunk.snapenhance.util.setObjectField
+import me.rhunk.snapenhance.util.ktx.getObjectField
+import me.rhunk.snapenhance.util.ktx.setObjectField
 
 class PinConversations : BridgeFileFeature("PinConversations", BridgeFileType.PINNED_CONVERSATIONS, loadParams = FeatureLoadParams.ACTIVITY_CREATE_SYNC) {
     override fun onActivityCreate() {

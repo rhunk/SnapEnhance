@@ -3,17 +3,25 @@ package me.rhunk.snapenhance.bridge
 import android.app.Service
 import android.content.Intent
 import android.os.IBinder
+import me.rhunk.snapenhance.Logger
 import me.rhunk.snapenhance.RemoteSideContext
 import me.rhunk.snapenhance.SharedContextHolder
 import me.rhunk.snapenhance.bridge.types.BridgeFileType
 import me.rhunk.snapenhance.bridge.types.FileActionType
 import me.rhunk.snapenhance.bridge.wrapper.LocaleWrapper
 import me.rhunk.snapenhance.bridge.wrapper.MessageLoggerWrapper
+import me.rhunk.snapenhance.core.messaging.MessagingFriendInfo
+import me.rhunk.snapenhance.core.messaging.MessagingGroupInfo
+import me.rhunk.snapenhance.core.messaging.RuleScope
+import me.rhunk.snapenhance.database.objects.FriendInfo
 import me.rhunk.snapenhance.download.DownloadProcessor
+import me.rhunk.snapenhance.util.SerializableDataObject
+import kotlin.system.measureTimeMillis
 
 class BridgeService : Service() {
     private lateinit var messageLoggerWrapper: MessageLoggerWrapper
     private lateinit var remoteSideContext: RemoteSideContext
+    private lateinit var syncCallback: SyncCallback
 
     override fun onBind(intent: Intent): IBinder {
         remoteSideContext = SharedContextHolder.remote(this).apply {
@@ -25,28 +33,36 @@ class BridgeService : Service() {
 
     inner class BridgeBinder : BridgeInterface.Stub() {
         override fun fileOperation(action: Int, fileType: Int, content: ByteArray?): ByteArray {
-            val resolvedFile by lazy { BridgeFileType.fromValue(fileType)?.resolve(this@BridgeService) }
+            val resolvedFile by lazy {
+                BridgeFileType.fromValue(fileType)?.resolve(this@BridgeService)
+            }
 
             return when (FileActionType.values()[action]) {
                 FileActionType.CREATE_AND_READ -> {
                     resolvedFile?.let {
                         if (!it.exists()) {
-                            return content?.also { content -> it.writeBytes(content) } ?: ByteArray(0)
+                            return content?.also { content -> it.writeBytes(content) } ?: ByteArray(
+                                0
+                            )
                         }
 
                         it.readBytes()
                     } ?: ByteArray(0)
                 }
+
                 FileActionType.READ -> {
                     resolvedFile?.takeIf { it.exists() }?.readBytes() ?: ByteArray(0)
                 }
+
                 FileActionType.WRITE -> {
                     content?.also { resolvedFile?.writeBytes(content) } ?: ByteArray(0)
                 }
+
                 FileActionType.DELETE -> {
                     resolvedFile?.takeIf { it.exists() }?.delete()
                     ByteArray(0)
                 }
+
                 FileActionType.EXISTS -> {
                     if (resolvedFile?.exists() == true)
                         ByteArray(1)
@@ -55,27 +71,76 @@ class BridgeService : Service() {
             }
         }
 
-        override fun getLoggedMessageIds(conversationId: String, limit: Int) = messageLoggerWrapper.getMessageIds(conversationId, limit).toLongArray()
+        override fun getLoggedMessageIds(conversationId: String, limit: Int) =
+            messageLoggerWrapper.getMessageIds(conversationId, limit).toLongArray()
 
-        override fun getMessageLoggerMessage(conversationId: String, id: Long) = messageLoggerWrapper.getMessage(conversationId, id).second
+        override fun getMessageLoggerMessage(conversationId: String, id: Long) =
+            messageLoggerWrapper.getMessage(conversationId, id).second
 
         override fun addMessageLoggerMessage(conversationId: String, id: Long, message: ByteArray) {
             messageLoggerWrapper.addMessage(conversationId, id, message)
         }
 
-        override fun deleteMessageLoggerMessage(conversationId: String, id: Long) = messageLoggerWrapper.deleteMessage(conversationId, id)
+        override fun deleteMessageLoggerMessage(conversationId: String, id: Long) =
+            messageLoggerWrapper.deleteMessage(conversationId, id)
 
         override fun clearMessageLogger() = messageLoggerWrapper.clearMessages()
 
-        override fun fetchLocales(userLocale: String) = LocaleWrapper.fetchLocales(context = this@BridgeService, userLocale).associate {
-            it.locale to it.content
-        }
+        override fun fetchLocales(userLocale: String) =
+            LocaleWrapper.fetchLocales(context = this@BridgeService, userLocale).associate {
+                it.locale to it.content
+            }
 
         override fun enqueueDownload(intent: Intent, callback: DownloadCallback) {
             DownloadProcessor(
-                remoteSideContext = SharedContextHolder.remote(this@BridgeService),
+                remoteSideContext = remoteSideContext,
                 callback = callback
             ).onReceive(intent)
+        }
+
+        override fun getRules(objectType: String, uuid: String): MutableList<String> {
+            remoteSideContext.modDatabase.getRulesFromId(RuleScope.valueOf(objectType), uuid)
+                .let { rules ->
+                    return rules.map { it.toJson() }.toMutableList()
+                }
+        }
+
+        override fun sync(callback: SyncCallback) {
+            Logger.debug("Syncing remote")
+            syncCallback = callback
+            measureTimeMillis {
+                remoteSideContext.modDatabase.getFriendsIds().forEach { friendId ->
+                    runCatching {
+                        SerializableDataObject.fromJson<FriendInfo>(callback.syncFriend(friendId)).let {
+                            remoteSideContext.modDatabase.syncFriend(it)
+                        }
+                    }.onFailure {
+                        Logger.error("Failed to sync friend $friendId", it)
+                    }
+                }
+                remoteSideContext.modDatabase.getGroupsIds().forEach { groupId ->
+                    runCatching {
+                        SerializableDataObject.fromJson<MessagingGroupInfo>(callback.syncGroup(groupId)).let {
+                            remoteSideContext.modDatabase.syncGroupInfo(it)
+                        }
+                    }.onFailure {
+                        Logger.error("Failed to sync group $groupId", it)
+                    }
+                }
+            }.also {
+                Logger.debug("Syncing remote took $it ms")
+            }
+        }
+
+        override fun passGroupsAndFriends(
+            groups: List<String>,
+            friends: List<String>
+        ) {
+            Logger.debug("Received ${groups.size} groups and ${friends.size} friends")
+            remoteSideContext.modDatabase.receiveMessagingDataCallback(
+                friends.map { SerializableDataObject.fromJson<MessagingFriendInfo>(it) },
+                groups.map { SerializableDataObject.fromJson<MessagingGroupInfo>(it) }
+            )
         }
     }
 }

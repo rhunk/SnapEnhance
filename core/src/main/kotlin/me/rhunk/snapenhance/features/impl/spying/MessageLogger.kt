@@ -71,7 +71,7 @@ class MessageLogger : Feature("MessageLogger",
         }
 
         measureTime {
-            context.database.getFriendFeed(PREFETCH_FEED_COUNT).forEach { friendFeedInfo ->
+            context.database.getFeedEntries(PREFETCH_FEED_COUNT).forEach { friendFeedInfo ->
                 fetchedMessages.addAll(context.bridgeClient.getLoggedMessageIds(friendFeedInfo.key!!, PREFETCH_MESSAGE_COUNT).toList())
             }
         }.also { Logger.debug("Loaded ${fetchedMessages.size} cached messages in $it") }

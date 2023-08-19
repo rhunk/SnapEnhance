@@ -44,9 +44,11 @@ import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.material3.rememberBottomSheetScaffoldState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusRequester
@@ -172,18 +174,16 @@ class FeaturesSection : Section() {
 
     @Composable
     private fun PropertyAction(property: PropertyPair<*>, registerClickCallback: RegisterClickCallback) {
-        val showDialog = remember { mutableStateOf(false) }
-        val dialogComposable = remember { mutableStateOf<@Composable () -> Unit>({}) }
+        var showDialog by remember { mutableStateOf(false) }
+        var dialogComposable by remember { mutableStateOf<@Composable () -> Unit>({}) }
 
-        fun registerDialogOnClickCallback() = registerClickCallback {
-            showDialog.value = true
-        }
+        fun registerDialogOnClickCallback() = registerClickCallback { showDialog = true }
 
-        if (showDialog.value) {
+        if (showDialog) {
             Dialog(
-                onDismissRequest = { showDialog.value = false }
+                onDismissRequest = { showDialog = false }
             ) {
-                dialogComposable.value()
+                dialogComposable()
             }
         }
 
@@ -203,12 +203,12 @@ class FeaturesSection : Section() {
 
         when (val dataType = remember { property.key.dataType.type }) {
             DataProcessors.Type.BOOLEAN -> {
-                val state = remember { mutableStateOf(propertyValue.get() as Boolean) }
+                var state by remember { mutableStateOf(propertyValue.get() as Boolean) }
                 Switch(
-                    checked = state.value,
+                    checked = state,
                     onCheckedChange = registerClickCallback {
-                        state.value = state.value.not()
-                        propertyValue.setAny(state.value)
+                        state = state.not()
+                        propertyValue.setAny(state)
                     }
                 )
             }
@@ -216,7 +216,7 @@ class FeaturesSection : Section() {
             DataProcessors.Type.STRING_UNIQUE_SELECTION -> {
                 registerDialogOnClickCallback()
 
-                dialogComposable.value = {
+                dialogComposable = {
                     dialogs.UniqueSelectionDialog(property)
                 }
 
@@ -233,13 +233,13 @@ class FeaturesSection : Section() {
             }
 
             DataProcessors.Type.STRING_MULTIPLE_SELECTION, DataProcessors.Type.STRING, DataProcessors.Type.INTEGER, DataProcessors.Type.FLOAT -> {
-                dialogComposable.value = {
+                dialogComposable = {
                     when (dataType) {
                         DataProcessors.Type.STRING_MULTIPLE_SELECTION -> {
                             dialogs.MultipleSelectionDialog(property)
                         }
                         DataProcessors.Type.STRING, DataProcessors.Type.INTEGER, DataProcessors.Type.FLOAT -> {
-                            dialogs.KeyboardInputDialog(property) { showDialog.value = false }
+                            dialogs.KeyboardInputDialog(property) { showDialog = false }
                         }
                         else -> {}
                     }
@@ -271,7 +271,7 @@ class FeaturesSection : Section() {
 
                 if (container.globalState == null) return
 
-                val state = remember { mutableStateOf(container.globalState!!) }
+                var state by remember { mutableStateOf(container.globalState!!) }
 
                 Box(
                     modifier = Modifier
@@ -288,10 +288,10 @@ class FeaturesSection : Section() {
                 }
 
                 Switch(
-                    checked = state.value,
+                    checked = state,
                     onCheckedChange = {
-                        state.value = state.value.not()
-                        container.globalState = state.value
+                        state = state.not()
+                        container.globalState = state
                     }
                 )
             }
@@ -301,7 +301,7 @@ class FeaturesSection : Section() {
 
     @Composable
     private fun PropertyCard(property: PropertyPair<*>) {
-        val clickCallback = remember { mutableStateOf<ClickCallback?>(null) }
+        var clickCallback by remember { mutableStateOf<ClickCallback?>(null) }
         Card(
             modifier = Modifier
                 .fillMaxWidth()
@@ -311,7 +311,7 @@ class FeaturesSection : Section() {
                 modifier = Modifier
                     .fillMaxSize()
                     .clickable {
-                        clickCallback.value?.invoke(true)
+                        clickCallback?.invoke(true)
                     }
                     .padding(all = 4.dp),
                 horizontalArrangement = Arrangement.SpaceBetween
@@ -371,7 +371,7 @@ class FeaturesSection : Section() {
                     verticalAlignment = Alignment.CenterVertically
                 ) {
                     PropertyAction(property, registerClickCallback = { callback ->
-                        clickCallback.value = callback
+                        clickCallback = callback
                         callback
                     })
                 }
@@ -381,20 +381,20 @@ class FeaturesSection : Section() {
 
     @Composable
     private fun FeatureSearchBar(rowScope: RowScope, focusRequester: FocusRequester) {
-        val searchValue = remember { mutableStateOf("") }
+        var searchValue by remember { mutableStateOf("") }
         val scope = rememberCoroutineScope()
-        val currentSearchJob = remember { mutableStateOf<Job?>(null) }
+        var currentSearchJob by remember { mutableStateOf<Job?>(null) }
 
         rowScope.apply {
             TextField(
-                value = searchValue.value,
+                value = searchValue,
                 onValueChange = { keyword ->
-                    searchValue.value = keyword
+                    searchValue = keyword
                     if (keyword.isEmpty()) {
                         navController.navigate(MAIN_ROUTE)
                         return@TextField
                     }
-                    currentSearchJob.value?.cancel()
+                    currentSearchJob?.cancel()
                     scope.launch {
                         delay(300)
                         navController.navigate(SEARCH_FEATURE_ROUTE.replace("{keyword}", keyword), NavOptions.Builder()
@@ -402,7 +402,7 @@ class FeaturesSection : Section() {
                             .setPopUpTo(MAIN_ROUTE, false)
                             .build()
                         )
-                    }.also { currentSearchJob.value = it }
+                    }.also { currentSearchJob = it }
                 },
 
                 keyboardActions = KeyboardActions(onDone = {
@@ -428,10 +428,10 @@ class FeaturesSection : Section() {
 
     @Composable
     override fun TopBarActions(rowScope: RowScope) {
-        val showSearchBar = remember { mutableStateOf(false) }
+        var showSearchBar by remember { mutableStateOf(false) }
         val focusRequester = remember { FocusRequester() }
 
-        if (showSearchBar.value) {
+        if (showSearchBar) {
             FeatureSearchBar(rowScope, focusRequester)
             LaunchedEffect(true) {
                 focusRequester.requestFocus()
@@ -439,13 +439,13 @@ class FeaturesSection : Section() {
         }
 
         IconButton(onClick = {
-            showSearchBar.value = showSearchBar.value.not()
-            if (!showSearchBar.value && navController.currentBackStackEntry?.destination?.route == SEARCH_FEATURE_ROUTE) {
+            showSearchBar = showSearchBar.not()
+            if (!showSearchBar && navController.currentBackStackEntry?.destination?.route == SEARCH_FEATURE_ROUTE) {
                 navController.navigate(MAIN_ROUTE)
             }
         }) {
             Icon(
-                imageVector = if (showSearchBar.value) Icons.Filled.Close
+                imageVector = if (showSearchBar) Icons.Filled.Close
                     else Icons.Filled.Search,
                 contentDescription = null
             )

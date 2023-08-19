@@ -3,9 +3,10 @@ package me.rhunk.snapenhance.database.objects
 import android.annotation.SuppressLint
 import android.database.Cursor
 import me.rhunk.snapenhance.database.DatabaseObject
-import me.rhunk.snapenhance.util.getInteger
-import me.rhunk.snapenhance.util.getLong
-import me.rhunk.snapenhance.util.getStringOrNull
+import me.rhunk.snapenhance.util.SerializableDataObject
+import me.rhunk.snapenhance.util.ktx.getInteger
+import me.rhunk.snapenhance.util.ktx.getLong
+import me.rhunk.snapenhance.util.ktx.getStringOrNull
 
 data class FriendInfo(
     var id: Int = 0,
@@ -30,7 +31,7 @@ data class FriendInfo(
     var isPinnedBestFriend: Int = 0,
     var plusBadgeVisibility: Int = 0,
     var usernameForSorting: String? = null
-) : DatabaseObject {
+) : DatabaseObject, SerializableDataObject() {
     @SuppressLint("Range")
     override fun write(cursor: Cursor) {
         with(cursor) {

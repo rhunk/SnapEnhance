@@ -15,7 +15,10 @@ import me.rhunk.snapenhance.ModContext
 import me.rhunk.snapenhance.bridge.types.BridgeFileType
 import me.rhunk.snapenhance.bridge.types.FileActionType
 import me.rhunk.snapenhance.core.BuildConfig
+import me.rhunk.snapenhance.core.messaging.MessagingRule
+import me.rhunk.snapenhance.core.messaging.RuleScope
 import me.rhunk.snapenhance.data.LocalePair
+import me.rhunk.snapenhance.util.SerializableDataObject
 import java.util.concurrent.CompletableFuture
 import java.util.concurrent.Executors
 import kotlin.system.exitProcess
@@ -26,6 +29,10 @@ class BridgeClient(
 ):  ServiceConnection {
     private lateinit var future: CompletableFuture<Boolean>
     private lateinit var service: BridgeInterface
+
+    companion object {
+        const val BRIDGE_SYNC_ACTION = "me.rhunk.snapenhance.bridge.SYNC"
+    }
 
     fun start(callback: (Boolean) -> Unit) {
         this.future = CompletableFuture()
@@ -124,4 +131,14 @@ class BridgeClient(
     }
 
     fun enqueueDownload(intent: Intent, callback: DownloadCallback) = service.enqueueDownload(intent, callback)
+
+    fun sync(callback: SyncCallback) = service.sync(callback)
+
+    fun passGroupsAndFriends(groups: List<String>, friends: List<String>) = service.passGroupsAndFriends(groups, friends)
+
+    fun getRulesFromId(type: RuleScope, targetUuid: String): List<MessagingRule> {
+        return service.getRules(type.name, targetUuid).map {
+            SerializableDataObject.fromJson(it, MessagingRule::class.java)
+        }.toList()
+    }
 }
