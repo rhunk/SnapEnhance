@@ -5,6 +5,10 @@ import android.content.Context
 import android.content.Intent
 import android.net.Uri
 import androidx.documentfile.provider.DocumentFile
+import coil.ImageLoader
+import coil.decode.VideoFrameDecoder
+import coil.memory.MemoryCache
+import kotlinx.coroutines.Dispatchers
 import me.rhunk.snapenhance.bridge.BridgeService
 import me.rhunk.snapenhance.bridge.wrapper.LocaleWrapper
 import me.rhunk.snapenhance.bridge.wrapper.MappingsWrapper
@@ -34,6 +38,17 @@ class RemoteSideContext(
     val mappings = MappingsWrapper()
     val downloadTaskManager = DownloadTaskManager()
     val modDatabase = ModDatabase(this)
+
+    //used to load bitmoji selfies and download previews
+    val imageLoader by lazy {
+        ImageLoader.Builder(androidContext)
+            .dispatcher(Dispatchers.IO)
+            .memoryCache {
+                MemoryCache.Builder(androidContext)
+                    .maxSizePercent(0.25)
+                    .build()
+            }.components { add(VideoFrameDecoder.Factory()) }.build()
+    }
 
     init {
         runCatching {

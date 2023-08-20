@@ -12,7 +12,7 @@ import me.rhunk.snapenhance.bridge.wrapper.LocaleWrapper
 import me.rhunk.snapenhance.bridge.wrapper.MessageLoggerWrapper
 import me.rhunk.snapenhance.core.messaging.MessagingFriendInfo
 import me.rhunk.snapenhance.core.messaging.MessagingGroupInfo
-import me.rhunk.snapenhance.core.messaging.MessagingScope
+import me.rhunk.snapenhance.core.messaging.SocialScope
 import me.rhunk.snapenhance.database.objects.FriendInfo
 import me.rhunk.snapenhance.download.DownloadProcessor
 import me.rhunk.snapenhance.util.SerializableDataObject
@@ -112,7 +112,7 @@ class BridgeService : Service() {
         }
 
         override fun getRules(objectType: String, uuid: String): MutableList<String> {
-            remoteSideContext.modDatabase.getRulesFromId(MessagingScope.valueOf(objectType), uuid)
+            remoteSideContext.modDatabase.getRulesFromId(SocialScope.valueOf(objectType), uuid)
                 .let { rules ->
                     return rules.map { it.toJson() }.toMutableList()
                 }

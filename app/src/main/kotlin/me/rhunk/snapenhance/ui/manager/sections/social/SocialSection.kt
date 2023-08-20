@@ -2,9 +2,9 @@ package me.rhunk.snapenhance.ui.manager.sections.social
 
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.gestures.Orientation
-import androidx.compose.foundation.gestures.scrollable
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -12,7 +12,6 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.rememberPagerState
-import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.Add
@@ -26,12 +25,13 @@ import androidx.compose.material3.TabRow
 import androidx.compose.material3.TabRowDefaults
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
@@ -41,8 +41,11 @@ import androidx.navigation.navigation
 import kotlinx.coroutines.launch
 import me.rhunk.snapenhance.core.messaging.MessagingFriendInfo
 import me.rhunk.snapenhance.core.messaging.MessagingGroupInfo
+import me.rhunk.snapenhance.core.messaging.SocialScope
 import me.rhunk.snapenhance.ui.manager.Section
+import me.rhunk.snapenhance.ui.util.BitmojiImage
 import me.rhunk.snapenhance.ui.util.pagerTabIndicatorOffset
+import me.rhunk.snapenhance.util.snap.BitmojiSelfie
 
 class SocialSection : Section() {
     private lateinit var friendList: List<MessagingFriendInfo>
@@ -54,7 +57,7 @@ class SocialSection : Section() {
         const val GROUP_INFO_ROUTE = "group_info/{id}"
     }
 
-    private var currentScopeTab: ScopeTab? = null
+    private var currentScopeContent: ScopeContent? = null
 
     private val addFriendDialog by lazy {
         AddFriendDialog(context, this)
@@ -69,23 +72,96 @@ class SocialSection : Section() {
     override fun canGoBack() = navController.currentBackStackEntry?.destination?.route != MAIN_ROUTE
 
     override fun build(navGraphBuilder: NavGraphBuilder) {
-        fun switchTab(id: String) = ScopeTab(context, this, navController, id).also { tab ->
-            currentScopeTab = tab
-        }
-
         navGraphBuilder.navigation(route = enumSection.route, startDestination = MAIN_ROUTE) {
             composable(MAIN_ROUTE) {
                 Content()
             }
 
-            composable(FRIEND_INFO_ROUTE) {
-                val id = it.arguments?.getString("id") ?: return@composable
-                remember { switchTab(id) }.Friend()
+            SocialScope.values().forEach { scope ->
+                composable(scope.tabRoute) {
+                    val id = it.arguments?.getString("id") ?: return@composable
+                    remember {
+                        ScopeContent(context, this@SocialSection, navController, scope, id).also { tab ->
+                            currentScopeContent = tab
+                        }
+                    }.Content()
+                }
+            }
+        }
+    }
+
+
+    @Composable
+    private fun ScopeList(scope: SocialScope) {
+        LazyColumn(
+            modifier = Modifier
+                .padding(2.dp)
+                .fillMaxWidth()
+                .fillMaxHeight()
+        ) {
+            //check if scope list is empty
+            val listSize = when (scope) {
+                SocialScope.GROUP -> groupList.size
+                SocialScope.FRIEND -> friendList.size
             }
 
-            composable(GROUP_INFO_ROUTE) {
-                val id = it.arguments?.getString("id") ?: return@composable
-                remember { switchTab(id) }.Group()
+            if (listSize == 0) {
+                item {
+                    //TODO: i18n
+                    Text(text = "No ${scope.key.lowercase()}s found")
+                }
+            }
+
+            items(listSize) { index ->
+                val id = when (scope) {
+                    SocialScope.GROUP -> groupList[index].conversationId
+                    SocialScope.FRIEND -> friendList[index].userId
+                }
+
+                Card(
+                    modifier = Modifier
+                        .padding(10.dp)
+                        .fillMaxWidth()
+                        .height(80.dp)
+                        .clickable {
+                            navController.navigate(
+                                scope.tabRoute.replace("{id}", id)
+                            )
+                        },
+                ) {
+                    when (scope) {
+                        SocialScope.GROUP -> {
+                            val group = groupList[index]
+                            Column {
+                                Text(text = group.name, maxLines = 1)
+                                Text(text = "participantsCount: ${group.participantsCount}", maxLines = 1)
+                            }
+                        }
+                        SocialScope.FRIEND -> {
+                            val friend = friendList[index]
+                            Row(
+                                modifier = Modifier
+                                    .padding(10.dp)
+                                    .fillMaxSize(),
+                                verticalAlignment = Alignment.CenterVertically
+                            ) {
+                                val bitmojiUrl = (friend.selfieId to friend.bitmojiId).let { (selfieId, bitmojiId) ->
+                                    if (selfieId == null || bitmojiId == null) return@let null
+                                    BitmojiSelfie.getBitmojiSelfie(selfieId, bitmojiId, BitmojiSelfie.BitmojiSelfieType.STANDARD)
+                                }
+                                BitmojiImage(context = context, url = bitmojiUrl)
+                                Column(
+                                    modifier = Modifier
+                                        .padding(10.dp)
+                                        .fillMaxWidth()
+                                ) {
+                                    Text(text = friend.displayName ?: friend.mutableUsername, maxLines = 1)
+                                    Text(text = friend.userId, maxLines = 1)
+                                }
+                            }
+                        }
+                    }
+                }
             }
         }
     }
@@ -145,60 +221,10 @@ class SocialSection : Section() {
                     }
                 }
 
-
                 HorizontalPager(modifier = Modifier.padding(paddingValues), state = pagerState) { page ->
                     when (page) {
-                        0 -> {
-                            LazyColumn(
-                                modifier = Modifier
-                                    .padding(10.dp)
-                                    .fillMaxWidth()
-                            ) {
-                                if (friendList.isEmpty()) {
-                                    item {
-                                        Text(text = "No friends found")
-                                    }
-                                }
-                                items(friendList.size) { index ->
-                                    val friend = friendList[index]
-                                    Card(
-                                        modifier = Modifier
-                                            .padding(10.dp)
-                                            .fillMaxWidth()
-                                            .height(100.dp)
-                                            .clickable {
-                                                navController.navigate(
-                                                    FRIEND_INFO_ROUTE.replace(
-                                                        "{id}",
-                                                        friend.userId
-                                                    )
-                                                )
-                                            },
-                                    ) {
-                                        Text(text = friend.displayName ?: friend.mutableUsername)
-                                    }
-                                }
-                            }
-                        }
-                        1 -> {
-                            Column(
-                                modifier = Modifier
-                                    .padding(10.dp)
-                                    .fillMaxSize()
-                                    .scrollable(rememberScrollState(), Orientation.Vertical)
-                            ) {
-                                groupList.forEach {
-                                    Card(
-                                        modifier = Modifier
-                                            .padding(10.dp)
-                                            .fillMaxWidth()
-                                            .height(100.dp),
-                                    ) {
-                                        Text(text = it.name)
-                                    }
-                                }
-                            }
-                        }
+                        0 -> ScopeList(SocialScope.FRIEND)
+                        1 -> ScopeList(SocialScope.GROUP)
                     }
                 }
             }

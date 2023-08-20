@@ -15,7 +15,6 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.requiredWidthIn
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material.icons.Icons
@@ -49,33 +48,18 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import coil.ImageLoader
 import coil.compose.rememberAsyncImagePainter
-import coil.decode.VideoFrameDecoder
-import coil.memory.MemoryCache
-import coil.request.ImageRequest
-import coil.size.Precision
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
-import me.rhunk.snapenhance.R
 import me.rhunk.snapenhance.data.FileType
 import me.rhunk.snapenhance.download.data.DownloadObject
 import me.rhunk.snapenhance.download.data.MediaFilter
 import me.rhunk.snapenhance.ui.manager.Section
+import me.rhunk.snapenhance.ui.util.BitmojiImage
+import me.rhunk.snapenhance.ui.util.ImageRequestHelper
 
 class DownloadsSection : Section() {
     private val loadedDownloads = mutableStateOf(mapOf<Int, DownloadObject>())
     private var currentFilter = mutableStateOf(MediaFilter.NONE)
-
-    private val imageLoader by lazy {
-        ImageLoader.Builder(context.androidContext)
-            .dispatcher(Dispatchers.IO)
-            .memoryCache {
-                MemoryCache.Builder(context.androidContext)
-                    .maxSizePercent(0.25)
-                    .build()
-            }.components { add(VideoFrameDecoder.Factory()) }.build()
-    }
 
     override fun onResumed() {
         super.onResumed()
@@ -156,12 +140,11 @@ class DownloadsSection : Section() {
             Box(modifier = Modifier.height(100.dp)) {
                 Image(
                     painter = rememberAsyncImagePainter(
-                        model = ImageRequest.Builder(context.androidContext)
-                            .data(download.outputFile)
-                            .memoryCacheKey(download.outputFile)
-                            .crossfade(true)
-                            .build(),
-                        imageLoader = imageLoader
+                        model = ImageRequestHelper.newDownloadPreviewImageRequest(
+                            context.androidContext,
+                            download.outputFile
+                        ),
+                        imageLoader = context.imageLoader
                     ),
                     modifier = Modifier
                         .matchParentSize()
@@ -187,25 +170,7 @@ class DownloadsSection : Section() {
                             .padding(15.dp),
                         verticalAlignment = Alignment.CenterVertically
                     ) {
-                        Image(
-                            painter = rememberAsyncImagePainter(
-                                model = ImageRequest.Builder(context.androidContext)
-                                    .data(download.metadata.iconUrl)
-                                    .fallback(R.drawable.bitmoji_blank)
-                                    .precision(Precision.INEXACT)
-                                    .crossfade(true)
-                                    .memoryCacheKey(download.metadata.iconUrl)
-                                    .build(),
-                                imageLoader = imageLoader
-                            ),
-                            contentDescription = null,
-                            contentScale = ContentScale.Crop,
-                            modifier = Modifier
-                                .requiredWidthIn(min = 0.dp, max = 48.dp)
-                                .height(48.dp)
-                                .clip(MaterialTheme.shapes.medium)
-                        )
-
+                        BitmojiImage(context = context, url = download.metadata.iconUrl, size = 48)
                         Column(
                             modifier = Modifier
                                 .padding(start = 10.dp),

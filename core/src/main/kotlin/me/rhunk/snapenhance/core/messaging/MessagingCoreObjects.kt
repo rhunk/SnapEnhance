@@ -8,18 +8,21 @@ enum class Mode {
     WHITELIST
 }
 
-enum class MessagingScope {
-    FRIEND,
-    GROUP
+enum class SocialScope(
+    val key: String,
+    val tabRoute: String,
+) {
+    FRIEND("friend", "friend_info/{id}"),
+    GROUP("group", "group_info/{id}"),
 }
 
-enum class ConversationFeature(
-    val value: String,
-    val messagingScope: MessagingScope,
+enum class MessagingRuleType(
+    val key: String,
+    val socialScope: SocialScope,
 ) {
-    DOWNLOAD("download", MessagingScope.FRIEND),
-    STEALTH("stealth", MessagingScope.GROUP),
-    AUTO_SAVE("auto_save", MessagingScope.GROUP);
+    DOWNLOAD("download", SocialScope.FRIEND),
+    STEALTH("stealth", SocialScope.GROUP),
+    AUTO_SAVE("auto_save", SocialScope.GROUP);
 }
 
 data class FriendStreaks(
@@ -47,9 +50,8 @@ data class MessagingFriendInfo(
 
 data class MessagingRule(
     val id: Int,
-    val messagingScope: MessagingScope,
+    val socialScope: SocialScope,
     val targetUuid: String,
-    val enabled: Boolean,
-    val mode: Mode?,
+    //val mode: Mode?,
     val subject: String
 ) : SerializableDataObject()
