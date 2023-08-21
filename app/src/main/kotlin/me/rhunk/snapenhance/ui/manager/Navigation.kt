@@ -101,6 +101,15 @@ class Navigation(
     }
 
     @Composable
+    fun Fab() {
+        val navBackStackEntry by navHostController.currentBackStackEntryAsState()
+        val currentDestination = navBackStackEntry?.destination ?: return
+        val currentSection = getCurrentSection(currentDestination)
+
+        currentSection.FloatingActionButton()
+    }
+
+    @Composable
     fun NavBar() {
         NavigationBar {
             val navBackStackEntry by navHostController.currentBackStackEntryAsState()

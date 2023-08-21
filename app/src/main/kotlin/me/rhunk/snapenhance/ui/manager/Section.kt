@@ -76,6 +76,9 @@ open class Section {
     @Composable
     open fun TopBarActions(rowScope: RowScope) {}
 
+    @Composable
+    open fun FloatingActionButton() {}
+
     open fun build(navGraphBuilder: NavGraphBuilder) {
         navGraphBuilder.composable(enumSection.route) {
             Content()

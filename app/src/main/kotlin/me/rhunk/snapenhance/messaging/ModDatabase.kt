@@ -25,7 +25,13 @@ class ModDatabase(
     var receiveMessagingDataCallback: (friends: List<MessagingFriendInfo>, groups: List<MessagingGroupInfo>) -> Unit = { _, _ -> }
 
     fun executeAsync(block: () -> Unit) {
-        executor.execute(block)
+        executor.execute {
+            runCatching {
+                block()
+            }.onFailure {
+                Logger.error("Failed to execute async block", it)
+            }
+        }
     }
 
     fun init() {
@@ -56,7 +62,7 @@ class ModDatabase(
                 "userId VARCHAR PRIMARY KEY",
                 "notify BOOLEAN",
                 "expirationTimestamp BIGINT",
-                "count INTEGER"
+                "length INTEGER"
             ),
             "analytics_config" to listOf(
                 "userId VARCHAR PRIMARY KEY",
@@ -137,7 +143,7 @@ class ModDatabase(
                 )
                 //sync streaks
                 if (friend.streakLength > 0) {
-                    database.execSQL("INSERT OR REPLACE INTO streaks (userId, expirationTimestamp, count) VALUES (?, ?, ?)", arrayOf(
+                    database.execSQL("INSERT OR REPLACE INTO streaks (userId, expirationTimestamp, length) VALUES (?, ?, ?)", arrayOf(
                         friend.userId,
                         friend.streakExpirationTimestamp,
                         friend.streakLength
@@ -227,8 +233,17 @@ class ModDatabase(
                 userId = cursor.getStringOrNull("userId")!!,
                 notify = cursor.getInteger("notify") == 1,
                 expirationTimestamp = cursor.getLongOrNull("expirationTimestamp") ?: 0L,
-                count = cursor.getInteger("count")
+                length = cursor.getInteger("length")
             )
+        }
+    }
+
+    fun setFriendStreaksNotify(userId: String, notify: Boolean) {
+        executeAsync {
+            database.execSQL("UPDATE streaks SET notify = ? WHERE userId = ?", arrayOf(
+                if (notify) 1 else 0,
+                userId
+            ))
         }
     }
 }

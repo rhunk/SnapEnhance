@@ -30,6 +30,7 @@ import androidx.compose.material.icons.filled.FolderOpen
 import androidx.compose.material.icons.filled.OpenInNew
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material.icons.rounded.Save
+import androidx.compose.material3.BottomSheetScaffoldState
 import androidx.compose.material3.Card
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FilledIconButton
@@ -77,6 +78,7 @@ import me.rhunk.snapenhance.core.config.PropertyValue
 import me.rhunk.snapenhance.ui.manager.Section
 import me.rhunk.snapenhance.ui.util.ChooseFolderHelper
 
+@OptIn(ExperimentalMaterial3Api::class)
 class FeaturesSection : Section() {
     private val dialogs by lazy { Dialogs(context.translation) }
 
@@ -90,6 +92,8 @@ class FeaturesSection : Section() {
     private lateinit var openFolderLauncher: () -> Unit
 
     private val featuresRouteName by lazy { context.translation["manager.routes.features"] }
+
+    private lateinit var rememberScaffoldState: BottomSheetScaffoldState
 
     private val allContainers by lazy {
         val containers = mutableMapOf<String, PropertyPair<*>>()
@@ -458,35 +462,14 @@ class FeaturesSection : Section() {
         }
     }
 
-    @OptIn(ExperimentalMaterial3Api::class)
     @Composable
     private fun PropertiesView(
         properties: List<PropertyPair<*>>
     ) {
-        val scope = rememberCoroutineScope()
-        val scaffoldState = rememberBottomSheetScaffoldState()
+        rememberScaffoldState = rememberBottomSheetScaffoldState()
         Scaffold(
-            snackbarHost = { SnackbarHost(scaffoldState.snackbarHostState) },
+            snackbarHost = { SnackbarHost(rememberScaffoldState.snackbarHostState) },
             modifier = Modifier.fillMaxSize(),
-            floatingActionButton = {
-                FloatingActionButton(
-                    onClick = {
-                        context.config.writeConfig()
-                        scope.launch {
-                            scaffoldState.snackbarHostState.showSnackbar("Saved")
-                        }
-                    },
-                    modifier = Modifier.padding(10.dp),
-                    containerColor = MaterialTheme.colorScheme.primary,
-                    contentColor = MaterialTheme.colorScheme.onPrimary,
-                    shape = RoundedCornerShape(16.dp),
-                ) {
-                    Icon(
-                        imageVector = Icons.Rounded.Save,
-                        contentDescription = null
-                    )
-                }
-            },
             content = { innerPadding ->
                 LazyColumn(
                     modifier = Modifier
@@ -494,7 +477,7 @@ class FeaturesSection : Section() {
                         .padding(innerPadding),
                     //save button space
                     contentPadding = PaddingValues(top = 10.dp, bottom = 110.dp),
-                    verticalArrangement = Arrangement.Center
+                    verticalArrangement = Arrangement.Top
                 ) {
                     items(properties) {
                         PropertyCard(it)
@@ -502,6 +485,28 @@ class FeaturesSection : Section() {
                 }
             }
         )
+    }
+
+    @Composable
+    override fun FloatingActionButton() {
+        val scope = rememberCoroutineScope()
+        FloatingActionButton(
+            onClick = {
+                context.config.writeConfig()
+                scope.launch {
+                    rememberScaffoldState.snackbarHostState.showSnackbar("Saved")
+                }
+            },
+            modifier = Modifier.padding(10.dp),
+            containerColor = MaterialTheme.colorScheme.primary,
+            contentColor = MaterialTheme.colorScheme.onPrimary,
+            shape = RoundedCornerShape(16.dp),
+        ) {
+            Icon(
+                imageVector = Icons.Rounded.Save,
+                contentDescription = null
+            )
+        }
     }
 
 

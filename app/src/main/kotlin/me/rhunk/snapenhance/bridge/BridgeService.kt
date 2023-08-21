@@ -33,13 +33,23 @@ class BridgeService : Service() {
     }
 
     fun triggerFriendSync(friendId: String) {
-        SerializableDataObject.fromJson<FriendInfo>(syncCallback.syncFriend(friendId)).let {
+        val syncedFriend = syncCallback.syncFriend(friendId)
+        if (syncedFriend == null) {
+            Logger.error("Failed to sync friend $friendId")
+            return
+        }
+        SerializableDataObject.fromJson<FriendInfo>(syncedFriend).let {
             remoteSideContext.modDatabase.syncFriend(it)
         }
     }
 
     fun triggerGroupSync(groupId: String) {
-        SerializableDataObject.fromJson<MessagingGroupInfo>(syncCallback.syncGroup(groupId)).let {
+        val syncedGroup = syncCallback.syncGroup(groupId)
+        if (syncedGroup == null) {
+            Logger.error("Failed to sync group $groupId")
+            return
+        }
+        SerializableDataObject.fromJson<MessagingGroupInfo>(syncedGroup).let {
             remoteSideContext.modDatabase.syncGroupInfo(it)
         }
     }

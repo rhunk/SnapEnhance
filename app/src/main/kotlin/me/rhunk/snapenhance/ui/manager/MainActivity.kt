@@ -44,7 +44,8 @@ class MainActivity : ComponentActivity() {
                 Scaffold(
                     containerColor = MaterialTheme.colorScheme.background,
                     topBar = { navigation.TopBar() },
-                    bottomBar = { navigation.NavBar() }
+                    bottomBar = { navigation.NavBar() },
+                    floatingActionButton = { navigation.Fab() }
                 ) { innerPadding ->
                     navigation.NavigationHost(
                         innerPadding = innerPadding,

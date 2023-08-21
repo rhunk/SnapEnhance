@@ -29,7 +29,7 @@ data class FriendStreaks(
     val userId: String,
     val notify: Boolean,
     val expirationTimestamp: Long,
-    val count: Int
+    val length: Int
 ) : SerializableDataObject()
 
 

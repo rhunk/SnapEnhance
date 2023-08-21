@@ -89,6 +89,7 @@ class SnapEnhance {
 
             Logger.debug("Reloading config")
             appContext.reloadConfig()
+            syncRemote()
         }
     }
 
@@ -131,6 +132,7 @@ class SnapEnhance {
         val database = appContext.database
 
         appContext.executeAsync {
+            Logger.debug("request remote sync")
             appContext.bridgeClient.sync(object : SyncCallback.Stub() {
                 override fun syncFriend(uuid: String): String? {
                     return database.getFriendInfo(uuid)?.toJson()

@@ -26,7 +26,6 @@ import androidx.compose.material3.TabRowDefaults
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
@@ -147,7 +146,7 @@ class SocialSection : Section() {
                             ) {
                                 val bitmojiUrl = (friend.selfieId to friend.bitmojiId).let { (selfieId, bitmojiId) ->
                                     if (selfieId == null || bitmojiId == null) return@let null
-                                    BitmojiSelfie.getBitmojiSelfie(selfieId, bitmojiId, BitmojiSelfie.BitmojiSelfieType.STANDARD)
+                                    BitmojiSelfie.getBitmojiSelfie(selfieId, bitmojiId, BitmojiSelfie.BitmojiSelfieType.THREE_D)
                                 }
                                 BitmojiImage(context = context, url = bitmojiUrl)
                                 Column(
