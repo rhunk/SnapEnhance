@@ -1,21 +1,37 @@
 package me.rhunk.snapenhance.ui.manager
 
+import android.content.Intent
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.remember
+import androidx.navigation.NavGraph.Companion.findStartDestination
+import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
 import me.rhunk.snapenhance.SharedContextHolder
 import me.rhunk.snapenhance.ui.AppMaterialTheme
 
 class MainActivity : ComponentActivity() {
-    lateinit var sections: Map<EnumSection, Section>
+    private lateinit var sections: Map<EnumSection, Section>
+    private lateinit var navController: NavHostController
 
     override fun onPostResume() {
         super.onPostResume()
         sections.values.forEach { it.onResumed() }
+    }
+
+    override fun onNewIntent(intent: Intent?) {
+        super.onNewIntent(intent)
+        intent?.getStringExtra("route")?.let { route ->
+            navController.popBackStack()
+            navController.navigate(route) {
+                popUpTo(navController.graph.findStartDestination().id){
+                    inclusive = true
+                }
+            }
+        }
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -38,7 +54,7 @@ class MainActivity : ComponentActivity() {
         }
 
         setContent {
-            val navController = rememberNavController()
+            navController = rememberNavController()
             val navigation = remember { Navigation(managerContext, sections, navController) }
             AppMaterialTheme {
                 Scaffold(
