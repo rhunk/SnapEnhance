@@ -190,9 +190,7 @@ class MessageExporter(
         printLog("writing template...")
 
         runCatching {
-            ZipFile(
-                context.androidContext.packageManager.getApplicationInfoCompat(BuildConfig.APPLICATION_ID, PackageManager.GET_META_DATA).publicSourceDir
-            ).use { apkFile ->
+            ZipFile(context.bridgeClient.getApplicationApkPath()).use { apkFile ->
                 //export rawinflate.js
                 apkFile.getEntry("assets/web/rawinflate.js").let { entry ->
                     output.write("<script>".toByteArray())

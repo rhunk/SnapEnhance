@@ -114,7 +114,7 @@ class ExportChatMessages : AbstractAction("action.export_chat_messages") {
             ViewAppearanceHelper.newAlertDialogBuilder(context.mainActivity)
                 .setTitle(context.translation["chat_export.select_conversation"])
                 .setMultiChoiceItems(
-                    friendFeedEntries.map { it.feedDisplayName ?: it.friendDisplayName!!.split("|").firstOrNull() }.toTypedArray(),
+                    friendFeedEntries.map { it.feedDisplayName ?: it.friendDisplayUsername!!.split("|").firstOrNull() }.toTypedArray(),
                     BooleanArray(friendFeedEntries.size) { false }
                 ) { _, which, isChecked ->
                     if (isChecked) {

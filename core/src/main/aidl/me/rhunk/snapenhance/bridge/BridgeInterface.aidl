@@ -46,6 +46,8 @@ interface BridgeInterface {
      */
     void clearMessageLogger();
 
+    String getApplicationApkPath();
+
     /**
      * Fetch the locales
      *

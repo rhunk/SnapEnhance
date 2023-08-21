@@ -116,6 +116,8 @@ class BridgeClient(
         LocalePair(it.key, it.value)
     }
 
+    fun getApplicationApkPath() = service.getApplicationApkPath()
+
     fun getAutoUpdaterTime(): Long {
         createAndReadFile(BridgeFileType.AUTO_UPDATER_TIMESTAMP, "0".toByteArray()).run {
             return if (isEmpty()) {

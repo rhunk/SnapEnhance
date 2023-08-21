@@ -109,6 +109,8 @@ class BridgeService : Service() {
 
         override fun clearMessageLogger() = messageLoggerWrapper.clearMessages()
 
+        override fun getApplicationApkPath(): String = applicationInfo.publicSourceDir
+
         override fun fetchLocales(userLocale: String) =
             LocaleWrapper.fetchLocales(context = this@BridgeService, userLocale).associate {
                 it.locale to it.content
