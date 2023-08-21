@@ -24,11 +24,11 @@
         },
         "prevent_read_receipts": {
             "name": "Prevent Read Receipts",
-            "description": "Prevent anyone from knowing you've opened their Snaps"
+            "description": "Prevents anyone from knowing that you've read their messages"
         },
         "hide_bitmoji_presence": {
             "name": "Hide Bitmoji Presence",
-            "description": "Hides your Bitmoji presence from the chat"
+            "description": "Hides your Bitmoji presence from chat"
         },
         "better_notifications": {
             "name": "Better Notifications",
@@ -56,20 +56,19 @@
         },
         "anonymous_story_view": {
             "name": "Anonymous Story View",
-            "description": "Prevents anyone from knowing you've seen their story"
+            "description": "Prevents anyone from knowing that you've seen their story"
         },
         "hide_typing_notification": {
             "name": "Hide Typing Notification",
             "description": "Prevents typing notifications being sent"
         },
-
         "save_folder": {
             "name": "Save Folder",
-            "description": "The directory where all media is saved"
+            "description": "The directory to which all media will be downloaded to"
         },
         "auto_download_options": {
             "name": "Auto Download Options",
-            "description": "Select which medias to auto download"
+            "description": "Select which type of media should be automatically downloaded"
         },
         "download_options": {
             "name": "Download Options",
@@ -77,11 +76,11 @@
         },
         "chat_download_context_menu": {
             "name": "Chat Download Context Menu",
-            "description": "Enable the chat download context menu"
+            "description": "Enable the Chat Download Context Menu"
         },
         "gallery_media_send_override": {
             "name": "Gallery Media Send Override",
-            "description": "Overrides media sent from the gallery"
+            "description": "Spoofs where the media you've sent came from"
         },
         "auto_save_messages": {
             "name": "Auto Save Messages",
@@ -93,16 +92,15 @@
         },
         "download_logging": {
             "name": "Download Logging",
-            "description": "Show a toast when media is downloading"
+            "description": "Show a toast notification when media is downloading"
         },
-
         "enable_friend_feed_menu_bar": {
             "name": "Friend Feed Menu Bar",
             "description": "Enables the new Friend Feed Menu Bar"
         },
         "friend_feed_menu_buttons": {
             "name": "Friend Feed Menu Buttons",
-            "description": "Select which buttons to show in the Friend Feed Menu Bar"
+            "description": "Specify which buttons to show in the Friend Feed Menu Bar"
         },
         "friend_feed_menu_buttons_position": {
             "name": "Friend Feed Buttons Position Index",
@@ -114,7 +112,7 @@
         },
         "hide_story_section": {
             "name": "Hide Story Section",
-            "description": "Hide certain UI Elements shown in the story section"
+            "description": "Hides certain UI Elements shown in the story section"
         },
         "story_viewer_override": {
             "name": "Story Viewer Override",
@@ -166,14 +164,12 @@
         },
         "disable_google_play_dialogs": {
             "name": "Disable Google Play Services Dialogs",
-            "description": "Prevent Google Play Services availability dialogs from being shown"
+            "description": "Prevents the Google Play Services availability dialogs from being shown"
         },
-
         "auto_updater": {
             "name": "Auto Updater",
             "description": "The interval of checking for updates"
         },
-
         "disable_camera": {
             "name": "Disable Camera",
             "description": "Prevents Snapchat from being able to use the camera"
@@ -192,13 +188,12 @@
         },
         "force_highest_frame_rate": {
             "name": "Force Highest Frame Rate",
-            "description": "Forces the highest possible frame rate"
+            "description": "Forces the highest possible camera frame rate"
         },
         "force_camera_source_encoding": {
             "name": "Force Camera Source Encoding",
             "description": "Forces the camera source encoding"
         },
-
         "app_passcode": {
             "name": "Set App Passcode",
             "description": "Sets a passcode to lock the app"
@@ -221,11 +216,11 @@
         },
         "unlimited_multi_snap": {
             "name": "Unlimited Multi Snap",
-            "description": "Allows you to take an unlimited amount of multi snaps"
+            "description": "Allows you to take an unlimited amount of multi snaps\nSnaps May fail to send if a certain amount is reached"
         },
         "no_friend_score_delay": {
             "name": "No Friend Score Delay",
-            "description": "Removes the delay in displaying friends scores. It will be updated immediately when you open a profile page"
+            "description": "Removes the delay in refreshing friends Snapscores\nThe value will be updated immediately when you open a profile page"
         }
     },
 
