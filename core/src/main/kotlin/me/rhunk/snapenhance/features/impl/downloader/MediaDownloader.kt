@@ -235,6 +235,8 @@ class MediaDownloader : MessagingRuleFeature("MediaDownloader", MessagingRuleTyp
                 return
             }
 
+            if (!forceDownload && context.config.downloader.preventSelfAutoDownload.get() && senderId == context.database.myUserId) return
+
             val author = context.database.getFriendInfo(senderId) ?: return
             val authorUsername = author.usernameForSorting!!
 
@@ -270,6 +272,7 @@ class MediaDownloader : MessagingRuleFeature("MediaDownloader", MessagingRuleTyp
 
                 conversationParticipants.firstOrNull { it != conversationMessage.senderId }
             }
+            if (!forceDownload && context.config.downloader.preventSelfAutoDownload.get() && storyUserId == context.database.myUserId) return
 
             val author = context.database.getFriendInfo(
                 if (storyUserId == null || storyUserId == "null")
@@ -277,6 +280,8 @@ class MediaDownloader : MessagingRuleFeature("MediaDownloader", MessagingRuleTyp
                 else storyUserId
             ) ?: throw Exception("Friend not found in database")
             val authorName = author.usernameForSorting!!
+
+            if (!forceDownload && canUseRule(author.userId!!)) return
 
             downloadOperaMedia(provideDownloadManagerClient(
                 pathSuffix = authorName,
@@ -362,7 +367,7 @@ class MediaDownloader : MessagingRuleFeature("MediaDownloader", MessagingRuleTyp
     }
 
     private fun canAutoDownload(keyFilter: String? = null): Boolean {
-        val options by context.config.downloader.autoDownloadOptions
+        val options by context.config.downloader.autoDownloadSources
         return options.any { keyFilter == null || it.contains(keyFilter, true) }
     }
 

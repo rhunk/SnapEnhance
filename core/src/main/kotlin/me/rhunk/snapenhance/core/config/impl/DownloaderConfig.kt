@@ -6,12 +6,13 @@ import me.rhunk.snapenhance.core.config.FeatureNotice
 
 class DownloaderConfig : ConfigContainer() {
     val saveFolder = string("save_folder") { addFlags(ConfigFlag.FOLDER) }
-    val autoDownloadOptions = multiple("auto_download_options",
+    val autoDownloadSources = multiple("auto_download_sources",
         "friend_snaps",
         "friend_stories",
         "public_stories",
         "spotlight"
     )
+    val preventSelfAutoDownload = boolean("prevent_self_auto_download")
     val pathFormat = multiple("path_format",
         "create_user_folder",
         "append_hash",

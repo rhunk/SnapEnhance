@@ -103,9 +103,13 @@
                         "name": "Save Folder",
                         "description": "The directory where all media is saved"
                     },
-                    "auto_download_options": {
-                        "name": "Auto Download Options",
-                        "description": "Select which medias to auto download"
+                    "auto_download_sources": {
+                        "name": "Auto Download Sources",
+                        "description": "Select the sources to automatically download from"
+                    },
+                    "prevent_self_auto_download": {
+                        "name": "Prevent Self Auto Download",
+                        "description": "Prevents your own Snaps from being downloaded automatically"
                     },
                     "path_format": {
                         "name": "Path Format",
@@ -356,7 +360,7 @@
                 "append_date_time": "Add the date and time to the file name",
                 "append_type": "Add the media type to the file name"
             },
-            "auto_download_options": {
+            "auto_download_sources": {
                 "friend_snaps": "Friend Snaps",
                 "friend_stories": "Friend Stories",
                 "public_stories": "Public Stories",
