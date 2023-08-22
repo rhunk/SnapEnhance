@@ -231,7 +231,7 @@ class MediaDownloader : MessagingRuleFeature("MediaDownloader", MessagingRuleTyp
             val senderId = conversationMessage.senderId!!
             val conversationId = conversationMessage.clientConversationId!!
 
-            if (!forceDownload && canUseRule(senderId)) {
+            if (!forceDownload && !canUseRule(senderId)) {
                 return
             }
 
@@ -281,7 +281,7 @@ class MediaDownloader : MessagingRuleFeature("MediaDownloader", MessagingRuleTyp
             ) ?: throw Exception("Friend not found in database")
             val authorName = author.usernameForSorting!!
 
-            if (!forceDownload && canUseRule(author.userId!!)) return
+            if (!forceDownload && !canUseRule(author.userId!!)) return
 
             downloadOperaMedia(provideDownloadManagerClient(
                 pathSuffix = authorName,
