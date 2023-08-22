@@ -6,8 +6,7 @@ import me.rhunk.snapenhance.RemoteSideContext
 import me.rhunk.snapenhance.core.messaging.FriendStreaks
 import me.rhunk.snapenhance.core.messaging.MessagingFriendInfo
 import me.rhunk.snapenhance.core.messaging.MessagingGroupInfo
-import me.rhunk.snapenhance.core.messaging.MessagingRule
-import me.rhunk.snapenhance.core.messaging.SocialScope
+import me.rhunk.snapenhance.core.messaging.MessagingRuleType
 import me.rhunk.snapenhance.database.objects.FriendInfo
 import me.rhunk.snapenhance.util.SQLiteDatabaseHelper
 import me.rhunk.snapenhance.util.ktx.getInteger
@@ -53,10 +52,8 @@ class ModDatabase(
             ),
             "rules" to listOf(
                 "id INTEGER PRIMARY KEY AUTOINCREMENT",
-                "scope VARCHAR",
-                "targetUuid VARCHAR",
-                //"mode VARCHAR",
-                "subject VARCHAR"
+                "type VARCHAR",
+                "targetUuid VARCHAR"
             ),
             "streaks" to listOf(
                 "userId VARCHAR PRIMARY KEY",
@@ -157,34 +154,29 @@ class ModDatabase(
         }
     }
 
-    fun getRulesFromId(type: SocialScope, targetUuid: String): List<MessagingRule> {
-        return database.rawQuery("SELECT * FROM rules WHERE scope = ? AND targetUuid = ?", arrayOf(type.name, targetUuid)).use { cursor ->
-            val rules = mutableListOf<MessagingRule>()
+    fun getRules(targetUuid: String): List<MessagingRuleType> {
+        return database.rawQuery("SELECT type FROM rules WHERE targetUuid = ?", arrayOf(
+            targetUuid
+        )).use { cursor ->
+            val rules = mutableListOf<MessagingRuleType>()
             while (cursor.moveToNext()) {
-                rules.add(MessagingRule(
-                    id = cursor.getInteger("id"),
-                    socialScope = SocialScope.valueOf(cursor.getStringOrNull("scope")!!),
-                    targetUuid = cursor.getStringOrNull("targetUuid")!!,
-                    subject = cursor.getStringOrNull("subject")!!
-                ))
+                rules.add(MessagingRuleType.getByName(cursor.getStringOrNull("type")!!))
             }
             rules
         }
     }
 
-    fun toggleRuleFor(type: SocialScope, targetUuid: String, subject: String, enabled: Boolean) {
+    fun setRule(targetUuid: String, type: String, enabled: Boolean) {
         executeAsync {
             if (enabled) {
-                database.execSQL("INSERT OR REPLACE INTO rules (scope, targetUuid, subject) VALUES (?, ?, ?)", arrayOf(
-                    type.name,
+                database.execSQL("INSERT OR REPLACE INTO rules (targetUuid, type) VALUES (?, ?)", arrayOf(
                     targetUuid,
-                    subject
+                    type
                 ))
             } else {
-                database.execSQL("DELETE FROM rules WHERE scope = ? AND targetUuid = ? AND subject = ?", arrayOf(
-                    type.name,
+                database.execSQL("DELETE FROM rules WHERE targetUuid = ? AND type = ?", arrayOf(
                     targetUuid,
-                    subject
+                    type
                 ))
             }
         }

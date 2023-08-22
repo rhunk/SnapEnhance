@@ -7,7 +7,6 @@ import me.rhunk.snapenhance.features.FeatureLoadParams
 import me.rhunk.snapenhance.features.impl.AutoUpdater
 import me.rhunk.snapenhance.features.impl.ConfigurationOverride
 import me.rhunk.snapenhance.features.impl.Messaging
-import me.rhunk.snapenhance.features.impl.downloader.AntiAutoDownload
 import me.rhunk.snapenhance.features.impl.downloader.MediaDownloader
 import me.rhunk.snapenhance.features.impl.experiments.AmoledDarkMode
 import me.rhunk.snapenhance.features.impl.experiments.AppPasscode
@@ -76,7 +75,6 @@ class FeatureManager(private val context: ModContext) : Manager {
         register(AutoSave::class)
         register(UITweaks::class)
         register(ConfigurationOverride::class)
-        register(AntiAutoDownload::class)
         register(GalleryMediaSendOverride::class)
         register(AntiAutoSave::class)
         register(UnlimitedSnapViewTime::class)

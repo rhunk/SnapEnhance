@@ -71,9 +71,8 @@ open class ConfigContainer(
     fun fromJson(json: JsonObject) {
         properties.forEach { (key, _) ->
             val jsonElement = json.get(key.name) ?: return@forEach
-            key.dataType.deserializeAny(jsonElement)?.let {
-                properties[key]?.setAny(it)
-            }
+            //TODO: check incoming values
+            properties[key]?.setAny(key.dataType.deserializeAny(jsonElement))
         }
     }
 

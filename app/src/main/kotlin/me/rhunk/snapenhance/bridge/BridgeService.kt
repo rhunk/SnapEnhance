@@ -123,11 +123,12 @@ class BridgeService : Service() {
             ).onReceive(intent)
         }
 
-        override fun getRules(objectType: String, uuid: String): MutableList<String> {
-            remoteSideContext.modDatabase.getRulesFromId(SocialScope.valueOf(objectType), uuid)
-                .let { rules ->
-                    return rules.map { it.toJson() }.toMutableList()
-                }
+        override fun getRules(uuid: String): List<String> {
+            return remoteSideContext.modDatabase.getRules(uuid).map { it.key }
+        }
+
+        override fun setRule(uuid: String, rule: String, state: Boolean) {
+            remoteSideContext.modDatabase.setRule(uuid, rule, state)
         }
 
         override fun sync(callback: SyncCallback) {

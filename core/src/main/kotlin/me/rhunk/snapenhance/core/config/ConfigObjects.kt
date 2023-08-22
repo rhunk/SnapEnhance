@@ -1,5 +1,6 @@
 package me.rhunk.snapenhance.core.config
 
+import me.rhunk.snapenhance.bridge.wrapper.LocaleWrapper
 import kotlin.reflect.KProperty
 
 
@@ -10,17 +11,43 @@ data class PropertyPair<T>(
     val name get() = key.name
 }
 
+enum class FeatureNotice(
+    val id: Int,
+    val key: String
+) {
+    UNSTABLE(0b0001, "unstable"),
+    MAY_BAN(0b0010, "may_ban"),
+    MAY_BREAK_INTERNAL_BEHAVIOR(0b0100, "may_break_internal_behavior"),
+    MAY_CAUSE_CRASHES(0b1000, "may_cause_crashes");
+}
+
+enum class ConfigFlag(
+    val id: Int
+) {
+    NO_TRANSLATE(0b0001),
+    HIDDEN(0b0010),
+    FOLDER(0b0100),
+    NO_DISABLE_KEY(0b1000)
+}
+
 class ConfigParams(
+    private var _flags: Int? = null,
     private var _notices: Int? = null,
-    var shouldTranslate: Boolean = true,
-    var isHidden: Boolean = false,
-    var isFolder: Boolean = false,
+
+    var icon: String? = null,
     var disabledKey: String? = null,
-    var icon: String? = null
+    var customTranslationPath: String? = null,
+    var customOptionTranslationPath: String? = null
 ) {
     val notices get() = _notices?.let { FeatureNotice.values().filter { flag -> it and flag.id != 0 } } ?: emptyList()
-    fun addNotices(vararg flags: FeatureNotice) {
-        this._notices = (this._notices ?: 0) or flags.fold(0) { acc, featureNotice -> acc or featureNotice.id }
+    val flags get() = _flags?.let { ConfigFlag.values().filter { flag -> it and flag.id != 0 } } ?: emptyList()
+
+    fun addNotices(vararg values: FeatureNotice) {
+        this._notices = (this._notices ?: 0) or values.fold(0) { acc, featureNotice -> acc or featureNotice.id }
+    }
+
+    fun addFlags(vararg values: ConfigFlag) {
+        this._flags = (this._flags ?: 0) or values.fold(0) { acc, flag -> acc or flag.id }
     }
 }
 
@@ -55,12 +82,28 @@ data class PropertyKey<T>(
 ) {
     val parentKey by lazy { _parent() }
 
-    fun propertyTranslationPath(): String {
-        return if (parentKey != null) {
-            "${parentKey!!.propertyTranslationPath()}.properties.$name"
-        } else {
-            "features.properties.$name"
+    fun propertyOption(translation: LocaleWrapper, key: String): String {
+        if (key == "null") {
+            return translation[params.disabledKey ?: "manager.features.disabled"]
         }
+
+        return if (!params.flags.contains(ConfigFlag.NO_TRANSLATE))
+            translation[params.customOptionTranslationPath?.let {
+                "$it.$key"
+            } ?: "features.options.${name}.$key"]
+        else key
+    }
+
+    fun propertyName() = propertyTranslationPath() + ".name"
+    fun propertyDescription() = propertyTranslationPath() + ".description"
+
+    fun propertyTranslationPath(): String {
+        params.customTranslationPath?.let {
+            return it
+        }
+        return parentKey?.let {
+            "${it.propertyTranslationPath()}.properties.$name"
+        } ?: "features.properties.$name"
     }
 }
 

@@ -68,7 +68,7 @@ class Messaging : Feature("Messaging", loadParams = FeatureLoadParams.ACTIVITY_C
 
         arrayOf("activate", "deactivate", "processTypingActivity").forEach { hook ->
             Hooker.hook(context.classCache.presenceSession, hook, HookStage.BEFORE, {
-                hideBitmojiPresence || stealthMode.isStealth(openedConversationUUID.toString())
+                hideBitmojiPresence || stealthMode.canUseRule(openedConversationUUID.toString())
             }) {
                 it.setResult(null)
             }
@@ -86,7 +86,7 @@ class Messaging : Feature("Messaging", loadParams = FeatureLoadParams.ACTIVITY_C
         }
 
         Hooker.hook(context.classCache.conversationManager, "sendTypingNotification", HookStage.BEFORE, {
-            hideTypingNotification || stealthMode.isStealth(openedConversationUUID.toString())
+            hideTypingNotification || stealthMode.canUseRule(openedConversationUUID.toString())
         }) {
             it.setResult(null)
         }

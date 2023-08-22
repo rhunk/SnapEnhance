@@ -12,7 +12,7 @@ class PreventReadReceipts : Feature("PreventReadReceipts", loadParams = FeatureL
         val preventReadReceipts by context.config.messaging.preventReadReceipts
         val isConversationInStealthMode: (SnapUUID) -> Boolean = hook@{
             if (preventReadReceipts) return@hook true
-            context.feature(StealthMode::class).isStealth(it.toString())
+            context.feature(StealthMode::class).canUseRule(it.toString())
         }
 
         arrayOf("mediaMessagesDisplayed", "displayedMessages").forEach { methodName: String ->

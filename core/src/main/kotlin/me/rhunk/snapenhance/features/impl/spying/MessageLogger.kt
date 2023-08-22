@@ -37,8 +37,6 @@ class MessageLogger : Feature("MessageLogger",
     private val fetchedMessages = mutableListOf<Long>()
     private val deletedMessageCache = mutableMapOf<Long, JsonObject>()
 
-    private val myUserId by lazy { context.database.getMyUserId() }
-
     fun isMessageRemoved(conversationId: String, orderKey: Long) = deletedMessageCache.containsKey(computeMessageIdentifier(conversationId, orderKey))
 
     fun deleteMessage(conversationId: String, clientMessageId: Long) {
@@ -83,7 +81,7 @@ class MessageLogger : Feature("MessageLogger",
         if (message.messageState != MessageState.COMMITTED) return
 
         //exclude messages sent by me
-        if (message.senderId.toString() == myUserId) return
+        if (message.senderId.toString() == context.database.myUserId) return
 
         val conversationId = message.messageDescriptor.conversationId.toString()
         val serverIdentifier = computeMessageIdentifier(conversationId, message.orderKey)

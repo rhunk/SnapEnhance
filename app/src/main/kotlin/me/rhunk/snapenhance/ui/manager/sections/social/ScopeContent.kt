@@ -71,23 +71,33 @@ class ScopeContent(
 
             Spacer(modifier = Modifier.height(16.dp))
 
-            val scopeRules = context.modDatabase.getRulesFromId(scope, id)
+            val rules = context.modDatabase.getRules(id)
 
             SectionTitle("Rules")
 
             ContentCard {
                 //manager anti features etc
-                MessagingRuleType.values().forEach { feature ->
-                    var featureEnabled by remember {
-                        mutableStateOf(scopeRules.any { it.subject == feature.key })
+                MessagingRuleType.values().forEach { ruleType ->
+                    var ruleEnabled by remember {
+                        mutableStateOf(rules.any { it.key == ruleType.key })
                     }
-                    val featureEnabledText = if (featureEnabled) "Enabled" else "Disabled"
 
-                    Row {
-                        Text(text = "${feature.key}: $featureEnabledText", maxLines = 1)
-                        Switch(checked = featureEnabled, onCheckedChange = {
-                            context.modDatabase.toggleRuleFor(scope, id, feature.key, it)
-                            featureEnabled = it
+                    val ruleState = context.config.root.rules.getRuleState(ruleType)
+
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically,
+                        modifier = Modifier.padding(all = 4.dp)
+                    ) {
+                        Text(
+                            text = if (ruleType.listMode && ruleState != null) {
+                                context.translation["rules.properties.${ruleType.key}.options.${ruleState.key}"]
+                            } else context.translation["rules.properties.${ruleType.key}.name"],
+                            maxLines = 1,
+                            modifier = Modifier.weight(1f)
+                        )
+                        Switch(checked = ruleEnabled, enabled = if (ruleType.listMode) ruleState != null else true, onCheckedChange = {
+                            context.modDatabase.setRule(id, ruleType.key, it)
+                            ruleEnabled = it
                         })
                     }
                 }
@@ -195,9 +205,9 @@ class ScopeContent(
                 fontSize = 12.sp,
                 fontWeight = FontWeight.Light
             )
-            Spacer(modifier = Modifier.height(16.dp))
+           // Spacer(modifier = Modifier.height(16.dp))
 
-            DeleteScopeEntityButton()
+            //DeleteScopeEntityButton()
         }
 
         Spacer(modifier = Modifier.height(16.dp))

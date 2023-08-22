@@ -57,10 +57,7 @@ class Dialogs(
     @Composable
     fun TranslatedText(property: PropertyPair<*>, key: String, modifier: Modifier = Modifier) {
         Text(
-            text = when (key) {
-                "null" -> translation["manager.features.disabled"]
-                else -> if (property.key.params.shouldTranslate) translation["features.options.${property.key.name}.$key"] else key
-            },
+            text = property.key.propertyOption(translation, key),
             modifier = Modifier
                 .padding(10.dp, 10.dp, 10.dp, 10.dp)
                 .then(modifier)

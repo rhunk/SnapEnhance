@@ -6,7 +6,7 @@ import me.rhunk.snapenhance.data.NotificationType
 
 class Global : ConfigContainer() {
     val snapchatPlus = boolean("snapchat_plus") { addNotices(FeatureNotice.MAY_BAN) }
-    val autoUpdater = unique("auto_updater", "EVERY_LAUNCH", "DAILY", "WEEKLY")
+    val autoUpdater = unique("auto_updater", "EVERY_LAUNCH", "DAILY", "WEEKLY").apply { set("DAILY") }
     val disableMetrics = boolean("disable_metrics")
     val blockAds = boolean("block_ads")
     val disableVideoLengthRestrictions = boolean("disable_video_length_restrictions") { addNotices(FeatureNotice.MAY_BAN) }

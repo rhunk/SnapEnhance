@@ -28,6 +28,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.FolderOpen
 import androidx.compose.material.icons.filled.OpenInNew
+import androidx.compose.material.icons.filled.Rule
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material.icons.rounded.Save
 import androidx.compose.material3.BottomSheetScaffoldState
@@ -71,6 +72,7 @@ import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import me.rhunk.snapenhance.core.config.ConfigContainer
+import me.rhunk.snapenhance.core.config.ConfigFlag
 import me.rhunk.snapenhance.core.config.DataProcessors
 import me.rhunk.snapenhance.core.config.PropertyKey
 import me.rhunk.snapenhance.core.config.PropertyPair
@@ -172,8 +174,8 @@ class FeaturesSection : Section() {
                 backStackEntry.arguments?.getString("keyword")?.let { keyword ->
                     val properties = allProperties.filter {
                         it.key.name.contains(keyword, ignoreCase = true) ||
-                                context.translation["${it.key.propertyTranslationPath()}.name"].contains(keyword, ignoreCase = true) ||
-                                context.translation["${it.key.propertyTranslationPath()}.description"].contains(keyword, ignoreCase = true)
+                                context.translation[it.key.propertyName()].contains(keyword, ignoreCase = true) ||
+                                context.translation[it.key.propertyDescription()].contains(keyword, ignoreCase = true)
                     }.map { PropertyPair(it.key, it.value) }
 
                     PropertiesView(properties)
@@ -199,7 +201,7 @@ class FeaturesSection : Section() {
 
         val propertyValue = property.value
 
-        if (property.key.params.isFolder) {
+        if (property.key.params.flags.contains(ConfigFlag.FOLDER)) {
             IconButton(onClick = registerClickCallback {
                 openFolderCallback = { uri ->
                     propertyValue.setAny(uri)
@@ -234,11 +236,9 @@ class FeaturesSection : Section() {
                     overflow = TextOverflow.Ellipsis,
                     maxLines = 1,
                     modifier = Modifier.widthIn(0.dp, 120.dp),
-                    text = (propertyValue.getNullable() as? String)?.let{
-                        if (property.key.params.shouldTranslate) {
-                            context.translation["features.options.${property.name}.$it"]
-                        } else it
-                    } ?: context.translation["manager.features.disabled"],
+                    text = (propertyValue.getNullable() as? String ?: "null").let {
+                        property.key.propertyOption(context.translation, it)
+                    }
                 )
             }
 
@@ -353,12 +353,12 @@ class FeaturesSection : Section() {
                         .padding(all = 10.dp)
                 ) {
                     Text(
-                        text = context.translation["${property.key.propertyTranslationPath()}.name"],
+                        text = context.translation[property.key.propertyName()],
                         fontSize = 16.sp,
                         fontWeight = FontWeight.Bold
                     )
                     Text(
-                        text = context.translation["${property.key.propertyTranslationPath()}.description"],
+                        text = context.translation[property.key.propertyDescription()],
                         fontSize = 12.sp,
                         lineHeight = 15.sp
                     )

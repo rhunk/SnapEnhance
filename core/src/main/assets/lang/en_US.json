@@ -28,6 +28,42 @@
         }
     },
 
+    "rules": {
+        "modes": {
+            "blacklist": "Blacklist mode",
+            "whitelist": "Whitelist mode"
+        },
+        "properties": {
+            "auto_download": {
+                "name": "Auto download",
+                "description": "Auto download snaps when viewed",
+                "options": {
+                    "blacklist": "Exclude from Auto Download",
+                    "whitelist": "Auto Download"
+                }
+            },
+            "stealth": {
+                "name": "Stealth Mode",
+                "description": "Prevents anyone from knowing you've opened their Snaps/Chats and conversations",
+                "options": {
+                    "blacklist": "Exclude from stealth mode",
+                    "whitelist": "Stealth mode"
+                }
+            },
+            "auto_save": {
+                "name": "Auto Save",
+                "description": "Saves chat messages when viewed",
+                "options": {
+                    "blacklist": "Exclude from auto save",
+                    "whitelist": "Auto save"
+                }
+            },
+            "hide_chat_feed": {
+                "name": "Hide from chat feed"
+            }
+        }
+    },
+
     "action": {
         "clean_cache": "Clean Cache",
         "clear_message_logger": "Clear Message Logger",
@@ -238,6 +274,10 @@
                         "description": "Prevents Snaps from being split into multiple parts. It also convert sent images into videos"
                     }
                 }
+            },
+            "rules": {
+                "name": "Rules",
+                "description": "Manage automatic features\nThe social tab lets you assign a rule to an object"
             },
             "camera": {
                 "name": "Camera",

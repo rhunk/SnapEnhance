@@ -3,9 +3,15 @@ package me.rhunk.snapenhance.core.messaging
 import me.rhunk.snapenhance.util.SerializableDataObject
 
 
-enum class Mode {
-    BLACKLIST,
-    WHITELIST
+enum class RuleState(
+    val key: String
+) {
+    BLACKLIST("blacklist"),
+    WHITELIST("whitelist");
+
+    companion object {
+        fun getByName(name: String) = values().first { it.key == name }
+    }
 }
 
 enum class SocialScope(
@@ -18,11 +24,20 @@ enum class SocialScope(
 
 enum class MessagingRuleType(
     val key: String,
-    val socialScope: SocialScope,
+    val listMode: Boolean
 ) {
-    DOWNLOAD("download", SocialScope.FRIEND),
-    STEALTH("stealth", SocialScope.GROUP),
-    AUTO_SAVE("auto_save", SocialScope.GROUP);
+    AUTO_DOWNLOAD("auto_download", true),
+    STEALTH("stealth", true),
+    AUTO_SAVE("auto_save", true),
+    HIDE_CHAT_FEED("hide_chat_feed", false);
+
+    fun translateOptionKey(optionKey: String): String {
+        return "rules.properties.${key}.options.${optionKey}"
+    }
+
+    companion object {
+        fun getByName(name: String) = values().first { it.key == name }
+    }
 }
 
 data class FriendStreaks(
@@ -50,8 +65,8 @@ data class MessagingFriendInfo(
 
 data class MessagingRule(
     val id: Int,
+    val type: MessagingRuleType,
     val socialScope: SocialScope,
     val targetUuid: String,
     //val mode: Mode?,
-    val subject: String
 ) : SerializableDataObject()

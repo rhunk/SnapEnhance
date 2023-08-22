@@ -63,8 +63,12 @@ interface BridgeInterface {
     /**
     * Get rules for a given user or conversation
     */
+    List<String> getRules(String uuid);
 
-    List<String> getRules(String objectType, String uuid);
+    /**
+    * Update rule for a giver user or conversation
+    */
+    void setRule(String uuid, String type, boolean state);
 
     /**
     * Sync groups and friends

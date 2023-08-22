@@ -1,10 +1,11 @@
 package me.rhunk.snapenhance.core.config.impl
 
 import me.rhunk.snapenhance.core.config.ConfigContainer
+import me.rhunk.snapenhance.core.config.ConfigFlag
 import me.rhunk.snapenhance.core.config.FeatureNotice
 
 class DownloaderConfig : ConfigContainer() {
-    val saveFolder = string("save_folder") { isFolder = true }
+    val saveFolder = string("save_folder") { addFlags(ConfigFlag.FOLDER) }
     val autoDownloadOptions = multiple("auto_download_options",
         "friend_snaps",
         "friend_stories",

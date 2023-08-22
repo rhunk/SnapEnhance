@@ -86,6 +86,23 @@ class DatabaseAccess(private val context: ModContext) : Manager {
         }
     }
 
+    val myUserId by lazy {
+        safeDatabaseOperation(openArroyo()) { arroyoDatabase: SQLiteDatabase ->
+            val cursor = arroyoDatabase.rawQuery(buildString {
+                append("SELECT * FROM required_values WHERE key = 'USERID'")
+            }, null)
+
+            if (!cursor.moveToFirst()) {
+                cursor.close()
+                return@safeDatabaseOperation null
+            }
+
+            val userId = cursor.getString(cursor.getColumnIndex("value"))
+            cursor.close()
+            userId
+        }!!
+    }
+
     fun getFeedEntryByConversationId(conversationId: String): FriendFeedEntry? {
         return safeDatabaseOperation(openMain()) {
             readDatabaseObject(
@@ -157,7 +174,7 @@ class DatabaseAccess(private val context: ModContext) : Manager {
         }
     }
 
-    fun getDMConversationIdFromUserId(userId: String): UserConversationLink? {
+    fun getConversationLinkFromUserId(userId: String): UserConversationLink? {
         return safeDatabaseOperation(openArroyo()) {
             readDatabaseObject(
                 UserConversationLink(),
@@ -168,6 +185,22 @@ class DatabaseAccess(private val context: ModContext) : Manager {
             )
         }
     }
+
+    fun getDMOtherParticipant(conversationId: String): String? {
+        return safeDatabaseOperation(openArroyo()) { cursor ->
+            val query = cursor.rawQuery(
+                "SELECT * FROM user_conversation WHERE client_conversation_id = ? AND conversation_type = 0",
+                arrayOf(conversationId)
+            )
+            val participants = mutableListOf<String>()
+            while (query.moveToNext()) {
+                participants.add(query.getString(query.getColumnIndex("user_id")))
+            }
+            query.close()
+            participants.firstOrNull { it != myUserId }
+        }
+    }
+
 
     fun getStoryEntryFromId(storyId: String): StoryEntry? {
         return safeDatabaseOperation(openMain()) {
@@ -191,23 +224,6 @@ class DatabaseAccess(private val context: ModContext) : Manager {
             } while (cursor.moveToNext())
             cursor.close()
             participants
-        }
-    }
-
-    fun getMyUserId(): String? {
-        return safeDatabaseOperation(openArroyo()) { arroyoDatabase: SQLiteDatabase ->
-            val cursor = arroyoDatabase.rawQuery(buildString {
-                append("SELECT * FROM required_values WHERE key = 'USERID'")
-            }, null)
-
-            if (!cursor.moveToFirst()) {
-                cursor.close()
-                return@safeDatabaseOperation null
-            }
-
-            val userId = cursor.getString(cursor.getColumnIndex("value"))
-            cursor.close()
-            userId
         }
     }
 

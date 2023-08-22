@@ -154,7 +154,7 @@ class Notifications : Feature("Notifications", loadParams = FeatureLoadParams.IN
                     val input = RemoteInput.getResultsFromIntent(intent).getCharSequence("chat_reply_input")
                         .toString()
 
-                    context.database.getMyUserId()?.let { context.database.getFriendInfo(it) }?.let { myUser ->
+                    context.database.myUserId.let { context.database.getFriendInfo(it) }?.let { myUser ->
                         cachedMessages.computeIfAbsent(conversationId) { mutableListOf() }.add("${myUser.displayName}: $input")
 
                         updateNotification(notificationId) { notification ->

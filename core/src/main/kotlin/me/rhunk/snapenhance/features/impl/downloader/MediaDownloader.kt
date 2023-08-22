@@ -9,6 +9,7 @@ import kotlinx.coroutines.runBlocking
 import me.rhunk.snapenhance.Logger
 import me.rhunk.snapenhance.Logger.xposedLog
 import me.rhunk.snapenhance.bridge.DownloadCallback
+import me.rhunk.snapenhance.core.messaging.MessagingRuleType
 import me.rhunk.snapenhance.data.ContentType
 import me.rhunk.snapenhance.data.FileType
 import me.rhunk.snapenhance.data.wrapper.impl.media.MediaInfo
@@ -24,8 +25,8 @@ import me.rhunk.snapenhance.download.data.InputMedia
 import me.rhunk.snapenhance.download.data.MediaFilter
 import me.rhunk.snapenhance.download.data.SplitMediaAssetType
 import me.rhunk.snapenhance.download.data.toKeyPair
-import me.rhunk.snapenhance.features.Feature
 import me.rhunk.snapenhance.features.FeatureLoadParams
+import me.rhunk.snapenhance.features.MessagingRuleFeature
 import me.rhunk.snapenhance.features.impl.Messaging
 import me.rhunk.snapenhance.features.impl.spying.MessageLogger
 import me.rhunk.snapenhance.hook.HookAdapter
@@ -47,7 +48,7 @@ import kotlin.io.encoding.Base64
 import kotlin.io.encoding.ExperimentalEncodingApi
 
 @OptIn(ExperimentalEncodingApi::class)
-class MediaDownloader : Feature("MediaDownloader", loadParams = FeatureLoadParams.ACTIVITY_CREATE_ASYNC) {
+class MediaDownloader : MessagingRuleFeature("MediaDownloader", MessagingRuleType.AUTO_DOWNLOAD, loadParams = FeatureLoadParams.ACTIVITY_CREATE_ASYNC) {
     private var lastSeenMediaInfoMap: MutableMap<SplitMediaAssetType, MediaInfo>? = null
     private var lastSeenMapParams: ParamMap? = null
 
@@ -230,7 +231,7 @@ class MediaDownloader : Feature("MediaDownloader", loadParams = FeatureLoadParam
             val senderId = conversationMessage.senderId!!
             val conversationId = conversationMessage.clientConversationId!!
 
-            if (!forceDownload && context.feature(AntiAutoDownload::class).isUserIgnored(senderId)) {
+            if (!forceDownload && canUseRule(senderId)) {
                 return
             }
 
@@ -272,7 +273,7 @@ class MediaDownloader : Feature("MediaDownloader", loadParams = FeatureLoadParam
 
             val author = context.database.getFriendInfo(
                 if (storyUserId == null || storyUserId == "null")
-                    context.database.getMyUserId()!!
+                    context.database.myUserId
                 else storyUserId
             ) ?: throw Exception("Friend not found in database")
             val authorName = author.usernameForSorting!!

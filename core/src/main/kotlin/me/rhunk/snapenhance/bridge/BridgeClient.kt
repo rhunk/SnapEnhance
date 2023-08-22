@@ -15,10 +15,8 @@ import me.rhunk.snapenhance.ModContext
 import me.rhunk.snapenhance.bridge.types.BridgeFileType
 import me.rhunk.snapenhance.bridge.types.FileActionType
 import me.rhunk.snapenhance.core.BuildConfig
-import me.rhunk.snapenhance.core.messaging.MessagingRule
-import me.rhunk.snapenhance.core.messaging.SocialScope
+import me.rhunk.snapenhance.core.messaging.MessagingRuleType
 import me.rhunk.snapenhance.data.LocalePair
-import me.rhunk.snapenhance.util.SerializableDataObject
 import java.util.concurrent.CompletableFuture
 import java.util.concurrent.Executors
 import kotlin.system.exitProcess
@@ -138,9 +136,10 @@ class BridgeClient(
 
     fun passGroupsAndFriends(groups: List<String>, friends: List<String>) = service.passGroupsAndFriends(groups, friends)
 
-    fun getRulesFromId(type: SocialScope, targetUuid: String): List<MessagingRule> {
-        return service.getRules(type.name, targetUuid).map {
-            SerializableDataObject.fromJson(it, MessagingRule::class.java)
-        }.toList()
+    fun getRules(targetUuid: String): List<MessagingRuleType> {
+        return service.getRules(targetUuid).map { MessagingRuleType.getByName(it) }
     }
+
+    fun setRule(targetUuid: String, type: MessagingRuleType, state: Boolean)
+        = service.setRule(targetUuid, type.key, state)
 }
