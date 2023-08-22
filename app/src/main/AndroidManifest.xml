@@ -26,7 +26,7 @@
             android:value="Enhanced Snapchat" />
         <meta-data
             android:name="xposedminversion"
-            android:value="53" />
+            android:value="93" />
         <meta-data
             android:name="xposedscope"
             android:resource="@array/sc_scope" />
@@ -49,6 +49,7 @@
         </activity>
         <activity
             android:name=".ui.setup.SetupActivity"
+            android:launchMode="singleTask"
             android:exported="true"
             android:theme="@style/AppTheme"
             android:excludeFromRecents="true" />

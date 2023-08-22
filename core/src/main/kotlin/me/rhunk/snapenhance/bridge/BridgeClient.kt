@@ -79,7 +79,7 @@ class BridgeClient(
 
     override fun onNullBinding(name: ComponentName) {
         xposedLog("failed to connect to bridge service")
-        future.complete(false)
+        exitProcess(1)
     }
 
     override fun onServiceDisconnected(name: ComponentName) {

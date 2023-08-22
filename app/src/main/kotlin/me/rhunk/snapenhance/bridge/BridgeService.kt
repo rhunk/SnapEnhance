@@ -23,9 +23,9 @@ class BridgeService : Service() {
     private lateinit var remoteSideContext: RemoteSideContext
     lateinit var syncCallback: SyncCallback
 
-    override fun onBind(intent: Intent): IBinder {
+    override fun onBind(intent: Intent): IBinder? {
         remoteSideContext = SharedContextHolder.remote(this).apply {
-            checkForRequirements()
+            if (checkForRequirements()) return null
         }
         remoteSideContext.bridgeService = this
         messageLoggerWrapper = MessageLoggerWrapper(getDatabasePath(BridgeFileType.MESSAGE_LOGGER_DATABASE.fileName)).also { it.init() }

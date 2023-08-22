@@ -21,7 +21,6 @@ import me.rhunk.snapenhance.ui.manager.data.SnapchatAppInfo
 import me.rhunk.snapenhance.ui.setup.Requirements
 import me.rhunk.snapenhance.ui.setup.SetupActivity
 import java.lang.ref.WeakReference
-import kotlin.system.exitProcess
 
 class RemoteSideContext(
     val androidContext: Context
@@ -51,6 +50,10 @@ class RemoteSideContext(
     }
 
     init {
+        reload()
+    }
+
+    fun reload() {
         runCatching {
             config.loadFromContext(androidContext)
             translation.userLocale = config.locale
@@ -62,7 +65,7 @@ class RemoteSideContext(
             downloadTaskManager.init(androidContext)
             modDatabase.init()
         }.onFailure {
-            Logger.error("Failed to initialize RemoteSideContext", it)
+            Logger.error("Failed to load RemoteSideContext", it)
         }
     }
 
@@ -81,7 +84,7 @@ class RemoteSideContext(
         } else null
     )
 
-    fun checkForRequirements(overrideRequirements: Int? = null) {
+    fun checkForRequirements(overrideRequirements: Int? = null): Boolean {
         var requirements = overrideRequirements ?: 0
 
         if (!config.wasPresent) {
@@ -101,7 +104,7 @@ class RemoteSideContext(
             requirements = requirements or Requirements.MAPPINGS
         }
 
-        if (requirements == 0) return
+        if (requirements == 0) return false
 
         val currentContext = activity ?: androidContext
 
@@ -109,10 +112,9 @@ class RemoteSideContext(
             putExtra("requirements", requirements)
             if (currentContext !is Activity) {
                 addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
-                currentContext.startActivity(this)
-                exitProcess(0)
             }
             currentContext.startActivity(this)
+            return true
         }
     }
 }

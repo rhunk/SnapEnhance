@@ -48,6 +48,12 @@ class SetupActivity : ComponentActivity() {
         val setupContext = SharedContextHolder.remote(this).apply {
             activity = this@SetupActivity
         }
+
+        fun endActivity() {
+            setupContext.reload()
+            finish()
+        }
+
         val requirements = intent.getIntExtra("requirements", Requirements.FIRST_RUN)
 
         fun hasRequirement(requirement: Int) = requirements and requirement == requirement
@@ -69,7 +75,7 @@ class SetupActivity : ComponentActivity() {
 
         // If there are no required screens, we can just finish the activity
         if (requiredScreens.isEmpty()) {
-            finish()
+            endActivity()
             return
         }
 
@@ -90,7 +96,7 @@ class SetupActivity : ComponentActivity() {
                     requiredScreens.removeFirst()
                     navController.navigate(requiredScreens.first().route)
                 } else {
-                    finish()
+                    endActivity()
                 }
             }
 

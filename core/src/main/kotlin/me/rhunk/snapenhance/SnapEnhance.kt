@@ -77,9 +77,9 @@ class SnapEnhance {
         var activityWasResumed = false
 
         //we need to reload the config when the app is resumed
+        //FIXME: called twice at first launch
         Activity::class.java.hook("onResume", HookStage.AFTER, { isBridgeInitialized }) {
             val activity = it.thisObject() as Activity
-
             if (!activity.packageName.equals(Constants.SNAPCHAT_PACKAGE_NAME)) return@hook
 
             if (!activityWasResumed) {
