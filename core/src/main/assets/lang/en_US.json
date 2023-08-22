@@ -191,10 +191,6 @@
                         "name": "Anonymous Story Viewing",
                         "description": "Prevents anyone from knowing you've seen their story"
                     },
-                    "prevent_read_receipts": {
-                        "name": "Prevent Read Receipts",
-                        "description": "Prevent anyone from knowing you've opened their Snaps/Chats"
-                    },
                     "hide_bitmoji_presence": {
                         "name": "Hide Bitmoji Presence",
                         "description": "Hides your Bitmoji presence from the chat"

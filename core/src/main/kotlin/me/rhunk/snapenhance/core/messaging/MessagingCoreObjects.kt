@@ -61,12 +61,3 @@ data class MessagingFriendInfo(
     val bitmojiId: String?,
     val selfieId: String?
 ) : SerializableDataObject()
-
-
-data class MessagingRule(
-    val id: Int,
-    val type: MessagingRuleType,
-    val socialScope: SocialScope,
-    val targetUuid: String,
-    //val mode: Mode?,
-) : SerializableDataObject()

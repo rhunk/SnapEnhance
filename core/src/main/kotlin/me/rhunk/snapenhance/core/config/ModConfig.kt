@@ -19,10 +19,11 @@ class ModConfig {
     private val file = FileLoaderWrapper(BridgeFileType.CONFIG, "{}".toByteArray(Charsets.UTF_8))
     var wasPresent by Delegates.notNull<Boolean>()
 
-    val root = RootConfig()
+    lateinit var root: RootConfig
     operator fun getValue(thisRef: Any?, property: Any?) = root
 
     private fun load() {
+        root = RootConfig()
         wasPresent = file.isFileExists()
         if (!file.isFileExists()) {
             writeConfig()
@@ -44,10 +45,26 @@ class ModConfig {
         root.fromJson(configObject)
     }
 
-    fun writeConfig() {
+    fun exportToString(): String {
         val configObject = root.toJson()
         configObject.addProperty("_locale", locale)
-        file.write(configObject.toString().toByteArray(Charsets.UTF_8))
+        return configObject.toString()
+    }
+
+    fun reset() {
+        root = RootConfig()
+        writeConfig()
+    }
+
+    fun writeConfig() {
+        file.write(exportToString().toByteArray(Charsets.UTF_8))
+    }
+
+    fun loadFromString(string: String) {
+        val configObject = gson.fromJson(string, JsonObject::class.java)
+        locale = configObject.get("_locale")?.asString ?: LocaleWrapper.DEFAULT_LOCALE
+        root.fromJson(configObject)
+        writeConfig()
     }
 
     fun loadFromContext(context: Context) {

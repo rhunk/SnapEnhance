@@ -1,6 +1,6 @@
 package me.rhunk.snapenhance.ui.manager.sections.features
 
-import androidx.activity.ComponentActivity
+import android.net.Uri
 import androidx.compose.animation.AnimatedContentTransitionScope
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.background
@@ -27,12 +27,14 @@ import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.FolderOpen
+import androidx.compose.material.icons.filled.MoreVert
 import androidx.compose.material.icons.filled.OpenInNew
-import androidx.compose.material.icons.filled.Rule
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material.icons.rounded.Save
 import androidx.compose.material3.BottomSheetScaffoldState
 import androidx.compose.material3.Card
+import androidx.compose.material3.DropdownMenu
+import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FilledIconButton
 import androidx.compose.material3.FloatingActionButton
@@ -78,7 +80,9 @@ import me.rhunk.snapenhance.core.config.PropertyKey
 import me.rhunk.snapenhance.core.config.PropertyPair
 import me.rhunk.snapenhance.core.config.PropertyValue
 import me.rhunk.snapenhance.ui.manager.Section
-import me.rhunk.snapenhance.ui.util.ChooseFolderHelper
+import me.rhunk.snapenhance.ui.util.chooseFolder
+import me.rhunk.snapenhance.ui.util.openFile
+import me.rhunk.snapenhance.ui.util.saveFile
 
 @OptIn(ExperimentalMaterial3Api::class)
 class FeaturesSection : Section() {
@@ -90,8 +94,6 @@ class FeaturesSection : Section() {
         const val SEARCH_FEATURE_ROUTE = "search_feature/{keyword}"
     }
 
-    private lateinit var openFolderCallback: (uri: String) -> Unit
-    private lateinit var openFolderLauncher: () -> Unit
 
     private val featuresRouteName by lazy { context.translation["manager.routes.features"] }
 
@@ -122,32 +124,13 @@ class FeaturesSection : Section() {
         properties
     }
 
-    override fun init() {
-        openFolderLauncher = ChooseFolderHelper.createChooseFolder(context.activity!! as ComponentActivity) {
-            openFolderCallback(it)
-        }
-    }
 
     override fun canGoBack() = sectionTopBarName() != featuresRouteName
 
     override fun sectionTopBarName(): String {
         navController.currentBackStackEntry?.arguments?.getString("name")?.let { routeName ->
             val currentContainerPair = allContainers[routeName]
-            val propertyTree = run {
-                var key = currentContainerPair?.key
-                val tree = mutableListOf<String>()
-                while (key != null) {
-                    tree.add(key.propertyTranslationPath())
-                    key = key.parentKey
-                }
-                tree
-            }
-
-            val translatedKey = propertyTree.reversed().joinToString(" > ") {
-                context.translation["$it.name"]
-            }
-
-            return "$featuresRouteName > $translatedKey"
+            return context.translation["${currentContainerPair?.key?.propertyTranslationPath()}.name"]
         }
         return featuresRouteName
     }
@@ -203,10 +186,9 @@ class FeaturesSection : Section() {
 
         if (property.key.params.flags.contains(ConfigFlag.FOLDER)) {
             IconButton(onClick = registerClickCallback {
-                openFolderCallback = { uri ->
+                context.activityLauncherHelper.chooseFolder { uri ->
                     propertyValue.setAny(uri)
                 }
-                openFolderLauncher()
             }.let { { it.invoke(true) } }) {
                 Icon(Icons.Filled.FolderOpen, contentDescription = null)
             }
@@ -459,6 +441,63 @@ class FeaturesSection : Section() {
                     else Icons.Filled.Search,
                 contentDescription = null
             )
+        }
+
+        if (showSearchBar) return
+
+        var showExportDropdownMenu by remember { mutableStateOf(false) }
+        val actions = remember {
+            mapOf(
+                "Export" to {
+                    context.activityLauncherHelper.saveFile("config.json", "application/json") { uri ->
+                        context.androidContext.contentResolver.openOutputStream(Uri.parse(uri))?.use {
+                            context.config.writeConfig()
+                            context.config.exportToString().byteInputStream().copyTo(it)
+                            context.shortToast("Config exported successfully!")
+                        }
+                    }
+                },
+                "Import" to {
+                    context.activityLauncherHelper.openFile("application/json") { uri ->
+                        context.androidContext.contentResolver.openInputStream(Uri.parse(uri))?.use {
+                            runCatching {
+                                context.config.loadFromString(it.readBytes().toString(Charsets.UTF_8))
+                            }.onFailure {
+                                context.longToast("Failed to import config ${it.message}")
+                                return@use
+                            }
+                            context.shortToast("Config successfully loaded!")
+                        }
+                    }
+                },
+                "Reset" to {
+                    context.config.reset()
+                    context.shortToast("Config successfully reset!")
+                }
+            )
+        }
+
+        IconButton(onClick = { showExportDropdownMenu = !showExportDropdownMenu}) {
+            Icon(
+                imageVector = Icons.Filled.MoreVert,
+                contentDescription = null
+            )
+        }
+
+        if (showExportDropdownMenu) {
+            DropdownMenu(expanded = showExportDropdownMenu, onDismissRequest = { showExportDropdownMenu = false }) {
+                actions.forEach { (name, action) ->
+                    DropdownMenuItem(
+                        text = {
+                            Text(text = name)
+                        },
+                        onClick = {
+                            action()
+                            showExportDropdownMenu = false
+                        }
+                    )
+                }
+            }
         }
     }
 

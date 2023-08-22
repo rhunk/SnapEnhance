@@ -21,7 +21,6 @@ import me.rhunk.snapenhance.features.impl.spying.AnonymousStoryViewing
 import me.rhunk.snapenhance.features.impl.spying.MessageLogger
 import me.rhunk.snapenhance.features.impl.spying.PreventReadReceipts
 import me.rhunk.snapenhance.features.impl.spying.StealthMode
-import me.rhunk.snapenhance.features.impl.tweaks.AntiAutoSave
 import me.rhunk.snapenhance.features.impl.tweaks.AutoSave
 import me.rhunk.snapenhance.features.impl.tweaks.CameraTweaks
 import me.rhunk.snapenhance.features.impl.tweaks.DisableVideoLengthRestriction
@@ -76,7 +75,6 @@ class FeatureManager(private val context: ModContext) : Manager {
         register(UITweaks::class)
         register(ConfigurationOverride::class)
         register(GalleryMediaSendOverride::class)
-        register(AntiAutoSave::class)
         register(UnlimitedSnapViewTime::class)
         register(DisableVideoLengthRestriction::class)
         register(MediaQualityLevelOverride::class)

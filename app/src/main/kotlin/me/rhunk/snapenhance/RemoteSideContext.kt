@@ -4,6 +4,8 @@ import android.app.Activity
 import android.content.Context
 import android.content.Intent
 import android.net.Uri
+import android.widget.Toast
+import androidx.activity.ComponentActivity
 import androidx.documentfile.provider.DocumentFile
 import coil.ImageLoader
 import coil.decode.VideoFrameDecoder
@@ -20,6 +22,7 @@ import me.rhunk.snapenhance.ui.manager.data.ModMappingsInfo
 import me.rhunk.snapenhance.ui.manager.data.SnapchatAppInfo
 import me.rhunk.snapenhance.ui.setup.Requirements
 import me.rhunk.snapenhance.ui.setup.SetupActivity
+import me.rhunk.snapenhance.ui.util.ActivityLauncherHelper
 import java.lang.ref.WeakReference
 
 class RemoteSideContext(
@@ -28,9 +31,14 @@ class RemoteSideContext(
     private var _activity: WeakReference<Activity>? = null
     lateinit var bridgeService: BridgeService
 
+    lateinit var activityLauncherHelper: ActivityLauncherHelper
     var activity: Activity?
         get() = _activity?.get()
-        set(value) { _activity?.clear(); _activity = WeakReference(value) }
+        set(value) {
+            _activity?.clear();
+            _activity = WeakReference(value)
+            activityLauncherHelper = ActivityLauncherHelper(value as ComponentActivity)
+        }
 
     val config = ModConfig()
     val translation = LocaleWrapper()
@@ -83,6 +91,20 @@ class RemoteSideContext(
             )
         } else null
     )
+
+    fun longToast(message: Any) {
+        activity?.runOnUiThread {
+            Toast.makeText(activity, message.toString(), Toast.LENGTH_LONG).show()
+        }
+        Logger.debug(message.toString())
+    }
+
+    fun shortToast(message: Any) {
+        activity?.runOnUiThread {
+            Toast.makeText(activity, message.toString(), Toast.LENGTH_SHORT).show()
+        }
+        Logger.debug(message.toString())
+    }
 
     fun checkForRequirements(overrideRequirements: Int? = null): Boolean {
         var requirements = overrideRequirements ?: 0
