@@ -9,13 +9,17 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import me.rhunk.snapenhance.Logger
 import me.rhunk.snapenhance.ui.setup.screens.SetupScreen
+import me.rhunk.snapenhance.ui.util.ActivityLauncherHelper
 import me.rhunk.snapenhance.ui.util.ObservableMutableState
 import me.rhunk.snapenhance.ui.util.chooseFolder
 
 class SaveFolderScreen : SetupScreen() {
     private lateinit var saveFolder: ObservableMutableState<String>
 
+    private lateinit var activityLauncherHelper: ActivityLauncherHelper
+
     override fun init() {
+        activityLauncherHelper = ActivityLauncherHelper(context.activity!!)
         saveFolder = ObservableMutableState(
                 defaultValue = "",
                 onChange = { _, newValue ->
@@ -34,7 +38,7 @@ class SaveFolderScreen : SetupScreen() {
         DialogText(text = context.translation["setup.dialogs.save_folder"])
         Spacer(modifier = Modifier.height(16.dp))
         Button(onClick = {
-            context.activityLauncherHelper.chooseFolder {
+            activityLauncherHelper.chooseFolder {
                 saveFolder.value = it
             }
         }) {

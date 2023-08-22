@@ -22,23 +22,17 @@ import me.rhunk.snapenhance.ui.manager.data.ModMappingsInfo
 import me.rhunk.snapenhance.ui.manager.data.SnapchatAppInfo
 import me.rhunk.snapenhance.ui.setup.Requirements
 import me.rhunk.snapenhance.ui.setup.SetupActivity
-import me.rhunk.snapenhance.ui.util.ActivityLauncherHelper
 import java.lang.ref.WeakReference
 
 class RemoteSideContext(
     val androidContext: Context
 ) {
-    private var _activity: WeakReference<Activity>? = null
+    private var _activity: WeakReference<ComponentActivity>? = null
     lateinit var bridgeService: BridgeService
 
-    lateinit var activityLauncherHelper: ActivityLauncherHelper
-    var activity: Activity?
+    var activity: ComponentActivity?
         get() = _activity?.get()
-        set(value) {
-            _activity?.clear();
-            _activity = WeakReference(value)
-            activityLauncherHelper = ActivityLauncherHelper(value as ComponentActivity)
-        }
+        set(value) { _activity?.clear(); _activity = WeakReference(value) }
 
     val config = ModConfig()
     val translation = LocaleWrapper()
@@ -93,15 +87,15 @@ class RemoteSideContext(
     )
 
     fun longToast(message: Any) {
-        activity?.runOnUiThread {
-            Toast.makeText(activity, message.toString(), Toast.LENGTH_LONG).show()
+        androidContext.mainExecutor.execute {
+            Toast.makeText(androidContext, message.toString(), Toast.LENGTH_LONG).show()
         }
         Logger.debug(message.toString())
     }
 
     fun shortToast(message: Any) {
-        activity?.runOnUiThread {
-            Toast.makeText(activity, message.toString(), Toast.LENGTH_SHORT).show()
+        androidContext.mainExecutor.execute {
+            Toast.makeText(androidContext, message.toString(), Toast.LENGTH_SHORT).show()
         }
         Logger.debug(message.toString())
     }

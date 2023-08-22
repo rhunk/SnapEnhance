@@ -80,6 +80,7 @@ import me.rhunk.snapenhance.core.config.PropertyKey
 import me.rhunk.snapenhance.core.config.PropertyPair
 import me.rhunk.snapenhance.core.config.PropertyValue
 import me.rhunk.snapenhance.ui.manager.Section
+import me.rhunk.snapenhance.ui.util.ActivityLauncherHelper
 import me.rhunk.snapenhance.ui.util.chooseFolder
 import me.rhunk.snapenhance.ui.util.openFile
 import me.rhunk.snapenhance.ui.util.saveFile
@@ -95,6 +96,7 @@ class FeaturesSection : Section() {
     }
 
 
+    private lateinit var activityLauncherHelper: ActivityLauncherHelper
     private val featuresRouteName by lazy { context.translation["manager.routes.features"] }
 
     private lateinit var rememberScaffoldState: BottomSheetScaffoldState
@@ -133,6 +135,10 @@ class FeaturesSection : Section() {
             return context.translation["${currentContainerPair?.key?.propertyTranslationPath()}.name"]
         }
         return featuresRouteName
+    }
+
+    override fun init() {
+        activityLauncherHelper = ActivityLauncherHelper(context.activity!!)
     }
 
     override fun build(navGraphBuilder: NavGraphBuilder) {
@@ -186,7 +192,7 @@ class FeaturesSection : Section() {
 
         if (property.key.params.flags.contains(ConfigFlag.FOLDER)) {
             IconButton(onClick = registerClickCallback {
-                context.activityLauncherHelper.chooseFolder { uri ->
+                activityLauncherHelper.chooseFolder { uri ->
                     propertyValue.setAny(uri)
                 }
             }.let { { it.invoke(true) } }) {
@@ -449,7 +455,7 @@ class FeaturesSection : Section() {
         val actions = remember {
             mapOf(
                 "Export" to {
-                    context.activityLauncherHelper.saveFile("config.json", "application/json") { uri ->
+                    activityLauncherHelper.saveFile("config.json", "application/json") { uri ->
                         context.androidContext.contentResolver.openOutputStream(Uri.parse(uri))?.use {
                             context.config.writeConfig()
                             context.config.exportToString().byteInputStream().copyTo(it)
@@ -458,7 +464,7 @@ class FeaturesSection : Section() {
                     }
                 },
                 "Import" to {
-                    context.activityLauncherHelper.openFile("application/json") { uri ->
+                    activityLauncherHelper.openFile("application/json") { uri ->
                         context.androidContext.contentResolver.openInputStream(Uri.parse(uri))?.use {
                             runCatching {
                                 context.config.loadFromString(it.readBytes().toString(Charsets.UTF_8))
