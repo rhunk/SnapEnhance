@@ -105,4 +105,6 @@ interface BridgeInterface {
          * Enqueue a download
          */
         void enqueueDownload(in Intent intent, DownloadCallback callback);
+
+        String getApplicationApkPath();
 }

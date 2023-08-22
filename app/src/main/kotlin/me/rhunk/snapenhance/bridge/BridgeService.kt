@@ -101,5 +101,7 @@ class BridgeService : Service() {
             SharedContext.ensureInitialized(this@BridgeService)
             DownloadProcessor(this@BridgeService, callback).onReceive(intent)
         }
+
+        override fun getApplicationApkPath(): String = applicationInfo.publicSourceDir
     }
 }
