@@ -112,6 +112,28 @@ class ChatPurge : Feature("ChatPurge", loadParams = FeatureLoadParams.ACTIVITY_C
             callback
         )
     }
+    private fun fetchMessagesRecursively(conversationId: SnapUUID, lastMessageId: Long) {
+        fetchMessagesPaginated(conversationId.toString(), lastMessageId) { result ->
+            if (result.isSuccess) {
+                val messages = result.getOrNull()
+                if (!messages.isNullOrEmpty()) {
+                    messages.forEach {
+                        if (canDeleteMessage(it)) {
+                            asyncSaveExecutorService.submit {
+                                deleteMessage(conversationId, it)
+                            }
+                        }
+                    }
+                    // Fetch next batch of messages recursively
+                    val newLastMessageId = messages.last().messageDescriptor.messageId
+                    fetchMessagesRecursively(conversationId, newLastMessageId)
+                }
+            } else {
+                val error = result.exceptionOrNull() // Access the failure error
+                Logger.xposedLog("Error fetching messages: $error")
+            }
+        }
+    }
 
     override fun asyncOnActivityCreate() {
         // called when entering a conversation (or when a message is sent)
@@ -122,20 +144,9 @@ class ChatPurge : Feature("ChatPurge", loadParams = FeatureLoadParams.ACTIVITY_C
             { CanDelete() }
         ) { param ->
             val conversationId = SnapUUID(param.arg<Any>(0).getObjectField("mConversationId")!!)
-            fetchMessagesPaginated(conversationId.toString(), Long.MAX_VALUE) { result ->
-                if (result.isSuccess) {
-                    result.getOrNull()?.forEach {
-                        if (canDeleteMessage(it)) {
-                            asyncSaveExecutorService.submit {
-                                deleteMessage(conversationId, it)
-                            }
-                        }
-                    }
-                } else {
-                    val error = result.exceptionOrNull() // Access the failure error
-                    Logger.xposedLog("Error deleting message $error")
-                }
-            }
+            // Initial fetch
+            fetchMessagesRecursively(conversationId, Long.MAX_VALUE)
         }
     }
+
 }
