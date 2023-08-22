@@ -12,7 +12,6 @@ import me.rhunk.snapenhance.bridge.wrapper.LocaleWrapper
 import me.rhunk.snapenhance.bridge.wrapper.MessageLoggerWrapper
 import me.rhunk.snapenhance.core.messaging.MessagingFriendInfo
 import me.rhunk.snapenhance.core.messaging.MessagingGroupInfo
-import me.rhunk.snapenhance.core.messaging.SocialScope
 import me.rhunk.snapenhance.database.objects.FriendInfo
 import me.rhunk.snapenhance.download.DownloadProcessor
 import me.rhunk.snapenhance.util.SerializableDataObject

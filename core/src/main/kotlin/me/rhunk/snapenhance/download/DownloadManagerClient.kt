@@ -5,11 +5,11 @@ import android.os.Bundle
 import me.rhunk.snapenhance.ModContext
 import me.rhunk.snapenhance.bridge.DownloadCallback
 import me.rhunk.snapenhance.download.data.DashOptions
+import me.rhunk.snapenhance.download.data.DownloadMediaType
 import me.rhunk.snapenhance.download.data.DownloadMetadata
 import me.rhunk.snapenhance.download.data.DownloadRequest
 import me.rhunk.snapenhance.download.data.InputMedia
 import me.rhunk.snapenhance.download.data.MediaEncryptionKeyPair
-import me.rhunk.snapenhance.download.data.DownloadMediaType
 
 class DownloadManagerClient (
     private val context: ModContext,

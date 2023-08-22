@@ -9,7 +9,6 @@ import android.widget.ImageView
 import me.rhunk.snapenhance.Constants
 import me.rhunk.snapenhance.core.BuildConfig
 import me.rhunk.snapenhance.ui.menu.AbstractMenu
-import java.io.File
 
 
 @SuppressLint("DiscouragedApi")

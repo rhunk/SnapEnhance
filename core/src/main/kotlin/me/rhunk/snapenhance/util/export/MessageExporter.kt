@@ -1,6 +1,5 @@
 package me.rhunk.snapenhance.util.export
 
-import android.content.pm.PackageManager
 import android.os.Environment
 import android.util.Base64InputStream
 import com.google.gson.JsonArray
@@ -20,7 +19,6 @@ import me.rhunk.snapenhance.data.wrapper.impl.Message
 import me.rhunk.snapenhance.data.wrapper.impl.SnapUUID
 import me.rhunk.snapenhance.database.objects.FriendFeedEntry
 import me.rhunk.snapenhance.database.objects.FriendInfo
-import me.rhunk.snapenhance.util.ktx.getApplicationInfoCompat
 import me.rhunk.snapenhance.util.protobuf.ProtoReader
 import me.rhunk.snapenhance.util.snap.EncryptionHelper
 import me.rhunk.snapenhance.util.snap.MediaDownloaderHelper
