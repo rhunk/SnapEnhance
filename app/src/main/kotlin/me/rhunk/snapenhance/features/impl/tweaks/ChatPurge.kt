@@ -25,6 +25,16 @@ class ChatPurge : Feature("ChatPurge", loadParams = FeatureLoadParams.ACTIVITY_C
 
     private val callbackClass by lazy {  context.mappings.getMappedClass("callbacks", "Callback") }
 
+    private val fetchConversationWithMessagesPaginatedMethod by lazy {
+        context.classCache.conversationManager.methods.first { it.name == "fetchConversationWithMessagesPaginated" }
+    }
+
+    private val fetchConversationWithMessagesCallbackClass by lazy {  context.mappings.getMappedClass("callbacks", "FetchConversationWithMessagesCallback") }
+
+    private val conversationManagerInstance by lazy {
+        context.feature(Messaging::class).conversationManager
+    }
+
     private val updateMessageMethod by lazy { context.classCache.conversationManager.methods.first { it.name == "updateMessage" } }
 
     private fun deleteMessage(conversationId: SnapUUID, message: Message) {
@@ -72,31 +82,58 @@ class ChatPurge : Feature("ChatPurge", loadParams = FeatureLoadParams.ACTIVITY_C
         return context.config.options(ConfigProperty.AUTO_PURGE_MESSAGES).filter { it.value }.any { it.key == contentType }
     }
 
-    private fun canSave(): Boolean {
+    private fun CanDelete(): Boolean {
         if (context.config.options(ConfigProperty.AUTO_PURGE_MESSAGES).none { it.value }) return false
 
         with(context.feature(Messaging::class)) {
-            if (openedConversationUUID == null) return@canSave false
+            if (openedConversationUUID == null) return@CanDelete false
             val conversation = openedConversationUUID.toString()
-            if (context.feature(StealthMode::class).isStealth(conversation)) return@canSave false
+            if (context.feature(StealthMode::class).isStealth(conversation)) return@CanDelete false
                     }
         return true
     }
 
+    private fun fetchMessagesPaginated(conversationId: String, lastMessageId: Long, onResult: (Result<List<Message>>) -> Unit) {
+        val callback = CallbackBuilder(fetchConversationWithMessagesCallbackClass)
+            .override("onFetchConversationWithMessagesComplete") { param ->
+                val messagesList = param.arg<List<*>>(1).map { Message(it) }
+                onResult(Result.success(messagesList))
+            }
+            .override("onServerRequest", shouldUnhook = false) {}
+            .override("onError") {
+                onResult(Result.failure(Exception("Failed to fetch messages")))
+            }.build()
+
+        fetchConversationWithMessagesPaginatedMethod.invoke(
+            conversationManagerInstance,
+            SnapUUID.fromString(conversationId).instanceNonNull(),
+            lastMessageId,
+            100,
+            callback
+        )
+    }
+
     override fun asyncOnActivityCreate() {
-        //called when enter in a conversation (or when a message is sent)
+        // called when entering a conversation (or when a message is sent)
         Hooker.hook(
             context.mappings.getMappedClass("callbacks", "FetchConversationWithMessagesCallback"),
             "onFetchConversationWithMessagesComplete",
             HookStage.BEFORE,
-            { canSave() }
+            { CanDelete() }
         ) { param ->
             val conversationId = SnapUUID(param.arg<Any>(0).getObjectField("mConversationId")!!)
-            val messages = param.arg<List<Any>>(1).map { Message(it) }
-            messages.forEach {
-                if (!canDeleteMessage(it)) return@forEach
-                asyncSaveExecutorService.submit {
-                    deleteMessage(conversationId, it)
+            fetchMessagesPaginated(conversationId.toString(), Long.MAX_VALUE) { result ->
+                if (result.isSuccess) {
+                    result.getOrNull()?.forEach {
+                        if (canDeleteMessage(it)) {
+                            asyncSaveExecutorService.submit {
+                                deleteMessage(conversationId, it)
+                            }
+                        }
+                    }
+                } else {
+                    val error = result.exceptionOrNull() // Access the failure error
+                    Logger.xposedLog("Error deleting message $error")
                 }
             }
         }
