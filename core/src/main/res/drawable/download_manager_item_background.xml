@@ -1,5 +1,0 @@
-<shape xmlns:android="http://schemas.android.com/apk/res/android"
-    android:shape="rectangle">
-    <solid android:color="@color/secondaryBackground" />
-    <corners android:radius="@dimen/download_manager_item_preview_radius" />
-</shape>

@@ -29,7 +29,7 @@
             android:value="93" />
         <meta-data
             android:name="xposedscope"
-            android:resource="@array/sc_scope" />
+            android:resource="@array/xposed_scope" />
 
         <service
             android:name=".bridge.BridgeService"
