@@ -25,6 +25,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
+import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 import me.rhunk.snapenhance.RemoteSideContext
 import me.rhunk.snapenhance.core.messaging.MessagingRuleType
@@ -36,25 +37,19 @@ class ScopeContent(
     private val context: RemoteSideContext,
     private val section: SocialSection,
     private val navController: NavController,
-    private val scope: SocialScope,
+    val scope: SocialScope,
     private val id: String
 ) {
-    @Composable
-    private fun DeleteScopeEntityButton() {
-        val coroutineScope = rememberCoroutineScope()
-        OutlinedButton(onClick = {
-            when (scope) {
-                SocialScope.FRIEND -> context.modDatabase.deleteFriend(id)
-                SocialScope.GROUP -> context.modDatabase.deleteGroup(id)
+    fun deleteScope(coroutineScope: CoroutineScope) {
+        when (scope) {
+            SocialScope.FRIEND -> context.modDatabase.deleteFriend(id)
+            SocialScope.GROUP -> context.modDatabase.deleteGroup(id)
+        }
+        context.modDatabase.executeAsync {
+            coroutineScope.launch {
+                section.onResumed()
+                navController.popBackStack()
             }
-            context.modDatabase.executeAsync {
-                coroutineScope.launch {
-                    section.onResumed()
-                    navController.navigate(SocialSection.MAIN_ROUTE)
-                }
-            }
-        }) {
-            Text(text = "Delete ${scope.key}")
         }
     }
 
@@ -253,7 +248,6 @@ class ScopeContent(
             Text(text = group.name, maxLines = 1)
             Text(text = "participantsCount: ${group.participantsCount}", maxLines = 1)
             Spacer(modifier = Modifier.height(16.dp))
-            DeleteScopeEntityButton()
         }
     }
 }

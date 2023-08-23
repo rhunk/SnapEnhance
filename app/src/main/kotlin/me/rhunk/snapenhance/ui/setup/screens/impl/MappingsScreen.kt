@@ -23,6 +23,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import me.rhunk.snapenhance.Logger
 import me.rhunk.snapenhance.ui.setup.screens.SetupScreen
+import me.rhunk.snapenhance.ui.util.AlertDialogs
 
 class MappingsScreen : SetupScreen() {
     @Composable
@@ -35,21 +36,8 @@ class MappingsScreen : SetupScreen() {
             Dialog(onDismissRequest = {
                 infoText = null
             }) {
-                Surface(
-                    modifier = Modifier.padding(16.dp).fillMaxWidth(),
-                    shape = RoundedCornerShape(16.dp),
-                ) {
-                    Column(
-                        modifier = Modifier.padding(16.dp)
-                    ) {
-                        Text(text = infoText!!)
-                        Button(onClick = {
-                            infoText = null
-                        },
-                        modifier = Modifier.padding(top = 5.dp).align(alignment = androidx.compose.ui.Alignment.End)) {
-                            Text(text = "OK")
-                        }
-                    }
+                remember { AlertDialogs(context.translation) }.InfoDialog(title = infoText!!) {
+                    infoText = null
                 }
             }
         }
@@ -87,7 +75,9 @@ class MappingsScreen : SetupScreen() {
         }) {
             if (isGenerating) {
                 CircularProgressIndicator(
-                    modifier = Modifier.padding().size(30.dp),
+                    modifier = Modifier
+                        .padding()
+                        .size(30.dp),
                     strokeWidth = 3.dp,
                     color = MaterialTheme.colorScheme.onPrimary
                 )

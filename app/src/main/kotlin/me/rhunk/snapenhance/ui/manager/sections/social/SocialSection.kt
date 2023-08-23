@@ -4,6 +4,7 @@ import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.RowScope
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -15,9 +16,12 @@ import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.Add
+import androidx.compose.material.icons.rounded.DeleteForever
 import androidx.compose.material3.Card
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Tab
@@ -32,8 +36,11 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
+import androidx.compose.ui.window.Dialog
 import androidx.navigation.NavGraphBuilder
 import androidx.navigation.compose.composable
 import androidx.navigation.navigation
@@ -42,6 +49,7 @@ import me.rhunk.snapenhance.core.messaging.MessagingFriendInfo
 import me.rhunk.snapenhance.core.messaging.MessagingGroupInfo
 import me.rhunk.snapenhance.core.messaging.SocialScope
 import me.rhunk.snapenhance.ui.manager.Section
+import me.rhunk.snapenhance.ui.util.AlertDialogs
 import me.rhunk.snapenhance.ui.util.BitmojiImage
 import me.rhunk.snapenhance.ui.util.pagerTabIndicatorOffset
 import me.rhunk.snapenhance.util.snap.BitmojiSelfie
@@ -85,6 +93,35 @@ class SocialSection : Section() {
                         }
                     }.Content()
                 }
+            }
+        }
+    }
+
+    @Composable
+    override fun TopBarActions(rowScope: RowScope) {
+        var deleteConfirmDialog by remember { mutableStateOf(false) }
+        val coroutineScope = rememberCoroutineScope()
+
+        if (deleteConfirmDialog) {
+            currentScopeContent?.let { scopeContent ->
+                Dialog(onDismissRequest = { deleteConfirmDialog = false }) {
+                    remember { AlertDialogs(context.translation) }.ConfirmDialog(
+                        title = "Are you sure you want to delete this ${scopeContent.scope.key.lowercase()}?",
+                        onDismiss = { deleteConfirmDialog = false },
+                        onConfirm = { scopeContent.deleteScope(coroutineScope); deleteConfirmDialog = false }
+                    )
+                }
+            }
+        }
+
+        if (navController.currentBackStackEntry?.destination?.route != MAIN_ROUTE) {
+            IconButton(
+                onClick = { deleteConfirmDialog = true },
+            ) {
+                Icon(
+                    imageVector = Icons.Rounded.DeleteForever,
+                    contentDescription = null
+                )
             }
         }
     }
@@ -154,8 +191,8 @@ class SocialSection : Section() {
                                         .padding(10.dp)
                                         .fillMaxWidth()
                                 ) {
-                                    Text(text = friend.displayName ?: friend.mutableUsername, maxLines = 1)
-                                    Text(text = friend.userId, maxLines = 1)
+                                    Text(text = friend.displayName ?: friend.mutableUsername, maxLines = 1, fontWeight = FontWeight.Bold)
+                                    Text(text = friend.userId, maxLines = 1, fontSize = 12.sp)
                                 }
                             }
                         }

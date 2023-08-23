@@ -1,4 +1,4 @@
-package me.rhunk.snapenhance.ui.manager.sections.features
+package me.rhunk.snapenhance.ui.util
 
 import androidx.compose.foundation.ScrollState
 import androidx.compose.foundation.clickable
@@ -36,7 +36,7 @@ import me.rhunk.snapenhance.core.config.DataProcessors
 import me.rhunk.snapenhance.core.config.PropertyPair
 
 
-class Dialogs(
+class AlertDialogs(
     private val translation: LocaleWrapper,
 ){
     @Composable
@@ -51,6 +51,70 @@ class Dialogs(
                     .padding(10.dp, 10.dp, 10.dp, 10.dp)
                     .verticalScroll(ScrollState(0)),
             ) { content() }
+        }
+    }
+
+    @Composable
+    fun ConfirmDialog(
+        title: String,
+        data: String? = null,
+        onConfirm: () -> Unit,
+        onDismiss: () -> Unit,
+    ) {
+        DefaultDialogCard {
+            Text(
+                text = title,
+                style = MaterialTheme.typography.bodyLarge,
+                modifier = Modifier.padding(bottom = 10.dp)
+            )
+            if (data != null) {
+                Text(
+                    text = data,
+                    style = MaterialTheme.typography.bodyMedium,
+                    modifier = Modifier.padding(bottom = 10.dp)
+                )
+            }
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceEvenly,
+            ) {
+                Button(onClick = { onDismiss() }) {
+                    Text(text = translation["button.cancel"])
+                }
+                Button(onClick = { onConfirm() }) {
+                    Text(text = translation["button.ok"])
+                }
+            }
+        }
+    }
+
+    @Composable
+    fun InfoDialog(
+        title: String,
+        data: String? = null,
+        onDismiss: () -> Unit,
+    ) {
+        DefaultDialogCard {
+            Text(
+                text = title,
+                style = MaterialTheme.typography.bodyLarge,
+                modifier = Modifier.padding(bottom = 10.dp)
+            )
+            if (data != null) {
+                Text(
+                    text = data,
+                    style = MaterialTheme.typography.bodyMedium,
+                    modifier = Modifier.padding(bottom = 10.dp)
+                )
+            }
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceEvenly,
+            ) {
+                Button(onClick = { onDismiss() }) {
+                    Text(text = translation["button.ok"])
+                }
+            }
         }
     }
 

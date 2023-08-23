@@ -81,13 +81,14 @@ import me.rhunk.snapenhance.core.config.PropertyPair
 import me.rhunk.snapenhance.core.config.PropertyValue
 import me.rhunk.snapenhance.ui.manager.Section
 import me.rhunk.snapenhance.ui.util.ActivityLauncherHelper
+import me.rhunk.snapenhance.ui.util.AlertDialogs
 import me.rhunk.snapenhance.ui.util.chooseFolder
 import me.rhunk.snapenhance.ui.util.openFile
 import me.rhunk.snapenhance.ui.util.saveFile
 
 @OptIn(ExperimentalMaterial3Api::class)
 class FeaturesSection : Section() {
-    private val dialogs by lazy { Dialogs(context.translation) }
+    private val alertDialogs by lazy { AlertDialogs(context.translation) }
 
     companion object {
         const val MAIN_ROUTE = "feature_root"
@@ -217,7 +218,7 @@ class FeaturesSection : Section() {
                 registerDialogOnClickCallback()
 
                 dialogComposable = {
-                    dialogs.UniqueSelectionDialog(property)
+                    alertDialogs.UniqueSelectionDialog(property)
                 }
 
                 Text(
@@ -234,10 +235,10 @@ class FeaturesSection : Section() {
                 dialogComposable = {
                     when (dataType) {
                         DataProcessors.Type.STRING_MULTIPLE_SELECTION -> {
-                            dialogs.MultipleSelectionDialog(property)
+                            alertDialogs.MultipleSelectionDialog(property)
                         }
                         DataProcessors.Type.STRING, DataProcessors.Type.INTEGER, DataProcessors.Type.FLOAT -> {
-                            dialogs.KeyboardInputDialog(property) { showDialog = false }
+                            alertDialogs.KeyboardInputDialog(property) { showDialog = false }
                         }
                         else -> {}
                     }
