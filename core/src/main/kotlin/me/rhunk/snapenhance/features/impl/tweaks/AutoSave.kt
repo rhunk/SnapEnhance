@@ -74,7 +74,7 @@ class AutoSave : MessagingRuleFeature("Auto Save", MessagingRuleType.AUTO_SAVE, 
             if (openedConversationUUID == null) return@canSave false
             val conversation = openedConversationUUID.toString()
             if (context.feature(StealthMode::class).canUseRule(conversation)) return@canSave false
-            if (canUseRule(conversation)) return@canSave false
+            if (!canUseRule(conversation)) return@canSave false
         }
         return true
     }
