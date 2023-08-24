@@ -3,6 +3,7 @@ package me.rhunk.snapenhance.ui.manager.sections.social
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.RowScope
 import androidx.compose.foundation.layout.fillMaxHeight
@@ -135,7 +136,8 @@ class SocialSection : Section() {
             modifier = Modifier
                 .padding(2.dp)
                 .fillMaxWidth()
-                .fillMaxHeight()
+                .fillMaxHeight(),
+            contentPadding = PaddingValues(bottom = 110.dp),
         ) {
             //check if scope list is empty
             val listSize = when (scope) {
