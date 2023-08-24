@@ -16,7 +16,9 @@ class MessagingTweaks : ConfigContainer() {
         "EXTERNAL_MEDIA",
         "STICKER"
     )
-    val preventMessageSending = multiple("prevent_message_sending", *NotificationType.getOutgoingValues().map { it.key }.toTypedArray())
+    val preventMessageSending = multiple("prevent_message_sending", *NotificationType.getOutgoingValues().map { it.key }.toTypedArray()) {
+        customOptionTranslationPath = "features.options.notifications"
+    }
     val messageLogger = boolean("message_logger") { addNotices(FeatureNotice.MAY_CAUSE_CRASHES) }
     val galleryMediaSendOverride = boolean("gallery_media_send_override")
     val messagePreviewLength = integer("message_preview_length", defaultValue = 20)

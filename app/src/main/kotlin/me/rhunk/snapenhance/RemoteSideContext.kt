@@ -9,6 +9,7 @@ import androidx.activity.ComponentActivity
 import androidx.documentfile.provider.DocumentFile
 import coil.ImageLoader
 import coil.decode.VideoFrameDecoder
+import coil.disk.DiskCache
 import coil.memory.MemoryCache
 import kotlinx.coroutines.Dispatchers
 import me.rhunk.snapenhance.bridge.BridgeService
@@ -17,6 +18,7 @@ import me.rhunk.snapenhance.bridge.wrapper.MappingsWrapper
 import me.rhunk.snapenhance.core.config.ModConfig
 import me.rhunk.snapenhance.download.DownloadTaskManager
 import me.rhunk.snapenhance.messaging.ModDatabase
+import me.rhunk.snapenhance.messaging.StreaksReminder
 import me.rhunk.snapenhance.ui.manager.data.InstallationSummary
 import me.rhunk.snapenhance.ui.manager.data.ModMappingsInfo
 import me.rhunk.snapenhance.ui.manager.data.SnapchatAppInfo
@@ -39,6 +41,7 @@ class RemoteSideContext(
     val mappings = MappingsWrapper()
     val downloadTaskManager = DownloadTaskManager()
     val modDatabase = ModDatabase(this)
+    val streaksReminder = StreaksReminder(this)
 
     //used to load bitmoji selfies and download previews
     val imageLoader by lazy {
@@ -48,24 +51,30 @@ class RemoteSideContext(
                 MemoryCache.Builder(androidContext)
                     .maxSizePercent(0.25)
                     .build()
-            }.components { add(VideoFrameDecoder.Factory()) }.build()
-    }
-
-    init {
-        reload()
+            }
+            .diskCache {
+                DiskCache.Builder()
+                    .directory(androidContext.cacheDir.resolve("coil-disk-cache"))
+                    .maxSizeBytes(1024 * 1024 * 100) // 100MB
+                    .build()
+            }
+            .components { add(VideoFrameDecoder.Factory()) }.build()
     }
 
     fun reload() {
         runCatching {
             config.loadFromContext(androidContext)
-            translation.userLocale = config.locale
-            translation.loadFromContext(androidContext)
+            translation.apply {
+                userLocale = config.locale
+                loadFromContext(androidContext)
+            }
             mappings.apply {
                 loadFromContext(androidContext)
                 init(androidContext)
             }
             downloadTaskManager.init(androidContext)
             modDatabase.init()
+            streaksReminder.init()
         }.onFailure {
             Logger.error("Failed to load RemoteSideContext", it)
         }

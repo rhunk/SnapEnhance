@@ -140,8 +140,11 @@ class ModDatabase(
                 )
                 //sync streaks
                 if (friend.streakLength > 0) {
-                    database.execSQL("INSERT OR REPLACE INTO streaks (userId, expirationTimestamp, length) VALUES (?, ?, ?)", arrayOf(
+                    val streaks = getFriendStreaks(friend.userId!!)
+
+                    database.execSQL("INSERT OR REPLACE INTO streaks (userId, notify, expirationTimestamp, length) VALUES (?, ?, ?, ?)", arrayOf(
                         friend.userId,
+                        streaks?.notify ?: false,
                         friend.streakExpirationTimestamp,
                         friend.streakLength
                     ))
@@ -198,6 +201,7 @@ class ModDatabase(
     fun deleteFriend(userId: String) {
         executeAsync {
             database.execSQL("DELETE FROM friends WHERE userId = ?", arrayOf(userId))
+            database.execSQL("DELETE FROM streaks WHERE userId = ?", arrayOf(userId))
         }
     }
 

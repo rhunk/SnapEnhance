@@ -18,7 +18,6 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.Add
 import androidx.compose.material.icons.rounded.DeleteForever
 import androidx.compose.material3.Card
-import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -36,6 +35,8 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
@@ -45,6 +46,7 @@ import androidx.navigation.NavGraphBuilder
 import androidx.navigation.compose.composable
 import androidx.navigation.navigation
 import kotlinx.coroutines.launch
+import me.rhunk.snapenhance.R
 import me.rhunk.snapenhance.core.messaging.MessagingFriendInfo
 import me.rhunk.snapenhance.core.messaging.MessagingGroupInfo
 import me.rhunk.snapenhance.core.messaging.SocialScope
@@ -175,24 +177,41 @@ class SocialSection : Section() {
                         }
                         SocialScope.FRIEND -> {
                             val friend = friendList[index]
+                            val streaks = remember { context.modDatabase.getFriendStreaks(friend.userId) }
+
                             Row(
                                 modifier = Modifier
                                     .padding(10.dp)
                                     .fillMaxSize(),
                                 verticalAlignment = Alignment.CenterVertically
                             ) {
-                                val bitmojiUrl = (friend.selfieId to friend.bitmojiId).let { (selfieId, bitmojiId) ->
-                                    if (selfieId == null || bitmojiId == null) return@let null
-                                    BitmojiSelfie.getBitmojiSelfie(selfieId, bitmojiId, BitmojiSelfie.BitmojiSelfieType.THREE_D)
-                                }
-                                BitmojiImage(context = context, url = bitmojiUrl)
+                                BitmojiImage(
+                                    context = context,
+                                    url = BitmojiSelfie.getBitmojiSelfie(friend.selfieId, friend.bitmojiId, BitmojiSelfie.BitmojiSelfieType.THREE_D)
+                                )
                                 Column(
                                     modifier = Modifier
                                         .padding(10.dp)
                                         .fillMaxWidth()
+                                        .weight(1f)
                                 ) {
                                     Text(text = friend.displayName ?: friend.mutableUsername, maxLines = 1, fontWeight = FontWeight.Bold)
-                                    Text(text = friend.userId, maxLines = 1, fontSize = 12.sp)
+                                    Text(text = friend.mutableUsername, maxLines = 1, fontSize = 12.sp, fontWeight = FontWeight.Light)
+                                }
+                                Row(
+                                    verticalAlignment = Alignment.CenterVertically
+                                ) {
+                                    if (streaks != null && streaks.notify) {
+                                        Icon(
+                                            imageVector = ImageVector.vectorResource(id = R.drawable.streak_icon),
+                                            contentDescription = null,
+                                            modifier = Modifier.height(40.dp),
+                                            tint = if (streaks.isAboutToExpire())
+                                                MaterialTheme.colorScheme.error
+                                            else MaterialTheme.colorScheme.primary
+                                        )
+                                        Text(text = "${streaks.hoursLeft()}h", maxLines = 1, fontWeight = FontWeight.Bold)
+                                    }
                                 }
                             }
                         }

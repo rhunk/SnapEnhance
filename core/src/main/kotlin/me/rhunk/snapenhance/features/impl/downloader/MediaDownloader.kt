@@ -61,11 +61,7 @@ class MediaDownloader : MessagingRuleFeature("MediaDownloader", MessagingRuleTyp
     ): DownloadManagerClient {
         val generatedHash = mediaIdentifier.hashCode().toString(16).replaceFirst("-", "")
 
-        val iconUrl = friendInfo?.takeIf {
-            it.bitmojiAvatarId != null && it.bitmojiSelfieId != null
-        }?.let {
-            BitmojiSelfie.getBitmojiSelfie(it.bitmojiSelfieId!!, it.bitmojiAvatarId!!, BitmojiSelfie.BitmojiSelfieType.THREE_D)
-        }
+        val iconUrl = BitmojiSelfie.getBitmojiSelfie(friendInfo?.bitmojiSelfieId, friendInfo?.bitmojiAvatarId, BitmojiSelfie.BitmojiSelfieType.THREE_D)
 
         val downloadLogging by context.config.downloader.logging
         if (downloadLogging.contains("started")) {

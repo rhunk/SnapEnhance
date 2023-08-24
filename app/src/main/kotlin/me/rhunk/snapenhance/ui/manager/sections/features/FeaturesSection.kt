@@ -268,9 +268,9 @@ class FeaturesSection : Section() {
                     navController.navigate(FEATURE_CONTAINER_ROUTE.replace("{name}", property.name))
                 }
 
-                if (container.globalState == null) return
+                if (!container.hasGlobalState) return
 
-                var state by remember { mutableStateOf(container.globalState!!) }
+                var state by remember { mutableStateOf(container.globalState ?: false) }
 
                 Box(
                     modifier = Modifier
@@ -453,6 +453,22 @@ class FeaturesSection : Section() {
         if (showSearchBar) return
 
         var showExportDropdownMenu by remember { mutableStateOf(false) }
+        var showResetConfirmationDialog by remember { mutableStateOf(false) }
+
+        if (showResetConfirmationDialog) {
+            Dialog(onDismissRequest = { showResetConfirmationDialog = false }) {
+                alertDialogs.ConfirmDialog(
+                    title = "Reset config",
+                    message = "Are you sure you want to reset the config?",
+                    onConfirm = {
+                        context.config.reset()
+                        context.shortToast("Config successfully reset!")
+                    },
+                    onDismiss = { showResetConfirmationDialog = false }
+                )
+            }
+        }
+
         val actions = remember {
             mapOf(
                 "Export" to {
@@ -477,10 +493,7 @@ class FeaturesSection : Section() {
                         }
                     }
                 },
-                "Reset" to {
-                    context.config.reset()
-                    context.shortToast("Config successfully reset!")
-                }
+                "Reset" to { showResetConfirmationDialog = true }
             )
         }
 

@@ -28,9 +28,11 @@ import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.text.TextRange
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import me.rhunk.snapenhance.bridge.wrapper.LocaleWrapper
 import me.rhunk.snapenhance.core.config.DataProcessors
 import me.rhunk.snapenhance.core.config.PropertyPair
@@ -57,21 +59,22 @@ class AlertDialogs(
     @Composable
     fun ConfirmDialog(
         title: String,
-        data: String? = null,
+        message: String? = null,
         onConfirm: () -> Unit,
         onDismiss: () -> Unit,
     ) {
         DefaultDialogCard {
             Text(
                 text = title,
-                style = MaterialTheme.typography.bodyLarge,
-                modifier = Modifier.padding(bottom = 10.dp)
+                fontSize = 20.sp,
+                fontWeight = FontWeight.Bold,
+                modifier = Modifier.padding(start = 5.dp, bottom = 10.dp)
             )
-            if (data != null) {
+            if (message != null) {
                 Text(
-                    text = data,
+                    text = message,
                     style = MaterialTheme.typography.bodyMedium,
-                    modifier = Modifier.padding(bottom = 10.dp)
+                    modifier = Modifier.padding(bottom = 15.dp)
                 )
             }
             Row(
@@ -91,20 +94,21 @@ class AlertDialogs(
     @Composable
     fun InfoDialog(
         title: String,
-        data: String? = null,
+        message: String? = null,
         onDismiss: () -> Unit,
     ) {
         DefaultDialogCard {
             Text(
                 text = title,
-                style = MaterialTheme.typography.bodyLarge,
-                modifier = Modifier.padding(bottom = 10.dp)
+                fontSize = 20.sp,
+                fontWeight = FontWeight.Bold,
+                modifier = Modifier.padding(start = 5.dp, bottom = 10.dp)
             )
-            if (data != null) {
+            if (message != null) {
                 Text(
-                    text = data,
+                    text = message,
                     style = MaterialTheme.typography.bodyMedium,
-                    modifier = Modifier.padding(bottom = 10.dp)
+                    modifier = Modifier.padding(bottom = 15.dp)
                 )
             }
             Row(

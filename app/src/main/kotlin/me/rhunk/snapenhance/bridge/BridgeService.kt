@@ -26,7 +26,9 @@ class BridgeService : Service() {
         remoteSideContext = SharedContextHolder.remote(this).apply {
             if (checkForRequirements()) return null
         }
-        remoteSideContext.bridgeService = this
+        remoteSideContext.apply {
+            bridgeService = this@BridgeService
+        }
         messageLoggerWrapper = MessageLoggerWrapper(getDatabasePath(BridgeFileType.MESSAGE_LOGGER_DATABASE.fileName)).also { it.init() }
         return BridgeBinder()
     }

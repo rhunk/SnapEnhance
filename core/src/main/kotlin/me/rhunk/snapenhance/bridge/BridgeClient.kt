@@ -35,14 +35,14 @@ class BridgeClient(
     fun start(callback: (Boolean) -> Unit) {
         this.future = CompletableFuture()
 
+        //TODO: randomize package name
         with(context.androidContext) {
             //ensure the remote process is running
             startActivity(Intent()
-                .setClassName(BuildConfig.APPLICATION_ID, ForceStartActivity::class.java.name)
+                .setClassName(BuildConfig.APPLICATION_ID, "me.rhunk.snapenhance.bridge.ForceStartActivity")
                 .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_MULTIPLE_TASK)
             )
 
-            //TODO: randomize package name
             val intent = Intent()
                 .setClassName(BuildConfig.APPLICATION_ID, "me.rhunk.snapenhance.bridge.BridgeService")
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {

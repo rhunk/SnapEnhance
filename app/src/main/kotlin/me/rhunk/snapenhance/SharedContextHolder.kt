@@ -9,6 +9,7 @@ object SharedContextHolder {
     fun remote(context: Context): RemoteSideContext {
         if (!::_remoteSideContext.isInitialized || _remoteSideContext.get() == null) {
             _remoteSideContext = WeakReference(RemoteSideContext(context))
+            _remoteSideContext.get()?.reload()
         }
 
         return _remoteSideContext.get()!!

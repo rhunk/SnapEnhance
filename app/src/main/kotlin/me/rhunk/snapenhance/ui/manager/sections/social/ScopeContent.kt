@@ -177,14 +177,11 @@ class ScopeContent(
                 .fillMaxWidth(),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            val bitmojiUrl = (friend.selfieId to friend.bitmojiId).let { (selfieId, bitmojiId) ->
-                if (selfieId == null || bitmojiId == null) return@let null
-                BitmojiSelfie.getBitmojiSelfie(
-                    selfieId,
-                    bitmojiId,
-                    BitmojiSelfie.BitmojiSelfieType.THREE_D
-                )
-            }
+            val bitmojiUrl = BitmojiSelfie.getBitmojiSelfie(
+                friend.selfieId,
+                friend.bitmojiId,
+                BitmojiSelfie.BitmojiSelfieType.THREE_D
+            )
             BitmojiImage(context = context, url = bitmojiUrl, size = 100)
             Spacer(modifier = Modifier.height(16.dp))
             Text(
@@ -218,13 +215,13 @@ class ScopeContent(
                         Column(
                             modifier = Modifier.weight(1f),
                         ) {
-                            Text(text = "Count: ${streaks.length}", maxLines = 1)
+                            Text(text = "Length: ${streaks.length}", maxLines = 1)
                             Text(text = "Expires in: ${computeStreakETA(streaks.expirationTimestamp)}", maxLines = 1)
                         }
                         Row(
                             verticalAlignment = Alignment.CenterVertically
                         ) {
-                            Text(text = "Notify Expiration", maxLines = 1)
+                            Text(text = "Reminder", maxLines = 1, modifier = Modifier.padding(end = 10.dp))
                             Switch(checked = shouldNotify, onCheckedChange = {
                                 context.modDatabase.setFriendStreaksNotify(id, it)
                                 shouldNotify = it

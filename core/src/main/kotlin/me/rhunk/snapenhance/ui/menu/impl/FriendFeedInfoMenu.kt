@@ -53,7 +53,7 @@ class FriendFeedInfoMenu : AbstractMenu() {
                         profile.bitmojiSelfieId.toString(),
                         profile.bitmojiAvatarId.toString(),
                         BitmojiSelfie.BitmojiSelfieType.THREE_D
-                    )
+                    )!!
                 )
             }
         } catch (e: Throwable) {

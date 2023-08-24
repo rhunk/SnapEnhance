@@ -14,6 +14,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.Checkbox
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
@@ -29,6 +30,7 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
@@ -53,31 +55,34 @@ class AddFriendDialog(
     private val section: SocialSection,
 ) {
     @Composable
-    private fun ListCardEntry(name: String, exists: Boolean, stateChanged: (state: Boolean) -> Unit = { }) {
-        var state by remember { mutableStateOf(exists) }
+    private fun ListCardEntry(name: String, currentState: () -> Boolean, onState: (Boolean) -> Unit = {}) {
+        var currentState by remember { mutableStateOf(currentState()) }
 
         Row(
             modifier = Modifier
                 .fillMaxWidth()
                 .clickable {
-                    state = !state
-                    stateChanged(state)
+                    currentState = !currentState
+                    onState(currentState)
                 }
                 .padding(4.dp),
-            verticalAlignment = androidx.compose.ui.Alignment.CenterVertically
+            verticalAlignment = Alignment.CenterVertically
         ) {
             Text(
                 text = name,
                 fontSize = 15.sp,
                 modifier = Modifier
                     .weight(1f)
+                    .onGloballyPositioned {
+                        currentState = currentState()
+                    }
             )
 
-            androidx.compose.material3.Checkbox(
-                checked = state,
+            Checkbox(
+                checked = currentState,
                 onCheckedChange = {
-                    state = it
-                    stateChanged(state)
+                    currentState = it
+                    onState(currentState)
                 }
             )
         }
@@ -227,13 +232,12 @@ class AddFriendDialog(
 
                     items(filteredGroups.size) {
                         val group = filteredGroups[it]
-
                         ListCardEntry(
                             name = group.name,
-                            exists = remember { context.modDatabase.getGroupInfo(group.conversationId) != null }
+                            currentState = { context.modDatabase.getGroupInfo(group.conversationId) != null }
                         ) { state ->
                             if (state) {
-                                context.bridgeService.triggerGroupSync(cachedGroups!![it].conversationId)
+                                context.bridgeService.triggerGroupSync(group.conversationId)
                             } else {
                                 context.modDatabase.deleteGroup(group.conversationId)
                             }
@@ -257,10 +261,10 @@ class AddFriendDialog(
 
                         ListCardEntry(
                             name = friend.displayName?.takeIf { name -> name.isNotBlank() } ?: friend.mutableUsername,
-                            exists = remember { context.modDatabase.getFriendInfo(friend.userId) != null }
+                            currentState = { context.modDatabase.getFriendInfo(friend.userId) != null }
                         ) { state ->
                             if (state) {
-                                context.bridgeService.triggerFriendSync(cachedFriends!![it].userId)
+                                context.bridgeService.triggerFriendSync(friend.userId)
                             } else {
                                 context.modDatabase.deleteFriend(friend.userId)
                             }

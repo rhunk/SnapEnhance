@@ -10,21 +10,23 @@ import androidx.compose.runtime.remember
 import androidx.navigation.NavGraph.Companion.findStartDestination
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
+import me.rhunk.snapenhance.RemoteSideContext
 import me.rhunk.snapenhance.SharedContextHolder
 import me.rhunk.snapenhance.ui.AppMaterialTheme
 
 class MainActivity : ComponentActivity() {
     private lateinit var sections: Map<EnumSection, Section>
     private lateinit var navController: NavHostController
+    private lateinit var managerContext: RemoteSideContext
 
     override fun onPostResume() {
         super.onPostResume()
         sections.values.forEach { it.onResumed() }
     }
 
-    override fun onNewIntent(intent: Intent?) {
+    override fun onNewIntent(intent: Intent) {
         super.onNewIntent(intent)
-        intent?.getStringExtra("route")?.let { route ->
+        intent.getStringExtra("route")?.let { route ->
             navController.popBackStack()
             navController.navigate(route) {
                 popUpTo(navController.graph.findStartDestination().id){
@@ -38,7 +40,7 @@ class MainActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
 
         val startDestination = intent.getStringExtra("route")?.let { EnumSection.fromRoute(it) } ?: EnumSection.HOME
-        val managerContext = SharedContextHolder.remote(this).apply {
+        managerContext = SharedContextHolder.remote(this).apply {
             activity = this@MainActivity
             checkForRequirements()
         }

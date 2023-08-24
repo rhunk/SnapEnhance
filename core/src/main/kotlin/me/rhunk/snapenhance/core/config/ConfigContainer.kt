@@ -6,10 +6,11 @@ import kotlin.reflect.KProperty
 typealias ConfigParamsBuilder = ConfigParams.() -> Unit
 
 open class ConfigContainer(
-    var globalState: Boolean? = null
+    val hasGlobalState: Boolean = false
 ) {
     var parentContainerKey: PropertyKey<*>? = null
     val properties = mutableMapOf<PropertyKey<*>, PropertyValue<*>>()
+    var globalState: Boolean? = null
 
     private inline fun <T> registerProperty(
         key: String,

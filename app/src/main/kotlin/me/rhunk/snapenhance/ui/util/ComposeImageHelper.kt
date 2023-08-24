@@ -36,18 +36,23 @@ fun BitmojiImage(context: RemoteSideContext, modifier: Modifier = Modifier, size
     )
 }
 
+fun ImageRequest.Builder.cacheKey(key: String?) = apply {
+    memoryCacheKey(key)
+    diskCacheKey(key)
+}
+
 object ImageRequestHelper {
     fun newBitmojiImageRequest(context: Context, url: String?) = ImageRequest.Builder(context)
         .data(url)
         .fallback(R.drawable.bitmoji_blank)
         .precision(Precision.INEXACT)
         .crossfade(true)
-        .memoryCacheKey(url)
+        .cacheKey(url)
         .build()
 
     fun newDownloadPreviewImageRequest(context: Context, filePath: String?) = ImageRequest.Builder(context)
         .data(filePath)
-        .memoryCacheKey(filePath)
+        .cacheKey(filePath)
         .crossfade(true)
         .build()
 }

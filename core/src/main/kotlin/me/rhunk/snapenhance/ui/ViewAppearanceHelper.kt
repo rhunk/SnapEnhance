@@ -50,7 +50,7 @@ object ViewAppearanceHelper {
             }
         }
 
-        val snapchatFontResId = resources.getIdentifier("avenir_next_medium", "font", "com.snapchat.android")
+        val snapchatFontResId = resources.getIdentifier("avenir_next_medium", "font", Constants.SNAPCHAT_PACKAGE_NAME)
         val scalingFactor = resources.displayMetrics.densityDpi.toDouble() / 400
 
         with(component) {

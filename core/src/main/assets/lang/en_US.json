@@ -309,6 +309,16 @@
                     }
                 }
             },
+            "streaks_reminder": {
+                "name": "Streaks Reminder",
+                "description": "Reminds you to keep your streaks",
+                "properties": {
+                    "interval": {
+                        "name": "Interval",
+                        "description": "The interval between each reminder (in hours)"
+                    }
+                }
+            },
             "experimental": {
                 "name": "Experimental",
                 "description": "Experimental features",

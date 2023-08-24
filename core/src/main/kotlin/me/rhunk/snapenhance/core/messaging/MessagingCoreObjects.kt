@@ -1,6 +1,7 @@
 package me.rhunk.snapenhance.core.messaging
 
 import me.rhunk.snapenhance.util.SerializableDataObject
+import kotlin.time.Duration.Companion.hours
 
 
 enum class RuleState(
@@ -45,8 +46,16 @@ data class FriendStreaks(
     val notify: Boolean,
     val expirationTimestamp: Long,
     val length: Int
-) : SerializableDataObject()
+) : SerializableDataObject() {
+    companion object {
+        //TODO: config
+        val EXPIRE_THRESHOLD = 12.hours
+    }
 
+    fun hoursLeft() = (expirationTimestamp - System.currentTimeMillis()) / 1000 / 60 / 60
+
+    fun isAboutToExpire() = expirationTimestamp - System.currentTimeMillis() < EXPIRE_THRESHOLD.inWholeMilliseconds
+}
 
 data class MessagingGroupInfo(
     val conversationId: String,
