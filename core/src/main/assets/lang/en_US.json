@@ -123,6 +123,10 @@
                         "name": "Merge Overlays",
                         "description": "Combines the text and the media of a Snap into a single file"
                     },
+                    "force_image_format": {
+                        "name": "Force Image Format",
+                        "description": "Forces images to be saved as a specific format"
+                    },
                     "chat_download_context_menu": {
                         "name": "Chat Download Context Menu",
                         "description": "Allows to download messages from a conversation by long pressing them"

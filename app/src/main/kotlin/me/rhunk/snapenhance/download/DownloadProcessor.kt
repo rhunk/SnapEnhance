@@ -2,6 +2,8 @@ package me.rhunk.snapenhance.download
 
 import android.annotation.SuppressLint
 import android.content.Intent
+import android.graphics.Bitmap
+import android.graphics.BitmapFactory
 import android.net.Uri
 import android.widget.Toast
 import androidx.documentfile.provider.DocumentFile
@@ -121,10 +123,29 @@ class DownloadProcessor (
         if (coroutineContext.job.isCancelled) return
 
         runCatching {
-            val fileType = FileType.fromFile(inputFile)
+            var fileType = FileType.fromFile(inputFile)
+
             if (fileType == FileType.UNKNOWN) {
                 callbackOnFailure(translation.format("failed_gallery_toast", "error" to "Unknown media type"), null)
                 return
+            }
+
+            if (fileType.isImage) {
+                remoteSideContext.config.root.downloader.forceImageFormat.getNullable()?.let { format ->
+                    val bitmap = BitmapFactory.decodeFile(inputFile.absolutePath) ?: throw Exception("Failed to decode bitmap")
+                    @Suppress("DEPRECATION") val compressFormat = when (format) {
+                        "png" -> Bitmap.CompressFormat.PNG
+                        "jpg" -> Bitmap.CompressFormat.JPEG
+                        "webp" -> Bitmap.CompressFormat.WEBP
+                        else -> throw Exception("Invalid image format")
+                    }
+
+                    val outputStream = inputFile.outputStream()
+                    bitmap.compress(compressFormat, 100, outputStream)
+                    outputStream.close()
+
+                    fileType = FileType.fromFile(inputFile)
+                }
             }
 
             val fileName = downloadObject.metadata.outputPath.substringAfterLast("/") + "." + fileType.fileExtension
