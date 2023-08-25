@@ -42,4 +42,5 @@ dependencies {
     implementation(libs.androidx.documentfile)
 
     implementation(project(":mapper"))
+    implementation(project(":native"))
 }

@@ -20,3 +20,4 @@ rootProject.name = "SnapEnhance"
 include(":core")
 include(":app")
 include(":mapper")
+include(":native")

@@ -97,6 +97,12 @@ class SnapEnhance {
     private suspend fun init() {
         measureTime {
             with(appContext) {
+                runCatching {
+                    native.init()
+                }.onFailure {
+                    Logger.xposedLog("Failed to init native", it)
+                    return
+                }
                 reloadConfig()
                 withContext(appContext.coroutineDispatcher) {
                     translation.userLocale = getConfigLocale()

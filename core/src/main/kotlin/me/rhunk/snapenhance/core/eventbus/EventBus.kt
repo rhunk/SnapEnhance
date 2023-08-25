@@ -56,7 +56,7 @@ class EventBus(
 
         event.context = context
 
-        subscribers[event::class]?.forEach { listener ->
+        subscribers[event::class]?.toTypedArray()?.forEach { listener ->
             @Suppress("UNCHECKED_CAST")
             runCatching {
                 (listener as IListener<T>).handle(event)

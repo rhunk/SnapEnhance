@@ -21,6 +21,8 @@ import me.rhunk.snapenhance.database.DatabaseAccess
 import me.rhunk.snapenhance.features.Feature
 import me.rhunk.snapenhance.manager.impl.ActionManager
 import me.rhunk.snapenhance.manager.impl.FeatureManager
+import me.rhunk.snapenhance.nativelib.NativeConfig
+import me.rhunk.snapenhance.nativelib.NativeLib
 import me.rhunk.snapenhance.util.download.HttpServer
 import java.util.concurrent.ExecutorService
 import java.util.concurrent.Executors
@@ -44,6 +46,7 @@ class ModContext {
     val config by modConfig
     val event = EventBus(this)
     val eventDispatcher = EventDispatcher(this)
+    val native = NativeLib()
 
     val translation = LocaleWrapper()
     val features = FeatureManager(this)
@@ -121,6 +124,16 @@ class ModContext {
 
     fun reloadConfig() {
         modConfig.loadFromBridge(bridgeClient)
+        runCatching {
+            native.loadConfig(
+                NativeConfig(
+                    disableBitmoji = config.global.disableBitmoji.get(),
+                    disableMetrics = config.global.disableMetrics.get()
+                )
+            )
+        }.onFailure {
+            Logger.xposedLog("Failed to load native config", it)
+        }
     }
 
     fun getConfigLocale(): String {

@@ -249,6 +249,10 @@
                         "name": "Disable Metrics",
                         "description": "Disables some analytics data sent to Snapchat"
                     },
+                    "disable_bitmoji": {
+                        "name": "Disable Bitmoji",
+                        "description": "Disables friends profile bitmoji for the whole app"
+                    },
                     "block_ads": {
                         "name": "Block Ads",
                         "description": "Prevent ads from being displayed"

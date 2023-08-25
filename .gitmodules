@@ -1,0 +1,3 @@
+[submodule "dobby"]
+	path = native/jni/external/dobby
+	url = https://github.com/jmpews/Dobby
