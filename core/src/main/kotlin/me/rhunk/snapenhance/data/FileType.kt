@@ -21,17 +21,15 @@ enum class FileType(
     UNKNOWN("dat", "application/octet-stream", false, false, false);
 
     companion object {
-        private val fileSignatures = HashMap<String, FileType>()
-
-        init {
-            fileSignatures["52494646"] = WEBP
-            fileSignatures["504b0304"] = ZIP
-            fileSignatures["89504e47"] = PNG
-            fileSignatures["00000020"] = MP4
-            fileSignatures["00000018"] = MP4
-            fileSignatures["0000001c"] = MP4
-            fileSignatures["ffd8ffe0"] = JPG
-        }
+        private val fileSignatures = mapOf(
+            "52494646" to WEBP,
+            "504b0304" to ZIP,
+            "89504e47" to PNG,
+            "00000020" to  MP4,
+            "00000018" to MP4,
+            "0000001c" to MP4,
+            "ffd8ff" to JPG,
+        )
 
         fun fromString(string: String?): FileType {
             return values().firstOrNull { it.fileExtension.equals(string, ignoreCase = true) } ?: UNKNOWN

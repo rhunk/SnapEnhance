@@ -165,7 +165,7 @@ class MediaDownloader : MessagingRuleFeature("MediaDownloader", MessagingRuleTyp
         Uri.parse(path).let { uri ->
             if (uri.scheme == "file") {
                 return@let suspendCoroutine<String> { continuation ->
-                    context.downloadServer.ensureServerStarted {
+                    context.httpServer.ensureServerStarted {
                         val file = Paths.get(uri.path).toFile()
                         val url = putDownloadableContent(file.inputStream(), file.length())
                         continuation.resumeWith(Result.success(url))
@@ -530,6 +530,18 @@ class MediaDownloader : MessagingRuleFeature("MediaDownloader", MessagingRuleTyp
             context.longToast(translations["failed_generic_toast"])
             xposedLog(it)
         }
+    }
+
+    fun downloadProfilePicture(url: String, author: String) {
+        provideDownloadManagerClient(
+            pathSuffix = "Profile Pictures",
+            mediaIdentifier = url.hashCode().toString(16).replaceFirst("-", ""),
+            mediaDisplaySource = author,
+            mediaDisplayType = MediaFilter.PROFILE_PICTURE.key
+        ).downloadSingleMedia(
+            url,
+            DownloadMediaType.REMOTE_MEDIA
+        )
     }
 
     /**

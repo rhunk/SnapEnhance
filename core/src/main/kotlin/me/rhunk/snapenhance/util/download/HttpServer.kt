@@ -18,10 +18,10 @@ import java.util.StringTokenizer
 import java.util.concurrent.ConcurrentHashMap
 import kotlin.random.Random
 
-class DownloadServer(
+class HttpServer(
     private val timeout: Int = 10000
 ) {
-    private val port = Random.nextInt(10000, 65535)
+    val port = Random.nextInt(10000, 65535)
 
     private val coroutineScope = CoroutineScope(Dispatchers.IO)
     private var timeoutJob: Job? = null
@@ -30,16 +30,16 @@ class DownloadServer(
     private val cachedData = ConcurrentHashMap<String, Pair<InputStream, Long>>()
     private var serverSocket: ServerSocket? = null
 
-    fun ensureServerStarted(callback: DownloadServer.() -> Unit) {
+    fun ensureServerStarted(callback: HttpServer.() -> Unit) {
         if (serverSocket != null && !serverSocket!!.isClosed) {
             callback(this)
             return
         }
 
         coroutineScope.launch(Dispatchers.IO) {
-            Logger.debug("starting download server on port $port")
+            Logger.debug("starting http server on port $port")
             serverSocket = ServerSocket(port)
-            callback(this@DownloadServer)
+            callback(this@HttpServer)
             while (!serverSocket!!.isClosed) {
                 try {
                     val socket = serverSocket!!.accept()
@@ -48,7 +48,7 @@ class DownloadServer(
                         handleRequest(socket)
                         timeoutJob = launch {
                             delay(timeout.toLong())
-                            Logger.debug("download server closed due to timeout")
+                            Logger.debug("http server closed due to timeout")
                             runCatching {
                                 socketJob?.cancel()
                                 socket.close()
@@ -59,7 +59,7 @@ class DownloadServer(
                         }
                     }
                 } catch (e: SocketException) {
-                    Logger.debug("download server timed out")
+                    Logger.debug("http server timed out")
                     break;
                 } catch (e: Throwable) {
                     Logger.error("failed to handle request", e)
@@ -96,6 +96,8 @@ class DownloadServer(
         val parse = StringTokenizer(line)
         val method = parse.nextToken().uppercase(Locale.getDefault())
         var fileRequested = parse.nextToken().lowercase(Locale.getDefault())
+        Logger.debug("[http-server:${port}] $method $fileRequested")
+
         if (method != "GET") {
             with(writer) {
                 println("HTTP/1.1 501 Not Implemented")

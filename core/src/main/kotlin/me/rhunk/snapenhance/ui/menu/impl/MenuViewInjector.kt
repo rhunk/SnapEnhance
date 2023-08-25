@@ -7,11 +7,10 @@ import android.view.ViewGroup
 import android.widget.FrameLayout
 import android.widget.LinearLayout
 import me.rhunk.snapenhance.Constants
+import me.rhunk.snapenhance.core.eventbus.events.impl.AddViewEvent
 import me.rhunk.snapenhance.features.Feature
 import me.rhunk.snapenhance.features.FeatureLoadParams
 import me.rhunk.snapenhance.features.impl.Messaging
-import me.rhunk.snapenhance.hook.HookStage
-import me.rhunk.snapenhance.hook.Hooker
 import java.lang.reflect.Modifier
 
 @SuppressLint("DiscouragedApi")
@@ -42,17 +41,9 @@ class MenuViewInjector : Feature("MenuViewInjector", loadParams = FeatureLoadPar
         val componentsHolder = context.resources.getIdentifier("components_holder", "id", Constants.SNAPCHAT_PACKAGE_NAME)
         val feedNewChat = context.resources.getIdentifier("feed_new_chat", "id", Constants.SNAPCHAT_PACKAGE_NAME)
 
-        val addViewMethod = ViewGroup::class.java.getMethod(
-            "addView",
-            View::class.java,
-            Int::class.javaPrimitiveType,
-            ViewGroup.LayoutParams::class.java
-        )
-
-        Hooker.hook(addViewMethod, HookStage.BEFORE) { param ->
-            val viewGroup: ViewGroup = param.thisObject()
+        context.event.subscribe(AddViewEvent::class) { event ->
             val originalAddView: (View) -> Unit = {
-                param.invokeOriginal(arrayOf(it, -1,
+                event.adapter.invokeOriginal(arrayOf(it, -1,
                     FrameLayout.LayoutParams(
                         ViewGroup.LayoutParams.MATCH_PARENT,
                         ViewGroup.LayoutParams.MATCH_PARENT
@@ -60,19 +51,20 @@ class MenuViewInjector : Feature("MenuViewInjector", loadParams = FeatureLoadPar
                 )
             }
 
-            val childView: View = param.arg(0)
-            operaContextActionMenu.inject(viewGroup, childView)
+            val viewGroup: ViewGroup = event.parent
+            val childView: View = event.view
+            operaContextActionMenu.inject(event.parent, childView)
 
-            if (viewGroup.id == componentsHolder && childView.id == feedNewChat) {
-                settingsGearInjector.inject(viewGroup, childView)
-                return@hook
+            if (event.parent.id == componentsHolder && childView.id == feedNewChat) {
+                settingsGearInjector.inject(event.parent, childView)
+                return@subscribe
             }
 
             //download in chat snaps and notes from the chat action menu
             if (viewGroup.javaClass.name.endsWith("ActionMenuChatItemContainer")) {
-                if (viewGroup.parent == null || viewGroup.parent.parent == null) return@hook
+                if (viewGroup.parent == null || viewGroup.parent.parent == null) return@subscribe
                 chatActionMenu.inject(viewGroup)
-                return@hook
+                return@subscribe
             }
 
             //TODO: inject in group chat menus
@@ -101,7 +93,7 @@ class MenuViewInjector : Feature("MenuViewInjector", loadParams = FeatureLoadPar
                     viewList.reversed().forEach { injectedLayout.addView(it, 0) }
                 }
 
-                param.setArg(0, injectedLayout)
+                event.view = injectedLayout
             }
 
             if (viewGroup is LinearLayout && viewGroup.id == actionSheetItemsContainerLayoutId) {
@@ -125,12 +117,12 @@ class MenuViewInjector : Feature("MenuViewInjector", loadParams = FeatureLoadPar
                             //context.config.writeConfig()
                         }
                     })
-                    return@hook
+                    return@subscribe
                 }
-                if (messaging.lastFetchConversationUUID == null || messaging.lastFetchConversationUserUUID == null) return@hook
+                if (messaging.lastFetchConversationUUID == null || messaging.lastFetchConversationUserUUID == null) return@subscribe
 
                 //filter by the slot index
-                if (viewGroup.getChildCount() != context.config.userInterface.friendFeedMenuPosition.get()) return@hook
+                if (viewGroup.getChildCount() != context.config.userInterface.friendFeedMenuPosition.get()) return@subscribe
                 friendFeedInfoMenu.inject(viewGroup, originalAddView)
             }
         }

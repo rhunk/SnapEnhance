@@ -1,20 +1,27 @@
 package me.rhunk.snapenhance.features.impl.spying
 
+import kotlinx.coroutines.runBlocking
+import me.rhunk.snapenhance.Logger
+import me.rhunk.snapenhance.core.eventbus.events.impl.NetworkApiRequestEvent
 import me.rhunk.snapenhance.features.Feature
 import me.rhunk.snapenhance.features.FeatureLoadParams
-import me.rhunk.snapenhance.hook.HookStage
-import me.rhunk.snapenhance.hook.Hooker
-import me.rhunk.snapenhance.util.ktx.getObjectField
-import me.rhunk.snapenhance.util.ktx.setObjectField
+import me.rhunk.snapenhance.util.download.HttpServer
+import kotlin.coroutines.suspendCoroutine
 
 class AnonymousStoryViewing : Feature("Anonymous Story Viewing", loadParams = FeatureLoadParams.ACTIVITY_CREATE_ASYNC) {
     override fun asyncOnActivityCreate() {
         val anonymousStoryViewProperty by context.config.messaging.anonymousStoryViewing
-        Hooker.hook(context.classCache.networkApi,"submit", HookStage.BEFORE, { anonymousStoryViewProperty }) {
-            val httpRequest: Any = it.arg(0)
-            val url = httpRequest.getObjectField("mUrl") as String
-            if (url.endsWith("readreceipt-indexer/batchuploadreadreceipts")) {
-                httpRequest.setObjectField("mUrl", "http://127.0.0.1")
+        val httpServer = HttpServer()
+
+        context.event.subscribe(NetworkApiRequestEvent::class, { anonymousStoryViewProperty }) { event ->
+            if (!event.url.endsWith("readreceipt-indexer/batchuploadreadreceipts")) return@subscribe
+            runBlocking {
+                suspendCoroutine {
+                    httpServer.ensureServerStarted {
+                        event.url = "http://127.0.0.1:${httpServer.port}"
+                        it.resumeWith(Result.success(Unit))
+                    }
+                }
             }
         }
     }

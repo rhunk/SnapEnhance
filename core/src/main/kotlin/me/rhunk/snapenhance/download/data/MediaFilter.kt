@@ -8,7 +8,8 @@ enum class MediaFilter(
     PENDING("pending", true),
     CHAT_MEDIA("chat_media"),
     STORY("story"),
-    SPOTLIGHT("spotlight");
+    SPOTLIGHT("spotlight"),
+    PROFILE_PICTURE("profile_picture");
 
     fun matches(source: String?): Boolean {
         if (source == null) return false

@@ -111,8 +111,8 @@ object Hooker {
         val unhooks: MutableSet<XC_MethodHook.Unhook> = HashSet()
         hook(clazz, methodName, stage) { param->
             if (param.nullableThisObject<Any>() != instance) return@hook
+            unhooks.forEach { it.unhook() }
             hookConsumer(param)
-            unhooks.forEach{ it.unhook() }
         }.also { unhooks.addAll(it) }
     }
 }

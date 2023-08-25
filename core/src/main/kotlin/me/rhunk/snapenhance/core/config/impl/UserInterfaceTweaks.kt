@@ -25,13 +25,13 @@ class UserInterfaceTweaks : ConfigContainer() {
         "hide_call_buttons"
     )
     val disableSpotlight = boolean("disable_spotlight")
-    val startupTab = unique("startup_tab", "ngs_map_icon_container",
+    val startupTab = unique("startup_tab",
         "ngs_map_icon_container",
         "ngs_chat_icon_container",
         "ngs_camera_icon_container",
         "ngs_community_icon_container",
         "ngs_spotlight_icon_container",
         "ngs_search_icon_container"
-    )
+    ) { addNotices(FeatureNotice.MAY_BREAK_INTERNAL_BEHAVIOR) }
     val storyViewerOverride = unique("story_viewer_override", "DISCOVER_PLAYBACK_SEEKBAR", "VERTICAL_STORY_VIEWER") { addNotices(FeatureNotice.UNSTABLE) }
 }

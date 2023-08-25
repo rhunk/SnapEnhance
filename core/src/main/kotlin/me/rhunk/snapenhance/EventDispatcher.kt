@@ -1,6 +1,11 @@
 package me.rhunk.snapenhance
 
 import android.content.Intent
+import android.view.View
+import android.view.ViewGroup
+import android.view.ViewGroup.LayoutParams
+import me.rhunk.snapenhance.core.eventbus.events.impl.AddViewEvent
+import me.rhunk.snapenhance.core.eventbus.events.impl.NetworkApiRequestEvent
 import me.rhunk.snapenhance.core.eventbus.events.impl.OnSnapInteractionEvent
 import me.rhunk.snapenhance.core.eventbus.events.impl.SendMessageWithContentEvent
 import me.rhunk.snapenhance.core.eventbus.events.impl.SnapWidgetBroadcastReceiveEvent
@@ -9,6 +14,8 @@ import me.rhunk.snapenhance.data.wrapper.impl.SnapUUID
 import me.rhunk.snapenhance.hook.HookStage
 import me.rhunk.snapenhance.hook.hook
 import me.rhunk.snapenhance.manager.Manager
+import me.rhunk.snapenhance.util.ktx.getObjectField
+import me.rhunk.snapenhance.util.ktx.setObjectField
 import me.rhunk.snapenhance.util.snap.SnapWidgetBroadcastReceiverHelper
 
 class EventDispatcher(
@@ -57,5 +64,48 @@ class EventDispatcher(
                 }
             }
         }
+
+        ViewGroup::class.java.getMethod(
+            "addView",
+            View::class.java,
+            Int::class.javaPrimitiveType,
+            LayoutParams::class.java
+        ).hook(HookStage.BEFORE) { param ->
+            context.event.post(
+                AddViewEvent(
+                    parent = param.thisObject(),
+                    view = param.arg(0),
+                    index = param.arg(1),
+                    layoutParams = param.arg(2)
+                ).apply {
+                    adapter = param
+                }
+            )?.also { event ->
+                with(param) {
+                    setArg(0, event.view)
+                    setArg(1, event.index)
+                    setArg(2, event.layoutParams)
+                }
+                if (event.canceled) param.setResult(null)
+            }
+        }
+
+        context.classCache.networkApi.hook("submit", HookStage.BEFORE) { param ->
+            val request = param.arg<Any>(0)
+
+            context.event.post(
+                NetworkApiRequestEvent(
+                    url = request.getObjectField("mUrl") as String,
+                    callback = param.arg(4),
+                    request = request,
+                ).apply {
+                    adapter = param
+                }
+            )?.also { event ->
+                event.request.setObjectField("mUrl", event.url)
+                if (event.canceled) param.setResult(null)
+            }
+        }
+
     }
 }

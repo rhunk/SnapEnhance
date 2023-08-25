@@ -8,9 +8,9 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.FrameLayout
 import me.rhunk.snapenhance.Constants
+import me.rhunk.snapenhance.core.eventbus.events.impl.AddViewEvent
 import me.rhunk.snapenhance.features.Feature
 import me.rhunk.snapenhance.features.FeatureLoadParams
-import me.rhunk.snapenhance.hook.HookAdapter
 import me.rhunk.snapenhance.hook.HookStage
 import me.rhunk.snapenhance.hook.Hooker
 import me.rhunk.snapenhance.hook.hook
@@ -25,12 +25,12 @@ class UITweaks : Feature("UITweaks", loadParams = FeatureLoadParams.ACTIVITY_CRE
         }
     }
 
-    private fun hideStorySection(param: HookAdapter) {
-        val parent = param.thisObject() as ViewGroup
+    private fun hideStorySection(event: AddViewEvent) {
+        val parent = event.parent
         parent.visibility = View.GONE
         val marginLayoutParams = parent.layoutParams as ViewGroup.MarginLayoutParams
         marginLayoutParams.setMargins(-99999, -99999, -99999, -99999)
-        param.setResult(null)
+        event.canceled = true
     }
 
     @SuppressLint("DiscouragedApi", "InternalInsetResource")
@@ -69,33 +69,29 @@ class UITweaks : Feature("UITweaks", loadParams = FeatureLoadParams.ACTIVITY_CRE
             }
         }
 
-        ViewGroup::class.java.getMethod(
-            "addView",
-            View::class.java,
-            Int::class.javaPrimitiveType,
-            ViewGroup.LayoutParams::class.java
-        ).hook(HookStage.BEFORE) { param ->
-            val view: View = param.arg(0)
-            val viewId = view.id
+
+        context.event.subscribe(AddViewEvent::class) { event ->
+            val viewId = event.view.id
+            val view = event.view
 
             if (hideStorySections.contains("hide_for_you")) {
                 if (viewId == getIdentifier("df_large_story", "id") ||
                             viewId == getIdentifier("df_promoted_story", "id")) {
-                    hideStorySection(param)
-                    return@hook
+                    hideStorySection(event)
+                    return@subscribe
                 }
                 if (viewId == getIdentifier("stories_load_progress_layout", "id")) {
-                    param.setResult(null)
+                    event.canceled = true
                 }
             }
 
             if (hideStorySections.contains("hide_friends") && viewId == getIdentifier("friend_card_frame", "id")) {
-                hideStorySection(param)
+                hideStorySection(event)
             }
 
             //mappings?
             if (hideStorySections.contains("hide_friend_suggestions") && view.javaClass.superclass?.name?.endsWith("StackDrawLayout") == true) {
-                val layoutParams = view.layoutParams as? FrameLayout.LayoutParams ?: return@hook
+                val layoutParams = view.layoutParams as? FrameLayout.LayoutParams ?: return@subscribe
                 if (layoutParams.width == -1 &&
                     layoutParams.height == -2 &&
                     view.javaClass.let { clazz ->
@@ -103,17 +99,17 @@ class UITweaks : Feature("UITweaks", loadParams = FeatureLoadParams.ACTIVITY_CRE
                         clazz.constructors.any { it.parameterCount == 1 && it.parameterTypes[0] == Context::class.java }
                     }
                 ) {
-                    hideStorySection(param)
+                    hideStorySection(event)
                 }
             }
 
             if (hideStorySections.contains("hide_following") && (viewId == getIdentifier("df_small_story", "id"))
             ) {
-                hideStorySection(param)
+                hideStorySection(event)
             }
 
             if (blockAds && viewId == getIdentifier("df_promoted_story", "id")) {
-                hideStorySection(param)
+                hideStorySection(event)
             }
 
             if (isImmersiveCamera) {
@@ -145,15 +141,15 @@ class UITweaks : Feature("UITweaks", loadParams = FeatureLoadParams.ACTIVITY_CRE
                 view.visibility = View.GONE
             }
             if (getIdentifier("chat_input_bar_sharing_drawer_button", "id") == viewId && hiddenElements.contains("hide_live_location_share_button")) {
-                param.setResult(null)
+                event.canceled = true
             }
             if (viewId == callButton1 || viewId == callButton2) {
-                if (!hiddenElements.contains("hide_call_buttons")) return@hook
-                if (view.visibility == View.GONE) return@hook
+                if (!hiddenElements.contains("hide_call_buttons")) return@subscribe
+                if (view.visibility == View.GONE) return@subscribe
             }
             if (viewId == callButtonsStub) {
-                if (!hiddenElements.contains("hide_call_buttons")) return@hook
-                param.setResult(null)
+                if (!hiddenElements.contains("hide_call_buttons")) return@subscribe
+                event.canceled = true
             }
         }
     }

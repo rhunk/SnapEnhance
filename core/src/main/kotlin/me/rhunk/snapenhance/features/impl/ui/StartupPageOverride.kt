@@ -3,9 +3,9 @@ package me.rhunk.snapenhance.features.impl.ui
 import android.annotation.SuppressLint
 import android.os.Handler
 import android.view.View
-import android.view.ViewGroup
 import android.widget.LinearLayout
 import me.rhunk.snapenhance.Constants
+import me.rhunk.snapenhance.core.eventbus.events.impl.AddViewEvent
 import me.rhunk.snapenhance.features.Feature
 import me.rhunk.snapenhance.features.FeatureLoadParams
 import me.rhunk.snapenhance.hook.HookStage
@@ -38,21 +38,17 @@ class StartupPageOverride : Feature("StartupPageOverride", loadParams = FeatureL
         }
 
         val ngsIconId = context.androidContext.resources.getIdentifier(ngsIconName, "id", Constants.SNAPCHAT_PACKAGE_NAME)
-        val unhooks = mutableListOf<() -> Unit>()
 
-        ViewGroup::class.java.getMethod(
-            "addView",
-            View::class.java,
-            Int::class.javaPrimitiveType,
-            ViewGroup.LayoutParams::class.java
-        ).hook(HookStage.AFTER) { param ->
-            if (param.thisObject<ViewGroup>() !is LinearLayout) return@hook
-            with(param.arg<View>(0)) {
+        lateinit var unhook: () -> Unit
+
+        context.event.subscribe(AddViewEvent::class) { event ->
+            if (event.parent !is LinearLayout) return@subscribe
+            with(event.view) {
                 if (id == ngsIconId) {
                     ngsIcon = this
-                    unhooks.forEach { it() }
+                    unhook()
                 }
             }
-        }.also { unhooks.add(it::unhook) }
+        }.also { unhook = it }
     }
 }

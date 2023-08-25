@@ -21,7 +21,7 @@ import me.rhunk.snapenhance.database.DatabaseAccess
 import me.rhunk.snapenhance.features.Feature
 import me.rhunk.snapenhance.manager.impl.ActionManager
 import me.rhunk.snapenhance.manager.impl.FeatureManager
-import me.rhunk.snapenhance.util.download.DownloadServer
+import me.rhunk.snapenhance.util.download.HttpServer
 import java.util.concurrent.ExecutorService
 import java.util.concurrent.Executors
 import kotlin.reflect.KClass
@@ -50,7 +50,7 @@ class ModContext {
     val mappings = MappingsWrapper()
     val actionManager = ActionManager(this)
     val database = DatabaseAccess(this)
-    val downloadServer = DownloadServer()
+    val httpServer = HttpServer()
     val messageSender = MessageSender(this)
     val classCache get() = SnapEnhance.classCache
     val resources: Resources get() = androidContext.resources
