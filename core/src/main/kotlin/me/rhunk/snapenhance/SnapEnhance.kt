@@ -98,7 +98,7 @@ class SnapEnhance {
         measureTime {
             with(appContext) {
                 runCatching {
-                    native.init()
+                    native.initOnce(appContext.androidContext.classLoader)
                 }.onFailure {
                     Logger.xposedLog("Failed to init native", it)
                     return

@@ -1,17 +1,16 @@
 #include <jni.h>
 #include <string>
 #include <dobby.h>
-#include <sys/stat.h>
 #include <unistd.h>
-#include <fstream>
 #include <vector>
 
 #include "logger.h"
 #include "config.h"
+#include "util.h"
 
 static native_config_t *native_config;
 
-static auto fstat_original = fstat;
+static auto fstat_original = (int (*)(int, struct stat *)) nullptr;
 static int fstat_hook(int fd, struct stat *buf) {
     char name[256];
     memset(name, 0, 256);
@@ -35,14 +34,37 @@ static int fstat_hook(int fd, struct stat *buf) {
 }
 
 
-#define GET_BOOL_FIELD(env, clazz, field) env->GetBooleanField(clazz, env->GetFieldID(clazz, field, "Z"))
+extern "C" JNIEXPORT void JNICALL
+init(JNIEnv *env, jobject clazz, jobject classloader) {
+    LOGD("initializing native");
+    // config
+    native_config = new native_config_t;
+
+    // load libclient.so
+    util::load_library(env, classloader, "client");
+    auto client_module = util::get_module("libclient.so");
+    if (client_module.base == 0) {
+        LOGE("libclient not found");
+        return;
+    }
+    client_module.base -= 0x1000;
+    LOGD("libclient: offset: 0x%x size: 0x%x", client_module.base, client_module.size);
+
+    // hooks
+    DobbyHook((void *) DobbySymbolResolver("libc.so", "fstat"), (void *) fstat_hook,
+              (void **) &fstat_original);
+
+    LOGD("native initialized");
+}
+
 
 extern "C" JNIEXPORT void JNICALL
-loadConfig(JNIEnv *env, jobject  clazz, jobject config_object) {
-    auto native_config_class = env->GetObjectClass(config_object);
+loadConfig(JNIEnv *env, jobject clazz, jobject config_object) {
+    auto native_config_clazz = env->GetObjectClass(config_object);
+    #define GET_CONFIG_BOOL(name) env->GetBooleanField(config_object, env->GetFieldID(native_config_clazz, name, "Z"))
 
-    native_config->disable_bitmoji = GET_BOOL_FIELD(env, native_config_class, "disableBitmoji");
-    native_config->disable_metrics = GET_BOOL_FIELD(env, native_config_class, "disableMetrics");
+    native_config->disable_bitmoji = GET_CONFIG_BOOL("disableBitmoji");
+    native_config->disable_metrics = GET_CONFIG_BOOL("disableMetrics");
 
     LOGD("config loaded");
 }
@@ -50,18 +72,12 @@ loadConfig(JNIEnv *env, jobject  clazz, jobject config_object) {
 //jni onload
 extern "C" JNIEXPORT jint JNICALL
 JNI_OnLoad(JavaVM *vm, void *reserved) {
-    LOGD("initializing native");
-    // config
-    native_config = new native_config_t;
-
-    // hooks
-    DobbyHook((void *) fstat_original,(void *) fstat_hook,(void **) &fstat_original);
-
     // register native methods
     JNIEnv *env = nullptr;
     vm->GetEnv((void **) &env, JNI_VERSION_1_6);
 
     auto methods = std::vector<JNINativeMethod>();
+    methods.push_back({"init", "(Ljava/lang/ClassLoader;)V", (void *) init});
     methods.push_back({"loadConfig", "(Lme/rhunk/snapenhance/nativelib/NativeConfig;)V", (void *) loadConfig});
 
     env->RegisterNatives(
@@ -69,8 +85,5 @@ JNI_OnLoad(JavaVM *vm, void *reserved) {
             methods.data(),
             methods.size()
     );
-
-    LOGD("native initialized");
-
     return JNI_VERSION_1_6;
 }

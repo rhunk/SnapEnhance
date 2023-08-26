@@ -106,6 +106,5 @@ class EventDispatcher(
                 if (event.canceled) param.setResult(null)
             }
         }
-
     }
 }
