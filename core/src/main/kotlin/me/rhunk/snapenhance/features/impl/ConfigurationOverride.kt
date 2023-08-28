@@ -17,7 +17,6 @@ class ConfigurationOverride : Feature("Configuration Override", loadParams = Fea
 
         overrideProperty("STREAK_EXPIRATION_INFO", { context.config.userInterface.streakExpirationInfo.get() }, true)
 
-        overrideProperty("FORCE_CAMERA_HIGHEST_FPS", { context.config.camera.forceHighestFrameRate.get() }, true)
         overrideProperty("MEDIA_RECORDER_MAX_QUALITY_LEVEL", { context.config.camera.forceCameraSourceEncoding.get() }, true)
         overrideProperty("REDUCE_MY_PROFILE_UI_COMPLEXITY", { context.config.userInterface.mapFriendNameTags.get() }, true)
         overrideProperty("ENABLE_LONG_SNAP_SENDING", { context.config.global.disableSnapSplitting.get() }, true)

@@ -4,13 +4,17 @@ import android.Manifest
 import android.annotation.SuppressLint
 import android.content.ContextWrapper
 import android.content.pm.PackageManager
+import android.hardware.camera2.CameraCharacteristics
+import android.hardware.camera2.CameraCharacteristics.Key
 import android.hardware.camera2.CameraManager
+import android.util.Range
 import me.rhunk.snapenhance.data.wrapper.impl.ScSize
 import me.rhunk.snapenhance.features.Feature
 import me.rhunk.snapenhance.features.FeatureLoadParams
 import me.rhunk.snapenhance.hook.HookStage
 import me.rhunk.snapenhance.hook.hook
 import me.rhunk.snapenhance.hook.hookConstructor
+import me.rhunk.snapenhance.util.ktx.setObjectField
 
 class CameraTweaks : Feature("Camera Tweaks", loadParams = FeatureLoadParams.ACTIVITY_CREATE_SYNC) {
     companion object {
@@ -38,6 +42,21 @@ class CameraTweaks : Feature("Camera Tweaks", loadParams = FeatureLoadParams.ACT
 
         val previewResolutionConfig = context.config.camera.overridePreviewResolution.getNullable()?.let { parseResolution(it) }
         val captureResolutionConfig = context.config.camera.overridePictureResolution.getNullable()?.let { parseResolution(it) }
+
+        context.config.camera.customFrameRate.getNullable()?.also { value ->
+            val customFrameRate = value.toInt()
+            CameraCharacteristics::class.java.hook("get", HookStage.AFTER)  { param ->
+                val key = param.arg<Key<*>>(0)
+                if (key == CameraCharacteristics.CONTROL_AE_AVAILABLE_TARGET_FPS_RANGES) {
+                    val fpsRanges = param.getResult() as? Array<*> ?: return@hook
+                    fpsRanges.forEach {
+                        val range = it as? Range<*> ?: return@forEach
+                        range.setObjectField("mUpper", customFrameRate)
+                        range.setObjectField("mLower", customFrameRate)
+                    }
+                }
+            }
+        }
 
         context.mappings.getMappedClass("ScCameraSettings").hookConstructor(HookStage.BEFORE) { param ->
             val previewResolution = ScSize(param.argNullable(2))

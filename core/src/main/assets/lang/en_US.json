@@ -289,9 +289,9 @@
                         "name": "Override Picture Resolution",
                         "description": "Overrides the picture resolution"
                     },
-                    "force_highest_frame_rate": {
-                        "name": "Force Highest Frame Rate",
-                        "description": "Forces the highest possible frame rate"
+                    "custom_frame_rate": {
+                        "name": "Custom Frame Rate",
+                        "description": "Overrides the camera frame rate"
                     },
                     "force_camera_source_encoding": {
                         "name": "Force Camera Source Encoding",
