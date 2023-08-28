@@ -99,6 +99,7 @@ class SnapEnhance {
         measureTime {
             with(appContext) {
                 reloadConfig()
+                initNative()
                 withContext(appContext.coroutineDispatcher) {
                     translation.userLocale = getConfigLocale()
                     translation.loadFromBridge(bridgeClient)
@@ -121,23 +122,26 @@ class SnapEnhance {
     private fun onActivityCreate() {
         measureTime {
             with(appContext) {
-                runCatching {
-                    native.initOnce(appContext.androidContext.classLoader)
-                    native.nativeUnaryCallCallback = { request ->
-                        event.post(UnaryCallEvent(request.uri, request.buffer))?.also {
-                            request.buffer = it.buffer
-                            request.canceled = it.canceled
-                        }
-                    }
-                }.onFailure {
-                    Logger.xposedLog("Failed to init native", it)
-                }
-
                 features.onActivityCreate()
                 actionManager.init()
             }
         }.also { time ->
             Logger.debug("onActivityCreate took $time")
+        }
+    }
+
+    private fun initNative() {
+        // don't initialize native when not logged in
+        if (!appContext.database.hasArroyo()) return
+        appContext.native.apply {
+            if (appContext.config.experimental.nativeHooks.globalState != true) return@apply
+            initOnce(appContext.androidContext.classLoader)
+            nativeUnaryCallCallback = { request ->
+                appContext.event.post(UnaryCallEvent(request.uri, request.buffer))?.also {
+                    request.buffer = it.buffer
+                    request.canceled = it.canceled
+                }
+            }
         }
     }
 

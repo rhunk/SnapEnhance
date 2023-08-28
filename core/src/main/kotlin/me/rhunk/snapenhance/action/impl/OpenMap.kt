@@ -11,8 +11,8 @@ class OpenMap: AbstractAction("action.open_map") {
             val mapActivityIntent = Intent()
             mapActivityIntent.setClassName(BuildConfig.APPLICATION_ID, "me.rhunk.snapenhance.ui.MapActivity")
             mapActivityIntent.putExtra("location", Bundle().apply {
-                putDouble("latitude", context.config.spoof.location.latitude.get().toDouble())
-                putDouble("longitude", context.config.spoof.location.longitude.get().toDouble())
+                putDouble("latitude", context.config.experimental.spoof.location.latitude.get().toDouble())
+                putDouble("longitude", context.config.experimental.spoof.location.longitude.get().toDouble())
             })
 
             context.mainActivity!!.startActivityForResult(mapActivityIntent, 0x1337)

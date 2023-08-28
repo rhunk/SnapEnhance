@@ -1,5 +1,6 @@
 package me.rhunk.snapenhance.features.impl.tweaks
 
+import me.rhunk.snapenhance.Constants
 import me.rhunk.snapenhance.core.eventbus.events.impl.SendMessageWithContentEvent
 import me.rhunk.snapenhance.core.eventbus.events.impl.UnaryCallEvent
 import me.rhunk.snapenhance.data.ContentType
@@ -11,21 +12,36 @@ import me.rhunk.snapenhance.util.protobuf.ProtoEditor
 import me.rhunk.snapenhance.util.protobuf.ProtoReader
 
 class GalleryMediaSendOverride : Feature("Gallery Media Send Override", loadParams = FeatureLoadParams.INIT_SYNC) {
+    private var isLastSnapSavable = false
+
     override fun init() {
-        val typeNames = listOf(
+        val fixGalleryMediaSendOverride = context.config.experimental.nativeHooks.let {
+            it.globalState == true && it.fixGalleryMediaOverride.get()
+        }
+        val typeNames = mutableListOf(
             "ORIGINAL",
             "SNAP",
-            "LIVE_SNAP",
             "NOTE"
-        ).associateWith {
+        ).also {
+            if (fixGalleryMediaSendOverride) {
+                it.add("SAVABLE_SNAP")
+            }
+        }.associateWith {
            it
         }
 
-        context.event.subscribe(UnaryCallEvent::class) { event ->
+        context.event.subscribe(UnaryCallEvent::class, { fixGalleryMediaSendOverride }) { event ->
             if (event.uri != "/messagingcoreservice.MessagingCoreService/CreateContentMessage") return@subscribe
+            if (!isLastSnapSavable) return@subscribe
+            ProtoReader(event.buffer).also {
+                // only affect snaps
+                if (!it.containsPath(*Constants.ARROYO_MEDIA_CONTAINER_PROTO_PATH, 11)) return@subscribe
+            }
+            isLastSnapSavable = false
+
             event.buffer = ProtoEditor(event.buffer).apply {
-                //remove the mas view time
-                edit(4, 4, 11, 5, 2) {
+                //remove the max view time
+                edit(*Constants.ARROYO_MEDIA_CONTAINER_PROTO_PATH, 11, 5, 2) {
                     remove(8)
                     addBuffer(6, byteArrayOf())
                 }
@@ -43,7 +59,6 @@ class GalleryMediaSendOverride : Feature("Gallery Media Send Override", loadPara
         context.event.subscribe(SendMessageWithContentEvent::class, {
             context.config.messaging.galleryMediaSendOverride.get()
         }) { event ->
-
             val localMessageContent = event.messageContent
             if (localMessageContent.contentType != ContentType.EXTERNAL_MEDIA) return@subscribe
 
@@ -70,9 +85,12 @@ class GalleryMediaSendOverride : Feature("Gallery Media Send Override", loadPara
                         }
 
                         when (overrideType) {
-                            "SNAP", "LIVE_SNAP" -> {
+                            "SNAP", "SAVABLE_SNAP" -> {
                                 localMessageContent.contentType = ContentType.SNAP
-                                localMessageContent.content = MessageSender.redSnapProto(overrideType == "LIVE_SNAP")
+                                localMessageContent.content = MessageSender.redSnapProto()
+                                if (overrideType == "SAVABLE_SNAP") {
+                                    isLastSnapSavable = true
+                                }
                             }
 
                             "NOTE" -> {

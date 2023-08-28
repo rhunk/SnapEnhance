@@ -75,26 +75,12 @@
 
     "features": {
         "notices": {
-            "unstable": "This feature is unstable and may not work as expected",
-            "may_ban": "This feature may get you banned\nUse at your own risk",
-            "may_break_internal_behavior": "This feature may break Snapchat internal behavior",
-            "may_cause_crashes": "This feature may cause crashes"
+            "unstable": "This is unstable and may not work as expected",
+            "may_ban": "This may get you banned\nUse at your own risk",
+            "may_break_internal_behavior": "This may break Snapchat internal behavior",
+            "may_cause_crashes": "This may cause crashes"
         },
         "properties": {
-            "spoof": {
-                "name": "Spoof",
-                "description": "Spoof your information",
-                "properties": {
-                    "location": {
-                        "name": "Location",
-                        "description": "Spoof your location"
-                    },
-                    "device": {
-                        "name": "Device",
-                        "description": "Spoof your device"
-                    }
-                }
-            },
             "downloader": {
                 "name": "Downloader",
                 "description": "Download Snaps and Stories",
@@ -249,10 +235,6 @@
                         "name": "Disable Metrics",
                         "description": "Disables some analytics data sent to Snapchat"
                     },
-                    "disable_bitmoji": {
-                        "name": "Disable Bitmoji",
-                        "description": "Disables friends profile bitmoji for the whole app"
-                    },
                     "block_ads": {
                         "name": "Block Ads",
                         "description": "Prevent ads from being displayed"
@@ -331,6 +313,34 @@
                 "name": "Experimental",
                 "description": "Experimental features",
                 "properties": {
+                    "native_hooks": {
+                        "name": "Native Hooks",
+                        "description": "Unsafe features that hook into Snapchat's native code",
+                        "properties": {
+                            "disable_bitmoji": {
+                                "name": "Disable Bitmoji",
+                                "description": "Disables friends profile bitmoji"
+                            },
+                            "fix_gallery_media_override": {
+                                "name": "Fix Gallery Media Override",
+                                "description": "Fixes various issues with the Gallery Media Send Override feature (e.g. save snaps in chat)"
+                            }
+                        }
+                    },
+                    "spoof": {
+                        "name": "Spoof",
+                        "description": "Spoof your information",
+                        "properties": {
+                            "location": {
+                                "name": "Location",
+                                "description": "Spoof your location"
+                            },
+                            "device": {
+                                "name": "Device",
+                                "description": "Spoof your device"
+                            }
+                        }
+                    },
                     "app_passcode": {
                         "name": "App Passcode",
                         "description": "Sets a passcode to lock the app"

@@ -8,10 +8,10 @@ import me.rhunk.snapenhance.hook.Hooker
 
 class DeviceSpooferHook: Feature("device_spoofer", loadParams = FeatureLoadParams.ACTIVITY_CREATE_ASYNC)  {
 	override fun asyncOnActivityCreate() {
-		if (context.config.spoof.globalState != true) return
+		if (context.config.experimental.spoof.globalState != true) return
 
-		val fingerprint by context.config.spoof.device.fingerprint
-		val androidId by context.config.spoof.device.androidId
+		val fingerprint by context.config.experimental.spoof.device.fingerprint
+		val androidId by context.config.experimental.spoof.device.androidId
 
 		if (fingerprint.isNotEmpty()) {
 			val fingerprintClass = android.os.Build::class.java

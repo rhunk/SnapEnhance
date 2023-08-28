@@ -4,10 +4,19 @@ import android.util.Log
 
 class NativeLib {
     var nativeUnaryCallCallback: (NativeRequestData) -> Unit = {}
+    companion object {
+        private var initialized = false
+    }
 
     fun initOnce(classloader: ClassLoader) {
-        System.loadLibrary("nativelib")
-        init(classloader)
+        if (initialized) throw IllegalStateException("NativeLib already initialized")
+        runCatching {
+            System.loadLibrary(BuildConfig.NATIVE_NAME)
+            init(classloader)
+            initialized = true
+        }.onFailure {
+            Log.e("SnapEnhance", "NativeLib init failed", it)
+        }
     }
 
     @Suppress("unused")
@@ -23,7 +32,11 @@ class NativeLib {
         return null
     }
 
+    fun loadNativeConfig(config: NativeConfig) {
+        if (!initialized) return
+        loadConfig(config)
+    }
 
-    external fun init(classLoader: ClassLoader)
-    external fun loadConfig(config: NativeConfig)
+    private external fun init(classLoader: ClassLoader)
+    private external fun loadConfig(config: NativeConfig)
 }

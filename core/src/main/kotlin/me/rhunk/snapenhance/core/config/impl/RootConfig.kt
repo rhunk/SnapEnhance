@@ -1,6 +1,7 @@
 package me.rhunk.snapenhance.core.config.impl
 
 import me.rhunk.snapenhance.core.config.ConfigContainer
+import me.rhunk.snapenhance.core.config.FeatureNotice
 
 class RootConfig : ConfigContainer() {
     val downloader = container("downloader", DownloaderConfig()) { icon = "Download"}
@@ -10,6 +11,7 @@ class RootConfig : ConfigContainer() {
     val rules = container("rules", Rules()) { icon = "Rule" }
     val camera = container("camera", Camera()) { icon = "Camera"}
     val streaksReminder = container("streaks_reminder", StreaksReminderConfig()) { icon = "Alarm" }
-    val experimental = container("experimental", Experimental()) { icon = "Science" }
-    val spoof = container("spoof", Spoof()) { icon = "Fingerprint" }
+    val experimental = container("experimental", Experimental()) { icon = "Science"; addNotices(
+        FeatureNotice.UNSTABLE, FeatureNotice.MAY_CAUSE_CRASHES
+    ) }
 }

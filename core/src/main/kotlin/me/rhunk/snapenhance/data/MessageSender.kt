@@ -12,7 +12,7 @@ class MessageSender(
     private val context: ModContext,
 ) {
     companion object {
-        val redSnapProto: (Boolean) -> ByteArray = {hasAudio ->
+        val redSnapProto: () -> ByteArray = {
             ProtoWriter().apply {
                 from(11, 5) {
                     from(1) {
@@ -24,7 +24,7 @@ class MessageSender(
                         addVarInt(6, 0)
                     }
                     from(2) {
-                        addVarInt(5, if (hasAudio) 1 else 0)
+                        addVarInt(5, 1) // audio by default
                         addBuffer(6, byteArrayOf())
                     }
                 }

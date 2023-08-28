@@ -124,16 +124,12 @@ class ModContext {
 
     fun reloadConfig() {
         modConfig.loadFromBridge(bridgeClient)
-        runCatching {
-            native.loadConfig(
-                NativeConfig(
-                    disableBitmoji = config.global.disableBitmoji.get(),
-                    disableMetrics = config.global.disableMetrics.get()
-                )
+        native.loadNativeConfig(
+            NativeConfig(
+                disableBitmoji = config.experimental.nativeHooks.disableBitmoji.get(),
+                disableMetrics = config.global.disableMetrics.get()
             )
-        }.onFailure {
-            Logger.xposedLog("Failed to load native config", it)
-        }
+        )
     }
 
     fun getConfigLocale(): String {

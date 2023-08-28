@@ -14,7 +14,7 @@ class LocationSpoofer: Feature("LocationSpoof", loadParams = FeatureLoadParams.A
             val bundle = intent.getBundleExtra("location") ?: return@hook
             param.setResult(null)
 
-            with(context.config.spoof.location) {
+            with(context.config.experimental.spoof.location) {
                 latitude.set(bundle.getFloat("latitude"))
                 longitude.set(bundle.getFloat("longitude"))
 
@@ -22,10 +22,10 @@ class LocationSpoofer: Feature("LocationSpoof", loadParams = FeatureLoadParams.A
             }
         }
 
-        if (context.config.spoof.location.globalState != true) return
+        if (context.config.experimental.spoof.location.globalState != true) return
 
-        val latitude by context.config.spoof.location.latitude
-        val longitude by context.config.spoof.location.longitude
+        val latitude by context.config.experimental.spoof.location.latitude
+        val longitude by context.config.experimental.spoof.location.longitude
 
         val locationClass = android.location.Location::class.java
         val locationManagerClass = android.location.LocationManager::class.java
