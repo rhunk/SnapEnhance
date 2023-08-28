@@ -1,6 +1,6 @@
 package me.rhunk.snapenhance.util.protobuf
 
-data class Wire(val type: Int, val value: Any)
+data class Wire(val id: Int, val type: WireType, val value: Any)
 
 class ProtoReader(private val buffer: ByteArray) {
     private var offset: Int = 0
@@ -32,19 +32,46 @@ class ProtoReader(private val buffer: ByteArray) {
         while (offset < buffer.size) {
             val tag = readVarInt().toInt()
             val id = tag ushr 3
-            val type = tag and 0x7
+            val type = WireType.fromValue(tag and 0x7) ?: break
             try {
                 val value = when (type) {
-                    0 -> readVarInt().toString().toByteArray()
-                    2 -> {
-                        val length = readVarInt().toInt()
-                        val value = buffer.copyOfRange(offset, offset + length)
-                        offset += length
-                        value
+                    WireType.VARINT -> readVarInt()
+                    WireType.FIXED64 -> {
+                        val bytes = ByteArray(8)
+                        for (i in 0..7) {
+                            bytes[i] = readByte()
+                        }
+                        bytes
                     }
-                    else -> break
+                    WireType.LENGTH_DELIMITED -> {
+                        val length = readVarInt().toInt()
+                        val bytes = ByteArray(length)
+                        for (i in 0 until length) {
+                            bytes[i] = readByte()
+                        }
+                        bytes
+                    }
+                    WireType.START_GROUP -> {
+                        val bytes = mutableListOf<Byte>()
+                        while (true) {
+                            val b = readByte()
+                            if (b.toInt() == WireType.END_GROUP.value) {
+                                break
+                            }
+                            bytes.add(b)
+                        }
+                        bytes.toByteArray()
+                    }
+                    WireType.FIXED32 -> {
+                        val bytes = ByteArray(4)
+                        for (i in 0..3) {
+                            bytes[i] = readByte()
+                        }
+                        bytes
+                    }
+                    WireType.END_GROUP -> continue
                 }
-                values.getOrPut(id) { mutableListOf() }.add(Wire(type, value))
+                values.getOrPut(id) { mutableListOf() }.add(Wire(id, type, value))
             } catch (t: Throwable) {
                 values.clear()
                 break
@@ -52,13 +79,19 @@ class ProtoReader(private val buffer: ByteArray) {
         }
     }
 
-    fun readPath(vararg ids: Int, reader: (ProtoReader.() -> Unit)? = null): ProtoReader? {
+    fun followPath(vararg ids: Int, excludeLast: Boolean = false, reader: (ProtoReader.() -> Unit)? = null): ProtoReader? {
         var thisReader = this
-        ids.forEach { id ->
-            if (!thisReader.exists(id)) {
+        ids.let {
+            if (excludeLast) {
+                it.sliceArray(0 until it.size - 1)
+            } else {
+                it
+            }
+        }.forEach { id ->
+            if (!thisReader.contains(id)) {
                 return null
             }
-            thisReader = ProtoReader(thisReader.get(id) as ByteArray)
+            thisReader = ProtoReader(thisReader.getByteArray(id) ?: return null)
         }
         if (reader != null) {
             thisReader.reader()
@@ -66,65 +99,77 @@ class ProtoReader(private val buffer: ByteArray) {
         return thisReader
     }
 
-    fun pathExists(vararg ids: Int): Boolean {
+    fun containsPath(vararg ids: Int): Boolean {
         var thisReader = this
         ids.forEach { id ->
-            if (!thisReader.exists(id)) {
+            if (!thisReader.contains(id)) {
                 return false
             }
-            thisReader = ProtoReader(thisReader.get(id) as ByteArray)
+            thisReader = ProtoReader(thisReader.getByteArray(id) ?: return false)
         }
         return true
     }
 
-    fun getByteArray(id: Int) = values[id]?.first()?.value as ByteArray?
-    fun getByteArray(vararg ids: Int): ByteArray? {
-        if (ids.isEmpty() || ids.size < 2) {
-            return null
-        }
-        val lastId = ids.last()
-        var value: ByteArray? = null
-        readPath(*(ids.copyOfRange(0, ids.size - 1))) {
-            value = getByteArray(lastId)
-        }
-        return value
-    }
-
-    fun getString(id: Int) = getByteArray(id)?.toString(Charsets.UTF_8)
-    fun getString(vararg ids: Int) = getByteArray(*ids)?.toString(Charsets.UTF_8)
-
-    fun getInt(id: Int) = getString(id)?.toInt()
-    fun getInt(vararg ids: Int) = getString(*ids)?.toInt()
-
-    fun getLong(id: Int) = getString(id)?.toLong()
-    fun getLong(vararg ids: Int) = getString(*ids)?.toLong()
-
-    fun exists(id: Int) = values.containsKey(id)
-
-    fun get(id: Int) = values[id]!!.first().value
-
-    fun isValid() = values.isNotEmpty()
-
-    fun getCount(id: Int) = values[id]!!.size
-
-    fun each(id: Int, reader: ProtoReader.(index: Int) -> Unit) {
-        values[id]!!.forEachIndexed { index, _ ->
-            ProtoReader(values[id]!![index].value as ByteArray).reader(index)
-        }
-    }
-
-    fun list(reader: (id: Int, data: ByteArray) -> Unit) {
+    fun forEach(reader: (Int, Wire) -> Unit) {
         values.forEach { (id, wires) ->
-            wires.forEachIndexed { index, _ ->
-                reader(id, wires[index].value as ByteArray)
+            wires.forEach { wire ->
+                reader(id, wire)
             }
         }
     }
 
-    fun eachExists(id: Int, reader: ProtoReader.(index: Int) -> Unit) {
-        if (!exists(id)) {
-            return
+    fun forEach(vararg id: Int, reader: ProtoReader.() -> Unit) {
+        followPath(*id)?.eachBuffer { _, buffer ->
+            ProtoReader(buffer).reader()
         }
-        each(id, reader)
+    }
+
+    fun eachBuffer(vararg ids: Int, reader: ProtoReader.() -> Unit) {
+        followPath(*ids, excludeLast = true)?.eachBuffer { id, buffer ->
+            if (id == ids.last()) {
+                ProtoReader(buffer).reader()
+            }
+        }
+    }
+
+    fun eachBuffer(reader: (Int, ByteArray) -> Unit) {
+        values.forEach { (id, wires) ->
+            wires.forEach { wire ->
+                if (wire.type == WireType.LENGTH_DELIMITED) {
+                    reader(id, wire.value as ByteArray)
+                }
+            }
+        }
+    }
+
+    fun contains(id: Int) = values.containsKey(id)
+
+    fun getWire(id: Int) = values[id]?.firstOrNull()
+    fun getRawValue(id: Int) = getWire(id)?.value
+    fun getByteArray(id: Int) = getRawValue(id) as? ByteArray
+    fun getByteArray(vararg ids: Int) = followPath(*ids, excludeLast = true)?.getByteArray(ids.last())
+    fun getString(id: Int) = getByteArray(id)?.toString(Charsets.UTF_8)
+    fun getString(vararg ids: Int) = followPath(*ids, excludeLast = true)?.getString(ids.last())
+    fun getVarInt(id: Int) = getRawValue(id) as? Long
+    fun getVarInt(vararg ids: Int) = followPath(*ids, excludeLast = true)?.getVarInt(ids.last())
+    fun getCount(id: Int) = values[id]?.size ?: 0
+
+    fun getFixed64(id: Int): Long {
+        val bytes = getByteArray(id) ?: return 0L
+        var value = 0L
+        for (i in 0..7) {
+            value = value or ((bytes[i].toLong() and 0xFF) shl (i * 8))
+        }
+        return value
+    }
+
+
+    fun getFixed32(id: Int): Int {
+        val bytes = getByteArray(id) ?: return 0
+        var value = 0
+        for (i in 0..3) {
+            value = value or ((bytes[i].toInt() and 0xFF) shl (i * 8))
+        }
+        return value
     }
 }

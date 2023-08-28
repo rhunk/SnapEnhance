@@ -23,41 +23,92 @@ class ProtoWriter {
         stream.write(v.toInt())
     }
 
-    fun writeBuffer(id: Int, value: ByteArray) {
-        writeVarInt(id shl 3 or 2)
+    fun addBuffer(id: Int, value: ByteArray) {
+        writeVarInt(id shl 3 or WireType.LENGTH_DELIMITED.value)
         writeVarInt(value.size)
         stream.write(value)
     }
 
-    fun writeConstant(id: Int, value: Int) {
-        writeVarInt(id shl 3)
-        writeVarInt(value)
-    }
+    fun addVarInt(id: Int, value: Int) = addVarInt(id, value.toLong())
 
-    fun writeConstant(id: Int, value: Long) {
+    fun addVarInt(id: Int, value: Long) {
         writeVarInt(id shl 3)
         writeVarLong(value)
     }
 
-    fun writeString(id: Int, value: String) = writeBuffer(id, value.toByteArray())
+    fun addString(id: Int, value: String) = addBuffer(id, value.toByteArray())
 
-    fun write(id: Int, writer: ProtoWriter.() -> Unit) {
-        val writerStream = ProtoWriter()
-        writer(writerStream)
-        writeBuffer(id, writerStream.stream.toByteArray())
+    fun addFixed32(id: Int, value: Int) {
+        writeVarInt(id shl 3 or WireType.FIXED32.value)
+        val bytes = ByteArray(4)
+        for (i in 0..3) {
+            bytes[i] = (value shr (i * 8)).toByte()
+        }
+        stream.write(bytes)
     }
 
-    fun write(vararg ids: Int, writer: ProtoWriter.() -> Unit) {
+    fun addFixed64(id: Int, value: Long) {
+        writeVarInt(id shl 3 or WireType.FIXED64.value)
+        val bytes = ByteArray(8)
+        for (i in 0..7) {
+            bytes[i] = (value shr (i * 8)).toByte()
+        }
+        stream.write(bytes)
+    }
+
+    fun from(id: Int, writer: ProtoWriter.() -> Unit) {
+        val writerStream = ProtoWriter()
+        writer(writerStream)
+        addBuffer(id, writerStream.stream.toByteArray())
+    }
+
+    fun from(vararg ids: Int, writer: ProtoWriter.() -> Unit) {
         val writerStream = ProtoWriter()
         writer(writerStream)
         var stream = writerStream.stream.toByteArray()
         ids.reversed().forEach { id ->
             with(ProtoWriter()) {
-                writeBuffer(id, stream)
+                addBuffer(id, stream)
                 stream = this.stream.toByteArray()
             }
         }
         stream.let(this.stream::write)
+    }
+
+    fun addWire(wire: Wire) {
+        writeVarInt(wire.id shl 3 or wire.type.value)
+        when (wire.type) {
+            WireType.VARINT -> writeVarLong(wire.value as Long)
+            WireType.FIXED64, WireType.FIXED32 -> {
+                when (wire.value) {
+                    is Int -> {
+                        val bytes = ByteArray(4)
+                        for (i in 0..3) {
+                            bytes[i] = (wire.value shr (i * 8)).toByte()
+                        }
+                        stream.write(bytes)
+                    }
+                    is Long -> {
+                        val bytes = ByteArray(8)
+                        for (i in 0..7) {
+                            bytes[i] = (wire.value shr (i * 8)).toByte()
+                        }
+                        stream.write(bytes)
+                    }
+                    is ByteArray -> stream.write(wire.value)
+                }
+            }
+            WireType.LENGTH_DELIMITED -> {
+                val value = wire.value as ByteArray
+                writeVarInt(value.size)
+                stream.write(value)
+            }
+            WireType.START_GROUP -> {
+                val value = wire.value as ByteArray
+                stream.write(value)
+            }
+            WireType.END_GROUP -> return
+        }
     }
 
     fun toByteArray(): ByteArray {

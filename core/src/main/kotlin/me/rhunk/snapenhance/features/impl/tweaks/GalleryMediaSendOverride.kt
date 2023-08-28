@@ -28,7 +28,7 @@ class GalleryMediaSendOverride : Feature("Gallery Media Send Override", loadPara
 
             //prevent story replies
             val messageProtoReader = ProtoReader(localMessageContent.content)
-            if (messageProtoReader.exists(7)) return@subscribe
+            if (messageProtoReader.contains(7)) return@subscribe
 
             event.canceled = true
 
@@ -38,7 +38,7 @@ class GalleryMediaSendOverride : Feature("Gallery Media Send Override", loadPara
                         dialog.dismiss()
                         val overrideType = typeNames.keys.toTypedArray()[which]
 
-                        if (overrideType != "ORIGINAL" && messageProtoReader.readPath(3)?.getCount(3) != 1) {
+                        if (overrideType != "ORIGINAL" && messageProtoReader.followPath(3)?.getCount(3) != 1) {
                             context.runOnUiThread {
                                 ViewAppearanceHelper.newAlertDialogBuilder(context.mainActivity!!)
                                     .setMessage(context.translation["gallery_media_send_override.multiple_media_toast"])
@@ -57,7 +57,7 @@ class GalleryMediaSendOverride : Feature("Gallery Media Send Override", loadPara
                             "NOTE" -> {
                                 localMessageContent.contentType = ContentType.NOTE
                                 val mediaDuration =
-                                    messageProtoReader.getLong(3, 3, 5, 1, 1, 15) ?: 0
+                                    messageProtoReader.getVarInt(3, 3, 5, 1, 1, 15) ?: 0
                                 localMessageContent.content =
                                     MessageSender.audioNoteProto(mediaDuration)
                             }

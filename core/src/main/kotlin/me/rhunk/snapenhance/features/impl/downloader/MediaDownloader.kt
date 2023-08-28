@@ -466,7 +466,7 @@ class MediaDownloader : MessagingRuleFeature("MediaDownloader", MessagingRuleTyp
         val messageReader = ProtoReader(messageContent)
         val urlProto: ByteArray = if (isArroyoMessage) {
             var finalProto: ByteArray? = null
-            messageReader.readPath(4)?.each(5) {
+            messageReader.eachBuffer(4, 5) {
                 finalProto = getByteArray(1, 3)
             }
             finalProto!!

@@ -14,18 +14,18 @@ class MessageSender(
     companion object {
         val redSnapProto: (Boolean) -> ByteArray = {hasAudio ->
             ProtoWriter().apply {
-                write(11, 5) {
-                    write(1) {
-                        write(1) {
-                            writeConstant(2, 0)
-                            writeConstant(12, 0)
-                            writeConstant(15, 0)
+                from(11, 5) {
+                    from(1) {
+                        from(1) {
+                            addVarInt(2, 0)
+                            addVarInt(12, 0)
+                            addVarInt(15, 0)
                         }
-                        writeConstant(6, 0)
+                        addVarInt(6, 0)
                     }
-                    write(2) {
-                        writeConstant(5, if (hasAudio) 1 else 0)
-                        writeBuffer(6, byteArrayOf())
+                    from(2) {
+                        addVarInt(5, if (hasAudio) 1 else 0)
+                        addBuffer(6, byteArrayOf())
                     }
                 }
             }.toByteArray()
@@ -33,15 +33,15 @@ class MessageSender(
 
         val audioNoteProto: (Long) -> ByteArray = { duration ->
             ProtoWriter().apply {
-                write(6, 1) {
-                    write(1) {
-                        writeConstant(2, 4)
-                        write(5) {
-                            writeConstant(1, 0)
-                            writeConstant(2, 0)
+                from(6, 1) {
+                    from(1) {
+                        addVarInt(2, 4)
+                        from(5) {
+                            addVarInt(1, 0)
+                            addVarInt(2, 0)
                         }
-                        writeConstant(7, 0)
-                        writeConstant(13, duration)
+                        addVarInt(7, 0)
+                        addVarInt(13, duration)
                     }
                 }
             }.toByteArray()
@@ -153,8 +153,8 @@ class MessageSender(
 
     fun sendChatMessage(conversations: List<SnapUUID>, message: String, onError: (Any) -> Unit = {}, onSuccess: () -> Unit = {}) {
         internalSendMessage(conversations, createLocalMessageContentTemplate(ContentType.CHAT, ProtoWriter().apply {
-            write(2) {
-                writeString(1, message)
+            from(2) {
+                addString(1, message)
             }
         }.toByteArray(), savePolicy = "LIFETIME"), CallbackBuilder(sendMessageCallback)
             .override("onSuccess", callback = { onSuccess() })

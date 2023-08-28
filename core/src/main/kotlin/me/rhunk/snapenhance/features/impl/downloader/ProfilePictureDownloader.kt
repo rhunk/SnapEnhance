@@ -64,9 +64,9 @@ class ProfilePictureDownloader : Feature("ProfilePictureDownloader", loadParams 
                     }
                 }
 
-                ProtoReader(content).readPath(1, 1, 2) {
-                    friendUsername = getString(2) ?: return@readPath
-                    readPath(4) {
+                ProtoReader(content).followPath(1, 1, 2) {
+                    friendUsername = getString(2) ?: return@followPath
+                    followPath(4) {
                         backgroundUrl = getString(2)
                         avatarUrl = getString(100)
                     }
