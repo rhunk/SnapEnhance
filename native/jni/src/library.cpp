@@ -8,6 +8,13 @@
 #include "util.h"
 #include "grpc.h"
 
+#ifdef __aarch64__
+#define ARM64 true
+#else
+#define ARM64 false
+#endif
+
+
 static native_config_t *native_config;
 static JavaVM *java_vm;
 
@@ -113,9 +120,9 @@ void JNICALL init(JNIEnv *env, jobject clazz, jobject classloader) {
     // native lib object
     native_lib_object = env->NewGlobalRef(clazz);
     native_lib_on_unary_call_method = env->GetMethodID(
-        env->GetObjectClass(clazz),
-        "onNativeUnaryCall",
-        "(Ljava/lang/String;[B)L" BUILD_NAMESPACE "/NativeRequestData;"
+            env->GetObjectClass(clazz),
+            "onNativeUnaryCall",
+            "(Ljava/lang/String;[B)L" BUILD_NAMESPACE "/NativeRequestData;"
     );
 
     // load libclient.so
@@ -132,9 +139,11 @@ void JNICALL init(JNIEnv *env, jobject clazz, jobject classloader) {
     DobbyHook((void *) DobbySymbolResolver("libc.so", "fstat"), (void *) fstat_hook,
               (void **) &fstat_original);
 
-    //signature might change in the future (unstable for now)
-    auto unaryCall_func = util::find_signature(client_module.base, client_module.size,
-                                               "FD 7B BA A9 FC 6F 01 A9 FA 67 02 A9 F8 5F 03 A9 F6 57 04 A9 F4 4F 05 A9 FD 03 00 91 FF 43 13 D1");
+    auto unaryCall_func = util::find_signature(
+            client_module.base, client_module.size,
+            ARM64 ? "A8 03 1F F8 C2 00 00 94" : "0A 90 00 F0 3F F9",
+            ARM64 ? -0x48 : -0x38
+    );
     if (unaryCall_func != 0) {
         DobbyHook((void *) unaryCall_func, (void *) unaryCall_hook, (void **) &unaryCall_original);
     } else {

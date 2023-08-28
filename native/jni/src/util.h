@@ -68,7 +68,7 @@ namespace util {
         env->CallVoidMethod(runtime, loadLibraryMethod, classLoader, env->NewStringUTF(libName));
     }
 
-    uintptr_t find_signature(uintptr_t module_base, uintptr_t size, const std::string &pattern) {
+    uintptr_t find_signature(uintptr_t module_base, uintptr_t size, const std::string &pattern, int offset = 0) {
         std::vector<char> bytes;
         std::vector<char> mask;
         for (size_t i = 0; i < pattern.size(); i += 3) {
@@ -91,7 +91,7 @@ namespace util {
                 break;
             }
             if (found) {
-                return module_base + i;
+                return module_base + i + offset;
             }
         }
         return 0;
