@@ -10,6 +10,7 @@ import me.rhunk.snapenhance.core.eventbus.events.impl.OnSnapInteractionEvent
 import me.rhunk.snapenhance.core.eventbus.events.impl.SendMessageWithContentEvent
 import me.rhunk.snapenhance.core.eventbus.events.impl.SnapWidgetBroadcastReceiveEvent
 import me.rhunk.snapenhance.data.wrapper.impl.MessageContent
+import me.rhunk.snapenhance.data.wrapper.impl.MessageDestinations
 import me.rhunk.snapenhance.data.wrapper.impl.SnapUUID
 import me.rhunk.snapenhance.hook.HookStage
 import me.rhunk.snapenhance.hook.hook
@@ -23,8 +24,10 @@ class EventDispatcher(
 ) : Manager {
     override fun init() {
         context.classCache.conversationManager.hook("sendMessageWithContent", HookStage.BEFORE) { param ->
-            val messageContent = MessageContent(param.arg(1))
-            context.event.post(SendMessageWithContentEvent(messageContent).apply { adapter = param })?.also {
+            context.event.post(SendMessageWithContentEvent(
+                destinations = MessageDestinations(param.arg(0)),
+                messageContent = MessageContent(param.arg(1))
+            ).apply { adapter = param })?.also {
                 if (it.canceled) {
                     param.setResult(null)
                 }
