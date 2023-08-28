@@ -26,6 +26,7 @@ class MainActivity : ComponentActivity() {
 
     override fun onNewIntent(intent: Intent) {
         super.onNewIntent(intent)
+        if (::navController.isInitialized.not()) return
         intent.getStringExtra("route")?.let { route ->
             navController.popBackStack()
             navController.navigate(route) {
