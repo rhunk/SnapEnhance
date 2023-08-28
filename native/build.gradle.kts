@@ -4,14 +4,33 @@ plugins {
     alias(libs.plugins.kotlinAndroid)
 }
 
+val nativeName = System.nanoTime().toString(16)
+
 android {
-    namespace = "me.rhunk.snapenhance.nativelib"
+    namespace = rootProject.ext["applicationId"].toString() + ".nativelib"
     compileSdk = 34
 
+    buildFeatures {
+        buildConfig = true
+    }
+
     defaultConfig {
+        buildConfigField("String", "NATIVE_NAME", "\"$nativeName\"")
+        packaging {
+            jniLibs {
+                excludes += "**/libdobby.so"
+            }
+        }
         externalNativeBuild {
             cmake {
-                cppFlags("")
+                arguments += listOf(
+                    "-DOBFUSCATED_NAME=$nativeName",
+                    "-DBUILD_NAMESPACE=${namespace!!.replace(".", "/")}"
+                )
+            }
+            ndk {
+                //noinspection ChromeOsAbiSupport
+                abiFilters += listOf("arm64-v8a", "armeabi-v7a")
             }
         }
     }

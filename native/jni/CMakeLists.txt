@@ -9,8 +9,11 @@ add_library(${CMAKE_PROJECT_NAME} SHARED
         src/library.cpp
     )
 
+add_compile_definitions(BUILD_NAMESPACE="${BUILD_NAMESPACE}")
 target_link_libraries(${CMAKE_PROJECT_NAME}
         android
         log
         dobby_static
         )
+
+set_target_properties(${CMAKE_PROJECT_NAME} PROPERTIES OUTPUT_NAME ${OBFUSCATED_NAME})

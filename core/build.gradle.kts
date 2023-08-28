@@ -4,7 +4,7 @@ plugins {
     alias(libs.plugins.kotlinAndroid)
 }
 android {
-    namespace = "me.rhunk.snapenhance.core"
+    namespace = rootProject.ext["applicationId"].toString() + ".core"
     compileSdk = 34
 
     buildFeatures {

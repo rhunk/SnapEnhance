@@ -112,9 +112,11 @@ void JNICALL init(JNIEnv *env, jobject clazz, jobject classloader) {
 
     // native lib object
     native_lib_object = env->NewGlobalRef(clazz);
-    native_lib_on_unary_call_method = env->GetMethodID(env->GetObjectClass(clazz),
-                                                       "onNativeUnaryCall",
-                                                       "(Ljava/lang/String;[B)Lme/rhunk/snapenhance/nativelib/NativeRequestData;");
+    native_lib_on_unary_call_method = env->GetMethodID(
+        env->GetObjectClass(clazz),
+        "onNativeUnaryCall",
+        "(Ljava/lang/String;[B)L" BUILD_NAMESPACE "/NativeRequestData;"
+    );
 
     // load libclient.so
     util::load_library(env, classloader, "client");
@@ -124,7 +126,7 @@ void JNICALL init(JNIEnv *env, jobject clazz, jobject classloader) {
         return;
     }
     //client_module.base -= 0x1000; // debugging purposes
-    LOGD("libclient.so offset=%u, size=%u", client_module.base, client_module.size);
+    LOGD("libclient.so base=0x%0lx, size=0x%0lx", client_module.base, client_module.size);
 
     // hooks
     DobbyHook((void *) DobbySymbolResolver("libc.so", "fstat"), (void *) fstat_hook,
@@ -159,11 +161,11 @@ JNI_OnLoad(JavaVM *vm, void *_) {
 
     auto methods = std::vector<JNINativeMethod>();
     methods.push_back({"init", "(Ljava/lang/ClassLoader;)V", (void *) init});
-    methods.push_back({"loadConfig", "(Lme/rhunk/snapenhance/nativelib/NativeConfig;)V",
+    methods.push_back({"loadConfig", "(L" BUILD_NAMESPACE "/NativeConfig;)V",
                        (void *) load_config});
 
     env->RegisterNatives(
-            env->FindClass("me/rhunk/snapenhance/nativelib/NativeLib"),
+            env->FindClass(std::string(BUILD_NAMESPACE "/NativeLib").c_str()),
             methods.data(),
             methods.size()
     );

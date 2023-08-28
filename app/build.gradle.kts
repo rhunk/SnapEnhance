@@ -7,7 +7,7 @@ plugins {
 }
 
 android {
-    namespace = "me.rhunk.snapenhance"
+    namespace = rootProject.ext["applicationId"].toString()
     compileSdk = 34
 
     buildFeatures {
