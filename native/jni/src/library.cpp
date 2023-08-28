@@ -1,7 +1,6 @@
 #include <jni.h>
 #include <string>
 #include <dobby.h>
-#include <unistd.h>
 #include <vector>
 
 #include "logger.h"
@@ -13,6 +12,7 @@ static native_config_t *native_config;
 static JavaVM *java_vm;
 
 static auto fstat_original = (int (*)(int, struct stat *)) nullptr;
+
 static int fstat_hook(int fd, struct stat *buf) {
     char name[256];
     memset(name, 0, 256);
@@ -49,7 +49,7 @@ unaryCall_hook(void *unk1, const char *uri, grpc::grpc_byte_buffer **buffer_ptr,
                void *unk5, void *unk6) {
     auto slice_buffer = (*buffer_ptr)->slice_buffer;
     // request without reference counter can be hooked using xposed ig
-    if (slice_buffer->ref_counter == nullptr) {
+    if (slice_buffer->ref_counter == 0) {
         return unaryCall_original(unk1, uri, buffer_ptr, unk4, unk5, unk6);
     }
 
@@ -70,8 +70,8 @@ unaryCall_hook(void *unk1, const char *uri, grpc::grpc_byte_buffer **buffer_ptr,
         auto is_canceled = env->GetBooleanField(native_request_data_object,
                                                 env->GetFieldID(native_request_data_class,
                                                                 "canceled", "Z"));
-
         if (is_canceled) {
+            LOGD("canceled request for %s", uri);
             return nullptr;
         }
 
@@ -81,34 +81,32 @@ unaryCall_hook(void *unk1, const char *uri, grpc::grpc_byte_buffer **buffer_ptr,
         auto new_buffer_length = env->GetArrayLength((jbyteArray) new_buffer);
         auto new_buffer_data = env->GetByteArrayElements((jbyteArray) new_buffer, nullptr);
 
+        LOGD("rewrote request for %s (length: %d)", uri, new_buffer_length);
         //we need to allocate a new ref_counter struct and copy the old ref_counter and the new_buffer to it
-        const auto ref_counter_struct_size =
+        const static auto ref_counter_struct_size =
                 (uintptr_t) slice_buffer->data - (uintptr_t) slice_buffer->ref_counter;
 
-        auto new_ref_counter = (void *) malloc(ref_counter_struct_size + new_buffer_length);
+        auto new_ref_counter = malloc(ref_counter_struct_size + new_buffer_length);
         //copy the old ref_counter and the native_request_data_object
         memcpy(new_ref_counter, slice_buffer->ref_counter, ref_counter_struct_size);
         memcpy((void *) ((uintptr_t) new_ref_counter + ref_counter_struct_size), new_buffer_data,
                new_buffer_length);
 
         //free the old ref_counter
-        free((void *) slice_buffer->ref_counter);
+        free(slice_buffer->ref_counter);
 
         //update the slice_buffer
         slice_buffer->ref_counter = new_ref_counter;
         slice_buffer->length = new_buffer_length;
         slice_buffer->data = (uint8_t *) ((uintptr_t) new_ref_counter + ref_counter_struct_size);
-
-        env->ReleaseByteArrayElements((jbyteArray) native_request_data_object, new_buffer_data, 0);
     }
 
     return unaryCall_original(unk1, uri, buffer_ptr, unk4, unk5, unk6);
 }
 
 
-extern "C" JNIEXPORT void JNICALL
-init(JNIEnv *env, jobject clazz, jobject classloader) {
-    LOGD("initializing native");
+void JNICALL init(JNIEnv *env, jobject clazz, jobject classloader) {
+    LOGD("Initializing native");
     // config
     native_config = new native_config_t;
 
@@ -125,34 +123,35 @@ init(JNIEnv *env, jobject clazz, jobject classloader) {
         LOGE("libclient not found");
         return;
     }
-    client_module.base -= 0x1000;
-    LOGD("libclient: offset: 0x%x size: 0x%x", client_module.base, client_module.size);
+    //client_module.base -= 0x1000; // debugging purposes
+    LOGD("libclient.so offset=%u, size=%u", client_module.base, client_module.size);
 
     // hooks
     DobbyHook((void *) DobbySymbolResolver("libc.so", "fstat"), (void *) fstat_hook,
               (void **) &fstat_original);
-    //signature might change in the future (unstable for now)
-    DobbyHook((void *) util::find_signature(client_module.base, client_module.size,
-                                            "FD 7B BA A9 FC 6F 01 A9 FA 67 02 A9 F8 5F 03 A9 F6 57 04 A9 F4 4F 05 A9 FD 03 00 91 FF 43 13 D1"),
-              (void *) unaryCall_hook,
-              (void **) &unaryCall_original);
 
-    LOGD("native initialized");
+    //signature might change in the future (unstable for now)
+    auto unaryCall_func = util::find_signature(client_module.base, client_module.size,
+                                               "FD 7B BA A9 FC 6F 01 A9 FA 67 02 A9 F8 5F 03 A9 F6 57 04 A9 F4 4F 05 A9 FD 03 00 91 FF 43 13 D1");
+    if (unaryCall_func != 0) {
+        DobbyHook((void *) unaryCall_func, (void *) unaryCall_hook, (void **) &unaryCall_original);
+    } else {
+        LOGE("can't find unaryCall signature");
+    }
+
+    LOGD("Native initialized");
 }
 
-void JNICALL load_config(JNIEnv *env, jobject clazz, jobject config_object) {
+void JNICALL load_config(JNIEnv *env, jobject _, jobject config_object) {
     auto native_config_clazz = env->GetObjectClass(config_object);
 #define GET_CONFIG_BOOL(name) env->GetBooleanField(config_object, env->GetFieldID(native_config_clazz, name, "Z"))
 
     native_config->disable_bitmoji = GET_CONFIG_BOOL("disableBitmoji");
     native_config->disable_metrics = GET_CONFIG_BOOL("disableMetrics");
-
-    LOGD("config loaded");
 }
 
-//jni onload
 extern "C" JNIEXPORT jint JNICALL
-JNI_OnLoad(JavaVM *vm, void *reserved) {
+JNI_OnLoad(JavaVM *vm, void *_) {
     java_vm = vm;
     // register native methods
     JNIEnv *env = nullptr;

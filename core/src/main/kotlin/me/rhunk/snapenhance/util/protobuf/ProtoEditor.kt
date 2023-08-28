@@ -15,6 +15,7 @@ class EditorContext(
     fun addVarInt(id: Int, value: Int) = addVarInt(id, value.toLong())
     fun addVarInt(id: Int, value: Long) = addWire(Wire(id, WireType.VARINT, value))
     fun addBuffer(id: Int, value: ByteArray) = addWire(Wire(id, WireType.LENGTH_DELIMITED, value))
+    fun add(id: Int, content: ProtoWriter.() -> Unit) = addBuffer(id, ProtoWriter().apply(content).toByteArray())
     fun addString(id: Int, value: String) = addBuffer(id, value.toByteArray())
     fun addFixed64(id: Int, value: Long) = addWire(Wire(id, WireType.FIXED64, value))
     fun addFixed32(id: Int, value: Int) = addWire(Wire(id, WireType.FIXED32, value))

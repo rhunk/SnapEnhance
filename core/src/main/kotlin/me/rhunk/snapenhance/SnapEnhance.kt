@@ -10,6 +10,7 @@ import me.rhunk.snapenhance.bridge.BridgeClient
 import me.rhunk.snapenhance.bridge.SyncCallback
 import me.rhunk.snapenhance.core.BuildConfig
 import me.rhunk.snapenhance.core.eventbus.events.impl.SnapWidgetBroadcastReceiveEvent
+import me.rhunk.snapenhance.core.eventbus.events.impl.UnaryCallEvent
 import me.rhunk.snapenhance.core.messaging.MessagingFriendInfo
 import me.rhunk.snapenhance.core.messaging.MessagingGroupInfo
 import me.rhunk.snapenhance.data.SnapClassCache
@@ -97,12 +98,6 @@ class SnapEnhance {
     private suspend fun init() {
         measureTime {
             with(appContext) {
-                runCatching {
-                    native.initOnce(appContext.androidContext.classLoader)
-                }.onFailure {
-                    Logger.xposedLog("Failed to init native", it)
-                    return
-                }
                 reloadConfig()
                 withContext(appContext.coroutineDispatcher) {
                     translation.userLocale = getConfigLocale()
@@ -126,6 +121,18 @@ class SnapEnhance {
     private fun onActivityCreate() {
         measureTime {
             with(appContext) {
+                runCatching {
+                    native.initOnce(appContext.androidContext.classLoader)
+                    native.nativeUnaryCallCallback = { request ->
+                        event.post(UnaryCallEvent(request.uri, request.buffer))?.also {
+                            request.buffer = it.buffer
+                            request.canceled = it.canceled
+                        }
+                    }
+                }.onFailure {
+                    Logger.xposedLog("Failed to init native", it)
+                }
+
                 features.onActivityCreate()
                 actionManager.init()
             }

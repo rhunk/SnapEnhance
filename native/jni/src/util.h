@@ -1,14 +1,12 @@
 #pragma once
 
 #include <unistd.h>
-#include <dlfcn.h>
-#include <elf.h>
 
 namespace util {
     typedef struct {
         uintptr_t base;
         size_t size;
-    } ModuleInfo;
+    } module_info_t;
 
     static void hexDump(void *ptr, uint8_t line_length, uint32_t lines) {
         auto *p = (unsigned char *) ptr;
@@ -24,16 +22,13 @@ namespace util {
         }
     }
 
-    static ModuleInfo get_module(const char *libname) {
-        char path[256];
+    static module_info_t get_module(const char *libname) {
         char buff[256];
         int len_libname = strlen(libname);
-        FILE *file;
         uintptr_t addr = 0;
         size_t size = 0;
 
-        snprintf(path, sizeof path, "/proc/%d/smaps", getpid());
-        file = fopen(path, "rt");
+        auto file = fopen("/proc/self/smaps", "rt");
         if (file == NULL)
             return {0, 0};
 

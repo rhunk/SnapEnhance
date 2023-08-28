@@ -12,7 +12,7 @@ class NativeLib {
 
     @Suppress("unused")
     private fun onNativeUnaryCall(uri: String, buffer: ByteArray): NativeRequestData? {
-        Log.d("SnapEnhance", "onNativeUnaryCall: uri=$uri, bufferSize=${buffer.size}, buffer=${buffer.contentToString()}")
+        // Log.d("SnapEnhance", "onNativeUnaryCall: uri=$uri, bufferSize=${buffer.size}, buffer=${buffer.contentToString()}")
         val nativeRequestData = NativeRequestData(uri, buffer)
         runCatching {
             nativeUnaryCallCallback(nativeRequestData)
