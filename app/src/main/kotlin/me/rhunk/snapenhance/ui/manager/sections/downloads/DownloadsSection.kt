@@ -51,8 +51,8 @@ import androidx.compose.ui.unit.sp
 import coil.compose.rememberAsyncImagePainter
 import kotlinx.coroutines.launch
 import me.rhunk.snapenhance.data.FileType
-import me.rhunk.snapenhance.download.data.DownloadObject
-import me.rhunk.snapenhance.download.data.MediaFilter
+import me.rhunk.snapenhance.core.download.data.DownloadObject
+import me.rhunk.snapenhance.core.download.data.MediaFilter
 import me.rhunk.snapenhance.ui.manager.Section
 import me.rhunk.snapenhance.ui.util.BitmojiImage
 import me.rhunk.snapenhance.ui.util.ImageRequestHelper

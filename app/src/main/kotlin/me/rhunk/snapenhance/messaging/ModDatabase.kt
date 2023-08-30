@@ -1,13 +1,12 @@
 package me.rhunk.snapenhance.messaging
 
 import android.database.sqlite.SQLiteDatabase
-import me.rhunk.snapenhance.Logger
 import me.rhunk.snapenhance.RemoteSideContext
+import me.rhunk.snapenhance.core.database.objects.FriendInfo
 import me.rhunk.snapenhance.core.messaging.FriendStreaks
 import me.rhunk.snapenhance.core.messaging.MessagingFriendInfo
 import me.rhunk.snapenhance.core.messaging.MessagingGroupInfo
 import me.rhunk.snapenhance.core.messaging.MessagingRuleType
-import me.rhunk.snapenhance.database.objects.FriendInfo
 import me.rhunk.snapenhance.util.SQLiteDatabaseHelper
 import me.rhunk.snapenhance.util.ktx.getInteger
 import me.rhunk.snapenhance.util.ktx.getLongOrNull
@@ -28,7 +27,7 @@ class ModDatabase(
             runCatching {
                 block()
             }.onFailure {
-                Logger.error("Failed to execute async block", it)
+                context.log.error("Failed to execute async block", it)
             }
         }
     }
@@ -103,7 +102,7 @@ class ModDatabase(
                         selfieId = cursor.getStringOrNull("selfieId")
                     ))
                 }.onFailure {
-                    Logger.error("Failed to parse friend", it)
+                    context.log.error("Failed to parse friend", it)
                 }
             }
             friends

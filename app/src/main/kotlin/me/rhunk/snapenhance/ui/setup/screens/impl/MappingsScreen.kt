@@ -44,7 +44,7 @@ class MappingsScreen : SetupScreen() {
 
         fun tryToGenerateMappings() {
             //check for snapchat installation
-            val installationSummary = context.getInstallationSummary()
+            val installationSummary = context.installationSummary
             if (installationSummary.snapchatInfo == null) {
                 throw Exception(context.translation["setup.mappings.generate_failure_no_snapchat"])
             }
@@ -69,7 +69,7 @@ class MappingsScreen : SetupScreen() {
                 }.onFailure {
                     isGenerating = false
                     infoText = context.translation["setup.mappings.generate_failure"] + "\n\n" + it.message
-                    Logger.error("Failed to generate mappings", it)
+                    context.log.error("Failed to generate mappings", it)
                 }
             }
         }) {

@@ -3,7 +3,7 @@ package me.rhunk.snapenhance.action.impl
 import me.rhunk.snapenhance.action.AbstractAction
 import java.io.File
 
-class CleanCache : AbstractAction("action.clean_cache") {
+class CleanCache : AbstractAction() {
     companion object {
         private val FILES = arrayOf(
             "files/mbgl-offline.db",
@@ -22,7 +22,7 @@ class CleanCache : AbstractAction("action.clean_cache") {
     }
 
     override fun run() {
-        FILES.forEach {fileName ->
+        FILES.forEach { fileName ->
             val fileCache = File(context.androidContext.dataDir, fileName)
             if (fileName.endsWith("*")) {
                 val parent = fileCache.parentFile ?: throw IllegalStateException("Parent file is null")

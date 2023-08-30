@@ -7,7 +7,6 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
-import me.rhunk.snapenhance.Logger
 import me.rhunk.snapenhance.ui.setup.screens.SetupScreen
 import me.rhunk.snapenhance.ui.util.ActivityLauncherHelper
 import me.rhunk.snapenhance.ui.util.ObservableMutableState
@@ -23,7 +22,6 @@ class SaveFolderScreen : SetupScreen() {
         saveFolder = ObservableMutableState(
                 defaultValue = "",
                 onChange = { _, newValue ->
-                    Logger.debug(newValue)
                     if (newValue.isNotBlank()) {
                         context.config.root.downloader.saveFolder.set(newValue)
                         context.config.writeConfig()

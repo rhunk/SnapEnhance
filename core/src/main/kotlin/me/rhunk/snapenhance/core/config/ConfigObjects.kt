@@ -1,6 +1,6 @@
 package me.rhunk.snapenhance.core.config
 
-import me.rhunk.snapenhance.bridge.wrapper.LocaleWrapper
+import me.rhunk.snapenhance.core.bridge.wrapper.LocaleWrapper
 import kotlin.reflect.KProperty
 
 

@@ -11,13 +11,13 @@ import android.widget.Toast
 import com.google.gson.Gson
 import com.google.gson.GsonBuilder
 import kotlinx.coroutines.asCoroutineDispatcher
-import me.rhunk.snapenhance.bridge.BridgeClient
-import me.rhunk.snapenhance.bridge.wrapper.LocaleWrapper
-import me.rhunk.snapenhance.bridge.wrapper.MappingsWrapper
+import me.rhunk.snapenhance.core.bridge.BridgeClient
+import me.rhunk.snapenhance.core.bridge.wrapper.LocaleWrapper
+import me.rhunk.snapenhance.core.bridge.wrapper.MappingsWrapper
 import me.rhunk.snapenhance.core.config.ModConfig
+import me.rhunk.snapenhance.core.database.DatabaseAccess
 import me.rhunk.snapenhance.core.eventbus.EventBus
 import me.rhunk.snapenhance.data.MessageSender
-import me.rhunk.snapenhance.database.DatabaseAccess
 import me.rhunk.snapenhance.features.Feature
 import me.rhunk.snapenhance.manager.impl.ActionManager
 import me.rhunk.snapenhance.manager.impl.FeatureManager
@@ -44,6 +44,7 @@ class ModContext {
 
     private val modConfig = ModConfig()
     val config by modConfig
+    val log by lazy { Logger(this.bridgeClient) }
     val event = EventBus(this)
     val eventDispatcher = EventDispatcher(this)
     val native = NativeLib()
@@ -81,13 +82,13 @@ class ModContext {
         }
     }
 
-    fun shortToast(message: Any) {
+    fun shortToast(message: Any?) {
         runOnUiThread {
             Toast.makeText(androidContext, message.toString(), Toast.LENGTH_SHORT).show()
         }
     }
 
-    fun longToast(message: Any) {
+    fun longToast(message: Any?) {
         runOnUiThread {
             Toast.makeText(androidContext, message.toString(), Toast.LENGTH_LONG).show()
         }
@@ -108,7 +109,7 @@ class ModContext {
     }
 
     fun crash(message: String, throwable: Throwable? = null) {
-        Logger.xposedLog(message, throwable)
+        Logger.xposedLog(message, throwable ?: Exception())
         longToast(message)
         delayForceCloseApp(100)
     }
@@ -123,6 +124,7 @@ class ModContext {
     }
 
     fun reloadConfig() {
+        log.verbose("reloading config")
         modConfig.loadFromBridge(bridgeClient)
         native.loadNativeConfig(
             NativeConfig(

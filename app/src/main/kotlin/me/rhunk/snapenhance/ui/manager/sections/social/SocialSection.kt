@@ -79,7 +79,7 @@ class SocialSection : Section() {
         groupList = context.modDatabase.getGroups()
     }
 
-    override fun canGoBack() = navController.currentBackStackEntry?.destination?.route != MAIN_ROUTE
+    override fun canGoBack() = currentRoute != MAIN_ROUTE
 
     override fun build(navGraphBuilder: NavGraphBuilder) {
         navGraphBuilder.navigation(route = enumSection.route, startDestination = MAIN_ROUTE) {
@@ -117,7 +117,7 @@ class SocialSection : Section() {
             }
         }
 
-        if (navController.currentBackStackEntry?.destination?.route != MAIN_ROUTE) {
+        if (currentRoute != MAIN_ROUTE) {
             IconButton(
                 onClick = { deleteConfirmDialog = true },
             ) {

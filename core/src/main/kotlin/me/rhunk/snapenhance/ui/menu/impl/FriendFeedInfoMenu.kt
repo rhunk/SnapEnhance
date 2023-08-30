@@ -11,11 +11,10 @@ import android.view.View
 import android.widget.Button
 import android.widget.CompoundButton
 import android.widget.Switch
-import me.rhunk.snapenhance.Logger
+import me.rhunk.snapenhance.core.database.objects.ConversationMessage
+import me.rhunk.snapenhance.core.database.objects.FriendInfo
+import me.rhunk.snapenhance.core.database.objects.UserConversationLink
 import me.rhunk.snapenhance.data.ContentType
-import me.rhunk.snapenhance.database.objects.ConversationMessage
-import me.rhunk.snapenhance.database.objects.FriendInfo
-import me.rhunk.snapenhance.database.objects.UserConversationLink
 import me.rhunk.snapenhance.features.MessagingRuleFeature
 import me.rhunk.snapenhance.features.impl.Messaging
 import me.rhunk.snapenhance.features.impl.downloader.MediaDownloader
@@ -57,7 +56,7 @@ class FriendFeedInfoMenu : AbstractMenu() {
                 )
             }
         } catch (e: Throwable) {
-            Logger.xposedLog(e)
+            context.log.error("Error loading bitmoji selfie", e)
         }
         val finalIcon = icon
         context.runOnUiThread {
@@ -243,7 +242,6 @@ class FriendFeedInfoMenu : AbstractMenu() {
 
         rules.forEach { ruleFeature ->
             if (!friendFeedMenuOptions.contains(ruleFeature.ruleType.key)) return@forEach
-            Logger.debug("${ruleFeature.ruleType.key} ${ruleFeature.getRuleState()}")
 
             val ruleState = ruleFeature.getRuleState() ?: return@forEach
             createToggleFeature(viewConsumer,

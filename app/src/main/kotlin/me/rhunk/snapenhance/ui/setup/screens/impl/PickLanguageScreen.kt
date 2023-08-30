@@ -25,7 +25,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
-import me.rhunk.snapenhance.bridge.wrapper.LocaleWrapper
+import me.rhunk.snapenhance.core.bridge.wrapper.LocaleWrapper
 import me.rhunk.snapenhance.ui.setup.screens.SetupScreen
 import me.rhunk.snapenhance.ui.util.ObservableMutableState
 import java.util.Locale

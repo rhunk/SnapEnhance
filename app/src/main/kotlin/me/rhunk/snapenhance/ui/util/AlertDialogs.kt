@@ -33,7 +33,7 @@ import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import me.rhunk.snapenhance.bridge.wrapper.LocaleWrapper
+import me.rhunk.snapenhance.core.bridge.wrapper.LocaleWrapper
 import me.rhunk.snapenhance.core.config.DataProcessors
 import me.rhunk.snapenhance.core.config.PropertyPair
 

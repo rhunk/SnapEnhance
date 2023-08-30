@@ -1,38 +1,37 @@
 package me.rhunk.snapenhance.manager.impl
 
+import android.content.Intent
 import me.rhunk.snapenhance.ModContext
 import me.rhunk.snapenhance.action.AbstractAction
-import me.rhunk.snapenhance.action.impl.CheckForUpdates
-import me.rhunk.snapenhance.action.impl.CleanCache
-import me.rhunk.snapenhance.action.impl.ClearMessageLogger
-import me.rhunk.snapenhance.action.impl.ExportChatMessages
-import me.rhunk.snapenhance.action.impl.OpenMap
-import me.rhunk.snapenhance.action.impl.RefreshMappings
-import me.rhunk.snapenhance.core.BuildConfig
+import me.rhunk.snapenhance.action.EnumAction
 import me.rhunk.snapenhance.manager.Manager
-import kotlin.reflect.KClass
 
 class ActionManager(
-    private val context: ModContext,
+    private val modContext: ModContext,
 ) : Manager {
-    private val actions = mutableMapOf<String, AbstractAction>()
-    fun getActions() = actions.values.toList()
-    private fun load(clazz: KClass<out AbstractAction>) {
-        val action = clazz.java.newInstance()
-        action.context = context
-        actions[action.nameKey] = action
+    companion object {
+        const val ACTION_PARAMETER = "se_action"
     }
+    private val actions = mutableMapOf<String, AbstractAction>()
+
     override fun init() {
-        load(CleanCache::class)
-        load(ExportChatMessages::class)
-        load(OpenMap::class)
-        load(CheckForUpdates::class)
-        if(BuildConfig.DEBUG) {
-            load(ClearMessageLogger::class)
-            load(RefreshMappings::class)
+        EnumAction.values().forEach { enumAction ->
+            actions[enumAction.key] = enumAction.clazz.java.getConstructor().newInstance().apply {
+                this.context = modContext
+            }
         }
+    }
 
+    fun onNewIntent(intent: Intent?) {
+        val action = intent?.getStringExtra(ACTION_PARAMETER) ?: return
+        execute(EnumAction.values().find { it.key == action } ?: return)
+        intent.removeExtra(ACTION_PARAMETER)
+    }
 
-        actions.values.forEach(AbstractAction::init)
+    private fun execute(action: EnumAction) {
+        actions[action.key]?.run()
+        if (action.exitOnFinish) {
+            modContext.forceCloseApp()
+        }
     }
 }

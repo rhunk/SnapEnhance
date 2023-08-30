@@ -20,6 +20,8 @@
             "downloads": "Downloads",
             "features": "Features",
             "home": "Home",
+            "home_debug": "Debug",
+            "home_logs": "Logs",
             "social": "Social",
             "plugins": "Plugins"
         },
@@ -64,8 +66,8 @@
         }
     },
 
-    "action": {
-        "clean_cache": "Clean Cache",
+    "actions": {
+        "clean_snapchat_cache": "Clean Snapchat Cache",
         "clear_message_logger": "Clear Message Logger",
         "refresh_mappings": "Refresh Mappings",
         "open_map": "Choose location on map",

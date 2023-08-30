@@ -41,7 +41,7 @@ class AutoSave : MessagingRuleFeature("Auto Save", MessagingRuleType.AUTO_SAVE, 
 
         val callback = CallbackBuilder(callbackClass)
             .override("onError") {
-                Logger.xposedLog("Error saving message $messageId")
+                context.log.warn("Error saving message $messageId")
             }.build()
 
         runCatching {

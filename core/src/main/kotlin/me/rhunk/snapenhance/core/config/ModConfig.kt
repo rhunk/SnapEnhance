@@ -4,11 +4,10 @@ import android.content.Context
 import com.google.gson.Gson
 import com.google.gson.GsonBuilder
 import com.google.gson.JsonObject
-import me.rhunk.snapenhance.Logger
-import me.rhunk.snapenhance.bridge.BridgeClient
-import me.rhunk.snapenhance.bridge.FileLoaderWrapper
-import me.rhunk.snapenhance.bridge.types.BridgeFileType
-import me.rhunk.snapenhance.bridge.wrapper.LocaleWrapper
+import me.rhunk.snapenhance.core.bridge.BridgeClient
+import me.rhunk.snapenhance.core.bridge.FileLoaderWrapper
+import me.rhunk.snapenhance.core.bridge.types.BridgeFileType
+import me.rhunk.snapenhance.core.bridge.wrapper.LocaleWrapper
 import me.rhunk.snapenhance.core.config.impl.RootConfig
 import kotlin.properties.Delegates
 
@@ -33,7 +32,6 @@ class ModConfig {
         runCatching {
             loadConfig()
         }.onFailure {
-            Logger.error("Failed to load config", it)
             writeConfig()
         }
     }

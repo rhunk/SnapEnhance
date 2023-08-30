@@ -1,6 +1,5 @@
 package me.rhunk.snapenhance.features.impl.experiments
 
-import me.rhunk.snapenhance.Logger
 import me.rhunk.snapenhance.features.Feature
 import me.rhunk.snapenhance.features.FeatureLoadParams
 import me.rhunk.snapenhance.hook.HookStage
@@ -17,11 +16,11 @@ class DeviceSpooferHook: Feature("device_spoofer", loadParams = FeatureLoadParam
 			val fingerprintClass = android.os.Build::class.java
 			Hooker.hook(fingerprintClass, "FINGERPRINT", HookStage.BEFORE) { hookAdapter ->
 				hookAdapter.setResult(fingerprint)
-				Logger.debug("Fingerprint spoofed to $fingerprint")
+				context.log.verbose("Fingerprint spoofed to $fingerprint")
 			}
 			Hooker.hook(fingerprintClass, "deriveFingerprint", HookStage.BEFORE) { hookAdapter ->
 				hookAdapter.setResult(fingerprint)
-				Logger.debug("Fingerprint spoofed to $fingerprint")
+				context.log.verbose("Fingerprint spoofed to $fingerprint")
 			}
 		}
 
@@ -30,7 +29,7 @@ class DeviceSpooferHook: Feature("device_spoofer", loadParams = FeatureLoadParam
 			Hooker.hook(settingsSecureClass, "getString", HookStage.BEFORE) { hookAdapter ->
 				if(hookAdapter.args()[1] == "android_id") {
 					hookAdapter.setResult(androidId)
-					Logger.debug("Android ID spoofed to $androidId")
+					context.log.verbose("Android ID spoofed to $androidId")
 				}
 			}
 		}

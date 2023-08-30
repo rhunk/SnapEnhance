@@ -8,7 +8,6 @@ import android.widget.Button
 import android.widget.LinearLayout
 import android.widget.ScrollView
 import me.rhunk.snapenhance.Constants
-import me.rhunk.snapenhance.Logger
 import me.rhunk.snapenhance.features.impl.downloader.MediaDownloader
 import me.rhunk.snapenhance.ui.ViewAppearanceHelper.applyTheme
 import me.rhunk.snapenhance.ui.menu.AbstractMenu
@@ -76,7 +75,7 @@ class OperaContextActionMenu : AbstractMenu() {
             linearLayout.addView(button)
             (childView as ViewGroup).addView(linearLayout, 0)
         } catch (e: Throwable) {
-            Logger.xposedLog(e)
+            context.log.error("Error while injecting OperaContextActionMenu", e)
         }
     }
 }

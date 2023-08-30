@@ -3,7 +3,6 @@ package me.rhunk.snapenhance.features.impl.tweaks
 import android.os.Build
 import android.os.FileObserver
 import com.google.gson.JsonParser
-import me.rhunk.snapenhance.Logger
 import me.rhunk.snapenhance.core.eventbus.events.impl.SendMessageWithContentEvent
 import me.rhunk.snapenhance.features.Feature
 import me.rhunk.snapenhance.features.FeatureLoadParams
@@ -32,7 +31,7 @@ class DisableVideoLengthRestriction : Feature("DisableVideoLengthRestriction", l
                         val fileContent = JsonParser.parseReader(file.reader()).asJsonObject
                         if (fileContent["timerOrDuration"].asLong < 0) file.delete()
                     }.onFailure {
-                        Logger.error("Failed to read story metadata file", it)
+                        context.log.error("Failed to read story metadata file", it)
                     }
                 }
             })

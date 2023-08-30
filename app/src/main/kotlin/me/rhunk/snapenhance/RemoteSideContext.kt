@@ -3,9 +3,12 @@ package me.rhunk.snapenhance
 import android.app.Activity
 import android.content.Context
 import android.content.Intent
+import android.content.pm.PackageManager
 import android.net.Uri
+import android.os.Build
 import android.widget.Toast
 import androidx.activity.ComponentActivity
+import androidx.core.app.CoreComponentFactory
 import androidx.documentfile.provider.DocumentFile
 import coil.ImageLoader
 import coil.decode.VideoFrameDecoder
@@ -13,18 +16,25 @@ import coil.disk.DiskCache
 import coil.memory.MemoryCache
 import kotlinx.coroutines.Dispatchers
 import me.rhunk.snapenhance.bridge.BridgeService
-import me.rhunk.snapenhance.bridge.wrapper.LocaleWrapper
-import me.rhunk.snapenhance.bridge.wrapper.MappingsWrapper
+import me.rhunk.snapenhance.core.BuildConfig
+import me.rhunk.snapenhance.core.bridge.wrapper.LocaleWrapper
+import me.rhunk.snapenhance.core.bridge.wrapper.MappingsWrapper
 import me.rhunk.snapenhance.core.config.ModConfig
-import me.rhunk.snapenhance.download.DownloadTaskManager
+import me.rhunk.snapenhance.core.download.DownloadTaskManager
 import me.rhunk.snapenhance.messaging.ModDatabase
 import me.rhunk.snapenhance.messaging.StreaksReminder
+import me.rhunk.snapenhance.ui.manager.MainActivity
 import me.rhunk.snapenhance.ui.manager.data.InstallationSummary
-import me.rhunk.snapenhance.ui.manager.data.ModMappingsInfo
+import me.rhunk.snapenhance.ui.manager.data.ModInfo
+import me.rhunk.snapenhance.ui.manager.data.PlatformInfo
 import me.rhunk.snapenhance.ui.manager.data.SnapchatAppInfo
 import me.rhunk.snapenhance.ui.setup.Requirements
 import me.rhunk.snapenhance.ui.setup.SetupActivity
+import java.io.ByteArrayInputStream
 import java.lang.ref.WeakReference
+import java.security.cert.CertificateFactory
+import java.security.cert.X509Certificate
+
 
 class RemoteSideContext(
     val androidContext: Context
@@ -42,6 +52,7 @@ class RemoteSideContext(
     val downloadTaskManager = DownloadTaskManager()
     val modDatabase = ModDatabase(this)
     val streaksReminder = StreaksReminder(this)
+    val log = LogManager(this)
 
     //used to load bitmoji selfies and download previews
     val imageLoader by lazy {
@@ -76,37 +87,57 @@ class RemoteSideContext(
             modDatabase.init()
             streaksReminder.init()
         }.onFailure {
-            Logger.error("Failed to load RemoteSideContext", it)
+            log.error("Failed to load RemoteSideContext", it)
         }
     }
 
-    fun getInstallationSummary() = InstallationSummary(
-        snapchatInfo = mappings.getSnapchatPackageInfo()?.let {
-            SnapchatAppInfo(
-                version = it.versionName,
-                versionCode = it.longVersionCode
+    val installationSummary by lazy {
+        InstallationSummary(
+            snapchatInfo = mappings.getSnapchatPackageInfo()?.let {
+                SnapchatAppInfo(
+                    packageName = it.packageName,
+                    version = it.versionName,
+                    versionCode = it.longVersionCode,
+                    isLSPatched = it.applicationInfo.appComponentFactory != CoreComponentFactory::class.java.name,
+                    isSplitApk = it.splitNames.isNotEmpty()
+                )
+            },
+            modInfo = ModInfo(
+                loaderPackageName = MainActivity::class.java.`package`?.name ?: "unknown",
+                buildPackageName = BuildConfig.APPLICATION_ID,
+                buildVersion = BuildConfig.VERSION_NAME,
+                buildVersionCode = BuildConfig.VERSION_CODE.toLong(),
+                buildIssuer = androidContext.packageManager.getPackageInfo(BuildConfig.APPLICATION_ID, PackageManager.GET_SIGNING_CERTIFICATES)
+                    ?.signingInfo?.apkContentsSigners?.firstOrNull()?.let {
+                        val certFactory = CertificateFactory.getInstance("X509")
+                        val cert = certFactory.generateCertificate(ByteArrayInputStream(it.toByteArray())) as X509Certificate
+                        cert.issuerDN.toString()
+                    } ?: throw Exception("Failed to get certificate info"),
+                isDebugBuild = BuildConfig.DEBUG,
+                mappingVersion = mappings.getGeneratedBuildNumber(),
+                mappingsOutdated = mappings.isMappingsOutdated()
+            ),
+            platformInfo = PlatformInfo(
+                device = Build.DEVICE,
+                buildFingerprint = Build.FINGERPRINT,
+                androidVersion = Build.VERSION.RELEASE,
+                systemAbi = Build.SUPPORTED_ABIS.firstOrNull() ?: "unknown"
             )
-        },
-        mappingsInfo = if (mappings.isMappingsLoaded()) {
-            ModMappingsInfo(
-                generatedSnapchatVersion = mappings.getGeneratedBuildNumber(),
-                isOutdated = mappings.isMappingsOutdated()
-            )
-        } else null
-    )
+        )
+    }
 
     fun longToast(message: Any) {
         androidContext.mainExecutor.execute {
             Toast.makeText(androidContext, message.toString(), Toast.LENGTH_LONG).show()
         }
-        Logger.debug(message.toString())
+        log.debug(message.toString())
     }
 
     fun shortToast(message: Any) {
         androidContext.mainExecutor.execute {
             Toast.makeText(androidContext, message.toString(), Toast.LENGTH_SHORT).show()
         }
-        Logger.debug(message.toString())
+        log.debug(message.toString())
     }
 
     fun checkForRequirements(overrideRequirements: Int? = null): Boolean {

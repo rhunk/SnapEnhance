@@ -1,6 +1,5 @@
 package me.rhunk.snapenhance.core.eventbus
 
-import me.rhunk.snapenhance.Logger
 import me.rhunk.snapenhance.ModContext
 import kotlin.reflect.KClass
 
@@ -14,7 +13,7 @@ interface IListener<T> {
 }
 
 class EventBus(
-    private val context: ModContext
+    val context: ModContext
 ) {
     private val subscribers = mutableMapOf<KClass<out Event>, MutableList<IListener<out Event>>>()
 
@@ -34,7 +33,7 @@ class EventBus(
                 runCatching {
                     listener(event)
                 }.onFailure {
-                    Logger.error("Error while handling event ${event::class.simpleName}", it)
+                    context.log.error("Error while handling event ${event::class.simpleName}", it)
                 }
             }
         }
@@ -61,7 +60,7 @@ class EventBus(
             runCatching {
                 (listener as IListener<T>).handle(event)
             }.onFailure { t ->
-                Logger.error("Error while handling event ${event::class.simpleName} by ${listener::class.simpleName}", t)
+                context.log.error("Error while handling event ${event::class.simpleName} by ${listener::class.simpleName}", t)
             }
         }
         return event

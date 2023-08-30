@@ -44,7 +44,7 @@ object RemoteMediaResolver {
 
         okHttpClient.newCall(request).execute().use { response ->
             if (!response.isSuccessful) {
-                Logger.log("Unexpected code $response")
+                Logger.directDebug("Unexpected code $response")
                 return null
             }
             return ByteArrayInputStream(response.body.bytes())

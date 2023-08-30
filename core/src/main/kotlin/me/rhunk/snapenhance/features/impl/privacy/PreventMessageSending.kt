@@ -1,6 +1,5 @@
 package me.rhunk.snapenhance.features.impl.privacy
 
-import me.rhunk.snapenhance.Logger
 import me.rhunk.snapenhance.core.eventbus.events.impl.SendMessageWithContentEvent
 import me.rhunk.snapenhance.data.NotificationType
 import me.rhunk.snapenhance.features.Feature
@@ -28,7 +27,7 @@ class PreventMessageSending : Feature("Prevent message sending", loadParams = Fe
             val associatedType = NotificationType.fromContentType(contentType) ?: return@subscribe
 
             if (preventMessageSending.contains(associatedType.key)) {
-                Logger.debug("Preventing message sending for $associatedType")
+                context.log.verbose("Preventing message sending for $associatedType")
                 event.canceled = true
             }
         }

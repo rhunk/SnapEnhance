@@ -2,47 +2,81 @@ package me.rhunk.snapenhance
 
 import android.util.Log
 import de.robv.android.xposed.XposedBridge
-import me.rhunk.snapenhance.core.BuildConfig
+import me.rhunk.snapenhance.core.bridge.BridgeClient
 
-object Logger {
-    private const val TAG = "SnapEnhance"
+enum class LogLevel(
+    val letter: String,
+    val shortName: String,
+    val priority: Int = Log.INFO
+) {
+    VERBOSE("V", "verbose", Log.VERBOSE),
+    DEBUG("D", "debug", Log.DEBUG),
+    INFO("I", "info", Log.INFO),
+    WARN("W", "warn", Log.WARN),
+    ERROR("E", "error", Log.ERROR),
+    ASSERT("A", "assert", Log.ASSERT);
 
-    fun log(message: Any?) {
-        Log.i(TAG, message.toString())
+    companion object {
+        fun fromLetter(letter: String): LogLevel? {
+            return values().find { it.letter == letter }
+        }
+
+        fun fromShortName(shortName: String): LogLevel? {
+            return values().find { it.shortName == shortName }
+        }
+    }
+}
+
+
+class Logger(
+    private val bridgeClient: BridgeClient
+) {
+    companion object {
+        private const val TAG = "SnapEnhanceCore"
+
+        fun directDebug(message: Any?, tag: String = TAG) {
+            Log.println(Log.DEBUG, tag, message.toString())
+        }
+
+        fun directError(message: Any?, throwable: Throwable, tag: String = TAG) {
+            Log.println(Log.ERROR, tag, message.toString())
+            Log.println(Log.ERROR, tag, throwable.toString())
+        }
+
+        fun xposedLog(message: Any?, tag: String = TAG) {
+            Log.println(Log.INFO, tag, message.toString())
+            XposedBridge.log("$tag: $message")
+        }
+
+        fun xposedLog(message: Any?, throwable: Throwable, tag: String = TAG) {
+            Log.println(Log.INFO, tag, message.toString())
+            XposedBridge.log("$tag: $message")
+            XposedBridge.log(throwable)
+        }
     }
 
-    fun debug(message: Any?) {
-        if (!BuildConfig.DEBUG) return
-        Log.d(TAG, message.toString())
+    private fun internalLog(tag: String, logLevel: LogLevel, message: Any?) {
+        runCatching {
+            bridgeClient.broadcastLog(tag, logLevel.shortName, message.toString())
+        }.onFailure {
+            Log.println(logLevel.priority, tag, message.toString())
+        }
     }
 
-    fun debug(tag: String, message: Any?) {
-        if (!BuildConfig.DEBUG) return
-        Log.d(tag, message.toString())
+    fun debug(message: Any?, tag: String = TAG) = internalLog(tag, LogLevel.DEBUG, message)
+
+    fun error(message: Any?, tag: String = TAG) = internalLog(tag, LogLevel.ERROR, message)
+
+    fun error(message: Any?, throwable: Throwable, tag: String = TAG) {
+        internalLog(tag, LogLevel.ERROR, message)
+        internalLog(tag, LogLevel.ERROR, throwable)
     }
 
-    fun error(throwable: Throwable) {
-        Log.e(TAG, "", throwable)
-    }
+    fun info(message: Any?, tag: String = TAG) = internalLog(tag, LogLevel.INFO, message)
 
-    fun error(message: Any?) {
-        Log.e(TAG, message.toString())
-    }
+    fun verbose(message: Any?, tag: String = TAG) = internalLog(tag, LogLevel.VERBOSE, message)
 
-    fun error(message: Any?, throwable: Throwable) {
-        Log.e(TAG, message.toString(), throwable)
-    }
+    fun warn(message: Any?, tag: String = TAG) = internalLog(tag, LogLevel.WARN, message)
 
-    fun xposedLog(message: Any?) {
-        XposedBridge.log(message.toString())
-    }
-
-    fun xposedLog(message: Any?, throwable: Throwable?) {
-        XposedBridge.log(message.toString())
-        XposedBridge.log(throwable)
-    }
-
-    fun xposedLog(throwable: Throwable) {
-        XposedBridge.log(throwable)
-    }
+    fun assert(message: Any?, tag: String = TAG) = internalLog(tag, LogLevel.ASSERT, message)
 }

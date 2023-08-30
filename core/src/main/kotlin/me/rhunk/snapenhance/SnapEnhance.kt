@@ -6,9 +6,9 @@ import android.content.Context
 import android.content.pm.PackageManager
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.withContext
-import me.rhunk.snapenhance.bridge.BridgeClient
 import me.rhunk.snapenhance.bridge.SyncCallback
 import me.rhunk.snapenhance.core.BuildConfig
+import me.rhunk.snapenhance.core.bridge.BridgeClient
 import me.rhunk.snapenhance.core.eventbus.events.impl.SnapWidgetBroadcastReceiveEvent
 import me.rhunk.snapenhance.core.eventbus.events.impl.UnaryCallEvent
 import me.rhunk.snapenhance.core.messaging.MessagingFriendInfo
@@ -88,7 +88,7 @@ class SnapEnhance {
                 return@hook
             }
 
-            Logger.debug("Reloading config")
+            appContext.actionManager.onNewIntent(activity.intent)
             appContext.reloadConfig()
             syncRemote()
         }
@@ -114,7 +114,7 @@ class SnapEnhance {
                 syncRemote()
             }
         }.also { time ->
-            Logger.debug("init took $time")
+            appContext.log.verbose("init took $time")
         }
     }
 
@@ -126,7 +126,7 @@ class SnapEnhance {
                 actionManager.init()
             }
         }.also { time ->
-            Logger.debug("onActivityCreate took $time")
+            appContext.log.verbose("onActivityCreate took $time")
         }
     }
 
@@ -149,7 +149,6 @@ class SnapEnhance {
         val database = appContext.database
 
         appContext.executeAsync {
-            Logger.debug("request remote sync")
             appContext.bridgeClient.sync(object : SyncCallback.Stub() {
                 override fun syncFriend(uuid: String): String? {
                     return database.getFriendInfo(uuid)?.toJson()

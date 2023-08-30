@@ -13,7 +13,7 @@ import androidx.navigation.NavController
 import androidx.navigation.NavGraphBuilder
 import androidx.navigation.compose.composable
 import me.rhunk.snapenhance.RemoteSideContext
-import me.rhunk.snapenhance.ui.manager.sections.HomeSection
+import me.rhunk.snapenhance.ui.manager.sections.home.HomeSection
 import me.rhunk.snapenhance.ui.manager.sections.NotImplemented
 import me.rhunk.snapenhance.ui.manager.sections.downloads.DownloadsSection
 import me.rhunk.snapenhance.ui.manager.sections.features.FeaturesSection
@@ -63,6 +63,8 @@ open class Section {
     lateinit var enumSection: EnumSection
     lateinit var context: RemoteSideContext
     lateinit var navController: NavController
+
+    val currentRoute get() = navController.currentBackStackEntry?.destination?.route
 
     open fun init() {}
     open fun onResumed() {}

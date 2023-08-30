@@ -5,7 +5,7 @@ import android.os.Bundle
 import me.rhunk.snapenhance.action.AbstractAction
 import me.rhunk.snapenhance.core.BuildConfig
 
-class OpenMap: AbstractAction("action.open_map") {
+class OpenMap: AbstractAction() {
     override fun run() {
         context.runOnUiThread {
             val mapActivityIntent = Intent()

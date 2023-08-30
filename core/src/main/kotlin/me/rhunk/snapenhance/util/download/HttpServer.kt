@@ -37,7 +37,7 @@ class HttpServer(
         }
 
         coroutineScope.launch(Dispatchers.IO) {
-            Logger.debug("starting http server on port $port")
+            Logger.directDebug("starting http server on port $port")
             serverSocket = ServerSocket(port)
             callback(this@HttpServer)
             while (!serverSocket!!.isClosed) {
@@ -48,21 +48,21 @@ class HttpServer(
                         handleRequest(socket)
                         timeoutJob = launch {
                             delay(timeout.toLong())
-                            Logger.debug("http server closed due to timeout")
+                            Logger.directDebug("http server closed due to timeout")
                             runCatching {
                                 socketJob?.cancel()
                                 socket.close()
                                 serverSocket?.close()
                             }.onFailure {
-                                Logger.error(it)
+                                Logger.directError("failed to close socket", it)
                             }
                         }
                     }
                 } catch (e: SocketException) {
-                    Logger.debug("http server timed out")
+                    Logger.directDebug("http server timed out")
                     break;
                 } catch (e: Throwable) {
-                    Logger.error("failed to handle request", e)
+                    Logger.directError("failed to handle request", e)
                 }
             }
         }.also { socketJob = it }
@@ -90,13 +90,13 @@ class HttpServer(
                 outputStream.close()
                 socket.close()
             }.onFailure {
-                Logger.error("failed to close socket", it)
+                Logger.directError("failed to close socket", it)
             }
         }
         val parse = StringTokenizer(line)
         val method = parse.nextToken().uppercase(Locale.getDefault())
         var fileRequested = parse.nextToken().lowercase(Locale.getDefault())
-        Logger.debug("[http-server:${port}] $method $fileRequested")
+        Logger.directDebug("[http-server:${port}] $method $fileRequested")
 
         if (method != "GET") {
             with(writer) {

@@ -19,14 +19,15 @@ import me.rhunk.snapenhance.Constants
 import me.rhunk.snapenhance.Logger
 import me.rhunk.snapenhance.RemoteSideContext
 import me.rhunk.snapenhance.bridge.DownloadCallback
+import me.rhunk.snapenhance.core.download.DownloadManagerClient
 import me.rhunk.snapenhance.data.FileType
-import me.rhunk.snapenhance.download.data.DownloadMediaType
-import me.rhunk.snapenhance.download.data.DownloadMetadata
-import me.rhunk.snapenhance.download.data.DownloadObject
-import me.rhunk.snapenhance.download.data.DownloadRequest
-import me.rhunk.snapenhance.download.data.DownloadStage
-import me.rhunk.snapenhance.download.data.InputMedia
-import me.rhunk.snapenhance.download.data.MediaEncryptionKeyPair
+import me.rhunk.snapenhance.core.download.data.DownloadMediaType
+import me.rhunk.snapenhance.core.download.data.DownloadMetadata
+import me.rhunk.snapenhance.core.download.data.DownloadObject
+import me.rhunk.snapenhance.core.download.data.DownloadRequest
+import me.rhunk.snapenhance.core.download.data.DownloadStage
+import me.rhunk.snapenhance.core.download.data.InputMedia
+import me.rhunk.snapenhance.core.download.data.MediaEncryptionKeyPair
 import me.rhunk.snapenhance.util.download.RemoteMediaResolver
 import me.rhunk.snapenhance.util.snap.MediaDownloaderHelper
 import java.io.File
@@ -178,14 +179,14 @@ class DownloadProcessor (
                 mediaScanIntent.setData(outputFile.uri)
                 remoteSideContext.androidContext.sendBroadcast(mediaScanIntent)
             }.onFailure {
-                Logger.error("Failed to scan media file", it)
+                remoteSideContext.log.error("Failed to scan media file", it)
                 callbackOnFailure(translation.format("failed_gallery_toast", "error" to it.toString()), it.message)
             }
 
-            Logger.debug("download complete")
+            remoteSideContext.log.verbose("download complete")
             callbackOnSuccess(fileName)
         }.onFailure { exception ->
-            Logger.error(exception)
+            remoteSideContext.log.error("Failed to save media to gallery", exception)
             callbackOnFailure(translation.format("failed_gallery_toast", "error" to exception.toString()), exception.message)
             downloadObject.downloadStage = DownloadStage.FAILED
         }
@@ -284,7 +285,7 @@ class DownloadProcessor (
                 saveMediaToGallery(outputFile, downloadObjectObject)
             }.onFailure { exception ->
                 if (coroutineContext.job.isCancelled) return@onFailure
-                Logger.error(exception)
+                remoteSideContext.log.error("Failed to download dash media", exception)
                 callbackOnFailure(translation.format("failed_processing_toast", "error" to exception.toString()), exception.message)
                 downloadObjectObject.downloadStage = DownloadStage.FAILED
             }
@@ -333,7 +334,7 @@ class DownloadProcessor (
                 val downloadedMedias = downloadInputMedias(downloadRequest).map {
                     it.key to DownloadedFile(it.value, FileType.fromFile(it.value))
                 }.toMap().toMutableMap()
-                Logger.debug("downloaded ${downloadedMedias.size} medias")
+                remoteSideContext.log.verbose("downloaded ${downloadedMedias.size} medias")
 
                 var shouldMergeOverlay = downloadRequest.shouldMergeOverlay
 
@@ -376,7 +377,7 @@ class DownloadProcessor (
                         saveMediaToGallery(mergedOverlay, downloadObjectObject)
                     }.onFailure { exception ->
                         if (coroutineContext.job.isCancelled) return@onFailure
-                        Logger.error(exception)
+                        remoteSideContext.log.error("Failed to merge overlay", exception)
                         callbackOnFailure(translation.format("failed_processing_toast", "error" to exception.toString()), exception.message)
                         downloadObjectObject.downloadStage = DownloadStage.MERGE_FAILED
                     }
@@ -390,7 +391,7 @@ class DownloadProcessor (
                 downloadRemoteMedia(downloadObjectObject, downloadedMedias, downloadRequest)
             }.onFailure { exception ->
                 downloadObjectObject.downloadStage = DownloadStage.FAILED
-                Logger.error(exception)
+                remoteSideContext.log.error("Failed to download media", exception)
                 callbackOnFailure(translation["failed_generic_toast"], exception.message)
             }
         }

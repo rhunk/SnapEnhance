@@ -9,16 +9,15 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.async
 import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.withContext
-import me.rhunk.snapenhance.Logger
 import me.rhunk.snapenhance.ModContext
 import me.rhunk.snapenhance.core.BuildConfig
+import me.rhunk.snapenhance.core.database.objects.FriendFeedEntry
+import me.rhunk.snapenhance.core.database.objects.FriendInfo
 import me.rhunk.snapenhance.data.ContentType
 import me.rhunk.snapenhance.data.FileType
 import me.rhunk.snapenhance.data.MediaReferenceType
 import me.rhunk.snapenhance.data.wrapper.impl.Message
 import me.rhunk.snapenhance.data.wrapper.impl.SnapUUID
-import me.rhunk.snapenhance.database.objects.FriendFeedEntry
-import me.rhunk.snapenhance.database.objects.FriendInfo
 import me.rhunk.snapenhance.util.protobuf.ProtoReader
 import me.rhunk.snapenhance.util.snap.EncryptionHelper
 import me.rhunk.snapenhance.util.snap.MediaDownloaderHelper
@@ -138,7 +137,7 @@ class MessageExporter(
                             }
                         }.onFailure {
                             printLog("failed to download media for ${message.messageDescriptor.conversationId}_${message.orderKey}")
-                            Logger.error("failed to download media for ${message.messageDescriptor.conversationId}_${message.orderKey}", it)
+                            context.log.error("failed to download media for ${message.messageDescriptor.conversationId}_${message.orderKey}", it)
                         }
                     }
                 }
@@ -219,7 +218,7 @@ class MessageExporter(
             }
         }.onFailure {
             printLog("failed to read template from apk")
-            Logger.error("failed to read template from apk", it)
+            context.log.error("failed to read template from apk", it)
         }
 
         output.write("</html>".toByteArray())

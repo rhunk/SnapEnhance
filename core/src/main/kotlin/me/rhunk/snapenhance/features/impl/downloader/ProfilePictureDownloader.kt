@@ -3,7 +3,6 @@ package me.rhunk.snapenhance.features.impl.downloader
 import android.annotation.SuppressLint
 import android.widget.Button
 import android.widget.RelativeLayout
-import me.rhunk.snapenhance.Logger
 import me.rhunk.snapenhance.core.eventbus.events.impl.AddViewEvent
 import me.rhunk.snapenhance.core.eventbus.events.impl.NetworkApiRequestEvent
 import me.rhunk.snapenhance.features.Feature
@@ -45,7 +44,7 @@ class ProfilePictureDownloader : Feature("ProfilePictureDownloader", loadParams 
                                     friendUsername!!
                                 )
                             }.onFailure {
-                                Logger.error("Failed to download profile picture", it)
+                                this@ProfilePictureDownloader.context.log.error("Failed to download profile picture", it)
                             }
                         }
                     }.show()

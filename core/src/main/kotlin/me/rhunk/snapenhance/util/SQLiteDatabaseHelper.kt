@@ -23,7 +23,7 @@ object SQLiteDatabaseHelper {
 
             if (newColumns.isEmpty()) return@forEach
 
-            Logger.log("Schema for table $tableName has changed")
+            Logger.directDebug("Schema for table $tableName has changed")
             sqLiteDatabase.execSQL("DROP TABLE $tableName")
             sqLiteDatabase.execSQL("CREATE TABLE IF NOT EXISTS $tableName (${columns.joinToString(", ")})")
         }

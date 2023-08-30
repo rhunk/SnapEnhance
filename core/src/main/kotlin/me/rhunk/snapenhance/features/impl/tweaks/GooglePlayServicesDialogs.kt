@@ -1,7 +1,6 @@
 package me.rhunk.snapenhance.features.impl.tweaks
 
 import android.app.AlertDialog
-import me.rhunk.snapenhance.Logger
 import me.rhunk.snapenhance.features.Feature
 import me.rhunk.snapenhance.features.FeatureLoadParams
 import me.rhunk.snapenhance.hook.HookStage
@@ -15,7 +14,7 @@ class GooglePlayServicesDialogs : Feature("Disable GMS Dialogs", loadParams = Fe
         findClass("com.google.android.gms.common.GoogleApiAvailability").methods
             .first { Modifier.isStatic(it.modifiers) && it.returnType == AlertDialog::class.java }.let { method ->
             method.hook(HookStage.BEFORE) { param ->
-                Logger.debug("GoogleApiAvailability.showErrorDialogFragment() called, returning null")
+                context.log.verbose("GoogleApiAvailability.showErrorDialogFragment() called, returning null")
                 param.setResult(null)
             }
         }

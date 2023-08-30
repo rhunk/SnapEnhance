@@ -10,7 +10,6 @@ import android.net.Uri
 import android.os.Build
 import android.os.Environment
 import com.google.gson.JsonParser
-import me.rhunk.snapenhance.Logger
 import me.rhunk.snapenhance.core.BuildConfig
 import me.rhunk.snapenhance.features.Feature
 import me.rhunk.snapenhance.features.FeatureLoadParams
@@ -36,7 +35,7 @@ class AutoUpdater : Feature("AutoUpdater", loadParams = FeatureLoadParams.ACTIVI
         runCatching {
             checkForUpdates()
         }.onFailure {
-            Logger.error("Failed to check for updates: ${it.message}", it)
+            context.log.error("Failed to check for updates: ${it.message}", it)
         }.onSuccess {
             context.bridgeClient.setAutoUpdaterTime(currentTimeMillis)
         }

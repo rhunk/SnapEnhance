@@ -13,12 +13,12 @@ import android.os.UserHandle
 import de.robv.android.xposed.XposedBridge
 import de.robv.android.xposed.XposedHelpers
 import me.rhunk.snapenhance.Logger
+import me.rhunk.snapenhance.core.download.data.SplitMediaAssetType
 import me.rhunk.snapenhance.core.eventbus.events.impl.SnapWidgetBroadcastReceiveEvent
 import me.rhunk.snapenhance.data.ContentType
 import me.rhunk.snapenhance.data.MediaReferenceType
 import me.rhunk.snapenhance.data.wrapper.impl.Message
 import me.rhunk.snapenhance.data.wrapper.impl.SnapUUID
-import me.rhunk.snapenhance.download.data.SplitMediaAssetType
 import me.rhunk.snapenhance.features.Feature
 import me.rhunk.snapenhance.features.FeatureLoadParams
 import me.rhunk.snapenhance.features.impl.Messaging
@@ -297,7 +297,7 @@ class Notifications : Feature("Notifications", loadParams = FeatureLoadParams.IN
                     fetchMessagesResult(conversationId, messageList)
                 }
                 .override("onError") {
-                    Logger.xposedLog("Failed to fetch message ${it.arg(0) as Any}")
+                    context.log.error("Failed to fetch message ${it.arg(0) as Any}")
                 }.build()
 
             fetchConversationWithMessagesMethod.invoke(conversationManager, SnapUUID.fromString(conversationId).instanceNonNull(), callback)
@@ -323,7 +323,7 @@ class Notifications : Feature("Notifications", loadParams = FeatureLoadParams.IN
                     val intent = param.argNullable<Intent>(0) ?: return@hook
                     val messageType = intent.getStringExtra("type") ?: return@hook
 
-                    Logger.xposedLog("received message type: $messageType")
+                    context.log.debug("received message type: $messageType")
 
                     if (states.contains(messageType.replaceFirst("mischief_", ""))) {
                         param.setResult(null)

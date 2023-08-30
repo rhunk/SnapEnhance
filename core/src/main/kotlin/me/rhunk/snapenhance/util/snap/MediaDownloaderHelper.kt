@@ -4,9 +4,9 @@ import com.arthenica.ffmpegkit.FFmpegKit
 import com.arthenica.ffmpegkit.FFmpegSession
 import kotlinx.coroutines.suspendCancellableCoroutine
 import me.rhunk.snapenhance.Constants
+import me.rhunk.snapenhance.core.download.data.SplitMediaAssetType
 import me.rhunk.snapenhance.data.ContentType
 import me.rhunk.snapenhance.data.FileType
-import me.rhunk.snapenhance.download.data.SplitMediaAssetType
 import me.rhunk.snapenhance.util.download.RemoteMediaResolver
 import me.rhunk.snapenhance.util.protobuf.ProtoReader
 import java.io.ByteArrayInputStream

@@ -3,7 +3,6 @@ package me.rhunk.snapenhance.features.impl.spying
 import android.os.DeadObjectException
 import com.google.gson.JsonObject
 import com.google.gson.JsonParser
-import me.rhunk.snapenhance.Logger
 import me.rhunk.snapenhance.data.ContentType
 import me.rhunk.snapenhance.data.MessageState
 import me.rhunk.snapenhance.data.wrapper.impl.Message
@@ -72,7 +71,7 @@ class MessageLogger : Feature("MessageLogger",
             context.database.getFeedEntries(PREFETCH_FEED_COUNT).forEach { friendFeedInfo ->
                 fetchedMessages.addAll(context.bridgeClient.getLoggedMessageIds(friendFeedInfo.key!!, PREFETCH_MESSAGE_COUNT).toList())
             }
-        }.also { Logger.debug("Loaded ${fetchedMessages.size} cached messages in $it") }
+        }.also { context.log.verbose("Loaded ${fetchedMessages.size} cached messages in $it") }
     }
 
     private fun processSnapMessage(messageInstance: Any) {

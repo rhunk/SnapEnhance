@@ -6,52 +6,46 @@ import me.rhunk.snapenhance.bridge.SyncCallback;
 
 interface BridgeInterface {
     /**
+    * broadcast a log message
+    */
+    void broadcastLog(String tag, String level, String message);
+
+    /**
     * Execute a file operation
+    * @param fileType the corresponding file type (see BridgeFileType)
     */
     byte[] fileOperation(int action, int fileType, in @nullable byte[] content);
 
     /**
      * Get the content of a logged message from the database
-     *
-     * @param conversationId the ID of the conversation
-     * @return the content of the message
+     * @return message ids that are logged
      */
     long[] getLoggedMessageIds(String conversationId, int limit);
 
     /**
      * Get the content of a logged message from the database
-     *
-     * @param id the ID of the message logger message
-     * @return the content of the message
      */
     @nullable byte[] getMessageLoggerMessage(String conversationId, long id);
 
     /**
      * Add a message to the message logger database
-     *
-     * @param id      the ID of the message logger message
-     * @param message the content of the message
      */
     void addMessageLoggerMessage(String conversationId, long id, in byte[] message);
 
     /**
      * Delete a message from the message logger database
-     *
-     * @param id the ID of the message logger message
      */
     void deleteMessageLoggerMessage(String conversationId, long id);
 
     /**
-     * Clear the message logger database
-     */
-    void clearMessageLogger();
-
+    * Get the application APK path (assets for the conversation exporter)
+    */
     String getApplicationApkPath();
 
     /**
      * Fetch the locales
      *
-     * @return the locale result
+     * @return the map of locales (key: locale short name, value: locale data as json)
      */
     Map<String, String> fetchLocales(String userLocale);
 
@@ -62,11 +56,14 @@ interface BridgeInterface {
 
     /**
     * Get rules for a given user or conversation
+    * @return list of rules (MessagingRuleType)
     */
     List<String> getRules(String uuid);
 
     /**
     * Update rule for a giver user or conversation
+    *
+    * @param type rule type (MessagingRuleType)
     */
     void setRule(String uuid, String type, boolean state);
 
@@ -77,8 +74,8 @@ interface BridgeInterface {
 
     /**
     * Pass all groups and friends to be able to add them to the database
-    * @param groups serialized groups
-    * @param friends serialized friends
+    * @param groups list of groups (MessagingGroupInfo as json string)
+    * @param friends list of friends (MessagingFriendInfo as json string)
     */
     oneway void passGroupsAndFriends(in List<String> groups, in List<String> friends);
 }

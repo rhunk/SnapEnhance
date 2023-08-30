@@ -16,7 +16,7 @@ class ActivityLauncherHelper(
                 runCatching {
                     callback?.let { it(result.data!!) }
                 }.onFailure {
-                    Logger.error("Failed to process activity result", it)
+                    Logger.directError("Failed to process activity result", it)
                 }
             }
             callback = null

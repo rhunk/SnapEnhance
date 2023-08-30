@@ -439,7 +439,7 @@ class FeaturesSection : Section() {
 
         IconButton(onClick = {
             showSearchBar = showSearchBar.not()
-            if (!showSearchBar && navController.currentBackStackEntry?.destination?.route == SEARCH_FEATURE_ROUTE) {
+            if (!showSearchBar && currentRoute == SEARCH_FEATURE_ROUTE) {
                 navController.navigate(MAIN_ROUTE)
             }
         }) {

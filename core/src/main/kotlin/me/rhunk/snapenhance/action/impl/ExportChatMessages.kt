@@ -14,10 +14,10 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.suspendCancellableCoroutine
 import me.rhunk.snapenhance.Logger
 import me.rhunk.snapenhance.action.AbstractAction
+import me.rhunk.snapenhance.core.database.objects.FriendFeedEntry
 import me.rhunk.snapenhance.data.ContentType
 import me.rhunk.snapenhance.data.wrapper.impl.Message
 import me.rhunk.snapenhance.data.wrapper.impl.SnapUUID
-import me.rhunk.snapenhance.database.objects.FriendFeedEntry
 import me.rhunk.snapenhance.features.impl.Messaging
 import me.rhunk.snapenhance.ui.ViewAppearanceHelper
 import me.rhunk.snapenhance.util.CallbackBuilder
@@ -26,7 +26,7 @@ import me.rhunk.snapenhance.util.export.MessageExporter
 import java.io.File
 
 @OptIn(DelicateCoroutinesApi::class)
-class ExportChatMessages : AbstractAction("action.export_chat_messages") {
+class ExportChatMessages : AbstractAction() {
     private val callbackClass by lazy {  context.mappings.getMappedClass("callbacks", "Callback") }
 
     private val fetchConversationWithMessagesCallbackClass by lazy {  context.mappings.getMappedClass("callbacks", "FetchConversationWithMessagesCallback") }
@@ -55,7 +55,7 @@ class ExportChatMessages : AbstractAction("action.export_chat_messages") {
         context.runOnUiThread {
             if (dialogLogs.size > 15) dialogLogs.removeAt(0)
             dialogLogs.add(message)
-            Logger.debug("dialog: $message")
+            context.log.debug("dialog: $message")
             currentActionDialog!!.setMessage(dialogLogs.joinToString("\n"))
         }
     }
@@ -198,7 +198,6 @@ class ExportChatMessages : AbstractAction("action.export_chat_messages") {
         }
 
         while (true) {
-            Logger.debug("[$conversationName] fetching $lastMessageId")
             val messages = fetchMessagesPaginated(conversationId, lastMessageId)
             if (messages.isEmpty()) break
             foundMessages.addAll(messages)
@@ -224,7 +223,7 @@ class ExportChatMessages : AbstractAction("action.export_chat_messages") {
                 it.readMessages(foundMessages)
             }.onFailure {
                 logDialog(context.translation.format("chat_export.export_failed","conversation" to it.message.toString()))
-                Logger.error(it)
+                context.log.error("Failed to read messages", it)
                 return
             }
         }.exportTo(exportType!!)

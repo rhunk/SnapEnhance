@@ -6,9 +6,15 @@ import android.graphics.BitmapFactory
 import android.net.Uri
 import android.widget.ImageView
 import kotlinx.coroutines.runBlocking
-import me.rhunk.snapenhance.Logger
-import me.rhunk.snapenhance.Logger.xposedLog
 import me.rhunk.snapenhance.bridge.DownloadCallback
+import me.rhunk.snapenhance.core.database.objects.FriendInfo
+import me.rhunk.snapenhance.core.download.DownloadManagerClient
+import me.rhunk.snapenhance.core.download.data.DownloadMediaType
+import me.rhunk.snapenhance.core.download.data.DownloadMetadata
+import me.rhunk.snapenhance.core.download.data.InputMedia
+import me.rhunk.snapenhance.core.download.data.MediaFilter
+import me.rhunk.snapenhance.core.download.data.SplitMediaAssetType
+import me.rhunk.snapenhance.core.download.data.toKeyPair
 import me.rhunk.snapenhance.core.messaging.MessagingRuleType
 import me.rhunk.snapenhance.data.ContentType
 import me.rhunk.snapenhance.data.FileType
@@ -17,14 +23,6 @@ import me.rhunk.snapenhance.data.wrapper.impl.media.dash.LongformVideoPlaylistIt
 import me.rhunk.snapenhance.data.wrapper.impl.media.dash.SnapPlaylistItem
 import me.rhunk.snapenhance.data.wrapper.impl.media.opera.Layer
 import me.rhunk.snapenhance.data.wrapper.impl.media.opera.ParamMap
-import me.rhunk.snapenhance.database.objects.FriendInfo
-import me.rhunk.snapenhance.download.DownloadManagerClient
-import me.rhunk.snapenhance.download.data.DownloadMediaType
-import me.rhunk.snapenhance.download.data.DownloadMetadata
-import me.rhunk.snapenhance.download.data.InputMedia
-import me.rhunk.snapenhance.download.data.MediaFilter
-import me.rhunk.snapenhance.download.data.SplitMediaAssetType
-import me.rhunk.snapenhance.download.data.toKeyPair
 import me.rhunk.snapenhance.features.FeatureLoadParams
 import me.rhunk.snapenhance.features.MessagingRuleFeature
 import me.rhunk.snapenhance.features.impl.Messaging
@@ -84,19 +82,19 @@ class MediaDownloader : MessagingRuleFeature("MediaDownloader", MessagingRuleTyp
             callback = object: DownloadCallback.Stub() {
                 override fun onSuccess(outputFile: String) {
                     if (!downloadLogging.contains("success")) return
-                    Logger.debug("onSuccess: outputFile=$outputFile")
+                    context.log.verbose("onSuccess: outputFile=$outputFile")
                     context.shortToast(context.translation.format("download_processor.saved_toast", "path" to outputFile.split("/").takeLast(2).joinToString("/")))
                 }
 
                 override fun onProgress(message: String) {
                     if (!downloadLogging.contains("progress")) return
-                    Logger.debug("onProgress: message=$message")
+                    context.log.verbose("onProgress: message=$message")
                     context.shortToast(message)
                 }
 
                 override fun onFailure(message: String, throwable: String?) {
                     if (!downloadLogging.contains("failure")) return
-                    Logger.debug("onFailure: message=$message, throwable=$throwable")
+                    context.log.verbose("onFailure: message=$message, throwable=$throwable")
                     throwable?.let {
                         context.longToast((message + it.takeIf { it.isNotEmpty() }.orEmpty()))
                         return
@@ -402,8 +400,8 @@ class MediaDownloader : MessagingRuleFeature("MediaDownloader", MessagingRuleTyp
                 try {
                     handleOperaMedia(mediaParamMap, mediaInfoMap, false)
                 } catch (e: Throwable) {
-                    xposedLog(e)
-                    context.longToast(e.message!!)
+                    context.log.error("Failed to handle opera media", e)
+                    context.longToast(e.message)
                 }
             }
         }
@@ -524,11 +522,11 @@ class MediaDownloader : MessagingRuleFeature("MediaDownloader", MessagingRuleTyp
                 }
             }.onFailure {
                 context.shortToast(translations["failed_to_create_preview_toast"])
-                xposedLog(it)
+                context.log.error("Failed to create preview", it)
             }
         }.onFailure {
             context.longToast(translations["failed_generic_toast"])
-            xposedLog(it)
+            context.log.error("Failed to download message", it)
         }
     }
 

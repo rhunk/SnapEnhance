@@ -43,9 +43,8 @@ import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
-import me.rhunk.snapenhance.Logger
 import me.rhunk.snapenhance.RemoteSideContext
-import me.rhunk.snapenhance.bridge.BridgeClient
+import me.rhunk.snapenhance.core.bridge.BridgeClient
 import me.rhunk.snapenhance.core.messaging.MessagingFriendInfo
 import me.rhunk.snapenhance.core.messaging.MessagingGroupInfo
 import me.rhunk.snapenhance.util.snap.SnapWidgetBroadcastReceiverHelper
@@ -55,8 +54,8 @@ class AddFriendDialog(
     private val section: SocialSection,
 ) {
     @Composable
-    private fun ListCardEntry(name: String, currentState: () -> Boolean, onState: (Boolean) -> Unit = {}) {
-        var currentState by remember { mutableStateOf(currentState()) }
+    private fun ListCardEntry(name: String, getCurrentState: () -> Boolean, onState: (Boolean) -> Unit = {}) {
+        var currentState by remember { mutableStateOf(getCurrentState()) }
 
         Row(
             modifier = Modifier
@@ -74,7 +73,7 @@ class AddFriendDialog(
                 modifier = Modifier
                     .weight(1f)
                     .onGloballyPositioned {
-                        currentState = currentState()
+                        currentState = getCurrentState()
                     }
             )
 
@@ -149,7 +148,7 @@ class AddFriendDialog(
                 runCatching {
                     context.androidContext.sendBroadcast(it)
                 }.onFailure {
-                    Logger.error("Failed to send broadcast", it)
+                    context.log.error("Failed to send broadcast", it)
                     hasFetchError = true
                 }
             }
@@ -234,7 +233,7 @@ class AddFriendDialog(
                         val group = filteredGroups[it]
                         ListCardEntry(
                             name = group.name,
-                            currentState = { context.modDatabase.getGroupInfo(group.conversationId) != null }
+                            getCurrentState = { context.modDatabase.getGroupInfo(group.conversationId) != null }
                         ) { state ->
                             if (state) {
                                 context.bridgeService.triggerGroupSync(group.conversationId)
@@ -261,7 +260,7 @@ class AddFriendDialog(
 
                         ListCardEntry(
                             name = friend.displayName?.takeIf { name -> name.isNotBlank() } ?: friend.mutableUsername,
-                            currentState = { context.modDatabase.getFriendInfo(friend.userId) != null }
+                            getCurrentState = { context.modDatabase.getFriendInfo(friend.userId) != null }
                         ) { state ->
                             if (state) {
                                 context.bridgeService.triggerFriendSync(friend.userId)

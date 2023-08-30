@@ -1,7 +1,6 @@
 package me.rhunk.snapenhance.features.impl.spying
 
 import kotlinx.coroutines.runBlocking
-import me.rhunk.snapenhance.Logger
 import me.rhunk.snapenhance.core.eventbus.events.impl.NetworkApiRequestEvent
 import me.rhunk.snapenhance.features.Feature
 import me.rhunk.snapenhance.features.FeatureLoadParams
