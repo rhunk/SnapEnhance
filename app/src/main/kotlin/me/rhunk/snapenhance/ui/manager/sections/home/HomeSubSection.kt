@@ -128,7 +128,8 @@ class HomeSubSection(
                 .fillMaxSize()
         ) {
             LazyColumn(
-                modifier = Modifier.background(MaterialTheme.colorScheme.surfaceVariant),
+                modifier = Modifier.background(MaterialTheme.colorScheme.surface )
+                    .horizontalScroll(ScrollState(0)),
                 state = logListState
             ) {
                 items(lineCount) { index ->
@@ -136,9 +137,6 @@ class HomeSubSection(
                     var expand by remember { mutableStateOf(false) }
                     Box(modifier = Modifier
                         .fillMaxWidth()
-                        .background(
-                            if (index % 2 == 0) MaterialTheme.colorScheme.surface else MaterialTheme.colorScheme.surfaceVariant
-                        )
                         .pointerInput(Unit) {
                             detectTapGestures(
                                 onLongPress = {
@@ -154,8 +152,8 @@ class HomeSubSection(
 
                         Row(
                             modifier = Modifier
-                                .horizontalScroll(ScrollState(0))
                                 .padding(4.dp)
+                                .fillMaxWidth()
                                 .defaultMinSize(minHeight = 30.dp),
                             verticalAlignment = Alignment.CenterVertically
                         ) {
@@ -231,7 +229,7 @@ class HomeSubSection(
 
             FilledIconButton(onClick = {
                 coroutineScope.launch {
-                    logListState.scrollToItem(logListState.layoutInfo.totalItemsCount - 1)
+                    logListState.scrollToItem((logListState.layoutInfo.totalItemsCount - 1).takeIf { it >= 0 } ?: return@launch)
                 }
             }) {
                 Icon(Icons.Filled.KeyboardDoubleArrowDown, contentDescription = null)

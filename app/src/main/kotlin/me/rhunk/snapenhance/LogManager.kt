@@ -44,18 +44,26 @@ class LogReader(
     var lineCount = queryLineCount()
 
     private fun readLogLine(): LogLine? {
-        val lines = mutableListOf<String>()
+        val lines = StringBuilder()
+        val lastPointer = randomAccessFile.filePointer
+        var lastChar: Int = -1
+        var bufferLength = 0
         while (true) {
-            val lastPointer = randomAccessFile.filePointer
-            val line = randomAccessFile.readLine() ?: return null
-            if (lines.size > 0 && line.startsWith("|")) {
+            val char = randomAccessFile.read()
+            if (char == -1) {
                 randomAccessFile.seek(lastPointer)
+                return null
+            }
+            if ((char == '|'.code && lastChar == '\n'.code) || bufferLength > 4096) {
                 break
             }
-            lines.add(line)
+            lines.append(char.toChar())
+            bufferLength++
+            lastChar = char
         }
-        val line = lines.joinToString("\n").replaceFirst("|", "")
-        return LogLine.fromString(line)
+
+        return LogLine.fromString(lines.trimEnd().toString())
+            ?: LogLine(LogLevel.ERROR, "1970-01-01 00:00:00", "LogReader", "Failed to parse log line: $lines")
     }
 
     fun incrementLineCount() {
