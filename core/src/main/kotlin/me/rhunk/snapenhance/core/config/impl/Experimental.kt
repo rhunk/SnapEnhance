@@ -12,4 +12,11 @@ class Experimental : ConfigContainer() {
     val meoPasscodeBypass = boolean("meo_passcode_bypass")
     val unlimitedMultiSnap = boolean("unlimited_multi_snap") { addNotices(FeatureNotice.MAY_BAN)}
     val noFriendScoreDelay = boolean("no_friend_score_delay")
+    val addFriendSourceSpoof = unique("add_friend_source_spoof",
+        "added_by_username",
+        "added_by_mention",
+        "added_by_group_chat",
+        "added_by_qr_code",
+        "added_by_community",
+    ) { addNotices(FeatureNotice.MAY_BAN) }
 }

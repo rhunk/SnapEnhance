@@ -9,6 +9,7 @@ import me.rhunk.snapenhance.features.impl.ConfigurationOverride
 import me.rhunk.snapenhance.features.impl.Messaging
 import me.rhunk.snapenhance.features.impl.downloader.MediaDownloader
 import me.rhunk.snapenhance.features.impl.downloader.ProfilePictureDownloader
+import me.rhunk.snapenhance.features.impl.experiments.AddFriendSourceSpoof
 import me.rhunk.snapenhance.features.impl.experiments.AmoledDarkMode
 import me.rhunk.snapenhance.features.impl.experiments.AppPasscode
 import me.rhunk.snapenhance.features.impl.experiments.DeviceSpooferHook
@@ -93,6 +94,7 @@ class FeatureManager(private val context: ModContext) : Manager {
         register(GooglePlayServicesDialogs::class)
         register(NoFriendScoreDelay::class)
         register(ProfilePictureDownloader::class)
+        register(AddFriendSourceSpoof::class)
 
         initializeFeatures()
     }
@@ -103,8 +105,8 @@ class FeatureManager(private val context: ModContext) : Manager {
                 runCatching {
                     action(feature)
                 }.onFailure {
-                    Logger.xposedLog("Failed to init feature ${feature.nameKey}", it)
-                    context.longToast("Failed to init feature ${feature.nameKey}")
+                    context.log.error("Failed to init feature ${feature.featureKey}", it)
+                    context.longToast("Failed to load feature ${feature.featureKey}! Check logcat for more details.")
                 }
             }
             if (!isAsync) {

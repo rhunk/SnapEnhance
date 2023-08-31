@@ -3,7 +3,7 @@ package me.rhunk.snapenhance.features
 import me.rhunk.snapenhance.ModContext
 
 abstract class Feature(
-    val nameKey: String,
+    val featureKey: String,
     val loadParams: Int = FeatureLoadParams.INIT_SYNC
 ) {
     lateinit var context: ModContext

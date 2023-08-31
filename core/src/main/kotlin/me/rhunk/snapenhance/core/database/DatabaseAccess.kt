@@ -49,6 +49,9 @@ class DatabaseAccess(private val context: ModContext) : Manager {
         query: (SQLiteDatabase) -> T?
     ): T? {
         synchronized(databaseLock) {
+            if (!database.isOpen) {
+                return null
+            }
             return runCatching {
                 query(database)
             }.onFailure {

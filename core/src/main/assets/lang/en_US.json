@@ -366,6 +366,10 @@
                     "no_friend_score_delay": {
                         "name": "No Friend Score Delay",
                         "description": "Removes the delay when viewing a friends score"
+                    },
+                    "add_friend_source_spoof": {
+                        "name": "Add Friend Source Spoof",
+                        "description": "Spoofs the source of a friend request"
                     }
                 }
             }
@@ -461,6 +465,13 @@
                 "ngs_community_icon_container": "Community / Stories",
                 "ngs_spotlight_icon_container": "Spotlight",
                 "ngs_search_icon_container": "Search"
+            },
+            "add_friend_source_spoof": {
+                "added_by_username": "By Username",
+                "added_by_mention": "By Mention",
+                "added_by_group_chat": "By Group Chat",
+                "added_by_qr_code": "By QR Code",
+                "added_by_community": "By Community"
             }
         }
     },

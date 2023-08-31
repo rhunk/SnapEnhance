@@ -24,6 +24,7 @@ class TestMappings {
             FriendsFeedEventDispatcherMapper::class,
             CompositeConfigurationProviderMapper::class,
             ScoreUpdateMapper::class,
+            FriendRelationshipChangerMapper::class,
         )
 
         val gson = GsonBuilder().setPrettyPrinting().create()

@@ -14,6 +14,7 @@ import me.rhunk.snapmapper.impl.CallbackMapper
 import me.rhunk.snapmapper.impl.CompositeConfigurationProviderMapper
 import me.rhunk.snapmapper.impl.DefaultMediaItemMapper
 import me.rhunk.snapmapper.impl.EnumMapper
+import me.rhunk.snapmapper.impl.FriendRelationshipChangerMapper
 import me.rhunk.snapmapper.impl.FriendsFeedEventDispatcherMapper
 import me.rhunk.snapmapper.impl.MediaQualityLevelProviderMapper
 import me.rhunk.snapmapper.impl.OperaPageViewControllerMapper
@@ -41,7 +42,8 @@ class MappingsWrapper : FileLoaderWrapper(BridgeFileType.MAPPINGS, "{}".toByteAr
             StoryBoostStateMapper::class,
             FriendsFeedEventDispatcherMapper::class,
             CompositeConfigurationProviderMapper::class,
-            ScoreUpdateMapper::class
+            ScoreUpdateMapper::class,
+            FriendRelationshipChangerMapper::class,
         )
     }
 
