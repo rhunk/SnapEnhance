@@ -3,10 +3,13 @@ package me.rhunk.snapenhance.ui.manager.sections.home
 import androidx.compose.foundation.ScrollState
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.gestures.detectTapGestures
+import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.defaultMinSize
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -19,9 +22,12 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.KeyboardDoubleArrowDown
 import androidx.compose.material.icons.filled.KeyboardDoubleArrowUp
 import androidx.compose.material.icons.filled.OpenInNew
+import androidx.compose.material.icons.outlined.BugReport
+import androidx.compose.material.icons.outlined.Info
+import androidx.compose.material.icons.outlined.Report
+import androidx.compose.material.icons.outlined.Warning
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.FilledIconButton
-import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
@@ -36,13 +42,19 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.input.pointer.pointerInput
+import androidx.compose.ui.platform.LocalClipboardManager
+import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import me.rhunk.snapenhance.Constants
+import me.rhunk.snapenhance.LogChannels
+import me.rhunk.snapenhance.LogLevel
 import me.rhunk.snapenhance.LogReader
 import me.rhunk.snapenhance.RemoteSideContext
 import me.rhunk.snapenhance.action.EnumAction
@@ -106,6 +118,7 @@ class HomeSubSection(
     @Composable
     fun LogsSection() {
         val coroutineScope = rememberCoroutineScope()
+        val clipboardManager = LocalClipboardManager.current
         var lineCount by remember { mutableIntStateOf(0) }
         var logReader by remember { mutableStateOf<LogReader?>(null) }
         logListState = remember { LazyListState(0) }
@@ -120,12 +133,65 @@ class HomeSubSection(
             ) {
                 items(lineCount) { index ->
                     val line = logReader?.getLogLine(index) ?: return@items
+                    var expand by remember { mutableStateOf(false) }
                     Box(modifier = Modifier
                         .fillMaxWidth()
                         .background(
                             if (index % 2 == 0) MaterialTheme.colorScheme.surface else MaterialTheme.colorScheme.surfaceVariant
-                        )) {
-                        Text(text = line.message, modifier = Modifier.padding(9.dp), fontSize = 10.sp)
+                        )
+                        .pointerInput(Unit) {
+                            detectTapGestures(
+                                onLongPress = {
+                                    coroutineScope.launch {
+                                        clipboardManager.setText(AnnotatedString(line.message))
+                                    }
+                                },
+                                onTap = {
+                                    expand = !expand
+                                }
+                            )
+                        }) {
+
+                        Row(
+                            modifier = Modifier
+                                .horizontalScroll(ScrollState(0))
+                                .padding(4.dp)
+                                .defaultMinSize(minHeight = 30.dp),
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            if (!expand) {
+                                Icon(
+                                    imageVector = when (line.logLevel) {
+                                        LogLevel.DEBUG -> Icons.Outlined.BugReport
+                                        LogLevel.ERROR, LogLevel.ASSERT -> Icons.Outlined.Report
+                                        LogLevel.INFO, LogLevel.VERBOSE -> Icons.Outlined.Info
+                                        LogLevel.WARN -> Icons.Outlined.Warning
+                                    },
+                                    contentDescription = null,
+                                )
+
+                                Text(
+                                    text = LogChannels.fromChannel(line.tag)?.shortName ?: line.tag,
+                                    modifier = Modifier.padding(start = 4.dp),
+                                    fontWeight = FontWeight.Light,
+                                    fontSize = 10.sp,
+                                )
+
+                                Text(
+                                    text = line.dateTime,
+                                    modifier = Modifier.padding(start = 4.dp, end = 4.dp),
+                                    fontSize = 10.sp
+                                )
+                            }
+
+                            Text(
+                                text = line.message.trimIndent(),
+                                fontSize = 10.sp,
+                                maxLines = if (expand) Int.MAX_VALUE else 6,
+                                overflow = if (expand) TextOverflow.Visible else TextOverflow.Ellipsis,
+                                softWrap = !expand,
+                            )
+                        }
                     }
                 }
             }

@@ -2,6 +2,7 @@ package me.rhunk.snapenhance
 
 import android.content.SharedPreferences
 import android.util.Log
+import com.google.gson.GsonBuilder
 import java.io.File
 import java.io.OutputStream
 import java.io.RandomAccessFile
@@ -42,6 +43,21 @@ class LogReader(
     private var startLineIndexes = mutableListOf<Long>()
     var lineCount = queryLineCount()
 
+    private fun readLogLine(): LogLine? {
+        val lines = mutableListOf<String>()
+        while (true) {
+            val lastPointer = randomAccessFile.filePointer
+            val line = randomAccessFile.readLine() ?: return null
+            if (lines.size > 0 && line.startsWith("|")) {
+                randomAccessFile.seek(lastPointer)
+                break
+            }
+            lines.add(line)
+        }
+        val line = lines.joinToString("\n").replaceFirst("|", "")
+        return LogLine.fromString(line)
+    }
+
     fun incrementLineCount() {
         randomAccessFile.seek(randomAccessFile.length())
         startLineIndexes.add(randomAccessFile.filePointer)
@@ -54,7 +70,7 @@ class LogReader(
         var lastIndex: Long
         while (true) {
             lastIndex = randomAccessFile.filePointer
-            randomAccessFile.readLine() ?: break
+            readLogLine() ?: break
             startLineIndexes.add(lastIndex)
             lines++
         }
@@ -64,7 +80,7 @@ class LogReader(
     private fun getLine(index: Int): String? {
         if (index <= 0 || index > lineCount) return null
         randomAccessFile.seek(startLineIndexes[index])
-        return randomAccessFile.readLine()
+        return readLogLine()?.toString()
     }
 
     fun getLogLine(index: Int): LogLine? {
@@ -74,7 +90,7 @@ class LogReader(
 
 
 class LogManager(
-    remoteSideContext: RemoteSideContext
+    private val remoteSideContext: RemoteSideContext
 ) {
     companion object {
         private const val TAG = "SnapEnhanceManager"
@@ -118,11 +134,9 @@ class LogManager(
     }
 
     fun clearLogs() {
-        logFile.delete()
+        logFolder.listFiles()?.forEach { it.delete() }
         newLogFile()
     }
-
-    fun getLogFile() = logFile
 
     fun exportLogsToZip(outputStream: OutputStream) {
         val zipOutputStream = ZipOutputStream(outputStream)
@@ -136,8 +150,10 @@ class LogManager(
         }
 
         //add device info to zip
-        zipOutputStream.putNextEntry(ZipEntry("device_info.txt"))
-
+        zipOutputStream.putNextEntry(ZipEntry("device_info.json"))
+        val gson = GsonBuilder().setPrettyPrinting().create()
+        zipOutputStream.write(gson.toJson(remoteSideContext.installationSummary).toByteArray())
+        zipOutputStream.closeEntry()
 
         zipOutputStream.close()
     }
@@ -178,7 +194,7 @@ class LogManager(
     fun internalLog(tag: String, logLevel: LogLevel, message: Any?) {
         runCatching {
             val line = LogLine(logLevel, getCurrentDateTime(), tag, message.toString())
-            logFile.appendText("$line\n", Charsets.UTF_8)
+            logFile.appendText("|$line\n", Charsets.UTF_8)
             lineAddListener(line)
             Log.println(logLevel.priority, tag, message.toString())
         }.onFailure {

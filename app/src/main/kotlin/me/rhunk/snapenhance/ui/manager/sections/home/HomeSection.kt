@@ -237,11 +237,15 @@ class HomeSection : Section() {
                         })
 
                         DropdownMenuItem(onClick = {
-                            val logFile = context.log.getLogFile()
-                            activityLauncherHelper.saveFile(logFile.name, "text/plain") { uri ->
+                            activityLauncherHelper.saveFile("snapenhance-logs-${System.currentTimeMillis()}.zip", "application/zip") { uri ->
                                 context.androidContext.contentResolver.openOutputStream(Uri.parse(uri))?.use {
-                                    logFile.inputStream().copyTo(it)
-                                    context.longToast("Saved logs to $uri")
+                                    runCatching {
+                                        context.log.exportLogsToZip(it)
+                                        context.longToast("Saved logs to $uri")
+                                    }.onFailure {
+                                        context.longToast("Failed to save logs to $uri!")
+                                        context.log.error("Failed to save logs to $uri!", it)
+                                    }
                                 }
                             }
                             showDropDown = false

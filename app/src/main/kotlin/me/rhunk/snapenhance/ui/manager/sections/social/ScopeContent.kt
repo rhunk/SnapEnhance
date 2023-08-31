@@ -241,10 +241,26 @@ class ScopeContent(
             return
         }
 
-        Column {
-            Text(text = group.name, maxLines = 1)
-            Text(text = "participantsCount: ${group.participantsCount}", maxLines = 1)
-            Spacer(modifier = Modifier.height(16.dp))
+
+        Column(
+            modifier = Modifier
+                .padding(10.dp)
+                .fillMaxWidth(),
+            horizontalAlignment = Alignment.CenterHorizontally
+        ) {
+            Text(
+                text = group.name,
+                maxLines = 1,
+                fontSize = 20.sp,
+                fontWeight = FontWeight.Bold
+            )
+            Spacer(modifier = Modifier.height(5.dp))
+            Text(
+                text = "Participants: ${group.participantsCount}",
+                maxLines = 1,
+                fontSize = 12.sp,
+                fontWeight = FontWeight.Light
+            )
         }
     }
 }

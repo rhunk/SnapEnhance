@@ -2,6 +2,7 @@ package me.rhunk.snapenhance.ui.manager.sections.social
 
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
@@ -39,6 +40,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -147,8 +149,7 @@ class SocialSection : Section() {
 
             if (listSize == 0) {
                 item {
-                    //TODO: i18n
-                    Text(text = "No ${scope.key.lowercase()}s found")
+                    Text(text = "(empty)", modifier = Modifier.fillMaxWidth().padding(10.dp), textAlign = TextAlign.Center)
                 }
             }
 
@@ -172,9 +173,13 @@ class SocialSection : Section() {
                     when (scope) {
                         SocialScope.GROUP -> {
                             val group = groupList[index]
-                            Column {
-                                Text(text = group.name, maxLines = 1)
-                                Text(text = "participantsCount: ${group.participantsCount}", maxLines = 1)
+                            Column(
+                                modifier = Modifier
+                                    .padding(10.dp)
+                                    .fillMaxSize(),
+                                verticalArrangement = Arrangement.Center
+                            ) {
+                                Text(text = group.name, maxLines = 1, fontWeight = FontWeight.Bold)
                             }
                         }
                         SocialScope.FRIEND -> {

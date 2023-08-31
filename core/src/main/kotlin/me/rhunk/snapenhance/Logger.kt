@@ -1,8 +1,11 @@
 package me.rhunk.snapenhance
 
+import android.annotation.SuppressLint
 import android.util.Log
 import de.robv.android.xposed.XposedBridge
 import me.rhunk.snapenhance.core.bridge.BridgeClient
+import me.rhunk.snapenhance.hook.HookStage
+import me.rhunk.snapenhance.hook.hook
 
 enum class LogLevel(
     val letter: String,
@@ -24,10 +27,28 @@ enum class LogLevel(
         fun fromShortName(shortName: String): LogLevel? {
             return values().find { it.shortName == shortName }
         }
+
+        fun fromPriority(priority: Int): LogLevel? {
+            return values().find { it.priority == priority }
+        }
+    }
+}
+
+enum class LogChannels(val channel: String, val shortName: String) {
+    CORE("SnapEnhanceCore", "core"),
+    NATIVE("SnapEnhanceNative", "native"),
+    MANAGER("SnapEnhanceManager", "manager"),
+    XPOSED("LSPosed-Bridge", "xposed");
+
+    companion object {
+        fun fromChannel(channel: String): LogChannels? {
+            return values().find { it.channel == channel }
+        }
     }
 }
 
 
+@SuppressLint("PrivateApi")
 class Logger(
     private val bridgeClient: BridgeClient
 ) {
@@ -55,11 +76,31 @@ class Logger(
         }
     }
 
+    private var invokeOriginalPrintLog: (Int, String, String) -> Unit
+
+    init {
+        val printLnMethod = Log::class.java.getDeclaredMethod("println", Int::class.java, String::class.java, String::class.java)
+        printLnMethod.hook(HookStage.BEFORE) { param ->
+            val priority = param.arg(0) as Int
+            val tag = param.arg(1) as String
+            val message = param.arg(2) as String
+            internalLog(tag, LogLevel.fromPriority(priority) ?: LogLevel.INFO, message)
+        }
+
+        invokeOriginalPrintLog = { priority, tag, message ->
+            XposedBridge.invokeOriginalMethod(
+                printLnMethod,
+                null,
+                arrayOf(priority, tag, message)
+            )
+        }
+    }
+
     private fun internalLog(tag: String, logLevel: LogLevel, message: Any?) {
         runCatching {
             bridgeClient.broadcastLog(tag, logLevel.shortName, message.toString())
         }.onFailure {
-            Log.println(logLevel.priority, tag, message.toString())
+            invokeOriginalPrintLog(logLevel.priority, tag, message.toString())
         }
     }
 
@@ -69,7 +110,7 @@ class Logger(
 
     fun error(message: Any?, throwable: Throwable, tag: String = TAG) {
         internalLog(tag, LogLevel.ERROR, message)
-        internalLog(tag, LogLevel.ERROR, throwable)
+        internalLog(tag, LogLevel.ERROR, throwable.stackTraceToString())
     }
 
     fun info(message: Any?, tag: String = TAG) = internalLog(tag, LogLevel.INFO, message)
