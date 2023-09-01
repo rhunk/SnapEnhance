@@ -6,7 +6,7 @@ data class SnapchatAppInfo(
     val version: String,
     val versionCode: Long,
     val isLSPatched: Boolean,
-    val isSplitApk: Boolean,
+    val isSplitApk: Boolean?
 )
 
 data class ModInfo(
