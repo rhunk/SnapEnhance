@@ -11,7 +11,7 @@ import me.rhunk.snapenhance.ui.ViewAppearanceHelper
 import me.rhunk.snapenhance.util.protobuf.ProtoEditor
 import me.rhunk.snapenhance.util.protobuf.ProtoReader
 
-class GalleryMediaSendOverride : Feature("Gallery Media Send Override", loadParams = FeatureLoadParams.INIT_SYNC) {
+class SendOverride : Feature("Send Override", loadParams = FeatureLoadParams.INIT_SYNC) {
     private var isLastSnapSavable = false
 
     override fun init() {
@@ -37,7 +37,6 @@ class GalleryMediaSendOverride : Feature("Gallery Media Send Override", loadPara
                 // only affect snaps
                 if (!it.containsPath(*Constants.ARROYO_MEDIA_CONTAINER_PROTO_PATH, 11)) return@subscribe
             }
-            isLastSnapSavable = false
 
             event.buffer = ProtoEditor(event.buffer).apply {
                 //remove the max view time
@@ -59,6 +58,7 @@ class GalleryMediaSendOverride : Feature("Gallery Media Send Override", loadPara
         context.event.subscribe(SendMessageWithContentEvent::class, {
             context.config.messaging.galleryMediaSendOverride.get()
         }) { event ->
+            isLastSnapSavable = false
             val localMessageContent = event.messageContent
             if (localMessageContent.contentType != ContentType.EXTERNAL_MEDIA) return@subscribe
 
@@ -86,8 +86,10 @@ class GalleryMediaSendOverride : Feature("Gallery Media Send Override", loadPara
 
                         when (overrideType) {
                             "SNAP", "SAVABLE_SNAP" -> {
+                                val extras = messageProtoReader.followPath(3, 3, 13)?.getBuffer()
+
                                 localMessageContent.contentType = ContentType.SNAP
-                                localMessageContent.content = MessageSender.redSnapProto()
+                                localMessageContent.content = MessageSender.redSnapProto(extras)
                                 if (overrideType == "SAVABLE_SNAP") {
                                     isLastSnapSavable = true
                                 }

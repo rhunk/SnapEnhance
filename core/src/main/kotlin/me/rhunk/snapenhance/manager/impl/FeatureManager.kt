@@ -27,7 +27,7 @@ import me.rhunk.snapenhance.features.impl.tweaks.AutoSave
 import me.rhunk.snapenhance.features.impl.tweaks.CameraTweaks
 import me.rhunk.snapenhance.features.impl.tweaks.DisableReplayInFF
 import me.rhunk.snapenhance.features.impl.tweaks.DisableVideoLengthRestriction
-import me.rhunk.snapenhance.features.impl.tweaks.GalleryMediaSendOverride
+import me.rhunk.snapenhance.features.impl.tweaks.SendOverride
 import me.rhunk.snapenhance.features.impl.tweaks.GooglePlayServicesDialogs
 import me.rhunk.snapenhance.features.impl.tweaks.LocationSpoofer
 import me.rhunk.snapenhance.features.impl.tweaks.MediaQualityLevelOverride
@@ -77,7 +77,7 @@ class FeatureManager(private val context: ModContext) : Manager {
         register(AutoSave::class)
         register(UITweaks::class)
         register(ConfigurationOverride::class)
-        register(GalleryMediaSendOverride::class)
+        register(SendOverride::class)
         register(UnlimitedSnapViewTime::class)
         register(DisableVideoLengthRestriction::class)
         register(MediaQualityLevelOverride::class)
