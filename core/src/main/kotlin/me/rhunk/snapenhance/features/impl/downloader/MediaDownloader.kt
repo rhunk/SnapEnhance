@@ -454,14 +454,17 @@ class MediaDownloader : MessagingRuleFeature("MediaDownloader", MessagingRuleTyp
         }
 
         val messageReader = ProtoReader(messageContent)
-        val urlProto: ByteArray = if (isArroyoMessage) {
+        val urlProto: ByteArray? = if (isArroyoMessage) {
             var finalProto: ByteArray? = null
             messageReader.eachBuffer(4, 5) {
                 finalProto = getByteArray(1, 3)
             }
-            finalProto!!
-        } else {
-            deletedMediaReference!!
+            finalProto
+        } else deletedMediaReference
+
+        if (urlProto == null) {
+            context.shortToast(translations["unsupported_content_type_toast"])
+            return
         }
 
         runCatching {
