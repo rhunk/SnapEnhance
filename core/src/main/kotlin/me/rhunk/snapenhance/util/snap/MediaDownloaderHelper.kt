@@ -18,7 +18,7 @@ import java.util.zip.ZipInputStream
 
 
 object MediaDownloaderHelper {
-    fun getMessageMediaInfo(protoReader: ProtoReader, contentType: ContentType, isArroyo: Boolean): ProtoReader? {
+    fun getMessageMediaEncryptionInfo(protoReader: ProtoReader, contentType: ContentType, isArroyo: Boolean): ProtoReader? {
         val messageContainerPath = if (isArroyo) protoReader.followPath(*Constants.ARROYO_MEDIA_CONTAINER_PROTO_PATH)!! else protoReader
         val mediaContainerPath = if (contentType == ContentType.NOTE) intArrayOf(6, 1, 1) else intArrayOf(5, 1, 1)
 
@@ -27,12 +27,13 @@ object MediaDownloaderHelper {
             ContentType.SNAP -> messageContainerPath.followPath(*(intArrayOf(11) + mediaContainerPath))
             ContentType.EXTERNAL_MEDIA -> {
                 val externalMediaTypes = arrayOf(
-                    intArrayOf(3, 3), //normal external media
-                    intArrayOf(7, 12, 3), //attached story reply
-                    intArrayOf(7, 3) //original story reply
+                    intArrayOf(3, 3, *mediaContainerPath), //normal external media
+                    intArrayOf(7, 15, 1, 1), //attached audio note
+                    intArrayOf(7, 12, 3, *mediaContainerPath), //attached story reply
+                    intArrayOf(7, 3, *mediaContainerPath), //original story reply
                 )
                 externalMediaTypes.forEach { path ->
-                    messageContainerPath.followPath(*(path + mediaContainerPath))?.also { return it }
+                    messageContainerPath.followPath(*path)?.also { return it }
                 }
                 null
             }

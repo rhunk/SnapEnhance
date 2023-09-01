@@ -16,14 +16,12 @@ import kotlinx.coroutines.joinAll
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 import me.rhunk.snapenhance.Constants
-import me.rhunk.snapenhance.Logger
 import me.rhunk.snapenhance.RemoteSideContext
 import me.rhunk.snapenhance.bridge.DownloadCallback
 import me.rhunk.snapenhance.core.download.DownloadManagerClient
 import me.rhunk.snapenhance.data.FileType
 import me.rhunk.snapenhance.core.download.data.DownloadMediaType
 import me.rhunk.snapenhance.core.download.data.DownloadMetadata
-import me.rhunk.snapenhance.core.download.data.DownloadObject
 import me.rhunk.snapenhance.core.download.data.DownloadRequest
 import me.rhunk.snapenhance.core.download.data.DownloadStage
 import me.rhunk.snapenhance.core.download.data.InputMedia
@@ -320,7 +318,11 @@ class DownloadProcessor (
 
             val downloadObjectObject = DownloadObject(
                 metadata = downloadMetadata
-            ).apply { downloadTaskManager = remoteSideContext.downloadTaskManager }
+            ).apply {
+                updateTaskCallback = {
+                    remoteSideContext.downloadTaskManager.updateTask(it)
+                }
+            }
 
             downloadObjectObject.also {
                 remoteSideContext.downloadTaskManager.addTask(it)

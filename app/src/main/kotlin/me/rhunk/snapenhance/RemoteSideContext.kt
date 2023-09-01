@@ -20,7 +20,7 @@ import me.rhunk.snapenhance.core.BuildConfig
 import me.rhunk.snapenhance.core.bridge.wrapper.LocaleWrapper
 import me.rhunk.snapenhance.core.bridge.wrapper.MappingsWrapper
 import me.rhunk.snapenhance.core.config.ModConfig
-import me.rhunk.snapenhance.core.download.DownloadTaskManager
+import me.rhunk.snapenhance.download.DownloadTaskManager
 import me.rhunk.snapenhance.messaging.ModDatabase
 import me.rhunk.snapenhance.messaging.StreaksReminder
 import me.rhunk.snapenhance.ui.manager.MainActivity

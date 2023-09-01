@@ -12,7 +12,7 @@ import me.rhunk.snapenhance.core.download.DownloadManagerClient
 import me.rhunk.snapenhance.core.download.data.DownloadMediaType
 import me.rhunk.snapenhance.core.download.data.DownloadMetadata
 import me.rhunk.snapenhance.core.download.data.InputMedia
-import me.rhunk.snapenhance.core.download.data.MediaFilter
+import me.rhunk.snapenhance.core.download.data.MediaDownloadSource
 import me.rhunk.snapenhance.core.download.data.SplitMediaAssetType
 import me.rhunk.snapenhance.core.download.data.toKeyPair
 import me.rhunk.snapenhance.core.messaging.MessagingRuleType
@@ -45,16 +45,20 @@ import kotlin.coroutines.suspendCoroutine
 import kotlin.io.encoding.Base64
 import kotlin.io.encoding.ExperimentalEncodingApi
 
+private fun String.sanitizeForPath(): String {
+    return this.replace(" ", "_")
+        .replace(Regex("\\p{Cntrl}"), "")
+}
+
 @OptIn(ExperimentalEncodingApi::class)
 class MediaDownloader : MessagingRuleFeature("MediaDownloader", MessagingRuleType.AUTO_DOWNLOAD, loadParams = FeatureLoadParams.ACTIVITY_CREATE_ASYNC) {
     private var lastSeenMediaInfoMap: MutableMap<SplitMediaAssetType, MediaInfo>? = null
     private var lastSeenMapParams: ParamMap? = null
 
     private fun provideDownloadManagerClient(
-        pathSuffix: String,
         mediaIdentifier: String,
-        mediaDisplaySource: String? = null,
-        mediaDisplayType: String? = null,
+        mediaAuthor: String,
+        downloadSource: MediaDownloadSource,
         friendInfo: FriendInfo? = null
     ): DownloadManagerClient {
         val generatedHash = mediaIdentifier.hashCode().toString(16).replaceFirst("-", "")
@@ -66,7 +70,7 @@ class MediaDownloader : MessagingRuleFeature("MediaDownloader", MessagingRuleTyp
             context.shortToast(context.translation["download_processor.download_started_toast"])
         }
 
-        val outputPath = createNewFilePath(generatedHash, mediaDisplayType, pathSuffix)
+        val outputPath = createNewFilePath(generatedHash, downloadSource, mediaAuthor)
 
         return DownloadManagerClient(
             context = context,
@@ -74,8 +78,8 @@ class MediaDownloader : MessagingRuleFeature("MediaDownloader", MessagingRuleTyp
                 mediaIdentifier = if (!context.config.downloader.allowDuplicate.get()) {
                     generatedHash
                 } else null,
-                mediaDisplaySource = mediaDisplaySource,
-                mediaDisplayType = mediaDisplayType,
+                mediaAuthor = mediaAuthor,
+                downloadSource = downloadSource.key,
                 iconUrl = iconUrl,
                 outputPath = outputPath
             ),
@@ -106,13 +110,9 @@ class MediaDownloader : MessagingRuleFeature("MediaDownloader", MessagingRuleTyp
     }
 
 
-    //TODO: implement subfolder argument
-    private fun createNewFilePath(hexHash: String, mediaDisplayType: String?, pathPrefix: String): String {
+    private fun createNewFilePath(hexHash: String, downloadSource: MediaDownloadSource, mediaAuthor: String): String {
         val pathFormat by context.config.downloader.pathFormat
-        val sanitizedPathPrefix = pathPrefix
-            .replace(" ", "_")
-            .replace(Regex("[\\p{Cntrl}]"), "")
-            .ifEmpty { hexHash }
+        val sanitizedMediaAuthor = mediaAuthor.sanitizeForPath().ifEmpty { hexHash }
 
         val currentDateTime = SimpleDateFormat("yyyy-MM-dd_HH-mm-ss", Locale.ENGLISH).format(System.currentTimeMillis())
 
@@ -126,19 +126,20 @@ class MediaDownloader : MessagingRuleFeature("MediaDownloader", MessagingRuleTyp
             }
         }
 
-        if (pathFormat.contains("create_user_folder")) {
-            finalPath.append(sanitizedPathPrefix).append("/")
+        if (pathFormat.contains("create_author_folder")) {
+            finalPath.append(sanitizedMediaAuthor).append("/")
+        }
+        if (pathFormat.contains("create_source_folder")) {
+            finalPath.append(downloadSource.pathName).append("/")
         }
         if (pathFormat.contains("append_hash")) {
             appendFileName(hexHash)
         }
-        mediaDisplayType?.let {
-            if (pathFormat.contains("append_type")) {
-                appendFileName(it.lowercase().replace(" ", "-"))
-            }
+        if (pathFormat.contains("append_source")) {
+            appendFileName(downloadSource.pathName)
         }
         if (pathFormat.contains("append_username")) {
-            appendFileName(sanitizedPathPrefix)
+            appendFileName(sanitizedMediaAuthor)
         }
         if (pathFormat.contains("append_date_time")) {
             appendFileName(currentDateTime)
@@ -235,10 +236,9 @@ class MediaDownloader : MessagingRuleFeature("MediaDownloader", MessagingRuleTyp
             val authorUsername = author.usernameForSorting!!
 
             downloadOperaMedia(provideDownloadManagerClient(
-                pathSuffix = authorUsername,
                 mediaIdentifier = "$conversationId$senderId${conversationMessage.serverMessageId}",
-                mediaDisplaySource = authorUsername,
-                mediaDisplayType = MediaFilter.CHAT_MEDIA.key,
+                mediaAuthor = authorUsername,
+                downloadSource = MediaDownloadSource.CHAT_MEDIA,
                 friendInfo = author
             ), mediaInfoMap)
 
@@ -278,10 +278,9 @@ class MediaDownloader : MessagingRuleFeature("MediaDownloader", MessagingRuleTyp
             if (!forceDownload && !canUseRule(author.userId!!)) return
 
             downloadOperaMedia(provideDownloadManagerClient(
-                pathSuffix = authorName,
                 mediaIdentifier = paramMap["MEDIA_ID"].toString(),
-                mediaDisplaySource = authorName,
-                mediaDisplayType = MediaFilter.STORY.key,
+                mediaAuthor = authorName,
+                downloadSource = MediaDownloadSource.STORY,
                 friendInfo = author
             ), mediaInfoMap)
             return
@@ -292,15 +291,12 @@ class MediaDownloader : MessagingRuleFeature("MediaDownloader", MessagingRuleTyp
         //public stories
         if ((snapSource == "PUBLIC_USER" || snapSource == "SAVED_STORY") &&
             (forceDownload || canAutoDownload("public_stories"))) {
-            val userDisplayName = (if (paramMap.containsKey("USER_DISPLAY_NAME")) paramMap["USER_DISPLAY_NAME"].toString() else "").replace(
-                     "[\\p{Cntrl}]".toRegex(),
-                    "")
+            val userDisplayName = (if (paramMap.containsKey("USER_DISPLAY_NAME")) paramMap["USER_DISPLAY_NAME"].toString() else "").sanitizeForPath()
 
             downloadOperaMedia(provideDownloadManagerClient(
-                pathSuffix = "Public-Stories/$userDisplayName",
                 mediaIdentifier = paramMap["SNAP_ID"].toString(),
-                mediaDisplayType = userDisplayName,
-                mediaDisplaySource = "Public Story"
+                mediaAuthor = userDisplayName,
+                downloadSource = MediaDownloadSource.PUBLIC_STORY,
             ), mediaInfoMap)
             return
         }
@@ -308,10 +304,9 @@ class MediaDownloader : MessagingRuleFeature("MediaDownloader", MessagingRuleTyp
         //spotlight
         if (snapSource == "SINGLE_SNAP_STORY" && (forceDownload || canAutoDownload("spotlight"))) {
             downloadOperaMedia(provideDownloadManagerClient(
-                pathSuffix = "Spotlight",
                 mediaIdentifier = paramMap["SNAP_ID"].toString(),
-                mediaDisplayType = MediaFilter.SPOTLIGHT.key,
-                mediaDisplaySource = paramMap["TIME_STAMP"].toString()
+                downloadSource = MediaDownloadSource.SPOTLIGHT,
+                mediaAuthor = paramMap["TIME_STAMP"].toString()
             ), mediaInfoMap)
             return
         }
@@ -319,9 +314,7 @@ class MediaDownloader : MessagingRuleFeature("MediaDownloader", MessagingRuleTyp
         //stories with mpeg dash media
         //TODO: option to download multiple chapters
         if (paramMap.containsKey("LONGFORM_VIDEO_PLAYLIST_ITEM") && forceDownload) {
-            val storyName = paramMap["STORY_NAME"].toString().replace(
-                 "[\\p{Cntrl}]".toRegex(),
-                "")
+            val storyName = paramMap["STORY_NAME"].toString().sanitizeForPath()
 
             //get the position of the media in the playlist and the duration
             val snapItem = SnapPlaylistItem(paramMap["SNAP_PLAYLIST_ITEM"]!!)
@@ -338,20 +331,19 @@ class MediaDownloader : MessagingRuleFeature("MediaDownloader", MessagingRuleTyp
             val duration: Long? = nextChapter?.startTimeMs?.minus(snapChapterTimestamp)
 
             //get the mpd playlist and append the cdn url to baseurl nodes
+            context.log.verbose("Downloading dash media ${paramMap["MEDIA_ID"].toString()}", featureKey)
             val playlistUrl = paramMap["MEDIA_ID"].toString().let {
-                val urlIndex = it.indexOf("https://cf-st.sc-cdn.net")
-                if (urlIndex == -1) {
-                    "${RemoteMediaResolver.CF_ST_CDN_D}$it"
-                } else {
-                    it.substring(urlIndex)
-                }
+                val urlIndexes = arrayOf(it.indexOf("https://cf-st.sc-cdn.net"), it.indexOf("https://bolt-gcdn.sc-cdn.net"))
+
+                urlIndexes.firstOrNull { index -> index != -1 }?.let { validIndex ->
+                    it.substring(validIndex)
+                } ?: "${RemoteMediaResolver.CF_ST_CDN_D}$it"
             }
 
             provideDownloadManagerClient(
-                pathSuffix = "Pro-Stories/${storyName}",
                 mediaIdentifier = "${paramMap["STORY_ID"]}-${snapItem.snapId}",
-                mediaDisplaySource = storyName,
-                mediaDisplayType = "Pro Story"
+                downloadSource = MediaDownloadSource.PUBLIC_STORY,
+                mediaAuthor = storyName
             ).downloadDashMedia(
                 playlistUrl,
                 snapChapterTimestamp,
@@ -476,10 +468,9 @@ class MediaDownloader : MessagingRuleFeature("MediaDownloader", MessagingRuleTyp
             if (!isPreview) {
                 val encryptionKeys = EncryptionHelper.getEncryptionKeys(contentType, messageReader, isArroyo = isArroyoMessage)
                 provideDownloadManagerClient(
-                    pathSuffix = authorName,
                     mediaIdentifier = "${message.clientConversationId}${message.senderId}${message.serverMessageId}",
-                    mediaDisplaySource = authorName,
-                    mediaDisplayType = MediaFilter.CHAT_MEDIA.key,
+                    downloadSource = MediaDownloadSource.CHAT_MEDIA,
+                    mediaAuthor = authorName,
                     friendInfo = friendInfo
                 ).downloadSingleMedia(
                     Base64.UrlSafe.encode(urlProto),
@@ -532,10 +523,9 @@ class MediaDownloader : MessagingRuleFeature("MediaDownloader", MessagingRuleTyp
 
     fun downloadProfilePicture(url: String, author: String) {
         provideDownloadManagerClient(
-            pathSuffix = "Profile Pictures",
             mediaIdentifier = url.hashCode().toString(16).replaceFirst("-", ""),
-            mediaDisplaySource = author,
-            mediaDisplayType = MediaFilter.PROFILE_PICTURE.key
+            mediaAuthor = author,
+            downloadSource = MediaDownloadSource.PROFILE_PICTURE
         ).downloadSingleMedia(
             url,
             DownloadMediaType.REMOTE_MEDIA

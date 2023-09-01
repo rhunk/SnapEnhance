@@ -42,6 +42,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.blur
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.FilterQuality
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
@@ -49,27 +50,42 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import coil.compose.rememberAsyncImagePainter
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.future.asCompletableFuture
 import kotlinx.coroutines.launch
+import me.rhunk.snapenhance.core.download.data.MediaDownloadSource
 import me.rhunk.snapenhance.data.FileType
-import me.rhunk.snapenhance.core.download.data.DownloadObject
-import me.rhunk.snapenhance.core.download.data.MediaFilter
+import me.rhunk.snapenhance.download.DownloadObject
 import me.rhunk.snapenhance.ui.manager.Section
 import me.rhunk.snapenhance.ui.util.BitmojiImage
 import me.rhunk.snapenhance.ui.util.ImageRequestHelper
 
 class DownloadsSection : Section() {
     private val loadedDownloads = mutableStateOf(mapOf<Int, DownloadObject>())
-    private var currentFilter = mutableStateOf(MediaFilter.NONE)
+    private var currentFilter = mutableStateOf(MediaDownloadSource.NONE)
+    private val coroutineScope = CoroutineScope(Dispatchers.IO)
 
     override fun onResumed() {
         super.onResumed()
-        loadByFilter(currentFilter.value)
+        coroutineScope.launch {
+            loadByFilter(currentFilter.value)
+        }
     }
 
-    private fun loadByFilter(filter: MediaFilter) {
+    private fun loadByFilter(filter: MediaDownloadSource) {
         this.currentFilter.value = filter
         synchronized(loadedDownloads) {
-            loadedDownloads.value = context.downloadTaskManager.queryFirstTasks(filter)
+            loadedDownloads.value = context.downloadTaskManager.queryFirstTasks(filter).toMutableMap()
+        }
+    }
+
+    private fun removeTask(download: DownloadObject) {
+        synchronized(loadedDownloads) {
+            loadedDownloads.value = loadedDownloads.value.toMutableMap().also {
+                it.remove(download.downloadId)
+            }
+            context.downloadTaskManager.removeTask(download)
         }
     }
 
@@ -87,7 +103,6 @@ class DownloadsSection : Section() {
 
     @Composable
     private fun FilterList() {
-        val coroutineScope = rememberCoroutineScope()
         var showMenu by remember { mutableStateOf(false) }
         IconButton(onClick = { showMenu = !showMenu}) {
             Icon(
@@ -97,7 +112,7 @@ class DownloadsSection : Section() {
         }
 
         DropdownMenu(expanded = showMenu, onDismissRequest = { showMenu = false }) {
-            MediaFilter.values().toList().forEach { filter ->
+            MediaDownloadSource.values().toList().forEach { filter ->
                 DropdownMenuItem(
                     text = {
                         Row(
@@ -110,7 +125,7 @@ class DownloadsSection : Section() {
                                 selected = (currentFilter.value == filter),
                                 onClick = null
                             )
-                            Text(filter.name, modifier = Modifier.weight(1f))
+                            Text(filter.displayName, modifier = Modifier.weight(1f))
                         }
                    },
                     onClick = {
@@ -144,11 +159,12 @@ class DownloadsSection : Section() {
                             context.androidContext,
                             download.outputFile
                         ),
-                        imageLoader = context.imageLoader
+                        imageLoader = context.imageLoader,
+                        filterQuality = FilterQuality.None,
                     ),
                     modifier = Modifier
                         .matchParentSize()
-                        .blur(12.dp),
+                        .blur(5.dp),
                     contentDescription = null,
                     contentScale = ContentScale.FillWidth
                 )
@@ -156,9 +172,9 @@ class DownloadsSection : Section() {
                 Row(
                     modifier = Modifier
                         .padding(start = 10.dp, end = 10.dp)
-                        .fillMaxWidth()
                         .fillMaxHeight(),
-                    verticalAlignment = Alignment.CenterVertically
+
+                    verticalAlignment = Alignment.CenterVertically,
                 ){
                     //info card
                     Row(
@@ -177,13 +193,13 @@ class DownloadsSection : Section() {
                             verticalArrangement = Arrangement.SpaceBetween
                         ) {
                             Text(
-                                text = download.metadata.mediaDisplayType ?: "",
+                                text = MediaDownloadSource.fromKey(download.metadata.downloadSource).displayName,
                                 overflow = TextOverflow.Ellipsis,
                                 fontSize = 16.sp,
                                 fontWeight = FontWeight.Bold
                             )
                             Text(
-                                text = download.metadata.mediaDisplaySource ?: "",
+                                text = download.metadata.mediaAuthor ?: "",
                                 overflow = TextOverflow.Ellipsis,
                                 fontSize = 12.sp,
                                 fontWeight = FontWeight.Light
@@ -191,16 +207,17 @@ class DownloadsSection : Section() {
                         }
                     }
 
-                    Spacer(modifier = Modifier.weight(1f))
-
                     //action buttons
                     Row(
                         modifier = Modifier
-                            .padding(5.dp),
+                            .padding(5.dp)
+                            .fillMaxWidth(),
+                        horizontalArrangement = Arrangement.End,
                         verticalAlignment = Alignment.CenterVertically
                     ) {
                         FilledIconButton(
                             onClick = {
+                                removeTask(download)
                             },
                             colors = IconButtonDefaults.iconButtonColors(
                                 containerColor = MaterialTheme.colorScheme.error,
@@ -240,6 +257,7 @@ class DownloadsSection : Section() {
     @Composable
     override fun Content() {
         val scrollState = rememberLazyListState()
+        val scope = rememberCoroutineScope()
 
         LazyColumn(
             state = scrollState,
@@ -252,14 +270,19 @@ class DownloadsSection : Section() {
             item {
                 Spacer(Modifier.height(20.dp))
                 if (loadedDownloads.value.isEmpty()) {
-                    Text(text = "No downloads", fontSize = 20.sp, modifier = Modifier
+                    Text(text = "(empty)", fontSize = 20.sp, modifier = Modifier
                         .fillMaxWidth()
                         .padding(10.dp), textAlign = TextAlign.Center)
                 }
-                LaunchedEffect(true) {
+                LaunchedEffect(Unit) {
                     val lastItemIndex = (loadedDownloads.value.size - 1).takeIf { it >= 0 } ?: return@LaunchedEffect
-                    lazyLoadFromIndex(lastItemIndex)
-                    scrollState.animateScrollToItem(lastItemIndex)
+                    scope.launch(Dispatchers.IO) {
+                        lazyLoadFromIndex(lastItemIndex)
+                    }.asCompletableFuture().thenAccept {
+                        scope.launch {
+                            scrollState.animateScrollToItem(lastItemIndex)
+                        }
+                    }
                 }
             }
         }

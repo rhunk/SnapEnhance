@@ -180,7 +180,7 @@ class LogManager(
 
     fun error(message: Any?, throwable: Throwable, tag: String = TAG) {
         internalLog(tag, LogLevel.ERROR, message)
-        internalLog(tag, LogLevel.ERROR, throwable)
+        internalLog(tag, LogLevel.ERROR, throwable.stackTraceToString())
     }
 
     fun info(message: Any?, tag: String = TAG) {

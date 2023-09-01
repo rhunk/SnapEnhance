@@ -53,6 +53,8 @@ object ImageRequestHelper {
     fun newDownloadPreviewImageRequest(context: Context, filePath: String?) = ImageRequest.Builder(context)
         .data(filePath)
         .cacheKey(filePath)
+        .memoryCacheKey(filePath)
         .crossfade(true)
+        .crossfade(200)
         .build()
 }

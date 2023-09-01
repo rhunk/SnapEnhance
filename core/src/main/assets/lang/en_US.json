@@ -388,11 +388,12 @@
                 "conversation_info": "\uD83D\uDC64 Conversation Info"
             },
             "path_format": {
-                "create_user_folder": "Create folder for each user",
+                "create_author_folder": "Create folder for each author",
+                "create_source_folder": "Create folder for each media source type",
                 "append_hash": "Add a unique hash to the file name",
+                "append_source": "Add the media source to the file name",
                 "append_username": "Add the username to the file name",
-                "append_date_time": "Add the date and time to the file name",
-                "append_type": "Add the media type to the file name"
+                "append_date_time": "Add the date and time to the file name"
             },
             "auto_download_sources": {
                 "friend_snaps": "Friend Snaps",

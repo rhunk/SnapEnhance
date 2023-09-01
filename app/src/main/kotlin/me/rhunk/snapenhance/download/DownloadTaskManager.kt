@@ -1,12 +1,11 @@
-package me.rhunk.snapenhance.core.download
+package me.rhunk.snapenhance.download
 
 import android.annotation.SuppressLint
 import android.content.Context
 import android.database.sqlite.SQLiteDatabase
 import me.rhunk.snapenhance.core.download.data.DownloadMetadata
-import me.rhunk.snapenhance.core.download.data.DownloadObject
 import me.rhunk.snapenhance.core.download.data.DownloadStage
-import me.rhunk.snapenhance.core.download.data.MediaFilter
+import me.rhunk.snapenhance.core.download.data.MediaDownloadSource
 import me.rhunk.snapenhance.util.SQLiteDatabaseHelper
 import me.rhunk.snapenhance.util.ktx.getIntOrNull
 import me.rhunk.snapenhance.util.ktx.getStringOrNull
@@ -26,8 +25,8 @@ class DownloadTaskManager {
                     "hash VARCHAR UNIQUE",
                     "outputPath TEXT",
                     "outputFile TEXT",
-                    "mediaDisplayType TEXT",
-                    "mediaDisplaySource TEXT",
+                    "mediaAuthor TEXT",
+                    "downloadSource TEXT",
                     "iconUrl TEXT",
                     "downloadStage TEXT"
                 )
@@ -36,13 +35,13 @@ class DownloadTaskManager {
     }
 
     fun addTask(task: DownloadObject): Int {
-        taskDatabase.execSQL("INSERT INTO tasks (hash, outputPath, outputFile, mediaDisplayType, mediaDisplaySource, iconUrl, downloadStage) VALUES (?, ?, ?, ?, ?, ?, ?)",
+        taskDatabase.execSQL("INSERT INTO tasks (hash, outputPath, outputFile, downloadSource, mediaAuthor, iconUrl, downloadStage) VALUES (?, ?, ?, ?, ?, ?, ?)",
             arrayOf(
                 task.metadata.mediaIdentifier,
                 task.metadata.outputPath,
                 task.outputFile,
-                task.metadata.mediaDisplayType,
-                task.metadata.mediaDisplaySource,
+                task.metadata.downloadSource,
+                task.metadata.mediaAuthor,
                 task.metadata.iconUrl,
                 task.downloadStage.name
             )
@@ -56,13 +55,13 @@ class DownloadTaskManager {
     }
 
     fun updateTask(task: DownloadObject) {
-        taskDatabase.execSQL("UPDATE tasks SET hash = ?, outputPath = ?, outputFile = ?, mediaDisplayType = ?, mediaDisplaySource = ?, iconUrl = ?, downloadStage = ? WHERE id = ?",
+        taskDatabase.execSQL("UPDATE tasks SET hash = ?, outputPath = ?, outputFile = ?, downloadSource = ?, mediaAuthor = ?, iconUrl = ?, downloadStage = ? WHERE id = ?",
             arrayOf(
                 task.metadata.mediaIdentifier,
                 task.metadata.outputPath,
                 task.outputFile,
-                task.metadata.mediaDisplayType,
-                task.metadata.mediaDisplaySource,
+                task.metadata.downloadSource,
+                task.metadata.mediaAuthor,
                 task.metadata.iconUrl,
                 task.downloadStage.name,
                 task.downloadId
@@ -113,11 +112,11 @@ class DownloadTaskManager {
         removeTask(task.downloadId)
     }
 
-    fun queryFirstTasks(filter: MediaFilter): Map<Int, DownloadObject> {
-        val isPendingFilter = filter == MediaFilter.PENDING
+    fun queryFirstTasks(filter: MediaDownloadSource): Map<Int, DownloadObject> {
+        val isPendingFilter = filter == MediaDownloadSource.PENDING
         val tasks = mutableMapOf<Int, DownloadObject>()
 
-        tasks.putAll(pendingTasks.filter { isPendingFilter || filter.matches(it.value.metadata.mediaDisplayType) })
+        tasks.putAll(pendingTasks.filter { isPendingFilter || filter.matches(it.value.metadata.downloadSource) })
         if (isPendingFilter) {
             return tasks.toSortedMap(reverseOrder())
         }
@@ -132,16 +131,16 @@ class DownloadTaskManager {
     }
 
     @SuppressLint("Range")
-    fun queryTasks(from: Int, amount: Int = 30, filter: MediaFilter = MediaFilter.NONE): Map<Int, DownloadObject> {
-        if (filter == MediaFilter.PENDING) {
+    fun queryTasks(from: Int, amount: Int = 30, filter: MediaDownloadSource = MediaDownloadSource.NONE): Map<Int, DownloadObject> {
+        if (filter == MediaDownloadSource.PENDING) {
             return emptyMap()
         }
 
         val cursor = taskDatabase.rawQuery(
-            "SELECT * FROM tasks WHERE id < ? AND mediaDisplayType LIKE ? ORDER BY id DESC LIMIT ?",
+            "SELECT * FROM tasks WHERE id < ? AND downloadSource LIKE ? ORDER BY id DESC LIMIT ?",
             arrayOf(
                 from.toString(),
-                if (filter.shouldIgnoreFilter) "%" else "%${filter.key}",
+                if (filter.ignoreFilter) "%" else "%${filter.key}",
                 amount.toString()
             )
         )
@@ -155,12 +154,12 @@ class DownloadTaskManager {
                 metadata = DownloadMetadata(
                     outputPath = cursor.getStringOrNull("outputPath")!!,
                     mediaIdentifier = cursor.getStringOrNull("hash"),
-                    mediaDisplayType = cursor.getStringOrNull("mediaDisplayType"),
-                    mediaDisplaySource = cursor.getStringOrNull("mediaDisplaySource"),
+                    downloadSource = cursor.getStringOrNull("downloadSource") ?: MediaDownloadSource.NONE.key,
+                    mediaAuthor = cursor.getStringOrNull("mediaAuthor"),
                     iconUrl = cursor.getStringOrNull("iconUrl")
                 )
             ).apply {
-                downloadTaskManager = this@DownloadTaskManager
+                updateTaskCallback = { updateTask(it) }
                 downloadStage = DownloadStage.valueOf(cursor.getStringOrNull("downloadStage")!!)
                 //if downloadStage is not saved, it means the app was killed before the download was finished
                 if (downloadStage != DownloadStage.SAVED) {

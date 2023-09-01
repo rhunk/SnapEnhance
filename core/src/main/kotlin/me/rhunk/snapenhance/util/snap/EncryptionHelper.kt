@@ -12,13 +12,13 @@ import javax.crypto.spec.SecretKeySpec
 
 object EncryptionHelper {
     fun getEncryptionKeys(contentType: ContentType, messageProto: ProtoReader, isArroyo: Boolean): Pair<ByteArray, ByteArray>? {
-        val messageMediaInfo = MediaDownloaderHelper.getMessageMediaInfo(messageProto, contentType, isArroyo) ?: return null
-        val encryptionProtoIndex = if (messageMediaInfo.contains(Constants.ENCRYPTION_PROTO_INDEX_V2)) {
+        val mediaEncryptionInfo = MediaDownloaderHelper.getMessageMediaEncryptionInfo(messageProto, contentType, isArroyo) ?: return null
+        val encryptionProtoIndex = if (mediaEncryptionInfo.contains(Constants.ENCRYPTION_PROTO_INDEX_V2)) {
             Constants.ENCRYPTION_PROTO_INDEX_V2
         } else {
             Constants.ENCRYPTION_PROTO_INDEX
         }
-        val encryptionProto = messageMediaInfo.followPath(encryptionProtoIndex) ?: return null
+        val encryptionProto = mediaEncryptionInfo.followPath(encryptionProtoIndex) ?: return null
 
         var key: ByteArray = encryptionProto.getByteArray(1)!!
         var iv: ByteArray = encryptionProto.getByteArray(2)!!

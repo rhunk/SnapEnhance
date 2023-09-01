@@ -14,11 +14,12 @@ class DownloaderConfig : ConfigContainer() {
     )
     val preventSelfAutoDownload = boolean("prevent_self_auto_download")
     val pathFormat = multiple("path_format",
-        "create_user_folder",
+        "create_author_folder",
+        "create_source_folder",
         "append_hash",
+        "append_source",
+        "append_username",
         "append_date_time",
-        "append_type",
-        "append_username"
     ).apply { set(mutableListOf("append_hash", "append_date_time", "append_type", "append_username")) }
     val allowDuplicate = boolean("allow_duplicate")
     val mergeOverlays = boolean("merge_overlays") { addNotices(FeatureNotice.MAY_CAUSE_CRASHES) }
