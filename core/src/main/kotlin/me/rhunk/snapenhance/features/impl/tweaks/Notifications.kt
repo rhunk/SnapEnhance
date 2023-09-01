@@ -221,7 +221,7 @@ class Notifications : Feature("Notifications", loadParams = FeatureLoadParams.IN
                     }
                 }
 
-                val contentType = snapMessage.messageContent.contentType
+                val contentType = snapMessage.messageContent.contentType ?: return@onEach
                 val contentData = snapMessage.messageContent.content
 
                 val formatUsername: (String) -> String = { "$senderUsername: $it" }

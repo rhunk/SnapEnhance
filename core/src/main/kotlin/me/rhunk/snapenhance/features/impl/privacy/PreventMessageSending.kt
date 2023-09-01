@@ -24,7 +24,7 @@ class PreventMessageSending : Feature("Prevent message sending", loadParams = Fe
 
         context.event.subscribe(SendMessageWithContentEvent::class) { event ->
             val contentType = event.messageContent.contentType
-            val associatedType = NotificationType.fromContentType(contentType) ?: return@subscribe
+            val associatedType = NotificationType.fromContentType(contentType ?: return@subscribe) ?: return@subscribe
 
             if (preventMessageSending.contains(associatedType.key)) {
                 context.log.verbose("Preventing message sending for $associatedType")

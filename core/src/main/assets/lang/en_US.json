@@ -233,6 +233,10 @@
                         "name": "Unlimited Snap View Time",
                         "description": "Removes the time limit for viewing Snaps"
                     },
+                    "disable_replay_in_ff": {
+                        "name": "Disable Replay in FF",
+                        "description": "Disables the ability to replay with a long press from the friend feed"
+                    },
                     "prevent_message_sending": {
                         "name": "Prevent Message Sending",
                         "description": "Prevents sending certain types of messages"

@@ -9,8 +9,8 @@ abstract class AbstractWrapper(
 ) {
     @Suppress("UNCHECKED_CAST")
     inner class EnumAccessor<T>(private val fieldName: String, private val defaultValue: T) {
-        operator fun getValue(obj: Any, property: KProperty<*>): T = getEnumValue(fieldName, defaultValue as Enum<*>) as T
-        operator fun setValue(obj: Any, property: KProperty<*>, value: Any) = setEnumValue(fieldName, value as Enum<*>)
+        operator fun getValue(obj: Any, property: KProperty<*>): T? = getEnumValue(fieldName, defaultValue as Enum<*>) as? T
+        operator fun setValue(obj: Any, property: KProperty<*>, value: Any?) = setEnumValue(fieldName, value as Enum<*>)
     }
 
     companion object {
@@ -32,9 +32,10 @@ abstract class AbstractWrapper(
 
     protected fun <T> enum(fieldName: String, defaultValue: T) = EnumAccessor(fieldName, defaultValue)
 
-    fun <T : Enum<*>> getEnumValue(fieldName: String, defaultValue: T): T {
+    fun <T : Enum<*>> getEnumValue(fieldName: String, defaultValue: T?): T? {
+        if (defaultValue == null) return null
         val mContentType = XposedHelpers.getObjectField(instance, fieldName) as Enum<*>
-        return java.lang.Enum.valueOf(defaultValue::class.java, mContentType.name) as T
+        return java.lang.Enum.valueOf(defaultValue::class.java, mContentType.name)
     }
 
     @Suppress("UNCHECKED_CAST")

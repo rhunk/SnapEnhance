@@ -35,13 +35,15 @@ class EventDispatcher(
         }
 
         context.classCache.snapManager.hook("onSnapInteraction", HookStage.BEFORE) { param ->
+            val interactionType = param.arg<Any>(0).toString()
             val conversationId = SnapUUID(param.arg(1))
             val messageId = param.arg<Long>(2)
             context.event.post(
                 OnSnapInteractionEvent(
-                conversationId = conversationId,
-                messageId = messageId
-            )
+                    interactionType = interactionType,
+                    conversationId = conversationId,
+                    messageId = messageId
+                )
             )?.also {
                 if (it.canceled) {
                     param.setResult(null)

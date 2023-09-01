@@ -25,6 +25,7 @@ import me.rhunk.snapenhance.features.impl.spying.PreventReadReceipts
 import me.rhunk.snapenhance.features.impl.spying.StealthMode
 import me.rhunk.snapenhance.features.impl.tweaks.AutoSave
 import me.rhunk.snapenhance.features.impl.tweaks.CameraTweaks
+import me.rhunk.snapenhance.features.impl.tweaks.DisableReplayInFF
 import me.rhunk.snapenhance.features.impl.tweaks.DisableVideoLengthRestriction
 import me.rhunk.snapenhance.features.impl.tweaks.GalleryMediaSendOverride
 import me.rhunk.snapenhance.features.impl.tweaks.GooglePlayServicesDialogs
@@ -95,6 +96,7 @@ class FeatureManager(private val context: ModContext) : Manager {
         register(NoFriendScoreDelay::class)
         register(ProfilePictureDownloader::class)
         register(AddFriendSourceSpoof::class)
+        register(DisableReplayInFF::class)
 
         initializeFeatures()
     }

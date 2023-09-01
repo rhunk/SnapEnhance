@@ -87,7 +87,7 @@ class MessageExporter(
             val sender = conversationParticipants[message.senderId.toString()]
             val senderUsername = sender?.usernameForSorting ?: message.senderId.toString()
             val senderDisplayName = sender?.displayName ?: message.senderId.toString()
-            val messageContent = serializeMessageContent(message) ?: message.messageContent.contentType.name
+            val messageContent = serializeMessageContent(message) ?: message.messageContent.contentType?.name
             val date = SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.ENGLISH).format(Date(message.messageMetadata.createdAt))
             writer.write("[$date] - $senderDisplayName (${senderUsername}): $messageContent\n")
         }
@@ -118,7 +118,7 @@ class MessageExporter(
 
                         runCatching {
                             val downloadedMedia = MediaDownloaderHelper.downloadMediaFromReference(protoMediaReference) {
-                                EncryptionHelper.decryptInputStream(it, message.messageContent.contentType, ProtoReader(message.messageContent.content), isArroyo = false)
+                                EncryptionHelper.decryptInputStream(it, message.messageContent.contentType!!, ProtoReader(message.messageContent.content), isArroyo = false)
                             }
 
                             printLog("downloaded media ${message.orderKey}")
@@ -276,7 +276,7 @@ class MessageExporter(
                         addProperty("serializedContent", serializeMessageContent(message))
                         addProperty("rawContent", Base64.getUrlEncoder().encodeToString(message.messageContent.content))
 
-                        val messageContentType = message.messageContent.contentType
+                        val messageContentType = message.messageContent.contentType ?: ContentType.CHAT
 
                         EncryptionHelper.getEncryptionKeys(messageContentType, ProtoReader(message.messageContent.content), isArroyo = false)?.let { encryptionKeyPair ->
                             add("encryption", JsonObject().apply encryption@{

@@ -9,6 +9,7 @@ class MessagingTweaks : ConfigContainer() {
     val hideBitmojiPresence = boolean("hide_bitmoji_presence")
     val hideTypingNotifications = boolean("hide_typing_notifications")
     val unlimitedSnapViewTime = boolean("unlimited_snap_view_time")
+    val disableReplayInFF = boolean("disable_replay_in_ff")
     val autoSaveMessagesInConversations = multiple("auto_save_messages_in_conversations",
         "CHAT",
         "SNAP",
