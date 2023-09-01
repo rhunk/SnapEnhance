@@ -2,7 +2,10 @@ package me.rhunk.snapenhance.download
 
 import com.arthenica.ffmpegkit.FFmpegKit
 import com.arthenica.ffmpegkit.FFmpegSession
+import com.arthenica.ffmpegkit.Level
 import kotlinx.coroutines.suspendCancellableCoroutine
+import me.rhunk.snapenhance.LogLevel
+import me.rhunk.snapenhance.LogManager
 import me.rhunk.snapenhance.Logger
 import me.rhunk.snapenhance.core.config.impl.DownloaderConfig
 import java.io.File
@@ -32,8 +35,12 @@ class ArgumentList : LinkedHashMap<String, MutableList<String>>() {
 
 
 class FFMpegProcessor(
+    private val logManager: LogManager,
     private val ffmpegOptions: DownloaderConfig.FFMpegOptions
 ) {
+    companion object {
+        private const val TAG = "ffmpeg-processor"
+    }
     enum class Action {
         DOWNLOAD_DASH,
         MERGE_OVERLAY,
@@ -66,15 +73,23 @@ class FFMpegProcessor(
 
         Logger.directDebug("arguments: $stringBuilder", "FFMpegProcessor")
 
-        FFmpegKit.executeAsync(stringBuilder.toString(), { session ->
-            it.resumeWith(
-                if (session.returnCode.isValueSuccess) {
-                    Result.success(session)
-                } else {
-                    Result.failure(Exception(session.output))
-                }
-            )
-        },  Executors.newSingleThreadExecutor())
+        FFmpegKit.executeAsync(stringBuilder.toString(),
+            { session ->
+                it.resumeWith(
+                    if (session.returnCode.isValueSuccess) {
+                        Result.success(session)
+                    } else {
+                        Result.failure(Exception(session.output))
+                    }
+                )
+            }, logFunction@{ log ->
+                logManager.internalLog(TAG, when (log.level) {
+                    Level.AV_LOG_ERROR, Level.AV_LOG_FATAL -> LogLevel.ERROR
+                    Level.AV_LOG_WARNING -> LogLevel.WARN
+                    Level.AV_LOG_VERBOSE -> LogLevel.VERBOSE
+                    else -> return@logFunction
+                }, log.message)
+            }, { logManager.verbose(it.toString(), "ffmpeg-stats") }, Executors.newSingleThreadExecutor())
     }
 
     suspend fun execute(args: Request) {

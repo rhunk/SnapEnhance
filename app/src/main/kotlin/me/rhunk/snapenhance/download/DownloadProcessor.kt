@@ -62,7 +62,12 @@ class DownloadProcessor (
         remoteSideContext.translation.getCategory("download_processor")
     }
 
-    private val ffmpegProcessor by lazy { FFMpegProcessor(remoteSideContext.config.root.downloader.ffmpegOptions) }
+    private val ffmpegProcessor by lazy {
+        FFMpegProcessor(
+            remoteSideContext.log,
+            remoteSideContext.config.root.downloader.ffmpegOptions
+        )
+    }
     private val gson by lazy { GsonBuilder().setPrettyPrinting().create() }
 
     private fun fallbackToast(message: Any) {
