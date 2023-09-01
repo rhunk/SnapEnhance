@@ -203,6 +203,14 @@
                         "name": "Prevent Message Sending",
                         "description": "Prevents sending certain types of messages"
                     },
+                    "better_notifications": {
+                        "name": "Better Notifications",
+                        "description": "Adds more information in received notifications"
+                    },
+                    "notification_blacklist": {
+                        "name": "Notification Blacklist",
+                        "description": "Select the notifications to be blocked"
+                    },
                     "message_logger": {
                         "name": "Message Logger",
                         "description": "Keeps messages when someone deletes them. This only works for messages deleted after enabling this feature"
@@ -252,14 +260,6 @@
                     "force_media_source_quality": {
                         "name": "Force Media Source Quality",
                         "description": "Overrides the media quality to the highest possible"
-                    },
-                    "better_notifications": {
-                        "name": "Better Notifications",
-                        "description": "Adds more information in received notifications"
-                    },
-                    "notification_blacklist": {
-                        "name": "Notification Blacklist",
-                        "description": "Select the notifications to be blocked"
                     },
                     "disable_snap_splitting": {
                         "name": "Disable Snap Splitting",
@@ -379,7 +379,8 @@
                 "chat": "Show chat messages",
                 "snap": "Show medias",
                 "reply_button": "Add reply button",
-                "download_button": "Add download button"
+                "download_button": "Add download button",
+                "group": "Group notifications"
             },
             "friend_feed_menu_buttons": {
                 "auto_download_blacklist": "\u2B07\uFE0F Auto Download Blacklist",

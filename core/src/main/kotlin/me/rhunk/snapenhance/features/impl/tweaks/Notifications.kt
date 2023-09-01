@@ -27,6 +27,7 @@ import me.rhunk.snapenhance.hook.HookStage
 import me.rhunk.snapenhance.hook.Hooker
 import me.rhunk.snapenhance.hook.hook
 import me.rhunk.snapenhance.util.CallbackBuilder
+import me.rhunk.snapenhance.util.ktx.setObjectField
 import me.rhunk.snapenhance.util.protobuf.ProtoReader
 import me.rhunk.snapenhance.util.snap.EncryptionHelper
 import me.rhunk.snapenhance.util.snap.MediaDownloaderHelper
@@ -37,6 +38,7 @@ class Notifications : Feature("Notifications", loadParams = FeatureLoadParams.IN
     companion object{
         const val ACTION_REPLY = "me.rhunk.snapenhance.action.notification.REPLY"
         const val ACTION_DOWNLOAD = "me.rhunk.snapenhance.action.notification.DOWNLOAD"
+        const val SNAPCHAT_NOTIFICATION_GROUP = "snapchat_notification_group"
     }
 
     private val notificationDataQueue = mutableMapOf<Long, NotificationData>() // messageId => notification
@@ -62,7 +64,7 @@ class Notifications : Feature("Notifications", loadParams = FeatureLoadParams.IN
     }
 
     private val betterNotificationFilter by lazy {
-        context.config.global.betterNotifications.get()
+        context.config.messaging.betterNotifications.get()
     }
 
     private fun setNotificationText(notification: Notification, conversationId: String) {
@@ -185,6 +187,25 @@ class Notifications : Feature("Notifications", loadParams = FeatureLoadParams.IN
         val sendNotificationData = { notificationData: NotificationData, forceCreate: Boolean  ->
             val notificationId = if (forceCreate) System.nanoTime().toInt() else notificationData.id
             notificationIdMap.computeIfAbsent(notificationId) { conversationId }
+            if (betterNotificationFilter.contains("group")) {
+                runCatching {
+                    notificationData.notification.setObjectField("mGroupKey", SNAPCHAT_NOTIFICATION_GROUP)
+
+                    val summaryNotification = Notification.Builder(context.androidContext, notificationData.notification.channelId)
+                        .setSmallIcon(notificationData.notification.smallIcon)
+                        .setGroup(SNAPCHAT_NOTIFICATION_GROUP)
+                        .setGroupSummary(true)
+                        .setAutoCancel(true)
+                        .setOnlyAlertOnce(true)
+                        .build()
+
+                    if (notificationManager.activeNotifications.firstOrNull { it.notification.flags and Notification.FLAG_GROUP_SUMMARY != 0 } == null) {
+                        notificationManager.notify(notificationData.tag, notificationData.id, summaryNotification)
+                    }
+                }.onFailure {
+                    context.log.warn("Failed to set notification group key: ${it.stackTraceToString()}", featureKey)
+                }
+            }
 
             XposedBridge.invokeOriginalMethod(notifyAsUserMethod, notificationManager, arrayOf(
                 notificationData.tag, if (forceCreate) System.nanoTime().toInt() else notificationData.id, notificationData.notification, notificationData.userHandle
@@ -317,7 +338,7 @@ class Notifications : Feature("Notifications", loadParams = FeatureLoadParams.IN
         }
 
         findClass("com.google.firebase.messaging.FirebaseMessagingService").run {
-            val states by context.config.global.notificationBlacklist
+            val states by context.config.messaging.notificationBlacklist
             methods.first { it.declaringClass == this && it.returnType == Void::class.javaPrimitiveType && it.parameterCount == 1 && it.parameterTypes[0] == Intent::class.java }
                 .hook(HookStage.BEFORE) { param ->
                     val intent = param.argNullable<Intent>(0) ?: return@hook
