@@ -101,7 +101,6 @@ class AlertDialogs(
             Text(
                 text = title,
                 fontSize = 20.sp,
-                fontWeight = FontWeight.Bold,
                 modifier = Modifier.padding(start = 5.dp, bottom = 10.dp)
             )
             if (message != null) {

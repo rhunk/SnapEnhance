@@ -6,28 +6,46 @@ import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.contract.ActivityResultContracts
 import me.rhunk.snapenhance.Logger
 
+typealias ActivityLauncherCallback = (resultCode: Int, intent: Intent?) -> Unit
+
 class ActivityLauncherHelper(
-    val activity: ComponentActivity
+    val activity: ComponentActivity,
 ) {
-    private var callback: ((Intent) -> Unit)? = null
-    private var activityResultLauncher: ActivityResultLauncher<Intent> =
-        activity.registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
-            if (result.resultCode == ComponentActivity.RESULT_OK) {
-                runCatching {
-                    callback?.let { it(result.data!!) }
-                }.onFailure {
-                    Logger.directError("Failed to process activity result", it)
-                }
+    private var callback: ActivityLauncherCallback? = null
+    private var permissionResultLauncher: ActivityResultLauncher<String> =
+        activity.registerForActivityResult(ActivityResultContracts.RequestPermission()) { result ->
+            runCatching {
+                callback?.let { it(if (result) ComponentActivity.RESULT_OK else ComponentActivity.RESULT_CANCELED, null) }
+            }.onFailure {
+                Logger.directError("Failed to process activity result", it)
             }
             callback = null
         }
 
-    fun launch(intent: Intent, callback: (Intent) -> Unit) {
+    private var activityResultLauncher: ActivityResultLauncher<Intent> =
+        activity.registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
+            runCatching {
+                callback?.let { it(result.resultCode, result.data) }
+            }.onFailure {
+                Logger.directError("Failed to process activity result", it)
+            }
+            callback = null
+        }
+
+    fun launch(intent: Intent, callback: ActivityLauncherCallback) {
         if (this.callback != null) {
             throw IllegalStateException("Already launching an activity")
         }
         this.callback = callback
         activityResultLauncher.launch(intent)
+    }
+
+    fun requestPermission(permission: String, callback: ActivityLauncherCallback) {
+        if (this.callback != null) {
+            throw IllegalStateException("Already launching an activity")
+        }
+        this.callback = callback
+        permissionResultLauncher.launch(permission)
     }
 }
 
@@ -36,8 +54,11 @@ fun ActivityLauncherHelper.chooseFolder(callback: (uri: String) -> Unit) {
         Intent(Intent.ACTION_OPEN_DOCUMENT_TREE)
             .addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
             .addFlags(Intent.FLAG_GRANT_WRITE_URI_PERMISSION)
-    ) {
-        val uri = it.data ?: return@launch
+    ) { resultCode, intent ->
+        if (resultCode != ComponentActivity.RESULT_OK) {
+            return@launch
+        }
+        val uri = intent?.data ?: return@launch
         val value = uri.toString()
         this.activity.contentResolver.takePersistableUriPermission(
             uri,
@@ -55,8 +76,11 @@ fun ActivityLauncherHelper.saveFile(name: String, type: String = "*/*", callback
             .putExtra(Intent.EXTRA_TITLE, name)
             .addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
             .addFlags(Intent.FLAG_GRANT_WRITE_URI_PERMISSION)
-    ) {
-        val uri = it.data ?: return@launch
+    ) { resultCode, intent ->
+        if (resultCode != ComponentActivity.RESULT_OK) {
+            return@launch
+        }
+        val uri = intent?.data ?: return@launch
         val value = uri.toString()
         this.activity.contentResolver.takePersistableUriPermission(
             uri,
@@ -72,8 +96,11 @@ fun ActivityLauncherHelper.openFile(type: String = "*/*", callback: (uri: String
             .setType(type)
             .addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
             .addFlags(Intent.FLAG_GRANT_WRITE_URI_PERMISSION)
-    ) {
-        val uri = it.data ?: return@launch
+    ) { resultCode, intent ->
+        if (resultCode != ComponentActivity.RESULT_OK) {
+            return@launch
+        }
+        val uri = intent?.data ?: return@launch
         val value = uri.toString()
         this.activity.contentResolver.takePersistableUriPermission(uri, Intent.FLAG_GRANT_READ_URI_PERMISSION or Intent.FLAG_GRANT_WRITE_URI_PERMISSION)
         callback(value)

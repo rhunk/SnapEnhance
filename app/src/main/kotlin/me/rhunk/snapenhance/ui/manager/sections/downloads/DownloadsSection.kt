@@ -50,7 +50,6 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import coil.compose.rememberAsyncImagePainter
-import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.future.asCompletableFuture
 import kotlinx.coroutines.launch
@@ -64,11 +63,10 @@ import me.rhunk.snapenhance.ui.util.ImageRequestHelper
 class DownloadsSection : Section() {
     private val loadedDownloads = mutableStateOf(mapOf<Int, DownloadObject>())
     private var currentFilter = mutableStateOf(MediaDownloadSource.NONE)
-    private val coroutineScope = CoroutineScope(Dispatchers.IO)
 
     override fun onResumed() {
         super.onResumed()
-        coroutineScope.launch {
+        context.coroutineScope.launch {
             loadByFilter(currentFilter.value)
         }
     }
@@ -129,7 +127,7 @@ class DownloadsSection : Section() {
                         }
                    },
                     onClick = {
-                        coroutineScope.launch {
+                        context.coroutineScope.launch {
                             loadByFilter(filter)
                             showMenu = false
                         }

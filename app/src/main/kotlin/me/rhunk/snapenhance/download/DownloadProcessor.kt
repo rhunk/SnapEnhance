@@ -316,7 +316,7 @@ class DownloadProcessor (
     }
 
     fun onReceive(intent: Intent) {
-        CoroutineScope(Dispatchers.IO).launch {
+        remoteSideContext.coroutineScope.launch {
             val downloadMetadata = gson.fromJson(intent.getStringExtra(DownloadManagerClient.DOWNLOAD_METADATA_EXTRA)!!, DownloadMetadata::class.java)
             val downloadRequest = gson.fromJson(intent.getStringExtra(DownloadManagerClient.DOWNLOAD_REQUEST_EXTRA)!!, DownloadRequest::class.java)
 

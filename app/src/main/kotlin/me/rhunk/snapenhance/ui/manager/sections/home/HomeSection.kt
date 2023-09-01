@@ -1,5 +1,6 @@
 package me.rhunk.snapenhance.ui.manager.sections.home
 
+import android.content.Intent
 import android.net.Uri
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.ScrollState
@@ -48,9 +49,11 @@ import androidx.compose.ui.unit.sp
 import androidx.navigation.NavGraphBuilder
 import androidx.navigation.compose.composable
 import androidx.navigation.navigation
+import kotlinx.coroutines.launch
 import me.rhunk.snapenhance.R
 import me.rhunk.snapenhance.ui.manager.Section
 import me.rhunk.snapenhance.ui.manager.data.InstallationSummary
+import me.rhunk.snapenhance.ui.manager.data.Updater
 import me.rhunk.snapenhance.ui.setup.Requirements
 import me.rhunk.snapenhance.ui.util.ActivityLauncherHelper
 import me.rhunk.snapenhance.ui.util.saveFile
@@ -64,9 +67,10 @@ class HomeSection : Section() {
         const val LOGS_SECTION_ROUTE = "home_logs"
     }
 
-    private val installationSummary = mutableStateOf(null as InstallationSummary?)
-    private val userLocale = mutableStateOf(null as String?)
+    private var installationSummary: InstallationSummary? = null
+    private var userLocale: String? = null
     private val homeSubSection by lazy { HomeSubSection(context) }
+    private var latestUpdate: Updater.LatestRelease? = null
     private lateinit var activityLauncherHelper: ActivityLauncherHelper
 
     override fun init() {
@@ -100,42 +104,16 @@ class HomeSection : Section() {
 
     @Composable
     private fun SummaryCards(installationSummary: InstallationSummary) {
-        OutlinedCard(
-            modifier = Modifier
-                .padding(all = cardMargin)
-                .fillMaxWidth()
-        ) {
-            SummaryCardRow(
-                icon = Icons.Filled.Map,
-                title = if (installationSummary.modInfo == null || installationSummary.modInfo.mappingsOutdated == true) {
-                    "Mappings ${if (installationSummary.modInfo == null) "not generated" else "outdated"}"
-                } else {
-                    "Mappings version ${installationSummary.modInfo.mappingVersion}"
-                }
-            ) {
-                Button(onClick = {
-                    context.checkForRequirements(Requirements.MAPPINGS)
-                }, modifier = Modifier.height(40.dp)) {
-                    Icon(Icons.Filled.Refresh, contentDescription = null)
-                }
-            }
-
-            SummaryCardRow(icon = Icons.Filled.Language, title = userLocale.value ?: "Unknown") {
-                Button(onClick = {
-                    context.checkForRequirements(Requirements.LANGUAGE)
-                }, modifier = Modifier.height(40.dp)) {
-                    Icon(Icons.Filled.OpenInNew, contentDescription = null)
-                }
-            }
-        }
-
         val summaryInfo = remember {
             mapOf(
                 "Build Issuer" to (installationSummary.modInfo?.buildIssuer ?: "Unknown"),
+                "Build Type" to (if (installationSummary.modInfo?.isDebugBuild == true) "debug" else "release"),
+                "Build Version" to (installationSummary.modInfo?.buildVersion ?: "Unknown"),
+                "Build Package" to (installationSummary.modInfo?.buildPackageName ?: "Unknown"),
+                "Activity Package" to (installationSummary.modInfo?.loaderPackageName ?: "Unknown"),
                 "Device" to installationSummary.platformInfo.device,
-                "Android version" to installationSummary.platformInfo.androidVersion,
-                "System ABI" to installationSummary.platformInfo.systemAbi,
-                "Build fingerprint" to installationSummary.platformInfo.buildFingerprint
+                "Android Version" to installationSummary.platformInfo.androidVersion,
+                "System ABI" to installationSummary.platformInfo.systemAbi
             )
         }
 
@@ -172,7 +150,35 @@ class HomeSection : Section() {
                     }
                 }
             }
+        }
 
+        OutlinedCard(
+            modifier = Modifier
+                .padding(all = cardMargin)
+                .fillMaxWidth()
+        ) {
+            SummaryCardRow(
+                icon = Icons.Filled.Map,
+                title = if (installationSummary.modInfo == null || installationSummary.modInfo.mappingsOutdated == true) {
+                    "Mappings ${if (installationSummary.modInfo == null) "not generated" else "outdated"}"
+                } else {
+                    "Mappings version ${installationSummary.modInfo.mappingVersion}"
+                }
+            ) {
+                Button(onClick = {
+                    context.checkForRequirements(Requirements.MAPPINGS)
+                }, modifier = Modifier.height(40.dp)) {
+                    Icon(Icons.Filled.Refresh, contentDescription = null)
+                }
+            }
+
+            SummaryCardRow(icon = Icons.Filled.Language, title = userLocale ?: "Unknown") {
+                Button(onClick = {
+                    context.checkForRequirements(Requirements.LANGUAGE)
+                }, modifier = Modifier.height(40.dp)) {
+                    Icon(Icons.Filled.OpenInNew, contentDescription = null)
+                }
+            }
         }
     }
 
@@ -180,8 +186,19 @@ class HomeSection : Section() {
         if (!context.mappings.isMappingsLoaded()) {
             context.mappings.init(context.androidContext)
         }
-        installationSummary.value = context.installationSummary
-        userLocale.value = context.translation.loadedLocale.getDisplayName(Locale.getDefault())
+        context.coroutineScope.launch {
+            userLocale = context.translation.loadedLocale.getDisplayName(Locale.getDefault())
+            runCatching {
+                installationSummary = context.installationSummary
+            }.onFailure {
+                context.longToast("SnapEnhance failed to load installation summary: ${it.message}")
+            }
+            runCatching {
+                latestUpdate = Updater.checkForLatestRelease()
+            }.onFailure {
+                context.longToast("SnapEnhance failed to check for updates: ${it.message}")
+            }
+        }
     }
 
     override fun sectionTopBarName(): String {
@@ -304,13 +321,53 @@ class HomeSection : Section() {
                 )
             }
 
+            if (latestUpdate != null) {
+                OutlinedCard(
+                    modifier = Modifier
+                        .padding(all = cardMargin)
+                        .fillMaxWidth(),
+                    colors = CardDefaults.cardColors(
+                        containerColor = MaterialTheme.colorScheme.surfaceVariant,
+                        contentColor = MaterialTheme.colorScheme.onSurfaceVariant
+                    )
+                ){
+                    Row(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(all = 15.dp),
+                        horizontalArrangement = Arrangement.SpaceBetween
+                    ) {
+                        Column {
+                            Text(
+                                text = "SnapEnhance Update",
+                                fontSize = 14.sp,
+                                fontWeight = FontWeight.Bold,
+                            )
+                            Text(
+                                fontSize = 12.sp,
+                                text = "Version ${latestUpdate?.versionName} is available!",
+                                lineHeight = 20.sp
+                            )
+                        }
+                        Button(onClick = {
+                            context.activity?.startActivity(
+                                Intent(Intent.ACTION_VIEW).apply {
+                                    data = Uri.parse(latestUpdate?.releaseUrl)
+                                }
+                            )
+                        }, modifier = Modifier.height(40.dp)) {
+                            Text(text = "Download")
+                        }
+                    }
+                }
+            }
 
             Text(
                 text = "An xposed module that enhances the Snapchat experience",
                 modifier = Modifier.padding(16.dp)
             )
 
-            SummaryCards(installationSummary = installationSummary.value ?: return)
+            SummaryCards(installationSummary = installationSummary ?: return)
         }
     }
 }

@@ -9,8 +9,6 @@ import android.content.Context
 import android.content.Intent
 import androidx.core.app.NotificationCompat
 import androidx.core.graphics.drawable.toBitmap
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import me.rhunk.snapenhance.R
 import me.rhunk.snapenhance.RemoteSideContext
@@ -25,8 +23,6 @@ class StreaksReminder(
     companion object {
         private const val NOTIFICATION_CHANNEL_ID = "streaks"
     }
-
-    private val coroutineScope = CoroutineScope(Dispatchers.IO)
 
     private fun getNotificationManager(context: Context) = context.getSystemService(NotificationManager::class.java).apply {
         createNotificationChannel(
@@ -65,7 +61,7 @@ class StreaksReminder(
         }
 
         notifyFriendList.forEach { (streaks, friend) ->
-            coroutineScope.launch {
+            remoteSideContext.coroutineScope.launch {
                 val bitmojiUrl = BitmojiSelfie.getBitmojiSelfie(friend.selfieId, friend.bitmojiId, BitmojiSelfie.BitmojiSelfieType.THREE_D)
                 val bitmojiImage = remoteSideContext.imageLoader.execute(
                     ImageRequestHelper.newBitmojiImageRequest(ctx, bitmojiUrl)

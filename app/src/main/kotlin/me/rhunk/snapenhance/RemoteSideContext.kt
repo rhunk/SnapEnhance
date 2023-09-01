@@ -14,6 +14,7 @@ import coil.ImageLoader
 import coil.decode.VideoFrameDecoder
 import coil.disk.DiskCache
 import coil.memory.MemoryCache
+import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import me.rhunk.snapenhance.bridge.BridgeService
 import me.rhunk.snapenhance.core.BuildConfig
@@ -71,6 +72,7 @@ class RemoteSideContext(
             }
             .components { add(VideoFrameDecoder.Factory()) }.build()
     }
+    val coroutineScope = CoroutineScope(Dispatchers.IO)
 
     fun reload() {
         runCatching {
@@ -103,7 +105,7 @@ class RemoteSideContext(
                 )
             },
             modInfo = ModInfo(
-                loaderPackageName = MainActivity::class.java.`package`?.name ?: "unknown",
+                loaderPackageName = MainActivity::class.java.`package`?.name,
                 buildPackageName = BuildConfig.APPLICATION_ID,
                 buildVersion = BuildConfig.VERSION_NAME,
                 buildVersionCode = BuildConfig.VERSION_CODE.toLong(),
@@ -119,7 +121,6 @@ class RemoteSideContext(
             ),
             platformInfo = PlatformInfo(
                 device = Build.DEVICE,
-                buildFingerprint = Build.FINGERPRINT,
                 androidVersion = Build.VERSION.RELEASE,
                 systemAbi = Build.SUPPORTED_ABIS.firstOrNull() ?: "unknown"
             )

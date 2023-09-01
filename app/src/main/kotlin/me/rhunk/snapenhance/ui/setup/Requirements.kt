@@ -5,6 +5,7 @@ object Requirements {
     const val LANGUAGE = 0b00010
     const val MAPPINGS = 0b00100
     const val SAVE_FOLDER = 0b01000
+    const val GRANT_PERMISSIONS = 0b10000
 
     fun getName(requirement: Int): String {
         return when (requirement) {
@@ -12,6 +13,7 @@ object Requirements {
             LANGUAGE -> "LANGUAGE"
             MAPPINGS -> "MAPPINGS"
             SAVE_FOLDER -> "SAVE_FOLDER"
+            GRANT_PERMISSIONS -> "GRANT_PERMISSIONS"
             else -> "UNKNOWN"
         }
     }

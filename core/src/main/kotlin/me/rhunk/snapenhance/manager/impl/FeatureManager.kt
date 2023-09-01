@@ -4,7 +4,6 @@ import me.rhunk.snapenhance.Logger
 import me.rhunk.snapenhance.ModContext
 import me.rhunk.snapenhance.features.Feature
 import me.rhunk.snapenhance.features.FeatureLoadParams
-import me.rhunk.snapenhance.features.impl.AutoUpdater
 import me.rhunk.snapenhance.features.impl.ConfigurationOverride
 import me.rhunk.snapenhance.features.impl.Messaging
 import me.rhunk.snapenhance.features.impl.downloader.MediaDownloader
@@ -27,11 +26,11 @@ import me.rhunk.snapenhance.features.impl.tweaks.AutoSave
 import me.rhunk.snapenhance.features.impl.tweaks.CameraTweaks
 import me.rhunk.snapenhance.features.impl.tweaks.DisableReplayInFF
 import me.rhunk.snapenhance.features.impl.tweaks.DisableVideoLengthRestriction
-import me.rhunk.snapenhance.features.impl.tweaks.SendOverride
 import me.rhunk.snapenhance.features.impl.tweaks.GooglePlayServicesDialogs
 import me.rhunk.snapenhance.features.impl.tweaks.LocationSpoofer
 import me.rhunk.snapenhance.features.impl.tweaks.MediaQualityLevelOverride
 import me.rhunk.snapenhance.features.impl.tweaks.Notifications
+import me.rhunk.snapenhance.features.impl.tweaks.SendOverride
 import me.rhunk.snapenhance.features.impl.tweaks.SnapchatPlus
 import me.rhunk.snapenhance.features.impl.tweaks.UnlimitedSnapViewTime
 import me.rhunk.snapenhance.features.impl.ui.PinConversations
@@ -84,7 +83,6 @@ class FeatureManager(private val context: ModContext) : Manager {
         register(MeoPasscodeBypass::class)
         register(AppPasscode::class)
         register(LocationSpoofer::class)
-        register(AutoUpdater::class)
         register(CameraTweaks::class)
         register(InfiniteStoryBoost::class)
         register(AmoledDarkMode::class)

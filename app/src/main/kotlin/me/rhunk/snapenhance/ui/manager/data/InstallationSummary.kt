@@ -10,7 +10,7 @@ data class SnapchatAppInfo(
 )
 
 data class ModInfo(
-    val loaderPackageName: String,
+    val loaderPackageName: String?,
     val buildPackageName: String,
     val buildVersion: String,
     val buildVersionCode: Long,
@@ -22,7 +22,6 @@ data class ModInfo(
 
 data class PlatformInfo(
     val device: String,
-    val buildFingerprint: String,
     val androidVersion: String,
     val systemAbi: String,
 )
