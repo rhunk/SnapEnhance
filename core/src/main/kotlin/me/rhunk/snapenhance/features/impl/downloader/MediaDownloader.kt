@@ -364,6 +364,14 @@ class MediaDownloader : MessagingRuleFeature("MediaDownloader", MessagingRuleTyp
                             selectedChapters.remove(which)
                         }
                     }
+                    setNegativeButton("Cancel") { dialog, _ -> dialog.dismiss() }
+                    setNeutralButton("Download all") { _, _ ->
+                        provideDownloadManagerClient(
+                            mediaIdentifier = paramMap["STORY_ID"].toString(),
+                            downloadSource = MediaDownloadSource.PUBLIC_STORY,
+                            mediaAuthor = storyName
+                        ).downloadDashMedia(playlistUrl, 0, null)
+                    }
                     setPositiveButton("Download") { dialog, which ->
                         val groups = mutableListOf<MutableList<SnapChapterInfo>>()
                         var currentGroup = mutableListOf<SnapChapterInfo>()

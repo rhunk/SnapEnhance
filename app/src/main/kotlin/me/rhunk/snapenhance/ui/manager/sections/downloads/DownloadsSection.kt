@@ -229,6 +229,7 @@ class DownloadsSection : Section() {
                         }
                         //open
                         FilledIconButton(onClick = {
+                            if (download.outputFile == null) return@FilledIconButton
                             val fileType = runCatching {
                                 context.androidContext.contentResolver.openInputStream(Uri.parse(download.outputFile))?.use { input ->
                                     FileType.fromInputStream(input)
