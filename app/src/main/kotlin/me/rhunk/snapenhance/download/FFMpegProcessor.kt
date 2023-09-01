@@ -93,6 +93,7 @@ class FFMpegProcessor(
             this += "-c:a" to (ffmpegOptions.customAudioCodec.get().takeIf { it.isNotEmpty() } ?: "copy")
             this += "-crf" to ffmpegOptions.constantRateFactor.get().let { "\"$it\"" }
             this += "-b:v" to ffmpegOptions.videoBitrate.get().toString() + "K"
+            this += "-b:a" to ffmpegOptions.audioBitrate.get().toString() + "K"
         }
 
         when (args.action) {

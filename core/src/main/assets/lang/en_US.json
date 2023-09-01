@@ -143,6 +143,10 @@
                                 "name": "Video Bitrate",
                                 "description": "Set the video bitrate (in kbps)"
                             },
+                            "audio_bitrate": {
+                                "name": "Audio Bitrate",
+                                "description": "Set the audio bitrate (in kbps)"
+                            },
                             "custom_video_codec": {
                                 "name": "Custom Video Codec",
                                 "description": "Set a custom video codec (e.g. libx264)"

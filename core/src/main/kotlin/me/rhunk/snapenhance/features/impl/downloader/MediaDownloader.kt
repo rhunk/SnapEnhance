@@ -50,6 +50,12 @@ private fun String.sanitizeForPath(): String {
         .replace(Regex("\\p{Cntrl}"), "")
 }
 
+class SnapChapterInfo(
+    val offset: Long,
+    val duration: Long?
+)
+
+
 @OptIn(ExperimentalEncodingApi::class)
 class MediaDownloader : MessagingRuleFeature("MediaDownloader", MessagingRuleType.AUTO_DOWNLOAD, loadParams = FeatureLoadParams.ACTIVITY_CREATE_ASYNC) {
     private var lastSeenMediaInfoMap: MutableMap<SplitMediaAssetType, MediaInfo>? = null
@@ -312,26 +318,25 @@ class MediaDownloader : MessagingRuleFeature("MediaDownloader", MessagingRuleTyp
         }
 
         //stories with mpeg dash media
-        //TODO: option to download multiple chapters
         if (paramMap.containsKey("LONGFORM_VIDEO_PLAYLIST_ITEM") && forceDownload) {
             val storyName = paramMap["STORY_NAME"].toString().sanitizeForPath()
-
             //get the position of the media in the playlist and the duration
             val snapItem = SnapPlaylistItem(paramMap["SNAP_PLAYLIST_ITEM"]!!)
             val snapChapterList = LongformVideoPlaylistItem(paramMap["LONGFORM_VIDEO_PLAYLIST_ITEM"]!!).chapters
+            val currentChapterIndex = snapChapterList.indexOfFirst { it.snapId == snapItem.snapId }
+
             if (snapChapterList.isEmpty()) {
                 context.shortToast("No chapters found")
                 return
             }
-            val snapChapter = snapChapterList.first { it.snapId == snapItem.snapId }
-            val nextChapter = snapChapterList.getOrNull(snapChapterList.indexOf(snapChapter) + 1)
 
-            //add 100ms to the start time to prevent the video from starting too early
-            val snapChapterTimestamp = snapChapter.startTimeMs.plus(100)
-            val duration: Long? = nextChapter?.startTimeMs?.minus(snapChapterTimestamp)
+            fun prettyPrintTime(time: Long): String {
+                val seconds = time / 1000
+                val minutes = seconds / 60
+                val hours = minutes / 60
+                return "${hours % 24}:${minutes % 60}:${seconds % 60}"
+            }
 
-            //get the mpd playlist and append the cdn url to baseurl nodes
-            context.log.verbose("Downloading dash media ${paramMap["MEDIA_ID"].toString()}", featureKey)
             val playlistUrl = paramMap["MEDIA_ID"].toString().let {
                 val urlIndexes = arrayOf(it.indexOf("https://cf-st.sc-cdn.net"), it.indexOf("https://bolt-gcdn.sc-cdn.net"))
 
@@ -340,15 +345,67 @@ class MediaDownloader : MessagingRuleFeature("MediaDownloader", MessagingRuleTyp
                 } ?: "${RemoteMediaResolver.CF_ST_CDN_D}$it"
             }
 
-            provideDownloadManagerClient(
-                mediaIdentifier = "${paramMap["STORY_ID"]}-${snapItem.snapId}",
-                downloadSource = MediaDownloadSource.PUBLIC_STORY,
-                mediaAuthor = storyName
-            ).downloadDashMedia(
-                playlistUrl,
-                snapChapterTimestamp,
-                duration
-            )
+            context.runOnUiThread {
+                val selectedChapters = mutableListOf<Int>()
+                val chapters = snapChapterList.mapIndexed { index, snapChapter ->
+                    val nextChapter = snapChapterList.getOrNull(index + 1)
+                    val duration = nextChapter?.startTimeMs?.minus(snapChapter.startTimeMs)
+                    SnapChapterInfo(snapChapter.startTimeMs, duration)
+                }
+                ViewAppearanceHelper.newAlertDialogBuilder(context.mainActivity!!).apply {
+                    setTitle("Download dash media")
+                    setMultiChoiceItems(
+                        chapters.map { "Segment ${prettyPrintTime(it.offset)} - ${prettyPrintTime(it.offset + (it.duration ?: 0))}" }.toTypedArray(),
+                        List(chapters.size) { index -> currentChapterIndex == index }.toBooleanArray()
+                    ) { _, which, isChecked ->
+                        if (isChecked) {
+                            selectedChapters.add(which)
+                        } else if (selectedChapters.contains(which)) {
+                            selectedChapters.remove(which)
+                        }
+                    }
+                    setPositiveButton("Download") { dialog, which ->
+                        val groups = mutableListOf<MutableList<SnapChapterInfo>>()
+                        var currentGroup = mutableListOf<SnapChapterInfo>()
+                        var lastChapterIndex = -1
+
+                        //check for consecutive chapters
+                        chapters.filterIndexed { index, _ -> selectedChapters.contains(index) }
+                            .forEachIndexed { index, pair ->
+                                if (lastChapterIndex != -1 && index != lastChapterIndex + 1) {
+                                    groups.add(currentGroup)
+                                    currentGroup = mutableListOf()
+                                }
+                                currentGroup.add(pair)
+                                lastChapterIndex = index
+                        }
+
+                        if (currentGroup.isNotEmpty()) {
+                            groups.add(currentGroup)
+                        }
+
+                        groups.forEach { group ->
+                            val firstChapter = group.first()
+                            val lastChapter = group.last()
+                            val duration = if (firstChapter == lastChapter) {
+                                firstChapter.duration
+                            } else {
+                                lastChapter.duration?.let { lastChapter.offset - firstChapter.offset + it }
+                            }
+
+                            provideDownloadManagerClient(
+                                mediaIdentifier = "${paramMap["STORY_ID"]}-${firstChapter.offset}-${lastChapter.offset}",
+                                downloadSource = MediaDownloadSource.PUBLIC_STORY,
+                                mediaAuthor = storyName
+                            ).downloadDashMedia(
+                                playlistUrl,
+                                firstChapter.offset.plus(100),
+                                duration
+                            )
+                        }
+                    }
+                }.show()
+            }
         }
     }
 

@@ -12,6 +12,7 @@ class DownloaderConfig : ConfigContainer() {
         }
         val constantRateFactor = integer("constant_rate_factor", 30)
         val videoBitrate = integer("video_bitrate", 5000)
+        val audioBitrate = integer("audio_bitrate", 128)
         val customVideoCodec = string("custom_video_codec") { addFlags(ConfigFlag.NO_TRANSLATE) }
         val customAudioCodec = string("custom_audio_codec") { addFlags(ConfigFlag.NO_TRANSLATE) }
     }
