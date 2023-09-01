@@ -40,13 +40,29 @@ class StreaksReminder(
 
     override fun onReceive(ctx: Context, intent: Intent) {
         val remoteSideContext = this.remoteSideContext ?: SharedContextHolder.remote(ctx)
-        if (remoteSideContext.config.root.streaksReminder.globalState != true) return
+        val streaksReminderConfig = remoteSideContext.config.root.streaksReminder
+
+        if (streaksReminderConfig.globalState != true) return
+
+        val remainingHours = streaksReminderConfig.remainingHours.get()
+
 
         val notifyFriendList = remoteSideContext.modDatabase.getFriends()
             .associateBy { remoteSideContext.modDatabase.getFriendStreaks(it.userId) }
-            .filter { (streaks, _) -> streaks != null && streaks.notify && streaks.isAboutToExpire() }
+            .filter { (streaks, _) -> streaks != null && streaks.notify && streaks.isAboutToExpire(remainingHours) }
 
         val notificationManager = getNotificationManager(ctx)
+        val streaksReminderTranslation = remoteSideContext.translation.getCategory("streaks_reminder")
+
+        if (streaksReminderConfig.groupNotifications.get() && notifyFriendList.isNotEmpty()) {
+            notificationManager.notify(0, NotificationCompat.Builder(ctx, NOTIFICATION_CHANNEL_ID)
+                .setPriority(NotificationCompat.PRIORITY_HIGH)
+                .setAutoCancel(true)
+                .setGroup("streaks")
+                .setGroupSummary(true)
+                .setSmallIcon(R.drawable.streak_icon)
+                .build())
+        }
 
         notifyFriendList.forEach { (streaks, friend) ->
             coroutineScope.launch {
@@ -56,9 +72,14 @@ class StreaksReminder(
                 )
 
                 val notificationBuilder = NotificationCompat.Builder(ctx, NOTIFICATION_CHANNEL_ID)
-                    .setContentTitle("Streaks")
-                    .setContentText("You will lose streaks with ${friend.displayName} in ${streaks?.hoursLeft() ?: 0} hours")
+                    .setContentTitle(streaksReminderTranslation["notification_title"])
+                    .setContentText(streaksReminderTranslation.format("notification_text",
+                        "friend" to (friend.displayName ?: friend.mutableUsername),
+                        "hoursLeft" to (streaks?.hoursLeft() ?: 0).toString()
+                    ))
                     .setPriority(NotificationCompat.PRIORITY_DEFAULT)
+                    .setAutoCancel(true)
+                    .setGroup("streaks")
                     .setContentIntent(PendingIntent.getActivity(
                         ctx,
                         0,
@@ -73,6 +94,10 @@ class StreaksReminder(
                             setSmallIcon(R.drawable.streak_icon)
                         }
                     }
+
+                if (streaksReminderConfig.groupNotifications.get()) {
+                    notificationBuilder.setGroupAlertBehavior(NotificationCompat.GROUP_ALERT_CHILDREN)
+                }
 
                 notificationManager.notify(friend.userId.hashCode(), notificationBuilder.build().apply {
                     flags = NotificationCompat.FLAG_ONLY_ALERT_ONCE

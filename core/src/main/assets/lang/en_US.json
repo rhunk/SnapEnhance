@@ -308,6 +308,14 @@
                     "interval": {
                         "name": "Interval",
                         "description": "The interval between each reminder (in hours)"
+                    },
+                    "remaining_hours": {
+                        "name": "Remaining Hours",
+                        "description": "The remaining hours before the notification is shown"
+                    },
+                    "group_notifications": {
+                        "name": "Group Notifications",
+                        "description": "Group notifications into a single one"
                     }
                 }
             },
@@ -605,5 +613,9 @@
     },
     "spoof_activity": {
         "title": "Spoof Settings"
+    },
+    "streaks_reminder": {
+        "notification_title": "Streaks",
+        "notification_text": "You will lose streaks with {friend} in {hoursLeft} hours"
     }
 }

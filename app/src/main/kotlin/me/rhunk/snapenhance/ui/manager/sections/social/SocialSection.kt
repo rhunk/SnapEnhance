@@ -134,6 +134,8 @@ class SocialSection : Section() {
 
     @Composable
     private fun ScopeList(scope: SocialScope) {
+        val remainingHours = remember { context.config.root.streaksReminder.remainingHours.get() }
+
         LazyColumn(
             modifier = Modifier
                 .padding(2.dp)
@@ -213,7 +215,7 @@ class SocialSection : Section() {
                                             imageVector = ImageVector.vectorResource(id = R.drawable.streak_icon),
                                             contentDescription = null,
                                             modifier = Modifier.height(40.dp),
-                                            tint = if (streaks.isAboutToExpire())
+                                            tint = if (streaks.isAboutToExpire(remainingHours))
                                                 MaterialTheme.colorScheme.error
                                             else MaterialTheme.colorScheme.primary
                                         )
