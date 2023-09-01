@@ -5,6 +5,17 @@ import me.rhunk.snapenhance.core.config.ConfigFlag
 import me.rhunk.snapenhance.core.config.FeatureNotice
 
 class DownloaderConfig : ConfigContainer() {
+    inner class FFMpegOptions : ConfigContainer() {
+        val threads = integer("threads", 1)
+        val preset = unique("preset", "ultrafast", "superfast", "veryfast", "faster", "fast", "medium", "slow", "slower", "veryslow") {
+            addFlags(ConfigFlag.NO_TRANSLATE)
+        }
+        val constantRateFactor = integer("constant_rate_factor", 30)
+        val videoBitrate = integer("video_bitrate", 5000)
+        val customVideoCodec = string("custom_video_codec") { addFlags(ConfigFlag.NO_TRANSLATE) }
+        val customAudioCodec = string("custom_audio_codec") { addFlags(ConfigFlag.NO_TRANSLATE) }
+    }
+
     val saveFolder = string("save_folder") { addFlags(ConfigFlag.FOLDER) }
     val autoDownloadSources = multiple("auto_download_sources",
         "friend_snaps",
@@ -26,7 +37,11 @@ class DownloaderConfig : ConfigContainer() {
     val forceImageFormat = unique("force_image_format", "jpg", "png", "webp") {
         addFlags(ConfigFlag.NO_TRANSLATE)
     }
+    val forceVoiceNoteFormat = unique("force_voice_note_format", "aac", "mp3", "opus") {
+        addFlags(ConfigFlag.NO_TRANSLATE)
+    }
     val chatDownloadContextMenu = boolean("chat_download_context_menu")
+    val ffmpegOptions = container("ffmpeg_options", FFMpegOptions()) { addNotices(FeatureNotice.UNSTABLE) }
     val logging = multiple("logging", "started", "success", "progress", "failure").apply {
         set(mutableListOf("started", "success"))
     }

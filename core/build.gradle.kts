@@ -37,7 +37,6 @@ dependencies {
     implementation(libs.kotlin.reflect)
     implementation(libs.recyclerview)
     implementation(libs.gson)
-    implementation(libs.ffmpeg.kit)
     implementation(libs.okhttp)
     implementation(libs.androidx.documentfile)
 

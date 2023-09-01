@@ -5,7 +5,8 @@ data class DashOptions(val offsetTime: Long, val duration: Long?)
 data class InputMedia(
     val content: String,
     val type: DownloadMediaType,
-    val encryption: MediaEncryptionKeyPair? = null
+    val encryption: MediaEncryptionKeyPair? = null,
+    val messageContentType: String? = null,
 )
 
 class DownloadRequest(

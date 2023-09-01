@@ -473,9 +473,10 @@ class MediaDownloader : MessagingRuleFeature("MediaDownloader", MessagingRuleTyp
                     mediaAuthor = authorName,
                     friendInfo = friendInfo
                 ).downloadSingleMedia(
-                    Base64.UrlSafe.encode(urlProto),
-                    DownloadMediaType.PROTO_MEDIA,
-                    encryption = encryptionKeys?.toKeyPair()
+                    mediaData = Base64.UrlSafe.encode(urlProto),
+                    mediaType = DownloadMediaType.PROTO_MEDIA,
+                    encryption = encryptionKeys?.toKeyPair(),
+                    messageContentType = contentType
                 )
                 return
             }

@@ -115,9 +115,43 @@
                         "name": "Force Image Format",
                         "description": "Forces images to be saved as a specific format"
                     },
+                    "force_voice_note_format": {
+                        "name": "Force Voice Note Format",
+                        "description": "Forces voice notes to be saved as a specific format"
+                    },
                     "chat_download_context_menu": {
                         "name": "Chat Download Context Menu",
                         "description": "Allows to download messages from a conversation by long pressing them"
+                    },
+                    "ffmpeg_options": {
+                        "name": "FFmpeg Options",
+                        "description": "Specify additional FFmpeg options",
+                        "properties": {
+                            "threads": {
+                                "name": "Threads",
+                                "description": "The amount of threads to use"
+                            },
+                            "preset": {
+                                "name": "Preset",
+                                "description": "Set the speed of the conversion"
+                            },
+                            "constant_rate_factor": {
+                                "name": "Constant Rate Factor",
+                                "description": "Set the constant rate factor for the video encoder\nFrom 0 to 51 for libx264 (lower to higher quality)"
+                            },
+                            "video_bitrate": {
+                                "name": "Video Bitrate",
+                                "description": "Set the video bitrate (in kbps)"
+                            },
+                            "custom_video_codec": {
+                                "name": "Custom Video Codec",
+                                "description": "Set a custom video codec (e.g. libx264)"
+                            },
+                            "custom_audio_codec": {
+                                "name": "Custom Audio Codec",
+                                "description": "Set a custom audio codec (e.g. aac)"
+                            }
+                        }
                     },
                     "logging": {
                         "name": "Logging",

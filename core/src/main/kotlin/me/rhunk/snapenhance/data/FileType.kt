@@ -1,5 +1,6 @@
 package me.rhunk.snapenhance.data
 
+import me.rhunk.snapenhance.Logger
 import java.io.File
 import java.io.InputStream
 
@@ -14,6 +15,8 @@ enum class FileType(
     PNG("png", "image/png", false, true, false),
     MP4("mp4", "video/mp4", true, false, false),
     MP3("mp3", "audio/mp3",false, false, true),
+    OPUS("opus", "audio/opus", false, false, true),
+    AAC("aac", "audio/aac", false, false, true),
     JPG("jpg", "image/jpg",false, true, false),
     ZIP("zip", "application/zip", false, false, false),
     WEBP("webp", "image/webp", false, true, false),
@@ -25,9 +28,12 @@ enum class FileType(
             "52494646" to WEBP,
             "504b0304" to ZIP,
             "89504e47" to PNG,
-            "00000020" to  MP4,
+            "00000020" to MP4,
             "00000018" to MP4,
             "0000001c" to MP4,
+            "494433" to MP3,
+            "4f676753" to OPUS,
+            "fff15" to AAC,
             "ffd8ff" to JPG,
         )
 
@@ -55,7 +61,9 @@ enum class FileType(
             val headerBytes = ByteArray(16)
             System.arraycopy(array, 0, headerBytes, 0, 16)
             val hex = bytesToHex(headerBytes)
-            return fileSignatures.entries.firstOrNull { hex.startsWith(it.key) }?.value ?: UNKNOWN
+            return fileSignatures.entries.firstOrNull { hex.startsWith(it.key) }?.value ?: UNKNOWN.also {
+                Logger.directDebug("unknown file type, header: $hex", "FileType")
+            }
         }
 
         fun fromInputStream(inputStream: InputStream): FileType {

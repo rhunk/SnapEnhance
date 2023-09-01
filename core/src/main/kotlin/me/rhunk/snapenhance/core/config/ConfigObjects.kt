@@ -65,6 +65,7 @@ class PropertyValue<T>(
 
     fun isSet() = value != null
     fun getNullable() = value?.takeIf { it != "null" }
+    fun isEmpty() = value == null || value == "null" || value.toString().isEmpty()
     fun get() = getNullable() ?: throw IllegalStateException("Property is not set")
     fun set(value: T?) { this.value = value }
     @Suppress("UNCHECKED_CAST")

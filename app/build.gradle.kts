@@ -101,6 +101,7 @@ dependencies {
     implementation(libs.gson)
     implementation(libs.coil.compose)
     implementation(libs.coil.video)
+    implementation(libs.ffmpeg.kit)
     implementation(libs.osmdroid.android)
 
     debugImplementation("androidx.compose.ui:ui-tooling:1.4.3")

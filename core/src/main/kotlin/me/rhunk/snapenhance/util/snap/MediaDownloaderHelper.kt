@@ -1,8 +1,5 @@
 package me.rhunk.snapenhance.util.snap
 
-import com.arthenica.ffmpegkit.FFmpegKit
-import com.arthenica.ffmpegkit.FFmpegSession
-import kotlinx.coroutines.suspendCancellableCoroutine
 import me.rhunk.snapenhance.Constants
 import me.rhunk.snapenhance.core.download.data.SplitMediaAssetType
 import me.rhunk.snapenhance.data.ContentType
@@ -10,10 +7,8 @@ import me.rhunk.snapenhance.data.FileType
 import me.rhunk.snapenhance.util.download.RemoteMediaResolver
 import me.rhunk.snapenhance.util.protobuf.ProtoReader
 import java.io.ByteArrayInputStream
-import java.io.File
 import java.io.FileNotFoundException
 import java.io.InputStream
-import java.util.concurrent.Executors
 import java.util.zip.ZipInputStream
 
 
@@ -68,44 +63,5 @@ object MediaDownloaderHelper {
         }
 
         return mapOf(SplitMediaAssetType.ORIGINAL to content)
-    }
-
-
-    private suspend fun runFFmpegAsync(vararg args: String) = suspendCancellableCoroutine<FFmpegSession> {
-        FFmpegKit.executeAsync(args.joinToString(" "), { session ->
-            it.resumeWith(
-                if (session.returnCode.isValueSuccess) {
-                    Result.success(session)
-                } else {
-                    Result.failure(Exception(session.output))
-                }
-            )
-        },
-            Executors.newSingleThreadExecutor())
-    }
-
-    //TODO: implement setting parameters
-
-    suspend fun downloadDashChapterFile(
-        dashPlaylist: File,
-        output: File,
-        startTime: Long,
-        duration: Long?) {
-        runFFmpegAsync(
-            "-y", "-i", dashPlaylist.absolutePath, "-ss", "'${startTime}ms'", *(if (duration != null) arrayOf("-t", "'${duration}ms'") else arrayOf()),
-            "-c:v", "libx264", "-preset", "ultrafast", "-threads", "6", "-q:v", "13", output.absolutePath
-        )
-    }
-
-    suspend fun mergeOverlayFile(
-        media: File,
-        overlay: File,
-        output: File
-    ) {
-        runFFmpegAsync(
-            "-y", "-i", media.absolutePath, "-i", overlay.absolutePath,
-            "-filter_complex", "\"[0]scale2ref[img][vid];[img]setsar=1[img];[vid]nullsink;[img][1]overlay=(W-w)/2:(H-h)/2,scale=2*trunc(iw*sar/2):2*trunc(ih/2)\"",
-            "-c:v", "libx264", "-b:v", "5M", "-c:a", "copy", "-preset", "ultrafast", "-threads", "6", output.absolutePath
-        )
     }
 }

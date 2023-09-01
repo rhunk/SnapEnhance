@@ -27,7 +27,6 @@ import me.rhunk.snapenhance.core.download.data.DownloadStage
 import me.rhunk.snapenhance.core.download.data.InputMedia
 import me.rhunk.snapenhance.core.download.data.MediaEncryptionKeyPair
 import me.rhunk.snapenhance.util.download.RemoteMediaResolver
-import me.rhunk.snapenhance.util.snap.MediaDownloaderHelper
 import java.io.File
 import java.io.InputStream
 import java.net.HttpURLConnection
@@ -63,9 +62,8 @@ class DownloadProcessor (
         remoteSideContext.translation.getCategory("download_processor")
     }
 
-    private val gson by lazy {
-        GsonBuilder().setPrettyPrinting().create()
-    }
+    private val ffmpegProcessor by lazy { FFMpegProcessor(remoteSideContext.config.root.downloader.ffmpegOptions) }
+    private val gson by lazy { GsonBuilder().setPrettyPrinting().create() }
 
     private fun fallbackToast(message: Any) {
         android.os.Handler(remoteSideContext.androidContext.mainLooper).post {
@@ -251,6 +249,21 @@ class DownloadProcessor (
             val media = downloadedMedias[inputMedia]!!
 
             if (!downloadRequest.isDashPlaylist) {
+                if (inputMedia.messageContentType == "NOTE") {
+                    remoteSideContext.config.root.downloader.forceVoiceNoteFormat.getNullable()?.let { format ->
+                        val outputFile = File.createTempFile("voice_note", ".$format")
+                        ffmpegProcessor.execute(FFMpegProcessor.Request(
+                            action = FFMpegProcessor.Action.AUDIO_CONVERSION,
+                            input = media.file,
+                            output = outputFile
+                        ))
+                        media.file.delete()
+                        saveMediaToGallery(outputFile, downloadObjectObject)
+                        outputFile.delete()
+                        return
+                    }
+                }
+
                 saveMediaToGallery(media.file, downloadObjectObject)
                 media.file.delete()
                 return
@@ -275,11 +288,13 @@ class DownloadProcessor (
             callbackOnProgress(translation.format("download_toast", "path" to dashPlaylistFile.nameWithoutExtension))
             val outputFile = File.createTempFile("dash", ".mp4")
             runCatching {
-                MediaDownloaderHelper.downloadDashChapterFile(
-                    dashPlaylist = dashPlaylistFile,
+                ffmpegProcessor.execute(FFMpegProcessor.Request(
+                    action = FFMpegProcessor.Action.DOWNLOAD_DASH,
+                    input = dashPlaylistFile,
                     output = outputFile,
                     startTime = dashOptions.offsetTime,
-                    duration = dashOptions.duration)
+                    duration = dashOptions.duration
+                ))
                 saveMediaToGallery(outputFile, downloadObjectObject)
             }.onFailure { exception ->
                 if (coroutineContext.job.isCancelled) return@onFailure
@@ -370,11 +385,12 @@ class DownloadProcessor (
                         callbackOnProgress(translation.format("download_toast", "path" to media.file.nameWithoutExtension))
                         downloadObjectObject.downloadStage = DownloadStage.MERGING
 
-                        MediaDownloaderHelper.mergeOverlayFile(
-                            media = renamedMedia,
-                            overlay = renamedOverlayMedia,
-                            output = mergedOverlay
-                        )
+                        ffmpegProcessor.execute(FFMpegProcessor.Request(
+                            action = FFMpegProcessor.Action.MERGE_OVERLAY,
+                            input = renamedMedia,
+                            output = mergedOverlay,
+                            overlay = renamedOverlayMedia
+                        ))
 
                         saveMediaToGallery(mergedOverlay, downloadObjectObject)
                     }.onFailure { exception ->
