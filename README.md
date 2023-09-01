@@ -57,7 +57,7 @@ Although using this in an unrooted enviroment using something like LSPatch shoul
   <summary>UI & Tweaks</summary>
 
   - Disable Camera
-  - Immersive Camera Preview (Fix Snapchat's camera bug)
+  - Immersive Camera Preview (Fix Snapchats camera bug)
   - Hide certain UI Elements
   - Show Streak Expiration Info
   - Disable Snap Splitting

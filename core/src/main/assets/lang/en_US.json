@@ -2,15 +2,15 @@
     "setup": {
         "dialogs": {
             "select_language": "Select Language",
-            "save_folder": "For downloading snapchat media, you'll need to choose a save location. This can be changed later in the application settings.",
-            "select_save_folder_button": "Select Save Folder",
-            "mappings": "To support a wide range of versions, mappings need to be generated for the current snapchat version."
+            "save_folder": "SnapEnhance requires Storage permissions to download and Save Media from Snapchat.\nPlease choose the location where media should be downloaded to.",
+            "select_save_folder_button": "Select Folder",
+            "mappings": "To dynamically support a wide range of Snapchat Versions, mappings are necessary for SnapEnhance to function properly, this should not take more than 5 seconds."
         },
         "mappings": {
-            "dialog": "To support a wide range of versions, mappings need to be generated for the current snapchat version.",
+            "dialog": "To dynamically support a wide range of Snapchat Versions, mappings are necessary for SnapEnhance to function properly, this should not take more than 5 seconds.",
             "generate_button": "Generate",
-            "generate_failure_no_snapchat": "Snapchat could not be found on your device. Please install Snapchat and try again.",
-            "generate_failure": "An error occurred while generating mappings. Please try again.",
+            "generate_failure_no_snapchat": "SnapEnhance was unable to detect Snapchat, please try reinstalling Snapchat.",
+            "generate_failure": "An error occurred while trying to generate mappings, please try again.",
             "generate_success": "Mappings generated successfully."
         }
     },
@@ -38,7 +38,7 @@
         "properties": {
             "auto_download": {
                 "name": "Auto download",
-                "description": "Auto download snaps when viewed",
+                "description": "Automatically download Snaps when viewing them",
                 "options": {
                     "blacklist": "Exclude from Auto Download",
                     "whitelist": "Auto Download"
@@ -48,20 +48,20 @@
                 "name": "Stealth Mode",
                 "description": "Prevents anyone from knowing you've opened their Snaps/Chats and conversations",
                 "options": {
-                    "blacklist": "Exclude from stealth mode",
+                    "blacklist": "Exclude from Stealth Mode",
                     "whitelist": "Stealth mode"
                 }
             },
             "auto_save": {
                 "name": "Auto Save",
-                "description": "Saves chat messages when viewed",
+                "description": "Saves Chat Messages when viewing them",
                 "options": {
-                    "blacklist": "Exclude from auto save",
+                    "blacklist": "Exclude from Auto save",
                     "whitelist": "Auto save"
                 }
             },
             "hide_chat_feed": {
-                "name": "Hide from chat feed"
+                "name": "Hide from Chat feed"
             }
         }
     },
@@ -72,15 +72,15 @@
         "refresh_mappings": "Refresh Mappings",
         "open_map": "Choose location on map",
         "check_for_updates": "Check for updates",
-        "export_chat_messages": "Export chat messages"
+        "export_chat_messages": "Export Chat Messages"
     },
 
     "features": {
         "notices": {
-            "unstable": "This is unstable and may not work as expected",
-            "may_ban": "This may get you banned\nUse at your own risk",
+            "unstable": "This feature is unstable and may cause issues",
+            "may_ban": "This feature may cause bans",
             "may_break_internal_behavior": "This may break Snapchat internal behavior",
-            "may_cause_crashes": "This may cause crashes"
+            "may_cause_crashes": "This may cause instability"
         },
         "properties": {
             "downloader": {
@@ -89,7 +89,7 @@
                 "properties": {
                     "save_folder": {
                         "name": "Save Folder",
-                        "description": "The directory where all media is saved"
+                        "description": "Select the directory to which all media should be downloaded to"
                     },
                     "auto_download_sources": {
                         "name": "Auto Download Sources",
@@ -101,7 +101,7 @@
                     },
                     "path_format": {
                         "name": "Path Format",
-                        "description": "Specify the file path format"
+                        "description": "Specify the File Path Format"
                     },
                     "allow_duplicate": {
                         "name": "Allow Duplicate",
@@ -109,19 +109,19 @@
                     },
                     "merge_overlays": {
                         "name": "Merge Overlays",
-                        "description": "Combines the text and the media of a Snap into a single file"
+                        "description": "Combines the Text and the media of a Snap into a single file"
                     },
                     "force_image_format": {
                         "name": "Force Image Format",
-                        "description": "Forces images to be saved as a specific format"
+                        "description": "Forces images to be saved in a specified Format"
                     },
                     "force_voice_note_format": {
                         "name": "Force Voice Note Format",
-                        "description": "Forces voice notes to be saved as a specific format"
+                        "description": "Forces Voice Notes to be saved in a specified Format"
                     },
                     "chat_download_context_menu": {
                         "name": "Chat Download Context Menu",
-                        "description": "Allows to download messages from a conversation by long pressing them"
+                        "description": "Allows you to download media from a conversation by long-pressing them"
                     },
                     "ffmpeg_options": {
                         "name": "FFmpeg Options",
@@ -137,23 +137,23 @@
                             },
                             "constant_rate_factor": {
                                 "name": "Constant Rate Factor",
-                                "description": "Set the constant rate factor for the video encoder\nFrom 0 to 51 for libx264 (lower to higher quality)"
+                                "description": "Set the constant rate factor for the video encoder\nFrom 0 to 51 for libx264"
                             },
                             "video_bitrate": {
                                 "name": "Video Bitrate",
-                                "description": "Set the video bitrate (in kbps)"
+                                "description": "Set the video bitrate (kbps)"
                             },
                             "audio_bitrate": {
                                 "name": "Audio Bitrate",
-                                "description": "Set the audio bitrate (in kbps)"
+                                "description": "Set the audio bitrate (kbps)"
                             },
                             "custom_video_codec": {
                                 "name": "Custom Video Codec",
-                                "description": "Set a custom video codec (e.g. libx264)"
+                                "description": "Set a custom Video Codec (e.g. libx264)"
                             },
                             "custom_audio_codec": {
                                 "name": "Custom Audio Codec",
-                                "description": "Set a custom audio codec (e.g. aac)"
+                                "description": "Set a custom Audio Codec (e.g. AAC)"
                             }
                         }
                     },
@@ -169,19 +169,19 @@
                 "properties": {
                     "enable_app_appearance": {
                         "name": "Enable App Appearance Settings",
-                        "description": "Enables the hidden app appearance settings"
+                        "description": "Enables the hidden App Appearance Setting\nMay not be required on newer Snapchat versions"
                     },
                     "amoled_dark_mode": {
                         "name": "AMOLED Dark Mode",
-                        "description": "Enables AMOLED dark mode\nMake sure Snapchat's dark mode is enabled"
+                        "description": "Enables AMOLED dark mode\nMake sure Snapchats Dark mode is enabled"
                     },
                     "map_friend_nametags": {
                         "name": "Enhanced Friend Map Nametags",
-                        "description": "Enhances the nametags of friends on the map"
+                        "description": "Improves the Nametags of friends on the Snapmap"
                     },
                     "streak_expiration_info": {
                         "name": "Show Streak Expiration Info",
-                        "description": "Shows Streak expiration info next to streaks"
+                        "description": "Shows a Streak Expiration timer next to the Streaks counter"
                     },
                     "hide_story_sections": {
                         "name": "Hide Story Section",
@@ -227,19 +227,19 @@
                     },
                     "hide_bitmoji_presence": {
                         "name": "Hide Bitmoji Presence",
-                        "description": "Hides your Bitmoji presence from the chat"
+                        "description": "Prevents your Bitmoji from popping up while in Chat"
                     },
                     "hide_typing_notifications": {
                         "name": "Hide Typing Notifications",
-                        "description": "Prevents anyone from knowing you're typing in a conversation"
+                        "description": "Prevents anyone from knowing you're typing a message"
                     },
                     "unlimited_snap_view_time": {
                         "name": "Unlimited Snap View Time",
-                        "description": "Removes the time limit for viewing Snaps"
+                        "description": "Removes the Time Limit for viewing Snaps"
                     },
                     "disable_replay_in_ff": {
                         "name": "Disable Replay in FF",
-                        "description": "Disables the ability to replay with a long press from the friend feed"
+                        "description": "Disables the ability to replay with a long press from the Friend Feed"
                     },
                     "prevent_message_sending": {
                         "name": "Prevent Message Sending",
@@ -251,33 +251,33 @@
                     },
                     "notification_blacklist": {
                         "name": "Notification Blacklist",
-                        "description": "Select the notifications to be blocked"
+                        "description": "Select notifications which should get blocked"
                     },
                     "message_logger": {
                         "name": "Message Logger",
-                        "description": "Keeps messages when someone deletes them. This only works for messages deleted after enabling this feature"
+                        "description": "Prevents messages from being deleted"
                     },
                     "auto_save_messages_in_conversations": {
                         "name": "Auto Save Messages",
-                        "description": "Automatically saves messages in conversations"
+                        "description": "Automatically saves every message in conversations"
                     },
                     "gallery_media_send_override": {
                         "name": "Gallery Media Send Override",
-                        "description": "Convert a gallery media to a specific media type before it's sent"
+                        "description": "Spoofs the media source when sending from the Gallery"
                     },
                     "message_preview_length": {
                         "name": "Message Preview Length",
-                        "description": "Specify the amount of messages to be previewed"
+                        "description": "Specify the amount of messages to get previewed"
                     }
                 }
             },
             "global": {
                 "name": "Global",
-                "description": "Tweak Snapchat globally",
+                "description": "Tweak Snapchat Globally",
                 "properties": {
                     "snapchat_plus": {
                         "name": "Snapchat Plus",
-                        "description": "Enables Snapchat Plus features (some features may not work)"
+                        "description": "Enables Snapchat Plus features\nSome Server-sided features may not work"
                     },
                     "auto_updater": {
                         "name": "Auto Updater",
@@ -285,15 +285,15 @@
                     },
                     "disable_metrics": {
                         "name": "Disable Metrics",
-                        "description": "Disables some analytics data sent to Snapchat"
+                        "description": "Blocks sending specific analytic data to Snapchat"
                     },
                     "block_ads": {
                         "name": "Block Ads",
-                        "description": "Prevent ads from being displayed"
+                        "description": "Prevents Advertisements from being displayed"
                     },
                     "disable_video_length_restrictions": {
                         "name": "Disable Video Length Restrictions",
-                        "description": "Prevents Snapchat from blocking videos that are too long"
+                        "description": "Disables Snapchat's maximum video length restriction"
                     },
                     "disable_google_play_dialogs": {
                         "name": "Disable Google Play Services Dialogs",
@@ -301,17 +301,17 @@
                     },
                     "force_media_source_quality": {
                         "name": "Force Media Source Quality",
-                        "description": "Overrides the media quality to the highest possible"
+                        "description": "Forces Snapchat's Media Quality to the specified value"
                     },
                     "disable_snap_splitting": {
                         "name": "Disable Snap Splitting",
-                        "description": "Prevents Snaps from being split into multiple parts. It also convert sent images into videos"
+                        "description": "Prevents Snaps from being split into multiple parts\nPictures you send will turn into videos"
                     }
                 }
             },
             "rules": {
                 "name": "Rules",
-                "description": "Manage automatic features\nThe social tab lets you assign a rule to an object"
+                "description": "Manage Automatic Features\nThe social tab lets you assign a rule to an object"
             },
             "camera": {
                 "name": "Camera",
@@ -323,11 +323,11 @@
                     },
                     "immersive_camera_preview": {
                         "name": "Immersive Preview",
-                        "description": "Stops Snapchat from cropping the camera preview. It might cause flickering on some devices"
+                        "description": "Prevents Snapchat from Cropping the Camera preview\nThis might cause the camera to flicker on some devices"
                     },
                     "override_preview_resolution": {
                         "name": "Override Preview Resolution",
-                        "description": "Overrides the camera preview resolution"
+                        "description": "Overrides the Camera Preview Resolution"
                     },
                     "override_picture_resolution": {
                         "name": "Override Picture Resolution",
@@ -349,11 +349,11 @@
                 "properties": {
                     "interval": {
                         "name": "Interval",
-                        "description": "The interval between each reminder (in hours)"
+                        "description": "The interval between each reminder (hours)"
                     },
                     "remaining_hours": {
-                        "name": "Remaining Hours",
-                        "description": "The remaining hours before the notification is shown"
+                        "name": "Remaining Time",
+                        "description": "The remaining amount of time before the notification is shown"
                     },
                     "group_notifications": {
                         "name": "Group Notifications",
@@ -367,21 +367,21 @@
                 "properties": {
                     "native_hooks": {
                         "name": "Native Hooks",
-                        "description": "Unsafe features that hook into Snapchat's native code",
+                        "description": "Unsafe Features that hook into Snapchat's native code",
                         "properties": {
                             "disable_bitmoji": {
                                 "name": "Disable Bitmoji",
-                                "description": "Disables friends profile bitmoji"
+                                "description": "Disables Friends Profile Bitmoji"
                             },
                             "fix_gallery_media_override": {
                                 "name": "Fix Gallery Media Override",
-                                "description": "Fixes various issues with the Gallery Media Send Override feature (e.g. save snaps in chat)"
+                                "description": "Fixes various issues with the Gallery Media Send Override feature (e.g. Save Snaps in chat)"
                             }
                         }
                     },
                     "spoof": {
                         "name": "Spoof",
-                        "description": "Spoof your information",
+                        "description": "Spoof various information about you",
                         "properties": {
                             "location": {
                                 "name": "Location",
@@ -389,7 +389,7 @@
                             },
                             "device": {
                                 "name": "Device",
-                                "description": "Spoof your device"
+                                "description": "Spoof your device information"
                             }
                         }
                     },
@@ -403,7 +403,7 @@
                     },
                     "infinite_story_boost": {
                         "name": "Infinite Story Boost",
-                        "description": "Bypass the story boost limit delay"
+                        "description": "Bypass the Story Boost Limit delay"
                     },
                     "meo_passcode_bypass": {
                         "name": "My Eyes Only Passcode Bypass",
@@ -411,15 +411,15 @@
                     },
                     "unlimited_multi_snap": {
                         "name": "Unlimited Multi Snap",
-                        "description": "Allows you to take an unlimited amount of multi snaps"
+                        "description": "Allows you to take an Unlimited Amount of Multi Snaps"
                     },
                     "no_friend_score_delay": {
                         "name": "No Friend Score Delay",
-                        "description": "Removes the delay when viewing a friends score"
+                        "description": "Removes the delay when viewing a Friends Score"
                     },
                     "add_friend_source_spoof": {
                         "name": "Add Friend Source Spoof",
-                        "description": "Spoofs the source of a friend request"
+                        "description": "Spoofs the source of a Friend Request"
                     }
                 }
             }
@@ -427,7 +427,7 @@
         "options": {
             "better_notifications": {
                 "chat": "Show chat messages",
-                "snap": "Show medias",
+                "snap": "Show media",
                 "reply_button": "Add reply button",
                 "download_button": "Add download button",
                 "group": "Group notifications"
@@ -494,7 +494,7 @@
             },
             "auto_updater": {
                 "DISABLED": "Disabled",
-                "EVERY_LAUNCH": "Every Launch",
+                "EVERY_LAUNCH": "On Every Launch",
                 "DAILY": "Daily",
                 "WEEKLY": "Weekly"
             },
@@ -645,8 +645,8 @@
         "processing_toast": "Processing {path}...",
         "failed_generic_toast": "Failed to download",
         "failed_to_create_preview_toast": "Failed to create preview",
-        "failed_processing_toast": "Failed to process {error}",
-        "failed_gallery_toast": "Failed to save to gallery {error}"
+        "failed_processing_toast": "Failed processing {error}",
+        "failed_gallery_toast": "Failed saving to gallery {error}"
     },
     "config_activity": {
         "title": "SnapEnhance Settings",
@@ -658,6 +658,6 @@
     },
     "streaks_reminder": {
         "notification_title": "Streaks",
-        "notification_text": "You will lose streaks with {friend} in {hoursLeft} hours"
+        "notification_text": "You will lose your Streak with {friend} in {hoursLeft} hours"
     }
 }

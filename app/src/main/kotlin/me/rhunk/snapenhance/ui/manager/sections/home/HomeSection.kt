@@ -363,7 +363,7 @@ class HomeSection : Section() {
             }
 
             Text(
-                text = "An xposed module that enhances the Snapchat experience",
+                text = "An Xposed module made to enhance your Snapchat experience",
                 modifier = Modifier.padding(16.dp)
             )
 
