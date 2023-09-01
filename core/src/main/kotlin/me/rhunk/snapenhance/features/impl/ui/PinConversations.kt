@@ -29,7 +29,7 @@ class PinConversations : BridgeFileFeature("PinConversations", BridgeFileType.PI
 
         context.classCache.feedEntry.hookConstructor(HookStage.AFTER) { param ->
             val instance = param.thisObject<Any>()
-            val conversationUUID = SnapUUID(instance.getObjectField("mConversationId"))
+            val conversationUUID = SnapUUID(instance.getObjectField("mConversationId") ?: return@hookConstructor)
             val isPinned = exists(conversationUUID.toString())
             if (isPinned) {
                 instance.setObjectField("mPinnedTimestampMs", 1L)

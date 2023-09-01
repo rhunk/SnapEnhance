@@ -128,6 +128,10 @@ class BridgeService : Service() {
             return remoteSideContext.modDatabase.getRules(uuid).map { it.key }
         }
 
+        override fun getRuleIds(type: String): MutableList<String> {
+            return remoteSideContext.modDatabase.getRuleIds(type)
+        }
+
         override fun setRule(uuid: String, rule: String, state: Boolean) {
             remoteSideContext.modDatabase.setRule(uuid, rule, state)
         }

@@ -61,6 +61,13 @@ interface BridgeInterface {
     List<String> getRules(String uuid);
 
     /**
+    * Get all ids for a specific rule
+    * @param type rule type (MessagingRuleType)
+    * @return list of ids
+    */
+    List<String> getRuleIds(String type);
+
+    /**
     * Update rule for a giver user or conversation
     *
     * @param type rule type (MessagingRuleType)

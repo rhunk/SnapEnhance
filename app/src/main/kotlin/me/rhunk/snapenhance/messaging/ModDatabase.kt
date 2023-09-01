@@ -241,4 +241,14 @@ class ModDatabase(
             ))
         }
     }
+
+    fun getRuleIds(type: String): MutableList<String> {
+        return database.rawQuery("SELECT targetUuid FROM rules WHERE type = ?", arrayOf(type)).use { cursor ->
+            val ruleIds = mutableListOf<String>()
+            while (cursor.moveToNext()) {
+                ruleIds.add(cursor.getStringOrNull("targetUuid")!!)
+            }
+            ruleIds
+        }
+    }
 }

@@ -142,6 +142,10 @@ class BridgeClient(
         return service.getRules(targetUuid).map { MessagingRuleType.getByName(it) }
     }
 
+    fun getRuleIds(ruleType: MessagingRuleType): List<String> {
+        return service.getRuleIds(ruleType.key)
+    }
+
     fun setRule(targetUuid: String, type: MessagingRuleType, state: Boolean)
         = service.setRule(targetUuid, type.key, state)
 }
