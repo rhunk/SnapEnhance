@@ -429,9 +429,9 @@
                 "group": "Group notifications"
             },
             "friend_feed_menu_buttons": {
-                "auto_download_blacklist": "\u2B07\uFE0F Auto Download Blacklist",
-                "anti_auto_save": "\uD83D\uDCAC Anti Auto Save Messages",
-                "stealth_mode": "\uD83D\uDC7B Stealth Mode",
+                "auto_download": "\u2B07\uFE0F Auto Download",
+                "auto_save": "\uD83D\uDCAC Auto Save Messages",
+                "stealth": "\uD83D\uDC7B Stealth Mode",
                 "conversation_info": "\uD83D\uDC64 Conversation Info"
             },
             "path_format": {
