@@ -30,6 +30,7 @@ import me.rhunk.snapenhance.features.impl.tweaks.GooglePlayServicesDialogs
 import me.rhunk.snapenhance.features.impl.tweaks.LocationSpoofer
 import me.rhunk.snapenhance.features.impl.tweaks.MediaQualityLevelOverride
 import me.rhunk.snapenhance.features.impl.tweaks.Notifications
+import me.rhunk.snapenhance.features.impl.tweaks.OldBitmojiSelfie
 import me.rhunk.snapenhance.features.impl.tweaks.SendOverride
 import me.rhunk.snapenhance.features.impl.tweaks.SnapchatPlus
 import me.rhunk.snapenhance.features.impl.tweaks.UnlimitedSnapViewTime
@@ -95,6 +96,7 @@ class FeatureManager(private val context: ModContext) : Manager {
         register(ProfilePictureDownloader::class)
         register(AddFriendSourceSpoof::class)
         register(DisableReplayInFF::class)
+        register(OldBitmojiSelfie::class)
 
         initializeFeatures()
     }

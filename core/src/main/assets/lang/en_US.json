@@ -191,6 +191,10 @@
                         "name": "Hide UI Components",
                         "description": "Select which UI components to hide"
                     },
+                    "2d_bitmoji_selfie": {
+                        "name": "2D Bitmoji Selfie",
+                        "description": "Brings back the 2D selfie from older Snapchat versions\nYou need to clean the Snapchat cache from debug for this to take effect"
+                    },
                     "disable_spotlight": {
                         "name": "Disable Spotlight",
                         "description": "Disables the Spotlight page"

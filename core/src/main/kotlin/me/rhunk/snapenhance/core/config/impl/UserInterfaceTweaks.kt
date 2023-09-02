@@ -24,6 +24,7 @@ class UserInterfaceTweaks : ConfigContainer() {
         "hide_live_location_share_button",
         "hide_call_buttons"
     )
+    val ddBitmojiSelfie = boolean("2d_bitmoji_selfie")
     val disableSpotlight = boolean("disable_spotlight")
     val startupTab = unique("startup_tab",
         "ngs_map_icon_container",
