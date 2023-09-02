@@ -34,7 +34,7 @@ class DownloaderConfig : ConfigContainer() {
         "append_date_time",
     ).apply { set(mutableListOf("append_hash", "append_date_time", "append_type", "append_username")) }
     val allowDuplicate = boolean("allow_duplicate")
-    val mergeOverlays = boolean("merge_overlays") { addNotices(FeatureNotice.MAY_CAUSE_CRASHES) }
+    val mergeOverlays = boolean("merge_overlays") { addNotices(FeatureNotice.UNSTABLE) }
     val forceImageFormat = unique("force_image_format", "jpg", "png", "webp") {
         addFlags(ConfigFlag.NO_TRANSLATE)
     }

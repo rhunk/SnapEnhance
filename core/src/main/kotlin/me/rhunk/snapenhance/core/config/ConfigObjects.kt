@@ -3,7 +3,6 @@ package me.rhunk.snapenhance.core.config
 import me.rhunk.snapenhance.core.bridge.wrapper.LocaleWrapper
 import kotlin.reflect.KProperty
 
-
 data class PropertyPair<T>(
     val key: PropertyKey<T>,
     val value: PropertyValue<*>
@@ -16,9 +15,8 @@ enum class FeatureNotice(
     val key: String
 ) {
     UNSTABLE(0b0001, "unstable"),
-    MAY_BAN(0b0010, "may_ban"),
-    MAY_BREAK_INTERNAL_BEHAVIOR(0b0100, "may_break_internal_behavior"),
-    MAY_CAUSE_CRASHES(0b1000, "may_cause_crashes");
+    BAN_RISK(0b0010, "ban_risk"),
+    INTERNAL_BEHAVIOR(0b0100, "internal_behavior")
 }
 
 enum class ConfigFlag(

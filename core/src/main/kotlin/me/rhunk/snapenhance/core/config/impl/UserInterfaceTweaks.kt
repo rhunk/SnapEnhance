@@ -33,6 +33,6 @@ class UserInterfaceTweaks : ConfigContainer() {
         "ngs_community_icon_container",
         "ngs_spotlight_icon_container",
         "ngs_search_icon_container"
-    ) { addNotices(FeatureNotice.MAY_BREAK_INTERNAL_BEHAVIOR) }
+    ) { addNotices(FeatureNotice.INTERNAL_BEHAVIOR) }
     val storyViewerOverride = unique("story_viewer_override", "DISCOVER_PLAYBACK_SEEKBAR", "VERTICAL_STORY_VIEWER") { addNotices(FeatureNotice.UNSTABLE) }
 }

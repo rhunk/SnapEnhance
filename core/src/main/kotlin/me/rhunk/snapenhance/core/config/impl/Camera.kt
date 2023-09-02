@@ -7,13 +7,13 @@ import me.rhunk.snapenhance.features.impl.tweaks.CameraTweaks
 
 class Camera : ConfigContainer() {
     val disable = boolean("disable_camera")
-    val immersiveCameraPreview = boolean("immersive_camera_preview") { addNotices(FeatureNotice.MAY_CAUSE_CRASHES) }
+    val immersiveCameraPreview = boolean("immersive_camera_preview") { addNotices(FeatureNotice.UNSTABLE) }
     val overridePreviewResolution = unique("override_preview_resolution", *CameraTweaks.resolutions.toTypedArray())
         { addFlags(ConfigFlag.NO_TRANSLATE) }
     val overridePictureResolution = unique("override_picture_resolution", *CameraTweaks.resolutions.toTypedArray())
         { addFlags(ConfigFlag.NO_TRANSLATE) }
     val customFrameRate = unique("custom_frame_rate",
         "5", "10", "20", "25", "30", "48", "60", "90", "120"
-    ) { addNotices(FeatureNotice.MAY_BREAK_INTERNAL_BEHAVIOR); addFlags(ConfigFlag.NO_TRANSLATE) }
+    ) { addNotices(FeatureNotice.UNSTABLE); addFlags(ConfigFlag.NO_TRANSLATE) }
     val forceCameraSourceEncoding = boolean("force_camera_source_encoding")
 }

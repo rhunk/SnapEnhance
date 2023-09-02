@@ -77,15 +77,14 @@
 
     "features": {
         "notices": {
-            "unstable": "This feature is unstable and may cause issues",
-            "may_ban": "This feature may cause bans",
-            "may_break_internal_behavior": "This may break Snapchat internal behavior",
-            "may_cause_crashes": "This may cause instability"
+            "unstable": "\u26A0 Unstable",
+            "ban_risk": "\u26A0 This feature may cause bans",
+            "internal_behavior": "\u26A0 This may break Snapchat internal behavior"
         },
         "properties": {
             "downloader": {
                 "name": "Downloader",
-                "description": "Download Snaps and Stories",
+                "description": "Download Snapchat Media",
                 "properties": {
                     "save_folder": {
                         "name": "Save Folder",
@@ -193,7 +192,7 @@
                     },
                     "2d_bitmoji_selfie": {
                         "name": "2D Bitmoji Selfie",
-                        "description": "Brings back the 2D selfie from older Snapchat versions\nYou need to clean the Snapchat cache from debug for this to take effect"
+                        "description": "Brings back the 2D Bitmoji selfies from older Snapchat versions\nYou may need to clean the Snapchat cache for this to take effect"
                     },
                     "disable_spotlight": {
                         "name": "Disable Spotlight",
@@ -277,7 +276,7 @@
             },
             "global": {
                 "name": "Global",
-                "description": "Tweak Snapchat Globally",
+                "description": "Tweak Global Snapchat Settings",
                 "properties": {
                     "snapchat_plus": {
                         "name": "Snapchat Plus",
@@ -315,7 +314,7 @@
             },
             "rules": {
                 "name": "Rules",
-                "description": "Manage Automatic Features\nThe social tab lets you assign a rule to an object"
+                "description": "Manage Automatic Features for individual people"
             },
             "camera": {
                 "name": "Camera",
@@ -349,7 +348,7 @@
             },
             "streaks_reminder": {
                 "name": "Streaks Reminder",
-                "description": "Reminds you to keep your streaks",
+                "description": "Periodically notifies you about your Streaks",
                 "properties": {
                     "interval": {
                         "name": "Interval",

@@ -76,6 +76,7 @@ import kotlinx.coroutines.launch
 import me.rhunk.snapenhance.core.config.ConfigContainer
 import me.rhunk.snapenhance.core.config.ConfigFlag
 import me.rhunk.snapenhance.core.config.DataProcessors
+import me.rhunk.snapenhance.core.config.FeatureNotice
 import me.rhunk.snapenhance.core.config.PropertyKey
 import me.rhunk.snapenhance.core.config.PropertyPair
 import me.rhunk.snapenhance.core.config.PropertyValue
@@ -301,6 +302,12 @@ class FeaturesSection : Section() {
     @Composable
     private fun PropertyCard(property: PropertyPair<*>) {
         var clickCallback by remember { mutableStateOf<ClickCallback?>(null) }
+        val noticeColorMap = mapOf(
+            FeatureNotice.UNSTABLE.key to Color(0xFFFFFB87),
+            FeatureNotice.BAN_RISK.key to Color(0xFFFF8585),
+            FeatureNotice.INTERNAL_BEHAVIOR.key to Color(0xFFFFFB87)
+        )
+
         Card(
             modifier = Modifier
                 .fillMaxWidth()
@@ -356,13 +363,12 @@ class FeaturesSection : Section() {
                     }.forEach {
                         Text(
                             text = context.translation["features.notices.${it.key}"],
-                            color = Color.Yellow,
+                            color = noticeColorMap[it.key] ?: Color(0xFFFFFB87),
                             fontSize = 12.sp,
                             lineHeight = 15.sp
                         )
                     }
                 }
-
                 Row(
                     modifier = Modifier
                         .align(Alignment.CenterVertically)

@@ -24,7 +24,7 @@ class MessagingTweaks : ConfigContainer() {
     val notificationBlacklist = multiple("notification_blacklist", *NotificationType.getIncomingValues().map { it.key }.toTypedArray()) {
         customOptionTranslationPath = "features.options.notifications"
     }
-    val messageLogger = boolean("message_logger") { addNotices(FeatureNotice.MAY_CAUSE_CRASHES) }
+    val messageLogger = boolean("message_logger") { addNotices(FeatureNotice.UNSTABLE) }
     val galleryMediaSendOverride = boolean("gallery_media_send_override")
     val messagePreviewLength = integer("message_preview_length", defaultValue = 20)
 }
