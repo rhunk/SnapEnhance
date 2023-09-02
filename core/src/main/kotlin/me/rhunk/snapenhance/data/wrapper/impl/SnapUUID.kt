@@ -9,7 +9,7 @@ import java.util.UUID
 class SnapUUID(obj: Any?) : AbstractWrapper(obj) {
     private val uuidString by lazy { toUUID().toString() }
 
-    val bytes: ByteArray get() = instanceNonNull().getObjectField("mId") as ByteArray
+    private val bytes: ByteArray get() = instanceNonNull().getObjectField("mId") as ByteArray
 
     private fun toUUID(): UUID {
         val buffer = ByteBuffer.wrap(bytes)
@@ -18,6 +18,10 @@ class SnapUUID(obj: Any?) : AbstractWrapper(obj) {
 
     override fun toString(): String {
         return uuidString
+    }
+
+    override fun equals(other: Any?): Boolean {
+        return other is SnapUUID && other.uuidString == uuidString
     }
 
     companion object {

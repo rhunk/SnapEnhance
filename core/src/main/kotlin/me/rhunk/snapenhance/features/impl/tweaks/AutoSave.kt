@@ -67,15 +67,15 @@ class AutoSave : MessagingRuleFeature("Auto Save", MessagingRuleType.AUTO_SAVE, 
         return autoSaveFilter.any { it == contentType }
     }
 
-    private fun canSave(): Boolean {
-        if (autoSaveFilter.isEmpty()) return false
+    private fun canSaveInConversation(targetConversationId: String): Boolean {
+        val messaging = context.feature(Messaging::class)
+        val openedConversationId = messaging.openedConversationUUID?.toString() ?: return false
 
-        with(context.feature(Messaging::class)) {
-            if (openedConversationUUID == null) return@canSave false
-            val conversation = openedConversationUUID.toString()
-            if (context.feature(StealthMode::class).canUseRule(conversation)) return@canSave false
-            if (!canUseRule(conversation)) return@canSave false
-        }
+        if (openedConversationId != targetConversationId) return false
+
+        if (context.feature(StealthMode::class).canUseRule(openedConversationId)) return false
+        if (!canUseRule(openedConversationId)) return false
+
         return true
     }
 
@@ -85,9 +85,11 @@ class AutoSave : MessagingRuleFeature("Auto Save", MessagingRuleType.AUTO_SAVE, 
             context.mappings.getMappedClass("callbacks", "FetchConversationWithMessagesCallback"),
             "onFetchConversationWithMessagesComplete",
             HookStage.BEFORE,
-            { canSave() }
+            { autoSaveFilter.isNotEmpty() }
         ) { param ->
             val conversationId = SnapUUID(param.arg<Any>(0).getObjectField("mConversationId")!!)
+            if (!canSaveInConversation(conversationId.toString())) return@hook
+
             val messages = param.arg<List<Any>>(1).map { Message(it) }
             messages.forEach {
                 if (!canSaveMessage(it)) return@forEach
@@ -102,11 +104,12 @@ class AutoSave : MessagingRuleFeature("Auto Save", MessagingRuleType.AUTO_SAVE, 
             context.mappings.getMappedClass("callbacks", "FetchMessageCallback"),
             "onFetchMessageComplete",
             HookStage.BEFORE,
-            { canSave() }
+            { autoSaveFilter.isNotEmpty() }
         ) { param ->
             val message = Message(param.arg(0))
-            if (!canSaveMessage(message)) return@hook
             val conversationId = message.messageDescriptor.conversationId
+            if (!canSaveInConversation(conversationId.toString())) return@hook
+            if (!canSaveMessage(message)) return@hook
 
             asyncSaveExecutorService.submit {
                 saveMessage(conversationId, message)
@@ -117,20 +120,19 @@ class AutoSave : MessagingRuleFeature("Auto Save", MessagingRuleType.AUTO_SAVE, 
             context.mappings.getMappedClass("callbacks", "SendMessageCallback"),
             "onSuccess",
             HookStage.BEFORE,
-            { canSave() }
+            { autoSaveFilter.isNotEmpty() }
         ) {
             val callback = CallbackBuilder(fetchConversationWithMessagesCallbackClass).build()
             runCatching {
                 fetchConversationWithMessagesPaginatedMethod.invoke(
                     messaging.conversationManager, messaging.openedConversationUUID!!.instanceNonNull(),
                     Long.MAX_VALUE,
-                    3,
+                    10,
                     callback
                 )
             }.onFailure {
                 Logger.xposedLog("failed to save message", it)
             }
         }
-
     }
 }
