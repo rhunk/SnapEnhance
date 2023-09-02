@@ -36,7 +36,7 @@ object ViewAppearanceHelper {
     }
 
     @SuppressLint("DiscouragedApi")
-    fun applyTheme(component: View, componentWidth: Int? = null, hasRadius: Boolean = false) {
+    fun applyTheme(component: View, componentWidth: Int? = null, hasRadius: Boolean = false, isAmoled: Boolean = true) {
         val resources = component.context.resources
         if (sigColorBackgroundSurface == 0 || sigColorTextPrimary == 0) {
             with(component.context.theme) {
@@ -66,9 +66,13 @@ object ViewAppearanceHelper {
                 outlineProvider = null
                 setPadding((40 * scalingFactor).toInt(), 0, (40 * scalingFactor).toInt(), 0)
             }
-            background = StateListDrawable().apply {
-                addState(intArrayOf(), createRoundedBackground(color = sigColorBackgroundSurface, hasRadius))
-                addState(intArrayOf(android.R.attr.state_pressed), createRoundedBackground(color = 0x5395026, hasRadius))
+            if (isAmoled) {
+                background = StateListDrawable().apply {
+                    addState(intArrayOf(), createRoundedBackground(color = sigColorBackgroundSurface, hasRadius))
+                    addState(intArrayOf(android.R.attr.state_pressed), createRoundedBackground(color = 0x5395026, hasRadius))
+                }
+            } else {
+                setBackgroundColor(0x0)
             }
         }
 

@@ -71,7 +71,7 @@ class OperaContextActionMenu : AbstractMenu() {
             val button = Button(childView.getContext())
             button.text = context.translation["opera_context_menu.download"]
             button.setOnClickListener { context.feature(MediaDownloader::class).downloadLastOperaMediaAsync() }
-            applyTheme(button)
+            applyTheme(button, isAmoled = false)
             linearLayout.addView(button)
             (childView as ViewGroup).addView(linearLayout, 0)
         } catch (e: Throwable) {
