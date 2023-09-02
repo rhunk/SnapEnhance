@@ -250,7 +250,9 @@ class HomeSection : Section() {
                             navController.navigate(LOGS_SECTION_ROUTE)
                             showDropDown = false
                         }, text = {
-                            Text(text = "Clear logs")
+                            Text(
+                                text = context.translation["manager.sections.home.logs.clear_logs_button"]
+                            )
                         })
 
                         DropdownMenuItem(onClick = {
@@ -267,7 +269,9 @@ class HomeSection : Section() {
                             }
                             showDropDown = false
                         }, text = {
-                            Text(text = "Export logs")
+                            Text(
+                                text = context.translation["manager.sections.home.logs.export_logs_button"]
+                            )
                         })
                     }
                 }

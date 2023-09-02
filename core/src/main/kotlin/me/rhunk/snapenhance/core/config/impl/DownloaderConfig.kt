@@ -41,6 +41,7 @@ class DownloaderConfig : ConfigContainer() {
     val forceVoiceNoteFormat = unique("force_voice_note_format", "aac", "mp3", "opus") {
         addFlags(ConfigFlag.NO_TRANSLATE)
     }
+    val downloadProfilePictures = boolean("download_profile_pictures")
     val chatDownloadContextMenu = boolean("chat_download_context_menu")
     val ffmpegOptions = container("ffmpeg_options", FFMpegOptions()) { addNotices(FeatureNotice.UNSTABLE) }
     val logging = multiple("logging", "started", "success", "progress", "failure").apply {

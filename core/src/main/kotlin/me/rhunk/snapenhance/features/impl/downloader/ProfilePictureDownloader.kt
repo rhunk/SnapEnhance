@@ -16,6 +16,8 @@ import java.nio.ByteBuffer
 class ProfilePictureDownloader : Feature("ProfilePictureDownloader", loadParams = FeatureLoadParams.ACTIVITY_CREATE_ASYNC) {
     @SuppressLint("SetTextI18n")
     override fun asyncOnActivityCreate() {
+        if (!context.config.downloader.downloadProfilePictures.get()) return
+
         var friendUsername: String? = null
         var backgroundUrl: String? = null
         var avatarUrl: String? = null
@@ -24,7 +26,7 @@ class ProfilePictureDownloader : Feature("ProfilePictureDownloader", loadParams 
             if (event.view::class.java.name != "com.snap.unifiedpublicprofile.UnifiedPublicProfileView") return@subscribe
 
             event.parent.addView(Button(event.parent.context).apply {
-                text = "Download"
+                text = this@ProfilePictureDownloader.context.translation["profile_picture_downloader.button"]
                 layoutParams = RelativeLayout.LayoutParams(RelativeLayout.LayoutParams.WRAP_CONTENT, RelativeLayout.LayoutParams.WRAP_CONTENT).apply {
                     setMargins(0, 200, 0, 0)
                 }
@@ -32,12 +34,14 @@ class ProfilePictureDownloader : Feature("ProfilePictureDownloader", loadParams 
                     ViewAppearanceHelper.newAlertDialogBuilder(
                         this@ProfilePictureDownloader.context.mainActivity!!
                     ).apply {
-                        setTitle("Download profile picture")
+                        setTitle(this@ProfilePictureDownloader.context.translation["profile_picture_downloader.title"])
                         val choices = mutableMapOf<String, String>()
-                        backgroundUrl?.let { choices["Background"] = it }
-                        avatarUrl?.let { choices["Avatar"] = it }
+                        backgroundUrl?.let { choices["avatar_option"] = it }
+                        avatarUrl?.let { choices["background_option"] = it }
 
-                        setItems(choices.keys.toTypedArray()) { _, which ->
+                        setItems(choices.keys.map {
+                            this@ProfilePictureDownloader.context.translation["profile_picture_downloader.$it"]
+                        }.toTypedArray()) { _, which ->
                             runCatching {
                                 this@ProfilePictureDownloader.context.feature(MediaDownloader::class).downloadProfilePicture(
                                     choices.values.elementAt(which),

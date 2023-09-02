@@ -53,6 +53,9 @@ class AddFriendDialog(
     private val context: RemoteSideContext,
     private val section: SocialSection,
 ) {
+
+    private val translation by lazy { context.translation.getCategory("manager.dialogs.add_friend")}
+
     @Composable
     private fun ListCardEntry(name: String, getCurrentState: () -> Boolean, onState: (Boolean) -> Unit = {}) {
         var currentState by remember { mutableStateOf(getCurrentState()) }
@@ -95,7 +98,7 @@ class AddFriendDialog(
                 .padding(10.dp),
         ) {
             Text(
-                text = "Add Friend or Group",
+                text = translation["title"],
                 fontSize = 23.sp,
                 fontWeight = FontWeight.ExtraBold,
                 modifier = Modifier
@@ -113,7 +116,7 @@ class AddFriendDialog(
                 value = searchKeyword.value,
                 onValueChange = { searchKeyword.value = it },
                 label = {
-                    Text(text = "Search")
+                    Text(text = translation["search_hint"])
                 },
                 modifier = Modifier
                     .weight(1f)
@@ -184,7 +187,7 @@ class AddFriendDialog(
                     ) {
                         if (hasFetchError) {
                             Text(
-                                text = "Failed to fetch data",
+                                text = translation["fetch_error"],
                                 fontSize = 20.sp,
                                 fontWeight = FontWeight.Bold,
                                 modifier = Modifier.padding(bottom = 10.dp, top = 10.dp)
@@ -222,7 +225,7 @@ class AddFriendDialog(
                 ) {
                     item {
                         if (filteredGroups.isEmpty()) return@item
-                        Text(text = "Groups",
+                        Text(text = translation["category_groups"],
                             fontSize = 20.sp,
                             fontWeight = FontWeight.Bold,
                             modifier = Modifier.padding(bottom = 10.dp, top = 10.dp)
@@ -248,7 +251,7 @@ class AddFriendDialog(
 
                     item {
                         if (filteredFriends.isEmpty()) return@item
-                        Text(text = "Friends",
+                        Text(text = translation["category_friends"],
                             fontSize = 20.sp,
                             fontWeight = FontWeight.Bold,
                             modifier = Modifier.padding(bottom = 10.dp, top = 10.dp)

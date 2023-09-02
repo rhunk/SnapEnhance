@@ -210,7 +210,7 @@ class AlertDialogs(
                 horizontalArrangement = Arrangement.SpaceEvenly,
             ) {
                 Button(onClick = { dismiss() }) {
-                    Text(text = "Cancel")
+                    Text(text = translation["button.cancel"])
                 }
                 Button(onClick = {
                     when (property.key.dataType.type) {
@@ -232,7 +232,7 @@ class AlertDialogs(
                     }
                     dismiss()
                 }) {
-                    Text(text = "Ok")
+                    Text(text = translation["button.ok"])
                 }
             }
         }

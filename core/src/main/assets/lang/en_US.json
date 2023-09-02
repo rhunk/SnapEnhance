@@ -12,6 +12,12 @@
             "generate_failure_no_snapchat": "SnapEnhance was unable to detect Snapchat, please try reinstalling Snapchat.",
             "generate_failure": "An error occurred while trying to generate mappings, please try again.",
             "generate_success": "Mappings generated successfully."
+        },
+        "permissions": {
+            "dialog": "To continue you need to fit the following requirements:",
+            "notification_access": "Notification Access",
+            "battery_optimization": "Battery Optimization",
+            "request_button": "Request"
         }
     },
 
@@ -25,8 +31,38 @@
             "social": "Social",
             "plugins": "Plugins"
         },
-        "features": {
-            "disabled": "Disabled"
+        "sections": {
+            "home": {
+                "logs": {
+                    "clear_logs_button": "Clear Logs",
+                    "export_logs_button": "Export Logs"
+                }
+            },
+            "downloads": {
+                "empty_download_list": "(empty)"
+            },
+            "features": {
+                "disabled": "Disabled"
+            },
+            "social": {
+                "rules_title": "Rules",
+                "participants_text": "{count} participants",
+                "not_found": "Not found",
+                "streaks_title": "Streaks",
+                "streaks_length_text": "Length: {length}",
+                "streaks_expiration_short": "{hours}h",
+                "streaks_expiration_text": "Expires in {eta}",
+                "reminder_button": "Set Reminder"
+            }
+        },
+        "dialogs": {
+            "add_friend": {
+                "title": "Add Friend or Group",
+                "search_hint": "Search",
+                "fetch_error": "Failed to fetch data",
+                "category_groups": "Groups",
+                "category_friends": "Friends"
+            }
         }
     },
 
@@ -117,6 +153,10 @@
                     "force_voice_note_format": {
                         "name": "Force Voice Note Format",
                         "description": "Forces Voice Notes to be saved in a specified Format"
+                    },
+                    "download_profile_pictures": {
+                        "name": "Download Profile Pictures",
+                        "description": "Allows you to download Profile Pictures from the profile page"
                     },
                     "chat_download_context_menu": {
                         "name": "Chat Download Context Menu",
@@ -577,16 +617,6 @@
         "birthday": "Birthday : {month} {day}"
     },
 
-    "auto_updater": {
-        "no_update_available": "No Update available!",
-        "dialog_title": "New Update available!",
-        "dialog_message": "There is a new Update for SnapEnhance available! ({version})\n\n{body}",
-        "dialog_positive_button": "Download and Install",
-        "dialog_negative_button": "Cancel",
-        "downloading_toast": "Downloading Update...",
-        "download_manager_notification_title": "Downloading SnapEnhance APK..."
-    },
-
     "chat_export": {
         "select_export_format": "Select the Export Format",
         "select_media_type": "Select Media Types to export",
@@ -610,7 +640,15 @@
         "positive": "Yes",
         "negative": "No",
         "cancel": "Cancel",
-        "open": "Open"
+        "open": "Open",
+        "download": "Download"
+    },
+
+    "profile_picture_downloader": {
+        "button": "Download Profile Picture",
+        "title": "Profile Picture Downloader",
+        "avatar_option": "Avatar",
+        "background_option": "Background"
     },
 
     "download_manager_activity": {

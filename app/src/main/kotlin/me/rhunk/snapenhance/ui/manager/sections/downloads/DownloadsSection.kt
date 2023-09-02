@@ -269,9 +269,13 @@ class DownloadsSection : Section() {
             item {
                 Spacer(Modifier.height(20.dp))
                 if (loadedDownloads.value.isEmpty()) {
-                    Text(text = "(empty)", fontSize = 20.sp, modifier = Modifier
+                    Text(
+                        text = context.translation["manager.sections.downloads.empty_download_list"],
+                        fontSize = 20.sp,
+                        modifier = Modifier
                         .fillMaxWidth()
-                        .padding(10.dp), textAlign = TextAlign.Center)
+                        .padding(10.dp), textAlign = TextAlign.Center
+                    )
                 }
                 LaunchedEffect(Unit) {
                     val lastItemIndex = (loadedDownloads.value.size - 1).takeIf { it >= 0 } ?: return@LaunchedEffect

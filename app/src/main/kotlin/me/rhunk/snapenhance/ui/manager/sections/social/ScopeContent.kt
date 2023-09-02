@@ -40,6 +40,8 @@ class ScopeContent(
     val scope: SocialScope,
     private val id: String
 ) {
+    private val translation by lazy { context.translation.getCategory("manager.sections.social") }
+
     fun deleteScope(coroutineScope: CoroutineScope) {
         when (scope) {
             SocialScope.FRIEND -> context.modDatabase.deleteFriend(id)
@@ -68,7 +70,7 @@ class ScopeContent(
 
             val rules = context.modDatabase.getRules(id)
 
-            SectionTitle("Rules")
+            SectionTitle(translation["rules_title"])
 
             ContentCard {
                 //manager anti features etc
@@ -163,7 +165,7 @@ class ScopeContent(
     private fun Friend() {
         //fetch the friend from the database
         val friend = remember { context.modDatabase.getFriendInfo(id) } ?: run {
-            Text(text = "Friend not found")
+            Text(text = translation["not_found"])
             return
         }
 
@@ -197,9 +199,6 @@ class ScopeContent(
                 fontSize = 12.sp,
                 fontWeight = FontWeight.Light
             )
-           // Spacer(modifier = Modifier.height(16.dp))
-
-            //DeleteScopeEntityButton()
         }
 
         Spacer(modifier = Modifier.height(16.dp))
@@ -207,7 +206,7 @@ class ScopeContent(
             //streaks
             streaks?.let {
                 var shouldNotify by remember { mutableStateOf(it.notify) }
-                SectionTitle("Streaks")
+                SectionTitle(translation["streaks_title"])
                 ContentCard {
                     Row(
                         verticalAlignment = Alignment.CenterVertically
@@ -215,13 +214,13 @@ class ScopeContent(
                         Column(
                             modifier = Modifier.weight(1f),
                         ) {
-                            Text(text = "Length: ${streaks.length}", maxLines = 1)
-                            Text(text = "Expires in: ${computeStreakETA(streaks.expirationTimestamp)}", maxLines = 1)
+                            Text(text = translation.format("streaks_length_text", "count" to streaks.length.toString()), maxLines = 1)
+                            Text(text = translation.format("streaks_expiration_text", "eta" to computeStreakETA(streaks.expirationTimestamp)), maxLines = 1)
                         }
                         Row(
                             verticalAlignment = Alignment.CenterVertically
                         ) {
-                            Text(text = "Reminder", maxLines = 1, modifier = Modifier.padding(end = 10.dp))
+                            Text(text = translation["reminder_button"], maxLines = 1, modifier = Modifier.padding(end = 10.dp))
                             Switch(checked = shouldNotify, onCheckedChange = {
                                 context.modDatabase.setFriendStreaksNotify(id, it)
                                 shouldNotify = it
@@ -237,7 +236,7 @@ class ScopeContent(
     private fun Group() {
         //fetch the group from the database
         val group = remember { context.modDatabase.getGroupInfo(id) } ?: run {
-            Text(text = "Group not found")
+            Text(text = translation["not_found"])
             return
         }
 
@@ -256,7 +255,7 @@ class ScopeContent(
             )
             Spacer(modifier = Modifier.height(5.dp))
             Text(
-                text = "Participants: ${group.participantsCount}",
+                text = translation.format("participants_text", "count" to group.participantsCount.toString()),
                 maxLines = 1,
                 fontSize = 12.sp,
                 fontWeight = FontWeight.Light
