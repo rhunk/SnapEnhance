@@ -587,6 +587,7 @@
     "chat_export": {
         "select_export_format": "Select the Export Format",
         "select_media_type": "Select Media Types to export",
+        "select_amount_of_messages": "Select the amount of messages to export (leave empty for all)",
         "select_conversation": "Select a Conversation to export",
         "dialog_negative_button": "Cancel",
         "dialog_neutral_button": "Export All",

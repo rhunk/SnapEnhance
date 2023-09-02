@@ -2,12 +2,11 @@ package me.rhunk.snapenhance.action.impl
 
 import android.app.AlertDialog
 import android.content.DialogInterface
-import android.content.Intent
-import android.net.Uri
 import android.os.Environment
-import kotlinx.coroutines.DelicateCoroutinesApi
+import android.text.InputType
+import android.widget.EditText
+import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.joinAll
 import kotlinx.coroutines.launch
@@ -24,8 +23,8 @@ import me.rhunk.snapenhance.util.CallbackBuilder
 import me.rhunk.snapenhance.util.export.ExportFormat
 import me.rhunk.snapenhance.util.export.MessageExporter
 import java.io.File
+import kotlin.math.absoluteValue
 
-@OptIn(DelicateCoroutinesApi::class)
 class ExportChatMessages : AbstractAction() {
     private val callbackClass by lazy {  context.mappings.getMappedClass("callbacks", "Callback") }
 
@@ -45,18 +44,27 @@ class ExportChatMessages : AbstractAction() {
         context.feature(Messaging::class).conversationManager
     }
 
+    private val coroutineScope = CoroutineScope(Dispatchers.Default)
+
     private val dialogLogs = mutableListOf<String>()
     private var currentActionDialog: AlertDialog? = null
 
     private var exportType: ExportFormat? = null
     private var mediaToDownload: List<ContentType>? = null
+    private var amountOfMessages: Int? = null
 
     private fun logDialog(message: String) {
         context.runOnUiThread {
-            if (dialogLogs.size > 15) dialogLogs.removeAt(0)
+            if (dialogLogs.size > 10) dialogLogs.removeAt(0)
             dialogLogs.add(message)
-            context.log.debug("dialog: $message")
+            context.log.debug("dialog: $message", "ExportChatMessages")
             currentActionDialog!!.setMessage(dialogLogs.joinToString("\n"))
+        }
+    }
+
+    private fun setStatus(message: String) {
+        context.runOnUiThread {
+            currentActionDialog!!.setTitle(message)
         }
     }
 
@@ -66,6 +74,26 @@ class ExportChatMessages : AbstractAction() {
                 .setTitle(context.translation["chat_export.select_export_format"])
                 .setItems(ExportFormat.values().map { it.name }.toTypedArray()) { _, which ->
                     cont.resumeWith(Result.success(ExportFormat.values()[which]))
+                }
+                .setOnCancelListener {
+                    cont.resumeWith(Result.success(null))
+                }
+                .show()
+        }
+    }
+
+    private suspend fun askAmountOfMessages() = suspendCancellableCoroutine { cont ->
+        coroutineScope.launch(Dispatchers.Main) {
+            val input = EditText(context.mainActivity)
+            input.inputType = InputType.TYPE_CLASS_NUMBER
+            input.setSingleLine()
+            input.maxLines = 1
+
+            ViewAppearanceHelper.newAlertDialogBuilder(context.mainActivity)
+                .setTitle(context.translation["chat_export.select_amount_of_messages"])
+                .setView(input)
+                .setPositiveButton(context.translation["button.ok"]) { _, _ ->
+                    cont.resumeWith(Result.success(input.text.takeIf { it.isNotEmpty() }?.toString()?.toIntOrNull()?.absoluteValue))
                 }
                 .setOnCancelListener {
                     cont.resumeWith(Result.success(null))
@@ -96,7 +124,7 @@ class ExportChatMessages : AbstractAction() {
                 .setOnCancelListener {
                     cont.resumeWith(Result.success(null))
                 }
-                .setPositiveButton("OK") { _, _ ->
+                .setPositiveButton(context.translation["button.ok"]) { _, _ ->
                     cont.resumeWith(Result.success(mediasToDownload))
                 }
                 .show()
@@ -104,11 +132,12 @@ class ExportChatMessages : AbstractAction() {
     }
 
     override fun run() {
-        GlobalScope.launch(Dispatchers.Main) {
+        coroutineScope.launch(Dispatchers.Main) {
             exportType = askExportType() ?: return@launch
             mediaToDownload = if (exportType == ExportFormat.HTML) askMediaToDownload() else null
+            amountOfMessages = askAmountOfMessages()
 
-            val friendFeedEntries = context.database.getFeedEntries(20)
+            val friendFeedEntries = context.database.getFeedEntries(500)
             val selectedConversations = mutableListOf<FriendFeedEntry>()
 
             ViewAppearanceHelper.newAlertDialogBuilder(context.mainActivity)
@@ -177,7 +206,7 @@ class ExportChatMessages : AbstractAction() {
             conversationManagerInstance,
             SnapUUID.fromString(conversationId).instanceNonNull(),
             lastMessageId,
-            100,
+            500,
             callback
         )
     }
@@ -200,10 +229,17 @@ class ExportChatMessages : AbstractAction() {
         while (true) {
             val messages = fetchMessagesPaginated(conversationId, lastMessageId)
             if (messages.isEmpty()) break
+
+            if (amountOfMessages != null && messages.size + foundMessages.size >= amountOfMessages!!) {
+                foundMessages.addAll(messages.take(amountOfMessages!! - foundMessages.size))
+                break
+            }
+
             foundMessages.addAll(messages)
             messages.firstOrNull()?.let {
                 lastMessageId = it.messageDescriptor.messageId
             }
+            setStatus("Exporting (${foundMessages.size} / ${foundMessages.firstOrNull()?.orderKey})")
         }
 
         val outputFile = File(
@@ -212,32 +248,25 @@ class ExportChatMessages : AbstractAction() {
         ).also { it.parentFile?.mkdirs() }
 
         logDialog(context.translation["chat_export.writing_output"])
-        MessageExporter(
-            context = context,
-            friendFeedEntry = friendFeedEntry,
-            outputFile = outputFile,
-            mediaToDownload = mediaToDownload,
-            printLog = ::logDialog
-        ).also {
-            runCatching {
-                it.readMessages(foundMessages)
-            }.onFailure {
-                logDialog(context.translation.format("chat_export.export_failed","conversation" to it.message.toString()))
-                context.log.error("Failed to read messages", it)
-                return
-            }
-        }.exportTo(exportType!!)
+
+        runCatching {
+            MessageExporter(
+                context = context,
+                friendFeedEntry = friendFeedEntry,
+                outputFile = outputFile,
+                mediaToDownload = mediaToDownload,
+                printLog = ::logDialog
+            ).apply { readMessages(foundMessages) }.exportTo(exportType!!)
+        }.onFailure {
+            logDialog(context.translation.format("chat_export.export_failed","conversation" to it.message.toString()))
+            context.log.error("Failed to export conversation $conversationName", it)
+            return
+        }
 
         dialogLogs.clear()
         logDialog("\n" + context.translation.format("chat_export.exported_to",
             "path" to outputFile.absolutePath.toString()
         ) + "\n")
-
-        currentActionDialog?.setButton(DialogInterface.BUTTON_POSITIVE, "Open") { _, _ ->
-            val intent = Intent(Intent.ACTION_VIEW)
-            intent.setDataAndType(Uri.fromFile(outputFile.parentFile), "resource/folder")
-            context.mainActivity!!.startActivity(intent)
-        }
 
         runCatching {
             conversationAction(false, conversationId, null)
@@ -252,19 +281,13 @@ class ExportChatMessages : AbstractAction() {
             .setTitle(context.translation["chat_export.exporting_chats"])
             .setCancelable(false)
             .setMessage("")
-            .setNegativeButton(context.translation["chat_export.dialog_negative_button"]) { dialog, _ ->
-                jobs.forEach { it.cancel() }
-                dialog.dismiss()
-            }
             .create()
         
         val conversationSize = context.translation.format("chat_export.processing_chats", "amount" to conversations.size.toString())
         
         logDialog(conversationSize)
 
-        currentActionDialog!!.show()
-
-        GlobalScope.launch(Dispatchers.Default) {
+        coroutineScope.launch {
             conversations.forEach { conversation ->
                 launch {
                     runCatching {
@@ -278,6 +301,14 @@ class ExportChatMessages : AbstractAction() {
             }
             jobs.joinAll()
             logDialog(context.translation["chat_export.finished"])
+        }.also {
+            currentActionDialog?.setButton(DialogInterface.BUTTON_POSITIVE, context.translation["chat_export.dialog_negative_button"]) { dialog, _ ->
+                it.cancel()
+                jobs.forEach { it.cancel() }
+                dialog.dismiss()
+            }
         }
+
+        currentActionDialog!!.show()
     }
 }

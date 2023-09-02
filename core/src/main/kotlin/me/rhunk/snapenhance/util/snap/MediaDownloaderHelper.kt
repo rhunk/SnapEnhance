@@ -36,8 +36,11 @@ object MediaDownloaderHelper {
         }
     }
 
-    fun downloadMediaFromReference(mediaReference: ByteArray, decryptionCallback: (InputStream) -> InputStream): Map<SplitMediaAssetType, ByteArray> {
-        val inputStream: InputStream = RemoteMediaResolver.downloadBoltMedia(mediaReference) ?: throw FileNotFoundException("Unable to get media key. Check the logs for more info")
+    fun downloadMediaFromReference(
+        mediaReference: ByteArray,
+        decryptionCallback: (InputStream) -> InputStream,
+    ): Map<SplitMediaAssetType, ByteArray> {
+        val inputStream = RemoteMediaResolver.downloadBoltMedia(mediaReference) ?: throw FileNotFoundException("Unable to get media key. Check the logs for more info")
         val content = decryptionCallback(inputStream).readBytes()
         val fileType = FileType.fromByteArray(content)
         val isZipFile = fileType == FileType.ZIP
