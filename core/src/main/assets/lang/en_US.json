@@ -428,11 +428,47 @@
                         "properties": {
                             "location": {
                                 "name": "Location",
-                                "description": "Spoof your location"
+                                "description": "Spoof your location",
+                                "properties": {
+                                    "location_latitude": {
+                                        "name": "Latitude",
+                                        "description": "The latitude of the location"
+                                    },
+                                    "location_longitude": {
+                                        "name": "Longitude",
+                                        "description": "The longitude of the location"
+                                    }
+                                }
                             },
                             "device": {
                                 "name": "Device",
-                                "description": "Spoof your device information"
+                                "description": "Spoof your device information",
+                                "properties": {
+                                    "fingerprint": {
+                                        "name": "Device Fingerprint",
+                                        "description": "Spoofs your device Fingerprint"
+                                    },
+                                    "android_id": {
+                                        "name": "Android ID",
+                                        "description": "SpoofS your Android ID to the specified value"
+                                    },
+                                    "installer_package_name": {
+                                        "name": "Installer Package name",
+                                        "description": "Spoofs the installers Package name"
+                                    },
+                                    "debug_flag": {
+                                        "name": "Debug Flag",
+                                        "description": "Makes Snapchat debuggable"
+                                    },
+                                    "mock_location": {
+                                        "name": "Mock location",
+                                        "description": "Spoofs the Mock Location device state"
+                                    },
+                                    "split_classloader": {
+                                        "name": "Split Classloader",
+                                        "description": "Spoofs splitClassloader\nRequested by org.chromium.base.JNIUtils"
+                                    }
+                                }
                             }
                         }
                     },
