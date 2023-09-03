@@ -15,12 +15,15 @@ class DeviceSpooferHook: Feature("device_spoofer", loadParams = FeatureLoadParam
 		val debugFlag by context.config.experimental.spoof.device.debugFlag
 		val mockLocationState by context.config.experimental.spoof.device.mockLocationState
 		val splitClassLoader by context.config.experimental.spoof.device.splitClassLoader
+		val isLowEndDevice by context.config.experimental.spoof.device.isLowEndDevice
+		val getDataDirectory by context.config.experimental.spoof.device.getDataDirectory
 
 		val settingsSecureClass = android.provider.Settings.Secure::class.java
 		val fingerprintClass = android.os.Build::class.java
 		val packageManagerClass = android.content.pm.PackageManager::class.java
 		val applicationInfoClass = android.content.pm.ApplicationInfo::class.java
 
+		//FINGERPRINT
 		if (fingerprint.isNotEmpty()) {
 			Hooker.hook(fingerprintClass, "FINGERPRINT", HookStage.BEFORE) { hookAdapter ->
 				hookAdapter.setResult(fingerprint)
@@ -32,6 +35,7 @@ class DeviceSpooferHook: Feature("device_spoofer", loadParams = FeatureLoadParam
 			}
 		}
 
+		//ANDROID ID
 		if (androidId.isNotEmpty()) {
 			Hooker.hook(settingsSecureClass, "getString", HookStage.BEFORE) { hookAdapter ->
 				if(hookAdapter.args()[1] == "android_id") {
@@ -68,5 +72,22 @@ class DeviceSpooferHook: Feature("device_spoofer", loadParams = FeatureLoadParam
 				hookAdapter.setResult(splitClassLoader)
 			}
 		}
+
+		//ISLOWENDDEVICE
+		if(isLowEndDevice.isNotEmpty()) {
+			Hooker.hook(context.classCache.chromiumBuildInfo, "getAll", HookStage.BEFORE) { hookAdapter ->
+				hookAdapter.setResult(isLowEndDevice)
+			}
+		}
+
+		//GETDATADIRECTORY
+		if(getDataDirectory.isNotEmpty()) {
+			Hooker.hook(context.classCache.chromiumPathUtils, "getDataDirectory", HookStage.BEFORE) {hookAdapter ->
+				hookAdapter.setResult(getDataDirectory)
+			}
+		}
+
+		//accessibility_enabled
+		
 	}
 }

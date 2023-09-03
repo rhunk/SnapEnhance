@@ -17,6 +17,8 @@ class Spoof : ConfigContainer() {
         val debugFlag = boolean("debug_flag")
         val mockLocationState = boolean("mock_location")
         val splitClassLoader = string("split_classloader")
+        val isLowEndDevice = string("low_end_device")
+        val getDataDirectory = string("get_data_directory")
     }
     val device = container("device", Device()) { addNotices(FeatureNotice.BAN_RISK) }
 }
