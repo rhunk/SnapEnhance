@@ -70,7 +70,9 @@ class SendOverride : Feature("Send Override", loadParams = FeatureLoadParams.INI
 
             context.runOnUiThread {
                 ViewAppearanceHelper.newAlertDialogBuilder(context.mainActivity!!)
-                    .setItems(typeNames.values.toTypedArray()) { dialog, which ->
+                    .setItems(typeNames.values.map {
+                        context.translation["features.options.gallery_media_send_override.$it"]
+                    }.toTypedArray()) { dialog, which ->
                         dialog.dismiss()
                         val overrideType = typeNames.keys.toTypedArray()[which]
 

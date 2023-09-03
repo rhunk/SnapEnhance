@@ -3,8 +3,7 @@
         "dialogs": {
             "select_language": "Select Language",
             "save_folder": "SnapEnhance requires Storage permissions to download and Save Media from Snapchat.\nPlease choose the location where media should be downloaded to.",
-            "select_save_folder_button": "Select Folder",
-            "mappings": "To dynamically support a wide range of Snapchat Versions, mappings are necessary for SnapEnhance to function properly, this should not take more than 5 seconds."
+            "select_save_folder_button": "Select Folder"
         },
         "mappings": {
             "dialog": "To dynamically support a wide range of Snapchat Versions, mappings are necessary for SnapEnhance to function properly, this should not take more than 5 seconds.",
@@ -562,7 +561,7 @@
                 "ORIGINAL": "Original",
                 "NOTE": "Audio Note",
                 "SNAP": "Snap",
-                "LIVE_SNAP": "Snap with audio"
+                "SAVABLE_SNAP": "Savable Snap"
             },
             "hide_ui_components": {
                 "hide_call_buttons": "Remove Call Buttons",
@@ -570,12 +569,6 @@
                 "hide_live_location_share_button": "Remove Live Location Share Button",
                 "hide_stickers_button": "Remove Stickers Button",
                 "hide_voice_record_button": "Remove Voice Record Button"
-            },
-            "auto_updater": {
-                "DISABLED": "Disabled",
-                "EVERY_LAUNCH": "On Every Launch",
-                "DAILY": "Daily",
-                "WEEKLY": "Weekly"
             },
             "story_viewer_override": {
                 "OFF": "Off",
@@ -612,11 +605,6 @@
         "stealth_mode": "Stealth Mode",
         "auto_download_blacklist": "Auto Download Blacklist",
         "anti_auto_save": "Anti Auto Save"
-    },
-
-    "message_context_menu_option": {
-        "download": "Download",
-        "preview": "Preview"
     },
 
     "chat_action_menu": {
@@ -687,31 +675,6 @@
         "background_option": "Background"
     },
 
-    "download_manager_activity": {
-        "remove_all_title": "Remove all Downloads",
-        "remove_all_text": "Are you sure you want to do this?",
-        "remove_all": "Remove All",
-        "no_downloads": "No downloads",
-        "cancel": "Cancel",
-        "file_not_found_toast": "File does not exist!",
-        "category": {
-            "all_category": "All",
-            "pending_category": "Pending",
-            "snap_category": "Snaps",
-            "story_category": "Stories",
-            "spotlight_category": "Spotlight"
-        },
-        "debug_settings": "Debug Settings",
-        "debug_settings_page": {
-            "clear_file_title": "Clear {file_name} file",
-            "clear_file_confirmation": "Are you sure you want to clear the {file_name} file?",
-            "clear_cache_title": "Clear Cache",
-            "reset_all_title": "Reset all settings",
-            "reset_all_confirmation": "Are you sure you want to reset all settings?",
-            "success_toast": "Success!",
-            "device_spoofer": "Device Spoofer"
-        }
-    },
     "download_processor": {
         "download_started_toast": "Download started",
         "unsupported_content_type_toast": "Unsupported content type!",
@@ -726,14 +689,7 @@
         "failed_processing_toast": "Failed processing {error}",
         "failed_gallery_toast": "Failed saving to gallery {error}"
     },
-    "config_activity": {
-        "title": "SnapEnhance Settings",
-        "selected_text": "{count} selected",
-        "invalid_number_toast": "Invalid number!"
-    },
-    "spoof_activity": {
-        "title": "Spoof Settings"
-    },
+
     "streaks_reminder": {
         "notification_title": "Streaks",
         "notification_text": "You will lose your Streak with {friend} in {hoursLeft} hours"

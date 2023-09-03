@@ -83,7 +83,7 @@ data class PropertyKey<T>(
 
     fun propertyOption(translation: LocaleWrapper, key: String): String {
         if (key == "null") {
-            return translation[params.disabledKey ?: "manager.features.disabled"]
+            return translation[params.disabledKey ?: "manager.sections.features.disabled"]
         }
 
         return if (!params.flags.contains(ConfigFlag.NO_TRANSLATE))
