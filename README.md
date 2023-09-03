@@ -93,6 +93,14 @@ When redistributing the software, it must remain under the same [GPLv3](https://
 - BTC: bc1qaqnfn6mauzhmx0e6kkenh2wh4r6js0vh5vel92
 - ETH: 0x0760987491e9de53A73fd87F092Bd432a227Ee92
 
+## Credits
+- [LSPosed](https://github.com/LSPosed/LSPosed)
+- [dexlib2](https://android.googlesource.com/platform/external/smali/+/refs/heads/main/dexlib2/)
+- [ffmpeg-kit-full-gpl](https://github.com/arthenica/ffmpeg-kit)
+- [osmdroid](https://github.com/osmdroid/osmdroid)
+- [coil](https://github.com/coil-kt/coil)
+- [Dobby](https://github.com/jmpews/Dobby)
+
 ## Contributors
 - [rathmerdominik](https://github.com/rathmerdominik)
 - [Flole998](https://github.com/Flole998)
