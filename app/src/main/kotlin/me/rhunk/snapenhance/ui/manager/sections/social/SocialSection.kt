@@ -219,7 +219,11 @@ class SocialSection : Section() {
                                                 MaterialTheme.colorScheme.error
                                             else MaterialTheme.colorScheme.primary
                                         )
-                                        Text(text = context.translation.format("context.sections.social.streaks_expiration_short", "hours" to streaks.length.toString()), maxLines = 1, fontWeight = FontWeight.Bold)
+                                        Text(
+                                            text = context.translation.format("manager.sections.social.streaks_expiration_short", "hours" to ((streaks.expirationTimestamp - System.currentTimeMillis()) / 3600000).toInt().toString()),
+                                            maxLines = 1,
+                                            fontWeight = FontWeight.Bold
+                                        )
                                     }
                                 }
                             }

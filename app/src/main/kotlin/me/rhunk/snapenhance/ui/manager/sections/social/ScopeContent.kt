@@ -58,8 +58,7 @@ class ScopeContent(
     @Composable
     fun Content() {
         Column(
-            modifier = Modifier
-                .verticalScroll(rememberScrollState())
+            modifier = Modifier.verticalScroll(rememberScrollState())
         ) {
             when (scope) {
                 SocialScope.FRIEND -> Friend()
@@ -92,10 +91,12 @@ class ScopeContent(
                             maxLines = 1,
                             modifier = Modifier.weight(1f)
                         )
-                        Switch(checked = ruleEnabled, enabled = if (ruleType.listMode) ruleState != null else true, onCheckedChange = {
-                            context.modDatabase.setRule(id, ruleType.key, it)
-                            ruleEnabled = it
-                        })
+                        Switch(checked = ruleEnabled,
+                            enabled = if (ruleType.listMode) ruleState != null else true,
+                            onCheckedChange = {
+                                context.modDatabase.setRule(id, ruleType.key, it)
+                                ruleEnabled = it
+                            })
                     }
                 }
             }
@@ -180,9 +181,7 @@ class ScopeContent(
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
             val bitmojiUrl = BitmojiSelfie.getBitmojiSelfie(
-                friend.selfieId,
-                friend.bitmojiId,
-                BitmojiSelfie.BitmojiSelfieType.THREE_D
+                friend.selfieId, friend.bitmojiId, BitmojiSelfie.BitmojiSelfieType.THREE_D
             )
             BitmojiImage(context = context, url = bitmojiUrl, size = 100)
             Spacer(modifier = Modifier.height(16.dp))
@@ -214,13 +213,26 @@ class ScopeContent(
                         Column(
                             modifier = Modifier.weight(1f),
                         ) {
-                            Text(text = translation.format("streaks_length_text", "count" to streaks.length.toString()), maxLines = 1)
-                            Text(text = translation.format("streaks_expiration_text", "eta" to computeStreakETA(streaks.expirationTimestamp)), maxLines = 1)
+                            Text(
+                                text = translation.format(
+                                    "streaks_length_text", "length" to streaks.length.toString()
+                                ), maxLines = 1
+                            )
+                            Text(
+                                text = translation.format(
+                                    "streaks_expiration_text",
+                                    "eta" to computeStreakETA(streaks.expirationTimestamp)
+                                ), maxLines = 1
+                            )
                         }
                         Row(
                             verticalAlignment = Alignment.CenterVertically
                         ) {
-                            Text(text = translation["reminder_button"], maxLines = 1, modifier = Modifier.padding(end = 10.dp))
+                            Text(
+                                text = translation["reminder_button"],
+                                maxLines = 1,
+                                modifier = Modifier.padding(end = 10.dp)
+                            )
                             Switch(checked = shouldNotify, onCheckedChange = {
                                 context.modDatabase.setFriendStreaksNotify(id, it)
                                 shouldNotify = it
@@ -248,17 +260,13 @@ class ScopeContent(
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
             Text(
-                text = group.name,
-                maxLines = 1,
-                fontSize = 20.sp,
-                fontWeight = FontWeight.Bold
+                text = group.name, maxLines = 1, fontSize = 20.sp, fontWeight = FontWeight.Bold
             )
             Spacer(modifier = Modifier.height(5.dp))
             Text(
-                text = translation.format("participants_text", "count" to group.participantsCount.toString()),
-                maxLines = 1,
-                fontSize = 12.sp,
-                fontWeight = FontWeight.Light
+                text = translation.format(
+                    "participants_text", "count" to group.participantsCount.toString()
+                ), maxLines = 1, fontSize = 12.sp, fontWeight = FontWeight.Light
             )
         }
     }
