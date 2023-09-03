@@ -101,7 +101,7 @@ class RemoteSideContext(
                     version = it.versionName,
                     versionCode = it.longVersionCode,
                     isLSPatched = it.applicationInfo.appComponentFactory != CoreComponentFactory::class.java.name,
-                    isSplitApk = it.splitNames.isNotEmpty()
+                    isSplitApk = it.splitNames?.isNotEmpty() ?: false
                 )
             },
             modInfo = ModInfo(
