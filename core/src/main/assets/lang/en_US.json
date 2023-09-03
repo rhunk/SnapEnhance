@@ -450,7 +450,7 @@
                                     },
                                     "android_id": {
                                         "name": "Android ID",
-                                        "description": "SpoofS your Android ID to the specified value"
+                                        "description": "Spoofs your Android ID to the specified value"
                                     },
                                     "installer_package_name": {
                                         "name": "Installer Package name",
