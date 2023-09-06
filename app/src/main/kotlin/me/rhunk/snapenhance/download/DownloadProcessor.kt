@@ -380,14 +380,15 @@ class DownloadProcessor (
 
                 if (shouldMergeOverlay) {
                     assert(downloadedMedias.size == 2)
-                    val media = downloadedMedias.values.first { it.fileType.isVideo }
-                    val overlayMedia = downloadedMedias.values.first { it.fileType.isImage }
+                    //TODO: convert "mp4 images" into real images
+                    val media = downloadedMedias.entries.first { !it.key.isOverlay }.value
+                    val overlayMedia = downloadedMedias.entries.first { it.key.isOverlay }.value
 
                     val renamedMedia = renameFromFileType(media.file, media.fileType)
                     val renamedOverlayMedia = renameFromFileType(overlayMedia.file, overlayMedia.fileType)
-                    val mergedOverlay: File = File.createTempFile("merged", "." + media.fileType.fileExtension)
+                    val mergedOverlay: File = File.createTempFile("merged", ".mp4")
                     runCatching {
-                        callbackOnProgress(translation.format("download_toast", "path" to media.file.nameWithoutExtension))
+                        callbackOnProgress(translation.format("processing_toast", "path" to media.file.nameWithoutExtension))
                         downloadObjectObject.downloadStage = DownloadStage.MERGING
 
                         ffmpegProcessor.execute(FFMpegProcessor.Request(

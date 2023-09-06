@@ -199,7 +199,8 @@ class MediaDownloader : MessagingRuleFeature("MediaDownloader", MessagingRuleTyp
                 overlay = InputMedia(
                     overlayReference,
                     DownloadMediaType.fromUri(Uri.parse(overlayReference)),
-                    overlay.encryption?.toKeyPair()
+                    overlay.encryption?.toKeyPair(),
+                    isOverlay = true
                 )
             )
             return
@@ -372,7 +373,7 @@ class MediaDownloader : MessagingRuleFeature("MediaDownloader", MessagingRuleTyp
                             mediaAuthor = storyName
                         ).downloadDashMedia(playlistUrl, 0, null)
                     }
-                    setPositiveButton("Download") { dialog, which ->
+                    setPositiveButton("Download") { _, _ ->
                         val groups = mutableListOf<MutableList<SnapChapterInfo>>()
                         var currentGroup = mutableListOf<SnapChapterInfo>()
                         var lastChapterIndex = -1
