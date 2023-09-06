@@ -39,12 +39,12 @@ class AutoSave : MessagingRuleFeature("Auto Save", MessagingRuleType.AUTO_SAVE, 
         if (messageLogger.isMessageRemoved(conversationId.toString(), message.orderKey)) return
         if (message.messageState != MessageState.COMMITTED) return
 
-        val callback = CallbackBuilder(callbackClass)
-            .override("onError") {
-                context.log.warn("Error saving message $messageId")
-            }.build()
-
         runCatching {
+            val callback = CallbackBuilder(callbackClass)
+                .override("onError") {
+                    context.log.warn("Error saving message $messageId")
+                }.build()
+
             updateMessageMethod.invoke(
                 context.feature(Messaging::class).conversationManager,
                 conversationId.instanceNonNull(),
