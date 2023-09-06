@@ -216,8 +216,10 @@ class ExportChatMessages : AbstractAction() {
         val conversationId = friendFeedEntry.key!!
         val conversationName = friendFeedEntry.feedDisplayName ?: friendFeedEntry.friendDisplayName!!.split("|").lastOrNull() ?: "unknown"
 
-        conversationAction(true, conversationId, if (friendFeedEntry.feedDisplayName != null) "USERCREATEDGROUP" else "ONEONONE")
-        
+        runCatching {
+            conversationAction(true, conversationId, if (friendFeedEntry.feedDisplayName != null) "USERCREATEDGROUP" else "ONEONONE")
+        }
+
         logDialog(context.translation.format("chat_export.exporting_message", "conversation" to conversationName))
 
         val foundMessages = fetchMessagesPaginated(conversationId, Long.MAX_VALUE).toMutableList()
