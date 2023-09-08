@@ -103,6 +103,46 @@ We do not collect any user information. However, please be aware that third-part
   - [Dobby](https://github.com/jmpews/Dobby)
 </details>
 
+
+## FAQ
+
+#### Q1. AI wallpapers and the Snapchat+ badge aren't working!
+
+* Yeah, they're server-sided. Stop asking.
+
+#### Q2. Can you add this feature, please?
+
+* No, open an issue on our Github repo.
+
+#### Q3. When will this feature become available or finish?
+
+* At some point.
+
+#### Q4. Can I get banned with this?
+
+* Obviously, however, the risk is very low, and we have no reported cases of anyone ever getting banned while using the mod.
+
+#### Q5. Can I PM the developers?
+
+* No.
+
+#### Q6. This doesn't work!
+
+* Cool, open an issue on our Github repo.
+
+#### Q7. My phone isn't rooted; how do I use this?
+
+* There is a complete guide on how to use it without root, which can be found in the Telegram group notes. "/notes"
+
+#### Q8. Where do I download the latest stable build?
+
+* https://github.com/rhunk/snapenhance/releases
+
+#### Q9. Can I use HideMyApplist with this?
+
+* No, this will cause some severe issues, and the mod will not be able to inject.
+
+
 ## Contributors
 - [rathmerdominik](https://github.com/rathmerdominik)
 - [Flole998](https://github.com/Flole998)
