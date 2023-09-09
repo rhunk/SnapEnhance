@@ -498,6 +498,10 @@
                     "add_friend_source_spoof": {
                         "name": "Add Friend Source Spoof",
                         "description": "Spoofs the source of a Friend Request"
+                    },
+                    "hidden_snapchat_plus_features": {
+                        "name": "Hidden Snapchat Plus Features",
+                        "description": "Enables unreleased/beta Snapchat Plus features\nMight not work on older Snapchat versions"
                     }
                 }
             }
