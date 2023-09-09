@@ -1,6 +1,6 @@
 package me.rhunk.snapenhance.data
 
-import me.rhunk.snapenhance.Logger
+import me.rhunk.snapenhance.core.Logger
 import java.io.File
 import java.io.InputStream
 

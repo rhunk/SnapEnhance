@@ -57,7 +57,7 @@ import me.rhunk.snapenhance.ui.manager.Section
 import me.rhunk.snapenhance.ui.util.AlertDialogs
 import me.rhunk.snapenhance.ui.util.BitmojiImage
 import me.rhunk.snapenhance.ui.util.pagerTabIndicatorOffset
-import me.rhunk.snapenhance.util.snap.BitmojiSelfie
+import me.rhunk.snapenhance.core.util.snap.BitmojiSelfie
 
 class SocialSection : Section() {
     private lateinit var friendList: List<MessagingFriendInfo>

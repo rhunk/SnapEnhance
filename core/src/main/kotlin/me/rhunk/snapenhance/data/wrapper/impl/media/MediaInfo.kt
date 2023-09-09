@@ -1,8 +1,8 @@
 package me.rhunk.snapenhance.data.wrapper.impl.media
 
 import android.os.Parcelable
+import me.rhunk.snapenhance.core.util.ktx.getObjectField
 import me.rhunk.snapenhance.data.wrapper.AbstractWrapper
-import me.rhunk.snapenhance.util.ktx.getObjectField
 import java.lang.reflect.Field
 
 

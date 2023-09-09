@@ -4,12 +4,12 @@ import android.annotation.SuppressLint
 import android.database.Cursor
 import me.rhunk.snapenhance.Constants
 import me.rhunk.snapenhance.core.database.DatabaseObject
+import me.rhunk.snapenhance.core.util.ktx.getBlobOrNull
+import me.rhunk.snapenhance.core.util.ktx.getInteger
+import me.rhunk.snapenhance.core.util.ktx.getLong
+import me.rhunk.snapenhance.core.util.ktx.getStringOrNull
+import me.rhunk.snapenhance.core.util.protobuf.ProtoReader
 import me.rhunk.snapenhance.data.ContentType
-import me.rhunk.snapenhance.util.ktx.getBlobOrNull
-import me.rhunk.snapenhance.util.ktx.getInteger
-import me.rhunk.snapenhance.util.ktx.getLong
-import me.rhunk.snapenhance.util.ktx.getStringOrNull
-import me.rhunk.snapenhance.util.protobuf.ProtoReader
 
 @Suppress("ArrayInDataClass")
 data class ConversationMessage(

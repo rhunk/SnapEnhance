@@ -26,7 +26,7 @@ import me.rhunk.snapenhance.core.download.data.DownloadRequest
 import me.rhunk.snapenhance.core.download.data.DownloadStage
 import me.rhunk.snapenhance.core.download.data.InputMedia
 import me.rhunk.snapenhance.core.download.data.MediaEncryptionKeyPair
-import me.rhunk.snapenhance.util.download.RemoteMediaResolver
+import me.rhunk.snapenhance.core.util.download.RemoteMediaResolver
 import java.io.File
 import java.io.InputStream
 import java.net.HttpURLConnection

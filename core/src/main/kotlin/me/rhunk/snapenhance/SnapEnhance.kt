@@ -8,16 +8,17 @@ import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.withContext
 import me.rhunk.snapenhance.bridge.SyncCallback
 import me.rhunk.snapenhance.core.BuildConfig
+import me.rhunk.snapenhance.core.Logger
 import me.rhunk.snapenhance.core.bridge.BridgeClient
 import me.rhunk.snapenhance.core.eventbus.events.impl.SnapWidgetBroadcastReceiveEvent
 import me.rhunk.snapenhance.core.eventbus.events.impl.UnaryCallEvent
 import me.rhunk.snapenhance.core.messaging.MessagingFriendInfo
 import me.rhunk.snapenhance.core.messaging.MessagingGroupInfo
+import me.rhunk.snapenhance.core.util.ktx.getApplicationInfoCompat
 import me.rhunk.snapenhance.data.SnapClassCache
 import me.rhunk.snapenhance.hook.HookStage
 import me.rhunk.snapenhance.hook.Hooker
 import me.rhunk.snapenhance.hook.hook
-import me.rhunk.snapenhance.util.ktx.getApplicationInfoCompat
 import kotlin.time.ExperimentalTime
 import kotlin.time.measureTime
 

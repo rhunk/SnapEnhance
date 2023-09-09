@@ -3,7 +3,7 @@ package me.rhunk.snapenhance.core.bridge.wrapper
 import android.content.Context
 import com.google.gson.JsonObject
 import com.google.gson.JsonParser
-import me.rhunk.snapenhance.Logger
+import me.rhunk.snapenhance.core.Logger
 import me.rhunk.snapenhance.core.bridge.BridgeClient
 import me.rhunk.snapenhance.data.LocalePair
 import java.util.Locale

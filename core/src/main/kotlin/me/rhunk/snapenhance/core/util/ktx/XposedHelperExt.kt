@@ -1,4 +1,4 @@
-package me.rhunk.snapenhance.util.ktx
+package me.rhunk.snapenhance.core.util.ktx
 
 import de.robv.android.xposed.XposedHelpers
 

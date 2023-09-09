@@ -1,7 +1,7 @@
 package me.rhunk.snapenhance.manager.impl
 
-import me.rhunk.snapenhance.Logger
 import me.rhunk.snapenhance.ModContext
+import me.rhunk.snapenhance.core.Logger
 import me.rhunk.snapenhance.features.Feature
 import me.rhunk.snapenhance.features.FeatureLoadParams
 import me.rhunk.snapenhance.features.impl.ConfigurationOverride
@@ -34,8 +34,8 @@ import me.rhunk.snapenhance.features.impl.tweaks.OldBitmojiSelfie
 import me.rhunk.snapenhance.features.impl.tweaks.SendOverride
 import me.rhunk.snapenhance.features.impl.tweaks.SnapchatPlus
 import me.rhunk.snapenhance.features.impl.tweaks.UnlimitedSnapViewTime
-import me.rhunk.snapenhance.features.impl.ui.PinConversations
 import me.rhunk.snapenhance.features.impl.ui.ClientBootstrapOverride
+import me.rhunk.snapenhance.features.impl.ui.PinConversations
 import me.rhunk.snapenhance.features.impl.ui.UITweaks
 import me.rhunk.snapenhance.manager.Manager
 import me.rhunk.snapenhance.ui.menu.impl.MenuViewInjector

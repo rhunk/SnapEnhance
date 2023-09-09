@@ -12,9 +12,16 @@ import android.os.Bundle
 import android.os.UserHandle
 import de.robv.android.xposed.XposedBridge
 import de.robv.android.xposed.XposedHelpers
-import me.rhunk.snapenhance.Logger
+import me.rhunk.snapenhance.core.Logger
 import me.rhunk.snapenhance.core.download.data.SplitMediaAssetType
 import me.rhunk.snapenhance.core.eventbus.events.impl.SnapWidgetBroadcastReceiveEvent
+import me.rhunk.snapenhance.core.util.CallbackBuilder
+import me.rhunk.snapenhance.core.util.ktx.setObjectField
+import me.rhunk.snapenhance.core.util.protobuf.ProtoReader
+import me.rhunk.snapenhance.core.util.snap.EncryptionHelper
+import me.rhunk.snapenhance.core.util.snap.MediaDownloaderHelper
+import me.rhunk.snapenhance.core.util.snap.PreviewUtils
+import me.rhunk.snapenhance.core.util.snap.SnapWidgetBroadcastReceiverHelper
 import me.rhunk.snapenhance.data.ContentType
 import me.rhunk.snapenhance.data.MediaReferenceType
 import me.rhunk.snapenhance.data.wrapper.impl.Message
@@ -26,13 +33,6 @@ import me.rhunk.snapenhance.features.impl.downloader.MediaDownloader
 import me.rhunk.snapenhance.hook.HookStage
 import me.rhunk.snapenhance.hook.Hooker
 import me.rhunk.snapenhance.hook.hook
-import me.rhunk.snapenhance.util.CallbackBuilder
-import me.rhunk.snapenhance.util.ktx.setObjectField
-import me.rhunk.snapenhance.util.protobuf.ProtoReader
-import me.rhunk.snapenhance.util.snap.EncryptionHelper
-import me.rhunk.snapenhance.util.snap.MediaDownloaderHelper
-import me.rhunk.snapenhance.util.snap.PreviewUtils
-import me.rhunk.snapenhance.util.snap.SnapWidgetBroadcastReceiverHelper
 
 class Notifications : Feature("Notifications", loadParams = FeatureLoadParams.INIT_SYNC) {
     companion object{

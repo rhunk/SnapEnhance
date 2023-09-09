@@ -1,8 +1,8 @@
-package me.rhunk.snapenhance.util
+package me.rhunk.snapenhance.core.util
 
 import android.annotation.SuppressLint
 import android.database.sqlite.SQLiteDatabase
-import me.rhunk.snapenhance.Logger
+import me.rhunk.snapenhance.core.Logger
 
 object SQLiteDatabaseHelper {
     @SuppressLint("Range")

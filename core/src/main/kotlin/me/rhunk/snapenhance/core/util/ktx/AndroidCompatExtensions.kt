@@ -1,4 +1,4 @@
-package me.rhunk.snapenhance.util.ktx
+package me.rhunk.snapenhance.core.util.ktx
 
 import android.content.pm.PackageManager
 import android.content.pm.PackageManager.ApplicationInfoFlags

@@ -14,6 +14,7 @@ import android.widget.Switch
 import me.rhunk.snapenhance.core.database.objects.ConversationMessage
 import me.rhunk.snapenhance.core.database.objects.FriendInfo
 import me.rhunk.snapenhance.core.database.objects.UserConversationLink
+import me.rhunk.snapenhance.core.util.snap.BitmojiSelfie
 import me.rhunk.snapenhance.data.ContentType
 import me.rhunk.snapenhance.features.MessagingRuleFeature
 import me.rhunk.snapenhance.features.impl.Messaging
@@ -22,7 +23,6 @@ import me.rhunk.snapenhance.features.impl.spying.StealthMode
 import me.rhunk.snapenhance.features.impl.tweaks.AutoSave
 import me.rhunk.snapenhance.ui.ViewAppearanceHelper
 import me.rhunk.snapenhance.ui.menu.AbstractMenu
-import me.rhunk.snapenhance.util.snap.BitmojiSelfie
 import java.net.HttpURLConnection
 import java.net.URL
 import java.text.DateFormat

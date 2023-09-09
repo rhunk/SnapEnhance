@@ -31,7 +31,7 @@ import me.rhunk.snapenhance.RemoteSideContext
 import me.rhunk.snapenhance.core.messaging.MessagingRuleType
 import me.rhunk.snapenhance.core.messaging.SocialScope
 import me.rhunk.snapenhance.ui.util.BitmojiImage
-import me.rhunk.snapenhance.util.snap.BitmojiSelfie
+import me.rhunk.snapenhance.core.util.snap.BitmojiSelfie
 
 class ScopeContent(
     private val context: RemoteSideContext,

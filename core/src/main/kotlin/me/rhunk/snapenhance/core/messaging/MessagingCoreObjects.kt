@@ -1,6 +1,6 @@
 package me.rhunk.snapenhance.core.messaging
 
-import me.rhunk.snapenhance.util.SerializableDataObject
+import me.rhunk.snapenhance.core.util.SerializableDataObject
 
 
 enum class RuleState(

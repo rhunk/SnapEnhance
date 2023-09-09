@@ -8,13 +8,13 @@ import android.hardware.camera2.CameraCharacteristics
 import android.hardware.camera2.CameraCharacteristics.Key
 import android.hardware.camera2.CameraManager
 import android.util.Range
+import me.rhunk.snapenhance.core.util.ktx.setObjectField
 import me.rhunk.snapenhance.data.wrapper.impl.ScSize
 import me.rhunk.snapenhance.features.Feature
 import me.rhunk.snapenhance.features.FeatureLoadParams
 import me.rhunk.snapenhance.hook.HookStage
 import me.rhunk.snapenhance.hook.hook
 import me.rhunk.snapenhance.hook.hookConstructor
-import me.rhunk.snapenhance.util.ktx.setObjectField
 
 class CameraTweaks : Feature("Camera Tweaks", loadParams = FeatureLoadParams.ACTIVITY_CREATE_SYNC) {
     companion object {

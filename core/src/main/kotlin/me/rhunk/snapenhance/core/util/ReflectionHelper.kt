@@ -1,4 +1,4 @@
-package me.rhunk.snapenhance.util
+package me.rhunk.snapenhance.core.util
 
 import java.lang.reflect.Field
 import java.lang.reflect.Method

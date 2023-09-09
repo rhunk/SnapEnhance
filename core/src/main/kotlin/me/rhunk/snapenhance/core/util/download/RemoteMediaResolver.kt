@@ -1,7 +1,7 @@
-package me.rhunk.snapenhance.util.download
+package me.rhunk.snapenhance.core.util.download
 
 import me.rhunk.snapenhance.Constants
-import me.rhunk.snapenhance.Logger
+import me.rhunk.snapenhance.core.Logger
 import okhttp3.OkHttpClient
 import okhttp3.Request
 import java.io.ByteArrayInputStream

@@ -1,4 +1,4 @@
-package me.rhunk.snapenhance.util.protobuf;
+package me.rhunk.snapenhance.core.util.protobuf;
 
 enum class WireType(val value: Int) {
     VARINT(0),

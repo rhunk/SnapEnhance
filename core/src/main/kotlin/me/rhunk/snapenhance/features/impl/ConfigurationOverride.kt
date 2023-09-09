@@ -1,11 +1,11 @@
 package me.rhunk.snapenhance.features.impl
 
 import de.robv.android.xposed.XposedHelpers
+import me.rhunk.snapenhance.core.util.ktx.setObjectField
 import me.rhunk.snapenhance.features.Feature
 import me.rhunk.snapenhance.features.FeatureLoadParams
 import me.rhunk.snapenhance.hook.HookStage
 import me.rhunk.snapenhance.hook.hook
-import me.rhunk.snapenhance.util.ktx.setObjectField
 
 class ConfigurationOverride : Feature("Configuration Override", loadParams = FeatureLoadParams.INIT_SYNC) {
     override fun init() {

@@ -1,4 +1,4 @@
-package me.rhunk.snapenhance.util.export
+package me.rhunk.snapenhance.core.util.export
 
 import android.os.Environment
 import android.util.Base64InputStream
@@ -11,14 +11,14 @@ import me.rhunk.snapenhance.ModContext
 import me.rhunk.snapenhance.core.BuildConfig
 import me.rhunk.snapenhance.core.database.objects.FriendFeedEntry
 import me.rhunk.snapenhance.core.database.objects.FriendInfo
+import me.rhunk.snapenhance.core.util.protobuf.ProtoReader
+import me.rhunk.snapenhance.core.util.snap.EncryptionHelper
+import me.rhunk.snapenhance.core.util.snap.MediaDownloaderHelper
 import me.rhunk.snapenhance.data.ContentType
 import me.rhunk.snapenhance.data.FileType
 import me.rhunk.snapenhance.data.MediaReferenceType
 import me.rhunk.snapenhance.data.wrapper.impl.Message
 import me.rhunk.snapenhance.data.wrapper.impl.SnapUUID
-import me.rhunk.snapenhance.util.protobuf.ProtoReader
-import me.rhunk.snapenhance.util.snap.EncryptionHelper
-import me.rhunk.snapenhance.util.snap.MediaDownloaderHelper
 import java.io.File
 import java.io.FileOutputStream
 import java.io.InputStream

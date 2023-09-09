@@ -1,11 +1,11 @@
 package me.rhunk.snapenhance.features.impl.tweaks
 
+import me.rhunk.snapenhance.core.util.ktx.getObjectField
+import me.rhunk.snapenhance.core.util.ktx.setEnumField
 import me.rhunk.snapenhance.features.Feature
 import me.rhunk.snapenhance.features.FeatureLoadParams
 import me.rhunk.snapenhance.hook.HookStage
 import me.rhunk.snapenhance.hook.hookConstructor
-import me.rhunk.snapenhance.util.ktx.getObjectField
-import me.rhunk.snapenhance.util.ktx.setEnumField
 
 class DisableReplayInFF : Feature("DisableReplayInFF", loadParams = FeatureLoadParams.ACTIVITY_CREATE_ASYNC) {
     override fun asyncOnActivityCreate() {

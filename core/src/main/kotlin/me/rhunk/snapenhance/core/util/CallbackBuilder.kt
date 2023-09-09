@@ -1,4 +1,4 @@
-package me.rhunk.snapenhance.util
+package me.rhunk.snapenhance.core.util
 
 import de.robv.android.xposed.XC_MethodHook
 import me.rhunk.snapenhance.hook.HookAdapter

@@ -3,8 +3,8 @@ package me.rhunk.snapenhance.core.database.objects
 import android.annotation.SuppressLint
 import android.database.Cursor
 import me.rhunk.snapenhance.core.database.DatabaseObject
-import me.rhunk.snapenhance.util.ktx.getInteger
-import me.rhunk.snapenhance.util.ktx.getStringOrNull
+import me.rhunk.snapenhance.core.util.ktx.getInteger
+import me.rhunk.snapenhance.core.util.ktx.getStringOrNull
 
 data class StoryEntry(
     var id: Int = 0,

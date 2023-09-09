@@ -1,7 +1,7 @@
 package me.rhunk.snapenhance.data.wrapper
 
 import de.robv.android.xposed.XposedHelpers
-import me.rhunk.snapenhance.util.CallbackBuilder
+import me.rhunk.snapenhance.core.util.CallbackBuilder
 import kotlin.reflect.KProperty
 
 abstract class AbstractWrapper(

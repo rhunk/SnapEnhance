@@ -47,7 +47,7 @@ import me.rhunk.snapenhance.RemoteSideContext
 import me.rhunk.snapenhance.core.bridge.BridgeClient
 import me.rhunk.snapenhance.core.messaging.MessagingFriendInfo
 import me.rhunk.snapenhance.core.messaging.MessagingGroupInfo
-import me.rhunk.snapenhance.util.snap.SnapWidgetBroadcastReceiverHelper
+import me.rhunk.snapenhance.core.util.snap.SnapWidgetBroadcastReceiverHelper
 
 class AddFriendDialog(
     private val context: RemoteSideContext,

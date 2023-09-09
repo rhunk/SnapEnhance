@@ -2,9 +2,9 @@ package me.rhunk.snapenhance.features.impl.spying
 
 import kotlinx.coroutines.runBlocking
 import me.rhunk.snapenhance.core.eventbus.events.impl.NetworkApiRequestEvent
+import me.rhunk.snapenhance.core.util.download.HttpServer
 import me.rhunk.snapenhance.features.Feature
 import me.rhunk.snapenhance.features.FeatureLoadParams
-import me.rhunk.snapenhance.util.download.HttpServer
 import kotlin.coroutines.suspendCoroutine
 
 class AnonymousStoryViewing : Feature("Anonymous Story Viewing", loadParams = FeatureLoadParams.ACTIVITY_CREATE_ASYNC) {

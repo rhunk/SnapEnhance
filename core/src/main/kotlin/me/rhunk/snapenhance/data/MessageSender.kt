@@ -1,12 +1,12 @@
 package me.rhunk.snapenhance.data
 
 import me.rhunk.snapenhance.ModContext
+import me.rhunk.snapenhance.core.util.CallbackBuilder
+import me.rhunk.snapenhance.core.util.protobuf.ProtoWriter
 import me.rhunk.snapenhance.data.wrapper.AbstractWrapper
 import me.rhunk.snapenhance.data.wrapper.impl.MessageDestinations
 import me.rhunk.snapenhance.data.wrapper.impl.SnapUUID
 import me.rhunk.snapenhance.features.impl.Messaging
-import me.rhunk.snapenhance.util.CallbackBuilder
-import me.rhunk.snapenhance.util.protobuf.ProtoWriter
 
 class MessageSender(
     private val context: ModContext,

@@ -5,12 +5,12 @@ import android.widget.Button
 import android.widget.RelativeLayout
 import me.rhunk.snapenhance.core.eventbus.events.impl.AddViewEvent
 import me.rhunk.snapenhance.core.eventbus.events.impl.NetworkApiRequestEvent
+import me.rhunk.snapenhance.core.util.protobuf.ProtoReader
 import me.rhunk.snapenhance.features.Feature
 import me.rhunk.snapenhance.features.FeatureLoadParams
 import me.rhunk.snapenhance.hook.HookStage
 import me.rhunk.snapenhance.hook.Hooker
 import me.rhunk.snapenhance.ui.ViewAppearanceHelper
-import me.rhunk.snapenhance.util.protobuf.ProtoReader
 import java.nio.ByteBuffer
 
 class ProfilePictureDownloader : Feature("ProfilePictureDownloader", loadParams = FeatureLoadParams.ACTIVITY_CREATE_ASYNC) {

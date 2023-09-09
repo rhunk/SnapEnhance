@@ -1,4 +1,4 @@
-package me.rhunk.snapenhance.util.snap
+package me.rhunk.snapenhance.core.util.snap
 
 object BitmojiSelfie {
     enum class BitmojiSelfieType(

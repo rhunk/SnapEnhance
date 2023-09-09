@@ -1,7 +1,9 @@
 package me.rhunk.snapenhance.features.impl.tweaks
 
-import me.rhunk.snapenhance.Logger
+import me.rhunk.snapenhance.core.Logger
 import me.rhunk.snapenhance.core.messaging.MessagingRuleType
+import me.rhunk.snapenhance.core.util.CallbackBuilder
+import me.rhunk.snapenhance.core.util.ktx.getObjectField
 import me.rhunk.snapenhance.data.MessageState
 import me.rhunk.snapenhance.data.wrapper.impl.Message
 import me.rhunk.snapenhance.data.wrapper.impl.SnapUUID
@@ -12,8 +14,6 @@ import me.rhunk.snapenhance.features.impl.spying.MessageLogger
 import me.rhunk.snapenhance.features.impl.spying.StealthMode
 import me.rhunk.snapenhance.hook.HookStage
 import me.rhunk.snapenhance.hook.Hooker
-import me.rhunk.snapenhance.util.CallbackBuilder
-import me.rhunk.snapenhance.util.ktx.getObjectField
 import java.util.concurrent.Executors
 
 class AutoSave : MessagingRuleFeature("Auto Save", MessagingRuleType.AUTO_SAVE, loadParams = FeatureLoadParams.ACTIVITY_CREATE_ASYNC) {

@@ -1,8 +1,8 @@
 package me.rhunk.snapenhance.data.wrapper.impl
 
+import me.rhunk.snapenhance.core.util.ktx.getObjectField
+import me.rhunk.snapenhance.core.util.ktx.setObjectField
 import me.rhunk.snapenhance.data.wrapper.AbstractWrapper
-import me.rhunk.snapenhance.util.ktx.getObjectField
-import me.rhunk.snapenhance.util.ktx.setObjectField
 
 @Suppress("UNCHECKED_CAST")
 class MessageDestinations(obj: Any) : AbstractWrapper(obj){

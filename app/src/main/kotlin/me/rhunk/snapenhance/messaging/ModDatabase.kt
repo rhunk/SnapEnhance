@@ -7,10 +7,10 @@ import me.rhunk.snapenhance.core.messaging.FriendStreaks
 import me.rhunk.snapenhance.core.messaging.MessagingFriendInfo
 import me.rhunk.snapenhance.core.messaging.MessagingGroupInfo
 import me.rhunk.snapenhance.core.messaging.MessagingRuleType
-import me.rhunk.snapenhance.util.SQLiteDatabaseHelper
-import me.rhunk.snapenhance.util.ktx.getInteger
-import me.rhunk.snapenhance.util.ktx.getLongOrNull
-import me.rhunk.snapenhance.util.ktx.getStringOrNull
+import me.rhunk.snapenhance.core.util.SQLiteDatabaseHelper
+import me.rhunk.snapenhance.core.util.ktx.getInteger
+import me.rhunk.snapenhance.core.util.ktx.getLongOrNull
+import me.rhunk.snapenhance.core.util.ktx.getStringOrNull
 import java.util.concurrent.Executors
 
 

@@ -3,10 +3,10 @@ package me.rhunk.snapenhance.core.database.objects
 import android.annotation.SuppressLint
 import android.database.Cursor
 import me.rhunk.snapenhance.core.database.DatabaseObject
-import me.rhunk.snapenhance.util.ktx.getIntOrNull
-import me.rhunk.snapenhance.util.ktx.getInteger
-import me.rhunk.snapenhance.util.ktx.getLong
-import me.rhunk.snapenhance.util.ktx.getStringOrNull
+import me.rhunk.snapenhance.core.util.ktx.getIntOrNull
+import me.rhunk.snapenhance.core.util.ktx.getInteger
+import me.rhunk.snapenhance.core.util.ktx.getLong
+import me.rhunk.snapenhance.core.util.ktx.getStringOrNull
 
 data class FriendFeedEntry(
     var id: Int = 0,

@@ -5,7 +5,7 @@ import com.google.gson.GsonBuilder
 import com.google.gson.JsonElement
 import com.google.gson.JsonParser
 import me.rhunk.snapenhance.Constants
-import me.rhunk.snapenhance.Logger
+import me.rhunk.snapenhance.core.Logger
 import me.rhunk.snapenhance.core.bridge.FileLoaderWrapper
 import me.rhunk.snapenhance.core.bridge.types.BridgeFileType
 import me.rhunk.snapmapper.Mapper

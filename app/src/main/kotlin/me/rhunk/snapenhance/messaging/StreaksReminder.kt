@@ -15,7 +15,7 @@ import me.rhunk.snapenhance.RemoteSideContext
 import me.rhunk.snapenhance.SharedContextHolder
 import me.rhunk.snapenhance.bridge.ForceStartActivity
 import me.rhunk.snapenhance.ui.util.ImageRequestHelper
-import me.rhunk.snapenhance.util.snap.BitmojiSelfie
+import me.rhunk.snapenhance.core.util.snap.BitmojiSelfie
 
 class StreaksReminder(
     private val remoteSideContext: RemoteSideContext? = null

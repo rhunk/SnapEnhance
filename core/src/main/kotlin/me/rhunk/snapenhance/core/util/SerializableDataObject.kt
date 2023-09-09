@@ -1,4 +1,4 @@
-package me.rhunk.snapenhance.util
+package me.rhunk.snapenhance.core.util
 
 import com.google.gson.Gson
 import com.google.gson.GsonBuilder

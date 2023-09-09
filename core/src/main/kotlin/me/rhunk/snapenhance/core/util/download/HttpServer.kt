@@ -1,11 +1,11 @@
-package me.rhunk.snapenhance.util.download
+package me.rhunk.snapenhance.core.util.download
 
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
-import me.rhunk.snapenhance.Logger
+import me.rhunk.snapenhance.core.Logger
 import java.io.BufferedReader
 import java.io.InputStream
 import java.io.InputStreamReader

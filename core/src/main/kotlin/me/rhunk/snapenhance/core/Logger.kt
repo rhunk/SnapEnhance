@@ -1,4 +1,4 @@
-package me.rhunk.snapenhance
+package me.rhunk.snapenhance.core
 
 import android.annotation.SuppressLint
 import android.util.Log

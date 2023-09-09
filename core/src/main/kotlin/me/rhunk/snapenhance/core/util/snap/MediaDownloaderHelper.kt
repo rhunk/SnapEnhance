@@ -1,11 +1,11 @@
-package me.rhunk.snapenhance.util.snap
+package me.rhunk.snapenhance.core.util.snap
 
 import me.rhunk.snapenhance.Constants
 import me.rhunk.snapenhance.core.download.data.SplitMediaAssetType
+import me.rhunk.snapenhance.core.util.download.RemoteMediaResolver
+import me.rhunk.snapenhance.core.util.protobuf.ProtoReader
 import me.rhunk.snapenhance.data.ContentType
 import me.rhunk.snapenhance.data.FileType
-import me.rhunk.snapenhance.util.download.RemoteMediaResolver
-import me.rhunk.snapenhance.util.protobuf.ProtoReader
 import java.io.ByteArrayInputStream
 import java.io.FileNotFoundException
 import java.io.InputStream

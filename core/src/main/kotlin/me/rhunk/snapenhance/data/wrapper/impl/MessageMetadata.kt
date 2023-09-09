@@ -1,8 +1,8 @@
 package me.rhunk.snapenhance.data.wrapper.impl
 
+import me.rhunk.snapenhance.core.util.ktx.getObjectField
 import me.rhunk.snapenhance.data.PlayableSnapState
 import me.rhunk.snapenhance.data.wrapper.AbstractWrapper
-import me.rhunk.snapenhance.util.ktx.getObjectField
 
 class MessageMetadata(obj: Any?) : AbstractWrapper(obj){
     val createdAt: Long get() = instanceNonNull().getObjectField("mCreatedAt") as Long

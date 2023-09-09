@@ -9,15 +9,15 @@ import me.rhunk.snapenhance.core.eventbus.events.impl.NetworkApiRequestEvent
 import me.rhunk.snapenhance.core.eventbus.events.impl.OnSnapInteractionEvent
 import me.rhunk.snapenhance.core.eventbus.events.impl.SendMessageWithContentEvent
 import me.rhunk.snapenhance.core.eventbus.events.impl.SnapWidgetBroadcastReceiveEvent
+import me.rhunk.snapenhance.core.util.ktx.getObjectField
+import me.rhunk.snapenhance.core.util.ktx.setObjectField
+import me.rhunk.snapenhance.core.util.snap.SnapWidgetBroadcastReceiverHelper
 import me.rhunk.snapenhance.data.wrapper.impl.MessageContent
 import me.rhunk.snapenhance.data.wrapper.impl.MessageDestinations
 import me.rhunk.snapenhance.data.wrapper.impl.SnapUUID
 import me.rhunk.snapenhance.hook.HookStage
 import me.rhunk.snapenhance.hook.hook
 import me.rhunk.snapenhance.manager.Manager
-import me.rhunk.snapenhance.util.ktx.getObjectField
-import me.rhunk.snapenhance.util.ktx.setObjectField
-import me.rhunk.snapenhance.util.snap.SnapWidgetBroadcastReceiverHelper
 
 class EventDispatcher(
     private val context: ModContext

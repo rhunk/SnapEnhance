@@ -2,7 +2,7 @@ package me.rhunk.snapenhance.core.bridge.wrapper
 
 import android.content.ContentValues
 import android.database.sqlite.SQLiteDatabase
-import me.rhunk.snapenhance.util.SQLiteDatabaseHelper
+import me.rhunk.snapenhance.core.util.SQLiteDatabaseHelper
 import java.io.File
 
 class MessageLoggerWrapper(

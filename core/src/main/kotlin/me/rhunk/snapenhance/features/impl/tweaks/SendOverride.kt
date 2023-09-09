@@ -3,13 +3,13 @@ package me.rhunk.snapenhance.features.impl.tweaks
 import me.rhunk.snapenhance.Constants
 import me.rhunk.snapenhance.core.eventbus.events.impl.SendMessageWithContentEvent
 import me.rhunk.snapenhance.core.eventbus.events.impl.UnaryCallEvent
+import me.rhunk.snapenhance.core.util.protobuf.ProtoEditor
+import me.rhunk.snapenhance.core.util.protobuf.ProtoReader
 import me.rhunk.snapenhance.data.ContentType
 import me.rhunk.snapenhance.data.MessageSender
 import me.rhunk.snapenhance.features.Feature
 import me.rhunk.snapenhance.features.FeatureLoadParams
 import me.rhunk.snapenhance.ui.ViewAppearanceHelper
-import me.rhunk.snapenhance.util.protobuf.ProtoEditor
-import me.rhunk.snapenhance.util.protobuf.ProtoReader
 
 class SendOverride : Feature("Send Override", loadParams = FeatureLoadParams.INIT_SYNC) {
     private var isLastSnapSavable = false

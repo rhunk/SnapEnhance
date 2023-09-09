@@ -1,6 +1,7 @@
 package me.rhunk.snapenhance.features.impl
 
 import me.rhunk.snapenhance.core.eventbus.events.impl.OnSnapInteractionEvent
+import me.rhunk.snapenhance.core.util.ktx.getObjectField
 import me.rhunk.snapenhance.data.wrapper.impl.SnapUUID
 import me.rhunk.snapenhance.features.Feature
 import me.rhunk.snapenhance.features.FeatureLoadParams
@@ -8,7 +9,6 @@ import me.rhunk.snapenhance.features.impl.spying.StealthMode
 import me.rhunk.snapenhance.hook.HookStage
 import me.rhunk.snapenhance.hook.Hooker
 import me.rhunk.snapenhance.hook.hook
-import me.rhunk.snapenhance.util.ktx.getObjectField
 
 class Messaging : Feature("Messaging", loadParams = FeatureLoadParams.ACTIVITY_CREATE_SYNC or FeatureLoadParams.INIT_ASYNC or FeatureLoadParams.INIT_SYNC) {
     lateinit var conversationManager: Any

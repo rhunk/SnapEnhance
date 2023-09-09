@@ -1,4 +1,4 @@
-package me.rhunk.snapenhance.util.snap
+package me.rhunk.snapenhance.core.util.snap
 
 import android.content.Intent
 import me.rhunk.snapenhance.Constants

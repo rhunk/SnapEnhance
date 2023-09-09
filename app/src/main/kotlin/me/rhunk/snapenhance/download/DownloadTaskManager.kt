@@ -6,9 +6,9 @@ import android.database.sqlite.SQLiteDatabase
 import me.rhunk.snapenhance.core.download.data.DownloadMetadata
 import me.rhunk.snapenhance.core.download.data.DownloadStage
 import me.rhunk.snapenhance.core.download.data.MediaDownloadSource
-import me.rhunk.snapenhance.util.SQLiteDatabaseHelper
-import me.rhunk.snapenhance.util.ktx.getIntOrNull
-import me.rhunk.snapenhance.util.ktx.getStringOrNull
+import me.rhunk.snapenhance.core.util.SQLiteDatabaseHelper
+import me.rhunk.snapenhance.core.util.ktx.getIntOrNull
+import me.rhunk.snapenhance.core.util.ktx.getStringOrNull
 
 class DownloadTaskManager {
     private lateinit var taskDatabase: SQLiteDatabase

@@ -1,4 +1,4 @@
-package me.rhunk.snapenhance.util.protobuf
+package me.rhunk.snapenhance.core.util.protobuf
 
 data class Wire(val id: Int, val type: WireType, val value: Any)
 

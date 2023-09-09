@@ -53,8 +53,8 @@ import androidx.compose.ui.window.Dialog
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import me.rhunk.snapenhance.Constants
-import me.rhunk.snapenhance.LogChannels
-import me.rhunk.snapenhance.LogLevel
+import me.rhunk.snapenhance.core.LogChannels
+import me.rhunk.snapenhance.core.LogLevel
 import me.rhunk.snapenhance.LogReader
 import me.rhunk.snapenhance.RemoteSideContext
 import me.rhunk.snapenhance.action.EnumAction

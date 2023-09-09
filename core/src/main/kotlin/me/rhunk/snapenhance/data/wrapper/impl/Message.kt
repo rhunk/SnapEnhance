@@ -1,8 +1,8 @@
 package me.rhunk.snapenhance.data.wrapper.impl
 
+import me.rhunk.snapenhance.core.util.ktx.getObjectField
 import me.rhunk.snapenhance.data.MessageState
 import me.rhunk.snapenhance.data.wrapper.AbstractWrapper
-import me.rhunk.snapenhance.util.ktx.getObjectField
 
 class Message(obj: Any?) : AbstractWrapper(obj) {
     val orderKey get() = instanceNonNull().getObjectField("mOrderKey") as Long

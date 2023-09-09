@@ -2,8 +2,8 @@ package me.rhunk.snapenhance.core.database
 
 import android.annotation.SuppressLint
 import android.database.sqlite.SQLiteDatabase
-import me.rhunk.snapenhance.Logger
 import me.rhunk.snapenhance.ModContext
+import me.rhunk.snapenhance.core.Logger
 import me.rhunk.snapenhance.core.database.objects.ConversationMessage
 import me.rhunk.snapenhance.core.database.objects.FriendFeedEntry
 import me.rhunk.snapenhance.core.database.objects.FriendInfo

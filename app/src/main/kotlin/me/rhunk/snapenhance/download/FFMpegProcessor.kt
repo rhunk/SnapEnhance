@@ -4,9 +4,9 @@ import com.arthenica.ffmpegkit.FFmpegKit
 import com.arthenica.ffmpegkit.FFmpegSession
 import com.arthenica.ffmpegkit.Level
 import kotlinx.coroutines.suspendCancellableCoroutine
-import me.rhunk.snapenhance.LogLevel
+import me.rhunk.snapenhance.core.LogLevel
 import me.rhunk.snapenhance.LogManager
-import me.rhunk.snapenhance.Logger
+import me.rhunk.snapenhance.core.Logger
 import me.rhunk.snapenhance.core.config.impl.DownloaderConfig
 import java.io.File
 import java.util.concurrent.Executors

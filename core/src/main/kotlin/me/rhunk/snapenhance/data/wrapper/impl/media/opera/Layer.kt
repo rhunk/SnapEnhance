@@ -1,7 +1,7 @@
 package me.rhunk.snapenhance.data.wrapper.impl.media.opera
 
+import me.rhunk.snapenhance.core.util.ReflectionHelper
 import me.rhunk.snapenhance.data.wrapper.AbstractWrapper
-import me.rhunk.snapenhance.util.ReflectionHelper
 
 class Layer(obj: Any?) : AbstractWrapper(obj) {
     val paramMap: ParamMap
