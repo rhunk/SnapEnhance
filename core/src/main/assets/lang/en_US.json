@@ -213,6 +213,20 @@
                         "name": "AMOLED Dark Mode",
                         "description": "Enables AMOLED dark mode\nMake sure Snapchats Dark mode is enabled"
                     },
+                    "bootstrap_override": {
+                        "name": "Bootstrap Override",
+                        "description": "Overrides user interface bootstrap settings",
+                        "properties": {
+                            "app_appearance": {
+                                "name": "App Appearance",
+                                "description": "Sets a persistent App Appearance"
+                            },
+                            "home_tab": {
+                                "name": "Home Tab",
+                                "description": "Overrides the startup tab when opening Snapchat"
+                            }
+                        }
+                    },
                     "map_friend_nametags": {
                         "name": "Enhanced Friend Map Nametags",
                         "description": "Improves the Nametags of friends on the Snapmap"
@@ -507,6 +521,10 @@
             }
         },
         "options": {
+            "app_appearance": {
+                "always_light": "Always Light",
+                "always_dark": "Always Dark"
+            },
             "better_notifications": {
                 "chat": "Show chat messages",
                 "snap": "Show media",
@@ -585,14 +603,12 @@
                 "hide_following": "Hide following section",
                 "hide_for_you": "Hide For You section"
             },
-            "startup_tab": {
-                "OFF": "Off",
-                "ngs_map_icon_container": "Map",
-                "ngs_chat_icon_container": "Chat",
-                "ngs_camera_icon_container": "Camera",
-                "ngs_community_icon_container": "Community / Stories",
-                "ngs_spotlight_icon_container": "Spotlight",
-                "ngs_search_icon_container": "Search"
+            "home_tab": {
+                "map": "Map",
+                "chat": "Chat",
+                "camera": "Camera",
+                "discover": "Discover",
+                "spotlight": "Spotlight"
             },
             "add_friend_source_spoof": {
                 "added_by_username": "By Username",

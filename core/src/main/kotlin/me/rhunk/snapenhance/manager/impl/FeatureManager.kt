@@ -35,7 +35,7 @@ import me.rhunk.snapenhance.features.impl.tweaks.SendOverride
 import me.rhunk.snapenhance.features.impl.tweaks.SnapchatPlus
 import me.rhunk.snapenhance.features.impl.tweaks.UnlimitedSnapViewTime
 import me.rhunk.snapenhance.features.impl.ui.PinConversations
-import me.rhunk.snapenhance.features.impl.ui.StartupPageOverride
+import me.rhunk.snapenhance.features.impl.ui.ClientBootstrapOverride
 import me.rhunk.snapenhance.features.impl.ui.UITweaks
 import me.rhunk.snapenhance.manager.Manager
 import me.rhunk.snapenhance.ui.menu.impl.MenuViewInjector
@@ -90,7 +90,7 @@ class FeatureManager(private val context: ModContext) : Manager {
         register(PinConversations::class)
         register(UnlimitedMultiSnap::class)
         register(DeviceSpooferHook::class)
-        register(StartupPageOverride::class)
+        register(ClientBootstrapOverride::class)
         register(GooglePlayServicesDialogs::class)
         register(NoFriendScoreDelay::class)
         register(ProfilePictureDownloader::class)
