@@ -123,9 +123,10 @@ class AutoSave : MessagingRuleFeature("Auto Save", MessagingRuleType.AUTO_SAVE, 
             { autoSaveFilter.isNotEmpty() }
         ) {
             val callback = CallbackBuilder(fetchConversationWithMessagesCallbackClass).build()
+            val conversationUUID = messaging.openedConversationUUID ?: return@hook
             runCatching {
                 fetchConversationWithMessagesPaginatedMethod.invoke(
-                    messaging.conversationManager, messaging.openedConversationUUID!!.instanceNonNull(),
+                    messaging.conversationManager, conversationUUID.instanceNonNull(),
                     Long.MAX_VALUE,
                     10,
                     callback
