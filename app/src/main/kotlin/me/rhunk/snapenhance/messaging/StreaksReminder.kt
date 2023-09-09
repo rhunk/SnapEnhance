@@ -85,9 +85,9 @@ class StreaksReminder(
                         PendingIntent.FLAG_IMMUTABLE
                     ))
                     .apply {
+                        setSmallIcon(R.drawable.streak_icon)
                         bitmojiImage.drawable?.let {
                             setLargeIcon(it.toBitmap())
-                            setSmallIcon(R.drawable.streak_icon)
                         }
                     }
 
