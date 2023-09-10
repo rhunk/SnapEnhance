@@ -82,30 +82,7 @@ We no longer offer official LSPatch binaries for obvious reasons. However, you'r
   - Chat Export (HTML, JSON and TXT)
 </details>
 
-## Privacy
-
-We do not collect any user information. However, please be aware that third-party libraries may collect data as described in their respective privacy policies.
-<details>
-  <summary>Permissions</summary>
-  
-  - [android.permission.INTERNET](https://developer.android.com/reference/android/Manifest.permission#INTERNET)
-  - [android.permission.REQUEST_IGNORE_BATTERY_OPTIMIZATIONS](https://developer.android.com/reference/android/Manifest.permission.html#REQUEST_IGNORE_BATTERY_OPTIMIZATIONS)
-  - [android.permission.POST_NOTIFICATIONS](https://developer.android.com/reference/android/Manifest.permission.html#POST_NOTIFICATIONS)
-</details>
-
-<details>
-  <summary>Third-party libraries used</summary>
-  
-  - [libxposed](https://github.com/libxposed/api)
-  - [ffmpeg-kit-full-gpl](https://github.com/arthenica/ffmpeg-kit)
-  - [osmdroid](https://github.com/osmdroid/osmdroid)
-  - [coil](https://github.com/coil-kt/coil)
-  - [Dobby](https://github.com/jmpews/Dobby)
-</details>
-
-
 ## FAQ
-
 <details>
   <summary>AI wallpapers and the Snapchat+ badge aren't working!</summary>
   
@@ -158,6 +135,26 @@ We do not collect any user information. However, please be aware that third-part
   <summary>Can I use HideMyApplist with this?</summary>
   
   - No, this will cause some severe issues, and the mod will not be able to inject.
+</details>
+
+## Privacy
+We do not collect any user information. However, please be aware that third-party libraries may collect data as described in their respective privacy policies.
+<details>
+  <summary>Permissions</summary>
+  
+  - [android.permission.INTERNET](https://developer.android.com/reference/android/Manifest.permission#INTERNET)
+  - [android.permission.REQUEST_IGNORE_BATTERY_OPTIMIZATIONS](https://developer.android.com/reference/android/Manifest.permission.html#REQUEST_IGNORE_BATTERY_OPTIMIZATIONS)
+  - [android.permission.POST_NOTIFICATIONS](https://developer.android.com/reference/android/Manifest.permission.html#POST_NOTIFICATIONS)
+</details>
+
+<details>
+  <summary>Third-party libraries used</summary>
+  
+  - [libxposed](https://github.com/libxposed/api)
+  - [ffmpeg-kit-full-gpl](https://github.com/arthenica/ffmpeg-kit)
+  - [osmdroid](https://github.com/osmdroid/osmdroid)
+  - [coil](https://github.com/coil-kt/coil)
+  - [Dobby](https://github.com/jmpews/Dobby)
 </details>
 
 ## Contributors
