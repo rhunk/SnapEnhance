@@ -106,42 +106,59 @@ We do not collect any user information. However, please be aware that third-part
 
 ## FAQ
 
-#### Q1. AI wallpapers and the Snapchat+ badge aren't working!
+<details>
+  <summary>AI wallpapers and the Snapchat+ badge aren't working!</summary>
+  
+  - Yeah, they're server-sided and will probably never work.
+</details>
 
-* Yeah, they're server-sided. Stop asking.
+<details>
+  <summary>Can you add this feature, please?</summary>
+  
+  - Open an issue on our Github repo.
+</details>
 
-#### Q2. Can you add this feature, please?
+<details>
+  <summary>When will this feature become available or finish?</summary>
+  
+  - At some point.
+</details>
 
-* No, open an issue on our Github repo.
+<details>
+  <summary>Can I get banned with this?</summary>
+  
+  - Obviously, however, the risk is very low, and we have no reported cases of anyone ever getting banned while using the mod.
+</details>
 
-#### Q3. When will this feature become available or finish?
+<details>
+  <summary>Can I PM the developers?</summary>
+  
+  - No.
+</details>
 
-* At some point.
+<details>
+  <summary>This doesn't work!</summary>
+  
+  - Open an issue.
+</details>
 
-#### Q4. Can I get banned with this?
+<details>
+  <summary>My phone isn't rooted; how do I use this?</summary>
+  
+  - You can use LSPatch in combination with SnapEnhance to run this on an unrooted device, however this is unrecommended and not considered safe.
+</details>
 
-* Obviously, however, the risk is very low, and we have no reported cases of anyone ever getting banned while using the mod.
+<details>
+  <summary>Where can I download the latest stable build?</summary>
+  
+  - https://github.com/rhunk/snapenhance/releases
+</details>
 
-#### Q5. Can I PM the developers?
-
-* No.
-
-#### Q6. This doesn't work!
-
-* Cool, open an issue on our Github repo.
-
-#### Q7. My phone isn't rooted; how do I use this?
-
-* There is a complete guide on how to use it without root, which can be found in the Telegram group notes. "/notes"
-
-#### Q8. Where do I download the latest stable build?
-
-* https://github.com/rhunk/snapenhance/releases
-
-#### Q9. Can I use HideMyApplist with this?
-
-* No, this will cause some severe issues, and the mod will not be able to inject.
-
+<details>
+  <summary>Can I use HideMyApplist with this?</summary>
+  
+  - No, this will cause some severe issues, and the mod will not be able to inject.
+</details>
 
 ## Contributors
 - [rathmerdominik](https://github.com/rathmerdominik)
