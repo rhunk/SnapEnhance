@@ -82,8 +82,62 @@ We no longer offer official LSPatch binaries for obvious reasons. However, you'r
   - Chat Export (HTML, JSON and TXT)
 </details>
 
-## Privacy
+## FAQ
+<details>
+  <summary>AI wallpapers and the Snapchat+ badge aren't working!</summary>
+  
+  - Yeah, they're server-sided and will probably never work.
+</details>
 
+<details>
+  <summary>Can you add this feature, please?</summary>
+  
+  - Open an issue on our Github repo.
+</details>
+
+<details>
+  <summary>When will this feature become available or finish?</summary>
+  
+  - At some point.
+</details>
+
+<details>
+  <summary>Can I get banned with this?</summary>
+  
+  - Obviously, however, the risk is very low, and we have no reported cases of anyone ever getting banned while using the mod.
+</details>
+
+<details>
+  <summary>Can I PM the developers?</summary>
+  
+  - No.
+</details>
+
+<details>
+  <summary>This doesn't work!</summary>
+  
+  - Open an issue.
+</details>
+
+<details>
+  <summary>My phone isn't rooted; how do I use this?</summary>
+  
+  - You can use LSPatch in combination with SnapEnhance to run this on an unrooted device, however this is unrecommended and not considered safe.
+</details>
+
+<details>
+  <summary>Where can I download the latest stable build?</summary>
+  
+  - https://github.com/rhunk/snapenhance/releases
+</details>
+
+<details>
+  <summary>Can I use HideMyApplist with this?</summary>
+  
+  - No, this will cause some severe issues, and the mod will not be able to inject.
+</details>
+
+## Privacy
 We do not collect any user information. However, please be aware that third-party libraries may collect data as described in their respective privacy policies.
 <details>
   <summary>Permissions</summary>
