@@ -22,11 +22,11 @@
         },
         "prevent_read_receipts": {
             "name": "Empêcher la vu des messages",
-            "description": "Empêcher n'importe qui de savoir que vous avez ouvert leurs snaps/chats"
+            "description": "Empêcher n'importe qui de savoir que vous avez lu leurs messages"
         },
         "hide_bitmoji_presence": {
             "name": "Cacher la présence du Bitmoji",
-            "description": "Masque la présence de votre Bitmoji dans le chat"
+            "description": "Masque la présence de votre Bitmoji dans la conversation"
         },
         "better_notifications": {
             "name": "Notifications améliorées",
@@ -54,7 +54,7 @@
         },
         "anonymous_story_view": {
             "name": "Anonymiser le visionnage des stories",
-            "description": "Empêche n'importe qui de savoir que vous avez vu leur story"
+            "description": "Empêcher n'importe qui de savoir que vous avez vu leur story"
         },
         "hide_typing_notification": {
             "name": "Masquer la notification \"En train d'écrire\"",
@@ -62,11 +62,11 @@
         },
         "save_folder": {
             "name": "Dossier d'enregistrement",
-            "description": "L'emplacement où les médias sont sauvegardés"
+            "description": "L'emplacement dans lequel tous les médias seront téléchargés"
         },
         "auto_download_options": {
             "name": "Options de téléchargement automatique",
-            "description": "Sélectionner les médias à télécharger automatiquement"
+            "description": "Sélectionner quel type de média seront automatiquement téléchargés"
         },
         "download_options": {
             "name": "Options de téléchargement",
@@ -74,11 +74,11 @@
         },
         "chat_download_context_menu": {
             "name": "Menu de téléchargement du chat",
-            "description": "Activer le menu contextuel de téléchargement du Chat"
+            "description": "Activer le menu contextuel de téléchargement de la conversation"
         },
         "gallery_media_send_override": {
             "name": "Remplacement de l'envoi des médias de la galerie",
-            "description": "Remplacement de l'envoi des médias depuis la galerie"
+            "description": "Tromper la provenance d'où vient le média que vous avez envoyé"
         },
         "auto_save_messages": {
             "name": "Enregistrement automatique des messages",
@@ -90,7 +90,7 @@
         },
         "download_logging": {
             "name": "Télécharger les logs",
-            "description": "Afficher une notification bulle lorsque le média est en téléchargement"
+            "description": "Afficher une notification nuage quand un média est téléchargé"
         },
         "enable_friend_feed_menu_bar": {
             "name": "Barre du menu du fil d'ami",
@@ -98,7 +98,7 @@
         },
         "friend_feed_menu_buttons": {
             "name": "Boutons du menu du fil d'ami",
-            "description": "Sélectionner les boutons à afficher dans la barre de menu du fil d'amis"
+            "description": "Spécifier les boutons à afficher dans barre du menu du fil d'ami"
         },
         "friend_feed_menu_buttons_position": {
             "name": "Position des boutons du menu du fil d'ami",
@@ -162,7 +162,7 @@
         },
         "disable_google_play_dialogs": {
             "name": "Désactiver la boite de dialogue des services Google Play",
-            "description": "Empêcher les boites de dialogues des services de disponibilité de Google Play de s'afficher"
+            "description": "Empêcher les services Google Play d'afficher des boites de dialogues"
         },
         "auto_updater": {
             "name": "MàJ automatisée",
@@ -214,7 +214,11 @@
         },
         "unlimited_multi_snap": {
             "name": "Multi Snap illimité",
-            "description": "Vous permet d'avoir un nombre illimité de multi snap"
+            "description": "Vous permet de prendre un nombre illimité de snaps multiples\nSnaps peut échouer si un certain montant est atteint"
+        },
+        "no_friend_score_delay": {
+            "name": "Pas de délai du score d'amis",
+            "description": "Supprimer le délai d'affichage des scores des amis.\nCela sera immédiatement mis à jour quand vous ouvrirez une page de profil"
         }
     },
     "option": {

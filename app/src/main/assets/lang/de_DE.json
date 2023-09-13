@@ -22,11 +22,11 @@
         },
         "prevent_read_receipts": {
             "name": "Lesebestätigungen verhindern",
-            "description": "Verhindern, dass jemand erfährt, dass ein Snap geöffnet wurde"
+            "description": "Verhindert, dass jemand erfährt, dass du seine Nachrichten gelesen hast"
         },
         "hide_bitmoji_presence": {
             "name": "Bitmoji Präsenz verstecken",
-            "description": "Verstecke die Bitmoji-Präsenz im Chat"
+            "description": "Versteckt deine Bitmoji-Präsenz im Chat"
         },
         "better_notifications": {
             "name": "Bessere Benachrichtigungen",
@@ -54,7 +54,7 @@
         },
         "anonymous_story_view": {
             "name": "Anonyme Story Ansicht",
-            "description": "Verhindert, dass jemand erfährt, dass seine Story gesehen wurde"
+            "description": "Verhindert, dass jemand weiß, dass du seine Story gesehen hast"
         },
         "hide_typing_notification": {
             "name": "Tippen-Benachrichtigung verbergen",
@@ -62,11 +62,11 @@
         },
         "save_folder": {
             "name": "Speicherverzeichnis",
-            "description": "Der Ordner in dem alle Medien gespeichert werden"
+            "description": "Das Verzeichnis, in das alle Medien heruntergeladen werden sollen"
         },
         "auto_download_options": {
             "name": "Auto Download Optionen",
-            "description": "Wähle aus welche Medien automatisch heruntergeladen werden sollen"
+            "description": "Auswählen welcher Medientyp automatisch heruntergeladen werden soll"
         },
         "download_options": {
             "name": "Download Optionen",
@@ -74,11 +74,11 @@
         },
         "chat_download_context_menu": {
             "name": "Kontextmenü für Chat-Download aktivieren",
-            "description": "Aktivieren Sie das Kontextmenü zum Chat-Download"
+            "description": "Aktiviert das Chat Download Context Menü"
         },
         "gallery_media_send_override": {
             "name": "Überschreiben beim Senden von Gallerie Medien",
-            "description": "Überschreibt die von der Galerie gesendeten Medien"
+            "description": "Versteckt, woher das Bild kommt, dass du verschickt hast"
         },
         "auto_save_messages": {
             "name": "Automatisches Speichern von Nachrichten",
@@ -98,7 +98,7 @@
         },
         "friend_feed_menu_buttons": {
             "name": "Schaltflächen für das Freunde Feed Menü",
-            "description": "Wähle aus welche Schaltflächen in der Freunde Feed Menüleiste angezeigt werden sollen"
+            "description": "Wähle aus welche Buttons in der Freunde Feed Menüleiste angezeigt werden sollen"
         },
         "friend_feed_menu_buttons_position": {
             "name": "Positionsindex der Freunde Feed Schaltflächen",
@@ -110,7 +110,7 @@
         },
         "hide_story_section": {
             "name": "Story Abschnitt ausblenden",
-            "description": "Blenden Sie bestimmte im Story Bereich angezeigte UI-Elemente aus"
+            "description": "Verstecken Sie bestimmte Story Bereich UI-Elemente"
         },
         "story_viewer_override": {
             "name": "Story Viewer Überschreibung",
@@ -186,7 +186,7 @@
         },
         "force_highest_frame_rate": {
             "name": "Höchste Bildwiederholrate erzwingen",
-            "description": "Erzwingt die höchstmögliche Bildwiederholungsrate"
+            "description": "Erzwingt die höchstmögliche Kamera Bildwiederholungsrate"
         },
         "force_camera_source_encoding": {
             "name": "Kodierung der Kameraquelle erzwingen",
@@ -214,7 +214,11 @@
         },
         "unlimited_multi_snap": {
             "name": "Unbegrenzte Multi-Snaps",
-            "description": "Ermöglicht die Aufnahme einer unbegrenzten Anzahl von Multi-Snaps"
+            "description": "Erlaubt es dir eine unbegrenzte Anzahl an Multi Snaps aufzunehmen\nkönnte vermutlich Fehler verursachen, sobald ein bestimmter Betrag überschritten wird"
+        },
+        "no_friend_score_delay": {
+            "name": "Keine Friend Score Delay",
+            "description": "Entfernt die Verzögerung in Aktualisierungen von Snapscores\nder Wert wird sofort aktualisiert, wenn Sie eine Profilseite öffnen"
         }
     },
     "option": {

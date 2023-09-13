@@ -22,7 +22,7 @@
         },
         "prevent_read_receipts": {
             "name": "Olvasási Visszaigazolások Megakadályozása",
-            "description": "Megakadályozhatja, hogy bárki megtudja, hogy megnyitottad a Snapjeiket"
+            "description": "Megakadályozza, hogy bárki megtudja, hogy elolvastad az üzeneteiket"
         },
         "hide_bitmoji_presence": {
             "name": "Bitmojik elrejtése",
@@ -54,7 +54,7 @@
         },
         "anonymous_story_view": {
             "name": "Anonim Story nézés",
-            "description": "Megakadályozza, hogy megtudják, hogy láttad a történetüket"
+            "description": "Megakadályozza, hogy bárki megtudja, hogy láttad a történetüket"
         },
         "hide_typing_notification": {
             "name": "Gépelési értesítés elrejtése",
@@ -62,11 +62,11 @@
         },
         "save_folder": {
             "name": "Letöltések mappa",
-            "description": "A mappa, ahová az összes médiát lemented"
+            "description": "Az a könyvtár, ahová az összes média letöltésre kerül"
         },
         "auto_download_options": {
             "name": "Automatikus letöltési beállítások",
-            "description": "Válaszd ki az automatikusan letölthető médiákat"
+            "description": "Válaszd ki, hogy milyen típusú médiát töltsön le automatikusan"
         },
         "download_options": {
             "name": "Letöltési beállítások",
@@ -74,11 +74,11 @@
         },
         "chat_download_context_menu": {
             "name": "Chat letöltés kontextusmenü",
-            "description": "A chat letöltés kontextusmenüjének engedélyezése"
+            "description": "Chat letöltés kontextusmenü engedélyezése"
         },
         "gallery_media_send_override": {
             "name": "Galéria Média küldés felülbírálása",
-            "description": "A galériából küldött média felülírása"
+            "description": "Spoofok, ahonnan az általad küldött média származik"
         },
         "auto_save_messages": {
             "name": "Üzenetek automatikus mentése",
@@ -90,7 +90,7 @@
         },
         "download_logging": {
             "name": "Napló letöltése",
-            "description": "Felugró buborék mutatása média letöltésekor"
+            "description": "Felugró buborék értesítés mutatása média letöltésekor"
         },
         "enable_friend_feed_menu_bar": {
             "name": "Barát beállítások menüsor",
@@ -98,7 +98,7 @@
         },
         "friend_feed_menu_buttons": {
             "name": "Barát beállítások menü gombok",
-            "description": "Válaszd ki, hogy mely gombok jelenjenek meg a barát beállítások menüsorban"
+            "description": "Annak meghatározása, hogy mely gombok jelenjenek meg a Friend Feed menüsorban"
         },
         "friend_feed_menu_buttons_position": {
             "name": "Barát beállítások pozíciójának indexe",
@@ -110,7 +110,7 @@
         },
         "hide_story_section": {
             "name": "Sztori rész elrejtése",
-            "description": "Bizonyos UI-elemek elrejtése a történet szekcióban"
+            "description": "Bizonyos UI-elem elrejtése a történet szekcióban"
         },
         "story_viewer_override": {
             "name": "Történet megtekintő felülírása",
@@ -162,7 +162,7 @@
         },
         "disable_google_play_dialogs": {
             "name": "A Google Play Szolgáltatások Párbeszédablakainak Letiltása",
-            "description": "Elrejti a Google Play Szolgáltatások elérhetőségére vonatkozó párbeszédablakokat"
+            "description": "Megakadályozza a Google Play szolgáltatások elérhetőségi párbeszédpaneljeinek megjelenítését"
         },
         "auto_updater": {
             "name": "Automatikus frissítő",
@@ -186,7 +186,7 @@
         },
         "force_highest_frame_rate": {
             "name": "Legmagasabb képkocka sebesség kikényszerítése",
-            "description": "A lehető legmagasabb képkocka sebességet kényszeríti ki"
+            "description": "A lehető legmagasabb kameraképkockasebesség kikényszerítése"
         },
         "force_camera_source_encoding": {
             "name": "Kamera forráskódolás kikényszerítése",
@@ -214,7 +214,11 @@
         },
         "unlimited_multi_snap": {
             "name": "Korlátlan Multi Snap",
-            "description": "Lehetővé teszi, hogy korlátlan számú többszörös pillanatfelvételt készítsen"
+            "description": "Lehetővé teszi korlátlan számú multifotó készítését\nA pillanatfelvételek elküldése bizonyos mennyiség elérése esetén meghiúsulhat"
+        },
+        "no_friend_score_delay": {
+            "name": "Nincs barát pontszám késleltetés",
+            "description": "Eltávolítja a késleltetést a barátok Snapscores frissítésében\nAz érték azonnal frissül, amikor megnyit egy profiloldalt"
         }
     },
     "option": {
