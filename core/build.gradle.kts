@@ -1,8 +1,8 @@
-@Suppress("DSL_SCOPE_VIOLATION") // TODO: Remove once KTIJ-19369 is fixed
 plugins {
     alias(libs.plugins.androidLibrary)
     alias(libs.plugins.kotlinAndroid)
 }
+
 android {
     namespace = rootProject.ext["applicationId"].toString() + ".core"
     compileSdk = 34
