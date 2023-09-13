@@ -9,7 +9,7 @@ import java.io.InputStream
 import java.util.Base64
 
 object RemoteMediaResolver {
-    private const val BOLT_HTTP_RESOLVER_URL = "https://aws.api.snapchat.com/bolt-http"
+    private const val BOLT_HTTP_RESOLVER_URL = "https://web.snapchat.com/bolt-http"
     const val CF_ST_CDN_D = "https://cf-st.sc-cdn.net/d/"
 
     private val urlCache = mutableMapOf<String, String>()

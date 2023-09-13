@@ -32,4 +32,8 @@ abstract class Feature(
     protected fun findClass(name: String): Class<*> {
         return context.androidContext.classLoader.loadClass(name)
     }
+
+    protected fun runOnUiThread(block: () -> Unit) {
+        context.runOnUiThread(block)
+    }
 }

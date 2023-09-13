@@ -1,10 +1,18 @@
 package me.rhunk.snapenhance.features.impl.downloader
 
-import android.content.DialogInterface
+import android.annotation.SuppressLint
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import android.net.Uri
+import android.view.Gravity
+import android.view.ViewGroup.MarginLayoutParams
+import android.view.Window
 import android.widget.ImageView
+import android.widget.LinearLayout
+import android.widget.ProgressBar
+import android.widget.TextView
+import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.async
 import kotlinx.coroutines.runBlocking
 import me.rhunk.snapenhance.bridge.DownloadCallback
 import me.rhunk.snapenhance.core.database.objects.FriendInfo
@@ -475,6 +483,8 @@ class MediaDownloader : MessagingRuleFeature("MediaDownloader", MessagingRuleTyp
         }
     }
 
+    @SuppressLint("SetTextI18n")
+    @OptIn(ExperimentalCoroutinesApi::class)
     fun downloadMessageId(messageId: Long, isPreview: Boolean = false) {
         val messageLogger = context.feature(MessageLogger::class)
         val message = context.database.getConversationMessageFromId(messageId) ?: throw Exception("Message not found in database")
@@ -557,35 +567,76 @@ class MediaDownloader : MessagingRuleFeature("MediaDownloader", MessagingRuleTyp
                 return
             }
 
-            val downloadedMediaList = MediaDownloaderHelper.downloadMediaFromReference(urlProto) {
-                EncryptionHelper.decryptInputStream(it, contentType, messageReader, isArroyo = isArroyoMessage)
-            }
+            runBlocking {
+                val previewCoroutine = async {
+                    val downloadedMediaList = MediaDownloaderHelper.downloadMediaFromReference(urlProto) {
+                        EncryptionHelper.decryptInputStream(it, contentType, messageReader, isArroyo = isArroyoMessage)
+                    }
 
-            runCatching {
-                val originalMedia = downloadedMediaList[SplitMediaAssetType.ORIGINAL] ?: return
-                val overlay = downloadedMediaList[SplitMediaAssetType.OVERLAY]
+                    val originalMedia = downloadedMediaList[SplitMediaAssetType.ORIGINAL] ?: return@async null
+                    val overlay = downloadedMediaList[SplitMediaAssetType.OVERLAY]
 
-                var bitmap: Bitmap? = PreviewUtils.createPreview(originalMedia, isVideo = FileType.fromByteArray(originalMedia).isVideo)
+                    var bitmap: Bitmap? = PreviewUtils.createPreview(originalMedia, isVideo = FileType.fromByteArray(originalMedia).isVideo)
 
-                if (bitmap == null) {
-                    context.shortToast(translations["failed_to_create_preview_toast"])
-                    return
-                }
+                    if (bitmap == null) {
+                        context.shortToast(translations["failed_to_create_preview_toast"])
+                        return@async null
+                    }
 
-                overlay?.let {
-                    bitmap = PreviewUtils.mergeBitmapOverlay(bitmap!!, BitmapFactory.decodeByteArray(it, 0, it.size))
+                    overlay?.also {
+                        bitmap = PreviewUtils.mergeBitmapOverlay(bitmap!!, BitmapFactory.decodeByteArray(it, 0, it.size))
+                    }
+
+                    bitmap
                 }
 
                 with(ViewAppearanceHelper.newAlertDialogBuilder(context.mainActivity)) {
-                    setView(ImageView(context).apply {
-                        setImageBitmap(bitmap)
-                    })
-                    setPositiveButton("Close") { dialog: DialogInterface, _: Int -> dialog.dismiss() }
-                    this@MediaDownloader.context.runOnUiThread { show()}
+                    val viewGroup = LinearLayout(context).apply {
+                        layoutParams = MarginLayoutParams(MarginLayoutParams.MATCH_PARENT, MarginLayoutParams.MATCH_PARENT)
+                        gravity = Gravity.CENTER_HORIZONTAL or Gravity.CENTER_VERTICAL
+                        addView(ProgressBar(context).apply {
+                            isIndeterminate = true
+                        })
+                    }
+
+                    setOnDismissListener {
+                        previewCoroutine.cancel()
+                    }
+
+                    previewCoroutine.invokeOnCompletion { cause ->
+                        runOnUiThread {
+                            viewGroup.removeAllViews()
+                            if (cause != null) {
+                                viewGroup.addView(TextView(context).apply {
+                                    text = translations["failed_to_create_preview_toast"] + "\n" + cause.message
+                                    setPadding(30, 30, 30, 30)
+                                })
+                                return@runOnUiThread
+                            }
+
+                            viewGroup.addView(ImageView(context).apply {
+                                setImageBitmap(previewCoroutine.getCompleted())
+                                layoutParams = LinearLayout.LayoutParams(
+                                    LinearLayout.LayoutParams.MATCH_PARENT,
+                                    LinearLayout.LayoutParams.MATCH_PARENT
+                                )
+                                adjustViewBounds = true
+                            })
+                        }
+                    }
+
+                    runOnUiThread {
+                        show().apply {
+                            setContentView(viewGroup)
+                            requestWindowFeature(Window.FEATURE_NO_TITLE)
+                            window?.setLayout(
+                                context.resources.displayMetrics.widthPixels,
+                                context.resources.displayMetrics.heightPixels
+                            )
+                        }
+                        previewCoroutine.start()
+                    }
                 }
-            }.onFailure {
-                context.shortToast(translations["failed_to_create_preview_toast"])
-                context.log.error("Failed to create preview", it)
             }
         }.onFailure {
             context.longToast(translations["failed_generic_toast"])
