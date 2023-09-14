@@ -30,9 +30,12 @@ import me.rhunk.snapenhance.features.Feature
 import me.rhunk.snapenhance.features.FeatureLoadParams
 import me.rhunk.snapenhance.features.impl.Messaging
 import me.rhunk.snapenhance.features.impl.downloader.MediaDownloader
+import me.rhunk.snapenhance.features.impl.downloader.decoder.MessageDecoder
 import me.rhunk.snapenhance.hook.HookStage
 import me.rhunk.snapenhance.hook.Hooker
 import me.rhunk.snapenhance.hook.hook
+import kotlin.io.encoding.Base64
+import kotlin.io.encoding.ExperimentalEncodingApi
 
 class Notifications : Feature("Notifications", loadParams = FeatureLoadParams.INIT_SYNC) {
     companion object{
@@ -183,6 +186,7 @@ class Notifications : Feature("Notifications", loadParams = FeatureLoadParams.IN
         }
     }
 
+    @OptIn(ExperimentalEncodingApi::class)
     private fun fetchMessagesResult(conversationId: String, messages: List<Message>) {
         val sendNotificationData = { notificationData: NotificationData, forceCreate: Boolean  ->
             val notificationId = if (forceCreate) System.nanoTime().toInt() else notificationData.id
@@ -241,20 +245,25 @@ class Notifications : Feature("Notifications", loadParams = FeatureLoadParams.IN
                         }
                         appendNotifications()
                     }
-                    ContentType.SNAP, ContentType.EXTERNAL_MEDIA-> {
-                        //serialize the message content into a json object
+                    ContentType.SNAP, ContentType.EXTERNAL_MEDIA -> {
                         val serializedMessageContent = context.gson.toJsonTree(snapMessage.messageContent.instanceNonNull()).asJsonObject
-                        val mediaReferences = serializedMessageContent["mRemoteMediaReferences"]
-                            .asJsonArray.map { it.asJsonObject["mMediaReferences"].asJsonArray }
+                        val mediaReferences = serializedMessageContent
+                            .getAsJsonArray("mRemoteMediaReferences")
+                            .map { it.asJsonObject.getAsJsonArray("mMediaReferences") }
                             .flatten()
 
-                        mediaReferences.forEach { media ->
-                            val protoMediaReference = media.asJsonObject["mContentObject"].asJsonArray.map { it.asByte }.toByteArray()
-                            val mediaType = MediaReferenceType.valueOf(media.asJsonObject["mMediaType"].asString)
+                        val mediaReferenceUrls = mediaReferences.map { reference ->
+                            reference.asJsonObject.getAsJsonArray("mContentObject").map { it.asByte }.toByteArray()
+                        }
+
+                        MessageDecoder.decode(
+                            ProtoReader(contentData),
+                            customMediaReferences = mediaReferenceUrls.map { Base64.UrlSafe.encode(it) }
+                        ).forEachIndexed { index, media ->
+                            val mediaType = MediaReferenceType.valueOf(mediaReferences[index].asJsonObject["mMediaType"].asString)
                             runCatching {
-                                val messageReader = ProtoReader(contentData)
-                                val downloadedMediaList = MediaDownloaderHelper.downloadMediaFromReference(protoMediaReference) {
-                                    EncryptionHelper.decryptInputStream(it, contentType, messageReader, isArroyo = false)
+                                val downloadedMediaList = MediaDownloaderHelper.downloadMediaFromReference(mediaReferenceUrls[index]) { inputStream ->
+                                    media.attachmentInfo?.encryption?.let { EncryptionHelper.decryptInputStream(inputStream, it) } ?: inputStream
                                 }
 
                                 var bitmapPreview = PreviewUtils.createPreview(downloadedMediaList[SplitMediaAssetType.ORIGINAL]!!, mediaType.name.contains("VIDEO"))!!
@@ -279,7 +288,8 @@ class Notifications : Feature("Notifications", loadParams = FeatureLoadParams.IN
                         }
                     }
                     else -> {
-                        notificationCache.add(formatUsername("sent $contentType"))
+                        notificationCache.add(formatUsername("sent ${contentType.name.lowercase()}"))
+                        appendNotifications()
                     }
                 }
 
