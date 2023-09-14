@@ -29,7 +29,8 @@ enum class MessagingRuleType(
     AUTO_DOWNLOAD("auto_download", true),
     STEALTH("stealth", true),
     AUTO_SAVE("auto_save", true),
-    HIDE_CHAT_FEED("hide_chat_feed", false);
+    HIDE_CHAT_FEED("hide_chat_feed", false),
+    PIN_CONVERSATION("pin_conversation", false);
 
     fun translateOptionKey(optionKey: String): String {
         return "rules.properties.${key}.options.${optionKey}"

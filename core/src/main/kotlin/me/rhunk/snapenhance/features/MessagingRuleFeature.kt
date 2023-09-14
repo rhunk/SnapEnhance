@@ -4,11 +4,8 @@ import me.rhunk.snapenhance.core.messaging.MessagingRuleType
 import me.rhunk.snapenhance.core.messaging.RuleState
 
 abstract class MessagingRuleFeature(name: String, val ruleType: MessagingRuleType, loadParams: Int = 0) : Feature(name, loadParams) {
-    init {
-        if (!ruleType.listMode) throw IllegalArgumentException("Rule type must be a list mode")
-    }
 
-    fun getRuleState() = context.config.rules.getRuleState(ruleType)
+    open fun getRuleState() = context.config.rules.getRuleState(ruleType)
 
     fun setState(conversationId: String, state: Boolean) {
         context.bridgeClient.setRule(
