@@ -14,7 +14,7 @@ class EditorContext(
     }
     fun addVarInt(id: Int, value: Int) = addVarInt(id, value.toLong())
     fun addVarInt(id: Int, value: Long) = addWire(Wire(id, WireType.VARINT, value))
-    fun addBuffer(id: Int, value: ByteArray) = addWire(Wire(id, WireType.LENGTH_DELIMITED, value))
+    fun addBuffer(id: Int, value: ByteArray) = addWire(Wire(id, WireType.CHUNK, value))
     fun add(id: Int, content: ProtoWriter.() -> Unit) = addBuffer(id, ProtoWriter().apply(content).toByteArray())
     fun addString(id: Int, value: String) = addBuffer(id, value.toByteArray())
     fun addFixed64(id: Int, value: Long) = addWire(Wire(id, WireType.FIXED64, value))
@@ -48,7 +48,7 @@ class ProtoEditor(
                     wires.getOrPut(wireId) { mutableListOf() }.add(value)
                     return@forEach
                 }
-                wires[wireId]!!.add(Wire(wireId, WireType.LENGTH_DELIMITED, writeAtPath(path, currentIndex + 1, childReader, wireToWriteCallback)))
+                wires[wireId]!!.add(Wire(wireId, WireType.CHUNK, writeAtPath(path, currentIndex + 1, childReader, wireToWriteCallback)))
                 return@forEach
             }
             wires[wireId]!!.add(value)

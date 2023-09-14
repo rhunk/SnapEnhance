@@ -1,5 +1,7 @@
 package me.rhunk.snapenhance.core.util.protobuf
 
+import java.util.UUID
+
 data class Wire(val id: Int, val type: WireType, val value: Any)
 
 class ProtoReader(private val buffer: ByteArray) {
@@ -43,7 +45,7 @@ class ProtoReader(private val buffer: ByteArray) {
                         }
                         bytes
                     }
-                    WireType.LENGTH_DELIMITED -> {
+                    WireType.CHUNK -> {
                         val length = readVarInt().toInt()
                         val bytes = ByteArray(length)
                         for (i in 0 until length) {
@@ -135,7 +137,7 @@ class ProtoReader(private val buffer: ByteArray) {
     fun eachBuffer(reader: (Int, ByteArray) -> Unit) {
         values.forEach { (id, wires) ->
             wires.forEach { wire ->
-                if (wire.type == WireType.LENGTH_DELIMITED) {
+                if (wire.type == WireType.CHUNK) {
                     reader(id, wire.value as ByteArray)
                 }
             }
@@ -172,4 +174,82 @@ class ProtoReader(private val buffer: ByteArray) {
         }
         return value
     }
+
+    private fun prettyPrint(tabSize: Int): String {
+        val tabLine = "    ".repeat(tabSize)
+        val stringBuilder = StringBuilder()
+        values.forEach { (id, wires) ->
+            wires.forEach { wire ->
+                stringBuilder.append(tabLine)
+                stringBuilder.append("$id <${wire.type.name.lowercase()}> = ")
+                when (wire.type) {
+                    WireType.VARINT -> stringBuilder.append("${wire.value}\n")
+                    WireType.FIXED64, WireType.FIXED32 -> {
+                        //print as double, int, floating point
+                        val doubleValue = run {
+                            val bytes = wire.value as ByteArray
+                            var value = 0L
+                            for (i in bytes.indices) {
+                                value = value or ((bytes[i].toLong() and 0xFF) shl (i * 8))
+                            }
+                            value
+                        }.let {
+                            if (wire.type == WireType.FIXED32) {
+                                it.toInt()
+                            } else {
+                                it
+                            }
+                        }
+
+                        stringBuilder.append("$doubleValue/${doubleValue.toDouble().toBits().toString(16)}\n")
+                    }
+                    WireType.CHUNK -> {
+                        fun printArray() {
+                            stringBuilder.append("\n")
+                            stringBuilder.append("$tabLine    ")
+                            stringBuilder.append((wire.value as ByteArray).joinToString(" ") { byte -> "%02x".format(byte) })
+                            stringBuilder.append("\n")
+                        }
+                        runCatching {
+                            val array = (wire.value as ByteArray)
+                            if (array.isEmpty()) {
+                                stringBuilder.append("empty\n")
+                                return@runCatching
+                            }
+                            //auto detect ascii strings
+                            if (array.all { it in 0x20..0x7E }) {
+                                stringBuilder.append("string: ${array.toString(Charsets.UTF_8)}\n")
+                                return@runCatching
+                            }
+
+                            // auto detect uuids
+                            if (array.size == 16) {
+                                val longs = LongArray(2)
+                                for (i in 0..7) {
+                                    longs[0] = longs[0] or ((array[i].toLong() and 0xFF) shl (i * 8))
+                                }
+                                for (i in 8..15) {
+                                    longs[1] = longs[1] or ((array[i].toLong() and 0xFF) shl ((i - 8) * 8))
+                                }
+                                stringBuilder.append("uuid: ${UUID(longs[0], longs[1])}\n")
+                                return@runCatching
+                            }
+
+                            ProtoReader(array).prettyPrint(tabSize + 1).takeIf { it.isNotEmpty() }?.let {
+                                stringBuilder.append("message:\n")
+                                stringBuilder.append(it)
+                            } ?: printArray()
+                        }.onFailure {
+                            printArray()
+                        }
+                    }
+                    else -> stringBuilder.append("unknown\n")
+                }
+            }
+        }
+
+        return stringBuilder.toString()
+    }
+
+    override fun toString() = prettyPrint(0)
 }

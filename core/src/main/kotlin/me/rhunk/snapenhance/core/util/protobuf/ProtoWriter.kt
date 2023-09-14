@@ -24,7 +24,7 @@ class ProtoWriter {
     }
 
     fun addBuffer(id: Int, value: ByteArray) {
-        writeVarInt(id shl 3 or WireType.LENGTH_DELIMITED.value)
+        writeVarInt(id shl 3 or WireType.CHUNK.value)
         writeVarInt(value.size)
         stream.write(value)
     }
@@ -98,7 +98,7 @@ class ProtoWriter {
                     is ByteArray -> stream.write(wire.value)
                 }
             }
-            WireType.LENGTH_DELIMITED -> {
+            WireType.CHUNK -> {
                 val value = wire.value as ByteArray
                 writeVarInt(value.size)
                 stream.write(value)

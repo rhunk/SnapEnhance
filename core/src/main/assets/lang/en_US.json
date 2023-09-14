@@ -97,6 +97,9 @@
             },
             "hide_chat_feed": {
                 "name": "Hide from Chat feed"
+            },
+            "pin_conversation": {
+                "name": "Pin Conversation"
             }
         }
     },
@@ -696,9 +699,18 @@
     },
 
     "download_processor": {
+        "attachment_type": {
+            "snap": "Snap",
+            "sticker": "Sticker",
+            "external_media": "External Media",
+            "note": "Note",
+            "original_story": "Original Story"
+        },
+        "select_attachments_title": "Select attachments to download",
         "download_started_toast": "Download started",
         "unsupported_content_type_toast": "Unsupported content type!",
         "failed_no_longer_available_toast": "Media no longer available",
+        "no_attachments_toast": "No attachments found!",
         "already_queued_toast": "Media already in queue!",
         "already_downloaded_toast": "Media already downloaded!",
         "saved_toast": "Saved to {path}",

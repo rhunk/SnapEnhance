@@ -6,7 +6,7 @@ data class InputMedia(
     val content: String,
     val type: DownloadMediaType,
     val encryption: MediaEncryptionKeyPair? = null,
-    val messageContentType: String? = null,
+    val attachmentType: String? = null,
     val isOverlay: Boolean = false,
 )
 

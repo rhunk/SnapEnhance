@@ -9,11 +9,13 @@ import me.rhunk.snapenhance.core.download.data.MediaDownloadSource
 import me.rhunk.snapenhance.core.util.SQLiteDatabaseHelper
 import me.rhunk.snapenhance.core.util.ktx.getIntOrNull
 import me.rhunk.snapenhance.core.util.ktx.getStringOrNull
+import java.util.concurrent.Executors
 
 class DownloadTaskManager {
     private lateinit var taskDatabase: SQLiteDatabase
     private val pendingTasks = mutableMapOf<Int, DownloadObject>()
     private val cachedTasks = mutableMapOf<Int, DownloadObject>()
+    private val executor = Executors.newSingleThreadExecutor()
 
     @SuppressLint("Range")
     fun init(context: Context) {
@@ -34,39 +36,43 @@ class DownloadTaskManager {
         }
     }
 
-    fun addTask(task: DownloadObject): Int {
-        taskDatabase.execSQL("INSERT INTO tasks (hash, outputPath, outputFile, downloadSource, mediaAuthor, iconUrl, downloadStage) VALUES (?, ?, ?, ?, ?, ?, ?)",
-            arrayOf(
-                task.metadata.mediaIdentifier,
-                task.metadata.outputPath,
-                task.outputFile,
-                task.metadata.downloadSource,
-                task.metadata.mediaAuthor,
-                task.metadata.iconUrl,
-                task.downloadStage.name
+    fun addTask(task: DownloadObject) {
+        executor.execute {
+            taskDatabase.execSQL("INSERT INTO tasks (hash, outputPath, outputFile, downloadSource, mediaAuthor, iconUrl, downloadStage) VALUES (?, ?, ?, ?, ?, ?, ?)",
+                arrayOf(
+                    task.metadata.mediaIdentifier,
+                    task.metadata.outputPath,
+                    task.outputFile,
+                    task.metadata.downloadSource,
+                    task.metadata.mediaAuthor,
+                    task.metadata.iconUrl,
+                    task.downloadStage.name
+                )
             )
-        )
-        task.downloadId = taskDatabase.rawQuery("SELECT last_insert_rowid()", null).use {
-            it.moveToFirst()
-            it.getInt(0)
+            task.downloadId = taskDatabase.rawQuery("SELECT last_insert_rowid()", null).use {
+                it.moveToFirst()
+                it.getInt(0)
+            }
+            pendingTasks[task.downloadId] = task
         }
-        pendingTasks[task.downloadId] = task
-        return task.downloadId
     }
 
     fun updateTask(task: DownloadObject) {
-        taskDatabase.execSQL("UPDATE tasks SET hash = ?, outputPath = ?, outputFile = ?, downloadSource = ?, mediaAuthor = ?, iconUrl = ?, downloadStage = ? WHERE id = ?",
-            arrayOf(
-                task.metadata.mediaIdentifier,
-                task.metadata.outputPath,
-                task.outputFile,
-                task.metadata.downloadSource,
-                task.metadata.mediaAuthor,
-                task.metadata.iconUrl,
-                task.downloadStage.name,
-                task.downloadId
+        executor.execute {
+            taskDatabase.execSQL(
+                "UPDATE tasks SET hash = ?, outputPath = ?, outputFile = ?, downloadSource = ?, mediaAuthor = ?, iconUrl = ?, downloadStage = ? WHERE id = ?",
+                arrayOf(
+                    task.metadata.mediaIdentifier,
+                    task.metadata.outputPath,
+                    task.outputFile,
+                    task.metadata.downloadSource,
+                    task.metadata.mediaAuthor,
+                    task.metadata.iconUrl,
+                    task.downloadStage.name,
+                    task.downloadId
+                )
             )
-        )
+        }
         //if the task is no longer active, move it to the cached tasks
         if (task.isJobActive()) {
             pendingTasks[task.downloadId] = task
@@ -103,9 +109,11 @@ class DownloadTaskManager {
     }
 
     private fun removeTask(id: Int) {
-        taskDatabase.execSQL("DELETE FROM tasks WHERE id = ?", arrayOf(id))
-        cachedTasks.remove(id)
-        pendingTasks.remove(id)
+        executor.execute {
+            taskDatabase.execSQL("DELETE FROM tasks WHERE id = ?", arrayOf(id))
+            cachedTasks.remove(id)
+            pendingTasks.remove(id)
+        }
     }
 
     fun removeTask(task: DownloadObject) {
@@ -174,8 +182,10 @@ class DownloadTaskManager {
     }
 
     fun removeAllTasks() {
-        taskDatabase.execSQL("DELETE FROM tasks")
-        cachedTasks.clear()
-        pendingTasks.clear()
+        executor.execute {
+            taskDatabase.execSQL("DELETE FROM tasks")
+            cachedTasks.clear()
+            pendingTasks.clear()
+        }
     }
 }

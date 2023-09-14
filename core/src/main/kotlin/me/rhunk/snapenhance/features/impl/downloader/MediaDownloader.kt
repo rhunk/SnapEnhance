@@ -6,7 +6,6 @@ import android.graphics.BitmapFactory
 import android.net.Uri
 import android.view.Gravity
 import android.view.ViewGroup.MarginLayoutParams
-import android.view.Window
 import android.widget.ImageView
 import android.widget.LinearLayout
 import android.widget.ProgressBar
@@ -15,6 +14,7 @@ import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.async
 import kotlinx.coroutines.runBlocking
 import me.rhunk.snapenhance.bridge.DownloadCallback
+import me.rhunk.snapenhance.core.database.objects.ConversationMessage
 import me.rhunk.snapenhance.core.database.objects.FriendInfo
 import me.rhunk.snapenhance.core.download.DownloadManagerClient
 import me.rhunk.snapenhance.core.download.data.DownloadMediaType
@@ -31,7 +31,6 @@ import me.rhunk.snapenhance.core.util.snap.BitmojiSelfie
 import me.rhunk.snapenhance.core.util.snap.EncryptionHelper
 import me.rhunk.snapenhance.core.util.snap.MediaDownloaderHelper
 import me.rhunk.snapenhance.core.util.snap.PreviewUtils
-import me.rhunk.snapenhance.data.ContentType
 import me.rhunk.snapenhance.data.FileType
 import me.rhunk.snapenhance.data.wrapper.impl.media.MediaInfo
 import me.rhunk.snapenhance.data.wrapper.impl.media.dash.LongformVideoPlaylistItem
@@ -41,6 +40,8 @@ import me.rhunk.snapenhance.data.wrapper.impl.media.opera.ParamMap
 import me.rhunk.snapenhance.features.FeatureLoadParams
 import me.rhunk.snapenhance.features.MessagingRuleFeature
 import me.rhunk.snapenhance.features.impl.Messaging
+import me.rhunk.snapenhance.features.impl.downloader.decoder.DecodedAttachment
+import me.rhunk.snapenhance.features.impl.downloader.decoder.MessageDecoder
 import me.rhunk.snapenhance.features.impl.spying.MessageLogger
 import me.rhunk.snapenhance.hook.HookAdapter
 import me.rhunk.snapenhance.hook.HookStage
@@ -69,6 +70,10 @@ class MediaDownloader : MessagingRuleFeature("MediaDownloader", MessagingRuleTyp
     private var lastSeenMediaInfoMap: MutableMap<SplitMediaAssetType, MediaInfo>? = null
     private var lastSeenMapParams: ParamMap? = null
 
+    private val translations by lazy {
+        context.translation.getCategory("download_processor")
+    }
+
     private fun provideDownloadManagerClient(
         mediaIdentifier: String,
         mediaAuthor: String,
@@ -81,7 +86,7 @@ class MediaDownloader : MessagingRuleFeature("MediaDownloader", MessagingRuleTyp
 
         val downloadLogging by context.config.downloader.logging
         if (downloadLogging.contains("started")) {
-            context.shortToast(context.translation["download_processor.download_started_toast"])
+            context.shortToast(translations["download_started_toast"])
         }
 
         val outputPath = createNewFilePath(generatedHash, downloadSource, mediaAuthor)
@@ -101,7 +106,7 @@ class MediaDownloader : MessagingRuleFeature("MediaDownloader", MessagingRuleTyp
                 override fun onSuccess(outputFile: String) {
                     if (!downloadLogging.contains("success")) return
                     context.log.verbose("onSuccess: outputFile=$outputFile")
-                    context.shortToast(context.translation.format("download_processor.saved_toast", "path" to outputFile.split("/").takeLast(2).joinToString("/")))
+                    context.shortToast(translations.format("saved_toast", "path" to outputFile.split("/").takeLast(2).joinToString("/")))
                 }
 
                 override fun onProgress(message: String) {
@@ -483,6 +488,34 @@ class MediaDownloader : MessagingRuleFeature("MediaDownloader", MessagingRuleTyp
         }
     }
 
+    private fun downloadMessageAttachments(
+        friendInfo: FriendInfo,
+        message: ConversationMessage,
+        authorName: String,
+        attachments: List<DecodedAttachment>
+    ) {
+        //TODO: stickers
+        attachments.forEach { attachment ->
+            runCatching {
+                provideDownloadManagerClient(
+                    mediaIdentifier = "${message.clientConversationId}${message.senderId}${message.serverMessageId}${attachment.attachmentInfo?.encryption?.iv}",
+                    downloadSource = MediaDownloadSource.CHAT_MEDIA,
+                    mediaAuthor = authorName,
+                    friendInfo = friendInfo
+                ).downloadSingleMedia(
+                    mediaData = attachment.mediaKey!!,
+                    mediaType = DownloadMediaType.PROTO_MEDIA,
+                    encryption = attachment.attachmentInfo?.encryption,
+                    attachmentType = attachment.type
+                )
+            }.onFailure {
+                context.longToast(translations["failed_generic_toast"])
+                context.log.error("Failed to download", it)
+            }
+        }
+    }
+
+
     @SuppressLint("SetTextI18n")
     @OptIn(ExperimentalCoroutinesApi::class)
     fun downloadMessageId(messageId: Long, isPreview: Boolean = false) {
@@ -494,15 +527,10 @@ class MediaDownloader : MessagingRuleFeature("MediaDownloader", MessagingRuleTyp
         val authorName = friendInfo.usernameForSorting!!
 
         var messageContent = message.messageContent!!
-        var isArroyoMessage = true
-        var deletedMediaReference: ByteArray? = null
-
-        //check if the messageId
-        var contentType: ContentType = ContentType.fromId(message.contentType)
+        var customMediaReferences = mutableListOf<String>()
 
         if (messageLogger.isMessageRemoved(message.clientConversationId!!, message.serverMessageId.toLong())) {
             val messageObject = messageLogger.getMessageObject(message.clientConversationId!!, message.serverMessageId.toLong()) ?: throw Exception("Message not found in database")
-            isArroyoMessage = false
             val messageContentObject = messageObject.getAsJsonObject("mMessageContent")
 
             messageContent = messageContentObject
@@ -510,137 +538,138 @@ class MediaDownloader : MessagingRuleFeature("MediaDownloader", MessagingRuleTyp
                 .map { it.asByte }
                 .toByteArray()
 
-            contentType = ContentType.valueOf(messageContentObject
-                .getAsJsonPrimitive("mContentType").asString
-            )
-
-            deletedMediaReference = messageContentObject.getAsJsonArray("mRemoteMediaReferences")
+            customMediaReferences = messageContentObject
+                .getAsJsonArray("mRemoteMediaReferences")
                 .map { it.asJsonObject.getAsJsonArray("mMediaReferences") }
-                .flatten().let {  reference ->
-                    if (reference.isEmpty()) return@let null
-                    reference[0].asJsonObject.getAsJsonArray("mContentObject").map { it.asByte }.toByteArray()
+                .flatten().map { reference ->
+                    Base64.UrlSafe.encode(
+                        reference.asJsonObject.getAsJsonArray("mContentObject").map { it.asByte }.toByteArray()
+                    )
                 }
-        }
-
-        val translations = context.translation.getCategory("download_processor")
-
-        if (contentType != ContentType.NOTE &&
-            contentType != ContentType.SNAP &&
-            contentType != ContentType.EXTERNAL_MEDIA) {
-            context.shortToast(translations["unsupported_content_type_toast"])
-            return
+                .toMutableList()
         }
 
         val messageReader = ProtoReader(messageContent)
-        val urlProto: ByteArray? = if (isArroyoMessage) {
-            var finalProto: ByteArray? = null
-            messageReader.eachBuffer(4, 5) {
-                finalProto = getByteArray(1, 3)
-            }
-            finalProto
-        } else deletedMediaReference
+        val decodedAttachments = MessageDecoder.decode(
+            protoReader = messageReader,
+            customMediaReferences = customMediaReferences.takeIf { it.isNotEmpty() }
+        )
 
-        if (urlProto == null) {
-            context.shortToast(translations["unsupported_content_type_toast"])
+        if (decodedAttachments.isEmpty()) {
+            context.shortToast(translations["no_attachments_toast"])
             return
         }
 
-        runCatching {
-            if (!isPreview) {
-                val encryptionKeys = EncryptionHelper.getEncryptionKeys(contentType, messageReader, isArroyo = isArroyoMessage)
-                provideDownloadManagerClient(
-                    mediaIdentifier = "${message.clientConversationId}${message.senderId}${message.serverMessageId}",
-                    downloadSource = MediaDownloadSource.CHAT_MEDIA,
-                    mediaAuthor = authorName,
-                    friendInfo = friendInfo
-                ).downloadSingleMedia(
-                    mediaData = Base64.UrlSafe.encode(urlProto),
-                    mediaType = DownloadMediaType.PROTO_MEDIA,
-                    encryption = encryptionKeys?.toKeyPair(),
-                    messageContentType = contentType
+        if (!isPreview) {
+            if (decodedAttachments.size == 1) {
+                downloadMessageAttachments(friendInfo, message, authorName,
+                    listOf(decodedAttachments.first())
                 )
                 return
             }
 
-            if (EncryptionHelper.getEncryptionKeys(contentType, messageReader, isArroyo = isArroyoMessage) == null) {
-                context.shortToast(translations["failed_no_longer_available_toast"])
-                return
+            runOnUiThread {
+                ViewAppearanceHelper.newAlertDialogBuilder(context.mainActivity).apply {
+                    val selectedAttachments = mutableListOf<Int>().apply {
+                        addAll(decodedAttachments.indices)
+                    }
+                    setMultiChoiceItems(
+                        decodedAttachments.mapIndexed { index, decodedAttachment ->
+                            "${index + 1}: ${translations["attachment_type.${decodedAttachment.type.key}"]} ${decodedAttachment.attachmentInfo?.resolution?.let { "(${it.first}x${it.second})" } ?: ""}"
+                        }.toTypedArray(),
+                        decodedAttachments.map { true }.toBooleanArray()
+                    ) { _, which, isChecked ->
+                        if (isChecked) {
+                            selectedAttachments.add(which)
+                        } else if (selectedAttachments.contains(which)) {
+                            selectedAttachments.remove(which)
+                        }
+                    }
+                    setTitle(translations["select_attachments_title"])
+                    setNegativeButton(this@MediaDownloader.context.translation["button.cancel"]) { dialog, _ -> dialog.dismiss() }
+                    setPositiveButton(this@MediaDownloader.context.translation["button.download"]) { _, _ ->
+                        downloadMessageAttachments(friendInfo, message, authorName, selectedAttachments.map { decodedAttachments[it] })
+                    }
+                }.show()
             }
 
-            runBlocking {
-                val previewCoroutine = async {
-                    val downloadedMediaList = MediaDownloaderHelper.downloadMediaFromReference(urlProto) {
-                        EncryptionHelper.decryptInputStream(it, contentType, messageReader, isArroyo = isArroyoMessage)
-                    }
+            return
+        }
 
-                    val originalMedia = downloadedMediaList[SplitMediaAssetType.ORIGINAL] ?: return@async null
-                    val overlay = downloadedMediaList[SplitMediaAssetType.OVERLAY]
+        runBlocking {
+            val firstAttachment = decodedAttachments.first()
 
-                    var bitmap: Bitmap? = PreviewUtils.createPreview(originalMedia, isVideo = FileType.fromByteArray(originalMedia).isVideo)
-
-                    if (bitmap == null) {
-                        context.shortToast(translations["failed_to_create_preview_toast"])
-                        return@async null
-                    }
-
-                    overlay?.also {
-                        bitmap = PreviewUtils.mergeBitmapOverlay(bitmap!!, BitmapFactory.decodeByteArray(it, 0, it.size))
-                    }
-
-                    bitmap
+            val previewCoroutine = async {
+                val downloadedMediaList = MediaDownloaderHelper.downloadMediaFromReference(Base64.decode(firstAttachment.mediaKey!!)) {
+                    EncryptionHelper.decryptInputStream(
+                        it,
+                        decodedAttachments.first().attachmentInfo?.encryption
+                    )
                 }
 
-                with(ViewAppearanceHelper.newAlertDialogBuilder(context.mainActivity)) {
-                    val viewGroup = LinearLayout(context).apply {
-                        layoutParams = MarginLayoutParams(MarginLayoutParams.MATCH_PARENT, MarginLayoutParams.MATCH_PARENT)
-                        gravity = Gravity.CENTER_HORIZONTAL or Gravity.CENTER_VERTICAL
-                        addView(ProgressBar(context).apply {
-                            isIndeterminate = true
+                val originalMedia = downloadedMediaList[SplitMediaAssetType.ORIGINAL] ?: return@async null
+                val overlay = downloadedMediaList[SplitMediaAssetType.OVERLAY]
+
+                var bitmap: Bitmap? = PreviewUtils.createPreview(originalMedia, isVideo = FileType.fromByteArray(originalMedia).isVideo)
+
+                if (bitmap == null) {
+                    context.shortToast(translations["failed_to_create_preview_toast"])
+                    return@async null
+                }
+
+                overlay?.also {
+                    bitmap = PreviewUtils.mergeBitmapOverlay(bitmap!!, BitmapFactory.decodeByteArray(it, 0, it.size))
+                }
+
+                bitmap
+            }
+
+            with(ViewAppearanceHelper.newAlertDialogBuilder(context.mainActivity)) {
+                val viewGroup = LinearLayout(context).apply {
+                    layoutParams = MarginLayoutParams(MarginLayoutParams.MATCH_PARENT, MarginLayoutParams.MATCH_PARENT)
+                    gravity = Gravity.CENTER_HORIZONTAL or Gravity.CENTER_VERTICAL
+                    addView(ProgressBar(context).apply {
+                        isIndeterminate = true
+                    })
+                }
+
+                setOnDismissListener {
+                    previewCoroutine.cancel()
+                }
+
+                previewCoroutine.invokeOnCompletion { cause ->
+                    runOnUiThread {
+                        viewGroup.removeAllViews()
+                        if (cause != null) {
+                            viewGroup.addView(TextView(context).apply {
+                                text = translations["failed_to_create_preview_toast"] + "\n" + cause.message
+                                setPadding(30, 30, 30, 30)
+                            })
+                            return@runOnUiThread
+                        }
+
+                        viewGroup.addView(ImageView(context).apply {
+                            setImageBitmap(previewCoroutine.getCompleted())
+                            layoutParams = LinearLayout.LayoutParams(
+                                LinearLayout.LayoutParams.MATCH_PARENT,
+                                LinearLayout.LayoutParams.MATCH_PARENT
+                            )
+                            adjustViewBounds = true
                         })
                     }
+                }
 
-                    setOnDismissListener {
-                        previewCoroutine.cancel()
+                runOnUiThread {
+                    show().apply {
+                        setContentView(viewGroup)
+                        window?.setLayout(
+                            context.resources.displayMetrics.widthPixels,
+                            context.resources.displayMetrics.heightPixels
+                        )
                     }
-
-                    previewCoroutine.invokeOnCompletion { cause ->
-                        runOnUiThread {
-                            viewGroup.removeAllViews()
-                            if (cause != null) {
-                                viewGroup.addView(TextView(context).apply {
-                                    text = translations["failed_to_create_preview_toast"] + "\n" + cause.message
-                                    setPadding(30, 30, 30, 30)
-                                })
-                                return@runOnUiThread
-                            }
-
-                            viewGroup.addView(ImageView(context).apply {
-                                setImageBitmap(previewCoroutine.getCompleted())
-                                layoutParams = LinearLayout.LayoutParams(
-                                    LinearLayout.LayoutParams.MATCH_PARENT,
-                                    LinearLayout.LayoutParams.MATCH_PARENT
-                                )
-                                adjustViewBounds = true
-                            })
-                        }
-                    }
-
-                    runOnUiThread {
-                        show().apply {
-                            setContentView(viewGroup)
-                            requestWindowFeature(Window.FEATURE_NO_TITLE)
-                            window?.setLayout(
-                                context.resources.displayMetrics.widthPixels,
-                                context.resources.displayMetrics.heightPixels
-                            )
-                        }
-                        previewCoroutine.start()
-                    }
+                    previewCoroutine.start()
                 }
             }
-        }.onFailure {
-            context.longToast(translations["failed_generic_toast"])
-            context.log.error("Failed to download message", it)
         }
     }
 

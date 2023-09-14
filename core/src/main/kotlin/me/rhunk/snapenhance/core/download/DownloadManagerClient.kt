@@ -10,7 +10,7 @@ import me.rhunk.snapenhance.core.download.data.DownloadMetadata
 import me.rhunk.snapenhance.core.download.data.DownloadRequest
 import me.rhunk.snapenhance.core.download.data.InputMedia
 import me.rhunk.snapenhance.core.download.data.MediaEncryptionKeyPair
-import me.rhunk.snapenhance.data.ContentType
+import me.rhunk.snapenhance.features.impl.downloader.decoder.AttachmentType
 
 class DownloadManagerClient (
     private val context: ModContext,
@@ -50,7 +50,7 @@ class DownloadManagerClient (
         mediaData: String,
         mediaType: DownloadMediaType,
         encryption: MediaEncryptionKeyPair? = null,
-        messageContentType: ContentType? = null
+        attachmentType: AttachmentType? = null
     ) {
         enqueueDownloadRequest(
             DownloadRequest(
@@ -59,7 +59,7 @@ class DownloadManagerClient (
                         content = mediaData,
                         type = mediaType,
                         encryption = encryption,
-                        messageContentType = messageContentType?.name
+                        attachmentType = attachmentType?.name
                     )
                 )
             )

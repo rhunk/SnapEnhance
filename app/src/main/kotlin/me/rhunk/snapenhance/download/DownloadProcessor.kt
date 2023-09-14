@@ -8,8 +8,6 @@ import android.net.Uri
 import android.widget.Toast
 import androidx.documentfile.provider.DocumentFile
 import com.google.gson.GsonBuilder
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.job
 import kotlinx.coroutines.joinAll
@@ -254,7 +252,7 @@ class DownloadProcessor (
             val media = downloadedMedias[inputMedia]!!
 
             if (!downloadRequest.isDashPlaylist) {
-                if (inputMedia.messageContentType == "NOTE") {
+                if (inputMedia.attachmentType == "NOTE") {
                     remoteSideContext.config.root.downloader.forceVoiceNoteFormat.getNullable()?.let { format ->
                         val outputFile = File.createTempFile("voice_note", ".$format")
                         ffmpegProcessor.execute(FFMpegProcessor.Request(
