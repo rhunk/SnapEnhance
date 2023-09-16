@@ -3,6 +3,7 @@ package me.rhunk.snapenhance.core.util.export
 import android.os.Environment
 import android.util.Base64InputStream
 import com.google.gson.JsonArray
+import com.google.gson.JsonNull
 import com.google.gson.JsonObject
 import de.robv.android.xposed.XposedHelpers
 import kotlinx.coroutines.Dispatchers
@@ -11,20 +12,21 @@ import me.rhunk.snapenhance.ModContext
 import me.rhunk.snapenhance.core.BuildConfig
 import me.rhunk.snapenhance.core.database.objects.FriendFeedEntry
 import me.rhunk.snapenhance.core.database.objects.FriendInfo
+import me.rhunk.snapenhance.core.util.download.RemoteMediaResolver
 import me.rhunk.snapenhance.core.util.protobuf.ProtoReader
-import me.rhunk.snapenhance.core.util.snap.EncryptionHelper
 import me.rhunk.snapenhance.core.util.snap.MediaDownloaderHelper
 import me.rhunk.snapenhance.data.ContentType
 import me.rhunk.snapenhance.data.FileType
-import me.rhunk.snapenhance.data.MediaReferenceType
 import me.rhunk.snapenhance.data.wrapper.impl.Message
 import me.rhunk.snapenhance.data.wrapper.impl.SnapUUID
+import me.rhunk.snapenhance.features.impl.downloader.decoder.AttachmentType
+import me.rhunk.snapenhance.features.impl.downloader.decoder.MessageDecoder
+import java.io.BufferedInputStream
 import java.io.File
 import java.io.FileOutputStream
 import java.io.InputStream
 import java.io.OutputStream
 import java.text.SimpleDateFormat
-import java.util.Base64
 import java.util.Collections
 import java.util.Date
 import java.util.Locale
@@ -33,6 +35,7 @@ import java.util.concurrent.TimeUnit
 import java.util.zip.Deflater
 import java.util.zip.DeflaterInputStream
 import java.util.zip.ZipFile
+import kotlin.io.encoding.Base64
 import kotlin.io.encoding.ExperimentalEncodingApi
 
 
@@ -44,6 +47,7 @@ enum class ExportFormat(
     HTML("html");
 }
 
+@OptIn(ExperimentalEncodingApi::class)
 class MessageExporter(
     private val context: ModContext,
     private val outputFile: File,
@@ -94,7 +98,6 @@ class MessageExporter(
         writer.flush()
     }
 
-    @OptIn(ExperimentalEncodingApi::class)
     suspend fun exportHtml(output: OutputStream) {
         val downloadMediaCacheFolder = File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS), "SnapEnhance/cache").also { it.mkdirs() }
         val mediaFiles = Collections.synchronizedMap(mutableMapOf<String, Pair<FileType, File>>())
@@ -115,34 +118,30 @@ class MessageExporter(
                 mediaToDownload?.contains(it.messageContent.contentType) ?: false
             }.forEach { message ->
                 threadPool.execute {
-                    val remoteMediaReferences by lazy {
-                        val serializedMessageContent = context.gson.toJsonTree(message.messageContent.instanceNonNull()).asJsonObject
-                        serializedMessageContent["mRemoteMediaReferences"]
-                            .asJsonArray.map { it.asJsonObject["mMediaReferences"].asJsonArray }
-                            .flatten()
-                    }
-
-                    remoteMediaReferences.firstOrNull().takeIf { it != null }?.let { media ->
-                        val protoMediaReference = media.asJsonObject["mContentObject"].asJsonArray.map { it.asByte }.toByteArray()
+                    MessageDecoder.decode(message.messageContent).forEach decode@{ attachment ->
+                        val protoMediaReference = Base64.UrlSafe.decode(attachment.mediaKey ?: return@decode)
 
                         runCatching {
-                            val downloadedMedia = MediaDownloaderHelper.downloadMediaFromReference(protoMediaReference) {
-                                EncryptionHelper.decryptInputStream(it, message.messageContent.contentType!!, ProtoReader(message.messageContent.content), isArroyo = false)
-                            }
+                            RemoteMediaResolver.downloadBoltMedia(protoMediaReference, decryptionCallback = {
+                                (attachment.attachmentInfo?.encryption?.decryptInputStream(it) ?: it)
+                            }) {
+                                it.use { inputStream ->
+                                    MediaDownloaderHelper.getSplitElements(inputStream) { type, splitInputStream ->
+                                        val fileName = "${type}_${Base64.UrlSafe.encode(protoMediaReference).replace("=", "")}"
+                                        val bufferedInputStream = BufferedInputStream(splitInputStream)
+                                        val fileType = MediaDownloaderHelper.getFileType(bufferedInputStream)
+                                        val mediaFile = File(downloadMediaCacheFolder, "$fileName.${fileType.fileExtension}")
 
-                            downloadedMedia.forEach { (type, mediaData) ->
-                                val fileType = FileType.fromByteArray(mediaData)
-                                val fileName = "${type}_${kotlin.io.encoding.Base64.UrlSafe.encode(protoMediaReference).replace("=", "")}"
+                                        FileOutputStream(mediaFile).use { fos ->
+                                            bufferedInputStream.copyTo(fos)
+                                        }
 
-                                val mediaFile = File(downloadMediaCacheFolder, "$fileName.${fileType.fileExtension}")
-
-                                FileOutputStream(mediaFile).use { fos ->
-                                    mediaData.inputStream().copyTo(fos)
+                                        mediaFiles[fileName] = fileType to mediaFile
+                                    }
                                 }
-
-                                mediaFiles[fileName] = fileType to mediaFile
-                                updateProgress("downloaded")
                             }
+
+                            updateProgress("downloaded")
                         }.onFailure {
                             printLog("failed to download media for ${message.messageDescriptor.conversationId}_${message.orderKey}")
                             context.log.error("failed to download media for ${message.messageDescriptor.conversationId}_${message.orderKey}", it)
@@ -208,7 +207,7 @@ class MessageExporter(
 
                     //export avenir next font
                     apkFile.getEntry("res/font/avenir_next_medium.ttf").let { entry ->
-                        val encodedFontData = kotlin.io.encoding.Base64.Default.encode(apkFile.getInputStream(entry).readBytes())
+                        val encodedFontData = Base64.Default.encode(apkFile.getInputStream(entry).readBytes())
                         output.write("""
                         <style>
                             @font-face {
@@ -284,41 +283,25 @@ class MessageExporter(
                         addProperty("createdTimestamp", message.messageMetadata.createdAt)
                         addProperty("readTimestamp", message.messageMetadata.readAt)
                         addProperty("serializedContent", serializeMessageContent(message))
-                        addProperty("rawContent", Base64.getUrlEncoder().encodeToString(message.messageContent.content))
+                        addProperty("rawContent", Base64.UrlSafe.encode(message.messageContent.content))
 
-                        val messageContentType = message.messageContent.contentType ?: ContentType.CHAT
-
-                        EncryptionHelper.getEncryptionKeys(messageContentType, ProtoReader(message.messageContent.content), isArroyo = false)?.let { encryptionKeyPair ->
-                            add("encryption", JsonObject().apply encryption@{
-                                addProperty("key", Base64.getEncoder().encodeToString(encryptionKeyPair.first))
-                                addProperty("iv", Base64.getEncoder().encodeToString(encryptionKeyPair.second))
-                            })
-                        }
-
-                        val remoteMediaReferences by lazy {
-                            val serializedMessageContent = context.gson.toJsonTree(message.messageContent.instanceNonNull()).asJsonObject
-                            serializedMessageContent["mRemoteMediaReferences"]
-                                .asJsonArray.map { it.asJsonObject["mMediaReferences"].asJsonArray }
-                                .flatten()
-                        }
-
-                        add("mediaReferences", JsonArray().apply mediaReferences@ {
-                            if (messageContentType != ContentType.EXTERNAL_MEDIA &&
-                                messageContentType != ContentType.STICKER &&
-                                messageContentType != ContentType.SNAP &&
-                                messageContentType != ContentType.NOTE)
-                                return@mediaReferences
-
-                            remoteMediaReferences.forEach { media ->
-                                val protoMediaReference = media.asJsonObject["mContentObject"].asJsonArray.map { it.asByte }.toByteArray()
-                                val mediaType = MediaReferenceType.valueOf(media.asJsonObject["mMediaType"].asString)
+                        add("attachments", JsonArray().apply {
+                            MessageDecoder.decode(message.messageContent)
+                                .forEach attachments@{ attachments ->
+                                if (attachments.type == AttachmentType.STICKER) //TODO: implement stickers
+                                    return@attachments
                                 add(JsonObject().apply {
-                                    addProperty("mediaType", mediaType.toString())
-                                    addProperty("content", Base64.getUrlEncoder().encodeToString(protoMediaReference))
+                                    addProperty("key", attachments.mediaKey?.replace("=", ""))
+                                    addProperty("type", attachments.type.toString())
+                                    add("encryption", attachments.attachmentInfo?.encryption?.let { encryption ->
+                                        JsonObject().apply {
+                                            addProperty("key", encryption.key)
+                                            addProperty("iv", encryption.iv)
+                                        }
+                                    } ?: JsonNull.INSTANCE)
                                 })
                             }
                         })
-
                     })
                 }
             })

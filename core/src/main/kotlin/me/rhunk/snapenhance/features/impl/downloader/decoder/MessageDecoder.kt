@@ -1,7 +1,11 @@
 package me.rhunk.snapenhance.features.impl.downloader.decoder
 
+import com.google.gson.GsonBuilder
+import com.google.gson.JsonElement
+import com.google.gson.JsonObject
 import me.rhunk.snapenhance.core.download.data.toKeyPair
 import me.rhunk.snapenhance.core.util.protobuf.ProtoReader
+import me.rhunk.snapenhance.data.wrapper.impl.MessageContent
 import kotlin.io.encoding.Base64
 import kotlin.io.encoding.ExperimentalEncodingApi
 
@@ -13,6 +17,8 @@ data class DecodedAttachment(
 
 @OptIn(ExperimentalEncodingApi::class)
 object MessageDecoder {
+    private val gson = GsonBuilder().create()
+
     private fun decodeAttachment(protoReader: ProtoReader): AttachmentInfo? {
         val mediaInfo =  protoReader.followPath(1, 1) ?: return null
 
@@ -36,6 +42,43 @@ object MessageDecoder {
             },
             duration = mediaInfo.getVarInt(15)   // external medias
                 ?: mediaInfo.getVarInt(13) // audio notes
+        )
+    }
+
+    @OptIn(ExperimentalEncodingApi::class)
+    fun getEncodedMediaReferences(messageContent: JsonElement): List<String> {
+        return getMediaReferences(messageContent).map { reference ->
+                Base64.UrlSafe.encode(
+                    reference.asJsonObject.getAsJsonArray("mContentObject").map { it.asByte }.toByteArray()
+                )
+            }
+            .toList()
+    }
+
+    fun getMediaReferences(messageContent: JsonElement): List<JsonElement> {
+        return messageContent.asJsonObject.getAsJsonArray("mRemoteMediaReferences")
+            .asSequence()
+            .map { it.asJsonObject.getAsJsonArray("mMediaReferences") }
+            .flatten()
+            .sortedBy {
+                it.asJsonObject["mMediaListId"].asLong
+            }.toList()
+    }
+
+
+    fun decode(messageContent: MessageContent): List<DecodedAttachment> {
+        return decode(
+            ProtoReader(messageContent.content),
+            customMediaReferences = getEncodedMediaReferences(gson.toJsonTree(messageContent.instanceNonNull()))
+        )
+    }
+
+    fun decode(messageContent: JsonObject): List<DecodedAttachment> {
+        return decode(
+            ProtoReader(messageContent.getAsJsonArray("mContent")
+                .map { it.asByte }
+                .toByteArray()),
+            customMediaReferences = getEncodedMediaReferences(messageContent)
         )
     }
 
@@ -137,7 +180,6 @@ object MessageDecoder {
                 decodeDirectMedia(AttachmentType.SNAP, this)
             }
         }
-
 
         return decodedAttachment
     }

@@ -3,6 +3,11 @@
 package me.rhunk.snapenhance.core.download.data
 
 import me.rhunk.snapenhance.data.wrapper.impl.media.EncryptionWrapper
+import java.io.InputStream
+import javax.crypto.Cipher
+import javax.crypto.CipherInputStream
+import javax.crypto.spec.IvParameterSpec
+import javax.crypto.spec.SecretKeySpec
 import kotlin.io.encoding.Base64
 import kotlin.io.encoding.ExperimentalEncodingApi
 
@@ -10,12 +15,16 @@ import kotlin.io.encoding.ExperimentalEncodingApi
 data class MediaEncryptionKeyPair(
     val key: String,
     val iv: String
-)
-
-fun Pair<ByteArray, ByteArray>.toKeyPair(): MediaEncryptionKeyPair {
-    return MediaEncryptionKeyPair(Base64.UrlSafe.encode(this.first), Base64.UrlSafe.encode(this.second))
+) {
+    fun decryptInputStream(inputStream: InputStream): InputStream {
+        val cipher = Cipher.getInstance("AES/CBC/PKCS5Padding")
+        cipher.init(Cipher.DECRYPT_MODE, SecretKeySpec(Base64.UrlSafe.decode(key), "AES"), IvParameterSpec(Base64.UrlSafe.decode(iv)))
+        return CipherInputStream(inputStream, cipher)
+    }
 }
 
-fun EncryptionWrapper.toKeyPair(): MediaEncryptionKeyPair {
-    return MediaEncryptionKeyPair(Base64.UrlSafe.encode(this.keySpec), Base64.UrlSafe.encode(this.ivKeyParameterSpec))
-}
+fun Pair<ByteArray, ByteArray>.toKeyPair()
+    = MediaEncryptionKeyPair(Base64.UrlSafe.encode(this.first), Base64.UrlSafe.encode(this.second))
+
+fun EncryptionWrapper.toKeyPair()
+    = MediaEncryptionKeyPair(Base64.UrlSafe.encode(this.keySpec), Base64.UrlSafe.encode(this.ivKeyParameterSpec))

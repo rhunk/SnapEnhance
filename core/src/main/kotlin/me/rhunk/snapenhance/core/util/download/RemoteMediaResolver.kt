@@ -4,7 +4,6 @@ import me.rhunk.snapenhance.Constants
 import me.rhunk.snapenhance.core.Logger
 import okhttp3.OkHttpClient
 import okhttp3.Request
-import java.io.ByteArrayInputStream
 import java.io.InputStream
 import java.util.Base64
 
@@ -36,18 +35,34 @@ object RemoteMediaResolver {
         }
         .build()
 
-    fun downloadBoltMedia(protoKey: ByteArray): InputStream? {
-        val request = Request.Builder()
-            .url(BOLT_HTTP_RESOLVER_URL + "/resolve?co=" + Base64.getUrlEncoder().encodeToString(protoKey))
-            .addHeader("User-Agent", Constants.USER_AGENT)
-            .build()
+    private fun newResolveRequest(protoKey: ByteArray) = Request.Builder()
+        .url(BOLT_HTTP_RESOLVER_URL + "/resolve?co=" + Base64.getUrlEncoder().encodeToString(protoKey))
+        .addHeader("User-Agent", Constants.USER_AGENT)
+        .build()
 
-        okHttpClient.newCall(request).execute().use { response ->
+    /**
+     * Download bolt media with memory allocation
+     */
+    fun downloadBoltMedia(protoKey: ByteArray, decryptionCallback: (InputStream) -> InputStream = { it }): ByteArray? {
+        okHttpClient.newCall(newResolveRequest(protoKey)).execute().use { response ->
             if (!response.isSuccessful) {
                 Logger.directDebug("Unexpected code $response")
                 return null
             }
-            return ByteArrayInputStream(response.body.bytes())
+            return decryptionCallback(response.body.byteStream()).readBytes()
+        }
+    }
+    
+    fun downloadBoltMedia(protoKey: ByteArray, decryptionCallback: (InputStream) -> InputStream = { it }, resultCallback: (InputStream) -> Unit) {
+        okHttpClient.newCall(newResolveRequest(protoKey)).execute().use { response ->
+            if (!response.isSuccessful) {
+                throw Throwable("invalid response ${response.code}")
+            }
+            resultCallback(
+                decryptionCallback(
+                    response.body.byteStream()
+                )
+            )
         }
     }
 }

@@ -122,9 +122,14 @@
 
     }
 
-    .media_container {
+    .chat_media {
         max-width: 300px;
         max-height: 500px;
+    }
+
+    .overlay_media {
+        position: absolute;
+        pointer-events: none;
     }
 
     .red_snap_svg {
@@ -140,7 +145,7 @@
     <div style="display: none;">
         <svg class="red_snap_svg" width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
             <rect x="2.75" y="2.75" width="10.5" height="10.5" rx="1.808" stroke="currentColor" stroke-width="1.5"></rect>
-         </svg>
+        </svg>
     </div>
 
     <script>
@@ -152,11 +157,22 @@
         }
 
         function makeConversationSummary() {
-            const conversationTitle = conversationData.conversationName != null ? 
-            conversationData.conversationName : 
-            "DM with " + Object.values(participants).map(user => user.username).join(", ")
+            const conversationTitle = conversationData.conversationName != null ?
+            conversationData.conversationName : "DM with " + Object.values(participants).map(user => user.username).join(", ")
 
             document.querySelector(".conversation_summary .title").textContent = conversationTitle
+        }
+
+        function decodeMedia(element) {
+            const decodedData = new Uint8Array(
+                inflate(
+                    base64decode(
+                        element.innerHTML.substring(5, element.innerHTML.length - 4)
+                    )
+                )
+            )
+
+            return URL.createObjectURL(new Blob([decodedData]))
         }
 
         function makeConversationMessageContainer() {
@@ -185,63 +201,88 @@
                     return headerElement
                 })(document.createElement("div")))
 
-                messageObject.appendChild(((elem) =>{
-                    elem.classList.add("content")
+                messageObject.appendChild(((messageContainer) =>{
+                    messageContainer.classList.add("content")
 
-                    elem.innerHTML = message.serializedContent
+                    messageContainer.innerHTML = message.serializedContent
 
                     if (!message.serializedContent) {
-                        elem.innerHTML = ""
+                        messageContainer.innerHTML = ""
                         let messageData = ""
                         switch(message.type) {
                             case "SNAP":
-                                elem.appendChild(document.querySelector('.red_snap_svg').cloneNode(true))
+                                messageContainer.appendChild(document.querySelector('.red_snap_svg').cloneNode(true))
                                 messageData = "Snap"
                                 break
                             default:
                                 messageData = message.type
-
                         }
-                        elem.innerHTML += messageData
+                        messageContainer.innerHTML += messageData
                     }
 
-                    if (message.mediaReferences && message.mediaReferences.length > 0) {
-                        //only get the first reference
-                        const reference = Object.values(message.mediaReferences)[0]
-                        let fetched = false
-                        var observer = new IntersectionObserver(function(entries) {
-                            if(!fetched && entries[0].isIntersecting === true) {
-                                fetched = true
+                    if (message.attachments && message.attachments.length > 0) {
+                        let observers = []
 
-                                const mediaDiv = document.querySelector('.media-ORIGINAL_' + reference.content.replace(/(=)/g, ""))
-                                if (!mediaDiv) return
-                                
-                                const content = mediaDiv.innerHTML.substring(5, mediaDiv.innerHTML.length - 4)
-                                const decodedData = new Uint8Array(inflate(base64decode(content)))
+                        message.attachments.forEach((attachment, index) => {
+                            const mediaKey = attachment.key.replace(/(=)/g, "")
 
-                                const blob = new Blob([decodedData])
-                                const url = URL.createObjectURL(blob)
-                                
+                            observers.push(() => {
+                                const originalMedia = document.querySelector('.media-ORIGINAL_' + mediaKey)
+                                if (!originalMedia) {
+                                    return
+                                }
+
+                                const originalMediaUrl = decodeMedia(originalMedia)
+
+                                const mediaContainer = document.createElement("div")
+                                messageContainer.appendChild(mediaContainer)
+
                                 const imageTag = document.createElement("img")
-                                imageTag.classList.add("media_container")
-                                imageTag.src = url
+                                imageTag.src = originalMediaUrl
+                                imageTag.classList.add("chat_media")
+                                mediaContainer.appendChild(imageTag)
+
                                 imageTag.onerror = () => {
-                                    elem.removeChild(imageTag)
+                                    mediaContainer.removeChild(imageTag)
                                     const mediaTag = document.createElement(message.type === "NOTE" ? "audio" : "video")
-                                    mediaTag.classList.add("media_container")
-                                    mediaTag.src = url
+                                    mediaTag.classList.add("chat_media")
+                                    mediaTag.src = originalMediaUrl
                                     mediaTag.preload = "metadata"
                                     mediaTag.controls = true
-                                    elem.appendChild(mediaTag)
+                                    mediaContainer.appendChild(mediaTag)
                                 }
-                                elem.innerHTML = ""
-                                elem.appendChild(imageTag)
+
+                                const overlay = document.querySelector('.media-OVERLAY_' + mediaKey)
+                                if (!overlay) {
+                                    return
+                                }
+
+                                const overlayImage = document.createElement("img")
+                                overlayImage.src = decodeMedia(overlay)
+                                overlayImage.classList.add("chat_media")
+                                overlayImage.classList.add("overlay_media")
+                                mediaContainer.appendChild(overlayImage)
+                            })
+                        })
+
+                        let fetched = false
+
+                        new IntersectionObserver(entries => {
+                            if(!fetched && entries[0].isIntersecting === true) {
+                                fetched = true
+                                messageContainer.innerHTML = ""
+                                observers.forEach(c => {
+                                    try {
+                                        c()
+                                    } catch (e) {
+                                        console.log(e)
+                                    }
+                                })
                             }
-                        }, { threshold: [1] });
-                        observer.observe(elem)
+                        }).observe(messageContainer)
                     }
 
-                    return elem
+                    return messageContainer
                 })(document.createElement("div")))
 
                 document.querySelector('.conversation_message_container').appendChild(messageObject)

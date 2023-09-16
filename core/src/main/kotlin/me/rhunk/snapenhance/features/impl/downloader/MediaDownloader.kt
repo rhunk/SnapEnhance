@@ -28,7 +28,6 @@ import me.rhunk.snapenhance.core.util.download.RemoteMediaResolver
 import me.rhunk.snapenhance.core.util.ktx.getObjectField
 import me.rhunk.snapenhance.core.util.protobuf.ProtoReader
 import me.rhunk.snapenhance.core.util.snap.BitmojiSelfie
-import me.rhunk.snapenhance.core.util.snap.EncryptionHelper
 import me.rhunk.snapenhance.core.util.snap.MediaDownloaderHelper
 import me.rhunk.snapenhance.core.util.snap.PreviewUtils
 import me.rhunk.snapenhance.data.FileType
@@ -47,6 +46,7 @@ import me.rhunk.snapenhance.hook.HookAdapter
 import me.rhunk.snapenhance.hook.HookStage
 import me.rhunk.snapenhance.hook.Hooker
 import me.rhunk.snapenhance.ui.ViewAppearanceHelper
+import java.io.ByteArrayInputStream
 import java.nio.file.Paths
 import java.text.SimpleDateFormat
 import java.util.Locale
@@ -526,34 +526,14 @@ class MediaDownloader : MessagingRuleFeature("MediaDownloader", MessagingRuleTyp
         val friendInfo: FriendInfo = context.database.getFriendInfo(message.senderId!!) ?: throw Exception("Friend not found in database")
         val authorName = friendInfo.usernameForSorting!!
 
-        var messageContent = message.messageContent!!
-        var customMediaReferences = mutableListOf<String>()
-
-        if (messageLogger.isMessageRemoved(message.clientConversationId!!, message.serverMessageId.toLong())) {
+        val decodedAttachments = if (messageLogger.isMessageRemoved(message.clientConversationId!!, message.serverMessageId.toLong())) {
             val messageObject = messageLogger.getMessageObject(message.clientConversationId!!, message.serverMessageId.toLong()) ?: throw Exception("Message not found in database")
-            val messageContentObject = messageObject.getAsJsonObject("mMessageContent")
-
-            messageContent = messageContentObject
-                .getAsJsonArray("mContent")
-                .map { it.asByte }
-                .toByteArray()
-
-            customMediaReferences = messageContentObject
-                .getAsJsonArray("mRemoteMediaReferences")
-                .map { it.asJsonObject.getAsJsonArray("mMediaReferences") }
-                .flatten().map { reference ->
-                    Base64.UrlSafe.encode(
-                        reference.asJsonObject.getAsJsonArray("mContentObject").map { it.asByte }.toByteArray()
-                    )
-                }
-                .toMutableList()
+            MessageDecoder.decode(messageObject.getAsJsonObject("mMessageContent"))
+        } else {
+            MessageDecoder.decode(
+                protoReader = ProtoReader(message.messageContent!!)
+            )
         }
-
-        val messageReader = ProtoReader(messageContent)
-        val decodedAttachments = MessageDecoder.decode(
-            protoReader = messageReader,
-            customMediaReferences = customMediaReferences.takeIf { it.isNotEmpty() }
-        )
 
         if (decodedAttachments.isEmpty()) {
             context.shortToast(translations["no_attachments_toast"])
@@ -561,7 +541,9 @@ class MediaDownloader : MessagingRuleFeature("MediaDownloader", MessagingRuleTyp
         }
 
         if (!isPreview) {
-            if (decodedAttachments.size == 1) {
+            if (decodedAttachments.size == 1 ||
+                context.mainActivity == null // we can't show alert dialogs when it downloads from a notification, so it downloads the first one
+            ) {
                 downloadMessageAttachments(friendInfo, message, authorName,
                     listOf(decodedAttachments.first())
                 )
@@ -600,11 +582,15 @@ class MediaDownloader : MessagingRuleFeature("MediaDownloader", MessagingRuleTyp
             val firstAttachment = decodedAttachments.first()
 
             val previewCoroutine = async {
-                val downloadedMediaList = MediaDownloaderHelper.downloadMediaFromReference(Base64.decode(firstAttachment.mediaKey!!)) {
-                    EncryptionHelper.decryptInputStream(
-                        it,
-                        decodedAttachments.first().attachmentInfo?.encryption
-                    )
+                val downloadedMedia = RemoteMediaResolver.downloadBoltMedia(Base64.decode(firstAttachment.mediaKey!!), decryptionCallback = {
+                    firstAttachment.attachmentInfo?.encryption?.decryptInputStream(it) ?: it
+                }) ?: return@async null
+
+                val downloadedMediaList = mutableMapOf<SplitMediaAssetType, ByteArray>()
+
+                MediaDownloaderHelper.getSplitElements(ByteArrayInputStream(downloadedMedia)) {
+                    type, inputStream ->
+                    downloadedMediaList[type] = inputStream.readBytes()
                 }
 
                 val originalMedia = downloadedMediaList[SplitMediaAssetType.ORIGINAL] ?: return@async null

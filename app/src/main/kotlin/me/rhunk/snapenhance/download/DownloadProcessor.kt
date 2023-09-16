@@ -23,17 +23,14 @@ import me.rhunk.snapenhance.core.download.data.DownloadMetadata
 import me.rhunk.snapenhance.core.download.data.DownloadRequest
 import me.rhunk.snapenhance.core.download.data.DownloadStage
 import me.rhunk.snapenhance.core.download.data.InputMedia
-import me.rhunk.snapenhance.core.download.data.MediaEncryptionKeyPair
+import me.rhunk.snapenhance.core.download.data.SplitMediaAssetType
 import me.rhunk.snapenhance.core.util.download.RemoteMediaResolver
+import me.rhunk.snapenhance.core.util.snap.MediaDownloaderHelper
 import java.io.File
 import java.io.InputStream
 import java.net.HttpURLConnection
 import java.net.URL
 import java.util.zip.ZipInputStream
-import javax.crypto.Cipher
-import javax.crypto.CipherInputStream
-import javax.crypto.spec.IvParameterSpec
-import javax.crypto.spec.SecretKeySpec
 import javax.xml.parsers.DocumentBuilderFactory
 import javax.xml.transform.TransformerFactory
 import javax.xml.transform.dom.DOMSource
@@ -108,14 +105,6 @@ class DownloadProcessor (
         }
 
         return files
-    }
-
-    private fun decryptInputStream(inputStream: InputStream, encryption: MediaEncryptionKeyPair): InputStream {
-        val cipher = Cipher.getInstance("AES/CBC/PKCS5Padding")
-        val key = Base64.UrlSafe.decode(encryption.key)
-        val iv = Base64.UrlSafe.decode(encryption.iv)
-        cipher.init(Cipher.DECRYPT_MODE, SecretKeySpec(key, "AES"), IvParameterSpec(iv))
-        return CipherInputStream(inputStream, cipher)
     }
 
     @SuppressLint("UnspecifiedRegisterReceiverFlag")
@@ -202,24 +191,16 @@ class DownloadProcessor (
         downloadRequest.inputMedias.forEach { inputMedia ->
             fun handleInputStream(inputStream: InputStream) {
                 createMediaTempFile().apply {
-                    if (inputMedia.encryption != null) {
-                        decryptInputStream(inputStream,
-                            inputMedia.encryption!!
-                        ).use { decryptedInputStream ->
-                            decryptedInputStream.copyTo(outputStream())
-                        }
-                    } else {
-                        inputStream.copyTo(outputStream())
-                    }
+                    (inputMedia.encryption?.decryptInputStream(inputStream) ?: inputStream).copyTo(outputStream())
                 }.also { downloadedMedias[inputMedia] = it }
             }
 
             launch {
                 when (inputMedia.type) {
                     DownloadMediaType.PROTO_MEDIA -> {
-                        RemoteMediaResolver.downloadBoltMedia(Base64.UrlSafe.decode(inputMedia.content))?.let { inputStream ->
-                            handleInputStream(inputStream)
-                        }
+                        RemoteMediaResolver.downloadBoltMedia(Base64.UrlSafe.decode(inputMedia.content), decryptionCallback = { it }, resultCallback = {
+                            handleInputStream(it)
+                        })
                     }
                     DownloadMediaType.DIRECT_MEDIA -> {
                         val decoded = Base64.UrlSafe.decode(inputMedia.content)
@@ -359,20 +340,26 @@ class DownloadProcessor (
                 var shouldMergeOverlay = downloadRequest.shouldMergeOverlay
 
                 //if there is a zip file, extract it and replace the downloaded media with the extracted ones
-                downloadedMedias.values.find { it.fileType == FileType.ZIP }?.let { entry ->
-                    val extractedMedias = extractZip(entry.file.inputStream()).map {
-                        InputMedia(
-                            type = DownloadMediaType.LOCAL_MEDIA,
-                            content = it.absolutePath
-                        ) to DownloadedFile(it, FileType.fromFile(it))
+                downloadedMedias.values.find { it.fileType == FileType.ZIP }?.let { zipFile ->
+                    val oldDownloadedMedias = downloadedMedias.toMap()
+                    downloadedMedias.clear()
+
+                    MediaDownloaderHelper.getSplitElements(zipFile.file.inputStream()) { type, inputStream ->
+                        createMediaTempFile().apply {
+                            inputStream.copyTo(outputStream())
+                        }.also {
+                            downloadedMedias[InputMedia(
+                                type = DownloadMediaType.LOCAL_MEDIA,
+                                content = it.absolutePath,
+                                isOverlay = type == SplitMediaAssetType.OVERLAY
+                            )] = DownloadedFile(it, FileType.fromFile(it))
+                        }
                     }
 
-                    downloadedMedias.values.removeIf {
-                        it.file.delete()
-                        true
+                    oldDownloadedMedias.forEach { (_, value) ->
+                        value.file.delete()
                     }
 
-                    downloadedMedias.putAll(extractedMedias)
                     shouldMergeOverlay = true
                 }
 

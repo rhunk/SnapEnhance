@@ -16,9 +16,9 @@ import me.rhunk.snapenhance.core.Logger
 import me.rhunk.snapenhance.core.download.data.SplitMediaAssetType
 import me.rhunk.snapenhance.core.eventbus.events.impl.SnapWidgetBroadcastReceiveEvent
 import me.rhunk.snapenhance.core.util.CallbackBuilder
+import me.rhunk.snapenhance.core.util.download.RemoteMediaResolver
 import me.rhunk.snapenhance.core.util.ktx.setObjectField
 import me.rhunk.snapenhance.core.util.protobuf.ProtoReader
-import me.rhunk.snapenhance.core.util.snap.EncryptionHelper
 import me.rhunk.snapenhance.core.util.snap.MediaDownloaderHelper
 import me.rhunk.snapenhance.core.util.snap.PreviewUtils
 import me.rhunk.snapenhance.core.util.snap.SnapWidgetBroadcastReceiverHelper
@@ -34,7 +34,6 @@ import me.rhunk.snapenhance.features.impl.downloader.decoder.MessageDecoder
 import me.rhunk.snapenhance.hook.HookStage
 import me.rhunk.snapenhance.hook.Hooker
 import me.rhunk.snapenhance.hook.hook
-import kotlin.io.encoding.Base64
 import kotlin.io.encoding.ExperimentalEncodingApi
 
 class Notifications : Feature("Notifications", loadParams = FeatureLoadParams.INIT_SYNC) {
@@ -246,29 +245,31 @@ class Notifications : Feature("Notifications", loadParams = FeatureLoadParams.IN
                         appendNotifications()
                     }
                     ContentType.SNAP, ContentType.EXTERNAL_MEDIA -> {
-                        val serializedMessageContent = context.gson.toJsonTree(snapMessage.messageContent.instanceNonNull()).asJsonObject
-                        val mediaReferences = serializedMessageContent
-                            .getAsJsonArray("mRemoteMediaReferences")
-                            .map { it.asJsonObject.getAsJsonArray("mMediaReferences") }
-                            .flatten()
+                        val mediaReferences = MessageDecoder.getMediaReferences(
+                            messageContent = context.gson.toJsonTree(snapMessage.messageContent.instanceNonNull())
+                        )
 
-                        val mediaReferenceUrls = mediaReferences.map { reference ->
+                        val mediaReferenceKeys = mediaReferences.map { reference ->
                             reference.asJsonObject.getAsJsonArray("mContentObject").map { it.asByte }.toByteArray()
                         }
 
-                        MessageDecoder.decode(
-                            ProtoReader(contentData),
-                            customMediaReferences = mediaReferenceUrls.map { Base64.UrlSafe.encode(it) }
-                        ).forEachIndexed { index, media ->
-                            val mediaType = MediaReferenceType.valueOf(mediaReferences[index].asJsonObject["mMediaType"].asString)
+                        MessageDecoder.decode(snapMessage.messageContent).firstOrNull()?.also { media ->
+                            val mediaType = MediaReferenceType.valueOf(mediaReferences.first().asJsonObject["mMediaType"].asString)
+
                             runCatching {
-                                val downloadedMediaList = MediaDownloaderHelper.downloadMediaFromReference(mediaReferenceUrls[index]) { inputStream ->
-                                    media.attachmentInfo?.encryption?.let { EncryptionHelper.decryptInputStream(inputStream, it) } ?: inputStream
+                                val downloadedMedia = RemoteMediaResolver.downloadBoltMedia(mediaReferenceKeys.first(), decryptionCallback =  {
+                                    media.attachmentInfo?.encryption?.decryptInputStream(it) ?: it
+                                }) ?: throw Throwable("Unable to download media")
+
+                                val downloadedMedias = mutableMapOf<SplitMediaAssetType, ByteArray>()
+
+                                MediaDownloaderHelper.getSplitElements(downloadedMedia.inputStream()) { type, inputStream ->
+                                    downloadedMedias[type] = inputStream.readBytes()
                                 }
 
-                                var bitmapPreview = PreviewUtils.createPreview(downloadedMediaList[SplitMediaAssetType.ORIGINAL]!!, mediaType.name.contains("VIDEO"))!!
+                                var bitmapPreview = PreviewUtils.createPreview(downloadedMedias[SplitMediaAssetType.ORIGINAL]!!, mediaType.name.contains("VIDEO"))!!
 
-                                downloadedMediaList[SplitMediaAssetType.OVERLAY]?.let {
+                                downloadedMedias[SplitMediaAssetType.OVERLAY]?.let {
                                     bitmapPreview = PreviewUtils.mergeBitmapOverlay(bitmapPreview, BitmapFactory.decodeByteArray(it, 0, it.size))
                                 }
 
