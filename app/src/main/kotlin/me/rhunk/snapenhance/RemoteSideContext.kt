@@ -24,6 +24,7 @@ import me.rhunk.snapenhance.core.config.ModConfig
 import me.rhunk.snapenhance.download.DownloadTaskManager
 import me.rhunk.snapenhance.messaging.ModDatabase
 import me.rhunk.snapenhance.messaging.StreaksReminder
+import me.rhunk.snapenhance.scripting.RemoteScriptManager
 import me.rhunk.snapenhance.ui.manager.MainActivity
 import me.rhunk.snapenhance.ui.manager.data.InstallationSummary
 import me.rhunk.snapenhance.ui.manager.data.ModInfo
@@ -54,6 +55,7 @@ class RemoteSideContext(
     val modDatabase = ModDatabase(this)
     val streaksReminder = StreaksReminder(this)
     val log = LogManager(this)
+    val scriptManager = RemoteScriptManager(this)
 
     //used to load bitmoji selfies and download previews
     val imageLoader by lazy {
@@ -75,6 +77,7 @@ class RemoteSideContext(
     val coroutineScope = CoroutineScope(Dispatchers.IO)
 
     fun reload() {
+        log.verbose("Loading RemoteSideContext")
         runCatching {
             config.loadFromContext(androidContext)
             translation.apply {
@@ -88,6 +91,7 @@ class RemoteSideContext(
             downloadTaskManager.init(androidContext)
             modDatabase.init()
             streaksReminder.init()
+            scriptManager.init()
         }.onFailure {
             log.error("Failed to load RemoteSideContext", it)
         }

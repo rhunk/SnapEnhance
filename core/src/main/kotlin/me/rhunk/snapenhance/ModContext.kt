@@ -25,6 +25,7 @@ import me.rhunk.snapenhance.manager.impl.ActionManager
 import me.rhunk.snapenhance.manager.impl.FeatureManager
 import me.rhunk.snapenhance.nativelib.NativeConfig
 import me.rhunk.snapenhance.nativelib.NativeLib
+import me.rhunk.snapenhance.scripting.ScriptRuntime
 import java.util.concurrent.ExecutorService
 import java.util.concurrent.Executors
 import kotlin.reflect.KClass
@@ -59,6 +60,7 @@ class ModContext {
     val messageSender = MessageSender(this)
     val classCache get() = SnapEnhance.classCache
     val resources: Resources get() = androidContext.resources
+    val scriptRuntime by lazy { ScriptRuntime(log) }
 
     fun <T : Feature> feature(featureClass: KClass<T>): T {
         return features.get(featureClass)!!

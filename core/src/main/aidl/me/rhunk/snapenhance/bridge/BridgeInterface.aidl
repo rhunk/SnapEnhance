@@ -3,6 +3,7 @@ package me.rhunk.snapenhance.bridge;
 import java.util.List;
 import me.rhunk.snapenhance.bridge.DownloadCallback;
 import me.rhunk.snapenhance.bridge.SyncCallback;
+import me.rhunk.snapenhance.bridge.scripting.IScripting;
 
 interface BridgeInterface {
     /**
@@ -85,4 +86,6 @@ interface BridgeInterface {
     * @param friends list of friends (MessagingFriendInfo as json string)
     */
     oneway void passGroupsAndFriends(in List<String> groups, in List<String> friends);
+
+    IScripting getScriptingInterface();
 }

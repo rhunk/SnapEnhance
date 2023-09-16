@@ -3,7 +3,6 @@ package me.rhunk.snapenhance.bridge
 import android.app.Service
 import android.content.Intent
 import android.os.IBinder
-import me.rhunk.snapenhance.core.LogLevel
 import me.rhunk.snapenhance.RemoteSideContext
 import me.rhunk.snapenhance.SharedContextHolder
 import me.rhunk.snapenhance.core.bridge.types.BridgeFileType
@@ -11,10 +10,11 @@ import me.rhunk.snapenhance.core.bridge.types.FileActionType
 import me.rhunk.snapenhance.core.bridge.wrapper.LocaleWrapper
 import me.rhunk.snapenhance.core.bridge.wrapper.MessageLoggerWrapper
 import me.rhunk.snapenhance.core.database.objects.FriendInfo
+import me.rhunk.snapenhance.core.logger.LogLevel
 import me.rhunk.snapenhance.core.messaging.MessagingFriendInfo
 import me.rhunk.snapenhance.core.messaging.MessagingGroupInfo
-import me.rhunk.snapenhance.download.DownloadProcessor
 import me.rhunk.snapenhance.core.util.SerializableDataObject
+import me.rhunk.snapenhance.download.DownloadProcessor
 import kotlin.system.measureTimeMillis
 
 class BridgeService : Service() {
@@ -168,5 +168,7 @@ class BridgeService : Service() {
                 groups.map { SerializableDataObject.fromJson<MessagingGroupInfo>(it) }
             )
         }
+
+        override fun getScriptingInterface() = remoteSideContext.scriptManager
     }
 }

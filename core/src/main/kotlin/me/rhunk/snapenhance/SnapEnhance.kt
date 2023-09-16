@@ -7,6 +7,7 @@ import android.content.pm.PackageManager
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.withContext
 import me.rhunk.snapenhance.bridge.SyncCallback
+import me.rhunk.snapenhance.bridge.scripting.ReloadListener
 import me.rhunk.snapenhance.core.BuildConfig
 import me.rhunk.snapenhance.core.Logger
 import me.rhunk.snapenhance.core.bridge.BridgeClient
@@ -113,6 +114,23 @@ class SnapEnhance {
                 if (!mappings.isMappingsLoaded()) return
                 features.init()
                 syncRemote()
+
+                bridgeClient.getScriptingInterface().apply {
+                    registerReloadListener(object: ReloadListener.Stub() {
+                        override fun reloadScript(path: String, content: String) {
+                            scriptRuntime.reload(path, content)
+                        }
+                    })
+
+                    enabledScriptPaths.forEach { path ->
+                        runCatching {
+                            scriptRuntime.load(path, getScriptContent(path))
+                        }.onFailure {
+                            log.error("Failed to load script $path", it)
+                        }
+                    }
+                }
+
             }
         }.also { time ->
             appContext.log.verbose("init took $time")

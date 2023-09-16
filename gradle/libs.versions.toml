@@ -18,6 +18,7 @@ dexlib2 = "2.5.2"
 androidx-documentfile = "1.1.0-alpha01"
 activity-ktx = "1.7.2"
 material3 = "1.1.1"
+rhino = "1.7.14"
 
 
 [libraries]
@@ -39,6 +40,7 @@ dexlib2 = { group = "org.smali", name = "dexlib2", version.ref = "dexlib2" }
 androidx-documentfile = { group = "androidx.documentfile", name = "documentfile", version.ref = "androidx-documentfile" }
 androidx-activity-ktx = { group = "androidx.activity", name = "activity-ktx", version.ref = "activity-ktx" }
 androidx-material3 = { group = "androidx.compose.material3", name = "material3", version.ref = "material3" }
+rhino = { module = "org.mozilla:rhino", version.ref = "rhino" }
 
 
 [plugins]

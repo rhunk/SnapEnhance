@@ -1,0 +1,70 @@
+package me.rhunk.snapenhance.scripting
+
+import me.rhunk.snapenhance.core.logger.AbstractLogger
+import me.rhunk.snapenhance.scripting.type.ModuleInfo
+import java.io.BufferedReader
+import java.io.ByteArrayInputStream
+
+class ScriptRuntime(
+    private val logger: AbstractLogger,
+) {
+    private val modules = mutableMapOf<String, JSModule>()
+
+    private fun readModuleInfo(reader: BufferedReader): ModuleInfo {
+        val header = reader.readLine()
+        if (!header.startsWith("// ==SE_module==")) {
+            throw Exception("Invalid module header")
+        }
+
+        val properties = mutableMapOf<String, String>()
+        while (true) {
+            val line = reader.readLine()
+            if (line.startsWith("// ==/SE_module==")) {
+                break
+            }
+            val split = line.replaceFirst("//", "").split(":")
+            if (split.size != 2) {
+                throw Exception("Invalid module property")
+            }
+            properties[split[0].trim()] = split[1].trim()
+        }
+
+        return ModuleInfo(
+            name = properties["name"] ?: throw Exception("Missing module name"),
+            version = properties["version"] ?: throw Exception("Missing module version"),
+            description = properties["description"],
+            author = properties["author"],
+            minSnapchatVersion = properties["minSnapchatVersion"]?.toLong(),
+            minSEVersion = properties["minSEVersion"]?.toLong(),
+            grantPermissions = properties["permissions"]?.split(",")?.map { it.trim() },
+        )
+    }
+
+    fun reload(path: String, content: String) {
+        unload(path)
+        load(path, content)
+    }
+
+    private fun unload(path: String) {
+        val module = modules[path] ?: return
+        module.unload()
+        module.load()
+        modules.remove(path)
+    }
+
+    fun load(path: String, content: String): JSModule? {
+        logger.info("Loading module $path")
+        return runCatching {
+            JSModule(
+                moduleInfo = readModuleInfo(ByteArrayInputStream(content.toByteArray(Charsets.UTF_8)).bufferedReader()),
+                content = content,
+            ).apply {
+                logger = this@ScriptRuntime.logger
+                load()
+                modules[path] = this
+            }
+        }.onFailure {
+            logger.error("Failed to load module $path", it)
+        }.getOrNull()
+    }
+}

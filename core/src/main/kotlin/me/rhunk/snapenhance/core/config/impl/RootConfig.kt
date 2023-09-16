@@ -14,4 +14,5 @@ class RootConfig : ConfigContainer() {
     val experimental = container("experimental", Experimental()) {
         icon = "Science"; addNotices(FeatureNotice.UNSTABLE)
     }
+    val scripting = container("scripting", Scripting()) { icon = "DataObject" }
 }

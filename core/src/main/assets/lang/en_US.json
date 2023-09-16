@@ -28,7 +28,7 @@
             "home_debug": "Debug",
             "home_logs": "Logs",
             "social": "Social",
-            "plugins": "Plugins"
+            "scripts": "Scripts"
         },
         "sections": {
             "home": {
@@ -519,6 +519,20 @@
                     "hidden_snapchat_plus_features": {
                         "name": "Hidden Snapchat Plus Features",
                         "description": "Enables unreleased/beta Snapchat Plus features\nMight not work on older Snapchat versions"
+                    }
+                }
+            },
+            "scripting": {
+                "name": "Scripting",
+                "description": "Run custom scripts to extend SnapEnhance",
+                "properties": {
+                    "module_folder": {
+                        "name": "Module Folder",
+                        "description": "The folder where the scripts are located"
+                    },
+                    "hot_reload": {
+                        "name": "Hot Reload",
+                        "description": "Automatically reloads scripts when they change"
                     }
                 }
             }

@@ -39,6 +39,7 @@ dependencies {
     implementation(libs.gson)
     implementation(libs.okhttp)
     implementation(libs.androidx.documentfile)
+    implementation(libs.rhino)
 
     implementation(project(":mapper"))
     implementation(project(":native"))

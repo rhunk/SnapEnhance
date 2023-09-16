@@ -2,8 +2,8 @@ package me.rhunk.snapenhance.ui.manager
 
 import androidx.compose.foundation.layout.RowScope
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.DataObject
 import androidx.compose.material.icons.filled.Download
-import androidx.compose.material.icons.filled.Extension
 import androidx.compose.material.icons.filled.Group
 import androidx.compose.material.icons.filled.Home
 import androidx.compose.material.icons.filled.Stars
@@ -13,10 +13,10 @@ import androidx.navigation.NavController
 import androidx.navigation.NavGraphBuilder
 import androidx.navigation.compose.composable
 import me.rhunk.snapenhance.RemoteSideContext
-import me.rhunk.snapenhance.ui.manager.sections.home.HomeSection
 import me.rhunk.snapenhance.ui.manager.sections.NotImplemented
 import me.rhunk.snapenhance.ui.manager.sections.downloads.DownloadsSection
 import me.rhunk.snapenhance.ui.manager.sections.features.FeaturesSection
+import me.rhunk.snapenhance.ui.manager.sections.home.HomeSection
 import me.rhunk.snapenhance.ui.manager.sections.social.SocialSection
 import kotlin.reflect.KClass
 
@@ -45,9 +45,9 @@ enum class EnumSection(
         icon = Icons.Filled.Group,
         section = SocialSection::class
     ),
-    PLUGINS(
-        route = "plugins",
-        icon = Icons.Filled.Extension
+    SCRIPTS(
+        route = "scripts",
+        icon = Icons.Filled.DataObject
     );
 
     companion object {

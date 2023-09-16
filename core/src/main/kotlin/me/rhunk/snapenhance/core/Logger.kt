@@ -4,54 +4,17 @@ import android.annotation.SuppressLint
 import android.util.Log
 import de.robv.android.xposed.XposedBridge
 import me.rhunk.snapenhance.core.bridge.BridgeClient
+import me.rhunk.snapenhance.core.logger.AbstractLogger
+import me.rhunk.snapenhance.core.logger.LogChannel
 import me.rhunk.snapenhance.hook.HookStage
 import me.rhunk.snapenhance.hook.hook
-
-enum class LogLevel(
-    val letter: String,
-    val shortName: String,
-    val priority: Int = Log.INFO
-) {
-    VERBOSE("V", "verbose", Log.VERBOSE),
-    DEBUG("D", "debug", Log.DEBUG),
-    INFO("I", "info", Log.INFO),
-    WARN("W", "warn", Log.WARN),
-    ERROR("E", "error", Log.ERROR),
-    ASSERT("A", "assert", Log.ASSERT);
-
-    companion object {
-        fun fromLetter(letter: String): LogLevel? {
-            return values().find { it.letter == letter }
-        }
-
-        fun fromShortName(shortName: String): LogLevel? {
-            return values().find { it.shortName == shortName }
-        }
-
-        fun fromPriority(priority: Int): LogLevel? {
-            return values().find { it.priority == priority }
-        }
-    }
-}
-
-enum class LogChannels(val channel: String, val shortName: String) {
-    CORE("SnapEnhanceCore", "core"),
-    NATIVE("SnapEnhanceNative", "native"),
-    MANAGER("SnapEnhanceManager", "manager"),
-    XPOSED("LSPosed-Bridge", "xposed");
-
-    companion object {
-        fun fromChannel(channel: String): LogChannels? {
-            return values().find { it.channel == channel }
-        }
-    }
-}
+import me.rhunk.snapenhance.core.logger.LogLevel
 
 
 @SuppressLint("PrivateApi")
 class Logger(
     private val bridgeClient: BridgeClient
-) {
+): AbstractLogger(LogChannel.CORE) {
     companion object {
         private const val TAG = "SnapEnhanceCore"
 
@@ -104,20 +67,20 @@ class Logger(
         }
     }
 
-    fun debug(message: Any?, tag: String = TAG) = internalLog(tag, LogLevel.DEBUG, message)
+    override fun debug(message: Any?, tag: String) = internalLog(tag, LogLevel.DEBUG, message)
 
-    fun error(message: Any?, tag: String = TAG) = internalLog(tag, LogLevel.ERROR, message)
+    override fun error(message: Any?, tag: String) = internalLog(tag, LogLevel.ERROR, message)
 
-    fun error(message: Any?, throwable: Throwable, tag: String = TAG) {
+    override fun error(message: Any?, throwable: Throwable, tag: String) {
         internalLog(tag, LogLevel.ERROR, message)
         internalLog(tag, LogLevel.ERROR, throwable.stackTraceToString())
     }
 
-    fun info(message: Any?, tag: String = TAG) = internalLog(tag, LogLevel.INFO, message)
+    override fun info(message: Any?, tag: String) = internalLog(tag, LogLevel.INFO, message)
 
-    fun verbose(message: Any?, tag: String = TAG) = internalLog(tag, LogLevel.VERBOSE, message)
+    override fun verbose(message: Any?, tag: String) = internalLog(tag, LogLevel.VERBOSE, message)
 
-    fun warn(message: Any?, tag: String = TAG) = internalLog(tag, LogLevel.WARN, message)
+    override fun warn(message: Any?, tag: String) = internalLog(tag, LogLevel.WARN, message)
 
-    fun assert(message: Any?, tag: String = TAG) = internalLog(tag, LogLevel.ASSERT, message)
+    override fun assert(message: Any?, tag: String) = internalLog(tag, LogLevel.ASSERT, message)
 }

@@ -3,7 +3,9 @@ package me.rhunk.snapenhance
 import android.content.SharedPreferences
 import android.util.Log
 import com.google.gson.GsonBuilder
-import me.rhunk.snapenhance.core.LogLevel
+import me.rhunk.snapenhance.core.logger.AbstractLogger
+import me.rhunk.snapenhance.core.logger.LogChannel
+import me.rhunk.snapenhance.core.logger.LogLevel
 import java.io.File
 import java.io.OutputStream
 import java.io.RandomAccessFile
@@ -100,7 +102,7 @@ class LogReader(
 
 class LogManager(
     private val remoteSideContext: RemoteSideContext
-) {
+): AbstractLogger(LogChannel.MANAGER) {
     companion object {
         private const val TAG = "SnapEnhanceManager"
         private val LOG_LIFETIME = 24.hours
@@ -171,32 +173,32 @@ class LogManager(
         lineAddListener = { line -> it.incrementLineCount(); onAddLine(line) }
     }
 
-    fun debug(message: Any?, tag: String = TAG) {
+    override fun debug(message: Any?, tag: String) {
         internalLog(tag, LogLevel.DEBUG, message)
     }
 
-    fun error(message: Any?, tag: String = TAG) {
+    override fun error(message: Any?, tag: String) {
         internalLog(tag, LogLevel.ERROR, message)
     }
 
-    fun error(message: Any?, throwable: Throwable, tag: String = TAG) {
+    override fun error(message: Any?, throwable: Throwable, tag: String) {
         internalLog(tag, LogLevel.ERROR, message)
         internalLog(tag, LogLevel.ERROR, throwable.stackTraceToString())
     }
 
-    fun info(message: Any?, tag: String = TAG) {
+    override fun info(message: Any?, tag: String) {
         internalLog(tag, LogLevel.INFO, message)
     }
 
-    fun verbose(message: Any?, tag: String = TAG) {
+    override fun verbose(message: Any?, tag: String) {
         internalLog(tag, LogLevel.VERBOSE, message)
     }
 
-    fun warn(message: Any?, tag: String = TAG) {
+    override fun warn(message: Any?, tag: String) {
         internalLog(tag, LogLevel.WARN, message)
     }
 
-    fun assert(message: Any?, tag: String = TAG) {
+    override fun assert(message: Any?, tag: String) {
         internalLog(tag, LogLevel.ASSERT, message)
     }
 

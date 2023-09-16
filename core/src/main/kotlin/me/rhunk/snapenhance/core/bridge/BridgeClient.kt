@@ -148,4 +148,6 @@ class BridgeClient(
 
     fun setRule(targetUuid: String, type: MessagingRuleType, state: Boolean)
         = service.setRule(targetUuid, type.key, state)
+
+    fun getScriptingInterface() = service.getScriptingInterface()
 }

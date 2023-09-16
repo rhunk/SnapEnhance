@@ -53,8 +53,8 @@ import androidx.compose.ui.window.Dialog
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import me.rhunk.snapenhance.Constants
-import me.rhunk.snapenhance.core.LogChannels
-import me.rhunk.snapenhance.core.LogLevel
+import me.rhunk.snapenhance.core.logger.LogChannel
+import me.rhunk.snapenhance.core.logger.LogLevel
 import me.rhunk.snapenhance.LogReader
 import me.rhunk.snapenhance.RemoteSideContext
 import me.rhunk.snapenhance.action.EnumAction
@@ -169,7 +169,7 @@ class HomeSubSection(
                                 )
 
                                 Text(
-                                    text = LogChannels.fromChannel(line.tag)?.shortName ?: line.tag,
+                                    text = LogChannel.fromChannel(line.tag)?.shortName ?: line.tag,
                                     modifier = Modifier.padding(start = 4.dp),
                                     fontWeight = FontWeight.Light,
                                     fontSize = 10.sp,
