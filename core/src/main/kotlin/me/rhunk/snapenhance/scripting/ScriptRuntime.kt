@@ -4,11 +4,16 @@ import me.rhunk.snapenhance.core.logger.AbstractLogger
 import me.rhunk.snapenhance.scripting.type.ModuleInfo
 import java.io.BufferedReader
 import java.io.ByteArrayInputStream
+import java.io.InputStream
 
 class ScriptRuntime(
     private val logger: AbstractLogger,
 ) {
     private val modules = mutableMapOf<String, JSModule>()
+
+    fun eachModule(f: JSModule.() -> Unit) {
+        modules.values.forEach(f)
+    }
 
     private fun readModuleInfo(reader: BufferedReader): ModuleInfo {
         val header = reader.readLine()
@@ -38,6 +43,10 @@ class ScriptRuntime(
             minSEVersion = properties["minSEVersion"]?.toLong(),
             grantPermissions = properties["permissions"]?.split(",")?.map { it.trim() },
         )
+    }
+
+    fun getModuleInfo(inputStream: InputStream): ModuleInfo {
+        return readModuleInfo(inputStream.bufferedReader())
     }
 
     fun reload(path: String, content: String) {

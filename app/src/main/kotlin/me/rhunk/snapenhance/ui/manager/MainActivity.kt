@@ -46,6 +46,10 @@ class MainActivity : ComponentActivity() {
             checkForRequirements()
         }
 
+        managerContext.scriptManager.runtime.eachModule {
+            callOnManagerLoad(this@MainActivity)
+        }
+
         sections = EnumSection.values().toList().associateWith {
             it.section.constructors.first().call()
         }.onEach { (section, instance) ->

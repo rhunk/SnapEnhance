@@ -11,6 +11,7 @@ import me.rhunk.snapenhance.core.util.SQLiteDatabaseHelper
 import me.rhunk.snapenhance.core.util.ktx.getInteger
 import me.rhunk.snapenhance.core.util.ktx.getLongOrNull
 import me.rhunk.snapenhance.core.util.ktx.getStringOrNull
+import me.rhunk.snapenhance.scripting.type.ModuleInfo
 import java.util.concurrent.Executors
 
 
@@ -60,17 +61,12 @@ class ModDatabase(
                 "expirationTimestamp BIGINT",
                 "length INTEGER"
             ),
-            "analytics_config" to listOf(
-                "userId VARCHAR PRIMARY KEY",
-                "modes VARCHAR"
-            ),
-            "analytics" to listOf(
-                "hash VARCHAR PRIMARY KEY",
-                "userId VARCHAR",
-                "conversationId VARCHAR",
-                "timestamp BIGINT",
-                "eventName VARCHAR",
-                "eventData VARCHAR"
+            "scripts" to listOf(
+                "name VARCHAR PRIMARY KEY",
+                "version VARCHAR NOT NULL",
+                "description VARCHAR",
+                "author VARCHAR NOT NULL",
+                "enabled BOOLEAN"
             )
         ))
     }
@@ -249,6 +245,66 @@ class ModDatabase(
                 ruleIds.add(cursor.getStringOrNull("targetUuid")!!)
             }
             ruleIds
+        }
+    }
+
+    fun getScripts(): List<ModuleInfo> {
+        return database.rawQuery("SELECT * FROM scripts", null).use { cursor ->
+            val scripts = mutableListOf<ModuleInfo>()
+            while (cursor.moveToNext()) {
+                scripts.add(
+                    ModuleInfo(
+                        name = cursor.getStringOrNull("name")!!,
+                        version = cursor.getStringOrNull("version")!!,
+                        description = cursor.getStringOrNull("description"),
+                        author = cursor.getStringOrNull("author"),
+                        grantPermissions = null
+                    )
+                )
+            }
+            scripts
+        }
+    }
+
+    fun setScriptEnabled(name: String, enabled: Boolean) {
+        executeAsync {
+            database.execSQL("UPDATE scripts SET enabled = ? WHERE name = ?", arrayOf(
+                if (enabled) 1 else 0,
+                name
+            ))
+        }
+    }
+
+    fun isScriptEnabled(name: String): Boolean {
+        return database.rawQuery("SELECT enabled FROM scripts WHERE name = ?", arrayOf(name)).use { cursor ->
+            if (!cursor.moveToFirst()) return@use false
+            cursor.getInteger("enabled") == 1
+        }
+    }
+
+    fun syncScripts(availableScripts: List<ModuleInfo>) {
+        executeAsync {
+            val enabledScripts = getScripts()
+            val enabledScriptPaths = enabledScripts.map { it.name }
+            val availableScriptPaths = availableScripts.map { it.name }
+
+            enabledScripts.forEach { script ->
+                if (!availableScriptPaths.contains(script.name)) {
+                    database.execSQL("DELETE FROM scripts WHERE name = ?", arrayOf(script.name))
+                }
+            }
+
+            availableScripts.forEach { script ->
+                if (!enabledScriptPaths.contains(script.name)) {
+                    database.execSQL("INSERT OR REPLACE INTO scripts (name, version, description, author, enabled) VALUES (?, ?, ?, ?, ?)", arrayOf(
+                        script.name,
+                        script.version,
+                        script.description,
+                        script.author,
+                        0
+                    ))
+                }
+            }
         }
     }
 }

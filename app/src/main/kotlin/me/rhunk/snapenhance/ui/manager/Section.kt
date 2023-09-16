@@ -17,6 +17,7 @@ import me.rhunk.snapenhance.ui.manager.sections.NotImplemented
 import me.rhunk.snapenhance.ui.manager.sections.downloads.DownloadsSection
 import me.rhunk.snapenhance.ui.manager.sections.features.FeaturesSection
 import me.rhunk.snapenhance.ui.manager.sections.home.HomeSection
+import me.rhunk.snapenhance.ui.manager.sections.scripting.ScriptsSection
 import me.rhunk.snapenhance.ui.manager.sections.social.SocialSection
 import kotlin.reflect.KClass
 
@@ -47,7 +48,8 @@ enum class EnumSection(
     ),
     SCRIPTS(
         route = "scripts",
-        icon = Icons.Filled.DataObject
+        icon = Icons.Filled.DataObject,
+        section = ScriptsSection::class
     );
 
     companion object {

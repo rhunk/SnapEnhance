@@ -15,7 +15,7 @@ class NativeLib {
             init(classloader)
             initialized = true
         }.onFailure {
-            Log.e("SnapEnhance", "NativeLib init failed", it)
+            Log.e("SnapEnhance", "NativeLib init failed")
         }
     }
 

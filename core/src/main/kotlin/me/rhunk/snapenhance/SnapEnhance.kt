@@ -122,7 +122,7 @@ class SnapEnhance {
                         }
                     })
 
-                    enabledScriptPaths.forEach { path ->
+                    enabledScripts.forEach { path ->
                         runCatching {
                             scriptRuntime.load(path, getScriptContent(path))
                         }.onFailure {
@@ -143,6 +143,7 @@ class SnapEnhance {
             with(appContext) {
                 features.onActivityCreate()
                 actionManager.init()
+                scriptRuntime.eachModule { callOnSnapActivity(mainActivity!!) }
             }
         }.also { time ->
             appContext.log.verbose("onActivityCreate took $time")
