@@ -103,7 +103,7 @@ class UITweaks : Feature("UITweaks", loadParams = FeatureLoadParams.ACTIVITY_CRE
                 }
             }
 
-            if (hideStorySections.contains("hide_following") && (viewId == getIdentifier("df_small_story", "id"))
+            if (hideStorySections.contains("hide_suggested") && (viewId == getIdentifier("df_small_story", "id"))
             ) {
                 hideStorySection(event)
             }

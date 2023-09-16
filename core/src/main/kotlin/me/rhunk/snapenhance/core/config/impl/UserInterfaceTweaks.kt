@@ -22,7 +22,7 @@ class UserInterfaceTweaks : ConfigContainer() {
     val mapFriendNameTags = boolean("map_friend_nametags")
     val streakExpirationInfo = boolean("streak_expiration_info")
     val hideStorySections = multiple("hide_story_sections",
-        "hide_friend_suggestions", "hide_friends", "hide_following", "hide_for_you")
+        "hide_friend_suggestions", "hide_friends", "hide_suggested", "hide_for_you")
     val hideUiComponents = multiple("hide_ui_components",
         "hide_voice_record_button",
         "hide_stickers_button",
