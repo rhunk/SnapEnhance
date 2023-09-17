@@ -1,6 +1,7 @@
 package me.rhunk.snapenhance.scripting
 
 import android.net.Uri
+import android.os.DeadObjectException
 import androidx.documentfile.provider.DocumentFile
 import me.rhunk.snapenhance.RemoteSideContext
 import me.rhunk.snapenhance.bridge.scripting.IPCListener
@@ -75,12 +76,24 @@ class RemoteScriptManager(
     }
 
     override fun registerIPCListener(eventName: String, listener: IPCListener) {
-        runtime.ipcManager.on(eventName) { args ->
-            listener.onMessage(args)
-        }
+        runtime.ipcManager.on(eventName, object: Listener {
+            override fun invoke(args: Array<out String?>) {
+                try {
+                    listener.onMessage(args)
+                } catch (e: DeadObjectException) {
+                    (runtime.ipcManager as IRemoteIPC).removeListener(eventName, this)
+                } catch (t: Throwable) {
+                    context.log.error("Failed to invoke $eventName", t)
+                }
+            }
+        })
     }
 
     override fun sendIPCMessage(eventName: String, args: Array<out String>) {
-        runtime.ipcManager.emit(eventName, args)
+        runCatching {
+            runtime.ipcManager.emit(eventName, *args)
+        }.onFailure {
+            context.log.error("Failed to send message for $eventName", it)
+        }
     }
 }

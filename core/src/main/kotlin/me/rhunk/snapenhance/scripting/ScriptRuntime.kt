@@ -13,7 +13,13 @@ class ScriptRuntime(
     private val modules = mutableMapOf<String, JSModule>()
 
     fun eachModule(f: JSModule.() -> Unit) {
-        modules.values.forEach(f)
+        modules.values.forEach { module ->
+            runCatching {
+                module.f()
+            }.onFailure {
+                logger.error("Failed to run module function in ${module.moduleInfo.name}", it)
+            }
+        }
     }
 
     private fun readModuleInfo(reader: BufferedReader): ModuleInfo {

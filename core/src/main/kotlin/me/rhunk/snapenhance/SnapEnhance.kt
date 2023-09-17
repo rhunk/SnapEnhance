@@ -125,7 +125,7 @@ class SnapEnhance {
                         }
                     })
 
-                    scriptRuntime.ipcManager = object: IPCInterface {
+                    scriptRuntime.ipcManager = object: IPCInterface() {
                         override fun on(eventName: String, listener: Listener) {
                             registerIPCListener(eventName, object: IPCListener.Stub() {
                                 override fun onMessage(args: Array<out String?>) {
