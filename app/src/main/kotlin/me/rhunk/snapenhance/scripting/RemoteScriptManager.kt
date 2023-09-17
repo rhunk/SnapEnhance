@@ -12,7 +12,7 @@ import java.io.InputStream
 class RemoteScriptManager(
     private val context: RemoteSideContext,
 ) : IScripting.Stub() {
-    val runtime = ScriptRuntime(context.log)
+    val runtime = ScriptRuntime(context.log, context.androidContext.classLoader)
 
     private val reloadListeners = mutableListOf<ReloadListener>()
     private val cachedModuleInfo = mutableMapOf<String, ModuleInfo>()

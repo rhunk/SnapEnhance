@@ -8,7 +8,8 @@ import java.io.ByteArrayInputStream
 import java.io.InputStream
 
 open class ScriptRuntime(
-    protected val logger: AbstractLogger,
+    val logger: AbstractLogger,
+    val classLoader: ClassLoader,
 ) {
     var buildModuleObject: ScriptableObject.(JSModule) -> Unit = {}
     private val modules = mutableMapOf<String, JSModule>()
@@ -72,10 +73,10 @@ open class ScriptRuntime(
         logger.info("Loading module $path")
         return runCatching {
             JSModule(
+                scriptRuntime = this,
                 moduleInfo = readModuleInfo(ByteArrayInputStream(content.toByteArray(Charsets.UTF_8)).bufferedReader()),
                 content = content,
             ).apply {
-                logger = this@ScriptRuntime.logger
                 load {
                     buildModuleObject(this, this@apply)
                 }

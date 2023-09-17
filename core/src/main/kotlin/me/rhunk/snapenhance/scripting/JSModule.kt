@@ -9,12 +9,13 @@ import org.mozilla.javascript.Function
 import org.mozilla.javascript.NativeJavaObject
 import org.mozilla.javascript.ScriptableObject
 import org.mozilla.javascript.Undefined
+import java.lang.reflect.Modifier
 
 class JSModule(
+    val scriptRuntime: ScriptRuntime,
     val moduleInfo: ModuleInfo,
     val content: String,
 ) {
-    lateinit var logger: AbstractLogger
     private lateinit var moduleObject: ScriptableObject
 
     fun load(block: ScriptableObject.() -> Unit) {
@@ -50,8 +51,39 @@ class JSModule(
                 field.get(obj.unwrap())
             }
 
+            moduleObject.putFunction("findClass") {
+                val className = it?.get(0).toString()
+                scriptRuntime.classLoader.loadClass(className)
+            }
+
+            moduleObject.putFunction("type") { args ->
+                val className = args?.get(0).toString()
+                val clazz = scriptRuntime.classLoader.loadClass(className)
+
+                scriptableObject("JavaClassWrapper") {
+                    putFunction("newInstance") newInstance@{ args ->
+                        val constructor = clazz.declaredConstructors.find {
+                            it.parameterCount == (args?.size ?: 0)
+                        } ?: return@newInstance Undefined.instance
+                        constructor.newInstance(*args ?: emptyArray())
+                    }
+
+                    clazz.declaredMethods.forEach { method ->
+                        method.isAccessible = true
+                        putFunction(method.name) { args ->
+                            args?.also { method.invoke(null, *it) } ?: method.invoke(null)
+                        }
+                    }
+
+                    clazz.declaredFields.filter { Modifier.isStatic(it.modifiers) }.forEach { field ->
+                        field.isAccessible = true
+                        defineProperty(field.name, { field.get(null)}, { value -> field.set(null, value) }, 0)
+                    }
+                }
+            }
+
             moduleObject.putFunction("logInfo") { args ->
-                logger.info(args?.joinToString(" ") ?: "")
+                scriptRuntime.logger.info(args?.joinToString(" ") ?: "")
                 Undefined.instance
             }
 

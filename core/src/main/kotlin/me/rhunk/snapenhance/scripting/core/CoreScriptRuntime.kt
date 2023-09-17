@@ -8,14 +8,11 @@ import me.rhunk.snapenhance.scripting.IPCInterface
 import me.rhunk.snapenhance.scripting.Listener
 import me.rhunk.snapenhance.scripting.ScriptRuntime
 import me.rhunk.snapenhance.scripting.core.impl.ScriptHooker
-import me.rhunk.snapenhance.scripting.ktx.putFunction
 
 class CoreScriptRuntime(
     logger: AbstractLogger,
-    private val classLoader: ClassLoader
-): ScriptRuntime(logger) {
-    private lateinit var ipcInterface: IPCInterface
-
+    classLoader: ClassLoader,
+): ScriptRuntime(logger, classLoader) {
     private val scriptHookers = mutableListOf<ScriptHooker>()
 
     fun connect(scriptingInterface: IScripting) {
@@ -48,17 +45,11 @@ class CoreScriptRuntime(
                         sendIPCMessage(channel, eventName, args)
                     }
                 })
-                putFunction("findClass") {
-                    val className = it?.get(0).toString()
-                    classLoader.loadClass(className)
-                }
                 putConst("hooker", this, ScriptHooker(module.moduleInfo, logger, classLoader).also {
                     scriptHookers.add(it)
                 })
             }
         }
-
-
 
         scriptingInterface.enabledScripts.forEach { path ->
             runCatching {
