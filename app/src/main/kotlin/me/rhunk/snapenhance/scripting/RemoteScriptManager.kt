@@ -3,6 +3,7 @@ package me.rhunk.snapenhance.scripting
 import android.net.Uri
 import androidx.documentfile.provider.DocumentFile
 import me.rhunk.snapenhance.RemoteSideContext
+import me.rhunk.snapenhance.bridge.scripting.IPCListener
 import me.rhunk.snapenhance.bridge.scripting.IScripting
 import me.rhunk.snapenhance.bridge.scripting.ReloadListener
 import me.rhunk.snapenhance.scripting.type.ModuleInfo
@@ -11,7 +12,9 @@ import java.io.InputStream
 class RemoteScriptManager(
     private val context: RemoteSideContext,
 ) : IScripting.Stub() {
-    val runtime = ScriptRuntime(context.log)
+    val runtime = ScriptRuntime(context.log).apply {
+        ipcManager = IRemoteIPC()
+    }
 
     private fun getScriptFolder()
         = DocumentFile.fromTreeUri(context.androidContext, Uri.parse(context.config.root.scripting.moduleFolder.get()))
@@ -38,7 +41,6 @@ class RemoteScriptManager(
 
     fun init() {
         sync()
-
         enabledScripts.forEach { path ->
             val content = getScriptContent(path) ?: return@forEach
             runtime.load(path, content)
@@ -55,9 +57,13 @@ class RemoteScriptManager(
     }
 
     override fun getEnabledScripts(): List<String> {
-        return getScriptFileNames().filter {
-            context.modDatabase.isScriptEnabled(cachedModuleInfo[it]?.name ?: return@filter false)
-        }
+        return runCatching {
+            getScriptFileNames().filter {
+                context.modDatabase.isScriptEnabled(cachedModuleInfo[it]?.name ?: return@filter false)
+            }
+        }.onFailure {
+            context.log.error("Failed to get enabled scripts", it)
+        }.getOrDefault(emptyList())
     }
 
     override fun getScriptContent(name: String): String? {
@@ -66,5 +72,15 @@ class RemoteScriptManager(
 
     override fun registerReloadListener(listener: ReloadListener) {
         reloadListeners.add(listener)
+    }
+
+    override fun registerIPCListener(eventName: String, listener: IPCListener) {
+        runtime.ipcManager.on(eventName) { args ->
+            listener.onMessage(args)
+        }
+    }
+
+    override fun sendIPCMessage(eventName: String, args: Array<out String>) {
+        runtime.ipcManager.emit(eventName, args)
     }
 }

@@ -7,6 +7,7 @@ import android.content.pm.PackageManager
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.withContext
 import me.rhunk.snapenhance.bridge.SyncCallback
+import me.rhunk.snapenhance.bridge.scripting.IPCListener
 import me.rhunk.snapenhance.bridge.scripting.ReloadListener
 import me.rhunk.snapenhance.core.BuildConfig
 import me.rhunk.snapenhance.core.Logger
@@ -20,6 +21,8 @@ import me.rhunk.snapenhance.data.SnapClassCache
 import me.rhunk.snapenhance.hook.HookStage
 import me.rhunk.snapenhance.hook.Hooker
 import me.rhunk.snapenhance.hook.hook
+import me.rhunk.snapenhance.scripting.IPCInterface
+import me.rhunk.snapenhance.scripting.Listener
 import kotlin.time.ExperimentalTime
 import kotlin.time.measureTime
 
@@ -121,6 +124,20 @@ class SnapEnhance {
                             scriptRuntime.reload(path, content)
                         }
                     })
+
+                    scriptRuntime.ipcManager = object: IPCInterface {
+                        override fun on(eventName: String, listener: Listener) {
+                            registerIPCListener(eventName, object: IPCListener.Stub() {
+                                override fun onMessage(args: Array<out String?>) {
+                                    listener(args)
+                                }
+                            })
+                        }
+
+                        override fun emit(eventName: String, args: Array<out String?>) {
+                            sendIPCMessage(eventName, args)
+                        }
+                    }
 
                     enabledScripts.forEach { path ->
                         runCatching {

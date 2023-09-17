@@ -9,6 +9,7 @@ import java.io.InputStream
 class ScriptRuntime(
     private val logger: AbstractLogger,
 ) {
+    lateinit var ipcManager: IPCInterface
     private val modules = mutableMapOf<String, JSModule>()
 
     fun eachModule(f: JSModule.() -> Unit) {
@@ -57,7 +58,6 @@ class ScriptRuntime(
     private fun unload(path: String) {
         val module = modules[path] ?: return
         module.unload()
-        module.load()
         modules.remove(path)
     }
 
@@ -69,7 +69,9 @@ class ScriptRuntime(
                 content = content,
             ).apply {
                 logger = this@ScriptRuntime.logger
-                load()
+                load {
+                    it.putConst("ipc", it, ipcManager)
+                }
                 modules[path] = this
             }
         }.onFailure {

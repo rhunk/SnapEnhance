@@ -3,6 +3,7 @@ package me.rhunk.snapenhance.scripting
 import android.app.Activity
 import me.rhunk.snapenhance.core.logger.AbstractLogger
 import me.rhunk.snapenhance.scripting.type.ModuleInfo
+import org.mozilla.javascript.Context
 import org.mozilla.javascript.ScriptableObject
 import org.mozilla.javascript.Undefined
 
@@ -13,7 +14,7 @@ class JSModule(
     lateinit var logger: AbstractLogger
     private lateinit var moduleObject: ScriptableObject
 
-    fun load() {
+    fun load(block: Context.(ScriptableObject) -> Unit) {
         contextScope {
             moduleObject = initSafeStandardObjects()
             moduleObject.putConst("module", moduleObject, buildScriptableObject {
@@ -33,6 +34,7 @@ class JSModule(
                 Undefined.instance
             }
 
+            block(this, moduleObject)
             evaluateString(moduleObject, content, moduleInfo.name, 1, null)
         }
     }
@@ -59,13 +61,13 @@ class JSModule(
         }
     }
 
-    fun callOnManagerLoad(activity: Activity) {
+    fun callOnManagerLoad(context: android.content.Context) {
         contextScope {
-            moduleObject.scriptable("module")?.function("onManagerActivity")?.call(
+            moduleObject.scriptable("module")?.function("onManagerLoad")?.call(
                 this,
                 moduleObject,
                 moduleObject,
-                arrayOf(activity)
+                arrayOf(context)
             )
         }
     }

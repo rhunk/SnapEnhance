@@ -95,6 +95,10 @@ class RemoteSideContext(
         }.onFailure {
             log.error("Failed to load RemoteSideContext", it)
         }
+
+        scriptManager.runtime.eachModule {
+            callOnManagerLoad(androidContext)
+        }
     }
 
     val installationSummary by lazy {
