@@ -58,9 +58,7 @@ object Hooker {
         clazz: Class<*>,
         stage: HookStage,
         consumer: (HookAdapter) -> Unit
-    ) {
-        XposedBridge.hookAllConstructors(clazz, newMethodHook(stage, consumer))
-    }
+    ): Set<XC_MethodHook.Unhook> = XposedBridge.hookAllConstructors(clazz, newMethodHook(stage, consumer))
 
     fun hookConstructor(
         clazz: Class<*>,

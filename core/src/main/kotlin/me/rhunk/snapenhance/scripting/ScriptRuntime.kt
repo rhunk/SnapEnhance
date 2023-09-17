@@ -2,14 +2,15 @@ package me.rhunk.snapenhance.scripting
 
 import me.rhunk.snapenhance.core.logger.AbstractLogger
 import me.rhunk.snapenhance.scripting.type.ModuleInfo
+import org.mozilla.javascript.ScriptableObject
 import java.io.BufferedReader
 import java.io.ByteArrayInputStream
 import java.io.InputStream
 
-class ScriptRuntime(
-    private val logger: AbstractLogger,
+open class ScriptRuntime(
+    protected val logger: AbstractLogger,
 ) {
-    lateinit var ipcManager: IPCInterface
+    var buildModuleObject: ScriptableObject.(JSModule) -> Unit = {}
     private val modules = mutableMapOf<String, JSModule>()
 
     fun eachModule(f: JSModule.() -> Unit) {
@@ -76,7 +77,7 @@ class ScriptRuntime(
             ).apply {
                 logger = this@ScriptRuntime.logger
                 load {
-                    it.putConst("ipc", it, ipcManager)
+                    buildModuleObject(this, this@apply)
                 }
                 modules[path] = this
             }

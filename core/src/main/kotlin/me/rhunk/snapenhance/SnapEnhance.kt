@@ -117,37 +117,7 @@ class SnapEnhance {
                 if (!mappings.isMappingsLoaded()) return
                 features.init()
                 syncRemote()
-
-                bridgeClient.getScriptingInterface().apply {
-                    registerReloadListener(object: ReloadListener.Stub() {
-                        override fun reloadScript(path: String, content: String) {
-                            scriptRuntime.reload(path, content)
-                        }
-                    })
-
-                    scriptRuntime.ipcManager = object: IPCInterface() {
-                        override fun on(eventName: String, listener: Listener) {
-                            registerIPCListener(eventName, object: IPCListener.Stub() {
-                                override fun onMessage(args: Array<out String?>) {
-                                    listener(args)
-                                }
-                            })
-                        }
-
-                        override fun emit(eventName: String, args: Array<out String?>) {
-                            sendIPCMessage(eventName, args)
-                        }
-                    }
-
-                    enabledScripts.forEach { path ->
-                        runCatching {
-                            scriptRuntime.load(path, getScriptContent(path))
-                        }.onFailure {
-                            log.error("Failed to load script $path", it)
-                        }
-                    }
-                }
-
+                scriptRuntime.connect(bridgeClient.getScriptingInterface())
             }
         }.also { time ->
             appContext.log.verbose("init took $time")
@@ -160,7 +130,7 @@ class SnapEnhance {
             with(appContext) {
                 features.onActivityCreate()
                 actionManager.init()
-                scriptRuntime.eachModule { callOnSnapActivity(mainActivity!!) }
+                scriptRuntime.eachModule { callFunction("module.onSnapActivity", mainActivity!!) }
             }
         }.also { time ->
             appContext.log.verbose("onActivityCreate took $time")

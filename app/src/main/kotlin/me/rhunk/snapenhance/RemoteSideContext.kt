@@ -97,7 +97,7 @@ class RemoteSideContext(
         }
 
         scriptManager.runtime.eachModule {
-            callOnManagerLoad(androidContext)
+            callFunction("module.onManagerLoad",androidContext)
         }
     }
 

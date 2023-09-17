@@ -13,9 +13,8 @@ import java.io.InputStream
 class RemoteScriptManager(
     private val context: RemoteSideContext,
 ) : IScripting.Stub() {
-    val runtime = ScriptRuntime(context.log).apply {
-        ipcManager = IRemoteIPC()
-    }
+    val runtime = ScriptRuntime(context.log)
+    val remoteIpc = IRemoteIPC()
 
     private fun getScriptFolder()
         = DocumentFile.fromTreeUri(context.androidContext, Uri.parse(context.config.root.scripting.moduleFolder.get()))
@@ -41,6 +40,10 @@ class RemoteScriptManager(
     }
 
     fun init() {
+        runtime.buildModuleObject = {
+            putConst("ipc", this, remoteIpc)
+        }
+
         sync()
         enabledScripts.forEach { path ->
             val content = getScriptContent(path) ?: return@forEach
@@ -76,12 +79,12 @@ class RemoteScriptManager(
     }
 
     override fun registerIPCListener(eventName: String, listener: IPCListener) {
-        runtime.ipcManager.on(eventName, object: Listener {
+        remoteIpc.on(eventName, object: Listener {
             override fun invoke(args: Array<out String?>) {
                 try {
                     listener.onMessage(args)
                 } catch (e: DeadObjectException) {
-                    (runtime.ipcManager as IRemoteIPC).removeListener(eventName, this)
+                    remoteIpc.removeListener(eventName, this)
                 } catch (t: Throwable) {
                     context.log.error("Failed to invoke $eventName", t)
                 }
@@ -91,7 +94,7 @@ class RemoteScriptManager(
 
     override fun sendIPCMessage(eventName: String, args: Array<out String>) {
         runCatching {
-            runtime.ipcManager.emit(eventName, *args)
+            remoteIpc.emit(eventName, args)
         }.onFailure {
             context.log.error("Failed to send message for $eventName", it)
         }

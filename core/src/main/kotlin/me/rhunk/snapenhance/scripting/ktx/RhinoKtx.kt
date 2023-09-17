@@ -1,4 +1,4 @@
-package me.rhunk.snapenhance.scripting
+package me.rhunk.snapenhance.scripting.ktx
 
 import org.mozilla.javascript.Context
 import org.mozilla.javascript.Function
@@ -23,20 +23,20 @@ fun Scriptable.function(name: String): Function? {
     return this.get(name, this) as? Function
 }
 
-fun ScriptableObject.putFunction(name: String, proxy: Scriptable.(Array<out Any>?) -> Any) {
+fun ScriptableObject.putFunction(name: String, proxy: Scriptable.(Array<out Any>?) -> Any?) {
     this.putConst(name, this, object: org.mozilla.javascript.BaseFunction() {
         override fun call(
             cx: Context?,
             scope: Scriptable,
             thisObj: Scriptable,
             args: Array<out Any>?
-        ): Any {
+        ): Any? {
             return thisObj.proxy(args)
         }
     })
 }
 
-fun buildScriptableObject(name: String? = "ScriptableObject", f: ScriptableObject.() -> Unit): ScriptableObject {
+fun scriptableObject(name: String? = "ScriptableObject", f: ScriptableObject.() -> Unit): ScriptableObject {
     return object: ScriptableObject() {
         override fun getClassName() = name
     }.apply(f)
