@@ -10,7 +10,7 @@ interface IScripting {
 
     void registerReloadListener(ReloadListener listener);
 
-    void registerIPCListener(String eventName, IPCListener listener);
+    void registerIPCListener(String channel, String eventName, IPCListener listener);
 
-    void sendIPCMessage(String eventName, in String[] args);
+    void sendIPCMessage(String channel, String eventName, in String[] args);
 }

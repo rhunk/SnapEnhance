@@ -1,7 +1,6 @@
 package me.rhunk.snapenhance.scripting
 
 import android.net.Uri
-import android.os.DeadObjectException
 import androidx.documentfile.provider.DocumentFile
 import me.rhunk.snapenhance.RemoteSideContext
 import me.rhunk.snapenhance.bridge.scripting.IPCListener
@@ -14,14 +13,10 @@ class RemoteScriptManager(
     private val context: RemoteSideContext,
 ) : IScripting.Stub() {
     val runtime = ScriptRuntime(context.log)
-    val remoteIpc = IRemoteIPC()
 
-    private fun getScriptFolder()
-        = DocumentFile.fromTreeUri(context.androidContext, Uri.parse(context.config.root.scripting.moduleFolder.get()))
-    //private fun hasHotReload() = context.config.root.scripting.hotReload.get()
     private val reloadListeners = mutableListOf<ReloadListener>()
-
     private val cachedModuleInfo = mutableMapOf<String, ModuleInfo>()
+    private val ipcListeners = IPCListeners()
 
     fun sync() {
         getScriptFileNames().forEach { name ->
@@ -40,8 +35,8 @@ class RemoteScriptManager(
     }
 
     fun init() {
-        runtime.buildModuleObject = {
-            putConst("ipc", this, remoteIpc)
+        runtime.buildModuleObject = { module ->
+            putConst("ipc", this, RemoteManagerIPC(module.moduleInfo, context.log, ipcListeners))
         }
 
         sync()
@@ -55,6 +50,8 @@ class RemoteScriptManager(
         val file = getScriptFolder()?.findFile(name) ?: return callback(null)
         return context.androidContext.contentResolver.openInputStream(file.uri)?.use(callback) ?: callback(null)
     }
+
+    private fun getScriptFolder() = DocumentFile.fromTreeUri(context.androidContext, Uri.parse(context.config.root.scripting.moduleFolder.get()))
 
     private fun getScriptFileNames(): List<String> {
         return (getScriptFolder() ?: return emptyList()).listFiles().filter { it.name?.endsWith(".js") ?: false }.map { it.name!! }
@@ -78,23 +75,15 @@ class RemoteScriptManager(
         reloadListeners.add(listener)
     }
 
-    override fun registerIPCListener(eventName: String, listener: IPCListener) {
-        remoteIpc.on(eventName, object: Listener {
-            override fun invoke(args: Array<out String?>) {
-                try {
-                    listener.onMessage(args)
-                } catch (e: DeadObjectException) {
-                    remoteIpc.removeListener(eventName, this)
-                } catch (t: Throwable) {
-                    context.log.error("Failed to invoke $eventName", t)
-                }
-            }
-        })
+    override fun registerIPCListener(channel: String, eventName: String, listener: IPCListener) {
+        ipcListeners.getOrPut(channel) { mutableMapOf() }.getOrPut(eventName) { mutableSetOf() }.add(listener)
     }
 
-    override fun sendIPCMessage(eventName: String, args: Array<out String>) {
+    override fun sendIPCMessage(channel: String, eventName: String, args: Array<out String>) {
         runCatching {
-            remoteIpc.emit(eventName, args)
+            ipcListeners[channel]?.get(eventName)?.toList()?.forEach {
+                it.onMessage(args)
+            }
         }.onFailure {
             context.log.error("Failed to send message for $eventName", it)
         }

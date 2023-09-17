@@ -18,7 +18,6 @@ class CoreScriptRuntime(
 
     private val scriptHookers = mutableListOf<ScriptHooker>()
 
-
     fun connect(scriptingInterface: IScripting) {
         scriptingInterface.apply {
             registerReloadListener(object: ReloadListener.Stub() {
@@ -27,31 +26,39 @@ class CoreScriptRuntime(
                 }
             })
 
-            ipcInterface = object: IPCInterface() {
-                override fun on(eventName: String, listener: Listener) {
-                    registerIPCListener(eventName, object: IPCListener.Stub() {
-                        override fun onMessage(args: Array<out String?>) {
-                            listener(args)
-                        }
-                    })
-                }
+            buildModuleObject = { module ->
+                putConst("ipc", this, object: IPCInterface() {
+                    override fun onBroadcast(channel: String, eventName: String, listener: Listener) {
+                        registerIPCListener(channel, eventName, object: IPCListener.Stub() {
+                            override fun onMessage(args: Array<out String?>) {
+                                listener(args)
+                            }
+                        })
+                    }
 
-                override fun emit(eventName: String, args: Array<out String?>) {
-                    sendIPCMessage(eventName, args)
+                    override fun on(eventName: String, listener: Listener) {
+                        onBroadcast(module.moduleInfo.name, eventName, listener)
+                    }
+
+                    override fun emit(eventName: String, vararg args: String?) {
+                        broadcast(module.moduleInfo.name, eventName, *args)
+                    }
+
+                    override fun broadcast(channel: String, eventName: String, vararg args: String?) {
+                        sendIPCMessage(channel, eventName, args)
+                    }
+                })
+                putFunction("findClass") {
+                    val className = it?.get(0).toString()
+                    classLoader.loadClass(className)
                 }
+                putConst("hooker", this, ScriptHooker(module.moduleInfo, logger, classLoader).also {
+                    scriptHookers.add(it)
+                })
             }
         }
 
-        buildModuleObject = { module ->
-            putConst("ipc", this, ipcInterface)
-            putFunction("findClass") {
-                val className = it?.get(0).toString()
-                classLoader.loadClass(className)
-            }
-            putConst("hooker", this, ScriptHooker(module.moduleInfo, logger, classLoader).also {
-                scriptHookers.add(it)
-            })
-        }
+
 
         scriptingInterface.enabledScripts.forEach { path ->
             runCatching {
