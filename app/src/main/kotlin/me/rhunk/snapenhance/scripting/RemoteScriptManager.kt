@@ -40,21 +40,30 @@ class RemoteScriptManager(
         }
 
         sync()
-        enabledScripts.forEach { path ->
-            val content = getScriptContent(path) ?: return@forEach
-            runtime.load(path, content)
+        enabledScripts.forEach { name ->
+            if (getModuleDataFolder(name) == null) {
+                context.log.warn("Module data folder not found for $name")
+            }
+            val content = getScriptContent(name) ?: return@forEach
+            runtime.load(name, content)
         }
     }
 
     private fun <R> getScriptInputStream(name: String, callback: (InputStream?) -> R): R {
-        val file = getScriptFolder()?.findFile(name) ?: return callback(null)
+        val file = getScriptsFolder()?.findFile(name) ?: return callback(null)
         return context.androidContext.contentResolver.openInputStream(file.uri)?.use(callback) ?: callback(null)
     }
 
-    private fun getScriptFolder() = DocumentFile.fromTreeUri(context.androidContext, Uri.parse(context.config.root.scripting.moduleFolder.get()))
+    private fun getModuleDataFolder(moduleFileName: String): DocumentFile? {
+        val folderName = moduleFileName.substringBeforeLast(".js")
+        val folder = getScriptsFolder() ?: return null
+        return folder.findFile(folderName) ?: folder.createDirectory(folderName)
+    }
+
+    private fun getScriptsFolder() = DocumentFile.fromTreeUri(context.androidContext, Uri.parse(context.config.root.scripting.moduleFolder.get()))
 
     private fun getScriptFileNames(): List<String> {
-        return (getScriptFolder() ?: return emptyList()).listFiles().filter { it.name?.endsWith(".js") ?: false }.map { it.name!! }
+        return (getScriptsFolder() ?: return emptyList()).listFiles().filter { it.name?.endsWith(".js") ?: false }.map { it.name!! }
     }
 
     override fun getEnabledScripts(): List<String> {
@@ -67,8 +76,8 @@ class RemoteScriptManager(
         }.getOrDefault(emptyList())
     }
 
-    override fun getScriptContent(name: String): String? {
-        return getScriptInputStream(name) { it?.bufferedReader()?.readText() }
+    override fun getScriptContent(moduleName: String): String? {
+        return getScriptInputStream(moduleName) { it?.bufferedReader()?.readText() }
     }
 
     override fun registerReloadListener(listener: ReloadListener) {
