@@ -2,7 +2,6 @@ package me.rhunk.snapenhance.scripting.core
 
 import me.rhunk.snapenhance.bridge.scripting.IPCListener
 import me.rhunk.snapenhance.bridge.scripting.IScripting
-import me.rhunk.snapenhance.bridge.scripting.ReloadListener
 import me.rhunk.snapenhance.core.logger.AbstractLogger
 import me.rhunk.snapenhance.scripting.IPCInterface
 import me.rhunk.snapenhance.scripting.Listener
@@ -17,12 +16,6 @@ class CoreScriptRuntime(
 
     fun connect(scriptingInterface: IScripting) {
         scriptingInterface.apply {
-            registerReloadListener(object: ReloadListener.Stub() {
-                override fun reloadScript(path: String, content: String) {
-                    reload(path, content)
-                }
-            })
-
             buildModuleObject = { module ->
                 putConst("ipc", this, object: IPCInterface() {
                     override fun onBroadcast(channel: String, eventName: String, listener: Listener) {

@@ -2,6 +2,7 @@ package me.rhunk.snapenhance.ui.manager.sections.scripting
 
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
@@ -73,7 +74,9 @@ class ScriptsSection : Section() {
             context.modDatabase.getScripts()
         }
 
-        LazyColumn {
+        LazyColumn(
+            modifier = Modifier.fillMaxSize()
+        ) {
             item {
                 if (scriptModules.isEmpty()) {
                     Text(

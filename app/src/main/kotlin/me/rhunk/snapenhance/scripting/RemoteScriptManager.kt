@@ -5,7 +5,6 @@ import androidx.documentfile.provider.DocumentFile
 import me.rhunk.snapenhance.RemoteSideContext
 import me.rhunk.snapenhance.bridge.scripting.IPCListener
 import me.rhunk.snapenhance.bridge.scripting.IScripting
-import me.rhunk.snapenhance.bridge.scripting.ReloadListener
 import me.rhunk.snapenhance.scripting.type.ModuleInfo
 import java.io.InputStream
 
@@ -14,7 +13,6 @@ class RemoteScriptManager(
 ) : IScripting.Stub() {
     val runtime = ScriptRuntime(context.log, context.androidContext.classLoader)
 
-    private val reloadListeners = mutableListOf<ReloadListener>()
     private val cachedModuleInfo = mutableMapOf<String, ModuleInfo>()
     private val ipcListeners = IPCListeners()
 
@@ -78,10 +76,6 @@ class RemoteScriptManager(
 
     override fun getScriptContent(moduleName: String): String? {
         return getScriptInputStream(moduleName) { it?.bufferedReader()?.readText() }
-    }
-
-    override fun registerReloadListener(listener: ReloadListener) {
-        reloadListeners.add(listener)
     }
 
     override fun registerIPCListener(channel: String, eventName: String, listener: IPCListener) {
