@@ -26,7 +26,7 @@ class HookAdapter(
     }
 
     fun <T : Any> argNullable(index: Int): T? {
-        return methodHookParam.args[index] as T?
+        return methodHookParam.args.getOrNull(index) as T?
     }
 
     fun setArg(index: Int, value: Any?) {
@@ -34,7 +34,7 @@ class HookAdapter(
         methodHookParam.args[index] = value
     }
 
-    fun args(): Array<Any> {
+    fun args(): Array<Any?> {
         return methodHookParam.args
     }
 
@@ -66,7 +66,7 @@ class HookAdapter(
         invokeOriginalSafe(args(), errorCallback)
     }
 
-    fun invokeOriginalSafe(args: Array<Any>, errorCallback: Consumer<Throwable>) {
+    fun invokeOriginalSafe(args: Array<Any?>, errorCallback: Consumer<Throwable>) {
         runCatching {
             setResult(XposedBridge.invokeOriginalMethod(method(), thisObject(), args))
         }.onFailure {

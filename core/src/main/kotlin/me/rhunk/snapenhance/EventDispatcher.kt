@@ -26,7 +26,8 @@ class EventDispatcher(
         context.classCache.conversationManager.hook("sendMessageWithContent", HookStage.BEFORE) { param ->
             context.event.post(SendMessageWithContentEvent(
                 destinations = MessageDestinations(param.arg(0)),
-                messageContent = MessageContent(param.arg(1))
+                messageContent = MessageContent(param.arg(1)),
+                callback = param.arg(2)
             ).apply { adapter = param })?.also {
                 if (it.canceled) {
                     param.setResult(null)

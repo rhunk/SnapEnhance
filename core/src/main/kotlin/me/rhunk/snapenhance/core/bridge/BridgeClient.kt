@@ -14,10 +14,12 @@ import me.rhunk.snapenhance.ModContext
 import me.rhunk.snapenhance.bridge.BridgeInterface
 import me.rhunk.snapenhance.bridge.DownloadCallback
 import me.rhunk.snapenhance.bridge.SyncCallback
+import me.rhunk.snapenhance.bridge.scripting.IScripting
 import me.rhunk.snapenhance.core.BuildConfig
 import me.rhunk.snapenhance.core.bridge.types.BridgeFileType
 import me.rhunk.snapenhance.core.bridge.types.FileActionType
 import me.rhunk.snapenhance.core.messaging.MessagingRuleType
+import me.rhunk.snapenhance.core.messaging.SocialScope
 import me.rhunk.snapenhance.data.LocalePair
 import java.util.concurrent.CompletableFuture
 import java.util.concurrent.Executors
@@ -118,23 +120,11 @@ class BridgeClient(
 
     fun getApplicationApkPath() = service.getApplicationApkPath()
 
-    fun getAutoUpdaterTime(): Long {
-        createAndReadFile(BridgeFileType.AUTO_UPDATER_TIMESTAMP, "0".toByteArray()).run {
-            return if (isEmpty()) {
-                0
-            } else {
-                String(this).toLong()
-            }
-        }
-    }
-
-    fun setAutoUpdaterTime(time: Long) {
-        writeFile(BridgeFileType.AUTO_UPDATER_TIMESTAMP, time.toString().toByteArray())
-    }
-
     fun enqueueDownload(intent: Intent, callback: DownloadCallback) = service.enqueueDownload(intent, callback)
 
     fun sync(callback: SyncCallback) = service.sync(callback)
+
+    fun triggerSync(scope: SocialScope, id: String) = service.triggerSync(scope.key, id)
 
     fun passGroupsAndFriends(groups: List<String>, friends: List<String>) = service.passGroupsAndFriends(groups, friends)
 
@@ -149,5 +139,5 @@ class BridgeClient(
     fun setRule(targetUuid: String, type: MessagingRuleType, state: Boolean)
         = service.setRule(targetUuid, type.key, state)
 
-    fun getScriptingInterface() = service.getScriptingInterface()
+    fun getScriptingInterface(): IScripting = service.getScriptingInterface()
 }

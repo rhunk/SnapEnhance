@@ -47,6 +47,7 @@ import me.rhunk.snapenhance.RemoteSideContext
 import me.rhunk.snapenhance.core.bridge.BridgeClient
 import me.rhunk.snapenhance.core.messaging.MessagingFriendInfo
 import me.rhunk.snapenhance.core.messaging.MessagingGroupInfo
+import me.rhunk.snapenhance.core.messaging.SocialScope
 import me.rhunk.snapenhance.core.util.snap.SnapWidgetBroadcastReceiverHelper
 
 class AddFriendDialog(
@@ -239,7 +240,7 @@ class AddFriendDialog(
                             getCurrentState = { context.modDatabase.getGroupInfo(group.conversationId) != null }
                         ) { state ->
                             if (state) {
-                                context.bridgeService.triggerGroupSync(group.conversationId)
+                                context.bridgeService.triggerScopeSync(SocialScope.GROUP, group.conversationId)
                             } else {
                                 context.modDatabase.deleteGroup(group.conversationId)
                             }
@@ -266,7 +267,7 @@ class AddFriendDialog(
                             getCurrentState = { context.modDatabase.getFriendInfo(friend.userId) != null }
                         ) { state ->
                             if (state) {
-                                context.bridgeService.triggerFriendSync(friend.userId)
+                                context.bridgeService.triggerScopeSync(SocialScope.FRIEND, friend.userId)
                             } else {
                                 context.modDatabase.deleteFriend(friend.userId)
                             }

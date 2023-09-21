@@ -19,7 +19,11 @@ enum class SocialScope(
     val tabRoute: String,
 ) {
     FRIEND("friend", "friend_info/{id}"),
-    GROUP("group", "group_info/{id}"),
+    GROUP("group", "group_info/{id}");
+
+    companion object {
+        fun getByName(name: String) = values().first { it.key == name }
+    }
 }
 
 enum class MessagingRuleType(

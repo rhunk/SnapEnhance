@@ -81,6 +81,11 @@ interface BridgeInterface {
     oneway void sync(SyncCallback callback);
 
     /**
+    * Trigger sync for an id
+    */
+    void triggerSync(String scope, String id);
+
+    /**
     * Pass all groups and friends to be able to add them to the database
     * @param groups list of groups (MessagingGroupInfo as json string)
     * @param friends list of friends (MessagingFriendInfo as json string)

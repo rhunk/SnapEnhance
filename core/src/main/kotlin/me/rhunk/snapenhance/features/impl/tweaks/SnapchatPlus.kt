@@ -33,7 +33,7 @@ class SnapchatPlus: Feature("SnapchatPlus", loadParams = FeatureLoadParams.INIT_
                 it.parameterTypes[0].name != "java.lang.Boolean"
             }.hook(HookStage.BEFORE) { param ->
                 val instance = param.thisObject<Any>()
-                val firstArg = param.args()[0]
+                val firstArg = param.arg<Any>(0)
 
                 instance::class.java.declaredFields.filter { it.type == firstArg::class.java }.forEach {
                     it.isAccessible = true

@@ -6,34 +6,17 @@ import me.rhunk.snapenhance.features.Feature
 import me.rhunk.snapenhance.features.FeatureLoadParams
 import me.rhunk.snapenhance.features.impl.ConfigurationOverride
 import me.rhunk.snapenhance.features.impl.Messaging
+import me.rhunk.snapenhance.features.impl.ScopeSync
 import me.rhunk.snapenhance.features.impl.downloader.MediaDownloader
 import me.rhunk.snapenhance.features.impl.downloader.ProfilePictureDownloader
-import me.rhunk.snapenhance.features.impl.experiments.AddFriendSourceSpoof
-import me.rhunk.snapenhance.features.impl.experiments.AmoledDarkMode
-import me.rhunk.snapenhance.features.impl.experiments.AppPasscode
-import me.rhunk.snapenhance.features.impl.experiments.DeviceSpooferHook
-import me.rhunk.snapenhance.features.impl.experiments.InfiniteStoryBoost
-import me.rhunk.snapenhance.features.impl.experiments.MeoPasscodeBypass
-import me.rhunk.snapenhance.features.impl.experiments.NoFriendScoreDelay
-import me.rhunk.snapenhance.features.impl.experiments.UnlimitedMultiSnap
+import me.rhunk.snapenhance.features.impl.experiments.*
 import me.rhunk.snapenhance.features.impl.privacy.DisableMetrics
 import me.rhunk.snapenhance.features.impl.privacy.PreventMessageSending
 import me.rhunk.snapenhance.features.impl.spying.AnonymousStoryViewing
 import me.rhunk.snapenhance.features.impl.spying.MessageLogger
 import me.rhunk.snapenhance.features.impl.spying.PreventReadReceipts
 import me.rhunk.snapenhance.features.impl.spying.StealthMode
-import me.rhunk.snapenhance.features.impl.tweaks.AutoSave
-import me.rhunk.snapenhance.features.impl.tweaks.CameraTweaks
-import me.rhunk.snapenhance.features.impl.tweaks.DisableReplayInFF
-import me.rhunk.snapenhance.features.impl.tweaks.DisableVideoLengthRestriction
-import me.rhunk.snapenhance.features.impl.tweaks.GooglePlayServicesDialogs
-import me.rhunk.snapenhance.features.impl.tweaks.LocationSpoofer
-import me.rhunk.snapenhance.features.impl.tweaks.MediaQualityLevelOverride
-import me.rhunk.snapenhance.features.impl.tweaks.Notifications
-import me.rhunk.snapenhance.features.impl.tweaks.OldBitmojiSelfie
-import me.rhunk.snapenhance.features.impl.tweaks.SendOverride
-import me.rhunk.snapenhance.features.impl.tweaks.SnapchatPlus
-import me.rhunk.snapenhance.features.impl.tweaks.UnlimitedSnapViewTime
+import me.rhunk.snapenhance.features.impl.tweaks.*
 import me.rhunk.snapenhance.features.impl.ui.ClientBootstrapOverride
 import me.rhunk.snapenhance.features.impl.ui.PinConversations
 import me.rhunk.snapenhance.features.impl.ui.UITweaks
@@ -46,14 +29,16 @@ class FeatureManager(private val context: ModContext) : Manager {
     private val asyncLoadExecutorService = Executors.newFixedThreadPool(5)
     private val features = mutableListOf<Feature>()
 
-    private fun register(featureClass: KClass<out Feature>) {
-        runCatching {
-            with(featureClass.java.newInstance()) {
-                context = this@FeatureManager.context
-                features.add(this)
+    private fun register(vararg featureClasses: KClass<out Feature>) {
+        featureClasses.forEach { clazz ->
+            runCatching {
+                clazz.constructors.first().call().also { feature ->
+                    feature.context = context
+                    features.add(feature)
+                }
+            }.onFailure {
+                Logger.xposedLog("Failed to register feature ${clazz.simpleName}", it)
             }
-        }.onFailure {
-            Logger.xposedLog("Failed to register feature ${featureClass.simpleName}", it)
         }
     }
 
@@ -63,40 +48,43 @@ class FeatureManager(private val context: ModContext) : Manager {
     }
 
     override fun init() {
-        register(Messaging::class)
-        register(MediaDownloader::class)
-        register(StealthMode::class)
-        register(MenuViewInjector::class)
-        register(PreventReadReceipts::class)
-        register(AnonymousStoryViewing::class)
-        register(MessageLogger::class)
-        register(SnapchatPlus::class)
-        register(DisableMetrics::class)
-        register(PreventMessageSending::class)
-        register(Notifications::class)
-        register(AutoSave::class)
-        register(UITweaks::class)
-        register(ConfigurationOverride::class)
-        register(SendOverride::class)
-        register(UnlimitedSnapViewTime::class)
-        register(DisableVideoLengthRestriction::class)
-        register(MediaQualityLevelOverride::class)
-        register(MeoPasscodeBypass::class)
-        register(AppPasscode::class)
-        register(LocationSpoofer::class)
-        register(CameraTweaks::class)
-        register(InfiniteStoryBoost::class)
-        register(AmoledDarkMode::class)
-        register(PinConversations::class)
-        register(UnlimitedMultiSnap::class)
-        register(DeviceSpooferHook::class)
-        register(ClientBootstrapOverride::class)
-        register(GooglePlayServicesDialogs::class)
-        register(NoFriendScoreDelay::class)
-        register(ProfilePictureDownloader::class)
-        register(AddFriendSourceSpoof::class)
-        register(DisableReplayInFF::class)
-        register(OldBitmojiSelfie::class)
+        register(
+            ScopeSync::class,
+            Messaging::class,
+            MediaDownloader::class,
+            StealthMode::class,
+            MenuViewInjector::class,
+            PreventReadReceipts::class,
+            AnonymousStoryViewing::class,
+            MessageLogger::class,
+            SnapchatPlus::class,
+            DisableMetrics::class,
+            PreventMessageSending::class,
+            Notifications::class,
+            AutoSave::class,
+            UITweaks::class,
+            ConfigurationOverride::class,
+            SendOverride::class,
+            UnlimitedSnapViewTime::class,
+            DisableVideoLengthRestriction::class,
+            MediaQualityLevelOverride::class,
+            MeoPasscodeBypass::class,
+            AppPasscode::class,
+            LocationSpoofer::class,
+            CameraTweaks::class,
+            InfiniteStoryBoost::class,
+            AmoledDarkMode::class,
+            PinConversations::class,
+            UnlimitedMultiSnap::class,
+            DeviceSpooferHook::class,
+            ClientBootstrapOverride::class,
+            GooglePlayServicesDialogs::class,
+            NoFriendScoreDelay::class,
+            ProfilePictureDownloader::class,
+            AddFriendSourceSpoof::class,
+            DisableReplayInFF::class,
+            OldBitmojiSelfie::class,
+        )
 
         initializeFeatures()
     }
