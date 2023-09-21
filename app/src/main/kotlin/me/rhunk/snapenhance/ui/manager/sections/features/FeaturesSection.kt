@@ -1,5 +1,6 @@
 package me.rhunk.snapenhance.ui.manager.sections.features
 
+import android.content.Intent
 import android.net.Uri
 import androidx.compose.animation.AnimatedContentTransitionScope
 import androidx.compose.animation.core.tween
@@ -65,7 +66,6 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.compose.ui.window.Dialog
 import androidx.navigation.NavGraphBuilder
 import androidx.navigation.NavOptions
 import androidx.navigation.compose.composable
@@ -80,12 +80,9 @@ import me.rhunk.snapenhance.core.config.FeatureNotice
 import me.rhunk.snapenhance.core.config.PropertyKey
 import me.rhunk.snapenhance.core.config.PropertyPair
 import me.rhunk.snapenhance.core.config.PropertyValue
+import me.rhunk.snapenhance.ui.manager.MainActivity
 import me.rhunk.snapenhance.ui.manager.Section
-import me.rhunk.snapenhance.ui.util.ActivityLauncherHelper
-import me.rhunk.snapenhance.ui.util.AlertDialogs
-import me.rhunk.snapenhance.ui.util.chooseFolder
-import me.rhunk.snapenhance.ui.util.openFile
-import me.rhunk.snapenhance.ui.util.saveFile
+import me.rhunk.snapenhance.ui.util.*
 
 @OptIn(ExperimentalMaterial3Api::class)
 class FeaturesSection : Section() {
@@ -98,7 +95,7 @@ class FeaturesSection : Section() {
     }
 
 
-    private lateinit var activityLauncherHelper: ActivityLauncherHelper
+    private var activityLauncherHelper: ActivityLauncherHelper? = null
     private val featuresRouteName by lazy { context.translation["manager.routes.features"] }
 
     private lateinit var rememberScaffoldState: BottomSheetScaffoldState
@@ -141,6 +138,16 @@ class FeaturesSection : Section() {
 
     override fun init() {
         activityLauncherHelper = ActivityLauncherHelper(context.activity!!)
+    }
+
+    private fun activityLauncher(block: ActivityLauncherHelper.() -> Unit) {
+        activityLauncherHelper?.let(block) ?: run {
+            //open manager if activity launcher is null
+            val intent = Intent(context.androidContext, MainActivity::class.java)
+            intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+            intent.putExtra("route", enumSection.route)
+            context.androidContext.startActivity(intent)
+        }
     }
 
     override fun build(navGraphBuilder: NavGraphBuilder) {
@@ -194,8 +201,10 @@ class FeaturesSection : Section() {
 
         if (property.key.params.flags.contains(ConfigFlag.FOLDER)) {
             IconButton(onClick = registerClickCallback {
-                activityLauncherHelper.chooseFolder { uri ->
-                    propertyValue.setAny(uri)
+                activityLauncher {
+                    chooseFolder { uri ->
+                        propertyValue.setAny(uri)
+                    }
                 }
             }.let { { it.invoke(true) } }) {
                 Icon(Icons.Filled.FolderOpen, contentDescription = null)
@@ -478,24 +487,28 @@ class FeaturesSection : Section() {
         val actions = remember {
             mapOf(
                 "Export" to {
-                    activityLauncherHelper.saveFile("config.json", "application/json") { uri ->
-                        context.androidContext.contentResolver.openOutputStream(Uri.parse(uri))?.use {
-                            context.config.writeConfig()
-                            context.config.exportToString().byteInputStream().copyTo(it)
-                            context.shortToast("Config exported successfully!")
+                    activityLauncher {
+                        saveFile("config.json", "application/json") { uri ->
+                            context.androidContext.contentResolver.openOutputStream(Uri.parse(uri))?.use {
+                                context.config.writeConfig()
+                                context.config.exportToString().byteInputStream().copyTo(it)
+                                context.shortToast("Config exported successfully!")
+                            }
                         }
                     }
                 },
                 "Import" to {
-                    activityLauncherHelper.openFile("application/json") { uri ->
-                        context.androidContext.contentResolver.openInputStream(Uri.parse(uri))?.use {
-                            runCatching {
-                                context.config.loadFromString(it.readBytes().toString(Charsets.UTF_8))
-                            }.onFailure {
-                                context.longToast("Failed to import config ${it.message}")
-                                return@use
+                    activityLauncher {
+                        openFile("application/json") { uri ->
+                            context.androidContext.contentResolver.openInputStream(Uri.parse(uri))?.use {
+                                runCatching {
+                                    context.config.loadFromString(it.readBytes().toString(Charsets.UTF_8))
+                                }.onFailure {
+                                    context.longToast("Failed to import config ${it.message}")
+                                    return@use
+                                }
+                                context.shortToast("Config successfully loaded!")
                             }
-                            context.shortToast("Config successfully loaded!")
                         }
                     }
                 },

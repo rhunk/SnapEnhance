@@ -4,32 +4,11 @@ import android.content.Intent
 import android.net.Uri
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.ScrollState
-import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.RowScope
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.BugReport
-import androidx.compose.material.icons.filled.Language
-import androidx.compose.material.icons.filled.Map
-import androidx.compose.material.icons.filled.MoreVert
-import androidx.compose.material.icons.filled.OpenInNew
-import androidx.compose.material.icons.filled.ReceiptLong
-import androidx.compose.material.icons.filled.Refresh
-import androidx.compose.material3.Button
-import androidx.compose.material3.Card
-import androidx.compose.material3.CardDefaults
-import androidx.compose.material3.DropdownMenu
-import androidx.compose.material3.DropdownMenuItem
-import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.OutlinedCard
-import androidx.compose.material3.Text
+import androidx.compose.material.icons.filled.*
+import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -63,8 +42,8 @@ class HomeSection : Section() {
     companion object {
         val cardMargin = 10.dp
         const val HOME_ROOT = "home_root"
-        const val DEBUG_SECTION_ROUTE = "home_debug"
         const val LOGS_SECTION_ROUTE = "home_logs"
+        const val SETTINGS_SECTION_ROUTE = "home_settings"
     }
 
     private var installationSummary: InstallationSummary? = null
@@ -223,12 +202,12 @@ class HomeSection : Section() {
                     IconButton(onClick = {
                         navController.navigate(LOGS_SECTION_ROUTE)
                     }) {
-                        Icon(Icons.Filled.ReceiptLong, contentDescription = null)
+                        Icon(Icons.Filled.BugReport, contentDescription = null)
                     }
                     IconButton(onClick = {
-                        navController.navigate(DEBUG_SECTION_ROUTE)
+                        navController.navigate(SETTINGS_SECTION_ROUTE)
                     }) {
-                        Icon(Icons.Filled.BugReport, contentDescription = null)
+                        Icon(Icons.Filled.Settings, contentDescription = null)
                     }
                 }
                 LOGS_SECTION_ROUTE -> {
@@ -290,8 +269,8 @@ class HomeSection : Section() {
             composable(LOGS_SECTION_ROUTE) {
                 homeSubSection.LogsSection()
             }
-            composable(DEBUG_SECTION_ROUTE) {
-                homeSubSection.DebugSection()
+            composable(SETTINGS_SECTION_ROUTE) {
+                SettingsSection().also { it.context = context }.Content()
             }
         }
     }

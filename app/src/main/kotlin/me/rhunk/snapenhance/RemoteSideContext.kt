@@ -25,6 +25,7 @@ import me.rhunk.snapenhance.download.DownloadTaskManager
 import me.rhunk.snapenhance.messaging.ModDatabase
 import me.rhunk.snapenhance.messaging.StreaksReminder
 import me.rhunk.snapenhance.scripting.RemoteScriptManager
+import me.rhunk.snapenhance.ui.overlay.SettingsOverlay
 import me.rhunk.snapenhance.ui.manager.MainActivity
 import me.rhunk.snapenhance.ui.manager.data.InstallationSummary
 import me.rhunk.snapenhance.ui.manager.data.ModInfo
@@ -56,6 +57,7 @@ class RemoteSideContext(
     val streaksReminder = StreaksReminder(this)
     val log = LogManager(this)
     val scriptManager = RemoteScriptManager(this)
+    val settingsOverlay = SettingsOverlay(this)
 
     //used to load bitmoji selfies and download previews
     val imageLoader by lazy {

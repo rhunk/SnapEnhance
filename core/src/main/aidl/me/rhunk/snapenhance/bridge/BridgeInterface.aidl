@@ -93,4 +93,8 @@ interface BridgeInterface {
     oneway void passGroupsAndFriends(in List<String> groups, in List<String> friends);
 
     IScripting getScriptingInterface();
+
+    void openSettingsOverlay();
+
+    void closeSettingsOverlay();
 }

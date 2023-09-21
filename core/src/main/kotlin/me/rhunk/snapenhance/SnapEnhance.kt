@@ -16,11 +16,19 @@ import me.rhunk.snapenhance.core.messaging.MessagingFriendInfo
 import me.rhunk.snapenhance.core.messaging.MessagingGroupInfo
 import me.rhunk.snapenhance.core.util.ktx.getApplicationInfoCompat
 import me.rhunk.snapenhance.data.SnapClassCache
+import me.rhunk.snapenhance.hook.HookAdapter
 import me.rhunk.snapenhance.hook.HookStage
 import me.rhunk.snapenhance.hook.Hooker
 import me.rhunk.snapenhance.hook.hook
 import kotlin.time.ExperimentalTime
 import kotlin.time.measureTime
+
+private fun useMainActivity(hookAdapter: HookAdapter, block: Activity.() -> Unit) {
+    val activity = hookAdapter.thisObject() as Activity
+    if (!activity.packageName.equals(Constants.SNAPCHAT_PACKAGE_NAME)) return
+    block(activity)
+}
+
 
 class SnapEnhance {
     companion object {
@@ -68,12 +76,18 @@ class SnapEnhance {
         }
 
         Activity::class.java.hook( "onCreate",  HookStage.AFTER, { isBridgeInitialized }) {
-            val activity = it.thisObject() as Activity
-            if (!activity.packageName.equals(Constants.SNAPCHAT_PACKAGE_NAME)) return@hook
-            val isMainActivityNotNull = appContext.mainActivity != null
-            appContext.mainActivity = activity
-            if (isMainActivityNotNull || !appContext.mappings.isMappingsLoaded()) return@hook
-            onActivityCreate()
+            useMainActivity(it) {
+                val isMainActivityNotNull = appContext.mainActivity != null
+                appContext.mainActivity = this
+                if (isMainActivityNotNull || !appContext.mappings.isMappingsLoaded()) return@useMainActivity
+                onActivityCreate()
+            }
+        }
+
+        Activity::class.java.hook( "onPause",  HookStage.AFTER, { isBridgeInitialized }) {
+            useMainActivity(it) {
+                appContext.bridgeClient.closeSettingsOverlay()
+            }
         }
 
         var activityWasResumed = false
@@ -81,17 +95,16 @@ class SnapEnhance {
         //we need to reload the config when the app is resumed
         //FIXME: called twice at first launch
         Activity::class.java.hook("onResume", HookStage.AFTER, { isBridgeInitialized }) {
-            val activity = it.thisObject() as Activity
-            if (!activity.packageName.equals(Constants.SNAPCHAT_PACKAGE_NAME)) return@hook
+            useMainActivity(it) {
+                if (!activityWasResumed) {
+                    activityWasResumed = true
+                    return@useMainActivity
+                }
 
-            if (!activityWasResumed) {
-                activityWasResumed = true
-                return@hook
+                appContext.actionManager.onNewIntent(this.intent)
+                appContext.reloadConfig()
+                syncRemote()
             }
-
-            appContext.actionManager.onNewIntent(activity.intent)
-            appContext.reloadConfig()
-            syncRemote()
         }
     }
 

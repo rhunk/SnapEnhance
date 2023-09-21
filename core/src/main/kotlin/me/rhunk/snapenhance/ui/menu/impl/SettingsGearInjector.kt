@@ -45,11 +45,12 @@ class SettingsGearInjector : AbstractMenu() {
             isClickable = true
 
             setOnClickListener {
-                val intent = Intent().apply {
+               /* val intent = Intent().apply {
                     setClassName(BuildConfig.APPLICATION_ID, "me.rhunk.snapenhance.ui.manager.MainActivity")
                     putExtra("route", "features")
                 }
-                context.startActivity(intent)
+                context.startActivity(intent)*/
+                this@SettingsGearInjector.context.bridgeClient.openSettingsOverlay()
             }
 
             parent.setOnTouchListener { _, event ->

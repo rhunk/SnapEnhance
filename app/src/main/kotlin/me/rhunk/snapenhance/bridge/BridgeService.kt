@@ -187,5 +187,20 @@ class BridgeService : Service() {
         }
 
         override fun getScriptingInterface() = remoteSideContext.scriptManager
+        override fun openSettingsOverlay() {
+            runCatching {
+                remoteSideContext.settingsOverlay.show()
+            }.onFailure {
+                remoteSideContext.log.error("Failed to open settings overlay", it)
+            }
+        }
+
+        override fun closeSettingsOverlay() {
+            runCatching {
+                remoteSideContext.settingsOverlay.close()
+            }.onFailure {
+                remoteSideContext.log.error("Failed to close settings overlay", it)
+            }
+        }
     }
 }

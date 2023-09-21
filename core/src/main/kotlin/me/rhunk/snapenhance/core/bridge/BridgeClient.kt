@@ -140,4 +140,7 @@ class BridgeClient(
         = service.setRule(targetUuid, type.key, state)
 
     fun getScriptingInterface(): IScripting = service.getScriptingInterface()
+
+    fun openSettingsOverlay() = service.openSettingsOverlay()
+    fun closeSettingsOverlay() = service.closeSettingsOverlay()
 }
