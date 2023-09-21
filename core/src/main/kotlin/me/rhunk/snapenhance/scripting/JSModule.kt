@@ -68,10 +68,13 @@ class JSModule(
                         constructor.newInstance(*args ?: emptyArray())
                     }
 
-                    clazz.declaredMethods.forEach { method ->
-                        method.isAccessible = true
+                    clazz.declaredMethods.filter { Modifier.isStatic(it.modifiers) }.forEach { method ->
                         putFunction(method.name) { args ->
-                            args?.also { method.invoke(null, *it) } ?: method.invoke(null)
+                            clazz.declaredMethods.find {
+                                it.name == method.name && it.parameterTypes.zip(args ?: emptyArray()).all { (type, arg) ->
+                                    type.isAssignableFrom(arg.javaClass)
+                                }
+                            }?.invoke(null, *args ?: emptyArray())
                         }
                     }
 
