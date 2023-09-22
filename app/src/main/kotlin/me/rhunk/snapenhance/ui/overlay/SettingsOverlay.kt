@@ -14,6 +14,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -33,6 +34,8 @@ class SettingsOverlay(
     private val context: RemoteSideContext
 ) {
     private lateinit var dialog: Dialog
+    private lateinit var dismissCallback: () -> Boolean
+
     private fun checkForPermissions(): Boolean {
         if (!Settings.canDrawOverlays(context.androidContext)) {
             val myIntent = Intent(Settings.ACTION_MANAGE_OVERLAY_PERMISSION)
@@ -48,9 +51,9 @@ class SettingsOverlay(
     private fun OverlayContent() {
         val navHostController = rememberNavController()
 
-        /*navHostController.addOnDestinationChangedListener { _, destination, _ ->
-            dialog.setCancelable(destination.route == FeaturesSection.MAIN_ROUTE)
-        }*/
+        LaunchedEffect(Unit) {
+            dismissCallback = { !navHostController.popBackStack() }
+        }
 
         val navigation = remember {
             Navigation(
@@ -78,8 +81,10 @@ class SettingsOverlay(
 
     fun close() {
         if (!::dialog.isInitialized || !dialog.isShowing) return
-        context.config.writeConfig()
-        dialog.dismiss()
+
+        context.androidContext.mainExecutor.execute {
+            dialog.dismiss()
+        }
     }
 
     fun show() {
@@ -92,7 +97,13 @@ class SettingsOverlay(
         }
 
         context.androidContext.mainExecutor.execute {
-            dialog = Dialog(context.androidContext, R.style.FullscreenOverlayDialog)
+            dialog = object: Dialog(context.androidContext, R.style.FullscreenOverlayDialog) {
+                override fun dismiss() {
+                    if (!::dismissCallback.isInitialized || !dismissCallback()) return
+                    super.dismiss()
+                    this@SettingsOverlay.context.config.writeConfig()
+                }
+            }
             dialog.window?.apply {
                 setBackgroundDrawable(ColorDrawable(Color.TRANSPARENT))
                 setLayout(
@@ -123,10 +134,6 @@ class SettingsOverlay(
             )
 
             dialog.setCancelable(true)
-            dialog.setOnDismissListener {
-                close()
-            }
-
             dialog.show()
         }
     }
