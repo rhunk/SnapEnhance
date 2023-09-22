@@ -25,6 +25,7 @@ class TestMappings {
             CompositeConfigurationProviderMapper::class,
             ScoreUpdateMapper::class,
             FriendRelationshipChangerMapper::class,
+            ViewBinderMapper::class
         )
 
         val gson = GsonBuilder().setPrettyPrinting().create()

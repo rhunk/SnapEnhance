@@ -1,6 +1,8 @@
 package me.rhunk.snapenhance.features.impl.spying
 
+import android.graphics.drawable.ColorDrawable
 import android.os.DeadObjectException
+import android.view.View
 import com.google.gson.JsonObject
 import com.google.gson.JsonParser
 import me.rhunk.snapenhance.data.ContentType
@@ -10,6 +12,8 @@ import me.rhunk.snapenhance.features.Feature
 import me.rhunk.snapenhance.features.FeatureLoadParams
 import me.rhunk.snapenhance.hook.HookStage
 import me.rhunk.snapenhance.hook.Hooker
+import me.rhunk.snapenhance.hook.hook
+import me.rhunk.snapenhance.hook.hookConstructor
 import java.util.concurrent.Executors
 import kotlin.time.ExperimentalTime
 import kotlin.time.measureTime
@@ -23,12 +27,15 @@ private fun Any.longHashCode(): Long {
 
 class MessageLogger : Feature("MessageLogger",
     loadParams = FeatureLoadParams.INIT_SYNC or
+        FeatureLoadParams.ACTIVITY_CREATE_SYNC or
         FeatureLoadParams.ACTIVITY_CREATE_ASYNC
 ) {
     companion object {
         const val PREFETCH_MESSAGE_COUNT = 20
         const val PREFETCH_FEED_COUNT = 20
     }
+
+    private val isEnabled get() = context.config.messaging.messageLogger.get()
 
     private val threadPool = Executors.newFixedThreadPool(10)
 
@@ -57,13 +64,16 @@ class MessageLogger : Feature("MessageLogger",
 
     private fun computeMessageIdentifier(conversationId: String, orderKey: Long) = (orderKey.toString() + conversationId).longHashCode()
     private fun getServerMessageIdentifier(conversationId: String, clientMessageId: Long): Long? {
-        val serverMessageId = context.database.getConversationMessageFromId(clientMessageId)?.serverMessageId?.toLong() ?: return null
+        val serverMessageId = context.database.getConversationMessageFromId(clientMessageId)?.serverMessageId?.toLong() ?: return run {
+            context.log.error("Failed to get server message id for $conversationId $clientMessageId")
+            null
+        }
         return computeMessageIdentifier(conversationId, serverMessageId)
     }
 
     @OptIn(ExperimentalTime::class)
     override fun asyncOnActivityCreate() {
-        if (!context.database.hasArroyo()) {
+        if (!isEnabled || !context.database.hasArroyo()) {
             return
         }
 
@@ -125,20 +135,60 @@ class MessageLogger : Feature("MessageLogger",
             }
         }
 
-        //set the message state to PREPARING for visibility
+        /*//set the message state to PREPARING for visibility
         with(message.messageContent.contentType) {
             if (this != ContentType.SNAP && this != ContentType.EXTERNAL_MEDIA) {
                 message.messageState = MessageState.PREPARING
             }
-        }
+        }*/
 
         deletedMessageCache[serverIdentifier] = deletedMessageObject
     }
 
     override fun init() {
-        val messageLogger by context.config.messaging.messageLogger
-        Hooker.hookConstructor(context.classCache.message, HookStage.AFTER, { messageLogger }) { param ->
+        Hooker.hookConstructor(context.classCache.message, HookStage.AFTER, { isEnabled }) { param ->
             processSnapMessage(param.thisObject())
+        }
+    }
+
+    override fun onActivityCreate() {
+        if (!isEnabled) return
+
+        val viewBinderMappings = context.mappings.getMappedMap("ViewBinder")
+        val cachedHooks = mutableListOf<String>()
+
+        fun cacheHook(clazz: Class<*>, block: Class<*>.() -> Unit) {
+            if (!cachedHooks.contains(clazz.name)) {
+                clazz.block()
+                cachedHooks.add(clazz.name)
+            }
+        }
+
+        findClass(viewBinderMappings["class"].toString()).hookConstructor(HookStage.AFTER) { methodParam ->
+            cacheHook(
+                methodParam.thisObject<Any>()::class.java
+            ) {
+                hook(viewBinderMappings["bindMethod"].toString(), HookStage.BEFORE) bindViewMethod@{ param ->
+                    val instance = param.thisObject<Any>()
+                    val model1 = param.arg<Any>(0).toString().also {
+                        if (!it.startsWith("ChatViewModel")) return@bindViewMethod
+                    }
+
+                    val messageId = model1.substringAfter("messageId=").substringBefore(",").split(":").let {
+                        it[0] to it[2]
+                    }
+
+                    getServerMessageIdentifier(messageId.first, messageId.second.toLong())?.let { serverMessageId ->
+                        if (!deletedMessageCache.contains(serverMessageId)) return@bindViewMethod
+                    } ?: return@bindViewMethod
+
+                    val view = instance::class.java.methods.first {
+                        it.name == viewBinderMappings["getViewMethod"].toString()
+                    }.invoke(instance) as? View ?: return@bindViewMethod
+
+                    view.foreground = ColorDrawable(0x1E90313e) // red with alpha
+                }
+            }
         }
     }
 }

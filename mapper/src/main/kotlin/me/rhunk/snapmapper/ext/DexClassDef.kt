@@ -5,6 +5,7 @@ import org.jf.dexlib2.iface.ClassDef
 
 fun ClassDef.isEnum(): Boolean = accessFlags and AccessFlags.ENUM.value != 0
 fun ClassDef.isAbstract(): Boolean = accessFlags and AccessFlags.ABSTRACT.value != 0
+fun ClassDef.isInterface(): Boolean = accessFlags and AccessFlags.INTERFACE.value != 0
 fun ClassDef.isFinal(): Boolean = accessFlags and AccessFlags.FINAL.value != 0
 
 fun ClassDef.hasStaticConstructorString(string: String): Boolean = methods.any {
