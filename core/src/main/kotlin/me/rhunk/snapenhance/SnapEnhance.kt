@@ -3,118 +3,102 @@ package me.rhunk.snapenhance
 import android.app.Activity
 import android.app.Application
 import android.content.Context
-import android.content.pm.PackageManager
-import kotlinx.coroutines.runBlocking
-import kotlinx.coroutines.withContext
 import me.rhunk.snapenhance.bridge.SyncCallback
-import me.rhunk.snapenhance.core.BuildConfig
 import me.rhunk.snapenhance.core.Logger
 import me.rhunk.snapenhance.core.bridge.BridgeClient
-import me.rhunk.snapenhance.core.eventbus.events.impl.SnapWidgetBroadcastReceiveEvent
-import me.rhunk.snapenhance.core.eventbus.events.impl.UnaryCallEvent
+import me.rhunk.snapenhance.core.event.events.impl.SnapWidgetBroadcastReceiveEvent
+import me.rhunk.snapenhance.core.event.events.impl.UnaryCallEvent
 import me.rhunk.snapenhance.core.messaging.MessagingFriendInfo
 import me.rhunk.snapenhance.core.messaging.MessagingGroupInfo
-import me.rhunk.snapenhance.core.util.ktx.getApplicationInfoCompat
 import me.rhunk.snapenhance.data.SnapClassCache
-import me.rhunk.snapenhance.hook.HookAdapter
 import me.rhunk.snapenhance.hook.HookStage
-import me.rhunk.snapenhance.hook.Hooker
 import me.rhunk.snapenhance.hook.hook
 import kotlin.time.ExperimentalTime
 import kotlin.time.measureTime
-
-private fun useMainActivity(hookAdapter: HookAdapter, block: Activity.() -> Unit) {
-    val activity = hookAdapter.thisObject() as Activity
-    if (!activity.packageName.equals(Constants.SNAPCHAT_PACKAGE_NAME)) return
-    block(activity)
-}
 
 
 class SnapEnhance {
     companion object {
         lateinit var classLoader: ClassLoader
-        val classCache: SnapClassCache by lazy {
+            private set
+        val classCache by lazy {
             SnapClassCache(classLoader)
         }
     }
     private val appContext = ModContext()
     private var isBridgeInitialized = false
 
+    private fun hookMainActivity(methodName: String, stage: HookStage = HookStage.AFTER, block: Activity.() -> Unit) {
+        Activity::class.java.hook(methodName, stage, { isBridgeInitialized }) { param ->
+            val activity = param.thisObject() as Activity
+            if (!activity.packageName.equals(Constants.SNAPCHAT_PACKAGE_NAME)) return@hook
+            block(activity)
+        }
+    }
+
     init {
-        Hooker.hook(Application::class.java, "attach", HookStage.BEFORE) { param ->
-            appContext.androidContext = param.arg<Context>(0).also {
-                classLoader = it.classLoader
-            }
-            appContext.bridgeClient = BridgeClient(appContext)
-
-            //for lspatch builds, we need to check if the service is correctly installed
-            runCatching {
-                appContext.androidContext.packageManager.getApplicationInfoCompat(BuildConfig.APPLICATION_ID, PackageManager.GET_META_DATA)
-            }.onFailure {
-                appContext.crash("SnapEnhance bridge service is not installed. Please download stable version from https://github.com/rhunk/SnapEnhance/releases")
-                return@hook
-            }
-
-            appContext.bridgeClient.apply {
-                start { bridgeResult ->
-                    if (!bridgeResult) {
-                        Logger.xposedLog("Cannot connect to bridge service")
-                        appContext.softRestartApp()
-                        return@start
-                    }
-                    runCatching {
-                        runBlocking {
-                            init()
+        Application::class.java.hook("attach", HookStage.BEFORE) { param ->
+            appContext.apply {
+                androidContext = param.arg<Context>(0).also {
+                    classLoader = it.classLoader
+                }
+                bridgeClient = BridgeClient(appContext)
+                bridgeClient.apply {
+                    connect(
+                        timeout = {
+                            crash("SnapEnhance bridge service is not responding. Please download stable version from https://github.com/rhunk/SnapEnhance/releases", it)
                         }
-                    }.onSuccess {
-                        isBridgeInitialized = true
-                    }.onFailure {
-                        Logger.xposedLog("Failed to initialize", it)
+                    ) { bridgeResult ->
+                        if (!bridgeResult) {
+                            Logger.xposedLog("Cannot connect to bridge service")
+                            softRestartApp()
+                            return@connect
+                        }
+                        runCatching {
+                            init()
+                        }.onSuccess {
+                            isBridgeInitialized = true
+                        }.onFailure {
+                            Logger.xposedLog("Failed to initialize", it)
+                        }
                     }
                 }
             }
         }
 
-        Activity::class.java.hook( "onCreate",  HookStage.AFTER, { isBridgeInitialized }) {
-            useMainActivity(it) {
-                val isMainActivityNotNull = appContext.mainActivity != null
-                appContext.mainActivity = this
-                if (isMainActivityNotNull || !appContext.mappings.isMappingsLoaded()) return@useMainActivity
-                onActivityCreate()
-            }
+        hookMainActivity("onCreate") {
+            val isMainActivityNotNull = appContext.mainActivity != null
+            appContext.mainActivity = this
+            if (isMainActivityNotNull || !appContext.mappings.isMappingsLoaded()) return@hookMainActivity
+            onActivityCreate()
         }
 
-        Activity::class.java.hook( "onPause",  HookStage.AFTER, { isBridgeInitialized }) {
-            useMainActivity(it) {
-                appContext.bridgeClient.closeSettingsOverlay()
-            }
+        hookMainActivity("onPause") {
+            appContext.bridgeClient.closeSettingsOverlay()
         }
 
         var activityWasResumed = false
-
         //we need to reload the config when the app is resumed
         //FIXME: called twice at first launch
-        Activity::class.java.hook("onResume", HookStage.AFTER, { isBridgeInitialized }) {
-            useMainActivity(it) {
-                if (!activityWasResumed) {
-                    activityWasResumed = true
-                    return@useMainActivity
-                }
-
-                appContext.actionManager.onNewIntent(this.intent)
-                appContext.reloadConfig()
-                syncRemote()
+        hookMainActivity("onResume") {
+            if (!activityWasResumed) {
+                activityWasResumed = true
+                return@hookMainActivity
             }
+
+            appContext.actionManager.onNewIntent(this.intent)
+            appContext.reloadConfig()
+            syncRemote()
         }
     }
 
     @OptIn(ExperimentalTime::class)
-    private suspend fun init() {
+    private fun init() {
         measureTime {
             with(appContext) {
                 reloadConfig()
                 initNative()
-                withContext(appContext.coroutineDispatcher) {
+                executeAsync {
                     translation.userLocale = getConfigLocale()
                     translation.loadFromBridge(bridgeClient)
                 }
@@ -162,10 +146,8 @@ class SnapEnhance {
     }
 
     private fun syncRemote() {
-        val database = appContext.database
-
         appContext.executeAsync {
-            appContext.bridgeClient.sync(object : SyncCallback.Stub() {
+            bridgeClient.sync(object : SyncCallback.Stub() {
                 override fun syncFriend(uuid: String): String? {
                     return database.getFriendInfo(uuid)?.toJson()
                 }
@@ -181,7 +163,7 @@ class SnapEnhance {
                 }
             })
 
-            appContext.event.subscribe(SnapWidgetBroadcastReceiveEvent::class) { event ->
+            event.subscribe(SnapWidgetBroadcastReceiveEvent::class) { event ->
                 if (event.action != BridgeClient.BRIDGE_SYNC_ACTION) return@subscribe
                 event.canceled = true
                 val feedEntries = appContext.database.getFeedEntries(Int.MAX_VALUE)
@@ -204,7 +186,7 @@ class SnapEnhance {
                     )
                 }
 
-                appContext.bridgeClient.passGroupsAndFriends(
+                bridgeClient.passGroupsAndFriends(
                     groups.map { it.toJson() },
                     friends.map { it.toJson() }
                 )

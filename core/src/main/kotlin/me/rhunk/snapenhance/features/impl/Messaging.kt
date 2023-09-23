@@ -1,6 +1,6 @@
 package me.rhunk.snapenhance.features.impl
 
-import me.rhunk.snapenhance.core.eventbus.events.impl.OnSnapInteractionEvent
+import me.rhunk.snapenhance.core.event.events.impl.OnSnapInteractionEvent
 import me.rhunk.snapenhance.core.util.ktx.getObjectField
 import me.rhunk.snapenhance.data.wrapper.impl.SnapUUID
 import me.rhunk.snapenhance.features.Feature

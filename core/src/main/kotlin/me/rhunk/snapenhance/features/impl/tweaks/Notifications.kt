@@ -14,7 +14,7 @@ import de.robv.android.xposed.XposedBridge
 import de.robv.android.xposed.XposedHelpers
 import me.rhunk.snapenhance.core.Logger
 import me.rhunk.snapenhance.core.download.data.SplitMediaAssetType
-import me.rhunk.snapenhance.core.eventbus.events.impl.SnapWidgetBroadcastReceiveEvent
+import me.rhunk.snapenhance.core.event.events.impl.SnapWidgetBroadcastReceiveEvent
 import me.rhunk.snapenhance.core.util.CallbackBuilder
 import me.rhunk.snapenhance.core.util.download.RemoteMediaResolver
 import me.rhunk.snapenhance.core.util.ktx.setObjectField

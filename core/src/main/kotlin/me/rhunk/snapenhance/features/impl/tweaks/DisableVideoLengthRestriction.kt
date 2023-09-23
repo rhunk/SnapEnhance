@@ -3,7 +3,7 @@ package me.rhunk.snapenhance.features.impl.tweaks
 import android.os.Build
 import android.os.FileObserver
 import com.google.gson.JsonParser
-import me.rhunk.snapenhance.core.eventbus.events.impl.SendMessageWithContentEvent
+import me.rhunk.snapenhance.core.event.events.impl.SendMessageWithContentEvent
 import me.rhunk.snapenhance.features.Feature
 import me.rhunk.snapenhance.features.FeatureLoadParams
 import me.rhunk.snapenhance.hook.HookStage

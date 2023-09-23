@@ -1,6 +1,6 @@
-package me.rhunk.snapenhance.core.eventbus.events.impl
+package me.rhunk.snapenhance.core.event.events.impl
 
-import me.rhunk.snapenhance.core.eventbus.events.AbstractHookEvent
+import me.rhunk.snapenhance.core.event.events.AbstractHookEvent
 import me.rhunk.snapenhance.data.wrapper.impl.SnapUUID
 
 class OnSnapInteractionEvent(

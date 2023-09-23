@@ -19,7 +19,6 @@ class ModConfig {
     var wasPresent by Delegates.notNull<Boolean>()
 
     lateinit var root: RootConfig
-    operator fun getValue(thisRef: Any?, property: Any?) = root
 
     private fun load() {
         root = RootConfig()

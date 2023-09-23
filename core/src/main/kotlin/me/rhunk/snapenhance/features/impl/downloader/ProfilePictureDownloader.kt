@@ -3,8 +3,8 @@ package me.rhunk.snapenhance.features.impl.downloader
 import android.annotation.SuppressLint
 import android.widget.Button
 import android.widget.RelativeLayout
-import me.rhunk.snapenhance.core.eventbus.events.impl.AddViewEvent
-import me.rhunk.snapenhance.core.eventbus.events.impl.NetworkApiRequestEvent
+import me.rhunk.snapenhance.core.event.events.impl.AddViewEvent
+import me.rhunk.snapenhance.core.event.events.impl.NetworkApiRequestEvent
 import me.rhunk.snapenhance.core.util.protobuf.ProtoReader
 import me.rhunk.snapenhance.features.Feature
 import me.rhunk.snapenhance.features.FeatureLoadParams

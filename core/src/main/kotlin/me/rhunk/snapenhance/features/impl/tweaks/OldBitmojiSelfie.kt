@@ -1,6 +1,6 @@
 package me.rhunk.snapenhance.features.impl.tweaks
 
-import me.rhunk.snapenhance.core.eventbus.events.impl.NetworkApiRequestEvent
+import me.rhunk.snapenhance.core.event.events.impl.NetworkApiRequestEvent
 import me.rhunk.snapenhance.core.util.snap.BitmojiSelfie
 import me.rhunk.snapenhance.features.Feature
 import me.rhunk.snapenhance.features.FeatureLoadParams

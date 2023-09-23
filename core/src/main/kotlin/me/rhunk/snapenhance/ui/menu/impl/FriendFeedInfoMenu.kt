@@ -164,9 +164,7 @@ class FriendFeedInfoMenu : AbstractMenu() {
         ) { dialog: DialogInterface, _: Int -> dialog.dismiss() }
         targetPerson?.let {
             builder.setNegativeButton(context.translation["modal_option.profile_info"]) { _, _ ->
-                context.executeAsync {
-                    showProfileInfo(it)
-                }
+                context.executeAsync { showProfileInfo(it) }
             }
         }
         builder.show()

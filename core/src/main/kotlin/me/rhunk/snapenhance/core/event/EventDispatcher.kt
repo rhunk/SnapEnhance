@@ -1,14 +1,15 @@
-package me.rhunk.snapenhance
+package me.rhunk.snapenhance.core.event
 
 import android.content.Intent
 import android.view.View
 import android.view.ViewGroup
 import android.view.ViewGroup.LayoutParams
-import me.rhunk.snapenhance.core.eventbus.events.impl.AddViewEvent
-import me.rhunk.snapenhance.core.eventbus.events.impl.NetworkApiRequestEvent
-import me.rhunk.snapenhance.core.eventbus.events.impl.OnSnapInteractionEvent
-import me.rhunk.snapenhance.core.eventbus.events.impl.SendMessageWithContentEvent
-import me.rhunk.snapenhance.core.eventbus.events.impl.SnapWidgetBroadcastReceiveEvent
+import me.rhunk.snapenhance.ModContext
+import me.rhunk.snapenhance.core.event.events.impl.AddViewEvent
+import me.rhunk.snapenhance.core.event.events.impl.NetworkApiRequestEvent
+import me.rhunk.snapenhance.core.event.events.impl.OnSnapInteractionEvent
+import me.rhunk.snapenhance.core.event.events.impl.SendMessageWithContentEvent
+import me.rhunk.snapenhance.core.event.events.impl.SnapWidgetBroadcastReceiveEvent
 import me.rhunk.snapenhance.core.util.ktx.getObjectField
 import me.rhunk.snapenhance.core.util.ktx.setObjectField
 import me.rhunk.snapenhance.core.util.snap.SnapWidgetBroadcastReceiverHelper

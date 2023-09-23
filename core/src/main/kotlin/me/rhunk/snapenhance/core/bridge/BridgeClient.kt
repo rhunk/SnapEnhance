@@ -23,6 +23,7 @@ import me.rhunk.snapenhance.core.messaging.SocialScope
 import me.rhunk.snapenhance.data.LocalePair
 import java.util.concurrent.CompletableFuture
 import java.util.concurrent.Executors
+import java.util.concurrent.TimeUnit
 import kotlin.system.exitProcess
 
 
@@ -33,22 +34,21 @@ class BridgeClient(
     private lateinit var service: BridgeInterface
 
     companion object {
-        const val BRIDGE_SYNC_ACTION = "me.rhunk.snapenhance.core.bridge.SYNC"
+        const val BRIDGE_SYNC_ACTION = BuildConfig.APPLICATION_ID + ".core.bridge.SYNC"
     }
 
-    fun start(callback: (Boolean) -> Unit) {
+    fun connect(timeout: (Throwable) -> Unit, onResult: (Boolean) -> Unit) {
         this.future = CompletableFuture()
 
-        //TODO: randomize package name
         with(context.androidContext) {
             //ensure the remote process is running
             startActivity(Intent()
-                .setClassName(BuildConfig.APPLICATION_ID, "me.rhunk.snapenhance.bridge.ForceStartActivity")
+                .setClassName(BuildConfig.APPLICATION_ID, BuildConfig.APPLICATION_ID + ".bridge.ForceStartActivity")
                 .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_MULTIPLE_TASK)
             )
 
             val intent = Intent()
-                .setClassName(BuildConfig.APPLICATION_ID, "me.rhunk.snapenhance.bridge.BridgeService")
+                .setClassName(BuildConfig.APPLICATION_ID, BuildConfig.APPLICATION_ID + ".bridge.BridgeService")
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
                 bindService(
                     intent,
@@ -70,7 +70,11 @@ class BridgeClient(
                 )
             }
         }
-        callback(future.get())
+        runCatching {
+            onResult(future.get(10, TimeUnit.SECONDS))
+        }.onFailure {
+            timeout(it)
+        }
     }
 
 

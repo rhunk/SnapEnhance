@@ -1,6 +1,6 @@
-package me.rhunk.snapenhance.core.eventbus.events.impl
+package me.rhunk.snapenhance.core.event.events.impl
 
-import me.rhunk.snapenhance.core.eventbus.events.AbstractHookEvent
+import me.rhunk.snapenhance.core.event.events.AbstractHookEvent
 import me.rhunk.snapenhance.data.wrapper.impl.MessageContent
 import me.rhunk.snapenhance.data.wrapper.impl.MessageDestinations
 import me.rhunk.snapenhance.hook.HookStage

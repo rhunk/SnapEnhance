@@ -1,7 +1,7 @@
 package me.rhunk.snapenhance.features.impl
 
 import kotlinx.coroutines.*
-import me.rhunk.snapenhance.core.eventbus.events.impl.SendMessageWithContentEvent
+import me.rhunk.snapenhance.core.event.events.impl.SendMessageWithContentEvent
 import me.rhunk.snapenhance.core.messaging.SocialScope
 import me.rhunk.snapenhance.data.ContentType
 import me.rhunk.snapenhance.features.Feature

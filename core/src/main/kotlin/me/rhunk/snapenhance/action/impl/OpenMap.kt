@@ -9,7 +9,7 @@ class OpenMap: AbstractAction() {
     override fun run() {
         context.runOnUiThread {
             val mapActivityIntent = Intent()
-            mapActivityIntent.setClassName(BuildConfig.APPLICATION_ID, "me.rhunk.snapenhance.ui.MapActivity")
+            mapActivityIntent.setClassName(BuildConfig.APPLICATION_ID, BuildConfig.APPLICATION_ID + ".ui.MapActivity")
             mapActivityIntent.putExtra("location", Bundle().apply {
                 putDouble("latitude", context.config.experimental.spoof.location.latitude.get().toDouble())
                 putDouble("longitude", context.config.experimental.spoof.location.longitude.get().toDouble())

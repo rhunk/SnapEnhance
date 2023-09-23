@@ -1,8 +1,8 @@
-package me.rhunk.snapenhance.core.eventbus.events.impl
+package me.rhunk.snapenhance.core.event.events.impl
 
 import android.view.View
 import android.view.ViewGroup
-import me.rhunk.snapenhance.core.eventbus.events.AbstractHookEvent
+import me.rhunk.snapenhance.core.event.events.AbstractHookEvent
 
 class AddViewEvent(
     val parent: ViewGroup,

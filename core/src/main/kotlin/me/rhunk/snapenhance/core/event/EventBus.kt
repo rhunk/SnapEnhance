@@ -1,4 +1,4 @@
-package me.rhunk.snapenhance.core.eventbus
+package me.rhunk.snapenhance.core.event
 
 import me.rhunk.snapenhance.ModContext
 import kotlin.reflect.KClass

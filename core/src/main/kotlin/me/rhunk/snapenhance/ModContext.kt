@@ -10,14 +10,14 @@ import android.os.Process
 import android.widget.Toast
 import com.google.gson.Gson
 import com.google.gson.GsonBuilder
-import kotlinx.coroutines.asCoroutineDispatcher
 import me.rhunk.snapenhance.core.Logger
 import me.rhunk.snapenhance.core.bridge.BridgeClient
 import me.rhunk.snapenhance.core.bridge.wrapper.LocaleWrapper
 import me.rhunk.snapenhance.core.bridge.wrapper.MappingsWrapper
 import me.rhunk.snapenhance.core.config.ModConfig
 import me.rhunk.snapenhance.core.database.DatabaseAccess
-import me.rhunk.snapenhance.core.eventbus.EventBus
+import me.rhunk.snapenhance.core.event.EventBus
+import me.rhunk.snapenhance.core.event.EventDispatcher
 import me.rhunk.snapenhance.core.util.download.HttpServer
 import me.rhunk.snapenhance.data.MessageSender
 import me.rhunk.snapenhance.features.Feature
@@ -34,32 +34,28 @@ import kotlin.system.exitProcess
 class ModContext {
     private val executorService: ExecutorService = Executors.newCachedThreadPool()
 
-    val coroutineDispatcher by lazy {
-        executorService.asCoroutineDispatcher()
-    }
-
     lateinit var androidContext: Context
-    var mainActivity: Activity? = null
     lateinit var bridgeClient: BridgeClient
+    var mainActivity: Activity? = null
 
+    val classCache get() = SnapEnhance.classCache
+    val resources: Resources get() = androidContext.resources
     val gson: Gson = GsonBuilder().create()
 
-    private val modConfig = ModConfig()
-    val config by modConfig
+    private val _config = ModConfig()
+    val config by _config::root
     val log by lazy { Logger(this.bridgeClient) }
-    val event = EventBus(this)
-    val eventDispatcher = EventDispatcher(this)
-    val native = NativeLib()
-
     val translation = LocaleWrapper()
+    val httpServer = HttpServer()
+    val messageSender = MessageSender(this)
+
     val features = FeatureManager(this)
     val mappings = MappingsWrapper()
     val actionManager = ActionManager(this)
     val database = DatabaseAccess(this)
-    val httpServer = HttpServer()
-    val messageSender = MessageSender(this)
-    val classCache get() = SnapEnhance.classCache
-    val resources: Resources get() = androidContext.resources
+    val event = EventBus(this)
+    val eventDispatcher = EventDispatcher(this)
+    val native = NativeLib()
     val scriptRuntime by lazy { CoreScriptRuntime(log, androidContext.classLoader) }
 
     fun <T : Feature> feature(featureClass: KClass<T>): T {
@@ -74,7 +70,7 @@ class ModContext {
         }
     }
 
-    fun executeAsync(runnable: () -> Unit) {
+    fun executeAsync(runnable: ModContext.() -> Unit) {
         executorService.submit {
             runCatching {
                 runnable()
@@ -99,7 +95,7 @@ class ModContext {
 
     fun softRestartApp(saveSettings: Boolean = false) {
         if (saveSettings) {
-            modConfig.writeConfig()
+            _config.writeConfig()
         }
         val intent: Intent? = androidContext.packageManager.getLaunchIntentForPackage(
             Constants.SNAPCHAT_PACKAGE_NAME
@@ -117,7 +113,7 @@ class ModContext {
         delayForceCloseApp(100)
     }
 
-    fun delayForceCloseApp(delay: Long) = Handler(Looper.getMainLooper()).postDelayed({
+    private fun delayForceCloseApp(delay: Long) = Handler(Looper.getMainLooper()).postDelayed({
         forceCloseApp()
     }, delay)
 
@@ -128,7 +124,7 @@ class ModContext {
 
     fun reloadConfig() {
         log.verbose("reloading config")
-        modConfig.loadFromBridge(bridgeClient)
+        _config.loadFromBridge(bridgeClient)
         native.loadNativeConfig(
             NativeConfig(
                 disableBitmoji = config.experimental.nativeHooks.disableBitmoji.get(),
@@ -138,6 +134,6 @@ class ModContext {
     }
 
     fun getConfigLocale(): String {
-        return modConfig.locale
+        return _config.locale
     }
 }

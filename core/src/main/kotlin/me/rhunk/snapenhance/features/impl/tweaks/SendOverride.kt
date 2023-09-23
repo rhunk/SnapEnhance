@@ -1,8 +1,8 @@
 package me.rhunk.snapenhance.features.impl.tweaks
 
 import me.rhunk.snapenhance.Constants
-import me.rhunk.snapenhance.core.eventbus.events.impl.SendMessageWithContentEvent
-import me.rhunk.snapenhance.core.eventbus.events.impl.UnaryCallEvent
+import me.rhunk.snapenhance.core.event.events.impl.SendMessageWithContentEvent
+import me.rhunk.snapenhance.core.event.events.impl.UnaryCallEvent
 import me.rhunk.snapenhance.core.util.protobuf.ProtoEditor
 import me.rhunk.snapenhance.core.util.protobuf.ProtoReader
 import me.rhunk.snapenhance.data.ContentType

@@ -9,7 +9,6 @@ import android.view.ViewGroup.MarginLayoutParams
 import android.widget.Button
 import android.widget.LinearLayout
 import me.rhunk.snapenhance.Constants
-import me.rhunk.snapenhance.Constants.VIEW_INJECTED_CODE
 import me.rhunk.snapenhance.features.impl.Messaging
 import me.rhunk.snapenhance.features.impl.downloader.MediaDownloader
 import me.rhunk.snapenhance.features.impl.spying.MessageLogger
@@ -18,9 +17,11 @@ import me.rhunk.snapenhance.ui.menu.AbstractMenu
 
 
 class ChatActionMenu : AbstractMenu() {
+    private val viewInjectedTag = 0x7FFFFF02
+
     private fun wasInjectedView(view: View): Boolean {
-        if (view.getTag(VIEW_INJECTED_CODE) != null) return true
-        view.setTag(VIEW_INJECTED_CODE, true)
+        if (view.getTag(viewInjectedTag) != null) return true
+        view.setTag(viewInjectedTag, true)
         return false
     }
 
@@ -108,7 +109,7 @@ class ChatActionMenu : AbstractMenu() {
                 text = this@ChatActionMenu.context.translation["chat_action_menu.preview_button"]
                 setOnClickListener {
                     closeActionMenu()
-                    this@ChatActionMenu.context.executeAsync { this@ChatActionMenu.context.feature(MediaDownloader::class).onMessageActionMenu(true) }
+                    this@ChatActionMenu.context.executeAsync { feature(MediaDownloader::class).onMessageActionMenu(true) }
                 }
             })
 
@@ -117,9 +118,7 @@ class ChatActionMenu : AbstractMenu() {
                 setOnClickListener {
                     closeActionMenu()
                     this@ChatActionMenu.context.executeAsync {
-                        this@ChatActionMenu.context.feature(
-                            MediaDownloader::class
-                        ).onMessageActionMenu(false)
+                        feature(MediaDownloader::class).onMessageActionMenu(false)
                     }
                 }
             })
@@ -132,8 +131,8 @@ class ChatActionMenu : AbstractMenu() {
                 setOnClickListener {
                     closeActionMenu()
                     this@ChatActionMenu.context.executeAsync {
-                        with(this@ChatActionMenu.context.feature(Messaging::class)) {
-                            context.feature(MessageLogger::class).deleteMessage(openedConversationUUID.toString(), lastFocusedMessageId)
+                        feature(Messaging::class).apply {
+                            feature(MessageLogger::class).deleteMessage(openedConversationUUID.toString(), lastFocusedMessageId)
                         }
                     }
                 }

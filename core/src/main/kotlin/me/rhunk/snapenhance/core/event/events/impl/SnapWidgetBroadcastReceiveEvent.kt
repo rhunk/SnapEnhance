@@ -1,8 +1,8 @@
-package me.rhunk.snapenhance.core.eventbus.events.impl
+package me.rhunk.snapenhance.core.event.events.impl
 
 import android.content.Context
 import android.content.Intent
-import me.rhunk.snapenhance.core.eventbus.events.AbstractHookEvent
+import me.rhunk.snapenhance.core.event.events.AbstractHookEvent
 
 class SnapWidgetBroadcastReceiveEvent(
     val androidContext: Context,

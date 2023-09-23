@@ -470,11 +470,11 @@ class MediaDownloader : MessagingRuleFeature("MediaDownloader", MessagingRuleTyp
             if (!canAutoDownload()) return@onOperaViewStateCallback
 
             context.executeAsync {
-                try {
+                runCatching {
                     handleOperaMedia(mediaParamMap, mediaInfoMap, false)
-                } catch (e: Throwable) {
-                    context.log.error("Failed to handle opera media", e)
-                    context.longToast(e.message)
+                }.onFailure {
+                    context.log.error("Failed to handle opera media", it)
+                    context.longToast(it.message)
                 }
             }
         }
