@@ -58,7 +58,11 @@ class RemoteScriptManager(
         return folder.findFile(folderName) ?: folder.createDirectory(folderName)
     }
 
-    private fun getScriptsFolder() = DocumentFile.fromTreeUri(context.androidContext, Uri.parse(context.config.root.scripting.moduleFolder.get()))
+    private fun getScriptsFolder() = runCatching {
+        DocumentFile.fromTreeUri(context.androidContext, Uri.parse(context.config.root.scripting.moduleFolder.get()))
+    }.onFailure {
+        context.log.warn("Failed to get scripts folder")
+    }.getOrNull()
 
     private fun getScriptFileNames(): List<String> {
         return (getScriptsFolder() ?: return emptyList()).listFiles().filter { it.name?.endsWith(".js") ?: false }.map { it.name!! }
