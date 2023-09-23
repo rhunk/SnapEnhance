@@ -672,10 +672,28 @@
 
     "profile_info": {
         "title": "Profile Info",
-        "username": "Username",
+        "first_created_username": "First Created Username",
+        "mutable_username": "Mutable Username",
         "display_name": "Display Name",
         "added_date": "Added Date",
-        "birthday": "Birthday : {month} {day}"
+        "birthday": "Birthday : {month} {day}",
+        "friendship": "Friendship",
+        "add_source": "Add Source",
+        "snapchat_plus": "Snapchat Plus",
+        "snapchat_plus_state": {
+            "subscribed": "Subscribed",
+            "not_subscribed": "Not Subscribed"
+        },
+        "friendship_link_type": {
+            "mutual": "Mutual",
+            "outgoing": "Outgoing",
+            "blocked": "Blocked",
+            "deleted": "Deleted",
+            "following": "Following",
+            "suggested": "Suggested",
+            "incoming": "Incoming",
+            "incoming_follower": "Incoming Follower"
+        }
     },
 
     "chat_export": {

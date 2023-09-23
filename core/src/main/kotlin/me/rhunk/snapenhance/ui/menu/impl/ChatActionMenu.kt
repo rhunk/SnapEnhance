@@ -12,23 +12,18 @@ import me.rhunk.snapenhance.Constants
 import me.rhunk.snapenhance.features.impl.Messaging
 import me.rhunk.snapenhance.features.impl.downloader.MediaDownloader
 import me.rhunk.snapenhance.features.impl.spying.MessageLogger
-import me.rhunk.snapenhance.ui.ViewAppearanceHelper
+import me.rhunk.snapenhance.ui.ViewTagState
+import me.rhunk.snapenhance.ui.applyTheme
 import me.rhunk.snapenhance.ui.menu.AbstractMenu
 
 
 class ChatActionMenu : AbstractMenu() {
-    private val viewInjectedTag = 0x7FFFFF02
-
-    private fun wasInjectedView(view: View): Boolean {
-        if (view.getTag(viewInjectedTag) != null) return true
-        view.setTag(viewInjectedTag, true)
-        return false
-    }
+    private val viewTagState = ViewTagState()
 
     @SuppressLint("SetTextI18n", "DiscouragedApi")
     fun inject(viewGroup: ViewGroup) {
         val parent = viewGroup.parent.parent as ViewGroup
-        if (wasInjectedView(parent)) return
+        if (viewTagState[parent]) return
         //close the action menu using a touch event
         val closeActionMenu = {
             viewGroup.dispatchTouchEvent(
@@ -73,7 +68,7 @@ class ChatActionMenu : AbstractMenu() {
                 ViewGroup.LayoutParams.MATCH_PARENT,
                 ViewGroup.LayoutParams.WRAP_CONTENT
             ).apply {
-                ViewAppearanceHelper.applyTheme(this@layout, parent.width, true)
+                applyTheme(parent.width, true)
                 setMargins(chatActionMenuItemMargin, 0, chatActionMenuItemMargin, defaultGap)
             }
         }
@@ -91,9 +86,8 @@ class ChatActionMenu : AbstractMenu() {
                 })
             }
 
-            ViewAppearanceHelper.applyTheme(button, parent.width, true)
-
             with(button) {
+                applyTheme(parent.width, true)
                 layoutParams = MarginLayoutParams(
                     ViewGroup.LayoutParams.MATCH_PARENT,
                     ViewGroup.LayoutParams.WRAP_CONTENT

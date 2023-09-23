@@ -133,3 +133,20 @@ enum class MetricsMessageType {
 enum class MediaReferenceType {
     UNASSIGNED, OVERLAY, IMAGE, VIDEO, ASSET_BUNDLE, AUDIO, ANIMATED_IMAGE, FONT, WEB_VIEW_CONTENT, VIDEO_NO_AUDIO
 }
+
+enum class FriendLinkType(val value: Int, val shortName: String) {
+    MUTUAL(0, "mutual"),
+    OUTGOING(1, "outgoing"),
+    BLOCKED(2, "blocked"),
+    DELETED(3, "deleted"),
+    FOLLOWING(4, "following"),
+    SUGGESTED(5, "suggested"),
+    INCOMING(6, "incoming"),
+    INCOMING_FOLLOWER(7, "incoming_follower");
+
+    companion object {
+        fun fromValue(value: Int): FriendLinkType {
+            return values().firstOrNull { it.value == value } ?: MUTUAL
+        }
+    }
+}

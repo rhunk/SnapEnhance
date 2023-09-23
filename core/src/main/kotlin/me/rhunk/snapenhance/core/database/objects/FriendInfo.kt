@@ -30,8 +30,13 @@ data class FriendInfo(
     var reverseBestFriendRanking: Int = 0,
     var isPinnedBestFriend: Int = 0,
     var plusBadgeVisibility: Int = 0,
-    var usernameForSorting: String? = null
+    var usernameForSorting: String? = null,
+    var friendLinkType: Int = 0,
+    var postViewEmoji: String? = null,
 ) : DatabaseObject, SerializableDataObject() {
+    val mutableUsername get() = username?.split("|")?.last()
+    val firstCreatedUsername get() = username?.split("|")?.first()
+
     @SuppressLint("Range")
     override fun write(cursor: Cursor) {
         with(cursor) {
@@ -55,10 +60,13 @@ data class FriendInfo(
             streakExpirationTimestamp = getLong("streakExpiration")
             reverseBestFriendRanking = getInteger("reverseBestFriendRanking")
             usernameForSorting = getStringOrNull("usernameForSorting")
+            friendLinkType = getInteger("friendLinkType")
+            postViewEmoji = getStringOrNull("postViewEmoji")
             if (getColumnIndex("isPinnedBestFriend") != -1) isPinnedBestFriend =
                 getInteger("isPinnedBestFriend")
             if (getColumnIndex("plusBadgeVisibility") != -1) plusBadgeVisibility =
                 getInteger("plusBadgeVisibility")
         }
     }
+
 }

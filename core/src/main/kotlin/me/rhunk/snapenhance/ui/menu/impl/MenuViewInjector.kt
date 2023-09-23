@@ -11,10 +11,13 @@ import me.rhunk.snapenhance.core.event.events.impl.AddViewEvent
 import me.rhunk.snapenhance.features.Feature
 import me.rhunk.snapenhance.features.FeatureLoadParams
 import me.rhunk.snapenhance.features.impl.Messaging
+import me.rhunk.snapenhance.ui.ViewTagState
 import java.lang.reflect.Modifier
 
 @SuppressLint("DiscouragedApi")
 class MenuViewInjector : Feature("MenuViewInjector", loadParams = FeatureLoadParams.ACTIVITY_CREATE_ASYNC) {
+    private val viewTagState = ViewTagState()
+
     private val friendFeedInfoMenu = FriendFeedInfoMenu()
     private val operaContextActionMenu = OperaContextActionMenu()
     private val chatActionMenu = ChatActionMenu()
@@ -114,15 +117,17 @@ class MenuViewInjector : Feature("MenuViewInjector", loadParams = FeatureLoadPar
                     viewGroup.addOnAttachStateChangeListener(object: View.OnAttachStateChangeListener {
                         override fun onViewAttachedToWindow(v: View) {}
                         override fun onViewDetachedFromWindow(v: View) {
-                            //context.config.writeConfig()
+                            viewTagState.removeState(viewGroup)
                         }
                     })
+                    viewTagState[viewGroup]
                     return@subscribe
                 }
                 if (messaging.lastFetchConversationUUID == null || messaging.lastFetchConversationUserUUID == null) return@subscribe
 
                 //filter by the slot index
                 if (viewGroup.getChildCount() != context.config.userInterface.friendFeedMenuPosition.get()) return@subscribe
+                if (viewTagState[viewGroup]) return@subscribe
                 friendFeedInfoMenu.inject(viewGroup, originalAddView)
             }
         }

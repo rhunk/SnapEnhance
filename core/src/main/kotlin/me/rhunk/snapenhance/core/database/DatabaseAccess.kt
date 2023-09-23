@@ -9,6 +9,7 @@ import me.rhunk.snapenhance.core.database.objects.FriendFeedEntry
 import me.rhunk.snapenhance.core.database.objects.FriendInfo
 import me.rhunk.snapenhance.core.database.objects.StoryEntry
 import me.rhunk.snapenhance.core.database.objects.UserConversationLink
+import me.rhunk.snapenhance.core.util.ktx.getStringOrNull
 import me.rhunk.snapenhance.manager.Manager
 import java.io.File
 
@@ -66,19 +67,16 @@ class DatabaseAccess(private val context: ModContext) : Manager {
         table: String,
         where: String,
         args: Array<String>
-    ): T? {
-        val cursor = database.rawQuery("SELECT * FROM $table WHERE $where", args)
-        if (!cursor.moveToFirst()) {
-            cursor.close()
+    ): T? = database.rawQuery("SELECT * FROM $table WHERE $where", args).use {
+        if (!it.moveToFirst()) {
             return null
         }
         try {
-            obj.write(cursor)
+            obj.write(it)
         } catch (e: Throwable) {
             context.log.error("Failed to read database object", e)
         }
-        cursor.close()
-        return obj
+        obj
     }
 
     fun getFeedEntryByUserId(userId: String): FriendFeedEntry? {
@@ -95,18 +93,14 @@ class DatabaseAccess(private val context: ModContext) : Manager {
 
     val myUserId by lazy {
         safeDatabaseOperation(openArroyo()) { arroyoDatabase: SQLiteDatabase ->
-            val cursor = arroyoDatabase.rawQuery(buildString {
+            arroyoDatabase.rawQuery(buildString {
                 append("SELECT * FROM required_values WHERE key = 'USERID'")
-            }, null)
-
-            if (!cursor.moveToFirst()) {
-                cursor.close()
-                return@safeDatabaseOperation null
+            }, null).use { query ->
+                if (!query.moveToFirst()) {
+                    return@safeDatabaseOperation null
+                }
+                query.getStringOrNull("value")!!
             }
-
-            val userId = cursor.getString(cursor.getColumnIndex("value"))
-            cursor.close()
-            userId
         }!!
     }
 
@@ -136,20 +130,20 @@ class DatabaseAccess(private val context: ModContext) : Manager {
 
     fun getFeedEntries(limit: Int): List<FriendFeedEntry> {
         return safeDatabaseOperation(openMain()) { database ->
-            val cursor = database.rawQuery(
+            database.rawQuery(
                 "SELECT * FROM FriendsFeedView ORDER BY _id LIMIT ?",
                 arrayOf(limit.toString())
-            )
-            val list = mutableListOf<FriendFeedEntry>()
-            while (cursor.moveToNext()) {
-                val friendFeedEntry = FriendFeedEntry()
-                try {
-                    friendFeedEntry.write(cursor)
-                } catch (_: Throwable) {}
-                list.add(friendFeedEntry)
+            ).use { query ->
+                val list = mutableListOf<FriendFeedEntry>()
+                while (query.moveToNext()) {
+                    val friendFeedEntry = FriendFeedEntry()
+                    try {
+                        friendFeedEntry.write(query)
+                    } catch (_: Throwable) {}
+                    list.add(friendFeedEntry)
+                }
+                list
             }
-            cursor.close()
-            list
         } ?: emptyList()
     }
 
@@ -166,18 +160,16 @@ class DatabaseAccess(private val context: ModContext) : Manager {
     }
 
     fun getConversationType(conversationId: String): Int? {
-        return safeDatabaseOperation(openArroyo()) {
-            val cursor = it.rawQuery(
+        return safeDatabaseOperation(openArroyo()) { database ->
+            database.rawQuery(
                 "SELECT * FROM user_conversation WHERE client_conversation_id = ?",
                 arrayOf(conversationId)
-            )
-            if (!cursor.moveToFirst()) {
-                cursor.close()
-                return@safeDatabaseOperation null
+            ).use { query ->
+                if (!query.moveToFirst()) {
+                    return@safeDatabaseOperation null
+                }
+                query.getInt(query.getColumnIndex("conversation_type"))
             }
-            val type = cursor.getInt(cursor.getColumnIndex("conversation_type"))
-            cursor.close()
-            type
         }
     }
 
@@ -195,16 +187,19 @@ class DatabaseAccess(private val context: ModContext) : Manager {
 
     fun getDMOtherParticipant(conversationId: String): String? {
         return safeDatabaseOperation(openArroyo()) { cursor ->
-            val query = cursor.rawQuery(
+            cursor.rawQuery(
                 "SELECT * FROM user_conversation WHERE client_conversation_id = ? AND conversation_type = 0",
                 arrayOf(conversationId)
-            )
-            val participants = mutableListOf<String>()
-            while (query.moveToNext()) {
-                participants.add(query.getString(query.getColumnIndex("user_id")))
+            ).use { query ->
+                val participants = mutableListOf<String>()
+                if (!query.moveToFirst()) {
+                    return@safeDatabaseOperation null
+                }
+                do {
+                    participants.add(query.getString(query.getColumnIndex("user_id")))
+                } while (query.moveToNext())
+                participants.firstOrNull { it != myUserId }
             }
-            query.close()
-            participants.firstOrNull { it != myUserId }
         }
     }
 
@@ -217,20 +212,19 @@ class DatabaseAccess(private val context: ModContext) : Manager {
 
     fun getConversationParticipants(conversationId: String): List<String>? {
         return safeDatabaseOperation(openArroyo()) { arroyoDatabase: SQLiteDatabase ->
-            val cursor = arroyoDatabase.rawQuery(
+            arroyoDatabase.rawQuery(
                 "SELECT * FROM user_conversation WHERE client_conversation_id = ?",
                 arrayOf(conversationId)
-            )
-            if (!cursor.moveToFirst()) {
-                cursor.close()
-                return@safeDatabaseOperation emptyList()
+            ).use {
+                if (!it.moveToFirst()) {
+                    return@safeDatabaseOperation null
+                }
+                val participants = mutableListOf<String>()
+                do {
+                    participants.add(it.getString(it.getColumnIndex("user_id")))
+                } while (it.moveToNext())
+                participants
             }
-            val participants = mutableListOf<String>()
-            do {
-                participants.add(cursor.getString(cursor.getColumnIndex("user_id")))
-            } while (cursor.moveToNext())
-            cursor.close()
-            participants
         }
     }
 
@@ -239,22 +233,35 @@ class DatabaseAccess(private val context: ModContext) : Manager {
         limit: Int
     ): List<ConversationMessage>? {
         return safeDatabaseOperation(openArroyo()) { arroyoDatabase: SQLiteDatabase ->
-            val cursor = arroyoDatabase.rawQuery(
+            arroyoDatabase.rawQuery(
                 "SELECT * FROM conversation_message WHERE client_conversation_id = ? ORDER BY creation_timestamp DESC LIMIT ?",
                 arrayOf(conversationId, limit.toString())
-            )
-            if (!cursor.moveToFirst()) {
-                cursor.close()
-                return@safeDatabaseOperation emptyList()
+            ).use { query ->
+                if (!query.moveToFirst()) {
+                    return@safeDatabaseOperation null
+                }
+                val messages = mutableListOf<ConversationMessage>()
+                do {
+                    val message = ConversationMessage()
+                    message.write(query)
+                    messages.add(message)
+                } while (query.moveToNext())
+                messages
             }
-            val messages = mutableListOf<ConversationMessage>()
-            do {
-                val message = ConversationMessage()
-                message.write(cursor)
-                messages.add(message)
-            } while (cursor.moveToNext())
-            cursor.close()
-            messages
+        }
+    }
+
+    fun getAddSource(userId: String): String? {
+        return safeDatabaseOperation(openMain()) { database ->
+            database.rawQuery(
+                "SELECT addSource FROM FriendWhoAddedMe WHERE userId = ?",
+                arrayOf(userId)
+            ).use {
+                if (!it.moveToFirst()) {
+                    return@safeDatabaseOperation null
+                }
+                it.getStringOrNull("addSource")
+            }
         }
     }
 }

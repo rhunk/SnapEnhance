@@ -9,7 +9,7 @@ import android.widget.LinearLayout
 import android.widget.ScrollView
 import me.rhunk.snapenhance.Constants
 import me.rhunk.snapenhance.features.impl.downloader.MediaDownloader
-import me.rhunk.snapenhance.ui.ViewAppearanceHelper.applyTheme
+import me.rhunk.snapenhance.ui.applyTheme
 import me.rhunk.snapenhance.ui.menu.AbstractMenu
 
 @SuppressLint("DiscouragedApi")
@@ -71,7 +71,7 @@ class OperaContextActionMenu : AbstractMenu() {
             val button = Button(childView.getContext())
             button.text = context.translation["opera_context_menu.download"]
             button.setOnClickListener { context.feature(MediaDownloader::class).downloadLastOperaMediaAsync() }
-            applyTheme(button, isAmoled = false)
+            button.applyTheme(isAmoled = false)
             linearLayout.addView(button)
             (childView as ViewGroup).addView(linearLayout, 0)
         } catch (e: Throwable) {

@@ -15,6 +15,10 @@ import android.widget.Switch
 import android.widget.TextView
 import me.rhunk.snapenhance.Constants
 
+fun View.applyTheme(componentWidth: Int? = null, hasRadius: Boolean = false, isAmoled: Boolean = true) {
+    ViewAppearanceHelper.applyTheme(this, componentWidth, hasRadius, isAmoled)
+}
+
 object ViewAppearanceHelper {
     @SuppressLint("UseSwitchCompatOrMaterialCode", "RtlHardcoded", "DiscouragedApi",
         "ClickableViewAccessibility"

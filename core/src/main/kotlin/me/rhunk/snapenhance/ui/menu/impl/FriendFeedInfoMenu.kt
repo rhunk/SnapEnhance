@@ -16,12 +16,14 @@ import me.rhunk.snapenhance.core.database.objects.FriendInfo
 import me.rhunk.snapenhance.core.database.objects.UserConversationLink
 import me.rhunk.snapenhance.core.util.snap.BitmojiSelfie
 import me.rhunk.snapenhance.data.ContentType
+import me.rhunk.snapenhance.data.FriendLinkType
 import me.rhunk.snapenhance.features.MessagingRuleFeature
 import me.rhunk.snapenhance.features.impl.Messaging
 import me.rhunk.snapenhance.features.impl.downloader.MediaDownloader
 import me.rhunk.snapenhance.features.impl.spying.StealthMode
 import me.rhunk.snapenhance.features.impl.tweaks.AutoSave
 import me.rhunk.snapenhance.ui.ViewAppearanceHelper
+import me.rhunk.snapenhance.ui.applyTheme
 import me.rhunk.snapenhance.ui.menu.AbstractMenu
 import java.net.HttpURLConnection
 import java.net.URL
@@ -59,6 +61,8 @@ class FriendFeedInfoMenu : AbstractMenu() {
             context.log.error("Error loading bitmoji selfie", e)
         }
         val finalIcon = icon
+        val translation = context.translation.getCategory("profile_info")
+
         context.runOnUiThread {
             val addedTimestamp: Long = profile.addedTimestamp.coerceAtLeast(profile.reverseAddedTimestamp)
             val builder = ViewAppearanceHelper.newAlertDialogBuilder(context.mainActivity)
@@ -67,11 +71,13 @@ class FriendFeedInfoMenu : AbstractMenu() {
 
             val birthday = Calendar.getInstance()
             birthday[Calendar.MONTH] = (profile.birthday shr 32).toInt() - 1
-            val message: String = """
-                ${context.translation["profile_info.username"]}: ${profile.username}
-                ${context.translation["profile_info.display_name"]}: ${profile.displayName}
-                ${context.translation["profile_info.added_date"]}: ${formatDate(addedTimestamp)}
-                ${birthday.getDisplayName(
+
+            builder.setMessage(mapOf(
+                translation["first_created_username"] to profile.firstCreatedUsername,
+                translation["mutable_username"] to profile.mutableUsername,
+                translation["display_name"] to profile.displayName,
+                translation["added_date"] to formatDate(addedTimestamp),
+                null to birthday.getDisplayName(
                     Calendar.MONTH,
                     Calendar.LONG,
                     context.translation.loadedLocale
@@ -79,9 +85,18 @@ class FriendFeedInfoMenu : AbstractMenu() {
                     context.translation.format("profile_info.birthday",
                         "month" to it,
                         "day" to profile.birthday.toInt().toString())
-                }}
-            """.trimIndent()
-            builder.setMessage(message)
+                },
+                translation["friendship"] to run {
+                    translation.getCategory("friendship_link_type")[FriendLinkType.fromValue(profile.friendLinkType).shortName]
+                },
+                translation["add_source"] to context.database.getAddSource(profile.userId!!)?.takeIf { it.isNotEmpty() },
+                translation["snapchat_plus"] to run {
+                    translation.getCategory("snapchat_plus_state")[if (profile.postViewEmoji != null) "subscribed" else "not_subscribed"]
+                }
+            ).filterValues { it != null }.map {
+                line -> "${line.key?.let { "$it: " } ?: ""}${line.value}"
+            }.joinToString("\n"))
+
             builder.setPositiveButton(
                 "OK"
             ) { dialog: DialogInterface, _: Int -> dialog.dismiss() }
@@ -198,7 +213,7 @@ class FriendFeedInfoMenu : AbstractMenu() {
         val switch = Switch(context.androidContext)
         switch.text = context.translation[text]
         switch.isChecked = isChecked()
-        ViewAppearanceHelper.applyTheme(switch)
+        switch.applyTheme()
         switch.setOnCheckedChangeListener { _: CompoundButton?, checked: Boolean ->
             toggle(checked)
         }
@@ -218,7 +233,7 @@ class FriendFeedInfoMenu : AbstractMenu() {
 
         val previewButton = Button(viewModel.context).apply {
             text = modContext.translation["friend_menu_option.preview"]
-            ViewAppearanceHelper.applyTheme(this, viewModel.width)
+            applyTheme(viewModel.width)
             setOnClickListener {
                 showPreview(
                     targetUser,
