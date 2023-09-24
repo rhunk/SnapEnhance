@@ -2,8 +2,10 @@ package me.rhunk.snapenhance.manager.impl
 
 import me.rhunk.snapenhance.ModContext
 import me.rhunk.snapenhance.core.Logger
+import me.rhunk.snapenhance.features.impl.experiments.AESMessageEncryption
 import me.rhunk.snapenhance.features.Feature
 import me.rhunk.snapenhance.features.FeatureLoadParams
+import me.rhunk.snapenhance.features.MessagingRuleFeature
 import me.rhunk.snapenhance.features.impl.ConfigurationOverride
 import me.rhunk.snapenhance.features.impl.Messaging
 import me.rhunk.snapenhance.features.impl.ScopeSync
@@ -47,6 +49,8 @@ class FeatureManager(private val context: ModContext) : Manager {
     fun <T : Feature> get(featureClass: KClass<T>): T? {
         return features.find { it::class == featureClass } as? T
     }
+
+    fun getRuleFeatures() = features.filterIsInstance<MessagingRuleFeature>()
 
     override fun init() {
         register(

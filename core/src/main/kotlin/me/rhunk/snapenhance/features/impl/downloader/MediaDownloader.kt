@@ -526,14 +526,11 @@ class MediaDownloader : MessagingRuleFeature("MediaDownloader", MessagingRuleTyp
         val friendInfo: FriendInfo = context.database.getFriendInfo(message.senderId!!) ?: throw Exception("Friend not found in database")
         val authorName = friendInfo.usernameForSorting!!
 
-        val decodedAttachments = if (messageLogger.isMessageRemoved(message.clientConversationId!!, message.serverMessageId.toLong())) {
-            val messageObject = messageLogger.getMessageObject(message.clientConversationId!!, message.serverMessageId.toLong()) ?: throw Exception("Message not found in database")
-            MessageDecoder.decode(messageObject.getAsJsonObject("mMessageContent"))
-        } else {
-            MessageDecoder.decode(
-                protoReader = ProtoReader(message.messageContent!!)
-            )
-        }
+        val decodedAttachments = messageLogger.getMessageObject(message.clientConversationId!!, message.serverMessageId.toLong())?.let {
+            MessageDecoder.decode(it.getAsJsonObject("mMessageContent"))
+        } ?: MessageDecoder.decode(
+            protoReader = ProtoReader(message.messageContent!!)
+        )
 
         if (decodedAttachments.isEmpty()) {
             context.shortToast(translations["no_attachments_toast"])

@@ -34,7 +34,7 @@ abstract class AbstractWrapper(
 
     fun <T : Enum<*>> getEnumValue(fieldName: String, defaultValue: T?): T? {
         if (defaultValue == null) return null
-        val mContentType = XposedHelpers.getObjectField(instance, fieldName) as Enum<*>
+        val mContentType = XposedHelpers.getObjectField(instance, fieldName) as? Enum<*> ?: return null
         return java.lang.Enum.valueOf(defaultValue::class.java, mContentType.name)
     }
 

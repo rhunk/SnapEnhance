@@ -28,16 +28,17 @@ enum class SocialScope(
 
 enum class MessagingRuleType(
     val key: String,
-    val listMode: Boolean
+    val listMode: Boolean,
+    val showInFriendMenu: Boolean = true
 ) {
     AUTO_DOWNLOAD("auto_download", true),
     STEALTH("stealth", true),
     AUTO_SAVE("auto_save", true),
-    HIDE_CHAT_FEED("hide_chat_feed", false),
-    PIN_CONVERSATION("pin_conversation", false);
+    HIDE_CHAT_FEED("hide_chat_feed", false, showInFriendMenu = false),
+    PIN_CONVERSATION("pin_conversation", false, showInFriendMenu = false);
 
     fun translateOptionKey(optionKey: String): String {
-        return "rules.properties.${key}.options.${optionKey}"
+        return if (listMode) "rules.properties.$key.options.$optionKey" else "rules.properties.$key.name"
     }
 
     companion object {

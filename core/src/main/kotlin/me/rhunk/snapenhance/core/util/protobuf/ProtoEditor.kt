@@ -38,7 +38,7 @@ class ProtoEditor(
     private fun writeAtPath(path: IntArray, currentIndex: Int, rootReader: ProtoReader, wireToWriteCallback: WireCallback): ByteArray {
         val id = path.getOrNull(currentIndex)
         val output = ProtoWriter()
-        val wires = mutableMapOf<Int, MutableList<Wire>>()
+        val wires = sortedMapOf<Int, MutableList<Wire>>()
 
         rootReader.forEach { wireId, value ->
             wires.putIfAbsent(wireId, mutableListOf())

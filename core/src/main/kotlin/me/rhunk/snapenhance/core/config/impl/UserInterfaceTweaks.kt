@@ -12,7 +12,7 @@ class UserInterfaceTweaks : ConfigContainer() {
     }
 
     val friendFeedMenuButtons = multiple(
-        "friend_feed_menu_buttons","conversation_info", *MessagingRuleType.values().toList().filter { it.listMode }.map { it.key }.toTypedArray()
+        "friend_feed_menu_buttons","conversation_info", *MessagingRuleType.values().toList().filter { it.showInFriendMenu }.map { it.key }.toTypedArray()
     ).apply {
         set(mutableListOf("conversation_info", MessagingRuleType.STEALTH.key))
     }

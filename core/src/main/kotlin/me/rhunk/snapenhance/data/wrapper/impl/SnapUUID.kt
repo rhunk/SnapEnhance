@@ -20,6 +20,8 @@ class SnapUUID(obj: Any?) : AbstractWrapper(obj) {
         return uuidString
     }
 
+    fun toBytes() = bytes
+
     override fun equals(other: Any?): Boolean {
         return other is SnapUUID && other.uuidString == uuidString
     }

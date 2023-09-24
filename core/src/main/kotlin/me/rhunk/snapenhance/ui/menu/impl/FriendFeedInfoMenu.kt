@@ -17,11 +17,7 @@ import me.rhunk.snapenhance.core.database.objects.UserConversationLink
 import me.rhunk.snapenhance.core.util.snap.BitmojiSelfie
 import me.rhunk.snapenhance.data.ContentType
 import me.rhunk.snapenhance.data.FriendLinkType
-import me.rhunk.snapenhance.features.MessagingRuleFeature
 import me.rhunk.snapenhance.features.impl.Messaging
-import me.rhunk.snapenhance.features.impl.downloader.MediaDownloader
-import me.rhunk.snapenhance.features.impl.spying.StealthMode
-import me.rhunk.snapenhance.features.impl.tweaks.AutoSave
 import me.rhunk.snapenhance.ui.ViewAppearanceHelper
 import me.rhunk.snapenhance.ui.applyTheme
 import me.rhunk.snapenhance.ui.menu.AbstractMenu
@@ -247,13 +243,7 @@ class FriendFeedInfoMenu : AbstractMenu() {
             viewConsumer(previewButton)
         }
 
-        val rules: Array<MessagingRuleFeature> = arrayOf(
-            StealthMode::class,
-            AutoSave::class,
-            MediaDownloader::class
-        ).map { modContext.feature(it) }.toTypedArray()
-
-        rules.forEach { ruleFeature ->
+        modContext.features.getRuleFeatures().forEach { ruleFeature ->
             if (!friendFeedMenuOptions.contains(ruleFeature.ruleType.key)) return@forEach
 
             val ruleState = ruleFeature.getRuleState() ?: return@forEach
