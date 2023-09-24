@@ -15,6 +15,7 @@ import me.rhunk.snapenhance.features.impl.privacy.PreventMessageSending
 import me.rhunk.snapenhance.features.impl.spying.AnonymousStoryViewing
 import me.rhunk.snapenhance.features.impl.spying.MessageLogger
 import me.rhunk.snapenhance.features.impl.spying.PreventReadReceipts
+import me.rhunk.snapenhance.features.impl.spying.SnapToChatMedia
 import me.rhunk.snapenhance.features.impl.spying.StealthMode
 import me.rhunk.snapenhance.features.impl.tweaks.*
 import me.rhunk.snapenhance.features.impl.ui.ClientBootstrapOverride
@@ -84,6 +85,7 @@ class FeatureManager(private val context: ModContext) : Manager {
             AddFriendSourceSpoof::class,
             DisableReplayInFF::class,
             OldBitmojiSelfie::class,
+            SnapToChatMedia::class,
         )
 
         initializeFeatures()

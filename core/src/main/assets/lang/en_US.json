@@ -304,6 +304,10 @@
                         "name": "Prevent Message Sending",
                         "description": "Prevents sending certain types of messages"
                     },
+                    "snap_to_chat_media": {
+                        "name": "Snap to Chat Media",
+                        "description": "Converts snaps to chat external media"
+                    },
                     "better_notifications": {
                         "name": "Better Notifications",
                         "description": "Adds more information in received notifications"
