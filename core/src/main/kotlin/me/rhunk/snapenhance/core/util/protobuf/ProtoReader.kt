@@ -225,11 +225,11 @@ class ProtoReader(private val buffer: ByteArray) {
                             // auto detect uuids
                             if (array.size == 16) {
                                 val longs = LongArray(2)
-                                for (i in 0..7) {
-                                    longs[0] = longs[0] or ((array[i].toLong() and 0xFF) shl (i * 8))
+                                for (i in 0 .. 7) {
+                                    longs[0] = longs[0] or ((array[i].toLong() and 0xFF) shl ((7 - i) * 8))
                                 }
-                                for (i in 8..15) {
-                                    longs[1] = longs[1] or ((array[i].toLong() and 0xFF) shl ((i - 8) * 8))
+                                for (i in 8 .. 15) {
+                                    longs[1] = longs[1] or ((array[i].toLong() and 0xFF) shl ((15 - i) * 8))
                                 }
                                 stringBuilder.append("uuid: ${UUID(longs[0], longs[1])}\n")
                                 return@runCatching
