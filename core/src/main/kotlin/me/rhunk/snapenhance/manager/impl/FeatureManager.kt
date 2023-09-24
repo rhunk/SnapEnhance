@@ -54,6 +54,7 @@ class FeatureManager(private val context: ModContext) : Manager {
 
     override fun init() {
         register(
+            AESMessageEncryption::class,
             ScopeSync::class,
             Messaging::class,
             MediaDownloader::class,

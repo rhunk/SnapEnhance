@@ -35,6 +35,7 @@ enum class MessagingRuleType(
     STEALTH("stealth", true),
     AUTO_SAVE("auto_save", true),
     HIDE_CHAT_FEED("hide_chat_feed", false, showInFriendMenu = false),
+    AES_ENCRYPTION("aes_encryption", false),
     PIN_CONVERSATION("pin_conversation", false, showInFriendMenu = false);
 
     fun translateOptionKey(optionKey: String): String {

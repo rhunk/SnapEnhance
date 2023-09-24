@@ -98,6 +98,9 @@
             "hide_chat_feed": {
                 "name": "Hide from Chat feed"
             },
+            "aes_encryption": {
+                "name": "Use AES Encryption"
+            },
             "pin_conversation": {
                 "name": "Pin Conversation"
             }
@@ -516,6 +519,10 @@
                         "name": "No Friend Score Delay",
                         "description": "Removes the delay when viewing a Friends Score"
                     },
+                    "use_message_aes_encryption": {
+                        "name": "Use AES Encryption",
+                        "description": "Encrypts your messages using AES\nMessages are only readable by other SnapEnhance users"
+                    },
                     "add_friend_source_spoof": {
                         "name": "Add Friend Source Spoof",
                         "description": "Spoofs the source of a Friend Request"
@@ -557,7 +564,8 @@
                 "auto_download": "\u2B07\uFE0F Auto Download",
                 "auto_save": "\uD83D\uDCAC Auto Save Messages",
                 "stealth": "\uD83D\uDC7B Stealth Mode",
-                "conversation_info": "\uD83D\uDC64 Conversation Info"
+                "conversation_info": "\uD83D\uDC64 Conversation Info",
+                "aes_encryption": "\uD83D\uDD12 Use AES Encryption"
             },
             "path_format": {
                 "create_author_folder": "Create folder for each author",
