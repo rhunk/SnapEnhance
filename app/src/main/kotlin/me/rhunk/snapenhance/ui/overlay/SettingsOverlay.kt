@@ -2,7 +2,6 @@ package me.rhunk.snapenhance.ui.overlay
 
 import android.app.Dialog
 import android.content.Intent
-import android.graphics.Color
 import android.graphics.drawable.ColorDrawable
 import android.net.Uri
 import android.provider.Settings
@@ -19,6 +18,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import androidx.navigation.compose.rememberNavController
 import com.arthenica.ffmpegkit.Packages.getPackageName
@@ -34,7 +34,7 @@ class SettingsOverlay(
     private val context: RemoteSideContext
 ) {
     private lateinit var dialog: Dialog
-    private lateinit var dismissCallback: () -> Boolean
+    private var dismissCallback: (() -> Boolean)? = null
 
     private fun checkForPermissions(): Boolean {
         if (!Settings.canDrawOverlays(context.androidContext)) {
@@ -52,7 +52,7 @@ class SettingsOverlay(
         val navHostController = rememberNavController()
 
         LaunchedEffect(Unit) {
-            dismissCallback = { !navHostController.popBackStack() }
+            dismissCallback = { navHostController.popBackStack() }
         }
 
         val navigation = remember {
@@ -81,7 +81,7 @@ class SettingsOverlay(
 
     fun close() {
         if (!::dialog.isInitialized || !dialog.isShowing) return
-
+        dismissCallback = null
         context.androidContext.mainExecutor.execute {
             dialog.dismiss()
         }
@@ -99,13 +99,15 @@ class SettingsOverlay(
         context.androidContext.mainExecutor.execute {
             dialog = object: Dialog(context.androidContext, R.style.FullscreenOverlayDialog) {
                 override fun dismiss() {
-                    if (!::dismissCallback.isInitialized || !dismissCallback()) return
+                    dismissCallback?.also {
+                        if (it()) return
+                    }
                     super.dismiss()
                     this@SettingsOverlay.context.config.writeConfig()
                 }
             }
             dialog.window?.apply {
-                setBackgroundDrawable(ColorDrawable(Color.TRANSPARENT))
+                setBackgroundDrawable(ColorDrawable(Color.Transparent.value.toInt()))
                 setLayout(
                     WindowManager.LayoutParams.MATCH_PARENT,
                     WindowManager.LayoutParams.MATCH_PARENT,
@@ -120,7 +122,7 @@ class SettingsOverlay(
                         Column(
                             modifier = Modifier
                                 .fillMaxSize()
-                                .padding(10.dp)
+                                .padding(start = 15.dp, end = 15.dp, top = 25.dp, bottom = 25.dp)
                                 .clip(shape = MaterialTheme.shapes.large),
                             horizontalAlignment = Alignment.CenterHorizontally,
                             verticalArrangement = Arrangement.Center

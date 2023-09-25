@@ -1,9 +1,12 @@
 package me.rhunk.snapenhance.ui.util
 
 
+import android.annotation.SuppressLint
+import android.app.Activity
 import android.content.Context
 import android.graphics.Outline
 import android.os.Build
+import android.provider.Settings
 import android.view.*
 import androidx.activity.ComponentDialog
 import androidx.activity.addCallback
@@ -13,11 +16,7 @@ import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.R
 import androidx.compose.ui.layout.Layout
-import androidx.compose.ui.platform.AbstractComposeView
-import androidx.compose.ui.platform.LocalDensity
-import androidx.compose.ui.platform.LocalLayoutDirection
-import androidx.compose.ui.platform.LocalView
-import androidx.compose.ui.platform.ViewRootForInspector
+import androidx.compose.ui.platform.*
 import androidx.compose.ui.semantics.dialog
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.unit.Density
@@ -83,6 +82,7 @@ fun Dialog(
     properties: DialogProperties = DialogProperties(),
     content: @Composable () -> Unit
 ) {
+    val context = LocalContext.current
     val view = LocalView.current
     val density = LocalDensity.current
     val layoutDirection = LocalLayoutDirection.current
@@ -112,7 +112,9 @@ fun Dialog(
 
     DisposableEffect(dialog) {
         // Set the dialog's window type to TYPE_APPLICATION_OVERLAY so it's compatible with compose overlays
-        dialog.window?.setType(WindowManager.LayoutParams.TYPE_APPLICATION_OVERLAY)
+        if (Settings.canDrawOverlays(view.context) && context !is Activity) {
+            dialog.window?.setType(WindowManager.LayoutParams.TYPE_APPLICATION_OVERLAY)
+        }
         dialog.show()
 
         onDispose {
@@ -181,6 +183,7 @@ private class DialogLayout(
     }
 }
 
+@SuppressLint("PrivateResource")
 private class DialogWrapper(
     private var onDismissRequest: () -> Unit,
     private var properties: DialogProperties,
