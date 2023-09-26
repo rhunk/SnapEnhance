@@ -615,8 +615,8 @@
                 "SAVABLE_SNAP": "Savable Snap"
             },
             "hide_ui_components": {
-                "hide_call_buttons": "Remove Call Buttons",
-                "hide_cognac_button": "Remove Cognac Button",
+                "hide_profile_call_buttons": "Remove Profile Call Buttons",
+                "hide_chat_call_buttons": "Remove Chat Call Buttons",
                 "hide_live_location_share_button": "Remove Live Location Share Button",
                 "hide_stickers_button": "Remove Stickers Button",
                 "hide_voice_record_button": "Remove Voice Record Button"

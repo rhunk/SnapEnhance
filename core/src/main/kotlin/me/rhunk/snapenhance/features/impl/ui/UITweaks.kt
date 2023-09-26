@@ -3,9 +3,10 @@ package me.rhunk.snapenhance.features.impl.ui
 import android.annotation.SuppressLint
 import android.content.Context
 import android.content.res.Resources
+import android.graphics.Rect
 import android.text.SpannableString
 import android.view.View
-import android.view.ViewGroup
+import android.view.ViewGroup.MarginLayoutParams
 import android.widget.FrameLayout
 import me.rhunk.snapenhance.Constants
 import me.rhunk.snapenhance.core.event.events.impl.AddViewEvent
@@ -28,10 +29,12 @@ class UITweaks : Feature("UITweaks", loadParams = FeatureLoadParams.ACTIVITY_CRE
     private fun hideStorySection(event: AddViewEvent) {
         val parent = event.parent
         parent.visibility = View.GONE
-        val marginLayoutParams = parent.layoutParams as ViewGroup.MarginLayoutParams
+        val marginLayoutParams = parent.layoutParams as MarginLayoutParams
         marginLayoutParams.setMargins(-99999, -99999, -99999, -99999)
         event.canceled = true
     }
+
+    private var surfaceViewAspectRatio: Float = 0f
 
     @SuppressLint("DiscouragedApi", "InternalInsetResource")
     override fun onActivityCreate() {
@@ -41,12 +44,26 @@ class UITweaks : Feature("UITweaks", loadParams = FeatureLoadParams.ACTIVITY_CRE
         val isImmersiveCamera by context.config.camera.immersiveCameraPreview
 
         val displayMetrics = context.resources.displayMetrics
+        val deviceAspectRatio = displayMetrics.widthPixels.toFloat() / displayMetrics.heightPixels.toFloat()
+        val statusBarHeight = run {
+            val resourceId = context.resources.getIdentifier("status_bar_height", "dimen", "android")
+            if (resourceId > 0) context.resources.getDimensionPixelSize(resourceId)
+            else Rect().apply { context.mainActivity!!.window.decorView.getWindowVisibleDisplayFrame(this) }.top
+        }
 
         val callButtonsStub = getIdentifier("call_buttons_stub", "id")
         val callButton1 = getIdentifier("friend_action_button3", "id")
         val callButton2 = getIdentifier("friend_action_button4", "id")
 
         val chatNoteRecordButton = getIdentifier("chat_note_record_button", "id")
+
+        View::class.java.hook("setVisibility", HookStage.BEFORE) { methodParam ->
+            val viewId = (methodParam.thisObject() as View).id
+            if (viewId == callButton1 || viewId == callButton2) {
+                if (!hiddenElements.contains("hide_profile_call_buttons")) return@hook
+                methodParam.setArg(0, View.GONE)
+            }
+        }
 
         Resources::class.java.methods.first { it.name == "getDimensionPixelSize"}.hook(HookStage.AFTER,
             { isImmersiveCamera }
@@ -57,18 +74,6 @@ class UITweaks : Feature("UITweaks", loadParams = FeatureLoadParams.ACTIVITY_CRE
                 param.setResult(0)
             }
         }
-
-        Hooker.hook(View::class.java, "setVisibility", HookStage.BEFORE) { methodParam ->
-            val viewId = (methodParam.thisObject() as View).id
-            if (viewId == chatNoteRecordButton && hiddenElements.contains("hide_voice_record_button")) {
-                methodParam.setArg(0, View.GONE)
-            }
-            if (viewId == callButton1 || viewId == callButton2) {
-                if (!hiddenElements.contains("hide_call_buttons")) return@hook
-                methodParam.setArg(0, View.GONE)
-            }
-        }
-
 
         context.event.subscribe(AddViewEvent::class) { event ->
             val viewId = event.view.id
@@ -113,43 +118,40 @@ class UITweaks : Feature("UITweaks", loadParams = FeatureLoadParams.ACTIVITY_CRE
             }
 
             if (isImmersiveCamera) {
-                if (view.id == getIdentifier("edits_container", "id")) {
-                    val deviceAspectRatio = displayMetrics.widthPixels.toFloat() / displayMetrics.heightPixels.toFloat()
-                    Hooker.hookObjectMethod(View::class.java, view, "layout", HookStage.BEFORE) {
-                        val width = it.arg(2) as Int
-                        val realHeight = (width / deviceAspectRatio).toInt()
-                        it.setArg(3, realHeight)
-                    }
-                }
                 if (view.id == getIdentifier("full_screen_surface_view", "id")) {
                     Hooker.hookObjectMethod(View::class.java, view, "layout", HookStage.BEFORE) {
-                        it.setArg(1, 1)
+                        val width = it.arg(2) as Int
+                        val height = it.arg(3) as Int
+                        if (height <= 0 || width <= 0) return@hookObjectMethod
+                        surfaceViewAspectRatio = width.toFloat() / height.toFloat()
+                        it.setArg(2, (displayMetrics.heightPixels * surfaceViewAspectRatio).toInt())
                         it.setArg(3, displayMetrics.heightPixels)
                     }
                 }
+
+                if (view.id == getIdentifier("edits_container", "id")) {
+                    Hooker.hookObjectMethod(View::class.java, view, "layout", HookStage.BEFORE) {
+                        //TODO: fix edits position on the canvas
+                    }
+                }
             }
 
-            if (viewId == chatNoteRecordButton && hiddenElements.contains("hide_voice_record_button")) {
-                view.isEnabled = false
-                view.setWillNotDraw(true)
-            }
-
-            if (getIdentifier("chat_input_bar_cognac", "id") == viewId && hiddenElements.contains("hide_cognac_button")) {
-                view.visibility = View.GONE
-            }
-            if (getIdentifier("chat_input_bar_sticker", "id") == viewId && hiddenElements.contains("hide_stickers_button")) {
-                view.visibility = View.GONE
-            }
-            if (getIdentifier("chat_input_bar_sharing_drawer_button", "id") == viewId && hiddenElements.contains("hide_live_location_share_button")) {
-                event.canceled = true
-            }
-            if (viewId == callButton1 || viewId == callButton2) {
-                if (!hiddenElements.contains("hide_call_buttons")) return@subscribe
-                if (view.visibility == View.GONE) return@subscribe
-            }
-            if (viewId == callButtonsStub) {
-                if (!hiddenElements.contains("hide_call_buttons")) return@subscribe
-                event.canceled = true
+            if (
+                (viewId == chatNoteRecordButton && hiddenElements.contains("hide_voice_record_button")) ||
+                (viewId == getIdentifier("chat_input_bar_sticker", "id") && hiddenElements.contains("hide_stickers_button")) ||
+                (viewId == getIdentifier("chat_input_bar_sharing_drawer_button", "id") && hiddenElements.contains("hide_live_location_share_button")) ||
+                (viewId == callButtonsStub && hiddenElements.contains("hide_chat_call_buttons"))
+            ) {
+                view.apply {
+                    view.post {
+                        isEnabled = false
+                        setWillNotDraw(true)
+                        view.visibility = View.GONE
+                    }
+                    addOnLayoutChangeListener { view, _, _, _, _, _, _, _, _ ->
+                        view.post { view.visibility = View.GONE }
+                    }
+                }
             }
         }
     }

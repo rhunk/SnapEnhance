@@ -26,9 +26,9 @@ class UserInterfaceTweaks : ConfigContainer() {
     val hideUiComponents = multiple("hide_ui_components",
         "hide_voice_record_button",
         "hide_stickers_button",
-        "hide_cognac_button",
         "hide_live_location_share_button",
-        "hide_call_buttons"
+        "hide_chat_call_buttons",
+        "hide_profile_call_buttons"
     )
     val ddBitmojiSelfie = boolean("2d_bitmoji_selfie")
     val disableSpotlight = boolean("disable_spotlight")
