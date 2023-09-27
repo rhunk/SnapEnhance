@@ -1,4 +1,4 @@
-name: Android CI V3
+name: Android CI Release
 on:
   workflow_dispatch:
     branches: [ "refactor_2_0_0" ]
