@@ -43,8 +43,8 @@ jobs:
 
       - name: Rename APK files
         run: |
-          mv app/build/outputs/apk/armv8/debug/*.apk app/build/outputs/apk/armv8/debug/app-${{ env.version }}-armv8-${{ steps.version-env.outputs.sha_short }}.apk
-          mv app/build/outputs/apk/armv7/debug/*.apk app/build/outputs/apk/armv7/debug/app-${{ env.version }}-armv7-${{ steps.version-env.outputs.sha_short }}.apk
+          mv app/build/outputs/apk/armv8/debug/*.apk app/build/outputs/apk/armv8/debug/SnapEnhance-${{ env.version }}-armv8-${{ steps.version-env.outputs.sha_short }}.apk
+          mv app/build/outputs/apk/armv7/debug/*.apk app/build/outputs/apk/armv7/debug/SnapEnhance-${{ env.version }}-armv7-${{ steps.version-env.outputs.sha_short }}.apk
       
       - name: Upload armv8
         uses: actions/upload-artifact@v3.1.2
