@@ -48,7 +48,7 @@ class EventBus(
         subscribers[event]!!.remove(listener)
     }
 
-    fun <T : Event> post(event: T): T? {
+    fun <T : Event> post(event: T, afterBlock: T.() -> Unit = {}): T? {
         if (!subscribers.containsKey(event::class)) {
             return null
         }
@@ -63,6 +63,7 @@ class EventBus(
                 context.log.error("Error while handling event ${event::class.simpleName} by ${listener::class.simpleName}", t)
             }
         }
+        afterBlock(event)
         return event
     }
 

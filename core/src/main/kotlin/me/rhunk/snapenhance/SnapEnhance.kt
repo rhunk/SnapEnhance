@@ -137,9 +137,9 @@ class SnapEnhance {
             if (appContext.config.experimental.nativeHooks.globalState != true) return@apply
             initOnce(appContext.androidContext.classLoader)
             nativeUnaryCallCallback = { request ->
-                appContext.event.post(UnaryCallEvent(request.uri, request.buffer))?.also {
-                    request.buffer = it.buffer
-                    request.canceled = it.canceled
+                appContext.event.post(UnaryCallEvent(request.uri, request.buffer)) {
+                    request.buffer = buffer
+                    request.canceled = canceled
                 }
             }
         }

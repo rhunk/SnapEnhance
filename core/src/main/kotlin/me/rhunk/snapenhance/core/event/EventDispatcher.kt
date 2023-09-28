@@ -62,10 +62,8 @@ class EventDispatcher(
                 destinations = MessageDestinations(param.arg(0)),
                 messageContent = MessageContent(param.arg(1)),
                 callback = param.arg(2)
-            ).apply { adapter = param })?.also {
-                if (it.canceled) {
-                    param.setResult(null)
-                }
+            ).apply { adapter = param }) {
+                postHookEvent()
             }
         }
 
@@ -79,10 +77,8 @@ class EventDispatcher(
                     conversationId = conversationId,
                     messageId = messageId
                 )
-            )?.also {
-                if (it.canceled) {
-                    param.setResult(null)
-                }
+            ) {
+                postHookEvent()
             }
         }
 
@@ -98,10 +94,8 @@ class EventDispatcher(
                     intent = intent,
                     action = action
                 )
-            )?.also {
-                if (it.canceled) {
-                    param.setResult(null)
-                }
+            ) {
+                postHookEvent()
             }
         }
 
@@ -120,13 +114,13 @@ class EventDispatcher(
                 ).apply {
                     adapter = param
                 }
-            )?.also { event ->
+            ) {
                 with(param) {
-                    setArg(0, event.view)
-                    setArg(1, event.index)
-                    setArg(2, event.layoutParams)
+                    setArg(0, view)
+                    setArg(1, index)
+                    setArg(2, layoutParams)
                 }
-                if (event.canceled) param.setResult(null)
+                postHookEvent()
             }
         }
 
@@ -141,9 +135,9 @@ class EventDispatcher(
                 ).apply {
                     adapter = param
                 }
-            )?.also { event ->
-                event.request.setObjectField("mUrl", event.url)
-                if (event.canceled) param.setResult(null)
+            ) {
+                request.setObjectField("mUrl", url)
+                postHookEvent()
             }
         }
 

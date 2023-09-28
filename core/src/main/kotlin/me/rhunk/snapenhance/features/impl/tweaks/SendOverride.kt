@@ -106,7 +106,7 @@ class SendOverride : Feature("Send Override", loadParams = FeatureLoadParams.INI
                             }
                         }
 
-                        event.adapter.invokeOriginal()
+                        event.invokeOriginal()
                     }
                     .setNegativeButton(context.translation["button.cancel"], null)
                     .show()

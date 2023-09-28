@@ -6,6 +6,8 @@ import android.view.ViewGroup
 import android.view.ViewGroup.LayoutParams
 import android.view.ViewGroup.MarginLayoutParams
 import android.widget.Button
+import android.widget.LinearLayout
+import android.widget.RelativeLayout
 import android.widget.TextView
 import me.rhunk.snapenhance.core.event.events.impl.AddViewEvent
 import me.rhunk.snapenhance.core.event.events.impl.BindViewEvent
@@ -46,6 +48,7 @@ class EndToEndEncryption : MessagingRuleFeature(
 
     private val pkRequests = mutableMapOf<Long, ByteArray>()
     private val secretResponses = mutableMapOf<Long, ByteArray>()
+    private val encryptedMessages = mutableListOf<Long>()
 
     private fun getE2EParticipants(conversationId: String): List<String> {
         return context.database.getConversationParticipants(conversationId)?.filter { friendId -> e2eeInterface.friendKeyExists(friendId) } ?: emptyList()
@@ -166,7 +169,7 @@ class EndToEndEncryption : MessagingRuleFeature(
         }.show()
     }
 
-    @SuppressLint("SetTextI18n")
+    @SuppressLint("SetTextI18n", "DiscouragedApi")
     override fun onActivityCreate() {
         if (!isEnabled) return
         // add button to input bar
@@ -182,9 +185,13 @@ class EndToEndEncryption : MessagingRuleFeature(
             }
         }
 
+        val encryptedMessageIndicator by context.config.experimental.encryptedMessageIndicator
+        val chatMessageContentContainerId = context.resources.getIdentifier("chat_message_content_container", "id", context.androidContext.packageName)
+
         // hook view binder to add special buttons
         val receivePublicKeyTag = Random.nextLong().toString(16)
         val receiveSecretTag = Random.nextLong().toString(16)
+        val encryptedMessageTag = Random.nextLong().toString(16)
 
         context.event.subscribe(BindViewEvent::class) { event ->
             event.chatMessage { conversationId, messageId ->
@@ -196,6 +203,32 @@ class EndToEndEncryption : MessagingRuleFeature(
 
                 viewGroup.findViewWithTag<View>(receivePublicKeyTag)?.also {
                     viewGroup.removeView(it)
+                }
+
+                if (encryptedMessageIndicator) {
+                    viewGroup.findViewWithTag<ViewGroup>(encryptedMessageTag)?.also {
+                        val chatMessageContentContainer = viewGroup.findViewById<View>(chatMessageContentContainerId) as? LinearLayout ?: return@chatMessage
+                        it.removeView(chatMessageContentContainer)
+                        viewGroup.removeView(it)
+                        viewGroup.addView(chatMessageContentContainer, 0)
+                    }
+
+                    if (encryptedMessages.contains(messageId.toLong())) {
+                        val chatMessageContentContainer = viewGroup.findViewById<View>(chatMessageContentContainerId) as? LinearLayout ?: return@chatMessage
+                        viewGroup.removeView(chatMessageContentContainer)
+
+                        viewGroup.addView(RelativeLayout(viewGroup.context).apply {
+                            tag = encryptedMessageTag
+                            layoutParams = LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT)
+                            addView(chatMessageContentContainer)
+                            addView(TextView(viewGroup.context).apply {
+                                text = "\uD83D\uDD12"
+                                textAlignment = View.TEXT_ALIGNMENT_TEXT_END
+                                layoutParams = LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT)
+                                setPadding(20, 0, 20, 0)
+                            })
+                        }, 0)
+                    }
                 }
 
                 secretResponses[messageId.toLong()]?.also { secret ->
@@ -271,17 +304,14 @@ class EndToEndEncryption : MessagingRuleFeature(
                             if (conversationParticipants.isEmpty()) return@eachBuffer
                             val participantId = conversationParticipants.firstOrNull { participantIdHash.contentEquals(hashParticipantId(it, iv)) } ?: return@eachBuffer
                             messageContent.content = e2eeInterface.decryptMessage(participantId, ciphertext, iv)
+                            encryptedMessages.add(messageId)
                             return@eachBuffer
                         }
 
                         if (!participantIdHash.contentEquals(hashParticipantId(context.database.myUserId, iv))) return@eachBuffer
 
                         messageContent.content = e2eeInterface.decryptMessage(senderId, ciphertext, iv)
-                    }
-
-                    // fix content type
-                    messageContent.contentType?.also {
-                        messageContent.contentType = fixContentType(it, reader)
+                        encryptedMessages.add(messageId)
                     }
                 }.onFailure {
                     context.log.error("Failed to decrypt message id: $messageId", it)
@@ -329,22 +359,19 @@ class EndToEndEncryption : MessagingRuleFeature(
         context.event.subscribe(SendMessageWithContentEvent::class) { param ->
             val messageContent = param.messageContent
             val destinations = param.destinations
-            if (destinations.conversations.size != 1 || destinations.stories.isNotEmpty()) return@subscribe
+            if (destinations.conversations.none { getState(it.toString()) }) return@subscribe
 
-            if (!getState(destinations.conversations.first().toString())) return@subscribe
+            param.addInvokeLater {
+                if (messageContent.contentType == ContentType.SNAP) {
+                    messageContent.contentType = ContentType.EXTERNAL_MEDIA
+                }
 
-            if (messageContent.contentType == ContentType.SNAP) {
-                messageContent.contentType = ContentType.EXTERNAL_MEDIA
-            }
-
-            if (messageContent.contentType == ContentType.CHAT) {
-                messageContent.contentType = ContentType.SHARE
+                if (messageContent.contentType == ContentType.CHAT) {
+                    messageContent.contentType = ContentType.SHARE
+                }
             }
         }
-    }
 
-    override fun init() {
-        if (!isEnabled) return
         context.event.subscribe(UnaryCallEvent::class) { event ->
             if (event.uri != "/messagingcoreservice.MessagingCoreService/CreateContentMessage") return@subscribe
             val protoReader = ProtoReader(event.buffer)
@@ -363,7 +390,6 @@ class EndToEndEncryption : MessagingRuleFeature(
 
             if (participantsIds.isEmpty()) {
                 context.longToast("You don't have any friends in this conversation to encrypt messages with!")
-                event.canceled = true
                 return@subscribe
             }
             val messageReader = protoReader.followPath(4) ?: return@subscribe
@@ -414,6 +440,10 @@ class EndToEndEncryption : MessagingRuleFeature(
                 }
             }.toByteArray()
         }
+    }
+
+    override fun init() {
+        if (!isEnabled) return
 
         context.classCache.message.hookConstructor(HookStage.AFTER) { param ->
             val message = Message(param.thisObject())
@@ -424,6 +454,11 @@ class EndToEndEncryption : MessagingRuleFeature(
                 senderId = message.senderId.toString(),
                 messageContent = message.messageContent
             )
+
+            message.messageContent.contentType?.also {
+                message.messageContent.contentType = fixContentType(it, ProtoReader(message.messageContent.content))
+            }
+
             message.messageContent.instanceNonNull()
                 .getObjectField("mQuotedMessage")
                 ?.getObjectField("mContent")

@@ -524,6 +524,10 @@
                         "name": "End-To-End Encryption",
                         "description": "Encrypts your messages with AES using a shared secret key\nMake sure to save your key somewhere safe!"
                     },
+                    "encrypted_message_indicator": {
+                        "name": "Encrypted Message Indicator",
+                        "description": "Adds a \uD83D\uDD12 emoji next to encrypted messages"
+                    },
                     "add_friend_source_spoof": {
                         "name": "Add Friend Source Spoof",
                         "description": "Spoofs the source of a Friend Request"
