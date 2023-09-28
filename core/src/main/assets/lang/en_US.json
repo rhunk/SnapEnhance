@@ -44,6 +44,7 @@
                 "disabled": "Disabled"
             },
             "social": {
+                "e2ee_title": "End-to-End Encryption",
                 "rules_title": "Rules",
                 "participants_text": "{count} participants",
                 "not_found": "Not found",
@@ -98,8 +99,8 @@
             "hide_chat_feed": {
                 "name": "Hide from Chat feed"
             },
-            "aes_encryption": {
-                "name": "Use AES Encryption"
+            "e2e_encryption": {
+                "name": "Use E2E Encryption"
             },
             "pin_conversation": {
                 "name": "Pin Conversation"
@@ -519,9 +520,9 @@
                         "name": "No Friend Score Delay",
                         "description": "Removes the delay when viewing a Friends Score"
                     },
-                    "use_message_aes_encryption": {
-                        "name": "Use AES Encryption",
-                        "description": "Encrypts your messages using AES\nMessages are only readable by other SnapEnhance users"
+                    "e2e_encryption": {
+                        "name": "End-To-End Encryption",
+                        "description": "Encrypts your messages with AES using a shared secret key\nMake sure to save your key somewhere safe!"
                     },
                     "add_friend_source_spoof": {
                         "name": "Add Friend Source Spoof",
@@ -565,7 +566,7 @@
                 "auto_save": "\uD83D\uDCAC Auto Save Messages",
                 "stealth": "\uD83D\uDC7B Stealth Mode",
                 "conversation_info": "\uD83D\uDC64 Conversation Info",
-                "aes_encryption": "\uD83D\uDD12 Use AES Encryption"
+                "e2e_encryption": "\uD83D\uDD12 Use E2E Encryption"
             },
             "path_format": {
                 "create_author_folder": "Create folder for each author",

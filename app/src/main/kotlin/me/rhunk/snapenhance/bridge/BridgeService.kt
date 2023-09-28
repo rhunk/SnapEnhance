@@ -187,6 +187,9 @@ class BridgeService : Service() {
         }
 
         override fun getScriptingInterface() = remoteSideContext.scriptManager
+
+        override fun getE2eeInterface() = remoteSideContext.e2eeImplementation
+
         override fun openSettingsOverlay() {
             runCatching {
                 remoteSideContext.settingsOverlay.show()

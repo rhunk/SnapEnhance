@@ -22,6 +22,7 @@ import me.rhunk.snapenhance.core.bridge.wrapper.LocaleWrapper
 import me.rhunk.snapenhance.core.bridge.wrapper.MappingsWrapper
 import me.rhunk.snapenhance.core.config.ModConfig
 import me.rhunk.snapenhance.download.DownloadTaskManager
+import me.rhunk.snapenhance.e2ee.E2EEImplementation
 import me.rhunk.snapenhance.messaging.ModDatabase
 import me.rhunk.snapenhance.messaging.StreaksReminder
 import me.rhunk.snapenhance.scripting.RemoteScriptManager
@@ -58,6 +59,7 @@ class RemoteSideContext(
     val log = LogManager(this)
     val scriptManager = RemoteScriptManager(this)
     val settingsOverlay = SettingsOverlay(this)
+    val e2eeImplementation = E2EEImplementation(this)
 
     //used to load bitmoji selfies and download previews
     val imageLoader by lazy {

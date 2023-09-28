@@ -239,6 +239,46 @@ class AlertDialogs(
     }
 
     @Composable
+    fun RawInputDialog(onDismiss: () -> Unit, onConfirm: (value: String) -> Unit) {
+        val focusRequester = remember { FocusRequester() }
+
+        DefaultDialogCard {
+            val fieldValue = remember {
+                mutableStateOf(TextFieldValue())
+            }
+
+            TextField(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(all = 10.dp)
+                    .onGloballyPositioned {
+                        focusRequester.requestFocus()
+                    }
+                    .focusRequester(focusRequester),
+                value = fieldValue.value,
+                onValueChange = {
+                    fieldValue.value = it
+                },
+                singleLine = true
+            )
+
+            Row(
+                modifier = Modifier.padding(top = 10.dp).fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceEvenly,
+            ) {
+                Button(onClick = { onDismiss() }) {
+                    Text(text = translation["button.cancel"])
+                }
+                Button(onClick = {
+                    onConfirm(fieldValue.value.text)
+                }) {
+                    Text(text = translation["button.ok"])
+                }
+            }
+        }
+    }
+
+    @Composable
     @Suppress("UNCHECKED_CAST")
     fun MultipleSelectionDialog(property: PropertyPair<*>) {
         val defaultItems = property.value.defaultValues as List<String>

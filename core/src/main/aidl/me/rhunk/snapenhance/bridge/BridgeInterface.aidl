@@ -4,6 +4,7 @@ import java.util.List;
 import me.rhunk.snapenhance.bridge.DownloadCallback;
 import me.rhunk.snapenhance.bridge.SyncCallback;
 import me.rhunk.snapenhance.bridge.scripting.IScripting;
+import me.rhunk.snapenhance.bridge.e2ee.E2eeInterface;
 
 interface BridgeInterface {
     /**
@@ -93,6 +94,8 @@ interface BridgeInterface {
     oneway void passGroupsAndFriends(in List<String> groups, in List<String> friends);
 
     IScripting getScriptingInterface();
+
+    E2eeInterface getE2eeInterface();
 
     void openSettingsOverlay();
 

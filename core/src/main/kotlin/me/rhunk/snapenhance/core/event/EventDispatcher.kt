@@ -5,11 +5,7 @@ import android.view.View
 import android.view.ViewGroup
 import android.view.ViewGroup.LayoutParams
 import me.rhunk.snapenhance.ModContext
-import me.rhunk.snapenhance.core.event.events.impl.AddViewEvent
-import me.rhunk.snapenhance.core.event.events.impl.NetworkApiRequestEvent
-import me.rhunk.snapenhance.core.event.events.impl.OnSnapInteractionEvent
-import me.rhunk.snapenhance.core.event.events.impl.SendMessageWithContentEvent
-import me.rhunk.snapenhance.core.event.events.impl.SnapWidgetBroadcastReceiveEvent
+import me.rhunk.snapenhance.core.event.events.impl.*
 import me.rhunk.snapenhance.core.util.ktx.getObjectField
 import me.rhunk.snapenhance.core.util.ktx.setObjectField
 import me.rhunk.snapenhance.core.util.snap.SnapWidgetBroadcastReceiverHelper
@@ -18,11 +14,48 @@ import me.rhunk.snapenhance.data.wrapper.impl.MessageDestinations
 import me.rhunk.snapenhance.data.wrapper.impl.SnapUUID
 import me.rhunk.snapenhance.hook.HookStage
 import me.rhunk.snapenhance.hook.hook
+import me.rhunk.snapenhance.hook.hookConstructor
 import me.rhunk.snapenhance.manager.Manager
 
 class EventDispatcher(
     private val context: ModContext
 ) : Manager {
+    private fun findClass(name: String) = context.androidContext.classLoader.loadClass(name)
+
+    private fun hookViewBinder() {
+        val cachedHooks = mutableListOf<String>()
+        val viewBinderMappings = runCatching { context.mappings.getMappedMap("ViewBinder") }.getOrNull() ?: return
+
+        fun cacheHook(clazz: Class<*>, block: Class<*>.() -> Unit) {
+            if (!cachedHooks.contains(clazz.name)) {
+                clazz.block()
+                cachedHooks.add(clazz.name)
+            }
+        }
+
+        findClass(viewBinderMappings["class"].toString()).hookConstructor(HookStage.AFTER) { methodParam ->
+            cacheHook(
+                methodParam.thisObject<Any>()::class.java
+            ) {
+                hook(viewBinderMappings["bindMethod"].toString(), HookStage.AFTER) bindViewMethod@{ param ->
+                    val instance = param.thisObject<Any>()
+                    val view = instance::class.java.methods.first {
+                        it.name == viewBinderMappings["getViewMethod"].toString()
+                    }.invoke(instance) as? View ?: return@bindViewMethod
+
+                    context.event.post(
+                        BindViewEvent(
+                            prevModel = param.arg(0),
+                            nextModel = param.argNullable(1),
+                            view = view
+                        )
+                    )
+                }
+            }
+        }
+    }
+
+
     override fun init() {
         context.classCache.conversationManager.hook("sendMessageWithContent", HookStage.BEFORE) { param ->
             context.event.post(SendMessageWithContentEvent(
@@ -113,5 +146,7 @@ class EventDispatcher(
                 if (event.canceled) param.setResult(null)
             }
         }
+
+        hookViewBinder()
     }
 }

@@ -2,7 +2,6 @@ package me.rhunk.snapenhance.manager.impl
 
 import me.rhunk.snapenhance.ModContext
 import me.rhunk.snapenhance.core.Logger
-import me.rhunk.snapenhance.features.impl.experiments.AESMessageEncryption
 import me.rhunk.snapenhance.features.Feature
 import me.rhunk.snapenhance.features.FeatureLoadParams
 import me.rhunk.snapenhance.features.MessagingRuleFeature
@@ -54,7 +53,7 @@ class FeatureManager(private val context: ModContext) : Manager {
 
     override fun init() {
         register(
-            AESMessageEncryption::class,
+            EndToEndEncryption::class,
             ScopeSync::class,
             Messaging::class,
             MediaDownloader::class,

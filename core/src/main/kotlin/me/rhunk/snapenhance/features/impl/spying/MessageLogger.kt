@@ -2,9 +2,9 @@ package me.rhunk.snapenhance.features.impl.spying
 
 import android.graphics.drawable.ColorDrawable
 import android.os.DeadObjectException
-import android.view.View
 import com.google.gson.JsonObject
 import com.google.gson.JsonParser
+import me.rhunk.snapenhance.core.event.events.impl.BindViewEvent
 import me.rhunk.snapenhance.data.ContentType
 import me.rhunk.snapenhance.data.MessageState
 import me.rhunk.snapenhance.data.wrapper.impl.Message
@@ -12,8 +12,6 @@ import me.rhunk.snapenhance.features.Feature
 import me.rhunk.snapenhance.features.FeatureLoadParams
 import me.rhunk.snapenhance.hook.HookStage
 import me.rhunk.snapenhance.hook.Hooker
-import me.rhunk.snapenhance.hook.hook
-import me.rhunk.snapenhance.hook.hookConstructor
 import java.util.concurrent.Executors
 import kotlin.time.ExperimentalTime
 import kotlin.time.measureTime
@@ -33,6 +31,7 @@ class MessageLogger : Feature("MessageLogger",
     companion object {
         const val PREFETCH_MESSAGE_COUNT = 20
         const val PREFETCH_FEED_COUNT = 20
+        const val DELETED_MESSAGE_COLOR = 0x2Eb71c1c
     }
 
     private val isEnabled get() = context.config.messaging.messageLogger.get()
@@ -154,40 +153,16 @@ class MessageLogger : Feature("MessageLogger",
     override fun onActivityCreate() {
         if (!isEnabled) return
 
-        val viewBinderMappings = context.mappings.getMappedMap("ViewBinder")
-        val cachedHooks = mutableListOf<String>()
-
-        fun cacheHook(clazz: Class<*>, block: Class<*>.() -> Unit) {
-            if (!cachedHooks.contains(clazz.name)) {
-                clazz.block()
-                cachedHooks.add(clazz.name)
-            }
-        }
-
-        findClass(viewBinderMappings["class"].toString()).hookConstructor(HookStage.AFTER) { methodParam ->
-            cacheHook(
-                methodParam.thisObject<Any>()::class.java
-            ) {
-                hook(viewBinderMappings["bindMethod"].toString(), HookStage.BEFORE) bindViewMethod@{ param ->
-                    val instance = param.thisObject<Any>()
-                    val model1 = param.arg<Any>(0).toString().also {
-                        if (!it.startsWith("ChatViewModel")) return@bindViewMethod
-                    }
-
-                    val messageId = model1.substringAfter("messageId=").substringBefore(",").split(":").let {
-                        it[0] to it[2]
-                    }
-
-                    getServerMessageIdentifier(messageId.first, messageId.second.toLong())?.let { serverMessageId ->
-                        if (!deletedMessageCache.contains(serverMessageId)) return@bindViewMethod
-                    } ?: return@bindViewMethod
-
-                    val view = instance::class.java.methods.first {
-                        it.name == viewBinderMappings["getViewMethod"].toString()
-                    }.invoke(instance) as? View ?: return@bindViewMethod
-
-                    view.foreground = ColorDrawable(0x1E90313e) // red with alpha
+        context.event.subscribe(BindViewEvent::class) { event ->
+            event.chatMessage { conversationId, messageId ->
+                val foreground = event.view.foreground
+                if (foreground is ColorDrawable && foreground.color == DELETED_MESSAGE_COLOR) {
+                    event.view.foreground = null
                 }
+                getServerMessageIdentifier(conversationId, messageId.toLong())?.let { serverMessageId ->
+                    if (!deletedMessageCache.contains(serverMessageId)) return@chatMessage
+                } ?: return@chatMessage
+                event.view.foreground = ColorDrawable(DELETED_MESSAGE_COLOR) // red with alpha
             }
         }
     }

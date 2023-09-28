@@ -14,6 +14,7 @@ import me.rhunk.snapenhance.ModContext
 import me.rhunk.snapenhance.bridge.BridgeInterface
 import me.rhunk.snapenhance.bridge.DownloadCallback
 import me.rhunk.snapenhance.bridge.SyncCallback
+import me.rhunk.snapenhance.bridge.e2ee.E2eeInterface
 import me.rhunk.snapenhance.bridge.scripting.IScripting
 import me.rhunk.snapenhance.core.BuildConfig
 import me.rhunk.snapenhance.core.bridge.types.BridgeFileType
@@ -144,6 +145,8 @@ class BridgeClient(
         = service.setRule(targetUuid, type.key, state)
 
     fun getScriptingInterface(): IScripting = service.getScriptingInterface()
+
+    fun getE2eeInterface(): E2eeInterface = service.getE2eeInterface()
 
     fun openSettingsOverlay() = service.openSettingsOverlay()
     fun closeSettingsOverlay() = service.closeSettingsOverlay()

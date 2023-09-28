@@ -158,7 +158,11 @@ class ModDatabase(
         )).use { cursor ->
             val rules = mutableListOf<MessagingRuleType>()
             while (cursor.moveToNext()) {
-                rules.add(MessagingRuleType.getByName(cursor.getStringOrNull("type")!!))
+                runCatching {
+                    rules.add(MessagingRuleType.getByName(cursor.getStringOrNull("type")!!))
+                }.onFailure {
+                    context.log.error("Failed to parse rule", it)
+                }
             }
             rules
         }
@@ -197,12 +201,14 @@ class ModDatabase(
         executeAsync {
             database.execSQL("DELETE FROM friends WHERE userId = ?", arrayOf(userId))
             database.execSQL("DELETE FROM streaks WHERE userId = ?", arrayOf(userId))
+            database.execSQL("DELETE FROM rules WHERE targetUuid = ?", arrayOf(userId))
         }
     }
 
     fun deleteGroup(conversationId: String) {
         executeAsync {
             database.execSQL("DELETE FROM groups WHERE conversationId = ?", arrayOf(conversationId))
+            database.execSQL("DELETE FROM rules WHERE targetUuid = ?", arrayOf(conversationId))
         }
     }
 

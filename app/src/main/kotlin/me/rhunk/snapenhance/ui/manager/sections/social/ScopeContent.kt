@@ -1,12 +1,7 @@
 package me.rhunk.snapenhance.ui.manager.sections.social
 
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.offset
-import androidx.compose.foundation.layout.padding
+import android.content.Intent
+import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Card
@@ -32,6 +27,10 @@ import me.rhunk.snapenhance.core.messaging.MessagingRuleType
 import me.rhunk.snapenhance.core.messaging.SocialScope
 import me.rhunk.snapenhance.ui.util.BitmojiImage
 import me.rhunk.snapenhance.core.util.snap.BitmojiSelfie
+import me.rhunk.snapenhance.ui.util.AlertDialogs
+import me.rhunk.snapenhance.ui.util.Dialog
+import kotlin.io.encoding.Base64
+import kotlin.io.encoding.ExperimentalEncodingApi
 
 class ScopeContent(
     private val context: RemoteSideContext,
@@ -40,6 +39,7 @@ class ScopeContent(
     val scope: SocialScope,
     private val id: String
 ) {
+    private val dialogs by lazy { AlertDialogs(context.translation) }
     private val translation by lazy { context.translation.getCategory("manager.sections.social") }
 
     fun deleteScope(coroutineScope: CoroutineScope) {
@@ -162,6 +162,7 @@ class ScopeContent(
         return "Expired"
     }
 
+    @OptIn(ExperimentalEncodingApi::class)
     @Composable
     private fun Friend() {
         //fetch the friend from the database
@@ -238,6 +239,73 @@ class ScopeContent(
                                 shouldNotify = it
                             })
                         }
+                    }
+                }
+            }
+            // e2ee section
+
+            SectionTitle(translation["e2ee_title"])
+            var hasSecretKey by remember { mutableStateOf(context.e2eeImplementation.friendKeyExists(friend.userId))}
+            var importDialog by remember { mutableStateOf(false) }
+
+            if (importDialog) {
+                Dialog(
+                    onDismissRequest = { importDialog = false }
+                ) {
+                    dialogs.RawInputDialog(onDismiss = { importDialog = false  }, onConfirm = { newKey ->
+                        importDialog = false
+                        runCatching {
+                            val key = Base64.decode(newKey)
+                            if (key.size != 32) {
+                                context.longToast("Invalid key size (must be 32 bytes)")
+                                return@runCatching
+                            }
+
+                            context.e2eeImplementation.storeSharedSecretKey(friend.userId, key)
+                            context.longToast("Successfully imported key")
+                            hasSecretKey = true
+                        }.onFailure {
+                            context.longToast("Failed to import key: ${it.message}")
+                            context.log.error("Failed to import key", it)
+                        }
+                    })
+                }
+            }
+
+            ContentCard {
+                Row(
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.spacedBy(10.dp)
+                ) {
+                    if (hasSecretKey) {
+                        OutlinedButton(onClick = {
+                            val secretKey = Base64.encode(context.e2eeImplementation.getSharedSecretKey(friend.userId) ?: return@OutlinedButton)
+                            //TODO: fingerprint auth
+                            context.activity!!.startActivity(Intent.createChooser(Intent().apply {
+                                action = Intent.ACTION_SEND
+                                putExtra(Intent.EXTRA_TEXT, secretKey)
+                                type = "text/plain"
+                            }, "").apply {
+                                putExtra(Intent.EXTRA_INITIAL_INTENTS, arrayOf(
+                                    Intent().apply {
+                                        putExtra(Intent.EXTRA_TEXT, secretKey)
+                                        putExtra(Intent.EXTRA_SUBJECT, secretKey)
+                                    })
+                                )
+                            })
+                        }) {
+                            Text(
+                                text = "Export Base64",
+                                maxLines = 1
+                            )
+                        }
+                    }
+
+                    OutlinedButton(onClick = { importDialog = true }) {
+                        Text(
+                            text = "Import Base64",
+                            maxLines = 1
+                        )
                     }
                 }
             }

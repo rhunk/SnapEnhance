@@ -1,5 +1,6 @@
 [versions]
 agp = "8.1.1"
+bcprov-jdk18on = "1.76"
 coil-compose = "2.4.0"
 junit = "4.13.2"
 kotlin = "1.8.22"
@@ -26,6 +27,7 @@ androidx-material-icons-core = { module = "androidx.compose.material:material-ic
 androidx-material-icons-extended = { module = "androidx.compose.material:material-icons-extended", version.ref = "material-icons-extended" }
 androidx-material-ripple = { module = "androidx.compose.material:material-ripple", version.ref = "material-icons-core" }
 androidx-navigation-compose = { module = "androidx.navigation:navigation-compose", version.ref = "navigation-compose" }
+bcprov-jdk18on = { module = "org.bouncycastle:bcprov-jdk18on", version.ref = "bcprov-jdk18on" }
 coil-compose = { module = "io.coil-kt:coil-compose", version.ref = "coil-compose" }
 coil-video = { module = "io.coil-kt:coil-video", version.ref = "coil-compose" }
 coroutines = { group = "org.jetbrains.kotlinx", name = "kotlinx-coroutines-android", version.ref = "kotlinx-coroutines-android" }

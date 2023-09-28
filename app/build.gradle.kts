@@ -103,6 +103,7 @@ dependencies {
     implementation(libs.ffmpeg.kit)
     implementation(libs.osmdroid.android)
     implementation(libs.rhino)
+    implementation(libs.bcprov.jdk18on)
 
     debugImplementation("androidx.compose.ui:ui-tooling:1.4.3")
     implementation("androidx.compose.ui:ui-tooling-preview:1.4.3")

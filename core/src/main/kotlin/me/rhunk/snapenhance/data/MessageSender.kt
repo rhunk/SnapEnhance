@@ -166,4 +166,13 @@ class MessageSender(
             .override("onError", callback = { onError(it.arg(0)) })
             .build())
     }
+
+    fun sendCustomChatMessage(conversations: List<SnapUUID>, contentType: ContentType,  message: ProtoWriter.() -> Unit, onError: (Any) -> Unit = {}, onSuccess: () -> Unit = {}) {
+        internalSendMessage(conversations, createLocalMessageContentTemplate(contentType, ProtoWriter().apply {
+            message()
+        }.toByteArray(), savePolicy = "LIFETIME"), CallbackBuilder(sendMessageCallback)
+            .override("onSuccess", callback = { onSuccess() })
+            .override("onError", callback = { onError(it.arg(0)) })
+            .build())
+    }
 }
