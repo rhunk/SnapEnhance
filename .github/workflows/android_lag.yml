@@ -1,0 +1,84 @@
+name: Android CI Release (Lag)
+on:
+  workflow_dispatch:
+    branches: [ "main" ]
+    paths-ignore:
+      - '**/README.md'
+      - '.github/**'
+  pull_request:
+    branches: [ "main" ]
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v4
+        with:
+          ref: refactor_2_0_0
+          submodules: 'recursive'
+
+
+      - name: Set up JDK 17
+        uses: actions/setup-java@v3
+        with:
+          java-version: '17'
+          distribution: 'temurin'
+          cache: gradle
+
+      - name: Set up node
+        uses: actions/setup-node@v3
+        with:
+          node-version: '18'
+
+      - name: Install Dependencies
+        run: |
+          npm install --global yarn
+          cd ./.github/workflows
+          yarn add node-telegram-bot-api commander
+
+      - name: Grant execute permission for gradlew
+        run: chmod +x gradlew
+
+      - name: Clean Gradle Cache
+        run: ./gradlew clean
+
+      - name: Build with Gradle
+        run: ./gradlew assembleRelease
+
+      - name: Generate Version
+        run: ./gradlew getVersion
+
+      - name: Set Environment Variables
+        id: version-env
+        run: |
+          export version=$(cat app/build/version.txt)
+          export sha_short=$(git rev-parse --short HEAD)
+
+      - name: Git branch name
+        id: git-branch-name
+        uses: EthanSK/git-branch-name-action@v1
+
+      - name: Rename APK files
+        run: |
+          mv app/build/outputs/apk/armv8/release/*.apk app/build/outputs/apk/armv8/release/SnapEnhance-${version}-armv8-${sha_short}.apk
+          mv app/build/outputs/apk/armv7/release/*.apk app/build/outputs/apk/armv7/release/SnapEnhance-${version}-armv7-${sha_short}.apk
+
+      - name: Upload armv8
+        uses: actions/upload-artifact@v3.1.2
+        with:
+          name: app-armv8-release
+          path: app/build/outputs/apk/armv8/release/*.apk
+
+      - name: Upload armv7
+        uses: actions/upload-artifact@v3.1.2
+        with:
+          name: app-armv7-release
+          path: app/build/outputs/apk/armv7/release/*.apk
+
+      - name: CI Upload armv8
+        if: github.ref_name == 'main'
+        run: node ./.github/workflows/upload.js -t "${{ secrets.TELEGRAM_BOT_TOKEN }}" -f "app/build/outputs/apk/armv8/debug/app-${version}-armv8-${sha_short}.apk" --caption "A new commit has been pushed to the ${{ env.GIT_BRANCH_NAME }} branch! ${sha_short}" --chatid "${{ secrets.TELEGRAM_CHAT_ID }}"
+
+      - name: CI Upload armv7
+        if: github.ref_name == 'main'
+        run: node ./.github/workflows/upload.js -t "${{ secrets.TELEGRAM_BOT_TOKEN }}" -f "app/build/outputs/apk/armv7/debug/app-${version}-armv7-${sha_short}.apk" --chatid "${{ secrets.TELEGRAM_CHAT_ID }}"
