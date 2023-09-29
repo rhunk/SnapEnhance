@@ -4,20 +4,56 @@ import android.annotation.SuppressLint
 import android.app.AlertDialog
 import android.content.Context
 import android.content.res.ColorStateList
+import android.graphics.Canvas
 import android.graphics.Color
+import android.graphics.Paint
 import android.graphics.drawable.ColorDrawable
 import android.graphics.drawable.Drawable
 import android.graphics.drawable.ShapeDrawable
 import android.graphics.drawable.StateListDrawable
+import android.graphics.drawable.shapes.Shape
 import android.view.Gravity
 import android.view.View
 import android.widget.Switch
 import android.widget.TextView
 import me.rhunk.snapenhance.Constants
+import kotlin.random.Random
 
 fun View.applyTheme(componentWidth: Int? = null, hasRadius: Boolean = false, isAmoled: Boolean = true) {
     ViewAppearanceHelper.applyTheme(this, componentWidth, hasRadius, isAmoled)
 }
+
+private val foregroundDrawableListTag = Random.nextInt(0x7000000, 0x7FFFFFFF)
+
+@Suppress("UNCHECKED_CAST")
+private fun View.getForegroundDrawables(): MutableMap<String, Drawable> {
+    return getTag(foregroundDrawableListTag) as? MutableMap<String, Drawable>
+        ?: mutableMapOf<String, Drawable>().also {
+        setTag(foregroundDrawableListTag, it)
+    }
+}
+
+private fun View.updateForegroundDrawable() {
+    foreground = ShapeDrawable(object: Shape() {
+        override fun draw(canvas: Canvas, paint: Paint) {
+            getForegroundDrawables().forEach { (_, drawable) ->
+                drawable.draw(canvas)
+            }
+        }
+    })
+}
+
+fun View.removeForegroundDrawable(tag: String) {
+    getForegroundDrawables().remove(tag)?.let {
+        updateForegroundDrawable()
+    }
+}
+
+fun View.addForegroundDrawable(tag: String, drawable: Drawable) {
+    getForegroundDrawables()[tag] = drawable
+    updateForegroundDrawable()
+}
+
 
 object ViewAppearanceHelper {
     @SuppressLint("UseSwitchCompatOrMaterialCode", "RtlHardcoded", "DiscouragedApi",

@@ -1,13 +1,16 @@
 package me.rhunk.snapenhance.features.impl.experiments
 
 import android.annotation.SuppressLint
+import android.graphics.Canvas
+import android.graphics.Paint
+import android.graphics.Rect
+import android.graphics.drawable.ShapeDrawable
+import android.graphics.drawable.shapes.Shape
 import android.view.View
 import android.view.ViewGroup
 import android.view.ViewGroup.LayoutParams
 import android.view.ViewGroup.MarginLayoutParams
 import android.widget.Button
-import android.widget.LinearLayout
-import android.widget.RelativeLayout
 import android.widget.TextView
 import me.rhunk.snapenhance.core.event.events.impl.AddViewEvent
 import me.rhunk.snapenhance.core.event.events.impl.BindViewEvent
@@ -29,6 +32,8 @@ import me.rhunk.snapenhance.features.impl.Messaging
 import me.rhunk.snapenhance.hook.HookStage
 import me.rhunk.snapenhance.hook.hookConstructor
 import me.rhunk.snapenhance.ui.ViewAppearanceHelper
+import me.rhunk.snapenhance.ui.addForegroundDrawable
+import me.rhunk.snapenhance.ui.removeForegroundDrawable
 import java.security.MessageDigest
 import kotlin.random.Random
 
@@ -37,7 +42,7 @@ class EndToEndEncryption : MessagingRuleFeature(
     MessagingRuleType.E2E_ENCRYPTION,
     loadParams = FeatureLoadParams.ACTIVITY_CREATE_SYNC or FeatureLoadParams.INIT_SYNC or FeatureLoadParams.INIT_ASYNC
 ) {
-    private val isEnabled get() = context.config.experimental.useE2EEncryption.get()
+    private val isEnabled get() = context.config.experimental.e2eEncryption.globalState == true
     private val e2eeInterface by lazy { context.bridgeClient.getE2eeInterface() }
 
     companion object {
@@ -185,13 +190,11 @@ class EndToEndEncryption : MessagingRuleFeature(
             }
         }
 
-        val encryptedMessageIndicator by context.config.experimental.encryptedMessageIndicator
-        val chatMessageContentContainerId = context.resources.getIdentifier("chat_message_content_container", "id", context.androidContext.packageName)
+        val encryptedMessageIndicator by context.config.experimental.e2eEncryption.encryptedMessageIndicator
 
         // hook view binder to add special buttons
         val receivePublicKeyTag = Random.nextLong().toString(16)
         val receiveSecretTag = Random.nextLong().toString(16)
-        val encryptedMessageTag = Random.nextLong().toString(16)
 
         context.event.subscribe(BindViewEvent::class) { event ->
             event.chatMessage { conversationId, messageId ->
@@ -206,28 +209,15 @@ class EndToEndEncryption : MessagingRuleFeature(
                 }
 
                 if (encryptedMessageIndicator) {
-                    viewGroup.findViewWithTag<ViewGroup>(encryptedMessageTag)?.also {
-                        val chatMessageContentContainer = viewGroup.findViewById<View>(chatMessageContentContainerId) as? LinearLayout ?: return@chatMessage
-                        it.removeView(chatMessageContentContainer)
-                        viewGroup.removeView(it)
-                        viewGroup.addView(chatMessageContentContainer, 0)
-                    }
+                    viewGroup.removeForegroundDrawable("encryptedMessage")
 
                     if (encryptedMessages.contains(messageId.toLong())) {
-                        val chatMessageContentContainer = viewGroup.findViewById<View>(chatMessageContentContainerId) as? LinearLayout ?: return@chatMessage
-                        viewGroup.removeView(chatMessageContentContainer)
-
-                        viewGroup.addView(RelativeLayout(viewGroup.context).apply {
-                            tag = encryptedMessageTag
-                            layoutParams = LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT)
-                            addView(chatMessageContentContainer)
-                            addView(TextView(viewGroup.context).apply {
-                                text = "\uD83D\uDD12"
-                                textAlignment = View.TEXT_ALIGNMENT_TEXT_END
-                                layoutParams = LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT)
-                                setPadding(20, 0, 20, 0)
-                            })
-                        }, 0)
+                        viewGroup.addForegroundDrawable("encryptedMessage", ShapeDrawable(object: Shape() {
+                            override fun draw(canvas: Canvas, paint: Paint) {
+                                paint.textSize = 20f
+                                canvas.drawText("\uD83D\uDD12", 0f, canvas.height / 2f, paint)
+                            }
+                        }))
                     }
                 }
 
@@ -355,13 +345,25 @@ class EndToEndEncryption : MessagingRuleFeature(
 
     override fun asyncInit() {
         if (!isEnabled) return
-        // trick to disable fidelius encryption
-        context.event.subscribe(SendMessageWithContentEvent::class) { param ->
-            val messageContent = param.messageContent
-            val destinations = param.destinations
-            if (destinations.conversations.none { getState(it.toString()) }) return@subscribe
+        val forceMessageEncryption by context.config.experimental.e2eEncryption.forceMessageEncryption
 
-            param.addInvokeLater {
+        // trick to disable fidelius encryption
+        context.event.subscribe(SendMessageWithContentEvent::class) { event ->
+            val messageContent = event.messageContent
+            val destinations = event.destinations
+
+            val e2eeConversations = destinations.conversations.filter { getState(it.toString()) }
+
+            if (e2eeConversations.isEmpty()) return@subscribe
+
+            if (e2eeConversations.size != destinations.conversations.size) {
+                if (!forceMessageEncryption) return@subscribe
+                context.longToast("You can't send encrypted content to both encrypted and unencrypted conversations!")
+                event.canceled = true
+                return@subscribe
+            }
+
+            event.addInvokeLater {
                 if (messageContent.contentType == ContentType.SNAP) {
                     messageContent.contentType = ContentType.EXTERNAL_MEDIA
                 }

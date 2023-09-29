@@ -520,13 +520,19 @@
                         "name": "No Friend Score Delay",
                         "description": "Removes the delay when viewing a Friends Score"
                     },
-                    "e2e_encryption": {
+                    "e2ee": {
                         "name": "End-To-End Encryption",
-                        "description": "Encrypts your messages with AES using a shared secret key\nMake sure to save your key somewhere safe!"
-                    },
-                    "encrypted_message_indicator": {
-                        "name": "Encrypted Message Indicator",
-                        "description": "Adds a \uD83D\uDD12 emoji next to encrypted messages"
+                        "description": "Encrypts your messages with AES using a shared secret key\nMake sure to save your key somewhere safe!",
+                        "properties": {
+                            "encrypted_message_indicator": {
+                                "name": "Encrypted Message Indicator",
+                                "description": "Adds a \uD83D\uDD12 emoji next to encrypted messages"
+                            },
+                            "force_message_encryption": {
+                                "name": "Force Message Encryption",
+                                "description": "Prevents sending encrypted messages to people who don't have E2E Encryption enabled only when multiple conversations are selected"
+                            }
+                        }
                     },
                     "add_friend_source_spoof": {
                         "name": "Add Friend Source Spoof",

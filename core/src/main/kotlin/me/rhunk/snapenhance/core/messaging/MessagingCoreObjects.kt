@@ -43,7 +43,7 @@ enum class MessagingRuleType(
     }
 
     companion object {
-        fun getByName(name: String) = values().first { it.key == name }
+        fun getByName(name: String) = values().firstOrNull { it.key == name }
     }
 }
 

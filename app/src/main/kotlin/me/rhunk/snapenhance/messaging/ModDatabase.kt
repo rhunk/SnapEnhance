@@ -159,7 +159,7 @@ class ModDatabase(
             val rules = mutableListOf<MessagingRuleType>()
             while (cursor.moveToNext()) {
                 runCatching {
-                    rules.add(MessagingRuleType.getByName(cursor.getStringOrNull("type")!!))
+                    rules.add(MessagingRuleType.getByName(cursor.getStringOrNull("type")!!) ?: return@runCatching)
                 }.onFailure {
                     context.log.error("Failed to parse rule", it)
                 }

@@ -76,7 +76,9 @@ class EventDispatcher(
                     interactionType = interactionType,
                     conversationId = conversationId,
                     messageId = messageId
-                )
+                ).apply {
+                    adapter = param
+                }
             ) {
                 postHookEvent()
             }

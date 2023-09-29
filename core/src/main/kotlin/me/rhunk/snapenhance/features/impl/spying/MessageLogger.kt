@@ -1,6 +1,9 @@
 package me.rhunk.snapenhance.features.impl.spying
 
-import android.graphics.drawable.ColorDrawable
+import android.graphics.Canvas
+import android.graphics.Paint
+import android.graphics.drawable.ShapeDrawable
+import android.graphics.drawable.shapes.Shape
 import android.os.DeadObjectException
 import com.google.gson.JsonObject
 import com.google.gson.JsonParser
@@ -12,6 +15,8 @@ import me.rhunk.snapenhance.features.Feature
 import me.rhunk.snapenhance.features.FeatureLoadParams
 import me.rhunk.snapenhance.hook.HookStage
 import me.rhunk.snapenhance.hook.Hooker
+import me.rhunk.snapenhance.ui.addForegroundDrawable
+import me.rhunk.snapenhance.ui.removeForegroundDrawable
 import java.util.concurrent.Executors
 import kotlin.time.ExperimentalTime
 import kotlin.time.measureTime
@@ -155,14 +160,18 @@ class MessageLogger : Feature("MessageLogger",
 
         context.event.subscribe(BindViewEvent::class) { event ->
             event.chatMessage { conversationId, messageId ->
-                val foreground = event.view.foreground
-                if (foreground is ColorDrawable && foreground.color == DELETED_MESSAGE_COLOR) {
-                    event.view.foreground = null
-                }
+                event.view.removeForegroundDrawable("deletedMessage")
                 getServerMessageIdentifier(conversationId, messageId.toLong())?.let { serverMessageId ->
                     if (!deletedMessageCache.contains(serverMessageId)) return@chatMessage
                 } ?: return@chatMessage
-                event.view.foreground = ColorDrawable(DELETED_MESSAGE_COLOR) // red with alpha
+
+                event.view.addForegroundDrawable("deletedMessage", ShapeDrawable(object: Shape() {
+                    override fun draw(canvas: Canvas, paint: Paint) {
+                        canvas.drawRect(0f, 0f, canvas.width.toFloat(), canvas.height.toFloat(), Paint().apply {
+                            color = DELETED_MESSAGE_COLOR
+                        })
+                    }
+                }))
             }
         }
     }

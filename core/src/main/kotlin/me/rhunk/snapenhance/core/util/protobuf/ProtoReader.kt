@@ -32,10 +32,10 @@ class ProtoReader(private val buffer: ByteArray) {
 
     private fun read() {
         while (offset < buffer.size) {
-            val tag = readVarInt().toInt()
-            val id = tag ushr 3
-            val type = WireType.fromValue(tag and 0x7) ?: break
             try {
+                val tag = readVarInt().toInt()
+                val id = tag ushr 3
+                val type = WireType.fromValue(tag and 0x7) ?: break
                 val value = when (type) {
                     WireType.VARINT -> readVarInt()
                     WireType.FIXED64 -> {

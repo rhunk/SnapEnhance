@@ -23,7 +23,6 @@ abstract class AbstractHookEvent : Event() {
     }
 
     fun invokeOriginal() {
-        canceled = true
         invokeLater()
         adapter.invokeOriginal()
     }

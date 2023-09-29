@@ -134,7 +134,7 @@ class BridgeClient(
     fun passGroupsAndFriends(groups: List<String>, friends: List<String>) = service.passGroupsAndFriends(groups, friends)
 
     fun getRules(targetUuid: String): List<MessagingRuleType> {
-        return service.getRules(targetUuid).map { MessagingRuleType.getByName(it) }
+        return service.getRules(targetUuid).mapNotNull { MessagingRuleType.getByName(it) }
     }
 
     fun getRuleIds(ruleType: MessagingRuleType): List<String> {
