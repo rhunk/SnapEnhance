@@ -58,6 +58,8 @@ class ModContext {
     val native = NativeLib()
     val scriptRuntime by lazy { CoreScriptRuntime(log, androidContext.classLoader) }
 
+    val isDeveloper by lazy { config.scripting.developerMode.get() }
+
     fun <T : Feature> feature(featureClass: KClass<T>): T {
         return features.get(featureClass)!!
     }

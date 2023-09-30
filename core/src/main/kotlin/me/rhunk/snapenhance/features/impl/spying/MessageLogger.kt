@@ -8,6 +8,7 @@ import android.os.DeadObjectException
 import com.google.gson.JsonObject
 import com.google.gson.JsonParser
 import me.rhunk.snapenhance.core.event.events.impl.BindViewEvent
+import me.rhunk.snapenhance.core.util.protobuf.ProtoReader
 import me.rhunk.snapenhance.data.ContentType
 import me.rhunk.snapenhance.data.MessageState
 import me.rhunk.snapenhance.data.wrapper.impl.Message
@@ -39,39 +40,55 @@ class MessageLogger : Feature("MessageLogger",
         const val DELETED_MESSAGE_COLOR = 0x2Eb71c1c
     }
 
-    private val isEnabled get() = context.config.messaging.messageLogger.get()
+    private val messageLoggerInterface by lazy { context.bridgeClient.getMessageLogger() }
+
+    val isEnabled get() = context.config.messaging.messageLogger.get()
 
     private val threadPool = Executors.newFixedThreadPool(10)
 
-    //two level of cache to avoid querying the database
-    private val fetchedMessages = mutableListOf<Long>()
-    private val deletedMessageCache = mutableMapOf<Long, JsonObject>()
+    private val cachedIdLinks = mutableMapOf<Long, Long>() // client id -> server id
+    private val fetchedMessages = mutableListOf<Long>() // list of unique message ids
+    private val deletedMessageCache = mutableMapOf<Long, JsonObject>() // unique message id -> message json object
 
-    fun isMessageRemoved(conversationId: String, orderKey: Long) = deletedMessageCache.containsKey(computeMessageIdentifier(conversationId, orderKey))
+    fun isMessageDeleted(conversationId: String, clientMessageId: Long)
+        = makeUniqueIdentifier(conversationId, clientMessageId)?.let { deletedMessageCache.containsKey(it) } ?: false
 
     fun deleteMessage(conversationId: String, clientMessageId: Long) {
-        val serverMessageId = getServerMessageIdentifier(conversationId, clientMessageId) ?: return
-        fetchedMessages.remove(serverMessageId)
-        deletedMessageCache.remove(serverMessageId)
-        context.bridgeClient.deleteMessageLoggerMessage(conversationId, serverMessageId)
+        val uniqueMessageId = makeUniqueIdentifier(conversationId, clientMessageId) ?: return
+        fetchedMessages.remove(uniqueMessageId)
+        deletedMessageCache.remove(uniqueMessageId)
+        messageLoggerInterface.deleteMessage(conversationId, uniqueMessageId)
     }
 
-    fun getMessageObject(conversationId: String, orderKey: Long): JsonObject? {
-        val messageIdentifier = computeMessageIdentifier(conversationId, orderKey)
-        if (deletedMessageCache.containsKey(messageIdentifier)) {
-            return deletedMessageCache[messageIdentifier]
+    fun getMessageObject(conversationId: String, clientMessageId: Long): JsonObject? {
+        val uniqueMessageId = makeUniqueIdentifier(conversationId, clientMessageId) ?: return null
+        if (deletedMessageCache.containsKey(uniqueMessageId)) {
+            return deletedMessageCache[uniqueMessageId]
         }
-        return context.bridgeClient.getMessageLoggerMessage(conversationId, messageIdentifier)?.let {
+        return messageLoggerInterface.getMessage(conversationId, uniqueMessageId)?.let {
             JsonParser.parseString(it.toString(Charsets.UTF_8)).asJsonObject
         }
     }
 
-    private fun computeMessageIdentifier(conversationId: String, orderKey: Long) = (orderKey.toString() + conversationId).longHashCode()
-    private fun getServerMessageIdentifier(conversationId: String, clientMessageId: Long): Long? {
-        val serverMessageId = context.database.getConversationMessageFromId(clientMessageId)?.serverMessageId?.toLong() ?: return run {
-            context.log.error("Failed to get server message id for $conversationId $clientMessageId")
-            null
+    fun getMessageProto(conversationId: String, clientMessageId: Long): ProtoReader? {
+        return getMessageObject(conversationId, clientMessageId)?.let { message ->
+            ProtoReader(message.getAsJsonObject("mMessageContent").getAsJsonArray("mContent")
+                .map { it.asByte }
+                .toByteArray())
         }
+    }
+
+    private fun computeMessageIdentifier(conversationId: String, orderKey: Long) = (orderKey.toString() + conversationId).longHashCode()
+
+    private fun makeUniqueIdentifier(conversationId: String, clientMessageId: Long): Long? {
+        val serverMessageId = cachedIdLinks[clientMessageId] ?:
+            context.database.getConversationMessageFromId(clientMessageId)?.serverMessageId?.toLong()?.also {
+                cachedIdLinks[clientMessageId] = it
+            }
+            ?: return run {
+                context.log.error("Failed to get server message id for $conversationId $clientMessageId")
+                null
+            }
         return computeMessageIdentifier(conversationId, serverMessageId)
     }
 
@@ -82,9 +99,9 @@ class MessageLogger : Feature("MessageLogger",
         }
 
         measureTime {
-            context.database.getFeedEntries(PREFETCH_FEED_COUNT).forEach { friendFeedInfo ->
-                fetchedMessages.addAll(context.bridgeClient.getLoggedMessageIds(friendFeedInfo.key!!, PREFETCH_MESSAGE_COUNT).toList())
-            }
+            val conversationIds = context.database.getFeedEntries(PREFETCH_FEED_COUNT).map { it.key!! }
+            if (conversationIds.isEmpty()) return@measureTime
+            fetchedMessages.addAll(messageLoggerInterface.getLoggedIds(conversationIds.toTypedArray(), PREFETCH_MESSAGE_COUNT).toList())
         }.also { context.log.verbose("Loaded ${fetchedMessages.size} cached messages in $it") }
     }
 
@@ -93,22 +110,20 @@ class MessageLogger : Feature("MessageLogger",
 
         if (message.messageState != MessageState.COMMITTED) return
 
+        cachedIdLinks[message.messageDescriptor.messageId] = message.orderKey
+        val conversationId = message.messageDescriptor.conversationId.toString()
         //exclude messages sent by me
         if (message.senderId.toString() == context.database.myUserId) return
 
-        val conversationId = message.messageDescriptor.conversationId.toString()
-        val serverIdentifier = computeMessageIdentifier(conversationId, message.orderKey)
+        val uniqueMessageIdentifier = computeMessageIdentifier(conversationId, message.orderKey)
 
         if (message.messageContent.contentType != ContentType.STATUS) {
-            if (fetchedMessages.contains(serverIdentifier)) return
-            fetchedMessages.add(serverIdentifier)
+            if (fetchedMessages.contains(uniqueMessageIdentifier)) return
+            fetchedMessages.add(uniqueMessageIdentifier)
 
             threadPool.execute {
                 try {
-                    context.bridgeClient.getMessageLoggerMessage(conversationId, serverIdentifier)?.let {
-                        return@execute
-                    }
-                    context.bridgeClient.addMessageLoggerMessage(conversationId, serverIdentifier, context.gson.toJson(messageInstance).toByteArray(Charsets.UTF_8))
+                    messageLoggerInterface.addMessage(conversationId, uniqueMessageIdentifier, context.gson.toJson(messageInstance).toByteArray(Charsets.UTF_8))
                 } catch (ignored: DeadObjectException) {}
             }
 
@@ -116,10 +131,10 @@ class MessageLogger : Feature("MessageLogger",
         }
 
         //query the deleted message
-        val deletedMessageObject: JsonObject = if (deletedMessageCache.containsKey(serverIdentifier))
-            deletedMessageCache[serverIdentifier]
+        val deletedMessageObject: JsonObject = if (deletedMessageCache.containsKey(uniqueMessageIdentifier))
+            deletedMessageCache[uniqueMessageIdentifier]
         else {
-            context.bridgeClient.getMessageLoggerMessage(conversationId, serverIdentifier)?.let {
+            messageLoggerInterface.getMessage(conversationId, uniqueMessageIdentifier)?.let {
                 JsonParser.parseString(it.toString(Charsets.UTF_8)).asJsonObject
             }
         } ?: return
@@ -134,19 +149,13 @@ class MessageLogger : Feature("MessageLogger",
         //serialize all properties of messageJsonObject and put in the message object
         messageInstance.javaClass.declaredFields.forEach { field ->
             field.isAccessible = true
+            if (field.name == "mDescriptor") return@forEach // prevent the client message id from being overwritten
             messageJsonObject[field.name]?.let { fieldValue ->
                 field.set(messageInstance, context.gson.fromJson(fieldValue, field.type))
             }
         }
 
-        /*//set the message state to PREPARING for visibility
-        with(message.messageContent.contentType) {
-            if (this != ContentType.SNAP && this != ContentType.EXTERNAL_MEDIA) {
-                message.messageState = MessageState.PREPARING
-            }
-        }*/
-
-        deletedMessageCache[serverIdentifier] = deletedMessageObject
+        deletedMessageCache[uniqueMessageIdentifier] = deletedMessageObject
     }
 
     override fun init() {
@@ -161,7 +170,7 @@ class MessageLogger : Feature("MessageLogger",
         context.event.subscribe(BindViewEvent::class) { event ->
             event.chatMessage { conversationId, messageId ->
                 event.view.removeForegroundDrawable("deletedMessage")
-                getServerMessageIdentifier(conversationId, messageId.toLong())?.let { serverMessageId ->
+                makeUniqueIdentifier(conversationId, messageId.toLong())?.let { serverMessageId ->
                     if (!deletedMessageCache.contains(serverMessageId)) return@chatMessage
                 } ?: return@chatMessage
 

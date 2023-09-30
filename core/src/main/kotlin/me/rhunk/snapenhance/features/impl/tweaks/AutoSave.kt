@@ -36,7 +36,7 @@ class AutoSave : MessagingRuleFeature("Auto Save", MessagingRuleType.AUTO_SAVE, 
 
     private fun saveMessage(conversationId: SnapUUID, message: Message) {
         val messageId = message.messageDescriptor.messageId
-        if (messageLogger.isMessageRemoved(conversationId.toString(), message.orderKey)) return
+        if (messageLogger.takeIf { it.isEnabled }?.isMessageDeleted(conversationId.toString(), message.messageDescriptor.messageId) == true) return
         if (message.messageState != MessageState.COMMITTED) return
 
         runCatching {

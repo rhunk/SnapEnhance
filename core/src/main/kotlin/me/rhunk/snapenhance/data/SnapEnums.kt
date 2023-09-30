@@ -1,5 +1,7 @@
 package me.rhunk.snapenhance.data
 
+import me.rhunk.snapenhance.core.util.protobuf.ProtoReader
+
 enum class MessageState {
     PREPARING, SENDING, COMMITTED, FAILED, CANCELING
 }
@@ -62,6 +64,20 @@ enum class ContentType(val id: Int) {
     companion object {
         fun fromId(i: Int): ContentType {
             return values().firstOrNull { it.id == i } ?: UNKNOWN
+        }
+
+        fun fromMessageContainer(protoReader: ProtoReader?): ContentType {
+            if (protoReader == null) return UNKNOWN
+            return when {
+                protoReader.containsPath(2) -> CHAT
+                protoReader.containsPath(11) -> SNAP
+                protoReader.containsPath(6) -> NOTE
+                protoReader.containsPath(3) -> EXTERNAL_MEDIA
+                protoReader.containsPath(4) -> STICKER
+                protoReader.containsPath(5) -> SHARE
+                protoReader.containsPath(7) -> EXTERNAL_MEDIA// story replies
+                else -> UNKNOWN
+            }
         }
     }
 }

@@ -548,6 +548,10 @@
                 "name": "Scripting",
                 "description": "Run custom scripts to extend SnapEnhance",
                 "properties": {
+                    "developer_mode": {
+                        "name": "Developer Mode",
+                        "description": "Shows debug info on Snapchat's UI"
+                    },
                     "module_folder": {
                         "name": "Module Folder",
                         "description": "The folder where the scripts are located"

@@ -14,10 +14,12 @@ import android.widget.Switch
 import me.rhunk.snapenhance.core.database.objects.ConversationMessage
 import me.rhunk.snapenhance.core.database.objects.FriendInfo
 import me.rhunk.snapenhance.core.database.objects.UserConversationLink
+import me.rhunk.snapenhance.core.util.protobuf.ProtoReader
 import me.rhunk.snapenhance.core.util.snap.BitmojiSelfie
 import me.rhunk.snapenhance.data.ContentType
 import me.rhunk.snapenhance.data.FriendLinkType
 import me.rhunk.snapenhance.features.impl.Messaging
+import me.rhunk.snapenhance.features.impl.spying.MessageLogger
 import me.rhunk.snapenhance.ui.ViewAppearanceHelper
 import me.rhunk.snapenhance.ui.applyTheme
 import me.rhunk.snapenhance.ui.menu.AbstractMenu
@@ -102,15 +104,11 @@ class FriendFeedInfoMenu : AbstractMenu() {
 
     private fun showPreview(userId: String?, conversationId: String, androidCtx: Context?) {
         //query message
-        val messages: List<ConversationMessage>? = context.database.getMessagesFromConversationId(
+        val messageLogger = context.feature(MessageLogger::class)
+        val messages: List<ConversationMessage> = context.database.getMessagesFromConversationId(
             conversationId,
             context.config.messaging.messagePreviewLength.get()
-        )?.reversed()
-
-        if (messages == null) {
-            context.longToast("Can't fetch messages")
-            return
-        }
+        )?.reversed() ?: emptyList()
 
         val participants: Map<String, FriendInfo> = context.database.getConversationParticipants(conversationId)!!
             .map { context.database.getFriendInfo(it)!! }
@@ -119,19 +117,26 @@ class FriendFeedInfoMenu : AbstractMenu() {
         val messageBuilder = StringBuilder()
 
         messages.forEach { message ->
-            val sender: FriendInfo? = participants[message.senderId]
+            val sender = participants[message.senderId]
+            val protoReader = (
+                messageLogger.takeIf { it.isEnabled }?.getMessageProto(conversationId, message.clientMessageId.toLong()) ?: ProtoReader(message.messageContent ?: return@forEach).followPath(4, 4)
+            ) ?: return@forEach
 
-            var messageString: String = message.getMessageAsString() ?: ContentType.fromId(message.contentType).name
+            val contentType = ContentType.fromMessageContainer(protoReader)
+            var messageString = if (contentType == ContentType.CHAT) {
+                protoReader.getString(2, 1) ?: return@forEach
+            } else {
+                contentType.name
+            }
 
-            if (message.contentType == ContentType.SNAP.id) {
-                val readTimeStamp: Long = message.readTimestamp
+            if (contentType == ContentType.SNAP) {
                 messageString = "\uD83D\uDFE5" //red square
-                if (readTimeStamp > 0) {
+                if (message.readTimestamp > 0) {
                     messageString += " \uD83D\uDC40 " //eyes
                     messageString += DateFormat.getDateTimeInstance(
                         DateFormat.SHORT,
                         DateFormat.SHORT
-                    ).format(Date(readTimeStamp))
+                    ).format(Date(message.readTimestamp))
                 }
             }
 
@@ -144,8 +149,7 @@ class FriendFeedInfoMenu : AbstractMenu() {
             messageBuilder.append(displayUsername).append(": ").append(messageString).append("\n")
         }
 
-        val targetPerson: FriendInfo? =
-            if (userId == null) null else participants[userId]
+        val targetPerson = if (userId == null) null else participants[userId]
 
         targetPerson?.streakExpirationTimestamp?.takeIf { it > 0 }?.let {
             val timeSecondDiff = ((it - System.currentTimeMillis()) / 1000 / 60).toInt()

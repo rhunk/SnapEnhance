@@ -40,11 +40,4 @@ data class ConversationMessage(
             senderId = getStringOrNull("sender_id")
         }
     }
-
-    fun getMessageAsString(): String? {
-        return when (ContentType.fromId(contentType)) {
-            ContentType.CHAT -> messageContent?.let { ProtoReader(it).getString(*Constants.ARROYO_STRING_CHAT_MESSAGE_PROTO) }
-            else -> null
-        }
-    }
 }

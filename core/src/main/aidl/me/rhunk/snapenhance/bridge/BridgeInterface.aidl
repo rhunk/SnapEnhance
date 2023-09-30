@@ -5,6 +5,7 @@ import me.rhunk.snapenhance.bridge.DownloadCallback;
 import me.rhunk.snapenhance.bridge.SyncCallback;
 import me.rhunk.snapenhance.bridge.scripting.IScripting;
 import me.rhunk.snapenhance.bridge.e2ee.E2eeInterface;
+import me.rhunk.snapenhance.bridge.MessageLoggerInterface;
 
 interface BridgeInterface {
     /**
@@ -17,27 +18,6 @@ interface BridgeInterface {
     * @param fileType the corresponding file type (see BridgeFileType)
     */
     byte[] fileOperation(int action, int fileType, in @nullable byte[] content);
-
-    /**
-     * Get the content of a logged message from the database
-     * @return message ids that are logged
-     */
-    long[] getLoggedMessageIds(String conversationId, int limit);
-
-    /**
-     * Get the content of a logged message from the database
-     */
-    @nullable byte[] getMessageLoggerMessage(String conversationId, long id);
-
-    /**
-     * Add a message to the message logger database
-     */
-    void addMessageLoggerMessage(String conversationId, long id, in byte[] message);
-
-    /**
-     * Delete a message from the message logger database
-     */
-    void deleteMessageLoggerMessage(String conversationId, long id);
 
     /**
     * Get the application APK path (assets for the conversation exporter)
@@ -96,6 +76,8 @@ interface BridgeInterface {
     IScripting getScriptingInterface();
 
     E2eeInterface getE2eeInterface();
+
+    MessageLoggerInterface getMessageLogger();
 
     void openSettingsOverlay();
 

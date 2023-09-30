@@ -284,7 +284,6 @@ class EndToEndEncryption : MessagingRuleFeature(
 
             if (messageTypeId == ENCRYPTED_MESSAGE_ID) {
                 runCatching {
-                    replaceMessageText("Cannot find a key to decrypt this message.")
                     eachBuffer(2) {
                         val participantIdHash = getByteArray(1) ?: return@eachBuffer
                         val iv = getByteArray(2) ?: return@eachBuffer

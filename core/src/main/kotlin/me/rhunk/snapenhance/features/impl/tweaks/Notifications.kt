@@ -220,7 +220,7 @@ class Notifications : Feature("Notifications", loadParams = FeatureLoadParams.IN
                 val snapMessage = messages.firstOrNull { message -> message.orderKey == messageId } ?: return
                 val senderUsername by lazy {
                     context.database.getFriendInfo(snapMessage.senderId.toString())?.let {
-                        it.displayName ?: it.username
+                        it.displayName ?: it.mutableUsername
                     }
                 }
 

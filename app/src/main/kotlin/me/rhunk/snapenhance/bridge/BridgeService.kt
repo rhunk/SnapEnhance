@@ -109,19 +109,6 @@ class BridgeService : Service() {
             }
         }
 
-        override fun getLoggedMessageIds(conversationId: String, limit: Int) =
-            messageLoggerWrapper.getMessageIds(conversationId, limit).toLongArray()
-
-        override fun getMessageLoggerMessage(conversationId: String, id: Long) =
-            messageLoggerWrapper.getMessage(conversationId, id).second
-
-        override fun addMessageLoggerMessage(conversationId: String, id: Long, message: ByteArray) {
-            messageLoggerWrapper.addMessage(conversationId, id, message)
-        }
-
-        override fun deleteMessageLoggerMessage(conversationId: String, id: Long) =
-            messageLoggerWrapper.deleteMessage(conversationId, id)
-
         override fun getApplicationApkPath(): String = applicationInfo.publicSourceDir
 
         override fun fetchLocales(userLocale: String) =
@@ -189,6 +176,7 @@ class BridgeService : Service() {
         override fun getScriptingInterface() = remoteSideContext.scriptManager
 
         override fun getE2eeInterface() = remoteSideContext.e2eeImplementation
+        override fun getMessageLogger() = messageLoggerWrapper
 
         override fun openSettingsOverlay() {
             runCatching {

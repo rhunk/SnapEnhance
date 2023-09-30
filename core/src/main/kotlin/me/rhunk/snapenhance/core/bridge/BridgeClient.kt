@@ -111,14 +111,6 @@ class BridgeClient(
 
     fun isFileExists(fileType: BridgeFileType) = service.fileOperation(FileActionType.EXISTS.ordinal, fileType.value, null).isNotEmpty()
 
-    fun getLoggedMessageIds(conversationId: String, limit: Int): LongArray = service.getLoggedMessageIds(conversationId, limit)
-
-    fun getMessageLoggerMessage(conversationId: String, id: Long): ByteArray? = service.getMessageLoggerMessage(conversationId, id)
-
-    fun addMessageLoggerMessage(conversationId: String, id: Long, message: ByteArray) = service.addMessageLoggerMessage(conversationId, id, message)
-
-    fun deleteMessageLoggerMessage(conversationId: String, id: Long) = service.deleteMessageLoggerMessage(conversationId, id)
-
     fun fetchLocales(userLocale: String) = service.fetchLocales(userLocale).map {
         LocalePair(it.key, it.value)
     }
@@ -147,6 +139,8 @@ class BridgeClient(
     fun getScriptingInterface(): IScripting = service.getScriptingInterface()
 
     fun getE2eeInterface(): E2eeInterface = service.getE2eeInterface()
+
+    fun getMessageLogger() = service.messageLogger
 
     fun openSettingsOverlay() = service.openSettingsOverlay()
     fun closeSettingsOverlay() = service.closeSettingsOverlay()
