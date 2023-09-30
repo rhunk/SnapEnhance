@@ -78,8 +78,7 @@ class ChatActionMenu : AbstractMenu() {
             setMessage(text)
             setPositiveButton("OK") { dialog, _ -> dialog.dismiss() }
             setNegativeButton("Copy") { _, _ ->
-                val clipboardManager = context.getSystemService(Context.CLIPBOARD_SERVICE) as android.content.ClipboardManager
-                clipboardManager.setPrimaryClip(android.content.ClipData.newPlainText("debug", text))
+                this@ChatActionMenu.context.copyToClipboard(text, title)
             }
         }.show()
     }
@@ -173,8 +172,7 @@ class ChatActionMenu : AbstractMenu() {
                 val debugText = StringBuilder()
 
                 setOnClickListener {
-                    val clipboardManager = context.getSystemService(android.content.Context.CLIPBOARD_SERVICE) as android.content.ClipboardManager
-                    clipboardManager.setPrimaryClip(android.content.ClipData.newPlainText("debug", debugText.toString()))
+                    this@ChatActionMenu.context.copyToClipboard(debugText.toString(), "debug")
                 }
 
                 addView(TextView(viewGroup.context).apply {

@@ -1,6 +1,7 @@
 package me.rhunk.snapenhance
 
 import android.app.Activity
+import android.content.ClipData
 import android.content.Context
 import android.content.Intent
 import android.content.res.Resources
@@ -137,5 +138,9 @@ class ModContext {
 
     fun getConfigLocale(): String {
         return _config.locale
+    }
+
+    fun copyToClipboard(data: String, label: String = "Copied Text") {
+        androidContext.getSystemService(android.content.ClipboardManager::class.java).setPrimaryClip(ClipData.newPlainText(label, data))
     }
 }

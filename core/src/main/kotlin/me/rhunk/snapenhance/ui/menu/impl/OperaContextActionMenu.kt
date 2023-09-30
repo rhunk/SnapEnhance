@@ -68,11 +68,23 @@ class OperaContextActionMenu : AbstractMenu() {
                     ViewGroup.LayoutParams.MATCH_PARENT,
                     ViewGroup.LayoutParams.MATCH_PARENT
                 )
-            val button = Button(childView.getContext())
-            button.text = context.translation["opera_context_menu.download"]
-            button.setOnClickListener { context.feature(MediaDownloader::class).downloadLastOperaMediaAsync() }
-            button.applyTheme(isAmoled = false)
-            linearLayout.addView(button)
+            val translation = context.translation
+            val mediaDownloader = context.feature(MediaDownloader::class)
+
+            linearLayout.addView(Button(childView.getContext()).apply {
+                text = translation["opera_context_menu.download"]
+                setOnClickListener { mediaDownloader.downloadLastOperaMediaAsync() }
+                applyTheme(isAmoled = false)
+            })
+
+            if (context.isDeveloper) {
+                linearLayout.addView(Button(childView.getContext()).apply {
+                    text = "Show debug info"
+                    setOnClickListener { mediaDownloader.showLastOperaDebugMediaInfo() }
+                    applyTheme(isAmoled = false)
+                })
+            }
+
             (childView as ViewGroup).addView(linearLayout, 0)
         } catch (e: Throwable) {
             context.log.error("Error while injecting OperaContextActionMenu", e)

@@ -4,8 +4,10 @@ import android.annotation.SuppressLint
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import android.net.Uri
+import android.text.InputType
 import android.view.Gravity
 import android.view.ViewGroup.MarginLayoutParams
+import android.widget.EditText
 import android.widget.ImageView
 import android.widget.LinearLayout
 import android.widget.ProgressBar
@@ -13,16 +15,12 @@ import android.widget.TextView
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.async
 import kotlinx.coroutines.runBlocking
+import me.rhunk.snapenhance.SnapEnhance
 import me.rhunk.snapenhance.bridge.DownloadCallback
 import me.rhunk.snapenhance.core.database.objects.ConversationMessage
 import me.rhunk.snapenhance.core.database.objects.FriendInfo
 import me.rhunk.snapenhance.core.download.DownloadManagerClient
-import me.rhunk.snapenhance.core.download.data.DownloadMediaType
-import me.rhunk.snapenhance.core.download.data.DownloadMetadata
-import me.rhunk.snapenhance.core.download.data.InputMedia
-import me.rhunk.snapenhance.core.download.data.MediaDownloadSource
-import me.rhunk.snapenhance.core.download.data.SplitMediaAssetType
-import me.rhunk.snapenhance.core.download.data.toKeyPair
+import me.rhunk.snapenhance.core.download.data.*
 import me.rhunk.snapenhance.core.messaging.MessagingRuleType
 import me.rhunk.snapenhance.core.util.download.RemoteMediaResolver
 import me.rhunk.snapenhance.core.util.ktx.getObjectField
@@ -31,6 +29,7 @@ import me.rhunk.snapenhance.core.util.snap.BitmojiSelfie
 import me.rhunk.snapenhance.core.util.snap.MediaDownloaderHelper
 import me.rhunk.snapenhance.core.util.snap.PreviewUtils
 import me.rhunk.snapenhance.data.FileType
+import me.rhunk.snapenhance.data.wrapper.impl.SnapUUID
 import me.rhunk.snapenhance.data.wrapper.impl.media.MediaInfo
 import me.rhunk.snapenhance.data.wrapper.impl.media.dash.LongformVideoPlaylistItem
 import me.rhunk.snapenhance.data.wrapper.impl.media.dash.SnapPlaylistItem
@@ -176,6 +175,42 @@ class MediaDownloader : MessagingRuleFeature("MediaDownloader", MessagingRuleTyp
         if (lastSeenMapParams == null || lastSeenMediaInfoMap == null) return
         context.executeAsync {
             handleOperaMedia(lastSeenMapParams!!, lastSeenMediaInfoMap!!, true)
+        }
+    }
+
+    fun showLastOperaDebugMediaInfo() {
+        if (lastSeenMapParams == null || lastSeenMediaInfoMap == null) return
+
+        context.runOnUiThread {
+            val mediaInfoText = lastSeenMapParams?.concurrentHashMap?.map { (key, value) ->
+                val transformedValue = value.let {
+                    if (it::class.java == SnapEnhance.classCache.snapUUID) {
+                        SnapUUID(it).toString()
+                    }
+                    it
+                }
+                "- $key: $transformedValue"
+            }?.joinToString("\n") ?: "No media info found"
+
+            ViewAppearanceHelper.newAlertDialogBuilder(context.mainActivity!!).apply {
+                setTitle("Debug Media Info")
+                setView(EditText(context).apply {
+                    inputType = InputType.TYPE_NULL
+                    setTextIsSelectable(true)
+                    isSingleLine = false
+                    textSize = 12f
+                    setPadding(20, 20, 20, 20)
+                    setText(mediaInfoText)
+                    setTextColor(context.resources.getColor(android.R.color.white, context.theme))
+                })
+                setNeutralButton("Copy") { _, _ ->
+                    this@MediaDownloader.context.copyToClipboard(mediaInfoText)
+                }
+                setPositiveButton("Download") { _, _ ->
+                    downloadLastOperaMediaAsync()
+                }
+                setNegativeButton("Cancel") { dialog, _ -> dialog.dismiss() }
+            }.show()
         }
     }
 
