@@ -5,6 +5,7 @@ import me.rhunk.snapenhance.bridge.e2ee.E2eeInterface
 import me.rhunk.snapenhance.bridge.e2ee.EncryptionResult
 import org.bouncycastle.pqc.crypto.crystals.kyber.*
 import java.io.File
+import java.security.MessageDigest
 import java.security.SecureRandom
 import javax.crypto.Cipher
 import javax.crypto.spec.IvParameterSpec
@@ -113,6 +114,21 @@ class E2EEImplementation (
 
     override fun friendKeyExists(friendId: String): Boolean {
         return File(e2eeFolder, "$friendId.key").exists()
+    }
+
+    override fun getSecretFingerprint(friendId: String): String? {
+        val sharedSecretKey = runCatching {
+            File(e2eeFolder, "$friendId.key").readBytes()
+        }.onFailure {
+            context.log.error("Failed to read shared secret key", it)
+            return null
+        }.getOrThrow()
+
+        return MessageDigest.getInstance("SHA-256")
+            .digest(sharedSecretKey)
+            .joinToString("") { "%02x".format(it) }
+            .chunked(5)
+            .joinToString(" ")
     }
 
     override fun encryptMessage(friendId: String, message: ByteArray): EncryptionResult? {

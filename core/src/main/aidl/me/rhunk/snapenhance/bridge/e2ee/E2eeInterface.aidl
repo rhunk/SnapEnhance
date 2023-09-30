@@ -26,7 +26,19 @@ interface E2eeInterface {
     */
     boolean acceptPairingResponse(String friendId, in byte[] encapsulatedSecret);
 
+    /**
+    * Check if a friend key exists
+    * @param friendId
+    * @return true if the friend key exists
+    */
     boolean friendKeyExists(String friendId);
+
+    /**
+    * Get the fingerprint of a secret key
+    * @param friendId
+    * @return the fingerprint of the secret key
+    */
+    @nullable String getSecretFingerprint(String friendId);
 
     @nullable EncryptionResult encryptMessage(String friendId, in byte[] message);
 

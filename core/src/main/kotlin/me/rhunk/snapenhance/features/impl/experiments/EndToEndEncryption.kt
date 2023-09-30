@@ -153,21 +153,35 @@ class EndToEndEncryption : MessagingRuleFeature(
 
     private fun openManagementPopup() {
         val conversationId = context.feature(Messaging::class).openedConversationUUID?.toString() ?: return
+        val friendId = context.database.getDMOtherParticipant(conversationId)
 
-        if (context.database.getDMOtherParticipant(conversationId) == null) {
+        if (friendId == null) {
             context.shortToast("This menu is only available in direct messages.")
             return
         }
 
         val actions = listOf(
-            "Initiate a new shared secret"
+            "Initiate a new shared secret",
+            "Show shared key fingerprint"
         )
 
         ViewAppearanceHelper.newAlertDialogBuilder(context.mainActivity!!).apply {
             setTitle("End-to-end encryption")
             setItems(actions.toTypedArray()) { _, which ->
                 when (which) {
-                    0 -> askForKeys(conversationId)
+                    0 -> {
+                        warnKeyOverwrite(friendId) {
+                            askForKeys(conversationId)
+                        }
+                    }
+                    1 -> {
+                        val fingerprint = e2eeInterface.getSecretFingerprint(friendId)
+                        ViewAppearanceHelper.newAlertDialogBuilder(context).apply {
+                            setTitle("End-to-end encryption")
+                            setMessage("Your fingerprint is:\n\n$fingerprint\n\nMake sure to check if it matches your friend's fingerprint!")
+                            setPositiveButton("OK") { _, _ -> }
+                        }.show()
+                    }
                 }
             }
             setPositiveButton("OK") { _, _ -> }
