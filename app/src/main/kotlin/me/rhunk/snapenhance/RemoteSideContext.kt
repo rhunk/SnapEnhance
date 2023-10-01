@@ -26,12 +26,12 @@ import me.rhunk.snapenhance.e2ee.E2EEImplementation
 import me.rhunk.snapenhance.messaging.ModDatabase
 import me.rhunk.snapenhance.messaging.StreaksReminder
 import me.rhunk.snapenhance.scripting.RemoteScriptManager
-import me.rhunk.snapenhance.ui.overlay.SettingsOverlay
 import me.rhunk.snapenhance.ui.manager.MainActivity
 import me.rhunk.snapenhance.ui.manager.data.InstallationSummary
 import me.rhunk.snapenhance.ui.manager.data.ModInfo
 import me.rhunk.snapenhance.ui.manager.data.PlatformInfo
 import me.rhunk.snapenhance.ui.manager.data.SnapchatAppInfo
+import me.rhunk.snapenhance.ui.overlay.SettingsOverlay
 import me.rhunk.snapenhance.ui.setup.Requirements
 import me.rhunk.snapenhance.ui.setup.SetupActivity
 import java.io.ByteArrayInputStream
@@ -43,6 +43,8 @@ import java.security.cert.X509Certificate
 class RemoteSideContext(
     val androidContext: Context
 ) {
+    val coroutineScope = CoroutineScope(Dispatchers.IO)
+
     private var _activity: WeakReference<ComponentActivity>? = null
     lateinit var bridgeService: BridgeService
 
@@ -78,7 +80,6 @@ class RemoteSideContext(
             }
             .components { add(VideoFrameDecoder.Factory()) }.build()
     }
-    val coroutineScope = CoroutineScope(Dispatchers.IO)
 
     fun reload() {
         log.verbose("Loading RemoteSideContext")

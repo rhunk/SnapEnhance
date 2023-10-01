@@ -5,7 +5,6 @@ import android.content.DialogInterface
 import android.os.Environment
 import android.text.InputType
 import android.widget.EditText
-import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.joinAll
@@ -44,8 +43,6 @@ class ExportChatMessages : AbstractAction() {
         context.feature(Messaging::class).conversationManager
     }
 
-    private val coroutineScope = CoroutineScope(Dispatchers.Default)
-
     private val dialogLogs = mutableListOf<String>()
     private var currentActionDialog: AlertDialog? = null
 
@@ -83,7 +80,7 @@ class ExportChatMessages : AbstractAction() {
     }
 
     private suspend fun askAmountOfMessages() = suspendCancellableCoroutine { cont ->
-        coroutineScope.launch(Dispatchers.Main) {
+        context.coroutineScope.launch(Dispatchers.Main) {
             val input = EditText(context.mainActivity)
             input.inputType = InputType.TYPE_CLASS_NUMBER
             input.setSingleLine()
@@ -132,7 +129,7 @@ class ExportChatMessages : AbstractAction() {
     }
 
     override fun run() {
-        coroutineScope.launch(Dispatchers.Main) {
+        context.coroutineScope.launch(Dispatchers.Main) {
             exportType = askExportType() ?: return@launch
             mediaToDownload = if (exportType == ExportFormat.HTML) askMediaToDownload() else null
             amountOfMessages = askAmountOfMessages()
@@ -289,7 +286,7 @@ class ExportChatMessages : AbstractAction() {
         
         logDialog(conversationSize)
 
-        coroutineScope.launch {
+        context.coroutineScope.launch {
             conversations.forEach { conversation ->
                 launch {
                     runCatching {

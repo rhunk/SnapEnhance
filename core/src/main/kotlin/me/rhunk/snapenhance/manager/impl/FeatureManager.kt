@@ -1,5 +1,7 @@
 package me.rhunk.snapenhance.manager.impl
 
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.runBlocking
 import me.rhunk.snapenhance.ModContext
 import me.rhunk.snapenhance.core.Logger
 import me.rhunk.snapenhance.features.Feature
@@ -24,22 +26,31 @@ import me.rhunk.snapenhance.features.impl.ui.PinConversations
 import me.rhunk.snapenhance.features.impl.ui.UITweaks
 import me.rhunk.snapenhance.manager.Manager
 import me.rhunk.snapenhance.ui.menu.impl.MenuViewInjector
-import java.util.concurrent.Executors
 import kotlin.reflect.KClass
+import kotlin.system.measureTimeMillis
 
-class FeatureManager(private val context: ModContext) : Manager {
-    private val asyncLoadExecutorService = Executors.newFixedThreadPool(5)
+class FeatureManager(
+    private val context: ModContext
+) : Manager {
     private val features = mutableListOf<Feature>()
 
     private fun register(vararg featureClasses: KClass<out Feature>) {
-        featureClasses.forEach { clazz ->
-            runCatching {
-                clazz.constructors.first().call().also { feature ->
-                    feature.context = context
-                    features.add(feature)
+        runBlocking {
+            featureClasses.forEach { clazz ->
+                context.coroutineScope.launch {
+                    runCatching {
+                        clazz.java.constructors.first().newInstance()
+                            .let { it as Feature }
+                            .also {
+                                it.context = context
+                                synchronized(features) {
+                                    features.add(it)
+                                }
+                            }
+                    }.onFailure {
+                        Logger.xposedLog("Failed to register feature ${clazz.simpleName}", it)
+                    }
                 }
-            }.onFailure {
-                Logger.xposedLog("Failed to register feature ${clazz.simpleName}", it)
             }
         }
     }
@@ -95,34 +106,61 @@ class FeatureManager(private val context: ModContext) : Manager {
         initializeFeatures()
     }
 
-    private fun featureInitializer(isAsync: Boolean, param: Int, action: (Feature) -> Unit) {
-        features.filter { it.loadParams and param != 0 }.forEach { feature ->
-            val callback = {
-                runCatching {
-                    action(feature)
-                }.onFailure {
-                    context.log.error("Failed to init feature ${feature.featureKey}", it)
-                    context.longToast("Failed to load feature ${feature.featureKey}! Check logcat for more details.")
+    private fun initFeatures(
+        syncParam: Int,
+        asyncParam: Int,
+        syncAction: (Feature) -> Unit,
+        asyncAction: (Feature) -> Unit
+    ) {
+        fun tryInit(feature: Feature, block: () -> Unit) {
+            runCatching {
+                block()
+            }.onFailure {
+                context.log.error("Failed to init feature ${feature.featureKey}", it)
+                context.longToast("Failed to init feature ${feature.featureKey}! Check logcat for more details.")
+            }
+        }
+
+        features.toList().forEach { feature ->
+            if (feature.loadParams and syncParam != 0) {
+                tryInit(feature) {
+                    syncAction(feature)
                 }
             }
-            if (!isAsync) {
-                callback()
-                return@forEach
-            }
-            asyncLoadExecutorService.submit {
-                callback()
+            if (feature.loadParams and asyncParam != 0) {
+                context.coroutineScope.launch {
+                    tryInit(feature) {
+                        asyncAction(feature)
+                    }
+                }
             }
         }
     }
 
     private fun initializeFeatures() {
         //TODO: async called when all features are initiated ?
-        featureInitializer(false, FeatureLoadParams.INIT_SYNC) { it.init() }
-        featureInitializer(true, FeatureLoadParams.INIT_ASYNC) { it.asyncInit() }
+        measureTimeMillis {
+            initFeatures(
+                FeatureLoadParams.INIT_SYNC,
+                FeatureLoadParams.INIT_ASYNC,
+                Feature::init,
+                Feature::asyncInit
+            )
+        }.also {
+            context.log.verbose("feature manager init took $it ms")
+        }
     }
 
     override fun onActivityCreate() {
-        featureInitializer(false, FeatureLoadParams.ACTIVITY_CREATE_SYNC) { it.onActivityCreate() }
-        featureInitializer(true, FeatureLoadParams.ACTIVITY_CREATE_ASYNC) { it.asyncOnActivityCreate() }
+        measureTimeMillis {
+            initFeatures(
+                FeatureLoadParams.ACTIVITY_CREATE_SYNC,
+                FeatureLoadParams.ACTIVITY_CREATE_ASYNC,
+                Feature::onActivityCreate,
+                Feature::asyncOnActivityCreate
+            )
+        }.also {
+            context.log.verbose("feature manager onActivityCreate took $it ms")
+        }
     }
 }

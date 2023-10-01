@@ -11,6 +11,9 @@ import android.os.Process
 import android.widget.Toast
 import com.google.gson.Gson
 import com.google.gson.GsonBuilder
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 import me.rhunk.snapenhance.core.Logger
 import me.rhunk.snapenhance.core.bridge.BridgeClient
 import me.rhunk.snapenhance.core.bridge.wrapper.LocaleWrapper
@@ -27,13 +30,11 @@ import me.rhunk.snapenhance.manager.impl.FeatureManager
 import me.rhunk.snapenhance.nativelib.NativeConfig
 import me.rhunk.snapenhance.nativelib.NativeLib
 import me.rhunk.snapenhance.scripting.core.CoreScriptRuntime
-import java.util.concurrent.ExecutorService
-import java.util.concurrent.Executors
 import kotlin.reflect.KClass
 import kotlin.system.exitProcess
 
 class ModContext {
-    private val executorService: ExecutorService = Executors.newCachedThreadPool()
+    val coroutineScope = CoroutineScope(Dispatchers.IO)
 
     lateinit var androidContext: Context
     lateinit var bridgeClient: BridgeClient
@@ -73,13 +74,13 @@ class ModContext {
         }
     }
 
-    fun executeAsync(runnable: ModContext.() -> Unit) {
-        executorService.submit {
+    fun executeAsync(runnable: suspend ModContext.() -> Unit) {
+        coroutineScope.launch {
             runCatching {
                 runnable()
             }.onFailure {
                 longToast("Async task failed " + it.message)
-                Logger.xposedLog("Async task failed", it)
+                log.error("Async task failed", it)
             }
         }
     }

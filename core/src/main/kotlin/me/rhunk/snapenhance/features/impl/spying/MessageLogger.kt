@@ -18,8 +18,7 @@ import me.rhunk.snapenhance.features.FeatureLoadParams
 import me.rhunk.snapenhance.ui.addForegroundDrawable
 import me.rhunk.snapenhance.ui.removeForegroundDrawable
 import java.util.concurrent.Executors
-import kotlin.time.ExperimentalTime
-import kotlin.time.measureTime
+import kotlin.system.measureTimeMillis
 
 private fun Any.longHashCode(): Long {
     var h = 1125899906842597L
@@ -91,17 +90,16 @@ class MessageLogger : Feature("MessageLogger",
         return computeMessageIdentifier(conversationId, serverMessageId)
     }
 
-    @OptIn(ExperimentalTime::class)
     override fun asyncOnActivityCreate() {
         if (!isEnabled || !context.database.hasArroyo()) {
             return
         }
 
-        measureTime {
+        measureTimeMillis {
             val conversationIds = context.database.getFeedEntries(PREFETCH_FEED_COUNT).map { it.key!! }
-            if (conversationIds.isEmpty()) return@measureTime
+            if (conversationIds.isEmpty()) return@measureTimeMillis
             fetchedMessages.addAll(messageLoggerInterface.getLoggedIds(conversationIds.toTypedArray(), PREFETCH_MESSAGE_COUNT).toList())
-        }.also { context.log.verbose("Loaded ${fetchedMessages.size} cached messages in $it") }
+        }.also { context.log.verbose("Loaded ${fetchedMessages.size} cached messages in ${it}ms") }
     }
 
     override fun init() {

@@ -3,6 +3,10 @@ package me.rhunk.snapenhance
 import android.app.Activity
 import android.app.Application
 import android.content.Context
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.runBlocking
 import me.rhunk.snapenhance.bridge.SyncCallback
 import me.rhunk.snapenhance.core.Logger
 import me.rhunk.snapenhance.core.bridge.BridgeClient
@@ -13,8 +17,7 @@ import me.rhunk.snapenhance.core.messaging.MessagingGroupInfo
 import me.rhunk.snapenhance.data.SnapClassCache
 import me.rhunk.snapenhance.hook.HookStage
 import me.rhunk.snapenhance.hook.hook
-import kotlin.time.ExperimentalTime
-import kotlin.time.measureTime
+import kotlin.system.measureTimeMillis
 
 
 class SnapEnhance {
@@ -55,7 +58,13 @@ class SnapEnhance {
                             return@connect
                         }
                         runCatching {
-                            init()
+                            measureTimeMillis {
+                                runBlocking {
+                                    init(this)
+                                }
+                            }.also {
+                                appContext.log.verbose("init took ${it}ms")
+                            }
                         }.onSuccess {
                             isBridgeInitialized = true
                         }.onFailure {
@@ -92,34 +101,28 @@ class SnapEnhance {
         }
     }
 
-    @OptIn(ExperimentalTime::class)
-    private fun init() {
-        measureTime {
-            with(appContext) {
-                reloadConfig()
+    private fun init(scope: CoroutineScope) {
+        with(appContext) {
+            reloadConfig()
+            scope.launch(Dispatchers.IO) {
                 initNative()
-                executeAsync {
-                    translation.userLocale = getConfigLocale()
-                    translation.loadFromBridge(bridgeClient)
-                }
-
-                mappings.loadFromBridge(bridgeClient)
-                mappings.init(androidContext)
-                eventDispatcher.init()
-                //if mappings aren't loaded, we can't initialize features
-                if (!mappings.isMappingsLoaded()) return
-                features.init()
-                syncRemote()
-                scriptRuntime.connect(bridgeClient.getScriptingInterface())
+                translation.userLocale = getConfigLocale()
+                translation.loadFromBridge(bridgeClient)
             }
-        }.also { time ->
-            appContext.log.verbose("init took $time")
+
+            mappings.loadFromBridge(bridgeClient)
+            mappings.init(androidContext)
+            eventDispatcher.init()
+            //if mappings aren't loaded, we can't initialize features
+            if (!mappings.isMappingsLoaded()) return
+            features.init()
+            scriptRuntime.connect(bridgeClient.getScriptingInterface())
+            syncRemote()
         }
     }
 
-    @OptIn(ExperimentalTime::class)
     private fun onActivityCreate() {
-        measureTime {
+        measureTimeMillis {
             with(appContext) {
                 features.onActivityCreate()
                 actionManager.init()

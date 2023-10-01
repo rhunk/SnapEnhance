@@ -1,6 +1,8 @@
 package me.rhunk.snapenhance.features.impl
 
-import kotlinx.coroutines.*
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 import me.rhunk.snapenhance.core.event.events.impl.SendMessageWithContentEvent
 import me.rhunk.snapenhance.core.messaging.SocialScope
 import me.rhunk.snapenhance.data.ContentType
@@ -13,7 +15,6 @@ class ScopeSync : Feature("Scope Sync", loadParams = FeatureLoadParams.INIT_SYNC
     }
 
     private val updateJobs = mutableMapOf<String, Job>()
-    private val coroutineScope = CoroutineScope(Dispatchers.Main)
 
     private fun sync(conversationId: String) {
         context.database.getDMOtherParticipant(conversationId)?.also { participant ->
@@ -31,7 +32,7 @@ class ScopeSync : Feature("Scope Sync", loadParams = FeatureLoadParams.INIT_SYNC
                 event.destinations.conversations.map { it.toString() }.forEach { conversationId ->
                     updateJobs[conversationId]?.also { it.cancel() }
 
-                    updateJobs[conversationId] = (coroutineScope.launch {
+                    updateJobs[conversationId] = (context.coroutineScope.launch {
                         delay(DELAY_BEFORE_SYNC)
                         sync(conversationId)
                     })
