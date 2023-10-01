@@ -189,7 +189,7 @@ class ChatActionMenu : AbstractMenu() {
                                 append("arroyo_content_type: ${ContentType.fromId(arroyoMessage.contentType)} (${arroyoMessage.contentType})\n")
                                 append("parsed_content_type: ${ContentType.fromMessageContainer(
                                     ProtoReader(arroyoMessage.messageContent!!).followPath(4, 4)
-                                ).let { "$it (${it.id})" }}\n")
+                                ).let { "$it (${it?.id})" }}\n")
                                 append("creation_timestamp: ${arroyoMessage.creationTimestamp} (${Instant.ofEpochMilli(arroyoMessage.creationTimestamp)})\n")
                                 append("read_timestamp: ${arroyoMessage.readTimestamp} (${Instant.ofEpochMilli(arroyoMessage.readTimestamp)})\n")
                                 append("is_messagelogger_deleted: ${messageLogger.isMessageDeleted(arroyoMessage.clientConversationId!!, arroyoMessage.clientMessageId.toLong())}\n")

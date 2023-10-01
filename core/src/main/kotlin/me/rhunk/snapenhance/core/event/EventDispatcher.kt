@@ -9,6 +9,7 @@ import me.rhunk.snapenhance.core.event.events.impl.*
 import me.rhunk.snapenhance.core.util.ktx.getObjectField
 import me.rhunk.snapenhance.core.util.ktx.setObjectField
 import me.rhunk.snapenhance.core.util.snap.SnapWidgetBroadcastReceiverHelper
+import me.rhunk.snapenhance.data.wrapper.impl.Message
 import me.rhunk.snapenhance.data.wrapper.impl.MessageContent
 import me.rhunk.snapenhance.data.wrapper.impl.MessageDestinations
 import me.rhunk.snapenhance.data.wrapper.impl.SnapUUID
@@ -141,6 +142,14 @@ class EventDispatcher(
                 request.setObjectField("mUrl", url)
                 postHookEvent()
             }
+        }
+
+        context.classCache.message.hookConstructor(HookStage.AFTER) { param ->
+            context.event.post(
+                BuildMessageEvent(
+                    message = Message(param.thisObject())
+                )
+            )
         }
 
         hookViewBinder()

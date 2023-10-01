@@ -122,7 +122,7 @@ class FriendFeedInfoMenu : AbstractMenu() {
                 messageLogger.takeIf { it.isEnabled }?.getMessageProto(conversationId, message.clientMessageId.toLong()) ?: ProtoReader(message.messageContent ?: return@forEach).followPath(4, 4)
             ) ?: return@forEach
 
-            val contentType = ContentType.fromMessageContainer(protoReader)
+            val contentType = ContentType.fromMessageContainer(protoReader) ?: ContentType.fromId(message.contentType)
             var messageString = if (contentType == ContentType.CHAT) {
                 protoReader.getString(2, 1) ?: return@forEach
             } else {

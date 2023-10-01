@@ -15,18 +15,19 @@ interface IListener<T> {
 class EventBus(
     val context: ModContext
 ) {
-    private val subscribers = mutableMapOf<KClass<out Event>, MutableList<IListener<out Event>>>()
+    private val subscribers = mutableMapOf<KClass<out Event>, MutableMap<Int, IListener<out Event>>>()
 
-    fun <T : Event> subscribe(event: KClass<T>, listener: IListener<T>) {
+    fun <T : Event> subscribe(event: KClass<T>, listener: IListener<T>, priority: Int? = null) {
         if (!subscribers.containsKey(event)) {
-            subscribers[event] = mutableListOf()
+            subscribers[event] = sortedMapOf()
         }
-        subscribers[event]!!.add(listener)
+        val lastSubscriber = subscribers[event]?.keys?.lastOrNull() ?: 0
+        subscribers[event]?.put(priority ?: (lastSubscriber + 1), listener)
     }
 
-    inline fun <T : Event> subscribe(event: KClass<T>, crossinline listener: (T) -> Unit) = subscribe(event, { true }, listener)
+    inline fun <T : Event> subscribe(event: KClass<T>, priority: Int? = null, crossinline listener: (T) -> Unit) = subscribe(event, { true }, priority, listener)
 
-    inline fun <T : Event> subscribe(event: KClass<T>, crossinline filter: (T) -> Boolean, crossinline listener: (T) -> Unit): () -> Unit {
+    inline fun <T : Event> subscribe(event: KClass<T>,  crossinline filter: (T) -> Boolean, priority: Int? = null, crossinline listener: (T) -> Unit): () -> Unit {
         val obj = object : IListener<T> {
             override fun handle(event: T) {
                 if (!filter(event)) return
@@ -37,15 +38,12 @@ class EventBus(
                 }
             }
         }
-        subscribe(event, obj)
+        subscribe(event, obj, priority)
         return { unsubscribe(event, obj) }
     }
 
     fun <T : Event> unsubscribe(event: KClass<T>, listener: IListener<T>) {
-        if (!subscribers.containsKey(event)) {
-            return
-        }
-        subscribers[event]!!.remove(listener)
+        subscribers[event]?.values?.remove(listener)
     }
 
     fun <T : Event> post(event: T, afterBlock: T.() -> Unit = {}): T? {
@@ -55,7 +53,7 @@ class EventBus(
 
         event.context = context
 
-        subscribers[event::class]?.toTypedArray()?.forEach { listener ->
+        subscribers[event::class]?.toSortedMap()?.forEach { (_, listener) ->
             @Suppress("UNCHECKED_CAST")
             runCatching {
                 (listener as IListener<T>).handle(event)

@@ -1,34 +1,32 @@
 package me.rhunk.snapenhance.features.impl.tweaks
 
+import me.rhunk.snapenhance.core.event.events.impl.BuildMessageEvent
 import me.rhunk.snapenhance.core.util.protobuf.ProtoEditor
 import me.rhunk.snapenhance.core.util.protobuf.ProtoReader
 import me.rhunk.snapenhance.data.ContentType
 import me.rhunk.snapenhance.data.MessageState
-import me.rhunk.snapenhance.data.wrapper.impl.Message
 import me.rhunk.snapenhance.features.Feature
 import me.rhunk.snapenhance.features.FeatureLoadParams
-import me.rhunk.snapenhance.hook.HookStage
-import me.rhunk.snapenhance.hook.hookConstructor
 
 class UnlimitedSnapViewTime :
-    Feature("UnlimitedSnapViewTime", loadParams = FeatureLoadParams.ACTIVITY_CREATE_SYNC) {
-    override fun onActivityCreate() {
+    Feature("UnlimitedSnapViewTime", loadParams = FeatureLoadParams.ACTIVITY_CREATE_ASYNC) {
+    override fun asyncOnActivityCreate() {
         val state by context.config.messaging.unlimitedSnapViewTime
-        context.classCache.message.hookConstructor(HookStage.AFTER, { state }) { param ->
-            val message = Message(param.thisObject())
-            if (message.messageState != MessageState.COMMITTED) return@hookConstructor
-            if (message.messageContent.contentType != ContentType.SNAP) return@hookConstructor
 
-            with(message.messageContent) {
-                val mediaAttributes = ProtoReader(this.content).followPath(11, 5, 2) ?: return@hookConstructor
-                if (mediaAttributes.contains(6)) return@hookConstructor
-                this.content = ProtoEditor(this.content).apply {
-                    edit(11, 5, 2) {
-                        remove(8)
-                        addBuffer(6, byteArrayOf())
-                    }
-                }.toByteArray()
-            }
+        context.event.subscribe(BuildMessageEvent::class, { state }, priority = 101) { event ->
+            if (event.message.messageState != MessageState.COMMITTED) return@subscribe
+            if (event.message.messageContent.contentType != ContentType.SNAP) return@subscribe
+
+            val messageContent = event.message.messageContent
+
+            val mediaAttributes = ProtoReader(messageContent.content).followPath(11, 5, 2) ?: return@subscribe
+            if (mediaAttributes.contains(6)) return@subscribe
+            messageContent.content = ProtoEditor(messageContent.content).apply {
+                edit(11, 5, 2) {
+                    remove(8)
+                    addBuffer(6, byteArrayOf())
+                }
+            }.toByteArray()
         }
     }
 }

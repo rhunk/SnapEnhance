@@ -3,7 +3,6 @@ package me.rhunk.snapenhance.features.impl.experiments
 import android.annotation.SuppressLint
 import android.graphics.Canvas
 import android.graphics.Paint
-import android.graphics.Rect
 import android.graphics.drawable.ShapeDrawable
 import android.graphics.drawable.shapes.Shape
 import android.view.View
@@ -14,23 +13,22 @@ import android.widget.Button
 import android.widget.TextView
 import me.rhunk.snapenhance.core.event.events.impl.AddViewEvent
 import me.rhunk.snapenhance.core.event.events.impl.BindViewEvent
+import me.rhunk.snapenhance.core.event.events.impl.BuildMessageEvent
 import me.rhunk.snapenhance.core.event.events.impl.SendMessageWithContentEvent
 import me.rhunk.snapenhance.core.event.events.impl.UnaryCallEvent
 import me.rhunk.snapenhance.core.messaging.MessagingRuleType
 import me.rhunk.snapenhance.core.messaging.RuleState
+import me.rhunk.snapenhance.core.util.EvictingMap
 import me.rhunk.snapenhance.core.util.ktx.getObjectField
 import me.rhunk.snapenhance.core.util.protobuf.ProtoEditor
 import me.rhunk.snapenhance.core.util.protobuf.ProtoReader
 import me.rhunk.snapenhance.core.util.protobuf.ProtoWriter
 import me.rhunk.snapenhance.data.ContentType
-import me.rhunk.snapenhance.data.wrapper.impl.Message
 import me.rhunk.snapenhance.data.wrapper.impl.MessageContent
 import me.rhunk.snapenhance.data.wrapper.impl.SnapUUID
 import me.rhunk.snapenhance.features.FeatureLoadParams
 import me.rhunk.snapenhance.features.MessagingRuleFeature
 import me.rhunk.snapenhance.features.impl.Messaging
-import me.rhunk.snapenhance.hook.HookStage
-import me.rhunk.snapenhance.hook.hookConstructor
 import me.rhunk.snapenhance.ui.ViewAppearanceHelper
 import me.rhunk.snapenhance.ui.addForegroundDrawable
 import me.rhunk.snapenhance.ui.removeForegroundDrawable
@@ -50,6 +48,8 @@ class EndToEndEncryption : MessagingRuleFeature(
         const val RESPONSE_SK_MESSAGE_ID = 2
         const val ENCRYPTED_MESSAGE_ID = 3
     }
+
+    private val decryptedMessageCache = EvictingMap<Long, Pair<ContentType, ByteArray>>(100)
 
     private val pkRequests = mutableMapOf<Long, ByteArray>()
     private val secretResponses = mutableMapOf<Long, ByteArray>()
@@ -258,17 +258,8 @@ class EndToEndEncryption : MessagingRuleFeature(
         }
     }
 
-    private fun fixContentType(contentType: ContentType, message: ProtoReader): ContentType {
-        return when {
-            contentType == ContentType.EXTERNAL_MEDIA && message.containsPath(11) -> {
-                ContentType.SNAP
-            }
-            contentType == ContentType.SHARE && message.containsPath(2) -> {
-                ContentType.CHAT
-            }
-            else -> contentType
-        }
-    }
+    private fun fixContentType(contentType: ContentType?, message: ProtoReader)
+        = ContentType.fromMessageContainer(message) ?: contentType
 
     private fun hashParticipantId(participantId: String, salt: ByteArray): ByteArray {
         return MessageDigest.getInstance("SHA-256").apply {
@@ -278,7 +269,21 @@ class EndToEndEncryption : MessagingRuleFeature(
     }
 
     private fun messageHook(conversationId: String, messageId: Long, senderId: String, messageContent: MessageContent) {
+        if (messageContent.contentType != ContentType.STATUS && decryptedMessageCache.containsKey(messageId)) {
+            val (contentType, buffer) = decryptedMessageCache[messageId]!!
+            messageContent.contentType = contentType
+            messageContent.content = buffer
+            return
+        }
+
         val reader = ProtoReader(messageContent.content)
+        messageContent.contentType = fixContentType(messageContent.contentType!!, reader)
+
+        fun setMessageContent(buffer: ByteArray) {
+            messageContent.content = buffer
+            messageContent.contentType = fixContentType(messageContent.contentType, ProtoReader(buffer))
+            decryptedMessageCache[messageId] = messageContent.contentType!! to buffer
+        }
 
         fun replaceMessageText(text: String) {
             messageContent.content = ProtoWriter().apply {
@@ -306,14 +311,18 @@ class EndToEndEncryption : MessagingRuleFeature(
                         if (isMe) {
                             if (conversationParticipants.isEmpty()) return@eachBuffer
                             val participantId = conversationParticipants.firstOrNull { participantIdHash.contentEquals(hashParticipantId(it, iv)) } ?: return@eachBuffer
-                            messageContent.content = e2eeInterface.decryptMessage(participantId, ciphertext, iv)
+                            setMessageContent(
+                                e2eeInterface.decryptMessage(participantId, ciphertext, iv)
+                            )
                             encryptedMessages.add(messageId)
                             return@eachBuffer
                         }
 
                         if (!participantIdHash.contentEquals(hashParticipantId(context.database.myUserId, iv))) return@eachBuffer
 
-                        messageContent.content = e2eeInterface.decryptMessage(senderId, ciphertext, iv)
+                        setMessageContent(
+                            e2eeInterface.decryptMessage(senderId, ciphertext, iv)
+                        )
                         encryptedMessages.add(messageId)
                     }
                 }.onFailure {
@@ -414,7 +423,10 @@ class EndToEndEncryption : MessagingRuleFeature(
             }
 
             event.buffer = ProtoEditor(event.buffer).apply {
-                val contentType = fixContentType(ContentType.fromId(messageReader.getVarInt(2)?.toInt() ?: -1), messageReader.followPath(4) ?: return@apply)
+                val contentType = fixContentType(
+                    ContentType.fromId(messageReader.getVarInt(2)?.toInt() ?: -1),
+                    messageReader.followPath(4) ?: return@apply
+                ) ?: return@apply
                 val messageContent = messageReader.getByteArray(4) ?: return@apply
 
                 runCatching {
@@ -460,8 +472,8 @@ class EndToEndEncryption : MessagingRuleFeature(
     override fun init() {
         if (!isEnabled) return
 
-        context.classCache.message.hookConstructor(HookStage.AFTER) { param ->
-            val message = Message(param.thisObject())
+        context.event.subscribe(BuildMessageEvent::class, priority = 0) { event ->
+            val message = event.message
             val conversationId = message.messageDescriptor.conversationId.toString()
             messageHook(
                 conversationId = conversationId,
@@ -469,10 +481,6 @@ class EndToEndEncryption : MessagingRuleFeature(
                 senderId = message.senderId.toString(),
                 messageContent = message.messageContent
             )
-
-            message.messageContent.contentType?.also {
-                message.messageContent.contentType = fixContentType(it, ProtoReader(message.messageContent.content))
-            }
 
             message.messageContent.instanceNonNull()
                 .getObjectField("mQuotedMessage")

@@ -8,14 +8,13 @@ import android.os.DeadObjectException
 import com.google.gson.JsonObject
 import com.google.gson.JsonParser
 import me.rhunk.snapenhance.core.event.events.impl.BindViewEvent
+import me.rhunk.snapenhance.core.event.events.impl.BuildMessageEvent
+import me.rhunk.snapenhance.core.util.EvictingMap
 import me.rhunk.snapenhance.core.util.protobuf.ProtoReader
 import me.rhunk.snapenhance.data.ContentType
 import me.rhunk.snapenhance.data.MessageState
-import me.rhunk.snapenhance.data.wrapper.impl.Message
 import me.rhunk.snapenhance.features.Feature
 import me.rhunk.snapenhance.features.FeatureLoadParams
-import me.rhunk.snapenhance.hook.HookStage
-import me.rhunk.snapenhance.hook.Hooker
 import me.rhunk.snapenhance.ui.addForegroundDrawable
 import me.rhunk.snapenhance.ui.removeForegroundDrawable
 import java.util.concurrent.Executors
@@ -48,7 +47,7 @@ class MessageLogger : Feature("MessageLogger",
 
     private val cachedIdLinks = mutableMapOf<Long, Long>() // client id -> server id
     private val fetchedMessages = mutableListOf<Long>() // list of unique message ids
-    private val deletedMessageCache = mutableMapOf<Long, JsonObject>() // unique message id -> message json object
+    private val deletedMessageCache = EvictingMap<Long, JsonObject>(200) // unique message id -> message json object
 
     fun isMessageDeleted(conversationId: String, clientMessageId: Long)
         = makeUniqueIdentifier(conversationId, clientMessageId)?.let { deletedMessageCache.containsKey(it) } ?: false
@@ -105,62 +104,57 @@ class MessageLogger : Feature("MessageLogger",
         }.also { context.log.verbose("Loaded ${fetchedMessages.size} cached messages in $it") }
     }
 
-    private fun processSnapMessage(messageInstance: Any) {
-        val message = Message(messageInstance)
-
-        if (message.messageState != MessageState.COMMITTED) return
-
-        cachedIdLinks[message.messageDescriptor.messageId] = message.orderKey
-        val conversationId = message.messageDescriptor.conversationId.toString()
-        //exclude messages sent by me
-        if (message.senderId.toString() == context.database.myUserId) return
-
-        val uniqueMessageIdentifier = computeMessageIdentifier(conversationId, message.orderKey)
-
-        if (message.messageContent.contentType != ContentType.STATUS) {
-            if (fetchedMessages.contains(uniqueMessageIdentifier)) return
-            fetchedMessages.add(uniqueMessageIdentifier)
-
-            threadPool.execute {
-                try {
-                    messageLoggerInterface.addMessage(conversationId, uniqueMessageIdentifier, context.gson.toJson(messageInstance).toByteArray(Charsets.UTF_8))
-                } catch (ignored: DeadObjectException) {}
-            }
-
-            return
-        }
-
-        //query the deleted message
-        val deletedMessageObject: JsonObject = if (deletedMessageCache.containsKey(uniqueMessageIdentifier))
-            deletedMessageCache[uniqueMessageIdentifier]
-        else {
-            messageLoggerInterface.getMessage(conversationId, uniqueMessageIdentifier)?.let {
-                JsonParser.parseString(it.toString(Charsets.UTF_8)).asJsonObject
-            }
-        } ?: return
-
-        val messageJsonObject = deletedMessageObject.asJsonObject
-
-        //if the message is a snap make it playable
-        if (messageJsonObject["mMessageContent"]?.asJsonObject?.get("mContentType")?.asString == "SNAP") {
-            messageJsonObject["mMetadata"].asJsonObject.addProperty("mPlayableSnapState", "PLAYABLE")
-        }
-
-        //serialize all properties of messageJsonObject and put in the message object
-        messageInstance.javaClass.declaredFields.forEach { field ->
-            field.isAccessible = true
-            if (field.name == "mDescriptor") return@forEach // prevent the client message id from being overwritten
-            messageJsonObject[field.name]?.let { fieldValue ->
-                field.set(messageInstance, context.gson.fromJson(fieldValue, field.type))
-            }
-        }
-
-        deletedMessageCache[uniqueMessageIdentifier] = deletedMessageObject
-    }
-
     override fun init() {
-        Hooker.hookConstructor(context.classCache.message, HookStage.AFTER, { isEnabled }) { param ->
-            processSnapMessage(param.thisObject())
+        context.event.subscribe(BuildMessageEvent::class, { isEnabled }, priority = 1) { event ->
+            val messageInstance = event.message.instanceNonNull()
+            if (event.message.messageState != MessageState.COMMITTED) return@subscribe
+
+            cachedIdLinks[event.message.messageDescriptor.messageId] = event.message.orderKey
+            val conversationId = event.message.messageDescriptor.conversationId.toString()
+            //exclude messages sent by me
+            if (event.message.senderId.toString() == context.database.myUserId) return@subscribe
+
+            val uniqueMessageIdentifier = computeMessageIdentifier(conversationId, event.message.orderKey)
+
+            if (event.message.messageContent.contentType != ContentType.STATUS) {
+                if (fetchedMessages.contains(uniqueMessageIdentifier)) return@subscribe
+                fetchedMessages.add(uniqueMessageIdentifier)
+
+                threadPool.execute {
+                    try {
+                        messageLoggerInterface.addMessage(conversationId, uniqueMessageIdentifier, context.gson.toJson(messageInstance).toByteArray(Charsets.UTF_8))
+                    } catch (ignored: DeadObjectException) {}
+                }
+
+                return@subscribe
+            }
+
+            //query the deleted message
+            val deletedMessageObject: JsonObject = if (deletedMessageCache.containsKey(uniqueMessageIdentifier))
+                deletedMessageCache[uniqueMessageIdentifier]
+            else {
+                messageLoggerInterface.getMessage(conversationId, uniqueMessageIdentifier)?.let {
+                    JsonParser.parseString(it.toString(Charsets.UTF_8)).asJsonObject
+                }
+            } ?: return@subscribe
+
+            val messageJsonObject = deletedMessageObject.asJsonObject
+
+            //if the message is a snap make it playable
+            if (messageJsonObject["mMessageContent"]?.asJsonObject?.get("mContentType")?.asString == "SNAP") {
+                messageJsonObject["mMetadata"].asJsonObject.addProperty("mPlayableSnapState", "PLAYABLE")
+            }
+
+            //serialize all properties of messageJsonObject and put in the message object
+            messageInstance.javaClass.declaredFields.forEach { field ->
+                field.isAccessible = true
+                if (field.name == "mDescriptor") return@forEach // prevent the client message id from being overwritten
+                messageJsonObject[field.name]?.let { fieldValue ->
+                    field.set(messageInstance, context.gson.fromJson(fieldValue, field.type))
+                }
+            }
+
+            deletedMessageCache[uniqueMessageIdentifier] = deletedMessageObject
         }
     }
 
