@@ -18,7 +18,7 @@ class DisableVideoLengthRestriction : Feature("DisableVideoLengthRestriction", l
         val isState by context.config.global.disableVideoLengthRestrictions
 
         //fix black videos when story is posted
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+        if (isState && Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
             val postedStorySnapFolder = File(context.androidContext.filesDir, "file_manager/posted_story_snap")
 
             fileObserver = (object : FileObserver(postedStorySnapFolder, MOVED_TO) {

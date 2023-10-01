@@ -28,7 +28,7 @@ class ActionManager(
         intent.removeExtra(ACTION_PARAMETER)
     }
 
-    private fun execute(action: EnumAction) {
+    fun execute(action: EnumAction) {
         actions[action.key]?.run()
         if (action.exitOnFinish) {
             modContext.forceCloseApp()

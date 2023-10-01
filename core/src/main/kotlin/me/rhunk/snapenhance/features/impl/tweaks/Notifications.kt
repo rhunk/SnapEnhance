@@ -185,7 +185,6 @@ class Notifications : Feature("Notifications", loadParams = FeatureLoadParams.IN
         }
     }
 
-    @OptIn(ExperimentalEncodingApi::class)
     private fun fetchMessagesResult(conversationId: String, messages: List<Message>) {
         val sendNotificationData = { notificationData: NotificationData, forceCreate: Boolean  ->
             val notificationId = if (forceCreate) System.nanoTime().toInt() else notificationData.id

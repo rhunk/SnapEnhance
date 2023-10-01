@@ -16,16 +16,16 @@ class MessagingTweaks : ConfigContainer() {
         "NOTE",
         "EXTERNAL_MEDIA",
         "STICKER"
-    )
-    val snapToChatMedia = boolean("snap_to_chat_media")
+    ) { requireRestart() }
+    val snapToChatMedia = boolean("snap_to_chat_media") { requireRestart() }
     val preventMessageSending = multiple("prevent_message_sending", *NotificationType.getOutgoingValues().map { it.key }.toTypedArray()) {
         customOptionTranslationPath = "features.options.notifications"
     }
-    val betterNotifications = multiple("better_notifications", "snap", "chat", "reply_button", "download_button", "group")
+    val betterNotifications = multiple("better_notifications", "snap", "chat", "reply_button", "download_button", "group") { requireRestart() }
     val notificationBlacklist = multiple("notification_blacklist", *NotificationType.getIncomingValues().map { it.key }.toTypedArray()) {
         customOptionTranslationPath = "features.options.notifications"
     }
-    val messageLogger = boolean("message_logger") { addNotices(FeatureNotice.UNSTABLE) }
+    val messageLogger = boolean("message_logger") { addNotices(FeatureNotice.UNSTABLE); requireRestart() }
     val galleryMediaSendOverride = boolean("gallery_media_send_override")
     val messagePreviewLength = integer("message_preview_length", defaultValue = 20)
 }

@@ -22,10 +22,12 @@ enum class FeatureNotice(
 enum class ConfigFlag(
     val id: Int
 ) {
-    NO_TRANSLATE(0b0001),
-    HIDDEN(0b0010),
-    FOLDER(0b0100),
-    NO_DISABLE_KEY(0b1000)
+    NO_TRANSLATE(0b000001),
+    HIDDEN(0b000010),
+    FOLDER(0b000100),
+    NO_DISABLE_KEY(0b001000),
+    REQUIRE_RESTART(0b010000),
+    REQUIRE_CLEAN_CACHE(0b100000)
 }
 
 class ConfigParams(
@@ -47,6 +49,13 @@ class ConfigParams(
     fun addFlags(vararg values: ConfigFlag) {
         this._flags = (this._flags ?: 0) or values.fold(0) { acc, flag -> acc or flag.id }
     }
+
+    fun requireRestart() {
+        addFlags(ConfigFlag.REQUIRE_RESTART)
+    }
+    fun requireCleanCache() {
+        addFlags(ConfigFlag.REQUIRE_CLEAN_CACHE)
+    }
 }
 
 class PropertyValue<T>(
@@ -65,7 +74,7 @@ class PropertyValue<T>(
     fun getNullable() = value?.takeIf { it != "null" }
     fun isEmpty() = value == null || value == "null" || value.toString().isEmpty()
     fun get() = getNullable() ?: throw IllegalStateException("Property is not set")
-    fun set(value: T?) { this.value = value }
+    fun set(value: T?) { setAny(value) }
     @Suppress("UNCHECKED_CAST")
     fun setAny(value: Any?) { this.value = value as T? }
 
@@ -79,7 +88,7 @@ data class PropertyKey<T>(
     val dataType: DataProcessors.PropertyDataProcessor<T>,
     val params: ConfigParams = ConfigParams(),
 ) {
-    val parentKey by lazy { _parent() }
+    private val parentKey by lazy { _parent() }
 
     fun propertyOption(translation: LocaleWrapper, key: String): String {
         if (key == "null") {

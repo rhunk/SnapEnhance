@@ -17,15 +17,10 @@ import me.rhunk.snapenhance.Constants
 import me.rhunk.snapenhance.RemoteSideContext
 import me.rhunk.snapenhance.bridge.DownloadCallback
 import me.rhunk.snapenhance.core.download.DownloadManagerClient
-import me.rhunk.snapenhance.data.FileType
-import me.rhunk.snapenhance.core.download.data.DownloadMediaType
-import me.rhunk.snapenhance.core.download.data.DownloadMetadata
-import me.rhunk.snapenhance.core.download.data.DownloadRequest
-import me.rhunk.snapenhance.core.download.data.DownloadStage
-import me.rhunk.snapenhance.core.download.data.InputMedia
-import me.rhunk.snapenhance.core.download.data.SplitMediaAssetType
+import me.rhunk.snapenhance.core.download.data.*
 import me.rhunk.snapenhance.core.util.download.RemoteMediaResolver
 import me.rhunk.snapenhance.core.util.snap.MediaDownloaderHelper
+import me.rhunk.snapenhance.data.FileType
 import java.io.File
 import java.io.InputStream
 import java.net.HttpURLConnection

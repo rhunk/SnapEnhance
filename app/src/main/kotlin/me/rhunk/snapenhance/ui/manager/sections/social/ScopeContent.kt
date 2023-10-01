@@ -12,7 +12,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -25,9 +24,9 @@ import kotlinx.coroutines.launch
 import me.rhunk.snapenhance.RemoteSideContext
 import me.rhunk.snapenhance.core.messaging.MessagingRuleType
 import me.rhunk.snapenhance.core.messaging.SocialScope
-import me.rhunk.snapenhance.ui.util.BitmojiImage
 import me.rhunk.snapenhance.core.util.snap.BitmojiSelfie
 import me.rhunk.snapenhance.ui.util.AlertDialogs
+import me.rhunk.snapenhance.ui.util.BitmojiImage
 import me.rhunk.snapenhance.ui.util.Dialog
 import kotlin.io.encoding.Base64
 import kotlin.io.encoding.ExperimentalEncodingApi

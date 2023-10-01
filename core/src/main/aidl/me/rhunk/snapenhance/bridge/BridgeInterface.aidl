@@ -6,6 +6,7 @@ import me.rhunk.snapenhance.bridge.SyncCallback;
 import me.rhunk.snapenhance.bridge.scripting.IScripting;
 import me.rhunk.snapenhance.bridge.e2ee.E2eeInterface;
 import me.rhunk.snapenhance.bridge.MessageLoggerInterface;
+import me.rhunk.snapenhance.bridge.ConfigStateListener;
 
 interface BridgeInterface {
     /**
@@ -82,4 +83,6 @@ interface BridgeInterface {
     void openSettingsOverlay();
 
     void closeSettingsOverlay();
+
+    void registerConfigStateListener(in ConfigStateListener listener);
 }

@@ -7,6 +7,8 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
+import me.rhunk.snapenhance.action.EnumAction
+import me.rhunk.snapenhance.bridge.ConfigStateListener
 import me.rhunk.snapenhance.bridge.SyncCallback
 import me.rhunk.snapenhance.core.Logger
 import me.rhunk.snapenhance.core.bridge.BridgeClient
@@ -30,6 +32,7 @@ class SnapEnhance {
     }
     private val appContext = ModContext()
     private var isBridgeInitialized = false
+    private var isActivityPaused = false
 
     private fun hookMainActivity(methodName: String, stage: HookStage = HookStage.AFTER, block: Activity.() -> Unit) {
         Activity::class.java.hook(methodName, stage, { isBridgeInitialized }) { param ->
@@ -84,12 +87,14 @@ class SnapEnhance {
 
         hookMainActivity("onPause") {
             appContext.bridgeClient.closeSettingsOverlay()
+            isActivityPaused = true
         }
 
         var activityWasResumed = false
         //we need to reload the config when the app is resumed
         //FIXME: called twice at first launch
         hookMainActivity("onResume") {
+            isActivityPaused = false
             if (!activityWasResumed) {
                 activityWasResumed = true
                 return@hookMainActivity
@@ -104,6 +109,8 @@ class SnapEnhance {
     private fun init(scope: CoroutineScope) {
         with(appContext) {
             reloadConfig()
+            actionManager.init()
+            initConfigListener()
             scope.launch(Dispatchers.IO) {
                 initNative()
                 translation.userLocale = getConfigLocale()
@@ -125,7 +132,6 @@ class SnapEnhance {
         measureTimeMillis {
             with(appContext) {
                 features.onActivityCreate()
-                actionManager.init()
                 scriptRuntime.eachModule { callFunction("module.onSnapActivity", mainActivity!!) }
             }
         }.also { time ->
@@ -146,6 +152,48 @@ class SnapEnhance {
                 }
             }
         }
+    }
+
+    private fun initConfigListener() {
+        val tasks = linkedSetOf<() -> Unit>()
+        hookMainActivity("onResume") {
+            tasks.forEach { it() }
+        }
+
+        fun runLater(task: () -> Unit) {
+            if (isActivityPaused) {
+                tasks.add(task)
+            } else {
+                task()
+            }
+        }
+
+        appContext.apply {
+            bridgeClient.registerConfigStateListener(object: ConfigStateListener.Stub() {
+                override fun onConfigChanged() {
+                    log.verbose("onConfigChanged")
+                    reloadConfig()
+                }
+
+                override fun onRestartRequired() {
+                    log.verbose("onRestartRequired")
+                    runLater {
+                        log.verbose("softRestart")
+                        softRestartApp(saveSettings = false)
+                    }
+                }
+
+                override fun onCleanCacheRequired() {
+                    log.verbose("onCleanCacheRequired")
+                    tasks.clear()
+                    runLater {
+                        log.verbose("cleanCache")
+                        actionManager.execute(EnumAction.CLEAN_CACHE)
+                    }
+                }
+            })
+        }
+
     }
 
     private fun syncRemote() {

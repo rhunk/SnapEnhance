@@ -193,5 +193,9 @@ class BridgeService : Service() {
                 remoteSideContext.log.error("Failed to close settings overlay", it)
             }
         }
+
+        override fun registerConfigStateListener(listener: ConfigStateListener) {
+            remoteSideContext.config.configStateListener = listener
+        }
     }
 }

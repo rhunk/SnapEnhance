@@ -17,7 +17,7 @@ class DownloaderConfig : ConfigContainer() {
         val customAudioCodec = string("custom_audio_codec") { addFlags(ConfigFlag.NO_TRANSLATE) }
     }
 
-    val saveFolder = string("save_folder") { addFlags(ConfigFlag.FOLDER) }
+    val saveFolder = string("save_folder") { addFlags(ConfigFlag.FOLDER); requireRestart() }
     val autoDownloadSources = multiple("auto_download_sources",
         "friend_snaps",
         "friend_stories",
@@ -41,7 +41,7 @@ class DownloaderConfig : ConfigContainer() {
     val forceVoiceNoteFormat = unique("force_voice_note_format", "aac", "mp3", "opus") {
         addFlags(ConfigFlag.NO_TRANSLATE)
     }
-    val downloadProfilePictures = boolean("download_profile_pictures")
+    val downloadProfilePictures = boolean("download_profile_pictures") { requireRestart() }
     val chatDownloadContextMenu = boolean("chat_download_context_menu")
     val ffmpegOptions = container("ffmpeg_options", FFMpegOptions()) { addNotices(FeatureNotice.UNSTABLE) }
     val logging = multiple("logging", "started", "success", "progress", "failure").apply {

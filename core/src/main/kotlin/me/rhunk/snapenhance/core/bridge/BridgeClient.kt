@@ -12,6 +12,7 @@ import android.os.IBinder
 import de.robv.android.xposed.XposedHelpers
 import me.rhunk.snapenhance.ModContext
 import me.rhunk.snapenhance.bridge.BridgeInterface
+import me.rhunk.snapenhance.bridge.ConfigStateListener
 import me.rhunk.snapenhance.bridge.DownloadCallback
 import me.rhunk.snapenhance.bridge.SyncCallback
 import me.rhunk.snapenhance.bridge.e2ee.E2eeInterface
@@ -144,4 +145,6 @@ class BridgeClient(
 
     fun openSettingsOverlay() = service.openSettingsOverlay()
     fun closeSettingsOverlay() = service.closeSettingsOverlay()
+
+    fun registerConfigStateListener(listener: ConfigStateListener) = service.registerConfigStateListener(listener)
 }
