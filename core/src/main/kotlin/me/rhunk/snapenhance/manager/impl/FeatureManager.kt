@@ -1,5 +1,6 @@
 package me.rhunk.snapenhance.manager.impl
 
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 import me.rhunk.snapenhance.ModContext
@@ -37,7 +38,7 @@ class FeatureManager(
     private fun register(vararg featureClasses: KClass<out Feature>) {
         runBlocking {
             featureClasses.forEach { clazz ->
-                context.coroutineScope.launch {
+                launch(Dispatchers.IO) {
                     runCatching {
                         clazz.java.constructors.first().newInstance()
                             .let { it as Feature }
