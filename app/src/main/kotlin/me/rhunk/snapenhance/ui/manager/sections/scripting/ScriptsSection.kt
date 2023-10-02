@@ -93,10 +93,14 @@ class ScriptsSection : Section() {
             }
         }
 
-        val padding = cachedAttributes["padding"]?.toString()?.toInt()?.let { abs(it) } ?: 2
         val arrangement = cachedAttributes["arrangement"]
         val alignment = cachedAttributes["alignment"]
         val spacing = cachedAttributes["spacing"]?.toString()?.toInt()?.let { abs(it) }
+
+        val rowColumnModifier = Modifier
+            .then(if (cachedAttributes["fillMaxWidth"] as? Boolean == true) Modifier.fillMaxWidth() else Modifier)
+            .then(if (cachedAttributes["fillMaxHeight"] as? Boolean == true) Modifier.fillMaxHeight() else Modifier)
+            .padding((cachedAttributes["padding"]?.toString()?.toInt()?.let { abs(it) } ?: 2).dp)
 
         fun runCallbackSafe(callback: () -> Unit) {
             runCatching {
@@ -120,9 +124,7 @@ class ScriptsSection : Section() {
                 Column(
                     verticalArrangement = arrangement as? Arrangement.Vertical ?: spacing?.let { Arrangement.spacedBy(it.dp) } ?: Arrangement.Top,
                     horizontalAlignment = alignment as? Alignment.Horizontal ?: Alignment.Start,
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(padding.dp)
+                    modifier = rowColumnModifier
                 ) {
                     node.children.forEach { child ->
                         DrawNode(child)
@@ -133,9 +135,7 @@ class ScriptsSection : Section() {
                 Row(
                     horizontalArrangement = arrangement as? Arrangement.Horizontal ?: spacing?.let { Arrangement.spacedBy(it.dp) } ?: Arrangement.SpaceBetween,
                     verticalAlignment = alignment as? Alignment.Vertical ?: Alignment.CenterVertically,
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(padding.dp)
+                    modifier = rowColumnModifier
                 ) {
                     node.children.forEach { child ->
                         DrawNode(child)

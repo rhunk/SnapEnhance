@@ -20,6 +20,16 @@ open class Node(
         attributes[key] = value
     }
 
+    fun fillMaxWidth(): Node {
+        attributes["fillMaxWidth"] = true
+        return this
+    }
+
+    fun fillMaxHeight(): Node {
+        attributes["fillMaxHeight"] = true
+        return this
+    }
+
     fun label(text: String): Node {
         attributes["label"] = text
         return this
