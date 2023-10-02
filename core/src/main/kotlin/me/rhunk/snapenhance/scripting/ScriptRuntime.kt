@@ -1,5 +1,6 @@
 package me.rhunk.snapenhance.scripting
 
+import android.content.Context
 import me.rhunk.snapenhance.core.logger.AbstractLogger
 import me.rhunk.snapenhance.scripting.type.ModuleInfo
 import org.mozilla.javascript.ScriptableObject
@@ -8,8 +9,8 @@ import java.io.ByteArrayInputStream
 import java.io.InputStream
 
 open class ScriptRuntime(
+    val androidContext: Context,
     val logger: AbstractLogger,
-    val classLoader: ClassLoader,
 ) {
     var buildModuleObject: ScriptableObject.(JSModule) -> Unit = {}
     private val modules = mutableMapOf<String, JSModule>()

@@ -1,5 +1,6 @@
 package me.rhunk.snapenhance.scripting.core
 
+import android.content.Context
 import me.rhunk.snapenhance.bridge.scripting.IPCListener
 import me.rhunk.snapenhance.bridge.scripting.IScripting
 import me.rhunk.snapenhance.core.logger.AbstractLogger
@@ -9,9 +10,9 @@ import me.rhunk.snapenhance.scripting.ScriptRuntime
 import me.rhunk.snapenhance.scripting.core.impl.ScriptHooker
 
 class CoreScriptRuntime(
+    androidContext: Context,
     logger: AbstractLogger,
-    classLoader: ClassLoader,
-): ScriptRuntime(logger, classLoader) {
+): ScriptRuntime(androidContext, logger) {
     private val scriptHookers = mutableListOf<ScriptHooker>()
 
     fun connect(scriptingInterface: IScripting) {
@@ -38,7 +39,7 @@ class CoreScriptRuntime(
                         sendIPCMessage(channel, eventName, args)
                     }
                 })
-                putConst("hooker", this, ScriptHooker(module.moduleInfo, logger, classLoader).also {
+                putConst("hooker", this, ScriptHooker(module.moduleInfo, logger, androidContext.classLoader).also {
                     scriptHookers.add(it)
                 })
             }

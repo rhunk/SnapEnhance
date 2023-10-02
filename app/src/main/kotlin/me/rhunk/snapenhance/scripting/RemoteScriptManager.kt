@@ -5,13 +5,18 @@ import androidx.documentfile.provider.DocumentFile
 import me.rhunk.snapenhance.RemoteSideContext
 import me.rhunk.snapenhance.bridge.scripting.IPCListener
 import me.rhunk.snapenhance.bridge.scripting.IScripting
+import me.rhunk.snapenhance.scripting.impl.IPCListeners
+import me.rhunk.snapenhance.scripting.impl.ui.InterfaceBuilder
+import me.rhunk.snapenhance.scripting.impl.ui.InterfaceManager
+import me.rhunk.snapenhance.scripting.impl.RemoteManagerIPC
 import me.rhunk.snapenhance.scripting.type.ModuleInfo
 import java.io.InputStream
 
 class RemoteScriptManager(
     private val context: RemoteSideContext,
 ) : IScripting.Stub() {
-    val runtime = ScriptRuntime(context.log, context.androidContext.classLoader)
+    val runtime = ScriptRuntime(context.androidContext, context.log)
+    private val userInterfaces = mutableMapOf<String, MutableMap<String, InterfaceBuilder>>()
 
     private val cachedModuleInfo = mutableMapOf<String, ModuleInfo>()
     private val ipcListeners = IPCListeners()
@@ -35,6 +40,11 @@ class RemoteScriptManager(
     fun init() {
         runtime.buildModuleObject = { module ->
             putConst("ipc", this, RemoteManagerIPC(module.moduleInfo, context.log, ipcListeners))
+            putConst("im", this, InterfaceManager(module.moduleInfo, context.log) { name, interfaceBuilder ->
+                userInterfaces.getOrPut(module.moduleInfo.name) {
+                    mutableMapOf()
+                }[name] = interfaceBuilder
+            })
         }
 
         sync()
@@ -46,6 +56,10 @@ class RemoteScriptManager(
             runtime.load(name, content)
         }
     }
+
+    fun getScriptInterface(scriptName: String, interfaceName: String)
+            = userInterfaces[scriptName]?.get(interfaceName)
+
 
     private fun <R> getScriptInputStream(name: String, callback: (InputStream?) -> R): R {
         val file = getScriptsFolder()?.findFile(name) ?: return callback(null)

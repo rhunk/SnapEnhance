@@ -13,5 +13,5 @@ abstract class IPCInterface {
     @Suppress("unused")
     fun emit(eventName: String) = emit(eventName, *emptyArray())
     @Suppress("unused")
-    fun emit(channel: String, eventName: String) = broadcast(channel, eventName, *emptyArray())
+    fun emit(channel: String, eventName: String) = broadcast(channel, eventName)
 }

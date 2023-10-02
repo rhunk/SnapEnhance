@@ -1,6 +1,7 @@
 package me.rhunk.snapenhance.scripting
 
-import me.rhunk.snapenhance.core.logger.AbstractLogger
+import android.os.Handler
+import android.widget.Toast
 import me.rhunk.snapenhance.scripting.ktx.contextScope
 import me.rhunk.snapenhance.scripting.ktx.putFunction
 import me.rhunk.snapenhance.scripting.ktx.scriptableObject
@@ -20,6 +21,7 @@ class JSModule(
 
     fun load(block: ScriptableObject.() -> Unit) {
         contextScope {
+            val classLoader = scriptRuntime.androidContext.classLoader
             moduleObject = initSafeStandardObjects()
             moduleObject.putConst("module", moduleObject, scriptableObject {
                 putConst("info", this, scriptableObject {
@@ -53,12 +55,12 @@ class JSModule(
 
             moduleObject.putFunction("findClass") {
                 val className = it?.get(0).toString()
-                scriptRuntime.classLoader.loadClass(className)
+                classLoader.loadClass(className)
             }
 
             moduleObject.putFunction("type") { args ->
                 val className = args?.get(0).toString()
-                val clazz = scriptRuntime.classLoader.loadClass(className)
+                val clazz = classLoader.loadClass(className)
 
                 scriptableObject("JavaClassWrapper") {
                     putFunction("newInstance") newInstance@{ args ->
@@ -88,6 +90,19 @@ class JSModule(
             moduleObject.putFunction("logInfo") { args ->
                 scriptRuntime.logger.info(args?.joinToString(" ") ?: "")
                 Undefined.instance
+            }
+
+            for (toastFunc in listOf("longToast", "shortToast")) {
+                moduleObject.putFunction(toastFunc) { args ->
+                    Handler(scriptRuntime.androidContext.mainLooper).post {
+                        Toast.makeText(
+                            scriptRuntime.androidContext,
+                            args?.joinToString(" ") ?: "",
+                            if (toastFunc == "longToast") Toast.LENGTH_LONG else Toast.LENGTH_SHORT
+                        ).show()
+                    }
+                    Undefined.instance
+                }
             }
 
             block(moduleObject)
