@@ -1,4 +1,4 @@
-package me.rhunk.snapmapper
+package me.rhunk.snapenhance.mapper
 
 import com.google.gson.GsonBuilder
 import com.google.gson.JsonObject

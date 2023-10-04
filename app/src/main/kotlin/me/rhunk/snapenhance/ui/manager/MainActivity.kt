@@ -47,7 +47,7 @@ class MainActivity : ComponentActivity() {
         }
 
         sections = EnumSection.values().toList().associateWith {
-            it.section.constructors.first().call()
+            it.section.java.constructors.first().newInstance() as Section
         }.onEach { (section, instance) ->
             with(instance) {
                 enumSection = section

@@ -1,4 +1,4 @@
-package me.rhunk.snapmapper
+package me.rhunk.snapenhance.mapper
 
 import kotlin.reflect.KClass
 

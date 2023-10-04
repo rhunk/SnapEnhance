@@ -1,4 +1,4 @@
-package me.rhunk.snapmapper.ext
+package me.rhunk.snapenhance.mapper.ext
 
 import org.jf.dexlib2.AccessFlags
 import org.jf.dexlib2.iface.ClassDef

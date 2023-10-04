@@ -1,8 +1,8 @@
-package me.rhunk.snapmapper.impl
+package me.rhunk.snapenhance.mapper.impl
 
-import me.rhunk.snapmapper.AbstractClassMapper
-import me.rhunk.snapmapper.MapperContext
-import me.rhunk.snapmapper.ext.findConstString
+import me.rhunk.snapenhance.mapper.AbstractClassMapper
+import me.rhunk.snapenhance.mapper.MapperContext
+import me.rhunk.snapenhance.mapper.ext.findConstString
 
 class StoryBoostStateMapper : AbstractClassMapper() {
     override fun run(context: MapperContext) {

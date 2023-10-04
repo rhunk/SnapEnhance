@@ -8,8 +8,8 @@ import me.rhunk.snapenhance.Constants
 import me.rhunk.snapenhance.core.Logger
 import me.rhunk.snapenhance.core.bridge.FileLoaderWrapper
 import me.rhunk.snapenhance.core.bridge.types.BridgeFileType
-import me.rhunk.snapmapper.Mapper
-import me.rhunk.snapmapper.impl.*
+import me.rhunk.snapenhance.mapper.Mapper
+import me.rhunk.snapenhance.mapper.impl.*
 import java.util.concurrent.ConcurrentHashMap
 import kotlin.system.measureTimeMillis
 

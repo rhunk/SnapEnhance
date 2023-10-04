@@ -1,9 +1,9 @@
-package me.rhunk.snapmapper.impl
+package me.rhunk.snapenhance.mapper.impl
 
-import me.rhunk.snapmapper.AbstractClassMapper
-import me.rhunk.snapmapper.MapperContext
-import me.rhunk.snapmapper.ext.getStaticConstructor
-import me.rhunk.snapmapper.ext.isFinal
+import me.rhunk.snapenhance.mapper.AbstractClassMapper
+import me.rhunk.snapenhance.mapper.MapperContext
+import me.rhunk.snapenhance.mapper.ext.getStaticConstructor
+import me.rhunk.snapenhance.mapper.ext.isFinal
 import org.jf.dexlib2.iface.instruction.formats.ArrayPayload
 
 class BCryptClassMapper : AbstractClassMapper() {
