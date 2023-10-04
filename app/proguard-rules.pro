@@ -1,2 +1,10 @@
 -dontwarn de.robv.android.xposed.**
--keep class me.rhunk.** { *; }
+-dontwarn org.mozilla.javascript.**
+
+-keep enum * { *; }
+
+-keep class org.jf.dexlib2.** { *; }
+-keep class org.mozilla.javascript.** { *; }
+-keep class androidx.compose.material.icons.** { *; }
+-keep class androidx.navigation.compose.** { *; }
+-keep class me.rhunk.snapenhance.** { *; }
