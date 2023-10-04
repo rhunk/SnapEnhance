@@ -141,6 +141,10 @@ class SetupActivity : ComponentActivity() {
                         ) {
                             requiredScreens.forEach { screen ->
                                 screen.allowNext = { canGoNext = it }
+                                screen.goNext = {
+                                    canGoNext = true
+                                    nextScreen()
+                                }
                                 composable(screen.route) {
                                     BackHandler(true) {}
                                     Column(

@@ -18,6 +18,7 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.OutlinedCard
 import androidx.compose.material3.Text
 import androidx.compose.runtime.*
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import kotlinx.coroutines.launch
@@ -56,66 +57,82 @@ class PermissionsScreen : SetupScreen() {
         var isBatteryOptimisationIgnored by remember { mutableStateOf(false) }
         val coroutineScope = rememberCoroutineScope()
 
-        LaunchedEffect(Unit) {
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-                notificationPermissionGranted = context.androidContext.checkSelfPermission(Manifest.permission.POST_NOTIFICATIONS) == PackageManager.PERMISSION_GRANTED
-            }
-            val powerManager = context.androidContext.getSystemService(Context.POWER_SERVICE) as PowerManager
-            isBatteryOptimisationIgnored = powerManager.isIgnoringBatteryOptimizations(context.androidContext.packageName)
-        }
-
         if (isBatteryOptimisationIgnored && notificationPermissionGranted) {
             allowNext(true)
         } else {
             allowNext(false)
         }
 
+        LaunchedEffect(Unit) {
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+                notificationPermissionGranted =
+                    context.androidContext.checkSelfPermission(Manifest.permission.POST_NOTIFICATIONS) == PackageManager.PERMISSION_GRANTED
+            }
+            val powerManager =
+                context.androidContext.getSystemService(Context.POWER_SERVICE) as PowerManager
+            isBatteryOptimisationIgnored =
+                powerManager.isIgnoringBatteryOptimizations(context.androidContext.packageName)
+            if (isBatteryOptimisationIgnored && notificationPermissionGranted) {
+                goNext()
+            }
+        }
+
         DialogText(text = context.translation["setup.permissions.dialog"])
 
         OutlinedCard(
             modifier = Modifier
-                .padding(16.dp)
                 .fillMaxWidth(),
         ) {
             Column(
+                verticalArrangement = Arrangement.spacedBy(16.dp),
                 modifier = Modifier
-                    .padding(5.dp)
+                    .padding(all = 16.dp),
             ) {
                 Row(
-                    horizontalArrangement = Arrangement.Absolute.SpaceAround
+                    verticalAlignment = Alignment.CenterVertically,
                 ) {
-                    DialogText(text = context.translation["setup.permissions.dialog"], modifier = Modifier.weight(1f))
+                    DialogText(
+                        text = context.translation["setup.permissions.notification_access"],
+                        modifier = Modifier.weight(1f)
+                    )
                     if (notificationPermissionGranted) {
                         GrantedIcon()
-                        return@Row
-                    }
-
-                    RequestButton {
-                        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-                            activityLauncherHelper.requestPermission(Manifest.permission.POST_NOTIFICATIONS) { resultCode, _ ->
-                                coroutineScope.launch {
-                                    notificationPermissionGranted = resultCode == ComponentActivity.RESULT_OK
+                    } else {
+                        RequestButton {
+                            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+                                activityLauncherHelper.requestPermission(Manifest.permission.POST_NOTIFICATIONS) { resultCode, _ ->
+                                    coroutineScope.launch {
+                                        notificationPermissionGranted =
+                                            resultCode == ComponentActivity.RESULT_OK
+                                    }
                                 }
                             }
                         }
                     }
                 }
-                Row {
-                    DialogText(text = context.translation["setup.permissions.battery_optimization"], modifier = Modifier.weight(1f))
+
+                Row(
+                    verticalAlignment = Alignment.CenterVertically,
+                ) {
+                    DialogText(
+                        text = context.translation["setup.permissions.battery_optimization"],
+                        modifier = Modifier.weight(1f)
+                    )
                     if (isBatteryOptimisationIgnored) {
                         GrantedIcon()
-                        return@Row
-                    }
-                    RequestButton {
-                        activityLauncherHelper.launch(Intent().apply {
-                            action = Settings.ACTION_REQUEST_IGNORE_BATTERY_OPTIMIZATIONS
-                            data = Uri.parse("package:${context.androidContext.packageName}")
-                        }) { resultCode, _ ->
-                            coroutineScope.launch {
-                                isBatteryOptimisationIgnored = resultCode == 0
+                    } else {
+                        RequestButton {
+                            activityLauncherHelper.launch(Intent().apply {
+                                action = Settings.ACTION_REQUEST_IGNORE_BATTERY_OPTIMIZATIONS
+                                data = Uri.parse("package:${context.androidContext.packageName}")
+                            }) { resultCode, _ ->
+                                coroutineScope.launch {
+                                    isBatteryOptimisationIgnored = resultCode == 0
+                                }
                             }
                         }
                     }
+
                 }
             }
         }
