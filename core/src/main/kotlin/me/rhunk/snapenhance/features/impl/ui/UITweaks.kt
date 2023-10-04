@@ -45,11 +45,6 @@ class UITweaks : Feature("UITweaks", loadParams = FeatureLoadParams.ACTIVITY_CRE
 
         val displayMetrics = context.resources.displayMetrics
         val deviceAspectRatio = displayMetrics.widthPixels.toFloat() / displayMetrics.heightPixels.toFloat()
-        val statusBarHeight = run {
-            val resourceId = context.resources.getIdentifier("status_bar_height", "dimen", "android")
-            if (resourceId > 0) context.resources.getDimensionPixelSize(resourceId)
-            else Rect().apply { context.mainActivity!!.window.decorView.getWindowVisibleDisplayFrame(this) }.top
-        }
 
         val callButtonsStub = getIdentifier("call_buttons_stub", "id")
         val callButton1 = getIdentifier("friend_action_button3", "id")
@@ -118,20 +113,17 @@ class UITweaks : Feature("UITweaks", loadParams = FeatureLoadParams.ACTIVITY_CRE
             }
 
             if (isImmersiveCamera) {
-                if (view.id == getIdentifier("full_screen_surface_view", "id")) {
-                    Hooker.hookObjectMethod(View::class.java, view, "layout", HookStage.BEFORE) {
-                        val width = it.arg(2) as Int
-                        val height = it.arg(3) as Int
-                        if (height <= 0 || width <= 0) return@hookObjectMethod
-                        surfaceViewAspectRatio = width.toFloat() / height.toFloat()
-                        it.setArg(2, (displayMetrics.heightPixels * surfaceViewAspectRatio).toInt())
-                        it.setArg(3, displayMetrics.heightPixels)
-                    }
-                }
-
                 if (view.id == getIdentifier("edits_container", "id")) {
                     Hooker.hookObjectMethod(View::class.java, view, "layout", HookStage.BEFORE) {
-                        //TODO: fix edits position on the canvas
+                        val width = it.arg(2) as Int
+                        val realHeight = (width / deviceAspectRatio).toInt()
+                        it.setArg(3, realHeight)
+                    }
+                }
+                if (view.id == getIdentifier("full_screen_surface_view", "id")) {
+                    Hooker.hookObjectMethod(View::class.java, view, "layout", HookStage.BEFORE) {
+                        it.setArg(1, 1)
+                        it.setArg(3, displayMetrics.heightPixels)
                     }
                 }
             }
