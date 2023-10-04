@@ -34,7 +34,6 @@ tasks.register("getVersion") {
 dependencies {
     compileOnly(files("libs/LSPosed-api-1.0-SNAPSHOT.jar"))
     implementation(libs.coroutines)
-    implementation(libs.kotlin.reflect)
     implementation(libs.recyclerview)
     implementation(libs.gson)
     implementation(libs.okhttp)

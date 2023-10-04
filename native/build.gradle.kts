@@ -3,7 +3,7 @@ plugins {
     alias(libs.plugins.kotlinAndroid)
 }
 
-val nativeName = System.nanoTime().toString(16)
+val nativeName = rootProject.ext.get("nativeName")
 
 android {
     namespace = rootProject.ext["applicationId"].toString() + ".nativelib"
@@ -29,7 +29,8 @@ android {
             }
             ndk {
                 //noinspection ChromeOsAbiSupport
-                abiFilters += listOf("arm64-v8a", "armeabi-v7a")
+                abiFilters += properties["custom_abi_filters"]?.toString()?.split(",")
+                    ?: listOf("arm64-v8a", "armeabi-v7a")
             }
         }
     }
