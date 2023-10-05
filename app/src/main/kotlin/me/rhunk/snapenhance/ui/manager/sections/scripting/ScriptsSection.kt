@@ -12,11 +12,15 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import me.rhunk.snapenhance.scripting.impl.ui.components.Node
 import me.rhunk.snapenhance.scripting.impl.ui.components.NodeType
 import me.rhunk.snapenhance.scripting.type.ModuleInfo
 import me.rhunk.snapenhance.ui.manager.Section
+import me.rhunk.snapenhance.ui.util.pullrefresh.PullRefreshIndicator
+import me.rhunk.snapenhance.ui.util.pullrefresh.pullRefresh
+import me.rhunk.snapenhance.ui.util.pullrefresh.rememberPullRefreshState
 import kotlin.math.abs
 
 class ScriptsSection : Section() {
@@ -70,11 +74,13 @@ class ScriptsSection : Section() {
                     checked = enabled,
                     onCheckedChange = {
                         context.modDatabase.setScriptEnabled(script.name, it)
+                        if (it) {
+                            context.scriptManager.loadScript(script.name)
+                        }
                         enabled = it
                     }
                 )
             }
-
 
             if (openSettings) {
                 ScriptSettings(script)
@@ -100,7 +106,11 @@ class ScriptsSection : Section() {
         val rowColumnModifier = Modifier
             .then(if (cachedAttributes["fillMaxWidth"] as? Boolean == true) Modifier.fillMaxWidth() else Modifier)
             .then(if (cachedAttributes["fillMaxHeight"] as? Boolean == true) Modifier.fillMaxHeight() else Modifier)
-            .padding((cachedAttributes["padding"]?.toString()?.toInt()?.let { abs(it) } ?: 2).dp)
+            .padding(
+                (cachedAttributes["padding"]
+                    ?.toString()
+                    ?.toInt()
+                    ?.let { abs(it) } ?: 2).dp)
 
         fun runCallbackSafe(callback: () -> Unit) {
             runCatching {
@@ -219,25 +229,56 @@ class ScriptsSection : Section() {
 
     @Composable
     override fun Content() {
-        val scriptModules = remember {
-            context.modDatabase.getScripts()
+        var scriptModules by remember {
+            mutableStateOf(context.modDatabase.getScripts())
+        }
+        val coroutineScope = rememberCoroutineScope()
+
+        var refreshing by remember {
+            mutableStateOf(false)
         }
 
-        LazyColumn(
+        val pullRefreshState = rememberPullRefreshState(refreshing, onRefresh = {
+            refreshing = true
+            runCatching {
+                context.scriptManager.sync()
+                scriptModules = context.modDatabase.getScripts()
+            }.onFailure {
+                context.log.error("Failed to sync scripts", it)
+            }
+            coroutineScope.launch {
+                delay(300)
+                refreshing = false
+            }
+        })
+
+        Box(
             modifier = Modifier.fillMaxSize()
         ) {
-            item {
-                if (scriptModules.isEmpty()) {
-                    Text(
-                        text = "No scripts found",
-                        style = MaterialTheme.typography.bodySmall,
-                        modifier = Modifier.padding(8.dp)
-                    )
+            LazyColumn(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .pullRefresh(pullRefreshState),
+            ) {
+                item {
+                    if (scriptModules.isEmpty()) {
+                        Text(
+                            text = "No scripts found",
+                            style = MaterialTheme.typography.bodySmall,
+                            modifier = Modifier.padding(8.dp).align(Alignment.Center)
+                        )
+                    }
+                }
+                items(scriptModules.size) { index ->
+                    ModuleItem(scriptModules[index])
                 }
             }
-            items(scriptModules.size) { index ->
-                ModuleItem(scriptModules[index])
-            }
+
+            PullRefreshIndicator(
+                refreshing = refreshing,
+                state = pullRefreshState,
+                modifier = Modifier.align(Alignment.TopCenter)
+            )
         }
     }
 }

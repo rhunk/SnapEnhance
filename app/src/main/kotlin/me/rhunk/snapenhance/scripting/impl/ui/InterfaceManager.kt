@@ -71,7 +71,7 @@ class InterfaceManager(
 ) {
     @JSFunction
     fun create(name: String, callback: Function) {
-        logger.info("Creating interface for ${moduleInfo.name}")
+        logger.info("Creating interface $name for ${moduleInfo.name}")
         val interfaceBuilder = InterfaceBuilder()
         callback.call(Context.getCurrentContext(), callback, callback, arrayOf(interfaceBuilder))
         registerInterface(name, interfaceBuilder)

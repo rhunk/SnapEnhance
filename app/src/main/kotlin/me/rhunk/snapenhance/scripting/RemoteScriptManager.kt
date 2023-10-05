@@ -52,9 +52,13 @@ class RemoteScriptManager(
             if (getModuleDataFolder(name) == null) {
                 context.log.warn("Module data folder not found for $name")
             }
-            val content = getScriptContent(name) ?: return@forEach
-            runtime.load(name, content)
+            loadScript(name)
         }
+    }
+
+    fun loadScript(name: String) {
+        val content = getScriptContent(name) ?: return
+        runtime.load(name, content)
     }
 
     fun getScriptInterface(scriptName: String, interfaceName: String)

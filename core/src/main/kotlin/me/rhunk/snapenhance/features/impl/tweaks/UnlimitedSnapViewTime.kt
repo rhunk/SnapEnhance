@@ -9,8 +9,8 @@ import me.rhunk.snapenhance.features.Feature
 import me.rhunk.snapenhance.features.FeatureLoadParams
 
 class UnlimitedSnapViewTime :
-    Feature("UnlimitedSnapViewTime", loadParams = FeatureLoadParams.ACTIVITY_CREATE_ASYNC) {
-    override fun asyncOnActivityCreate() {
+    Feature("UnlimitedSnapViewTime", loadParams = FeatureLoadParams.ACTIVITY_CREATE_SYNC) {
+    override fun onActivityCreate() {
         val state by context.config.messaging.unlimitedSnapViewTime
 
         context.event.subscribe(BuildMessageEvent::class, { state }, priority = 101) { event ->
