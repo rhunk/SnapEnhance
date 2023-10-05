@@ -71,14 +71,20 @@ class MappingManager(private val context: ModContext) : Manager {
             return
         }
         context.runOnUiThread {
-            val statusDialogBuilder = ViewAppearanceHelper.newAlertDialogBuilder(context.mainActivity)
-                .setMessage("Generating mappings, please wait...")
-                .setCancelable(false)
-                .setView(android.widget.ProgressBar(context.mainActivity).apply {
-                    setPadding(0, 20, 0, 20)
-                })
+            val statusDialogBuilder = runCatching {
+                context.mainActivity?.let {
+                    ViewAppearanceHelper.newAlertDialogBuilder(it)
+                        .setMessage("Generating mappings, please wait...")
+                        .setCancelable(false)
+                        .setView(android.widget.ProgressBar(it).apply {
+                            setPadding(0, 20, 0, 20)
+                        })
+                }
+            }.getOrNull() ?: null.also {
+                context.longToast("Generating mappings, please wait...")
+            }
 
-            val loadingDialog = statusDialogBuilder.show()
+            val loadingDialog = statusDialogBuilder?.show()
 
             context.executeAsync {
                 runCatching {
@@ -87,15 +93,18 @@ class MappingManager(private val context: ModContext) : Manager {
                     context.shortToast("Generated mappings for build $snapBuildNumber")
                     context.softRestartApp()
                 }.onFailure {
+                    context.longToast("Failed to generate mappings: $it")
                     Logger.error("Failed to generate mappings", it)
                     context.runOnUiThread {
-                        loadingDialog.dismiss()
-                        statusDialogBuilder.setView(null)
-                        statusDialogBuilder.setMessage("Failed to generate mappings: $it")
-                        statusDialogBuilder.setNegativeButton("Close") { _, _ ->
-                            context.mainActivity!!.finish()
+                        loadingDialog?.dismiss()
+                        statusDialogBuilder?.apply {
+                            setView(null)
+                            setMessage("Failed to generate mappings: $it")
+                            setNegativeButton("Close") { _, _ ->
+                                this@MappingManager.context.mainActivity?.finish()
+                            }
+                            show()
                         }
-                        statusDialogBuilder.show()
                     }
                 }
             }
