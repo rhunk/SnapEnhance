@@ -1,4 +1,5 @@
 -dontwarn de.robv.android.xposed.**
+-dontwarn java.beans.**
 -dontwarn org.mozilla.javascript.**
 
 -keep enum * { *; }
