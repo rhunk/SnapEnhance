@@ -293,9 +293,6 @@ private class DialogWrapper(
         dialogLayout.setContent(parentComposition, children)
     }
 
-    private fun setSecurePolicy(securePolicy: SecureFlagPolicy) {
-    }
-
     fun updateParameters(
         onDismissRequest: () -> Unit,
         properties: DialogProperties,
@@ -303,7 +300,6 @@ private class DialogWrapper(
     ) {
         this.onDismissRequest = onDismissRequest
         this.properties = properties
-        setSecurePolicy(properties.securePolicy)
         setLayoutDirection(layoutDirection)
         if (properties.usePlatformDefaultWidth && !dialogLayout.usePlatformDefaultWidth) {
             // Undo fixed size in internalOnLayout, which would suppress size changes when

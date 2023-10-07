@@ -10,7 +10,6 @@ import kotlinx.coroutines.runBlocking
 import me.rhunk.snapenhance.action.EnumAction
 import me.rhunk.snapenhance.bridge.ConfigStateListener
 import me.rhunk.snapenhance.bridge.SyncCallback
-import me.rhunk.snapenhance.core.Logger
 import me.rhunk.snapenhance.core.bridge.BridgeClient
 import me.rhunk.snapenhance.core.event.events.impl.SnapWidgetBroadcastReceiveEvent
 import me.rhunk.snapenhance.core.event.events.impl.UnaryCallEvent
@@ -56,7 +55,7 @@ class SnapEnhance {
                         }
                     ) { bridgeResult ->
                         if (!bridgeResult) {
-                            Logger.xposedLog("Cannot connect to bridge service")
+                            logCritical("Cannot connect to bridge service")
                             softRestartApp()
                             return@connect
                         }
@@ -71,7 +70,7 @@ class SnapEnhance {
                         }.onSuccess {
                             isBridgeInitialized = true
                         }.onFailure {
-                            Logger.xposedLog("Failed to initialize", it)
+                            logCritical("Failed to initialize bridge", it)
                         }
                     }
                 }
@@ -108,6 +107,13 @@ class SnapEnhance {
 
     private fun init(scope: CoroutineScope) {
         with(appContext) {
+            Thread::class.java.hook("dispatchUncaughtException", HookStage.BEFORE) { param ->
+                runCatching {
+                    val throwable = param.argNullable(0) ?: Throwable()
+                    logCritical(null, throwable)
+                }
+            }
+
             reloadConfig()
             actionManager.init()
             initConfigListener()

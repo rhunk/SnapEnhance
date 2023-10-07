@@ -73,7 +73,7 @@ class BridgeClient(
             }
         }
         runCatching {
-            onResult(future.get(10, TimeUnit.SECONDS))
+            onResult(future.get(15, TimeUnit.SECONDS))
         }.onFailure {
             timeout(it)
         }

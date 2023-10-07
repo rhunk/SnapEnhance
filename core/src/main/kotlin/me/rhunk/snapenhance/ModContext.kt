@@ -86,15 +86,11 @@ class ModContext {
     }
 
     fun shortToast(message: Any?) {
-        runOnUiThread {
-            Toast.makeText(androidContext, message.toString(), Toast.LENGTH_SHORT).show()
-        }
+        Toast.makeText(androidContext, message.toString(), Toast.LENGTH_SHORT).show()
     }
 
     fun longToast(message: Any?) {
-        runOnUiThread {
-            Toast.makeText(androidContext, message.toString(), Toast.LENGTH_LONG).show()
-        }
+        Toast.makeText(androidContext, message.toString(), Toast.LENGTH_LONG).show()
     }
 
     fun softRestartApp(saveSettings: Boolean = false) {
@@ -112,9 +108,13 @@ class ModContext {
     }
 
     fun crash(message: String, throwable: Throwable? = null) {
-        Logger.xposedLog(message, throwable ?: Exception())
-        longToast(message)
+        logCritical(message, throwable ?: Throwable())
         delayForceCloseApp(100)
+    }
+
+    fun logCritical(message: Any?, throwable: Throwable = Throwable()) {
+        log.error(message ?: "Snapchat crash", throwable)
+        longToast(message ?: "Snapchat has crashed! Please check logs for more details.")
     }
 
     private fun delayForceCloseApp(delay: Long) = Handler(Looper.getMainLooper()).postDelayed({
