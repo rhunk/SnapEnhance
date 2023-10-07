@@ -1,7 +1,5 @@
 package me.rhunk.snapenhance.ui.menu.impl
 
-import android.annotation.SuppressLint
-import android.content.Context
 import android.content.DialogInterface
 import android.content.res.Resources
 import android.graphics.BitmapFactory
@@ -102,7 +100,7 @@ class FriendFeedInfoMenu : AbstractMenu() {
         }
     }
 
-    private fun showPreview(userId: String?, conversationId: String, androidCtx: Context?) {
+    private fun showPreview(userId: String?, conversationId: String) {
         //query message
         val messageLogger = context.feature(MessageLogger::class)
         val messages: List<ConversationMessage> = context.database.getMessagesFromConversationId(
@@ -213,16 +211,13 @@ class FriendFeedInfoMenu : AbstractMenu() {
         val switch = Switch(context.androidContext)
         switch.text = context.translation[text]
         switch.isChecked = isChecked()
-        switch.applyTheme()
+        switch.applyTheme(hasRadius = true)
         switch.setOnCheckedChangeListener { _: CompoundButton?, checked: Boolean ->
             toggle(checked)
         }
         viewConsumer(switch)
     }
 
-    @SuppressLint("SetTextI18n", "UseSwitchCompatOrMaterialCode", "DefaultLocale", "InflateParams",
-        "DiscouragedApi", "ClickableViewAccessibility"
-    )
     fun inject(viewModel: View, viewConsumer: ((View) -> Unit)) {
         val modContext = context
 
@@ -233,12 +228,11 @@ class FriendFeedInfoMenu : AbstractMenu() {
 
         val previewButton = Button(viewModel.context).apply {
             text = modContext.translation["friend_menu_option.preview"]
-            applyTheme(viewModel.width)
+            applyTheme(viewModel.width, hasRadius = true)
             setOnClickListener {
                 showPreview(
                     targetUser,
-                    conversationId,
-                    context
+                    conversationId
                 )
             }
         }

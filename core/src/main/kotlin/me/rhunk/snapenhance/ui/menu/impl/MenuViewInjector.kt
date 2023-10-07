@@ -88,11 +88,22 @@ class MenuViewInjector : Feature("MenuViewInjector", loadParams = FeatureLoadPar
                 val viewList = mutableListOf<View>()
                 context.runOnUiThread {
                     friendFeedInfoMenu.inject(injectedLayout) { view ->
-                        view.layoutParams = LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT).apply {
-                            setMargins(0, 3, 0, 3)
+                        view.layoutParams = LinearLayout.LayoutParams(
+                            ViewGroup.LayoutParams.MATCH_PARENT,
+                            ViewGroup.LayoutParams.WRAP_CONTENT
+                        ).apply {
+                            setMargins(0, 5, 0, 5)
                         }
                         viewList.add(view)
                     }
+
+                    viewList.add(View(injectedLayout.context).apply {
+                        layoutParams = LinearLayout.LayoutParams(
+                            ViewGroup.LayoutParams.MATCH_PARENT,
+                            30
+                        )
+                    })
+
                     viewList.reversed().forEach { injectedLayout.addView(it, 0) }
                 }
 
