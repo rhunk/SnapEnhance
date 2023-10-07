@@ -1,12 +1,12 @@
 name: Android CI
 on:
   push:
-    branches: [ "main" ]
+    branches: [ "refactor_2_0_0" ]
     paths-ignore:
       - '**/README.md'
       - '.github/**'
   pull_request:
-    branches: [ "main" ]
+    branches: [ "refactor_2_0_0" ]
 jobs:
   build:
     runs-on: ubuntu-latest
@@ -59,19 +59,19 @@ jobs:
         
       - name: Rename APK files
         run: |
-          mv app/build/outputs/apk/armv8/debug/*.apk app/build/outputs/apk/armv8/debug/app-${{ env.version }}-armv8-${{ steps.version-env.outputs.sha_short }}.apk
-          mv app/build/outputs/apk/armv7/debug/*.apk app/build/outputs/apk/armv7/debug/app-${{ env.version }}-armv7-${{ steps.version-env.outputs.sha_short }}.apk
+          mv app/build/outputs/apk/armv8/debug/*.apk app/build/outputs/apk/armv8/debug/SnapEnhance-${{ env.version }}-armv8-${{ steps.version-env.outputs.sha_short }}.apk
+          mv app/build/outputs/apk/armv7/debug/*.apk app/build/outputs/apk/armv7/debug/SnapEnhance-${{ env.version }}-armv7-${{ steps.version-env.outputs.sha_short }}.apk
       
       - name: Upload armv8
         uses: actions/upload-artifact@v3.1.2
         with:
-          name: app-armv8-debug
+          name: SnapEnhance-armv8-debug
           path: app/build/outputs/apk/armv8/debug/*.apk
           
       - name: Upload armv7
         uses: actions/upload-artifact@v3.1.2
         with:
-          name: app-armv7-debug
+          name: SnapEnhance-armv7-debug
           path: app/build/outputs/apk/armv7/debug/*.apk
           
       - name: CI Upload armv8
