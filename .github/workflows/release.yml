@@ -1,4 +1,4 @@
-name: Release CI
+name: Release CI [Github] 
 on:
   workflow_dispatch:
 jobs:
@@ -39,7 +39,7 @@ jobs:
       - name: Upload armv7 artifact
         uses: actions/upload-artifact@v3.1.2
         with:
-          name: app-armv7-release
+          name: SnapEnhance-armv7-release
           path: ${{ steps.sign_armv7_app.outputs.signedReleaseFile }}
 
       - name: Sign armv8 APK
@@ -55,7 +55,7 @@ jobs:
       - name: Upload armv8 artifact
         uses: actions/upload-artifact@v3.1.2
         with:
-          name: app-armv8-release
+          name: SnapEnhance-armv8-release
           path: ${{ steps.sign_armv8_app.outputs.signedReleaseFile }}
 
       - name: Generate Version
@@ -70,7 +70,7 @@ jobs:
         uses: marvinpinto/action-automatic-releases@latest
         with:
           repo_token: "${{ secrets.GITHUB_TOKEN }}"
-          prerelease: false
+          prerelease: true
           files: |
             ${{ steps.sign_armv7_app.outputs.signedReleaseFile }}
             ${{ steps.sign_armv8_app.outputs.signedReleaseFile }}
