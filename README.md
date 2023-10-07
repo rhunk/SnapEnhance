@@ -4,7 +4,7 @@
   [![Build](https://img.shields.io/github/actions/workflow/status/Lucky-069/SnapEnhance/android.yml?branch=main&logo=github&label=Build&event=push)](https://github.com/Lucky-069/SnapEnhance/actions/workflows/android.yml?query=branch%3Amain+event%3Apush+is%3Acompleted) [![Total](https://shields.io/github/downloads/Lucky-069/SnapEnhance/total?logo=Bookmeter&label=Downloads&logoColor=Green&color=Green)](https://github.com/Lucky-069/snapenhance/releases) [![Crowdin](https://badges.crowdin.net/snapenhance/localized.svg)](https://crowdin.com/project/snapenhance)
 
 ## This is merely a fork of the original project for personal use!<br>
-# Please go to the original repo by rhunk.
+## Use this at your own risk as the project is not supported by the original dev a.k.a rhunk nor should the issues for this repo be reported to the original dev. 
 
 # SnapEnhance
 SnapEnhance is an Xposed mod that enhances your Snapchat experience.<br/><br/>
