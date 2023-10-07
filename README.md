@@ -1,12 +1,14 @@
 <div align="center">
   <img src="https://raw.githubusercontent.com/rhunk/SnapEnhance/main/app/src/main/res/mipmap-xxxhdpi/launcher_icon_foreground.png" height="250" />
 
-  [![Build](https://img.shields.io/github/actions/workflow/status/rhunk/SnapEnhance/android.yml?branch=main&logo=github&label=Build&event=push)](https://github.com/rhunk/SnapEnhance/actions/workflows/android.yml?query=branch%3Amain+event%3Apush+is%3Acompleted) [![Total](https://shields.io/github/downloads/rhunk/SnapEnhance/total?logo=Bookmeter&label=Downloads&logoColor=Green&color=Green)](https://github.com/rhunk/snapenhance/releases) [![Crowdin](https://badges.crowdin.net/snapenhance/localized.svg)](https://crowdin.com/project/snapenhance)
-  
+  [![Build](https://img.shields.io/github/actions/workflow/status/Lucky-069/SnapEnhance/android.yml?branch=main&logo=github&label=Build&event=push)](https://github.com/Lucky-069/SnapEnhance/actions/workflows/android.yml?query=branch%3Amain+event%3Apush+is%3Acompleted) [![Total](https://shields.io/github/downloads/Lucky-069/SnapEnhance/total?logo=Bookmeter&label=Downloads&logoColor=Green&color=Green)](https://github.com/Lucky-069/snapenhance/releases) [![Crowdin](https://badges.crowdin.net/snapenhance/localized.svg)](https://crowdin.com/project/snapenhance)
+
+## This is merely a fork of the original project for personal use!<br>
+# Please go to the original repo by rhunk.
+
 # SnapEnhance
 SnapEnhance is an Xposed mod that enhances your Snapchat experience.<br/><br/>
-Please note that this project is currently in development, so bugs and crashes may occur. If you encounter any issues, we encourage you to report them. To do this simply visit our [issues](https://github.com/rhunk/SnapEnhance/issues) page and create an issue, make sure to follow the guidelines.
-</div>
+Please note that this project is 
 
 ## Quick Start
 Requirements:
@@ -15,15 +17,14 @@ Requirements:
 
 Although using this in an unrooted enviroment using something like LSPatch should be working fine, it is not recommended to do so, use at your own risk!
 
-1. Install the module APK from either this [Github repo](https://github.com/rhunk/SnapEnhance/releases) or the [LSPosed repo](https://modules.lsposed.org/module/me.rhunk.snapenhance)
+1. Install the module APK from either this [Github repo](https://github.com/Lucky-069/SnapEnhance/releases)
 2. Turn on the module in LSPosed and make sure Snapchat is in scope
 3. Force Stop Snapchat
 4. Open the menu by clicking the [Settings Gear Icon](https://i.imgur.com/2grm8li.png)
 
 ## Download 
-To Download the latest stable release, please visit the [Releases](https://github.com/rhunk/SnapEnhance/releases) page.<br/>
-You can also download the latest debug build from the [Actions](https://github.com/rhunk/SnapEnhance/actions) section.<br/>
-We no longer offer official LSPatch binaries for obvious reasons. However, you're welcome to patch them yourself, as they should theoretically work without any issues.
+To Download the latest stable release, please visit the [Releases](https://github.com/Lucky-069/SnapEnhance/releases) page.<br/>
+You can also download the latest debug build from the [Actions](https://github.com/Lucky-069/SnapEnhance/actions) section.<br/>
 
 ## Features
 <details open>
@@ -168,19 +169,15 @@ We do not collect any user information. However, please be aware that third-part
 - [TheVisual](https://github.com/TheVisual)  
 
 ## Credits
+## All credits go to the original dev
+
 - [LSPosed](https://github.com/LSPosed/LSPosed)
 - [dexlib2](https://android.googlesource.com/platform/external/smali/+/refs/heads/main/dexlib2/)
 - [ffmpeg-kit-full-gpl](https://github.com/arthenica/ffmpeg-kit)
 - [osmdroid](https://github.com/osmdroid/osmdroid)
 - [coil](https://github.com/coil-kt/coil)
 - [Dobby](https://github.com/jmpews/Dobby)
-
-
-## Donate
-- LTC: LbBnT9GxgnFhwy891EdDKqGmpn7XtduBdE
-- BCH: qpu57a05kqljjadvpgjc6t894apprvth9slvlj4vpj
-- BTC: bc1qaqnfn6mauzhmx0e6kkenh2wh4r6js0vh5vel92
-- ETH: 0x0760987491e9de53A73fd87F092Bd432a227Ee92
+- [rhunk](https://github.com/rhunk) 
 
 ## License
 The [GNU GPL v3](https://www.gnu.org/licenses/gpl-3.0.en.html#license-text) license is a free, open-source software license that grants users the right to modify, share, and redistribute the software.
