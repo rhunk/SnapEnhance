@@ -2,6 +2,7 @@ package me.rhunk.snapenhance.mapper.impl
 
 import me.rhunk.snapenhance.mapper.AbstractClassMapper
 import me.rhunk.snapenhance.mapper.MapperContext
+import me.rhunk.snapenhance.mapper.ext.getClassName
 import me.rhunk.snapenhance.mapper.ext.isAbstract
 import org.jf.dexlib2.AccessFlags
 
@@ -15,7 +16,7 @@ class MediaQualityLevelProviderMapper : AbstractClassMapper(EnumMapper::class) {
 
             clazz.methods.firstOrNull { it.returnType == "L$mediaQualityLevelClass;" }?.let {
                 context.addMapping("MediaQualityLevelProvider",
-                    "class" to clazz.type.replace("L", "").replace(";", ""),
+                    "class" to clazz.getClassName(),
                     "method" to it.name
                 )
                 return

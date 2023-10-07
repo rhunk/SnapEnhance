@@ -2,6 +2,7 @@ package me.rhunk.snapenhance.mapper.impl
 
 import me.rhunk.snapenhance.mapper.AbstractClassMapper
 import me.rhunk.snapenhance.mapper.MapperContext
+import me.rhunk.snapenhance.mapper.ext.getClassName
 import me.rhunk.snapenhance.mapper.ext.getStaticConstructor
 import me.rhunk.snapenhance.mapper.ext.isFinal
 import org.jf.dexlib2.iface.instruction.formats.ArrayPayload
@@ -24,7 +25,7 @@ class BCryptClassMapper : AbstractClassMapper() {
                 }
 
                 context.addMapping("BCrypt",
-                    "class" to clazz.type.replace("L", "").replace(";", ""),
+                    "class" to clazz.getClassName(),
                     "hashMethod" to hashMethod.name
                 )
                 return

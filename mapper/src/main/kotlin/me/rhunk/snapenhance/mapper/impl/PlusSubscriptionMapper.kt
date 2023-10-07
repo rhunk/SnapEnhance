@@ -3,6 +3,7 @@ package me.rhunk.snapenhance.mapper.impl
 import me.rhunk.snapenhance.mapper.AbstractClassMapper
 import me.rhunk.snapenhance.mapper.MapperContext
 import me.rhunk.snapenhance.mapper.ext.findConstString
+import me.rhunk.snapenhance.mapper.ext.getClassName
 
 class PlusSubscriptionMapper : AbstractClassMapper(){
     override fun run(context: MapperContext) {
@@ -20,7 +21,7 @@ class PlusSubscriptionMapper : AbstractClassMapper(){
             }
 
             if (isPlusSubscriptionInfoClass == true) {
-                context.addMapping("SubscriptionInfoClass", clazz.type.replace("L", "").replace(";", ""))
+                context.addMapping("SubscriptionInfoClass", clazz.getClassName())
                 return
             }
         }
