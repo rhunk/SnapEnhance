@@ -7,6 +7,7 @@ import androidx.compose.foundation.ScrollState
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.OpenInNew
 import androidx.compose.material.icons.filled.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
@@ -155,7 +156,7 @@ class HomeSection : Section() {
                 Button(onClick = {
                     context.checkForRequirements(Requirements.LANGUAGE)
                 }, modifier = Modifier.height(40.dp)) {
-                    Icon(Icons.Filled.OpenInNew, contentDescription = null)
+                    Icon(Icons.AutoMirrored.Filled.OpenInNew, contentDescription = null)
                 }
             }
         }

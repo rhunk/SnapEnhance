@@ -9,7 +9,7 @@ import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.ArrowForwardIos
+import androidx.compose.material.icons.automirrored.filled.ArrowForwardIos
 import androidx.compose.material.icons.filled.Check
 import androidx.compose.material3.FilledIconButton
 import androidx.compose.material3.Icon
@@ -122,7 +122,7 @@ class SetupActivity : ComponentActivity() {
                                     imageVector = if (requiredScreens.size <= 1 && canGoNext) {
                                         Icons.Default.Check
                                     } else {
-                                        Icons.Default.ArrowForwardIos
+                                        Icons.AutoMirrored.Default.ArrowForwardIos
                                     },
                                     contentDescription = null
                                 )

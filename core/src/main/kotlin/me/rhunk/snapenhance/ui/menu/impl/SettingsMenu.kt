@@ -7,6 +7,7 @@ import me.rhunk.snapenhance.ui.menu.AbstractMenu
 class SettingsMenu : AbstractMenu() {
     //TODO: quick settings
     @SuppressLint("SetTextI18n")
+    @Suppress("UNUSED_PARAMETER")
     fun inject(viewModel: View, addView: (View) -> Unit) {
         /*val actions = context.actionManager.getActions().map {
             Pair(it) {
