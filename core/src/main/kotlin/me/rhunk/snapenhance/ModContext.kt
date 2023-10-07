@@ -67,6 +67,10 @@ class ModContext {
     }
 
     fun runOnUiThread(runnable: () -> Unit) {
+        if (Looper.myLooper() == Looper.getMainLooper()) {
+            runnable()
+            return
+        }
         Handler(Looper.getMainLooper()).post {
             runCatching(runnable).onFailure {
                 Logger.xposedLog("UI thread runnable failed", it)
@@ -86,11 +90,15 @@ class ModContext {
     }
 
     fun shortToast(message: Any?) {
-        Toast.makeText(androidContext, message.toString(), Toast.LENGTH_SHORT).show()
+        runOnUiThread {
+            Toast.makeText(androidContext, message.toString(), Toast.LENGTH_SHORT).show()
+        }
     }
 
     fun longToast(message: Any?) {
-        Toast.makeText(androidContext, message.toString(), Toast.LENGTH_LONG).show()
+        runOnUiThread {
+            Toast.makeText(androidContext, message.toString(), Toast.LENGTH_LONG).show()
+        }
     }
 
     fun softRestartApp(saveSettings: Boolean = false) {

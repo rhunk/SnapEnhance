@@ -10,17 +10,22 @@ import kotlin.io.encoding.Base64
 import kotlin.io.encoding.ExperimentalEncodingApi
 
 data class DecodedAttachment(
-    val mediaKey: String?,
+    val mediaUrlKey: String?,
     val type: AttachmentType,
     val attachmentInfo: AttachmentInfo?
-)
+) {
+    @OptIn(ExperimentalEncodingApi::class)
+    val mediaUniqueId: String? by lazy {
+        runCatching { Base64.UrlSafe.decode(mediaUrlKey.toString()) }.getOrNull()?.let { ProtoReader(it).getString(2, 2) }
+    }
+}
 
 @OptIn(ExperimentalEncodingApi::class)
 object MessageDecoder {
     private val gson = GsonBuilder().create()
 
     private fun decodeAttachment(protoReader: ProtoReader): AttachmentInfo? {
-        val mediaInfo =  protoReader.followPath(1, 1) ?: return null
+        val mediaInfo = protoReader.followPath(1, 1) ?: return null
 
         return AttachmentInfo(
             encryption = run {
@@ -94,7 +99,7 @@ object MessageDecoder {
         fun decodeMedia(type: AttachmentType, protoReader: ProtoReader) {
             decodedAttachment.add(
                 DecodedAttachment(
-                    mediaKey = mediaReferences.getOrNull(mediaKeyIndex++),
+                    mediaUrlKey = mediaReferences.getOrNull(mediaKeyIndex++),
                     type = type,
                     attachmentInfo = decodeAttachment(protoReader) ?: return
                 )
@@ -110,7 +115,7 @@ object MessageDecoder {
             protoReader.followPath(1) {
                 decodedAttachment.add(
                     DecodedAttachment(
-                        mediaKey = null,
+                        mediaUrlKey = null,
                         type = AttachmentType.STICKER,
                         attachmentInfo = BitmojiSticker(
                             reference = getString(2) ?: return@followPath
@@ -149,7 +154,7 @@ object MessageDecoder {
 
                 decodedAttachment.add(
                     DecodedAttachment(
-                        mediaKey = mediaReferences.getOrNull(mediaKeyIndex++),
+                        mediaUrlKey = mediaReferences.getOrNull(mediaKeyIndex++),
                         type = AttachmentType.NOTE,
                         attachmentInfo = audioNote
                     )
