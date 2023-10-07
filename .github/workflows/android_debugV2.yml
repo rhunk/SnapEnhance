@@ -66,13 +66,13 @@ jobs:
       - name: Upload armv8
         uses: actions/upload-artifact@v3.1.2
         with:
-          name: app-armv8-release
+          name: SnapEnhance-armv8-release
           path: app/build/outputs/apk/armv8/release/*.apk
           
       - name: Upload armv7
         uses: actions/upload-artifact@v3.1.2
         with:
-          name: app-armv7-release
+          name: SnapEnhance-armv7-release
           path: app/build/outputs/apk/armv7/release/*.apk
           
       - name: CI Upload armv8
