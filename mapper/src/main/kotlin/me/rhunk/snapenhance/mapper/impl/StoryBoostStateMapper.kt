@@ -3,6 +3,7 @@ package me.rhunk.snapenhance.mapper.impl
 import me.rhunk.snapenhance.mapper.AbstractClassMapper
 import me.rhunk.snapenhance.mapper.MapperContext
 import me.rhunk.snapenhance.mapper.ext.findConstString
+import me.rhunk.snapenhance.mapper.ext.getClassName
 
 class StoryBoostStateMapper : AbstractClassMapper() {
     override fun run(context: MapperContext) {
@@ -13,7 +14,7 @@ class StoryBoostStateMapper : AbstractClassMapper() {
 
             if (clazz.methods.firstOrNull { it.name == "toString" }?.implementation?.findConstString("StoryBoostState", contains = true) != true) continue
 
-            context.addMapping("StoryBoostStateClass", clazz.type.replace("L", "").replace(";", ""))
+            context.addMapping("StoryBoostStateClass", clazz.getClassName())
             return
         }
     }

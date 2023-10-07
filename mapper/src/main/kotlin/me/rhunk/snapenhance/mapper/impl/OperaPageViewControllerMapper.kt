@@ -2,6 +2,7 @@ package me.rhunk.snapenhance.mapper.impl
 
 import me.rhunk.snapenhance.mapper.AbstractClassMapper
 import me.rhunk.snapenhance.mapper.MapperContext
+import me.rhunk.snapenhance.mapper.ext.getClassName
 import me.rhunk.snapenhance.mapper.ext.hasConstructorString
 import me.rhunk.snapenhance.mapper.ext.hasStaticConstructorString
 import me.rhunk.snapenhance.mapper.ext.isAbstract
@@ -39,7 +40,7 @@ class OperaPageViewControllerMapper : AbstractClassMapper() {
             }
 
             context.addMapping("OperaPageViewController",
-                "class" to clazz.type.replace("L", "").replace(";", ""),
+                "class" to clazz.getClassName(),
                 "viewStateField" to viewStateField.name,
                 "layerListField" to layerListField.name,
                 "onDisplayStateChange" to onDisplayStateChange.name,
