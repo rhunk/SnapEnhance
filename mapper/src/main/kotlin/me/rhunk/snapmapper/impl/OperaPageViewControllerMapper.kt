@@ -2,6 +2,7 @@ package me.rhunk.snapmapper.impl
 
 import me.rhunk.snapmapper.AbstractClassMapper
 import me.rhunk.snapmapper.MapperContext
+import me.rhunk.snapmapper.ext.getClassName
 import me.rhunk.snapmapper.ext.hasConstructorString
 import me.rhunk.snapmapper.ext.hasStaticConstructorString
 import me.rhunk.snapmapper.ext.isAbstract
@@ -39,7 +40,7 @@ class OperaPageViewControllerMapper : AbstractClassMapper() {
             }
 
             context.addMapping("OperaPageViewController",
-                "class" to clazz.type.replace("L", "").replace(";", ""),
+                "class" to clazz.getClassName(),
                 "viewStateField" to viewStateField.name,
                 "layerListField" to layerListField.name,
                 "onDisplayStateChange" to onDisplayStateChange.name,
