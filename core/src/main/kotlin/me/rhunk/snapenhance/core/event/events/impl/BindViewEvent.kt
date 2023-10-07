@@ -8,19 +8,19 @@ class BindViewEvent(
     val nextModel: Any?,
     val view: View
 ): Event() {
-    fun chatMessage(block: (conversationId: String, messageId: String) -> Unit) {
-        val prevModelToString = prevModel.toString()
-        if (!prevModelToString.startsWith("ChatViewModel")) return
-        prevModelToString.substringAfter("messageId=").substringBefore(",").split(":").apply {
+    inline fun chatMessage(block: (conversationId: String, messageId: String) -> Unit) {
+        val modelToString = prevModel.toString()
+        if (!modelToString.startsWith("ChatViewModel")) return
+        modelToString.substringAfter("messageId=").substringBefore(",").split(":").apply {
             if (size != 3) return
             block(this[0], this[2])
         }
     }
 
-    fun friendFeedItem(block: (conversationId: String) -> Unit) {
-        val prevModelToString = nextModel.toString()
-        if (!prevModelToString.startsWith("FriendFeedItemViewModel")) return
-        val conversationId = prevModelToString.substringAfter("conversationId: ").substringBefore("\n")
+    inline fun friendFeedItem(block: (conversationId: String) -> Unit) {
+        val modelToString = prevModel.toString()
+        if (!modelToString.startsWith("FriendFeedItemViewModel")) return
+        val conversationId = modelToString.substringAfter("conversationId: ").substringBefore("\n")
         block(conversationId)
     }
 }

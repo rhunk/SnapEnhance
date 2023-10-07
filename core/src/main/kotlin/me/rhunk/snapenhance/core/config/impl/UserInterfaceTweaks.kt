@@ -18,6 +18,7 @@ class UserInterfaceTweaks : ConfigContainer() {
     }
     val friendFeedMenuPosition = integer("friend_feed_menu_position", defaultValue = 1)
     val amoledDarkMode = boolean("amoled_dark_mode") { addNotices(FeatureNotice.UNSTABLE); requireRestart() }
+    val conversationPreviewInFriendFeed = boolean("conversation_preview_in_friend_feed") { requireRestart() }
     val bootstrapOverride = container("bootstrap_override", BootstrapOverride()) { requireRestart() }
     val mapFriendNameTags = boolean("map_friend_nametags") { requireRestart() }
     val streakExpirationInfo = boolean("streak_expiration_info") { requireRestart() }

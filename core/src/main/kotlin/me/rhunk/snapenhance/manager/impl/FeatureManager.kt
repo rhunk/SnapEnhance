@@ -23,6 +23,7 @@ import me.rhunk.snapenhance.features.impl.spying.SnapToChatMedia
 import me.rhunk.snapenhance.features.impl.spying.StealthMode
 import me.rhunk.snapenhance.features.impl.tweaks.*
 import me.rhunk.snapenhance.features.impl.ui.ClientBootstrapOverride
+import me.rhunk.snapenhance.features.impl.ui.FriendFeedMessagePreview
 import me.rhunk.snapenhance.features.impl.ui.PinConversations
 import me.rhunk.snapenhance.features.impl.ui.UITweaks
 import me.rhunk.snapenhance.manager.Manager
@@ -102,6 +103,7 @@ class FeatureManager(
             DisableReplayInFF::class,
             OldBitmojiSelfie::class,
             SnapToChatMedia::class,
+            FriendFeedMessagePreview::class,
         )
 
         initializeFeatures()

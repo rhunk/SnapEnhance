@@ -220,6 +220,10 @@
                         "name": "AMOLED Dark Mode",
                         "description": "Enables AMOLED dark mode\nMake sure Snapchats Dark mode is enabled"
                     },
+                    "conversation_preview_in_friend_feed": {
+                        "name": "Preview in FF",
+                        "description": "Shows a preview of the last messages in the Friend Feed"
+                    },
                     "bootstrap_override": {
                         "name": "Bootstrap Override",
                         "description": "Overrides user interface bootstrap settings",
