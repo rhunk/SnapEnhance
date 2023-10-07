@@ -27,7 +27,7 @@ android {
 tasks.register("getVersion") {
     doLast {
         val versionFile = File("app/build/version.txt")
-        versionFile.writeText(android.defaultConfig.versionName.toString())
+        versionFile.writeText(rootProject.ext["appVersionName"].toString())
     }
 }
 
