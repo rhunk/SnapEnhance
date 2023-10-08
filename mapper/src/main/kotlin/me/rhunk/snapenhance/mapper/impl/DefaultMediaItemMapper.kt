@@ -1,11 +1,24 @@
 package me.rhunk.snapenhance.mapper.impl
 
 import me.rhunk.snapenhance.mapper.AbstractClassMapper
+import me.rhunk.snapenhance.mapper.ext.findConstString
 import me.rhunk.snapenhance.mapper.ext.getClassName
 import me.rhunk.snapenhance.mapper.ext.isAbstract
 
 class DefaultMediaItemMapper : AbstractClassMapper() {
     init {
+        mapper {
+            for (clazz in classes) {
+                if (clazz.methods.find { it.name == "toString" }?.implementation?.findConstString("CameraRollMediaId", contains = true) != true) {
+                    continue
+                }
+                val durationMsField = clazz.fields.firstOrNull { it.type == "J" } ?: continue
+
+                addMapping("CameraRollMediaId", "class" to clazz.getClassName(), "durationMsField" to durationMsField.name)
+                return@mapper
+            }
+        }
+
         mapper {
             for (clazz in classes) {
                 val superClass = getClass(clazz.superclass) ?: continue

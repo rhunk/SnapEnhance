@@ -362,9 +362,9 @@
                         "name": "Block Ads",
                         "description": "Prevents Advertisements from being displayed"
                     },
-                    "disable_video_length_restrictions": {
-                        "name": "Disable Video Length Restrictions",
-                        "description": "Disables Snapchat's maximum video length restriction"
+                    "bypass_video_length_restriction": {
+                        "name": "Bypass Video Length Restrictions",
+                        "description": "Single: sends a single video\nSplit: split videos after editing"
                     },
                     "disable_google_play_dialogs": {
                         "name": "Disable Google Play Services Dialogs",
@@ -664,6 +664,10 @@
                 "added_by_group_chat": "By Group Chat",
                 "added_by_qr_code": "By QR Code",
                 "added_by_community": "By Community"
+            },
+            "bypass_video_length_restriction": {
+                "single": "Single media",
+                "split": "Split media"
             }
         }
     },
