@@ -10,7 +10,7 @@ enum class RuleState(
     WHITELIST("whitelist");
 
     companion object {
-        fun getByName(name: String) = values().first { it.key == name }
+        fun getByName(name: String) = entries.first { it.key == name }
     }
 }
 
@@ -22,7 +22,7 @@ enum class SocialScope(
     GROUP("group", "group_info/{id}");
 
     companion object {
-        fun getByName(name: String) = values().first { it.key == name }
+        fun getByName(name: String) = entries.first { it.key == name }
     }
 }
 
@@ -43,7 +43,7 @@ enum class MessagingRuleType(
     }
 
     companion object {
-        fun getByName(name: String) = values().firstOrNull { it.key == name }
+        fun getByName(name: String) = entries.firstOrNull { it.key == name }
     }
 }
 

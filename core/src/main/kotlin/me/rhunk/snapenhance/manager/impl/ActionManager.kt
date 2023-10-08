@@ -15,7 +15,7 @@ class ActionManager(
     private val actions = mutableMapOf<String, AbstractAction>()
 
     override fun init() {
-        EnumAction.values().forEach { enumAction ->
+        EnumAction.entries.forEach { enumAction ->
             actions[enumAction.key] = enumAction.clazz.java.getConstructor().newInstance().apply {
                 this.context = modContext
             }
@@ -24,7 +24,7 @@ class ActionManager(
 
     fun onNewIntent(intent: Intent?) {
         val action = intent?.getStringExtra(ACTION_PARAMETER) ?: return
-        execute(EnumAction.values().find { it.key == action } ?: return)
+        execute(EnumAction.entries.find { it.key == action } ?: return)
         intent.removeExtra(ACTION_PARAMETER)
     }
 

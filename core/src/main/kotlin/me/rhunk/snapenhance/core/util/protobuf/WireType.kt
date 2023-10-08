@@ -9,6 +9,6 @@ enum class WireType(val value: Int) {
     FIXED32(5);
 
     companion object {
-        fun fromValue(value: Int) = values().firstOrNull { it.value == value }
+        fun fromValue(value: Int) = entries.firstOrNull { it.value == value }
     }
 }

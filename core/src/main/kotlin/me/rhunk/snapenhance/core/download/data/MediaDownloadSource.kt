@@ -22,7 +22,7 @@ enum class MediaDownloadSource(
     companion object {
         fun fromKey(key: String?): MediaDownloadSource {
             if (key == null) return NONE
-            return values().find { it.key == key } ?: NONE
+            return entries.find { it.key == key } ?: NONE
         }
     }
 }

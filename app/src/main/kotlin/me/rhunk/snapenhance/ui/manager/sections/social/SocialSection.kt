@@ -66,7 +66,7 @@ class SocialSection : Section() {
                 Content()
             }
 
-            SocialScope.values().forEach { scope ->
+            SocialScope.entries.forEach { scope ->
                 composable(scope.tabRoute) {
                     val id = it.arguments?.getString("id") ?: return@composable
                     remember {

@@ -26,15 +26,15 @@ enum class NotificationType (
 
     companion object {
         fun getIncomingValues(): List<NotificationType> {
-            return values().filter { it.isIncoming }.toList()
+            return entries.filter { it.isIncoming }.toList()
         }
 
         fun getOutgoingValues(): List<NotificationType> {
-            return values().filter { it.associatedOutgoingContentType != null }.toList()
+            return entries.filter { it.associatedOutgoingContentType != null }.toList()
         }
 
         fun fromContentType(contentType: ContentType): NotificationType? {
-            return values().firstOrNull { it.associatedOutgoingContentType == contentType }
+            return entries.firstOrNull { it.associatedOutgoingContentType == contentType }
         }
     }
 }
@@ -63,7 +63,7 @@ enum class ContentType(val id: Int) {
 
     companion object {
         fun fromId(i: Int): ContentType {
-            return values().firstOrNull { it.id == i } ?: UNKNOWN
+            return entries.firstOrNull { it.id == i } ?: UNKNOWN
         }
 
         fun fromMessageContainer(protoReader: ProtoReader?): ContentType? {
@@ -165,7 +165,7 @@ enum class FriendLinkType(val value: Int, val shortName: String) {
 
     companion object {
         fun fromValue(value: Int): FriendLinkType {
-            return values().firstOrNull { it.value == value } ?: MUTUAL
+            return entries.firstOrNull { it.value == value } ?: MUTUAL
         }
     }
 }

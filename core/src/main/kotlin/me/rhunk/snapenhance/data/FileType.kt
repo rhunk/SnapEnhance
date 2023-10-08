@@ -38,7 +38,7 @@ enum class FileType(
         )
 
         fun fromString(string: String?): FileType {
-            return values().firstOrNull { it.fileExtension.equals(string, ignoreCase = true) } ?: UNKNOWN
+            return entries.firstOrNull { it.fileExtension.equals(string, ignoreCase = true) } ?: UNKNOWN
         }
 
         private fun bytesToHex(bytes: ByteArray): String {

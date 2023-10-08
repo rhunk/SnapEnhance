@@ -39,8 +39,8 @@ class ConfigParams(
     var customTranslationPath: String? = null,
     var customOptionTranslationPath: String? = null
 ) {
-    val notices get() = _notices?.let { FeatureNotice.values().filter { flag -> it and flag.id != 0 } } ?: emptyList()
-    val flags get() = _flags?.let { ConfigFlag.values().filter { flag -> it and flag.id != 0 } } ?: emptyList()
+    val notices get() = _notices?.let { FeatureNotice.entries.filter { flag -> it and flag.id != 0 } } ?: emptyList()
+    val flags get() = _flags?.let { ConfigFlag.entries.filter { flag -> it and flag.id != 0 } } ?: emptyList()
 
     fun addNotices(vararg values: FeatureNotice) {
         this._notices = (this._notices ?: 0) or values.fold(0) { acc, featureNotice -> acc or featureNotice.id }

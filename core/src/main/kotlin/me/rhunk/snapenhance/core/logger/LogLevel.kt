@@ -16,15 +16,15 @@ enum class LogLevel(
 
     companion object {
         fun fromLetter(letter: String): LogLevel? {
-            return values().find { it.letter == letter }
+            return entries.find { it.letter == letter }
         }
 
         fun fromShortName(shortName: String): LogLevel? {
-            return values().find { it.shortName == shortName }
+            return entries.find { it.shortName == shortName }
         }
 
         fun fromPriority(priority: Int): LogLevel? {
-            return values().find { it.priority == priority }
+            return entries.find { it.priority == priority }
         }
     }
 }

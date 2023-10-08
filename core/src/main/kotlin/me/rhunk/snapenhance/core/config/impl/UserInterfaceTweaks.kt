@@ -11,14 +11,18 @@ class UserInterfaceTweaks : ConfigContainer() {
         val homeTab = unique("home_tab", *ClientBootstrapOverride.tabs) { addNotices(FeatureNotice.UNSTABLE) }
     }
 
+    inner class FriendFeedMessagePreview : ConfigContainer(hasGlobalState = true) {
+        val amount = integer("amount", defaultValue = 1)
+    }
+
     val friendFeedMenuButtons = multiple(
-        "friend_feed_menu_buttons","conversation_info", *MessagingRuleType.values().toList().filter { it.showInFriendMenu }.map { it.key }.toTypedArray()
+        "friend_feed_menu_buttons","conversation_info", *MessagingRuleType.entries.filter { it.showInFriendMenu }.map { it.key }.toTypedArray()
     ).apply {
         set(mutableListOf("conversation_info", MessagingRuleType.STEALTH.key))
     }
     val friendFeedMenuPosition = integer("friend_feed_menu_position", defaultValue = 1)
     val amoledDarkMode = boolean("amoled_dark_mode") { addNotices(FeatureNotice.UNSTABLE); requireRestart() }
-    val conversationPreviewInFriendFeed = boolean("conversation_preview_in_friend_feed") { requireRestart() }
+    val friendFeedMessagePreview = container("friend_feed_message_preview", FriendFeedMessagePreview()) { requireRestart() }
     val bootstrapOverride = container("bootstrap_override", BootstrapOverride()) { requireRestart() }
     val mapFriendNameTags = boolean("map_friend_nametags") { requireRestart() }
     val streakExpirationInfo = boolean("streak_expiration_info") { requireRestart() }

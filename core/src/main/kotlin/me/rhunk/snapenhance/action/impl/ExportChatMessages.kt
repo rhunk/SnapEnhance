@@ -69,8 +69,8 @@ class ExportChatMessages : AbstractAction() {
         context.runOnUiThread {
             ViewAppearanceHelper.newAlertDialogBuilder(context.mainActivity)
                 .setTitle(context.translation["chat_export.select_export_format"])
-                .setItems(ExportFormat.values().map { it.name }.toTypedArray()) { _, which ->
-                    cont.resumeWith(Result.success(ExportFormat.values()[which]))
+                .setItems(ExportFormat.entries.map { it.name }.toTypedArray()) { _, which ->
+                    cont.resumeWith(Result.success(ExportFormat.entries[which]))
                 }
                 .setOnCancelListener {
                     cont.resumeWith(Result.success(null))

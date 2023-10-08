@@ -85,7 +85,7 @@ class DownloadsSection : Section() {
         }
 
         DropdownMenu(expanded = showMenu, onDismissRequest = { showMenu = false }) {
-            MediaDownloadSource.values().toList().forEach { filter ->
+            MediaDownloadSource.entries.forEach { filter ->
                 DropdownMenuItem(
                     text = {
                         Row(
