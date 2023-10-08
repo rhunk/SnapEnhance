@@ -42,7 +42,7 @@ class JSModule(
                 val value = args[2]
                 val field = obj.unwrap().javaClass.declaredFields.find { it.name == name } ?: return@putFunction Undefined.instance
                 field.isAccessible = true
-                field.set(obj.unwrap(), value)
+                field.set(obj.unwrap(), value.toPrimitiveValue(lazy { field.type.name }))
                 Undefined.instance
             }
 

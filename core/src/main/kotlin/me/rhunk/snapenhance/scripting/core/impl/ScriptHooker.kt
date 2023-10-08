@@ -6,6 +6,7 @@ import me.rhunk.snapenhance.hook.HookStage
 import me.rhunk.snapenhance.hook.Hooker
 import me.rhunk.snapenhance.hook.hook
 import me.rhunk.snapenhance.hook.hookConstructor
+import me.rhunk.snapenhance.scripting.toPrimitiveValue
 import me.rhunk.snapenhance.scripting.type.ModuleInfo
 import org.mozilla.javascript.annotations.JSGetter
 import org.mozilla.javascript.annotations.JSSetter
@@ -19,7 +20,12 @@ class ScriptHookCallback(
 ) {
     var result
         @JSGetter("result") get() = hookAdapter.getResult()
-        @JSSetter("result") set(result) = hookAdapter.setResult(result)
+        @JSSetter("result") set(result) = hookAdapter.setResult(result.toPrimitiveValue(lazy {
+            when (val member = hookAdapter.method()) {
+                is Method -> member.returnType.name
+                else -> "void"
+            }
+        }))
 
     val thisObject
         @JSGetter("thisObject") get() = hookAdapter.nullableThisObject<Any>()
@@ -43,29 +49,14 @@ class ScriptHookCallback(
     fun arg(index: Int) = hookAdapter.argNullable<Any>(index)
 
     fun setArg(index: Int, value: Any) {
-        val parameterType by lazy { parameterTypes[index] }
-
-        if (value is Number && parameterType.isPrimitive) {
-            hookAdapter.setArg(index, when (parameterType.name) {
-                "byte" -> value.toByte()
-                "short" -> value.toShort()
-                "int" -> value.toInt()
-                "long" -> value.toLong()
-                "float" -> value.toFloat()
-                "double" -> value.toDouble()
-                "boolean" -> value.toByte() != 0.toByte()
-                "char" -> value.toInt().toChar()
-                else -> value
-            })
-            return
-        }
-
-        hookAdapter.setArg(index, value)
+        hookAdapter.setArg(index, value.toPrimitiveValue(lazy { parameterTypes[index].name }))
     }
 
     fun invokeOriginal() = hookAdapter.invokeOriginal()
 
-    fun invokeOriginal(args: Array<Any>) = hookAdapter.invokeOriginal(args)
+    fun invokeOriginal(args: Array<Any>) = hookAdapter.invokeOriginal(args.map {
+        it.toPrimitiveValue(lazy { parameterTypes[args.indexOf(it)].name }) ?: it
+    }.toTypedArray())
 
     override fun toString(): String {
         return "ScriptHookCallback(\n" +
