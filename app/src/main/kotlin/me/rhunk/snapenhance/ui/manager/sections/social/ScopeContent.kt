@@ -72,7 +72,7 @@ class ScopeContent(
 
             ContentCard {
                 //manager anti features etc
-                MessagingRuleType.values().forEach { ruleType ->
+                MessagingRuleType.entries.forEach { ruleType ->
                     var ruleEnabled by remember {
                         mutableStateOf(rules.any { it.key == ruleType.key })
                     }

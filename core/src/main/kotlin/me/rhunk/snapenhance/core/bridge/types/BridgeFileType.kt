@@ -18,7 +18,7 @@ enum class BridgeFileType(val value: Int, val fileName: String, val displayName:
 
     companion object {
         fun fromValue(value: Int): BridgeFileType? {
-            return values().firstOrNull { it.value == value }
+            return entries.firstOrNull { it.value == value }
         }
     }
 }

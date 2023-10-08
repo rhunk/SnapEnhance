@@ -95,14 +95,14 @@ class SettingsSection : Section() {
                 .verticalScroll(ScrollState(0))
         ) {
             RowTitle(title = "Actions")
-            EnumAction.values().forEach { enumAction ->
+            EnumAction.entries.forEach { enumAction ->
                 RowAction(title = context.translation["actions.${enumAction.key}"]) {
                     launchActionIntent(enumAction)
                 }
             }
 
             RowTitle(title = "Clear Files")
-            BridgeFileType.values().forEach { fileType ->
+            BridgeFileType.entries.forEach { fileType ->
                 RowAction(title = fileType.displayName, requireConfirmation = true) {
                     runCatching {
                         fileType.resolve(context.androidContext).delete()

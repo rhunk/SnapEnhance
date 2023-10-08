@@ -11,7 +11,7 @@ enum class LogChannel(
 
     companion object {
         fun fromChannel(channel: String): LogChannel? {
-            return values().find { it.channel == channel }
+            return entries.find { it.channel == channel }
         }
     }
 }

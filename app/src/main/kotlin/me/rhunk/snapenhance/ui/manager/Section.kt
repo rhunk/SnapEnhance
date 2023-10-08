@@ -54,7 +54,7 @@ enum class EnumSection(
 
     companion object {
         fun fromRoute(route: String): EnumSection {
-            return values().first { it.route == route }
+            return entries.first { it.route == route }
         }
     }
 }

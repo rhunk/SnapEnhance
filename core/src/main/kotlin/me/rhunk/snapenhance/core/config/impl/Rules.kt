@@ -14,7 +14,7 @@ class Rules : ConfigContainer() {
     }
 
     init {
-        MessagingRuleType.values().toList().filter { it.listMode }.forEach { ruleType ->
+        MessagingRuleType.entries.filter { it.listMode }.forEach { ruleType ->
             rules[ruleType] = unique(ruleType.key,"whitelist", "blacklist") {
                 customTranslationPath = "rules.properties.${ruleType.key}"
                 customOptionTranslationPath = "rules.modes"

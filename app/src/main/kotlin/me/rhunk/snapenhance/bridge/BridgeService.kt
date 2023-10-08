@@ -75,7 +75,7 @@ class BridgeService : Service() {
         override fun fileOperation(action: Int, fileType: Int, content: ByteArray?): ByteArray {
             val resolvedFile = BridgeFileType.fromValue(fileType)?.resolve(this@BridgeService)
 
-            return when (FileActionType.values()[action]) {
+            return when (FileActionType.entries[action]) {
                 FileActionType.CREATE_AND_READ -> {
                     resolvedFile?.let {
                         if (!it.exists()) {
