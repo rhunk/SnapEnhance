@@ -10,6 +10,7 @@ import org.mozilla.javascript.Function
 import org.mozilla.javascript.NativeJavaObject
 import org.mozilla.javascript.ScriptableObject
 import org.mozilla.javascript.Undefined
+import org.mozilla.javascript.Wrapper
 import java.lang.reflect.Modifier
 
 class JSModule(
@@ -88,7 +89,12 @@ class JSModule(
             }
 
             moduleObject.putFunction("logInfo") { args ->
-                scriptRuntime.logger.info(args?.joinToString(" ") ?: "")
+                scriptRuntime.logger.info(args?.joinToString(" ") {
+                    when (it) {
+                        is Wrapper -> it.unwrap().toString()
+                        else -> it.toString()
+                    }
+                } ?: "null")
                 Undefined.instance
             }
 

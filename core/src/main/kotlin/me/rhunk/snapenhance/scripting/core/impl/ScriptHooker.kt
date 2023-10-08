@@ -9,7 +9,9 @@ import me.rhunk.snapenhance.hook.hookConstructor
 import me.rhunk.snapenhance.scripting.type.ModuleInfo
 import org.mozilla.javascript.annotations.JSGetter
 import org.mozilla.javascript.annotations.JSSetter
+import java.lang.reflect.Constructor
 import java.lang.reflect.Member
+import java.lang.reflect.Method
 
 
 class ScriptHookCallback(
@@ -28,14 +30,50 @@ class ScriptHookCallback(
     val args
         @JSGetter("args") get() = hookAdapter.args().toList()
 
+    private val parameterTypes by lazy {
+        when (val member = hookAdapter.method()) {
+            is Method -> member.parameterTypes
+            is Constructor<*> -> member.parameterTypes
+            else -> emptyArray()
+        }.toList()
+    }
+
     fun cancel() = hookAdapter.setResult(null)
 
     fun arg(index: Int) = hookAdapter.argNullable<Any>(index)
 
-    fun setArg(index: Int, any: Any) = hookAdapter.setArg(index, any)
+    fun setArg(index: Int, value: Any) {
+        val parameterType by lazy { parameterTypes[index] }
+
+        if (value is Number && parameterType.isPrimitive) {
+            hookAdapter.setArg(index, when (parameterType.name) {
+                "byte" -> value.toByte()
+                "short" -> value.toShort()
+                "int" -> value.toInt()
+                "long" -> value.toLong()
+                "float" -> value.toFloat()
+                "double" -> value.toDouble()
+                "boolean" -> value.toByte() != 0.toByte()
+                "char" -> value.toInt().toChar()
+                else -> value
+            })
+            return
+        }
+
+        hookAdapter.setArg(index, value)
+    }
 
     fun invokeOriginal() = hookAdapter.invokeOriginal()
+
     fun invokeOriginal(args: Array<Any>) = hookAdapter.invokeOriginal(args)
+
+    override fun toString(): String {
+        return "ScriptHookCallback(\n" +
+                "  thisObject=${ runCatching { thisObject.toString() }.getOrNull() },\n" +
+                "  args=${ runCatching { args.toString() }.getOrNull() }\n" +
+                "  result=${ runCatching { result.toString() }.getOrNull() },\n" +
+                ")"
+    }
 }
 
 
