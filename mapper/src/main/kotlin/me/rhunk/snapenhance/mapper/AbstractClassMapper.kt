@@ -1,9 +1,13 @@
 package me.rhunk.snapenhance.mapper
 
-import kotlin.reflect.KClass
+abstract class AbstractClassMapper {
+    private val mappers = mutableListOf<MapperContext.() -> Unit>()
 
-abstract class AbstractClassMapper(
-   vararg val dependsOn: KClass<out AbstractClassMapper> = arrayOf()
-) {
-    abstract fun run(context: MapperContext)
+    fun mapper(task: MapperContext.() -> Unit) {
+        mappers.add(task)
+    }
+
+    fun run(context: MapperContext) {
+        mappers.forEach { it(context) }
+    }
 }

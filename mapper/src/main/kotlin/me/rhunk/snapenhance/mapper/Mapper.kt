@@ -56,30 +56,9 @@ class Mapper(
 
         runBlocking {
             withContext(Dispatchers.IO) {
-                val finishedJobs = mutableListOf<Class<*>>()
-                val dependentsMappers = mappers.filter { it.dependsOn.isNotEmpty() }
-
-                fun onJobFinished(mapper: AbstractClassMapper) {
-                    finishedJobs.add(mapper.javaClass)
-
-                    dependentsMappers.filter { it ->
-                        !finishedJobs.contains(it.javaClass) &&
-                                it.dependsOn.all {
-                                    finishedJobs.contains(it.java)
-                                }
-                    }.forEach {
-                        launch {
-                            it.run(context)
-                            onJobFinished(it)
-                        }
-                    }
-                }
-
                 mappers.forEach { mapper ->
-                    if (mapper.dependsOn.isNotEmpty()) return@forEach
                     launch {
                         mapper.run(context)
-                        onJobFinished(mapper)
                     }
                 }
             }

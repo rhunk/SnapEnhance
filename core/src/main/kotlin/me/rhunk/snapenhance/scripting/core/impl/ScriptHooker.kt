@@ -6,10 +6,13 @@ import me.rhunk.snapenhance.hook.HookStage
 import me.rhunk.snapenhance.hook.Hooker
 import me.rhunk.snapenhance.hook.hook
 import me.rhunk.snapenhance.hook.hookConstructor
+import me.rhunk.snapenhance.scripting.toPrimitiveValue
 import me.rhunk.snapenhance.scripting.type.ModuleInfo
 import org.mozilla.javascript.annotations.JSGetter
 import org.mozilla.javascript.annotations.JSSetter
+import java.lang.reflect.Constructor
 import java.lang.reflect.Member
+import java.lang.reflect.Method
 
 
 class ScriptHookCallback(
@@ -17,7 +20,12 @@ class ScriptHookCallback(
 ) {
     var result
         @JSGetter("result") get() = hookAdapter.getResult()
-        @JSSetter("result") set(result) = hookAdapter.setResult(result)
+        @JSSetter("result") set(result) = hookAdapter.setResult(result.toPrimitiveValue(lazy {
+            when (val member = hookAdapter.method()) {
+                is Method -> member.returnType.name
+                else -> "void"
+            }
+        }))
 
     val thisObject
         @JSGetter("thisObject") get() = hookAdapter.nullableThisObject<Any>()
@@ -28,14 +36,35 @@ class ScriptHookCallback(
     val args
         @JSGetter("args") get() = hookAdapter.args().toList()
 
+    private val parameterTypes by lazy {
+        when (val member = hookAdapter.method()) {
+            is Method -> member.parameterTypes
+            is Constructor<*> -> member.parameterTypes
+            else -> emptyArray()
+        }.toList()
+    }
+
     fun cancel() = hookAdapter.setResult(null)
 
     fun arg(index: Int) = hookAdapter.argNullable<Any>(index)
 
-    fun setArg(index: Int, any: Any) = hookAdapter.setArg(index, any)
+    fun setArg(index: Int, value: Any) {
+        hookAdapter.setArg(index, value.toPrimitiveValue(lazy { parameterTypes[index].name }))
+    }
 
     fun invokeOriginal() = hookAdapter.invokeOriginal()
-    fun invokeOriginal(args: Array<Any>) = hookAdapter.invokeOriginal(args)
+
+    fun invokeOriginal(args: Array<Any>) = hookAdapter.invokeOriginal(args.map {
+        it.toPrimitiveValue(lazy { parameterTypes[args.indexOf(it)].name }) ?: it
+    }.toTypedArray())
+
+    override fun toString(): String {
+        return "ScriptHookCallback(\n" +
+                "  thisObject=${ runCatching { thisObject.toString() }.getOrNull() },\n" +
+                "  args=${ runCatching { args.toString() }.getOrNull() }\n" +
+                "  result=${ runCatching { result.toString() }.getOrNull() },\n" +
+                ")"
+    }
 }
 
 

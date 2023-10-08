@@ -15,7 +15,6 @@ class TestMappings {
             CallbackMapper::class,
             DefaultMediaItemMapper::class,
             MediaQualityLevelProviderMapper::class,
-            EnumMapper::class,
             OperaPageViewControllerMapper::class,
             PlatformAnalyticsCreatorMapper::class,
             PlusSubscriptionMapper::class,
@@ -25,7 +24,7 @@ class TestMappings {
             CompositeConfigurationProviderMapper::class,
             ScoreUpdateMapper::class,
             FriendRelationshipChangerMapper::class,
-            ViewBinderMapper::class
+            ViewBinderMapper::class,
         )
 
         val gson = GsonBuilder().setPrettyPrinting().create()

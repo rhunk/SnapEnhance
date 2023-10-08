@@ -84,7 +84,7 @@ class FeatureManager(
             ConfigurationOverride::class,
             SendOverride::class,
             UnlimitedSnapViewTime::class,
-            DisableVideoLengthRestriction::class,
+            BypassVideoLengthRestriction::class,
             MediaQualityLevelOverride::class,
             MeoPasscodeBypass::class,
             AppPasscode::class,

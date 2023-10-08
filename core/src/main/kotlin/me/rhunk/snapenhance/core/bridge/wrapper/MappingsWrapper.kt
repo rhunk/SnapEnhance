@@ -21,7 +21,6 @@ class MappingsWrapper : FileLoaderWrapper(BridgeFileType.MAPPINGS, "{}".toByteAr
             CallbackMapper::class,
             DefaultMediaItemMapper::class,
             MediaQualityLevelProviderMapper::class,
-            EnumMapper::class,
             OperaPageViewControllerMapper::class,
             PlatformAnalyticsCreatorMapper::class,
             PlusSubscriptionMapper::class,
