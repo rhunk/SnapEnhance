@@ -2,6 +2,7 @@ package me.rhunk.snapmapper.impl
 
 import me.rhunk.snapmapper.AbstractClassMapper
 import me.rhunk.snapmapper.MapperContext
+import me.rhunk.snapmapper.ext.getClassName
 import me.rhunk.snapmapper.ext.isAbstract
 
 class DefaultMediaItemMapper : AbstractClassMapper() {
@@ -15,7 +16,7 @@ class DefaultMediaItemMapper : AbstractClassMapper() {
             val constructorParameters = clazz.directMethods.firstOrNull { it.name == "<init>" }?.parameterTypes ?: continue
             if (constructorParameters.size < 6 || constructorParameters[5] != "J") continue
 
-            context.addMapping("DefaultMediaItem", clazz.type.replace("L", "").replace(";", ""))
+            context.addMapping("DefaultMediaItem", clazz.getClassName())
             return
         }
     }

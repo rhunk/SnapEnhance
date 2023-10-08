@@ -3,6 +3,7 @@ package me.rhunk.snapmapper.impl
 import me.rhunk.snapmapper.AbstractClassMapper
 import me.rhunk.snapmapper.MapperContext
 import me.rhunk.snapmapper.ext.findConstString
+import me.rhunk.snapmapper.ext.getClassName
 import me.rhunk.snapmapper.ext.getStaticConstructor
 import me.rhunk.snapmapper.ext.isEnum
 
@@ -17,7 +18,7 @@ class PlatformAnalyticsCreatorMapper : AbstractClassMapper() {
             if (!firstParameterClass.isEnum()) continue
             if (firstParameterClass.getStaticConstructor()?.implementation?.findConstString("IN_APP_NOTIFICATION") != true) continue
 
-            context.addMapping("PlatformAnalyticsCreator", clazz.type.replace("L", "").replace(";", ""))
+            context.addMapping("PlatformAnalyticsCreator", clazz.getClassName())
             return
         }
     }
