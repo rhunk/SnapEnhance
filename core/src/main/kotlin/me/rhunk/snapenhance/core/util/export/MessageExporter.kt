@@ -119,7 +119,7 @@ class MessageExporter(
             }.forEach { message ->
                 threadPool.execute {
                     MessageDecoder.decode(message.messageContent).forEach decode@{ attachment ->
-                        val protoMediaReference = Base64.UrlSafe.decode(attachment.mediaKey ?: return@decode)
+                        val protoMediaReference = Base64.UrlSafe.decode(attachment.mediaUrlKey ?: return@decode)
 
                         runCatching {
                             RemoteMediaResolver.downloadBoltMedia(protoMediaReference, decryptionCallback = {
@@ -291,7 +291,7 @@ class MessageExporter(
                                 if (attachments.type == AttachmentType.STICKER) //TODO: implement stickers
                                     return@attachments
                                 add(JsonObject().apply {
-                                    addProperty("key", attachments.mediaKey?.replace("=", ""))
+                                    addProperty("key", attachments.mediaUrlKey?.replace("=", ""))
                                     addProperty("type", attachments.type.toString())
                                     add("encryption", attachments.attachmentInfo?.encryption?.let { encryption ->
                                         JsonObject().apply {

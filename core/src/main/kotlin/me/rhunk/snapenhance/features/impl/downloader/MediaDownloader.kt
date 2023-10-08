@@ -289,9 +289,10 @@ class MediaDownloader : MessagingRuleFeature("MediaDownloader", MessagingRuleTyp
 
             val author = context.database.getFriendInfo(senderId) ?: return
             val authorUsername = author.usernameForSorting!!
+            val mediaId = paramMap["MEDIA_ID"]?.toString()?.split("-")?.getOrNull(1) ?: ""
 
             downloadOperaMedia(provideDownloadManagerClient(
-                mediaIdentifier = "$conversationId$senderId${conversationMessage.serverMessageId}",
+                mediaIdentifier = "$conversationId$senderId${conversationMessage.serverMessageId}$mediaId",
                 mediaAuthor = authorUsername,
                 downloadSource = MediaDownloadSource.CHAT_MEDIA,
                 friendInfo = author
@@ -533,12 +534,12 @@ class MediaDownloader : MessagingRuleFeature("MediaDownloader", MessagingRuleTyp
         attachments.forEach { attachment ->
             runCatching {
                 provideDownloadManagerClient(
-                    mediaIdentifier = "${message.clientConversationId}${message.senderId}${message.serverMessageId}${attachment.attachmentInfo?.encryption?.iv}",
+                    mediaIdentifier = "${message.clientConversationId}${message.senderId}${message.serverMessageId}${attachment.mediaUniqueId}",
                     downloadSource = MediaDownloadSource.CHAT_MEDIA,
                     mediaAuthor = authorName,
                     friendInfo = friendInfo
                 ).downloadSingleMedia(
-                    mediaData = attachment.mediaKey!!,
+                    mediaData = attachment.mediaUrlKey!!,
                     mediaType = DownloadMediaType.PROTO_MEDIA,
                     encryption = attachment.attachmentInfo?.encryption,
                     attachmentType = attachment.type
@@ -614,7 +615,7 @@ class MediaDownloader : MessagingRuleFeature("MediaDownloader", MessagingRuleTyp
             val firstAttachment = decodedAttachments.first()
 
             val previewCoroutine = async {
-                val downloadedMedia = RemoteMediaResolver.downloadBoltMedia(Base64.decode(firstAttachment.mediaKey!!), decryptionCallback = {
+                val downloadedMedia = RemoteMediaResolver.downloadBoltMedia(Base64.decode(firstAttachment.mediaUrlKey!!), decryptionCallback = {
                     firstAttachment.attachmentInfo?.encryption?.decryptInputStream(it) ?: it
                 }) ?: return@async null
 
