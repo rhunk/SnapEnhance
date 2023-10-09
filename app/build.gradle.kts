@@ -5,6 +5,12 @@ plugins {
     alias(libs.plugins.kotlinAndroid)
 }
 
+<<<<<<< HEAD
+=======
+val appVersionName = "1.2.4"
+val appVersionCode = 12
+
+>>>>>>> origin
 android {
     namespace = rootProject.ext["applicationId"].toString()
     compileSdk = 34
@@ -89,11 +95,16 @@ android {
     }
 
     applicationVariants.all {
+<<<<<<< HEAD
         outputs.map { it as BaseVariantOutputImpl }.forEach { outputVariant ->
             outputVariant.outputFileName = when {
                 name.startsWith("core") -> "core.apk"
                 else -> "snapenhance_${rootProject.ext["appVersionName"]}-${outputVariant.name}.apk"
             }
+=======
+        outputs.map { it as BaseVariantOutputImpl }.forEach { variant ->
+            variant.outputFileName = "SnapEnhance-${appVersionName}-${variant.name}.apk"
+>>>>>>> origin
         }
     }
 

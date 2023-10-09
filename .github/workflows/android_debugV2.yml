@@ -1,20 +1,42 @@
+<<<<<<< HEAD
 name: Android CI [Release] 
 on:
   workflow_dispatch:
     branches: [ "refactor_2_0_0" ]
+=======
+name: Android CI Release
+on:
+  workflow_dispatch:
+    branches: [ "main" ]
+>>>>>>> origin
     paths-ignore:
       - '**/README.md'
       - '.github/**'
   pull_request:
+<<<<<<< HEAD
     branches: [ "refactor_2_0_0" ]
+=======
+    branches: [ "main" ]
+>>>>>>> origin
 jobs:
   build:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout repo
+<<<<<<< HEAD
+<<<<<<<< HEAD:.github/workflows/android_debugV2.yml
         uses: actions/checkout@v4  
         with:
           ref: refactor_2_0_0
+========
+        uses: actions/checkout@v3  
+        with:
+>>>>>>>> origin:.github/workflows/android.yml
+=======
+        uses: actions/checkout@v4  
+        with:
+          ref: refactor_2_0_0
+>>>>>>> origin
           submodules: 'recursive'
     
     
@@ -60,18 +82,33 @@ jobs:
         
       - name: Rename APK files
         run: |
+<<<<<<< HEAD
+<<<<<<<< HEAD:.github/workflows/android_debugV2.yml
           mv app/build/outputs/apk/armv8/release/*.apk app/build/outputs/apk/armv8/release/SnapEnhance-${{ env.version }}-armv8-${{ steps.version-env.outputs.sha_short }}.apk
           mv app/build/outputs/apk/armv7/release/*.apk app/build/outputs/apk/armv7/release/SnapEnhance-${{ env.version }}-armv7-${{ steps.version-env.outputs.sha_short }}.apk
+========
+          mv app/build/outputs/apk/armv8/debug/*.apk app/build/outputs/apk/armv8/debug/SnapEnhance-${{ env.version }}-armv8-${{ steps.version-env.outputs.sha_short }}.apk
+          mv app/build/outputs/apk/armv7/debug/*.apk app/build/outputs/apk/armv7/debug/SnapEnhance-${{ env.version }}-armv7-${{ steps.version-env.outputs.sha_short }}.apk
+>>>>>>>> origin:.github/workflows/android.yml
+=======
+          mv app/build/outputs/apk/armv8/release/*.apk app/build/outputs/apk/armv8/release/SnapEnhance-${{ env.version }}-armv8-${{ steps.version-env.outputs.sha_short }}.apk
+          mv app/build/outputs/apk/armv7/release/*.apk app/build/outputs/apk/armv7/release/SnapEnhance-${{ env.version }}-armv7-${{ steps.version-env.outputs.sha_short }}.apk
+>>>>>>> origin
       
       - name: Upload armv8
         uses: actions/upload-artifact@v3.1.2
         with:
+<<<<<<< HEAD
           name: SnapEnhance-armv8-release
+=======
+          name: app-armv8-release
+>>>>>>> origin
           path: app/build/outputs/apk/armv8/release/*.apk
           
       - name: Upload armv7
         uses: actions/upload-artifact@v3.1.2
         with:
+<<<<<<< HEAD
           name: SnapEnhance-armv7-release
           path: app/build/outputs/apk/armv7/release/*.apk
           
@@ -82,3 +119,15 @@ jobs:
       - name: CI Upload armv7
         if: github.ref_name == 'refactor_2_0_0'
         run: node ./.github/workflows/upload.js -t "${{ secrets.TELEGRAM_BOT_TOKEN }}" -f "app/build/outputs/apk/armv7/release/SnapEnhance-${{ env.version }}-armv7-${{ steps.version-env.outputs.sha_short }}.apk" --chatid "${{ secrets.TELEGRAM_CHAT_ID }}" 
+=======
+          name: app-armv7-release
+          path: app/build/outputs/apk/armv7/release/*.apk
+          
+      - name: CI Upload armv8
+        if: github.ref_name == 'main'
+        run: node ./.github/workflows/upload.js -t "${{ secrets.TELEGRAM_BOT_TOKEN }}" -f "app/build/outputs/apk/armv8/debug/app-${{ env.version }}-armv8-${{ steps.version-env.outputs.sha_short }}.apk" --caption "A new commit has been pushed to the ${{ env.GIT_BRANCH_NAME }} branch! ${{ steps.version-env.outputs.sha_short }}" --chatid "${{ secrets.TELEGRAM_CHAT_ID }}" 
+
+      - name: CI Upload armv7
+        if: github.ref_name == 'main'
+        run: node ./.github/workflows/upload.js -t "${{ secrets.TELEGRAM_BOT_TOKEN }}" -f "app/build/outputs/apk/armv7/debug/app-${{ env.version }}-armv7-${{ steps.version-env.outputs.sha_short }}.apk" --chatid "${{ secrets.TELEGRAM_CHAT_ID }}" 
+>>>>>>> origin

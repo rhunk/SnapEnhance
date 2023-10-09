@@ -74,4 +74,4 @@ jobs:
           files: |
             ${{ steps.sign_armv7_app.outputs.signedReleaseFile }}
             ${{ steps.sign_armv8_app.outputs.signedReleaseFile }}
-          automatic_release_tag: v${{ env.version }}
+          automatic_release_tag: v${{ env.version }} 
