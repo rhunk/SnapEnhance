@@ -1,6 +1,8 @@
 package me.rhunk.snapenhance.features.impl.privacy
 
 import me.rhunk.snapenhance.core.event.events.impl.SendMessageWithContentEvent
+import me.rhunk.snapenhance.core.event.events.impl.UnaryCallEvent
+import me.rhunk.snapenhance.core.util.protobuf.ProtoEditor
 import me.rhunk.snapenhance.data.NotificationType
 import me.rhunk.snapenhance.features.Feature
 import me.rhunk.snapenhance.features.FeatureLoadParams
@@ -11,8 +13,19 @@ class PreventMessageSending : Feature("Prevent message sending", loadParams = Fe
     override fun asyncOnActivityCreate() {
         val preventMessageSending by context.config.messaging.preventMessageSending
 
+        context.event.subscribe(UnaryCallEvent::class, { preventMessageSending.contains("snap_replay") }) { event ->
+            if (event.uri != "/messagingcoreservice.MessagingCoreService/UpdateContentMessage") return@subscribe
+            event.buffer = ProtoEditor(event.buffer).apply {
+                edit(3) {
+                    // replace replayed to read receipt
+                    remove(13)
+                    addBuffer(4, byteArrayOf())
+                }
+            }.toByteArray()
+        }
+
         context.classCache.conversationManager.hook("updateMessage", HookStage.BEFORE) { param ->
-            val messageUpdate = param.arg<Any>(2).toString();
+            val messageUpdate = param.arg<Any>(2).toString()
             if (messageUpdate == "SCREENSHOT" && preventMessageSending.contains("chat_screenshot")) {
                 param.setResult(null)
             }

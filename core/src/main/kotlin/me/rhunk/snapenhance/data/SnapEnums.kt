@@ -14,6 +14,7 @@ enum class NotificationType (
     SCREENSHOT("chat_screenshot", true, ContentType.STATUS_CONVERSATION_CAPTURE_SCREENSHOT),
     SCREEN_RECORD("chat_screen_record", true, ContentType.STATUS_CONVERSATION_CAPTURE_RECORD),
     CAMERA_ROLL_SAVE("camera_roll_save", true, ContentType.STATUS_SAVE_TO_CAMERA_ROLL),
+    SNAP_REPLAY("snap_replay", true, ContentType.STATUS),
     SNAP("snap",true),
     CHAT("chat",true),
     CHAT_REPLY("chat_reply",true),

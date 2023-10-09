@@ -622,6 +622,7 @@
             "notifications": {
                 "chat_screenshot": "Screenshot",
                 "chat_screen_record": "Screen Record",
+                "snap_replay": "Snap Replay",
                 "camera_roll_save": "Camera Roll Save",
                 "chat": "Chat",
                 "chat_reply": "Chat Reply",
