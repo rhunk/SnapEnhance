@@ -1,9 +1,0 @@
-blank_issues_enabled: false
-
-contact_links:
-- name: FAQ
-  url: https://github.com/rhunk/SnapEnhance/tree/refactor_2_0_0#faq
-  about: "Make sure you've checked the FAQ for solutions to your problem."
-- name: Telegram Discussion Chat
-  url: https://t.me/snapenhance_chat
-  about: "Get help on the Telegram Discussions Chat."
