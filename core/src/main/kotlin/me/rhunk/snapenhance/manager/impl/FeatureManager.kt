@@ -24,6 +24,7 @@ import me.rhunk.snapenhance.features.impl.spying.StealthMode
 import me.rhunk.snapenhance.features.impl.tweaks.*
 import me.rhunk.snapenhance.features.impl.ui.ClientBootstrapOverride
 import me.rhunk.snapenhance.features.impl.ui.FriendFeedMessagePreview
+import me.rhunk.snapenhance.features.impl.ui.HideStreakRestore
 import me.rhunk.snapenhance.features.impl.ui.PinConversations
 import me.rhunk.snapenhance.features.impl.ui.UITweaks
 import me.rhunk.snapenhance.manager.Manager
@@ -104,6 +105,7 @@ class FeatureManager(
             OldBitmojiSelfie::class,
             SnapToChatMedia::class,
             FriendFeedMessagePreview::class,
+            HideStreakRestore::class,
         )
 
         initializeFeatures()

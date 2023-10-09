@@ -252,6 +252,10 @@
                         "name": "Show Streak Expiration Info",
                         "description": "Shows a Streak Expiration timer next to the Streaks counter"
                     },
+                    "hide_streak_restore": {
+                        "name": "Hide Streak Restore",
+                        "description": "Hides the Restore button in the friend feed"
+                    },
                     "hide_story_sections": {
                         "name": "Hide Story Section",
                         "description": "Hide certain UI Elements shown in the story section"

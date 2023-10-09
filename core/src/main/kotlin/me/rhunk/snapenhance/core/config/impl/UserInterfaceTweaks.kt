@@ -26,6 +26,7 @@ class UserInterfaceTweaks : ConfigContainer() {
     val bootstrapOverride = container("bootstrap_override", BootstrapOverride()) { requireRestart() }
     val mapFriendNameTags = boolean("map_friend_nametags") { requireRestart() }
     val streakExpirationInfo = boolean("streak_expiration_info") { requireRestart() }
+    val hideStreakRestore = boolean("hide_streak_restore") { requireRestart() }
     val hideStorySections = multiple("hide_story_sections",
         "hide_friend_suggestions", "hide_friends", "hide_suggested", "hide_for_you") { requireRestart() }
     val hideUiComponents = multiple("hide_ui_components",
