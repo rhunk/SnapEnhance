@@ -31,8 +31,11 @@ android {
             proguardFiles += file("proguard-rules.pro")
         }
         debug {
-            isDebuggable = true
-            isMinifyEnabled = properties["debug_assemble_task"] == null
+            (properties["debug_assemble_task"] == null).also {
+                isDebuggable = !it
+                isMinifyEnabled = it
+                isShrinkResources = it
+            }
             proguardFiles += file("proguard-rules.pro")
         }
     }
