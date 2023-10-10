@@ -32,7 +32,8 @@ android {
         }
         debug {
             isDebuggable = true
-            isMinifyEnabled = false
+            isMinifyEnabled = properties["debug_assemble_task"] == null
+            proguardFiles += file("proguard-rules.pro")
         }
     }
 
