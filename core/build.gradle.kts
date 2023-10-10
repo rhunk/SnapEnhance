@@ -17,6 +17,7 @@ android {
         buildConfigField("String", "VERSION_NAME", "\"${rootProject.ext["appVersionName"]}\"")
         buildConfigField("int", "VERSION_CODE", "${rootProject.ext["appVersionCode"]}")
         buildConfigField("String", "APPLICATION_ID", "\"${rootProject.ext["applicationId"]}\"")
+        buildConfigField("int", "BUILD_DATE", "${System.currentTimeMillis() / 1000}")
     }
 
     kotlinOptions {

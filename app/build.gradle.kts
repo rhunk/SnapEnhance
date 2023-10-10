@@ -20,6 +20,8 @@ android {
 
     defaultConfig {
         applicationId = rootProject.ext["applicationId"].toString()
+        versionCode = rootProject.ext["appVersionCode"].toString().toInt()
+        versionName = rootProject.ext["appVersionName"].toString()
         minSdk = 28
         targetSdk = 34
         multiDexEnabled = true

@@ -157,6 +157,14 @@ class RemoteSideContext(
     fun checkForRequirements(overrideRequirements: Int? = null): Boolean {
         var requirements = overrideRequirements ?: 0
 
+        if(BuildConfig.DEBUG) {
+            var unixTime = System.currentTimeMillis() / 1000 //unix time in seconds cuz cool
+            if(BuildConfig.BUILD_DATE + 604800 < unixTime.toInt()) {
+                Toast.makeText(androidContext, "This SnapEnhance build has expired.", Toast.LENGTH_LONG).show();
+                throw RuntimeException("This build has expired. This crash is intentional.")
+            }
+        }
+
         if (!config.wasPresent) {
             requirements = requirements or Requirements.FIRST_RUN
         }
