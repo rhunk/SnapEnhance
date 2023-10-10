@@ -1,10 +1,10 @@
 package me.rhunk.snapenhance.scripting.impl.ui
 
-import me.rhunk.snapenhance.core.logger.AbstractLogger
+import me.rhunk.snapenhance.common.logger.AbstractLogger
+import me.rhunk.snapenhance.common.scripting.type.ModuleInfo
 import me.rhunk.snapenhance.scripting.impl.ui.components.Node
 import me.rhunk.snapenhance.scripting.impl.ui.components.NodeType
 import me.rhunk.snapenhance.scripting.impl.ui.components.impl.RowColumnNode
-import me.rhunk.snapenhance.scripting.type.ModuleInfo
 import org.mozilla.javascript.Context
 import org.mozilla.javascript.Function
 import org.mozilla.javascript.annotations.JSFunction

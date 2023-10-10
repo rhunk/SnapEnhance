@@ -5,9 +5,8 @@ import com.arthenica.ffmpegkit.FFmpegSession
 import com.arthenica.ffmpegkit.Level
 import kotlinx.coroutines.suspendCancellableCoroutine
 import me.rhunk.snapenhance.LogManager
-import me.rhunk.snapenhance.core.Logger
-import me.rhunk.snapenhance.core.config.impl.DownloaderConfig
-import me.rhunk.snapenhance.core.logger.LogLevel
+import me.rhunk.snapenhance.common.config.impl.DownloaderConfig
+import me.rhunk.snapenhance.common.logger.LogLevel
 import java.io.File
 import java.util.concurrent.Executors
 
@@ -71,7 +70,7 @@ class FFMpegProcessor(
             }
         }
 
-        Logger.directDebug("arguments: $stringBuilder", "FFMpegProcessor")
+        logManager.debug("arguments: $stringBuilder", "FFMpegProcessor")
 
         FFmpegKit.executeAsync(stringBuilder.toString(),
             { session ->

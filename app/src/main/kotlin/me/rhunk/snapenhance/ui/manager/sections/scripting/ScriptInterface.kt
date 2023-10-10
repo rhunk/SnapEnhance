@@ -12,7 +12,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import kotlinx.coroutines.launch
-import me.rhunk.snapenhance.core.Logger
+import me.rhunk.snapenhance.common.logger.AbstractLogger
 import me.rhunk.snapenhance.scripting.impl.ui.InterfaceBuilder
 import me.rhunk.snapenhance.scripting.impl.ui.components.Node
 import me.rhunk.snapenhance.scripting.impl.ui.components.NodeType
@@ -54,7 +54,7 @@ private fun DrawNode(node: Node) {
         runCatching {
             callback()
         }.onFailure {
-            Logger.directError("Error running callback", it)
+            AbstractLogger.directError("Error running callback", it)
         }
     }
 

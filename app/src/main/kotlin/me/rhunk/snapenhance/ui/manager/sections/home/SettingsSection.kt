@@ -20,10 +20,9 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
-import me.rhunk.snapenhance.Constants
-import me.rhunk.snapenhance.action.EnumAction
-import me.rhunk.snapenhance.core.bridge.types.BridgeFileType
-import me.rhunk.snapenhance.manager.impl.ActionManager
+import me.rhunk.snapenhance.common.Constants
+import me.rhunk.snapenhance.common.action.EnumAction
+import me.rhunk.snapenhance.common.bridge.types.BridgeFileType
 import me.rhunk.snapenhance.ui.manager.Section
 import me.rhunk.snapenhance.ui.util.AlertDialogs
 
@@ -83,7 +82,7 @@ class SettingsSection : Section() {
 
     private fun launchActionIntent(action: EnumAction) {
         val intent = context.androidContext.packageManager.getLaunchIntentForPackage(Constants.SNAPCHAT_PACKAGE_NAME)
-        intent?.putExtra(ActionManager.ACTION_PARAMETER, action.key)
+        intent?.putExtra(EnumAction.ACTION_PARAMETER, action.key)
         context.androidContext.startActivity(intent)
     }
 

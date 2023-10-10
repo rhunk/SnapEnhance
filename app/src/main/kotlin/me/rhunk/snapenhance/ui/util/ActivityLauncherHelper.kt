@@ -4,7 +4,7 @@ import android.content.Intent
 import androidx.activity.ComponentActivity
 import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.contract.ActivityResultContracts
-import me.rhunk.snapenhance.core.Logger
+import me.rhunk.snapenhance.common.logger.AbstractLogger
 
 typealias ActivityLauncherCallback = (resultCode: Int, intent: Intent?) -> Unit
 
@@ -17,7 +17,7 @@ class ActivityLauncherHelper(
             runCatching {
                 callback?.let { it(if (result) ComponentActivity.RESULT_OK else ComponentActivity.RESULT_CANCELED, null) }
             }.onFailure {
-                Logger.directError("Failed to process activity result", it)
+                AbstractLogger.directError("Failed to process activity result", it)
             }
             callback = null
         }
@@ -27,7 +27,7 @@ class ActivityLauncherHelper(
             runCatching {
                 callback?.let { it(result.resultCode, result.data) }
             }.onFailure {
-                Logger.directError("Failed to process activity result", it)
+                AbstractLogger.directError("Failed to process activity result", it)
             }
             callback = null
         }

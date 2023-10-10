@@ -17,10 +17,10 @@ import coil.memory.MemoryCache
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import me.rhunk.snapenhance.bridge.BridgeService
-import me.rhunk.snapenhance.core.BuildConfig
-import me.rhunk.snapenhance.core.bridge.wrapper.LocaleWrapper
-import me.rhunk.snapenhance.core.bridge.wrapper.MappingsWrapper
-import me.rhunk.snapenhance.core.config.ModConfig
+import me.rhunk.snapenhance.common.BuildConfig
+import me.rhunk.snapenhance.common.bridge.wrapper.LocaleWrapper
+import me.rhunk.snapenhance.common.bridge.wrapper.MappingsWrapper
+import me.rhunk.snapenhance.common.config.ModConfig
 import me.rhunk.snapenhance.download.DownloadTaskManager
 import me.rhunk.snapenhance.e2ee.E2EEImplementation
 import me.rhunk.snapenhance.messaging.ModDatabase

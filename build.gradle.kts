@@ -12,3 +12,10 @@ rootProject.ext.set("appVersionName", versionName)
 rootProject.ext.set("appVersionCode", versionCode)
 rootProject.ext.set("applicationId", "me.rhunk.snapenhance")
 rootProject.ext.set("nativeName", properties["custom_native_name"] ?: java.security.SecureRandom().nextLong(1000000000, 99999999999).toString(16))
+
+tasks.register("getVersion") {
+    doLast {
+        val versionFile = File("app/build/version.txt")
+        versionFile.writeText(versionName)
+    }
+}

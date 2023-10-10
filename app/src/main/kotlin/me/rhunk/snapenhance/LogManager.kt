@@ -3,9 +3,9 @@ package me.rhunk.snapenhance
 import android.content.SharedPreferences
 import android.util.Log
 import com.google.gson.GsonBuilder
-import me.rhunk.snapenhance.core.logger.AbstractLogger
-import me.rhunk.snapenhance.core.logger.LogChannel
-import me.rhunk.snapenhance.core.logger.LogLevel
+import me.rhunk.snapenhance.common.logger.AbstractLogger
+import me.rhunk.snapenhance.common.logger.LogChannel
+import me.rhunk.snapenhance.common.logger.LogLevel
 import java.io.File
 import java.io.OutputStream
 import java.io.RandomAccessFile

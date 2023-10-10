@@ -3,12 +3,12 @@ package me.rhunk.snapenhance.download
 import android.annotation.SuppressLint
 import android.content.Context
 import android.database.sqlite.SQLiteDatabase
-import me.rhunk.snapenhance.core.download.data.DownloadMetadata
-import me.rhunk.snapenhance.core.download.data.DownloadStage
-import me.rhunk.snapenhance.core.download.data.MediaDownloadSource
-import me.rhunk.snapenhance.core.util.SQLiteDatabaseHelper
-import me.rhunk.snapenhance.core.util.ktx.getIntOrNull
-import me.rhunk.snapenhance.core.util.ktx.getStringOrNull
+import me.rhunk.snapenhance.common.data.download.DownloadMetadata
+import me.rhunk.snapenhance.common.data.download.DownloadStage
+import me.rhunk.snapenhance.common.data.download.MediaDownloadSource
+import me.rhunk.snapenhance.common.util.SQLiteDatabaseHelper
+import me.rhunk.snapenhance.common.util.ktx.getIntOrNull
+import me.rhunk.snapenhance.common.util.ktx.getStringOrNull
 import java.util.concurrent.Executors
 
 class DownloadTaskManager {
@@ -162,7 +162,8 @@ class DownloadTaskManager {
                 metadata = DownloadMetadata(
                     outputPath = cursor.getStringOrNull("outputPath")!!,
                     mediaIdentifier = cursor.getStringOrNull("hash"),
-                    downloadSource = cursor.getStringOrNull("downloadSource") ?: MediaDownloadSource.NONE.key,
+                    downloadSource = cursor.getStringOrNull("downloadSource")
+                        ?: MediaDownloadSource.NONE.key,
                     mediaAuthor = cursor.getStringOrNull("mediaAuthor"),
                     iconUrl = cursor.getStringOrNull("iconUrl")
                 )

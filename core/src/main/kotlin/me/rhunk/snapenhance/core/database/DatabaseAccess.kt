@@ -2,15 +2,16 @@ package me.rhunk.snapenhance.core.database
 
 import android.annotation.SuppressLint
 import android.database.sqlite.SQLiteDatabase
-import me.rhunk.snapenhance.ModContext
-import me.rhunk.snapenhance.core.Logger
-import me.rhunk.snapenhance.core.database.objects.ConversationMessage
-import me.rhunk.snapenhance.core.database.objects.FriendFeedEntry
-import me.rhunk.snapenhance.core.database.objects.FriendInfo
-import me.rhunk.snapenhance.core.database.objects.StoryEntry
-import me.rhunk.snapenhance.core.database.objects.UserConversationLink
-import me.rhunk.snapenhance.core.util.ktx.getStringOrNull
-import me.rhunk.snapenhance.manager.Manager
+import me.rhunk.snapenhance.common.database.DatabaseObject
+import me.rhunk.snapenhance.common.database.impl.ConversationMessage
+import me.rhunk.snapenhance.common.database.impl.FriendFeedEntry
+import me.rhunk.snapenhance.common.database.impl.FriendInfo
+import me.rhunk.snapenhance.common.database.impl.StoryEntry
+import me.rhunk.snapenhance.common.database.impl.UserConversationLink
+import me.rhunk.snapenhance.common.util.ktx.getStringOrNull
+import me.rhunk.snapenhance.core.ModContext
+import me.rhunk.snapenhance.core.logger.CoreLogger
+import me.rhunk.snapenhance.core.manager.Manager
 import java.io.File
 
 @SuppressLint("Range")
@@ -56,7 +57,7 @@ class DatabaseAccess(private val context: ModContext) : Manager {
             return runCatching {
                 query(database)
             }.onFailure {
-                Logger.xposedLog("Database operation failed", it)
+                CoreLogger.xposedLog("Database operation failed", it)
             }.getOrNull()
         }
     }

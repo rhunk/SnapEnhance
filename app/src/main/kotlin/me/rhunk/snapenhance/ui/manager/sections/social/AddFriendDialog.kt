@@ -24,11 +24,11 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import me.rhunk.snapenhance.RemoteSideContext
-import me.rhunk.snapenhance.core.bridge.BridgeClient
-import me.rhunk.snapenhance.core.messaging.MessagingFriendInfo
-import me.rhunk.snapenhance.core.messaging.MessagingGroupInfo
-import me.rhunk.snapenhance.core.messaging.SocialScope
-import me.rhunk.snapenhance.core.util.snap.SnapWidgetBroadcastReceiverHelper
+import me.rhunk.snapenhance.common.ReceiversConfig
+import me.rhunk.snapenhance.common.data.MessagingFriendInfo
+import me.rhunk.snapenhance.common.data.MessagingGroupInfo
+import me.rhunk.snapenhance.common.data.SocialScope
+import me.rhunk.snapenhance.common.util.snap.SnapWidgetBroadcastReceiverHelper
 
 class AddFriendDialog(
     private val context: RemoteSideContext,
@@ -128,7 +128,7 @@ class AddFriendDialog(
                 timeoutJob?.cancel()
                 hasFetchError = false
             }
-            SnapWidgetBroadcastReceiverHelper.create(BridgeClient.BRIDGE_SYNC_ACTION) {}.also {
+            SnapWidgetBroadcastReceiverHelper.create(ReceiversConfig.BRIDGE_SYNC_ACTION) {}.also {
                 runCatching {
                     context.androidContext.sendBroadcast(it)
                 }.onFailure {

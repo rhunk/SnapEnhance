@@ -1,8 +1,8 @@
 package me.rhunk.snapenhance.download
 
 import kotlinx.coroutines.Job
-import me.rhunk.snapenhance.core.download.data.DownloadMetadata
-import me.rhunk.snapenhance.core.download.data.DownloadStage
+import me.rhunk.snapenhance.common.data.download.DownloadMetadata
+import me.rhunk.snapenhance.common.data.download.DownloadStage
 
 data class DownloadObject(
     var downloadId: Int = 0,

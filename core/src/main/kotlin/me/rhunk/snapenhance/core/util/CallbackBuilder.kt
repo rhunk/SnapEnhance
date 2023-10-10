@@ -1,9 +1,9 @@
 package me.rhunk.snapenhance.core.util
 
 import de.robv.android.xposed.XC_MethodHook
-import me.rhunk.snapenhance.hook.HookAdapter
-import me.rhunk.snapenhance.hook.HookStage
-import me.rhunk.snapenhance.hook.Hooker
+import me.rhunk.snapenhance.core.util.hook.HookAdapter
+import me.rhunk.snapenhance.core.util.hook.HookStage
+import me.rhunk.snapenhance.core.util.hook.Hooker
 import java.lang.reflect.Constructor
 import java.lang.reflect.Field
 import java.lang.reflect.Modifier

@@ -10,23 +10,31 @@ import android.os.Handler
 import android.os.HandlerThread
 import android.os.IBinder
 import de.robv.android.xposed.XposedHelpers
-import me.rhunk.snapenhance.ModContext
 import me.rhunk.snapenhance.bridge.BridgeInterface
 import me.rhunk.snapenhance.bridge.ConfigStateListener
 import me.rhunk.snapenhance.bridge.DownloadCallback
 import me.rhunk.snapenhance.bridge.SyncCallback
 import me.rhunk.snapenhance.bridge.e2ee.E2eeInterface
 import me.rhunk.snapenhance.bridge.scripting.IScripting
-import me.rhunk.snapenhance.core.BuildConfig
-import me.rhunk.snapenhance.core.bridge.types.BridgeFileType
-import me.rhunk.snapenhance.core.bridge.types.FileActionType
-import me.rhunk.snapenhance.core.messaging.MessagingRuleType
-import me.rhunk.snapenhance.core.messaging.SocialScope
-import me.rhunk.snapenhance.data.LocalePair
+import me.rhunk.snapenhance.common.BuildConfig
+import me.rhunk.snapenhance.common.bridge.FileLoaderWrapper
+import me.rhunk.snapenhance.common.bridge.types.BridgeFileType
+import me.rhunk.snapenhance.common.bridge.types.FileActionType
+import me.rhunk.snapenhance.common.bridge.types.LocalePair
+import me.rhunk.snapenhance.common.data.MessagingRuleType
+import me.rhunk.snapenhance.common.data.SocialScope
+import me.rhunk.snapenhance.core.ModContext
 import java.util.concurrent.CompletableFuture
 import java.util.concurrent.Executors
 import java.util.concurrent.TimeUnit
 import kotlin.system.exitProcess
+
+fun FileLoaderWrapper.loadFromBridge(bridgeClient: BridgeClient) {
+    isFileExists = { bridgeClient.isFileExists(fileType) }
+    read = { bridgeClient.createAndReadFile(fileType, defaultContent) }
+    write = { bridgeClient.writeFile(fileType, it) }
+    delete = { bridgeClient.deleteFile(fileType) }
+}
 
 
 class BridgeClient(
@@ -34,10 +42,6 @@ class BridgeClient(
 ):  ServiceConnection {
     private lateinit var future: CompletableFuture<Boolean>
     private lateinit var service: BridgeInterface
-
-    companion object {
-        const val BRIDGE_SYNC_ACTION = BuildConfig.APPLICATION_ID + ".core.bridge.SYNC"
-    }
 
     fun connect(timeout: (Throwable) -> Unit, onResult: (Boolean) -> Unit) {
         this.future = CompletableFuture()

@@ -33,8 +33,8 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import me.rhunk.snapenhance.LogReader
 import me.rhunk.snapenhance.RemoteSideContext
-import me.rhunk.snapenhance.core.logger.LogChannel
-import me.rhunk.snapenhance.core.logger.LogLevel
+import me.rhunk.snapenhance.common.logger.LogChannel
+import me.rhunk.snapenhance.common.logger.LogLevel
 
 class HomeSubSection(
     private val context: RemoteSideContext

@@ -127,6 +127,7 @@ dependencies {
     }
 
     implementation(project(":core"))
+    implementation(project(":common"))
     implementation(libs.androidx.documentfile)
     implementation(libs.gson)
     implementation(libs.ffmpeg.kit)

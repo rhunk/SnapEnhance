@@ -5,16 +5,16 @@ import android.content.Intent
 import android.os.IBinder
 import me.rhunk.snapenhance.RemoteSideContext
 import me.rhunk.snapenhance.SharedContextHolder
-import me.rhunk.snapenhance.core.bridge.types.BridgeFileType
-import me.rhunk.snapenhance.core.bridge.types.FileActionType
-import me.rhunk.snapenhance.core.bridge.wrapper.LocaleWrapper
-import me.rhunk.snapenhance.core.bridge.wrapper.MessageLoggerWrapper
-import me.rhunk.snapenhance.core.database.objects.FriendInfo
-import me.rhunk.snapenhance.core.logger.LogLevel
-import me.rhunk.snapenhance.core.messaging.MessagingFriendInfo
-import me.rhunk.snapenhance.core.messaging.MessagingGroupInfo
-import me.rhunk.snapenhance.core.messaging.SocialScope
-import me.rhunk.snapenhance.core.util.SerializableDataObject
+import me.rhunk.snapenhance.common.bridge.types.BridgeFileType
+import me.rhunk.snapenhance.common.bridge.types.FileActionType
+import me.rhunk.snapenhance.common.bridge.wrapper.LocaleWrapper
+import me.rhunk.snapenhance.common.bridge.wrapper.MessageLoggerWrapper
+import me.rhunk.snapenhance.common.data.MessagingFriendInfo
+import me.rhunk.snapenhance.common.data.MessagingGroupInfo
+import me.rhunk.snapenhance.common.data.SocialScope
+import me.rhunk.snapenhance.common.database.impl.FriendInfo
+import me.rhunk.snapenhance.common.logger.LogLevel
+import me.rhunk.snapenhance.common.util.SerializableDataObject
 import me.rhunk.snapenhance.download.DownloadProcessor
 import kotlin.system.measureTimeMillis
 

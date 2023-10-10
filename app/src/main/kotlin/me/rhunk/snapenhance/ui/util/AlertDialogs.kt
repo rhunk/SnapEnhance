@@ -22,9 +22,9 @@ import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import me.rhunk.snapenhance.core.bridge.wrapper.LocaleWrapper
-import me.rhunk.snapenhance.core.config.DataProcessors
-import me.rhunk.snapenhance.core.config.PropertyPair
+import me.rhunk.snapenhance.common.bridge.wrapper.LocaleWrapper
+import me.rhunk.snapenhance.common.config.DataProcessors
+import me.rhunk.snapenhance.common.config.PropertyPair
 
 
 class AlertDialogs(

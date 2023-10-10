@@ -14,7 +14,7 @@ import me.rhunk.snapenhance.R
 import me.rhunk.snapenhance.RemoteSideContext
 import me.rhunk.snapenhance.SharedContextHolder
 import me.rhunk.snapenhance.bridge.ForceStartActivity
-import me.rhunk.snapenhance.core.util.snap.BitmojiSelfie
+import me.rhunk.snapenhance.common.util.snap.BitmojiSelfie
 import me.rhunk.snapenhance.ui.util.ImageRequestHelper
 
 class StreaksReminder(

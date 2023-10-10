@@ -2,16 +2,16 @@ package me.rhunk.snapenhance.messaging
 
 import android.database.sqlite.SQLiteDatabase
 import me.rhunk.snapenhance.RemoteSideContext
-import me.rhunk.snapenhance.core.database.objects.FriendInfo
-import me.rhunk.snapenhance.core.messaging.FriendStreaks
-import me.rhunk.snapenhance.core.messaging.MessagingFriendInfo
-import me.rhunk.snapenhance.core.messaging.MessagingGroupInfo
-import me.rhunk.snapenhance.core.messaging.MessagingRuleType
-import me.rhunk.snapenhance.core.util.SQLiteDatabaseHelper
-import me.rhunk.snapenhance.core.util.ktx.getInteger
-import me.rhunk.snapenhance.core.util.ktx.getLongOrNull
-import me.rhunk.snapenhance.core.util.ktx.getStringOrNull
-import me.rhunk.snapenhance.scripting.type.ModuleInfo
+import me.rhunk.snapenhance.common.data.FriendStreaks
+import me.rhunk.snapenhance.common.data.MessagingFriendInfo
+import me.rhunk.snapenhance.common.data.MessagingGroupInfo
+import me.rhunk.snapenhance.common.data.MessagingRuleType
+import me.rhunk.snapenhance.common.database.impl.FriendInfo
+import me.rhunk.snapenhance.common.scripting.type.ModuleInfo
+import me.rhunk.snapenhance.common.util.SQLiteDatabaseHelper
+import me.rhunk.snapenhance.common.util.ktx.getInteger
+import me.rhunk.snapenhance.common.util.ktx.getLongOrNull
+import me.rhunk.snapenhance.common.util.ktx.getStringOrNull
 import java.util.concurrent.Executors
 
 
@@ -75,11 +75,13 @@ class ModDatabase(
         return database.rawQuery("SELECT * FROM groups", null).use { cursor ->
             val groups = mutableListOf<MessagingGroupInfo>()
             while (cursor.moveToNext()) {
-                groups.add(MessagingGroupInfo(
+                groups.add(
+                    MessagingGroupInfo(
                     conversationId = cursor.getStringOrNull("conversationId")!!,
                     name = cursor.getStringOrNull("name")!!,
                     participantsCount = cursor.getInteger("participantsCount")
-                ))
+                )
+                )
             }
             groups
         }
@@ -90,13 +92,15 @@ class ModDatabase(
             val friends = mutableListOf<MessagingFriendInfo>()
             while (cursor.moveToNext()) {
                 runCatching {
-                    friends.add(MessagingFriendInfo(
+                    friends.add(
+                        MessagingFriendInfo(
                         userId = cursor.getStringOrNull("userId")!!,
                         displayName = cursor.getStringOrNull("displayName"),
                         mutableUsername = cursor.getStringOrNull("mutableUsername")!!,
                         bitmojiId = cursor.getStringOrNull("bitmojiId"),
                         selfieId = cursor.getStringOrNull("selfieId")
-                    ))
+                    )
+                    )
                 }.onFailure {
                     context.log.error("Failed to parse friend", it)
                 }

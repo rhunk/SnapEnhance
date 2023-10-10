@@ -28,7 +28,7 @@
             android:value="93" />
         <meta-data
             android:name="xposedscope"
-            android:resource="@array/xposed_scope" />
+            android:value="com.snapchat.android" />
 
         <service
             android:name=".bridge.BridgeService"

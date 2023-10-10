@@ -1,6 +1,6 @@
 package me.rhunk.snapenhance.core.event
 
-import me.rhunk.snapenhance.ModContext
+import me.rhunk.snapenhance.core.ModContext
 import kotlin.reflect.KClass
 
 abstract class Event {

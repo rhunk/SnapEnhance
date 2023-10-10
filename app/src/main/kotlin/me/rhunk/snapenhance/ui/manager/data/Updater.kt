@@ -1,7 +1,7 @@
 package me.rhunk.snapenhance.ui.manager.data
 
 import com.google.gson.JsonParser
-import me.rhunk.snapenhance.core.BuildConfig
+import me.rhunk.snapenhance.common.BuildConfig
 import okhttp3.OkHttpClient
 import okhttp3.Request
 

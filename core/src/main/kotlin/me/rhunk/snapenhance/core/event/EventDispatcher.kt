@@ -4,19 +4,19 @@ import android.content.Intent
 import android.view.View
 import android.view.ViewGroup
 import android.view.ViewGroup.LayoutParams
-import me.rhunk.snapenhance.ModContext
+import me.rhunk.snapenhance.common.util.snap.SnapWidgetBroadcastReceiverHelper
+import me.rhunk.snapenhance.core.ModContext
 import me.rhunk.snapenhance.core.event.events.impl.*
+import me.rhunk.snapenhance.core.manager.Manager
+import me.rhunk.snapenhance.core.util.hook.HookStage
+import me.rhunk.snapenhance.core.util.hook.hook
+import me.rhunk.snapenhance.core.util.hook.hookConstructor
 import me.rhunk.snapenhance.core.util.ktx.getObjectField
 import me.rhunk.snapenhance.core.util.ktx.setObjectField
-import me.rhunk.snapenhance.core.util.snap.SnapWidgetBroadcastReceiverHelper
-import me.rhunk.snapenhance.data.wrapper.impl.Message
-import me.rhunk.snapenhance.data.wrapper.impl.MessageContent
-import me.rhunk.snapenhance.data.wrapper.impl.MessageDestinations
-import me.rhunk.snapenhance.data.wrapper.impl.SnapUUID
-import me.rhunk.snapenhance.hook.HookStage
-import me.rhunk.snapenhance.hook.hook
-import me.rhunk.snapenhance.hook.hookConstructor
-import me.rhunk.snapenhance.manager.Manager
+import me.rhunk.snapenhance.core.wrapper.impl.Message
+import me.rhunk.snapenhance.core.wrapper.impl.MessageContent
+import me.rhunk.snapenhance.core.wrapper.impl.MessageDestinations
+import me.rhunk.snapenhance.core.wrapper.impl.SnapUUID
 
 class EventDispatcher(
     private val context: ModContext
@@ -96,7 +96,9 @@ class EventDispatcher(
                     androidContext = context.androidContext,
                     intent = intent,
                     action = action
-                )
+                ).apply {
+                    adapter = param
+                }
             ) {
                 postHookEvent()
             }

@@ -28,8 +28,8 @@ import coil.compose.rememberAsyncImagePainter
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.future.asCompletableFuture
 import kotlinx.coroutines.launch
-import me.rhunk.snapenhance.core.download.data.MediaDownloadSource
-import me.rhunk.snapenhance.data.FileType
+import me.rhunk.snapenhance.common.data.FileType
+import me.rhunk.snapenhance.common.data.download.MediaDownloadSource
 import me.rhunk.snapenhance.download.DownloadObject
 import me.rhunk.snapenhance.ui.manager.Section
 import me.rhunk.snapenhance.ui.util.BitmojiImage

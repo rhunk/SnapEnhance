@@ -13,14 +13,14 @@ import kotlinx.coroutines.job
 import kotlinx.coroutines.joinAll
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
-import me.rhunk.snapenhance.Constants
 import me.rhunk.snapenhance.RemoteSideContext
 import me.rhunk.snapenhance.bridge.DownloadCallback
-import me.rhunk.snapenhance.core.download.DownloadManagerClient
-import me.rhunk.snapenhance.core.download.data.*
-import me.rhunk.snapenhance.core.util.download.RemoteMediaResolver
-import me.rhunk.snapenhance.core.util.snap.MediaDownloaderHelper
-import me.rhunk.snapenhance.data.FileType
+import me.rhunk.snapenhance.common.Constants
+import me.rhunk.snapenhance.common.ReceiversConfig
+import me.rhunk.snapenhance.common.data.FileType
+import me.rhunk.snapenhance.common.data.download.*
+import me.rhunk.snapenhance.common.util.snap.MediaDownloaderHelper
+import me.rhunk.snapenhance.common.util.snap.RemoteMediaResolver
 import java.io.File
 import java.io.InputStream
 import java.net.HttpURLConnection
@@ -296,8 +296,8 @@ class DownloadProcessor (
 
     fun onReceive(intent: Intent) {
         remoteSideContext.coroutineScope.launch {
-            val downloadMetadata = gson.fromJson(intent.getStringExtra(DownloadManagerClient.DOWNLOAD_METADATA_EXTRA)!!, DownloadMetadata::class.java)
-            val downloadRequest = gson.fromJson(intent.getStringExtra(DownloadManagerClient.DOWNLOAD_REQUEST_EXTRA)!!, DownloadRequest::class.java)
+            val downloadMetadata = gson.fromJson(intent.getStringExtra(ReceiversConfig.DOWNLOAD_METADATA_EXTRA)!!, DownloadMetadata::class.java)
+            val downloadRequest = gson.fromJson(intent.getStringExtra(ReceiversConfig.DOWNLOAD_REQUEST_EXTRA)!!, DownloadRequest::class.java)
 
             remoteSideContext.downloadTaskManager.canDownloadMedia(downloadMetadata.mediaIdentifier)?.let { downloadStage ->
                 translation[if (downloadStage.isFinalStage) {

@@ -22,9 +22,9 @@ import androidx.navigation.NavController
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 import me.rhunk.snapenhance.RemoteSideContext
-import me.rhunk.snapenhance.core.messaging.MessagingRuleType
-import me.rhunk.snapenhance.core.messaging.SocialScope
-import me.rhunk.snapenhance.core.util.snap.BitmojiSelfie
+import me.rhunk.snapenhance.common.data.MessagingRuleType
+import me.rhunk.snapenhance.common.data.SocialScope
+import me.rhunk.snapenhance.common.util.snap.BitmojiSelfie
 import me.rhunk.snapenhance.ui.util.AlertDialogs
 import me.rhunk.snapenhance.ui.util.BitmojiImage
 import me.rhunk.snapenhance.ui.util.Dialog

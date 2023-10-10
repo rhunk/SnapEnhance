@@ -7,28 +7,12 @@ android {
     namespace = rootProject.ext["applicationId"].toString() + ".core"
     compileSdk = 34
 
-    buildFeatures {
-        aidl = true
-        buildConfig = true
-    }
-
     defaultConfig {
         minSdk = 28
-        buildConfigField("String", "VERSION_NAME", "\"${rootProject.ext["appVersionName"]}\"")
-        buildConfigField("int", "VERSION_CODE", "${rootProject.ext["appVersionCode"]}")
-        buildConfigField("String", "APPLICATION_ID", "\"${rootProject.ext["applicationId"]}\"")
-        buildConfigField("int", "BUILD_DATE", "${System.currentTimeMillis() / 1000}")
     }
 
     kotlinOptions {
         jvmTarget = "1.8"
-    }
-}
-
-tasks.register("getVersion") {
-    doLast {
-        val versionFile = File("app/build/version.txt")
-        versionFile.writeText(rootProject.ext["appVersionName"].toString())
     }
 }
 
@@ -41,6 +25,7 @@ dependencies {
     implementation(libs.androidx.documentfile)
     implementation(libs.rhino)
 
+    implementation(project(":common"))
     implementation(project(":stub"))
     implementation(project(":mapper"))
     implementation(project(":native"))

@@ -8,7 +8,7 @@ import android.os.Bundle
 import android.view.MotionEvent
 import android.widget.Button
 import android.widget.EditText
-import me.rhunk.snapenhance.core.R
+import me.rhunk.snapenhance.R
 import org.osmdroid.config.Configuration
 import org.osmdroid.tileprovider.tilesource.TileSourceFactory
 import org.osmdroid.util.GeoPoint

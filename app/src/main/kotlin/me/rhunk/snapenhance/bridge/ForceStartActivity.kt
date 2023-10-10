@@ -3,8 +3,8 @@ package me.rhunk.snapenhance.bridge
 import android.app.Activity
 import android.content.Intent
 import android.os.Bundle
-import me.rhunk.snapenhance.Constants
 import me.rhunk.snapenhance.SharedContextHolder
+import me.rhunk.snapenhance.common.Constants
 
 class ForceStartActivity : Activity() {
     override fun onCreate(savedInstanceState: Bundle?) {

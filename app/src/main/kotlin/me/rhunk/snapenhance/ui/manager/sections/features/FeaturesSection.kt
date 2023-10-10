@@ -37,7 +37,7 @@ import androidx.navigation.navigation
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
-import me.rhunk.snapenhance.core.config.*
+import me.rhunk.snapenhance.common.config.*
 import me.rhunk.snapenhance.ui.manager.MainActivity
 import me.rhunk.snapenhance.ui.manager.Section
 import me.rhunk.snapenhance.ui.util.*

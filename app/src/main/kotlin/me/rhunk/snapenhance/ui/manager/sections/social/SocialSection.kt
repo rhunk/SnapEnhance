@@ -27,10 +27,10 @@ import androidx.navigation.compose.composable
 import androidx.navigation.navigation
 import kotlinx.coroutines.launch
 import me.rhunk.snapenhance.R
-import me.rhunk.snapenhance.core.messaging.MessagingFriendInfo
-import me.rhunk.snapenhance.core.messaging.MessagingGroupInfo
-import me.rhunk.snapenhance.core.messaging.SocialScope
-import me.rhunk.snapenhance.core.util.snap.BitmojiSelfie
+import me.rhunk.snapenhance.common.data.MessagingFriendInfo
+import me.rhunk.snapenhance.common.data.MessagingGroupInfo
+import me.rhunk.snapenhance.common.data.SocialScope
+import me.rhunk.snapenhance.common.util.snap.BitmojiSelfie
 import me.rhunk.snapenhance.ui.manager.Section
 import me.rhunk.snapenhance.ui.util.AlertDialogs
 import me.rhunk.snapenhance.ui.util.BitmojiImage
