@@ -17,7 +17,6 @@ class MessagingTweaks : ConfigContainer() {
         "EXTERNAL_MEDIA",
         "STICKER"
     ) { requireRestart() }
-    val snapToChatMedia = boolean("snap_to_chat_media") { requireRestart() }
     val preventMessageSending = multiple("prevent_message_sending", *NotificationType.getOutgoingValues().map { it.key }.toTypedArray()) {
         customOptionTranslationPath = "features.options.notifications"
     }

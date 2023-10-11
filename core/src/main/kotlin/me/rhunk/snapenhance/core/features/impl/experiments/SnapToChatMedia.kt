@@ -1,4 +1,4 @@
-package me.rhunk.snapenhance.core.features.impl.spying
+package me.rhunk.snapenhance.core.features.impl.experiments
 
 import me.rhunk.snapenhance.common.data.ContentType
 import me.rhunk.snapenhance.common.util.protobuf.ProtoReader
@@ -9,7 +9,7 @@ import me.rhunk.snapenhance.core.features.FeatureLoadParams
 
 class SnapToChatMedia : Feature("SnapToChatMedia", loadParams = FeatureLoadParams.ACTIVITY_CREATE_SYNC) {
     override fun onActivityCreate() {
-        if (!context.config.messaging.snapToChatMedia.get()) return
+        if (!context.config.experimental.snapToChatMedia.get()) return
 
         context.event.subscribe(BuildMessageEvent::class, priority = 100) { event ->
             if (event.message.messageContent.contentType != ContentType.SNAP) return@subscribe

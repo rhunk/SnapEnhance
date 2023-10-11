@@ -4,8 +4,14 @@ import me.rhunk.snapenhance.common.config.ConfigContainer
 import me.rhunk.snapenhance.common.config.FeatureNotice
 
 class Experimental : ConfigContainer() {
+    class NativeHooks : ConfigContainer(hasGlobalState = true) {
+        val disableBitmoji = boolean("disable_bitmoji")
+        val fixGalleryMediaOverride = boolean("fix_gallery_media_override")
+    }
+
     val nativeHooks = container("native_hooks", NativeHooks()) { icon = "Memory"; requireRestart() }
     val spoof = container("spoof", Spoof()) { icon = "Fingerprint" }
+    val snapToChatMedia = boolean("snap_to_chat_media") { requireRestart(); addNotices(FeatureNotice.UNSTABLE) }
     val appPasscode = string("app_passcode")
     val appLockOnResume = boolean("app_lock_on_resume")
     val infiniteStoryBoost = boolean("infinite_story_boost")
