@@ -188,7 +188,7 @@ class ExportChatMessages : AbstractAction() {
         }
     }
 
-    private suspend fun fetchMessagesPaginated(conversationId: String, lastMessageId: Long) = suspendCancellableCoroutine { continuation ->
+    private suspend fun fetchMessagesPaginated(conversationId: String, lastMessageId: Long, amount: Int) = suspendCancellableCoroutine { continuation ->
         val callback = CallbackBuilder(fetchConversationWithMessagesCallbackClass)
             .override("onFetchConversationWithMessagesComplete") { param ->
                 val messagesList = param.arg<List<*>>(1).map { Message(it) }
@@ -203,7 +203,7 @@ class ExportChatMessages : AbstractAction() {
             conversationManagerInstance,
             SnapUUID.fromString(conversationId).instanceNonNull(),
             lastMessageId,
-            500,
+            amount,
             callback
         )
     }
@@ -219,23 +219,23 @@ class ExportChatMessages : AbstractAction() {
 
         logDialog(context.translation.format("chat_export.exporting_message", "conversation" to conversationName))
 
-        val foundMessages = fetchMessagesPaginated(conversationId, Long.MAX_VALUE).toMutableList()
+        val foundMessages = fetchMessagesPaginated(conversationId, Long.MAX_VALUE, amount = 1).toMutableList()
         var lastMessageId = foundMessages.firstOrNull()?.messageDescriptor?.messageId ?: run {
             logDialog(context.translation["chat_export.no_messages_found"])
             return
         }
 
         while (true) {
-            val messages = fetchMessagesPaginated(conversationId, lastMessageId)
-            if (messages.isEmpty()) break
+            val fetchedMessages = fetchMessagesPaginated(conversationId, lastMessageId, amount = 500)
+            if (fetchedMessages.isEmpty()) break
 
-            if (amountOfMessages != null && messages.size + foundMessages.size >= amountOfMessages!!) {
-                foundMessages.addAll(messages.take(amountOfMessages!! - foundMessages.size))
+            foundMessages.addAll(fetchedMessages)
+            if (amountOfMessages != null && foundMessages.size >= amountOfMessages!!) {
+                foundMessages.subList(amountOfMessages!!, foundMessages.size).clear()
                 break
             }
 
-            foundMessages.addAll(messages)
-            messages.firstOrNull()?.let {
+            fetchedMessages.firstOrNull()?.let {
                 lastMessageId = it.messageDescriptor.messageId
             }
             setStatus("Exporting (${foundMessages.size} / ${foundMessages.firstOrNull()?.orderKey})")
