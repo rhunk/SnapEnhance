@@ -63,9 +63,11 @@ class BypassVideoLengthRestriction :
             }
 
             // chat camera roll grid
-            findClass("com.snap.impala.common.media.MediaLibraryItem").hookConstructor(HookStage.BEFORE) { param ->
-                //set the video length argument
-                param.setArg(3, -1L)
+            findClass("com.snap.composer.memories.MemoriesPickerVideoDurationConfig").hookConstructor(HookStage.AFTER) { param ->
+                param.thisObject<Any>().apply {
+                    setObjectField("_maxSingleItemDurationMs", null)
+                    setObjectField("_maxTotalDurationMs", null)
+                }
             }
         }
     }

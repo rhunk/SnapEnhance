@@ -48,7 +48,7 @@ class ScriptHookCallback(
 
     fun arg(index: Int) = hookAdapter.argNullable<Any>(index)
 
-    fun setArg(index: Int, value: Any) {
+    fun setArg(index: Int, value: Any?) {
         hookAdapter.setArg(index, value.toPrimitiveValue(lazy { parameterTypes[index].name }))
     }
 
