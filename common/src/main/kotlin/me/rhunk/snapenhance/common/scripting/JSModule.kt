@@ -39,7 +39,12 @@ class JSModule(
             moduleObject.putFunction("setField") { args ->
                 val obj = args?.get(0) as? NativeJavaObject ?: return@putFunction Undefined.instance
                 val name = args[1].toString()
-                val value = args[2]
+                val value = args[2].let {
+                    when (it) {
+                        is Wrapper -> it.unwrap()
+                        else -> it
+                    }
+                }
                 val field = obj.unwrap().javaClass.declaredFields.find { it.name == name } ?: return@putFunction Undefined.instance
                 field.isAccessible = true
                 field.set(obj.unwrap(), value.toPrimitiveValue(lazy { field.type.name }))
