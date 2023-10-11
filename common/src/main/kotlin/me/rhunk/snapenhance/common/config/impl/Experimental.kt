@@ -18,7 +18,7 @@ class Experimental : ConfigContainer() {
     val meoPasscodeBypass = boolean("meo_passcode_bypass")
     val unlimitedMultiSnap = boolean("unlimited_multi_snap") { addNotices(FeatureNotice.BAN_RISK)}
     val noFriendScoreDelay = boolean("no_friend_score_delay") { requireRestart()}
-    val e2eEncryption = container("e2ee", E2EEConfig()) { requireRestart()}
+    val e2eEncryption = container("e2ee", E2EEConfig()) { requireRestart(); nativeHooks() }
     val hiddenSnapchatPlusFeatures = boolean("hidden_snapchat_plus_features") {
         addNotices(FeatureNotice.BAN_RISK, FeatureNotice.UNSTABLE)
         requireRestart()

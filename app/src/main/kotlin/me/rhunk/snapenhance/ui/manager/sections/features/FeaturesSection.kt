@@ -293,7 +293,8 @@ class FeaturesSection : Section() {
         val noticeColorMap = mapOf(
             FeatureNotice.UNSTABLE.key to Color(0xFFFFFB87),
             FeatureNotice.BAN_RISK.key to Color(0xFFFF8585),
-            FeatureNotice.INTERNAL_BEHAVIOR.key to Color(0xFFFFFB87)
+            FeatureNotice.INTERNAL_BEHAVIOR.key to Color(0xFFFFFB87),
+            FeatureNotice.REQUIRE_NATIVE_HOOKS.key to Color(0xFFFF5722),
         )
 
         Card(

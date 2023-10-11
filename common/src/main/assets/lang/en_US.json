@@ -121,7 +121,8 @@
         "notices": {
             "unstable": "\u26A0 Unstable",
             "ban_risk": "\u26A0 This feature may cause bans",
-            "internal_behavior": "\u26A0 This may break Snapchat internal behavior"
+            "internal_behavior": "\u26A0 This may break Snapchat internal behavior",
+            "require_native_hooks": "\u26A0 This feature requires experimental Native Hooks to work correctly"
         },
         "properties": {
             "downloader": {

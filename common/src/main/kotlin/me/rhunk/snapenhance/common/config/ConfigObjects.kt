@@ -16,7 +16,8 @@ enum class FeatureNotice(
 ) {
     UNSTABLE(0b0001, "unstable"),
     BAN_RISK(0b0010, "ban_risk"),
-    INTERNAL_BEHAVIOR(0b0100, "internal_behavior")
+    INTERNAL_BEHAVIOR(0b0100, "internal_behavior"),
+    REQUIRE_NATIVE_HOOKS(0b1000, "require_native_hooks"),
 }
 
 enum class ConfigFlag(
@@ -48,6 +49,10 @@ class ConfigParams(
 
     fun addFlags(vararg values: ConfigFlag) {
         this._flags = (this._flags ?: 0) or values.fold(0) { acc, flag -> acc or flag.id }
+    }
+
+    fun nativeHooks() {
+        addNotices(FeatureNotice.REQUIRE_NATIVE_HOOKS)
     }
 
     fun requireRestart() {

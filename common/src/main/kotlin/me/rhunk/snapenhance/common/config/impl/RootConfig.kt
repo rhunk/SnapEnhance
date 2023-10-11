@@ -11,8 +11,7 @@ class RootConfig : ConfigContainer() {
     val rules = container("rules", Rules()) { icon = "Rule" }
     val camera = container("camera", Camera()) { icon = "Camera"; requireRestart() }
     val streaksReminder = container("streaks_reminder", StreaksReminderConfig()) { icon = "Alarm" }
-    val experimental = container("experimental", Experimental()) {
-        icon = "Science"; addNotices(FeatureNotice.UNSTABLE)
-    }
+    val experimental = container("experimental", Experimental()) { icon = "Science"; addNotices(
+        FeatureNotice.UNSTABLE) }
     val scripting = container("scripting", Scripting()) { icon = "DataObject" }
 }

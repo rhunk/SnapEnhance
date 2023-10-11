@@ -19,12 +19,13 @@ class MessagingTweaks : ConfigContainer() {
     ) { requireRestart() }
     val preventMessageSending = multiple("prevent_message_sending", *NotificationType.getOutgoingValues().map { it.key }.toTypedArray()) {
         customOptionTranslationPath = "features.options.notifications"
+        nativeHooks()
     }
     val betterNotifications = multiple("better_notifications", "snap", "chat", "reply_button", "download_button", "group") { requireRestart() }
     val notificationBlacklist = multiple("notification_blacklist", *NotificationType.getIncomingValues().map { it.key }.toTypedArray()) {
         customOptionTranslationPath = "features.options.notifications"
     }
     val messageLogger = boolean("message_logger") { addNotices(FeatureNotice.UNSTABLE); requireRestart() }
-    val galleryMediaSendOverride = boolean("gallery_media_send_override")
+    val galleryMediaSendOverride = boolean("gallery_media_send_override") { nativeHooks() }
     val messagePreviewLength = integer("message_preview_length", defaultValue = 20)
 }
