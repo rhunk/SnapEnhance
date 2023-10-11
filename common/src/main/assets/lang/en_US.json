@@ -460,10 +460,6 @@
                             "disable_bitmoji": {
                                 "name": "Disable Bitmoji",
                                 "description": "Disables Friends Profile Bitmoji"
-                            },
-                            "fix_gallery_media_override": {
-                                "name": "Fix Gallery Media Override",
-                                "description": "Fixes various issues with the Gallery Media Send Override feature (e.g. Save Snaps in chat)"
                             }
                         }
                     },
@@ -518,6 +514,10 @@
                     "infinite_story_boost": {
                         "name": "Infinite Story Boost",
                         "description": "Bypass the Story Boost Limit delay"
+                    },
+                    "custom_story_expiration": {
+                        "name": "Custom Story Expiration",
+                        "description": "Set a custom story expiration time in hours (0 to disable)"
                     },
                     "meo_passcode_bypass": {
                         "name": "My Eyes Only Passcode Bypass",

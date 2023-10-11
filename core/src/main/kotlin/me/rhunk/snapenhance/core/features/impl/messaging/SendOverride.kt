@@ -10,49 +10,57 @@ import me.rhunk.snapenhance.core.features.Feature
 import me.rhunk.snapenhance.core.features.FeatureLoadParams
 import me.rhunk.snapenhance.core.messaging.MessageSender
 import me.rhunk.snapenhance.core.ui.ViewAppearanceHelper
+import me.rhunk.snapenhance.nativelib.NativeLib
+import kotlin.math.absoluteValue
 
 class SendOverride : Feature("Send Override", loadParams = FeatureLoadParams.INIT_SYNC) {
     private var isLastSnapSavable = false
-
-    override fun init() {
-        val fixGalleryMediaSendOverride = context.config.experimental.nativeHooks.let {
-            it.globalState == true && it.fixGalleryMediaOverride.get()
-        }
-        val typeNames = mutableListOf(
+    private val typeNames by lazy {
+        mutableListOf(
             "ORIGINAL",
             "SNAP",
             "NOTE"
         ).also {
-            if (fixGalleryMediaSendOverride) {
+            if (NativeLib.initialized) {
                 it.add("SAVABLE_SNAP")
             }
         }.associateWith {
-           it
+            it
         }
+    }
 
-        context.event.subscribe(UnaryCallEvent::class, { fixGalleryMediaSendOverride }) { event ->
+    override fun init() {
+        context.event.subscribe(UnaryCallEvent::class) { event ->
             if (event.uri != "/messagingcoreservice.MessagingCoreService/CreateContentMessage") return@subscribe
-            if (!isLastSnapSavable) return@subscribe
-            ProtoReader(event.buffer).also {
-                // only affect snaps
-                if (!it.containsPath(*Constants.ARROYO_MEDIA_CONTAINER_PROTO_PATH, 11)) return@subscribe
+            val protoEditor = ProtoEditor(event.buffer)
+
+            context.config.experimental.customStoryExpiration.get().takeIf { it > 0 }?.absoluteValue?.also { expirationInHours ->
+                protoEditor.edit(3, 2, 2) {
+                    remove(1)
+                    add(1) {
+                        from(2) {
+                            addVarInt(1, expirationInHours)
+                            context.log.verbose("add story expiration to $expirationInHours hours")
+                        }
+                    }
+                }
             }
 
-            event.buffer = ProtoEditor(event.buffer).apply {
-                //remove the max view time
-                edit(*Constants.ARROYO_MEDIA_CONTAINER_PROTO_PATH, 11, 5, 2) {
+            if (isLastSnapSavable && ProtoReader(event.buffer).containsPath(*Constants.ARROYO_MEDIA_CONTAINER_PROTO_PATH, 11)) {
+                protoEditor.edit(*Constants.ARROYO_MEDIA_CONTAINER_PROTO_PATH, 11, 5, 2) {
                     remove(8)
                     addBuffer(6, byteArrayOf())
                 }
                 //make snaps savable in chat
-                edit(4) {
+                protoEditor.edit(4) {
                     val savableState = firstOrNull(7)?.value ?: return@edit
                     if (savableState == 2L) {
                         remove(7)
                         addVarInt(7, 3)
                     }
                 }
-            }.toByteArray()
+            }
+            event.buffer = protoEditor.toByteArray()
         }
 
         context.event.subscribe(SendMessageWithContentEvent::class, {

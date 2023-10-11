@@ -6,7 +6,6 @@ import me.rhunk.snapenhance.common.config.FeatureNotice
 class Experimental : ConfigContainer() {
     class NativeHooks : ConfigContainer(hasGlobalState = true) {
         val disableBitmoji = boolean("disable_bitmoji")
-        val fixGalleryMediaOverride = boolean("fix_gallery_media_override")
     }
 
     val nativeHooks = container("native_hooks", NativeHooks()) { icon = "Memory"; requireRestart() }
@@ -15,6 +14,7 @@ class Experimental : ConfigContainer() {
     val appPasscode = string("app_passcode")
     val appLockOnResume = boolean("app_lock_on_resume")
     val infiniteStoryBoost = boolean("infinite_story_boost")
+    val customStoryExpiration = integer("custom_story_expiration") { requireRestart(); nativeHooks() }
     val meoPasscodeBypass = boolean("meo_passcode_bypass")
     val unlimitedMultiSnap = boolean("unlimited_multi_snap") { addNotices(FeatureNotice.BAN_RISK)}
     val noFriendScoreDelay = boolean("no_friend_score_delay") { requireRestart()}

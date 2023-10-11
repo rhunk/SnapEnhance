@@ -5,7 +5,8 @@ import android.util.Log
 class NativeLib {
     var nativeUnaryCallCallback: (NativeRequestData) -> Unit = {}
     companion object {
-        private var initialized = false
+        var initialized = false
+            private set
     }
 
     fun initOnce(classloader: ClassLoader) {
