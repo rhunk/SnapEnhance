@@ -7,8 +7,8 @@ import me.rhunk.snapenhance.core.features.FeatureLoadParams
 import me.rhunk.snapenhance.core.util.hook.HookStage
 import me.rhunk.snapenhance.core.util.hook.hook
 
-class LocationSpoofer: Feature("LocationSpoof", loadParams = FeatureLoadParams.ACTIVITY_CREATE_SYNC) {
-    override fun onActivityCreate() {
+class LocationSpoofer: Feature("LocationSpoof", loadParams = FeatureLoadParams.INIT_SYNC) {
+    override fun init() {
         if (context.config.global.spoofLocation.globalState != true) return
 
         val coordinates by context.config.global.spoofLocation.coordinates
