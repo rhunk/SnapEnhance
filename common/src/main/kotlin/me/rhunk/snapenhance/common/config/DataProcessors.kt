@@ -14,6 +14,7 @@ object DataProcessors {
         FLOAT,
         STRING_MULTIPLE_SELECTION,
         STRING_UNIQUE_SELECTION,
+        MAP_COORDINATES,
         CONTAINER,
     }
 
@@ -73,6 +74,20 @@ object DataProcessors {
         type = Type.STRING_UNIQUE_SELECTION,
         serialize = { JsonPrimitive(it) },
         deserialize = { obj -> obj.takeIf { !it.isJsonNull }?.asString }
+    )
+
+    val MAP_COORDINATES = PropertyDataProcessor(
+        type = Type.MAP_COORDINATES,
+        serialize = {
+            JsonObject().apply {
+                addProperty("lat", it.first)
+                addProperty("lng", it.second)
+            }
+        },
+        deserialize = { obj ->
+            val jsonObject = obj.asJsonObject
+            jsonObject["lat"].asDouble to jsonObject["lng"].asDouble
+        },
     )
 
     fun <T : ConfigContainer> container(container: T) = PropertyDataProcessor(

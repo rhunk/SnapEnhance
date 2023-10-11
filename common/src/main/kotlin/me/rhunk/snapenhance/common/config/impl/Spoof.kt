@@ -4,12 +4,6 @@ import me.rhunk.snapenhance.common.config.ConfigContainer
 import me.rhunk.snapenhance.common.config.FeatureNotice
 
 class Spoof : ConfigContainer() {
-    inner class Location : ConfigContainer(hasGlobalState = true) {
-        val latitude = float("location_latitude")
-        val longitude = float("location_longitude")
-    }
-    val location = container("location", Location())
-
     inner class Device : ConfigContainer(hasGlobalState = true) {
         val fingerprint = string("fingerprint")
         val androidId = string("android_id")

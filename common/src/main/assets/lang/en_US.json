@@ -356,6 +356,16 @@
                 "name": "Global",
                 "description": "Tweak Global Snapchat Settings",
                 "properties": {
+                    "spoofLocation": {
+                        "name": "Location",
+                        "description": "Spoof your location",
+                        "properties": {
+                            "coordinates": {
+                                "name": "Coordinates",
+                                "description": "Set the coordinates"
+                            }
+                        }
+                    },
                     "snapchat_plus": {
                         "name": "Snapchat Plus",
                         "description": "Enables Snapchat Plus features\nSome Server-sided features may not work"
@@ -464,20 +474,6 @@
                         "name": "Spoof",
                         "description": "Spoof various information about you",
                         "properties": {
-                            "location": {
-                                "name": "Location",
-                                "description": "Spoof your location",
-                                "properties": {
-                                    "location_latitude": {
-                                        "name": "Latitude",
-                                        "description": "The latitude of the location"
-                                    },
-                                    "location_longitude": {
-                                        "name": "Longitude",
-                                        "description": "The longitude of the location"
-                                    }
-                                }
-                            },
                             "device": {
                                 "name": "Device",
                                 "description": "Spoof your device information",

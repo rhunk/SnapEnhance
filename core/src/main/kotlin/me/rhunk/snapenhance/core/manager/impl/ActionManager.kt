@@ -5,7 +5,6 @@ import me.rhunk.snapenhance.common.action.EnumAction
 import me.rhunk.snapenhance.core.ModContext
 import me.rhunk.snapenhance.core.action.impl.CleanCache
 import me.rhunk.snapenhance.core.action.impl.ExportChatMessages
-import me.rhunk.snapenhance.core.action.impl.OpenMap
 import me.rhunk.snapenhance.core.manager.Manager
 
 class ActionManager(
@@ -16,7 +15,6 @@ class ActionManager(
         mapOf(
             EnumAction.CLEAN_CACHE to CleanCache::class,
             EnumAction.EXPORT_CHAT_MESSAGES to ExportChatMessages::class,
-            EnumAction.OPEN_MAP to OpenMap::class,
         ).map {
             it.key to it.value.java.getConstructor().newInstance().apply {
                 this.context = modContext

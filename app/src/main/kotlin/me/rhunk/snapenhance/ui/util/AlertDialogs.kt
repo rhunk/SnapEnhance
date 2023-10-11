@@ -1,41 +1,52 @@
 package me.rhunk.snapenhance.ui.util
 
+import android.content.Context
+import android.view.MotionEvent
 import androidx.compose.foundation.ScrollState
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Check
+import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material3.*
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
+import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.layout.onGloballyPositioned
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.TextRange
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.compose.ui.viewinterop.AndroidView
 import me.rhunk.snapenhance.common.bridge.wrapper.LocaleWrapper
 import me.rhunk.snapenhance.common.config.DataProcessors
 import me.rhunk.snapenhance.common.config.PropertyPair
+import org.osmdroid.config.Configuration
+import org.osmdroid.tileprovider.tilesource.TileSourceFactory
+import org.osmdroid.util.GeoPoint
+import org.osmdroid.views.CustomZoomButtonsController
+import org.osmdroid.views.MapView
+import org.osmdroid.views.overlay.Marker
+import org.osmdroid.views.overlay.Overlay
 
 
 class AlertDialogs(
     private val translation: LocaleWrapper,
 ){
     @Composable
-    fun DefaultDialogCard(content: @Composable ColumnScope.() -> Unit) {
+    fun DefaultDialogCard(modifier: Modifier = Modifier, content: @Composable ColumnScope.() -> Unit) {
         Card(
             shape = MaterialTheme.shapes.medium,
             modifier = Modifier
-                .padding(10.dp, 5.dp, 10.dp, 10.dp),
+                .padding(10.dp, 5.dp, 10.dp, 10.dp)
+                .then(modifier),
         ) {
             Column(
                 modifier = Modifier
@@ -195,7 +206,9 @@ class AlertDialogs(
             )
 
             Row(
-                modifier = Modifier.padding(top = 10.dp).fillMaxWidth(),
+                modifier = Modifier
+                    .padding(top = 10.dp)
+                    .fillMaxWidth(),
                 horizontalArrangement = Arrangement.SpaceEvenly,
             ) {
                 Button(onClick = { dismiss() }) {
@@ -252,7 +265,9 @@ class AlertDialogs(
             )
 
             Row(
-                modifier = Modifier.padding(top = 10.dp).fillMaxWidth(),
+                modifier = Modifier
+                    .padding(top = 10.dp)
+                    .fillMaxWidth(),
                 horizontalArrangement = Arrangement.SpaceEvenly,
             ) {
                 Button(onClick = { onDismiss() }) {
@@ -301,6 +316,147 @@ class AlertDialogs(
                             toggle(it)
                         }
                     )
+                }
+            }
+        }
+    }
+
+    @Composable
+    fun ChooseLocationDialog(property: PropertyPair<*>, dismiss: () -> Unit = {}) {
+        val coordinates = remember {
+            (property.value.get() as Pair<*, *>).let {
+                it.first.toString().toDouble() to it.second.toString().toDouble()
+            }
+        }
+        val context = LocalContext.current
+
+        LaunchedEffect(Unit) {
+            Configuration.getInstance().load(context, context.getSharedPreferences("osmdroid", Context.MODE_PRIVATE))
+        }
+
+        var marker by remember { mutableStateOf<Marker?>(null) }
+        val mapView = remember {
+            MapView(context).apply {
+                setMultiTouchControls(true)
+                zoomController.setVisibility(CustomZoomButtonsController.Visibility.NEVER)
+                setTileSource(TileSourceFactory.MAPNIK)
+
+                val startPoint = GeoPoint(coordinates.first, coordinates.second)
+                controller.setZoom(10.0)
+                controller.setCenter(startPoint)
+
+                marker = Marker(this).apply {
+                    isDraggable = true
+                    position = startPoint
+                    setAnchor(Marker.ANCHOR_CENTER, Marker.ANCHOR_BOTTOM)
+                }
+
+                overlays.add(object: Overlay() {
+                    override fun onSingleTapConfirmed(e: MotionEvent, mapView: MapView): Boolean {
+                        marker?.position = mapView.projection.fromPixels(e.x.toInt(), e.y.toInt()) as GeoPoint
+                        mapView.invalidate()
+                        return true
+                    }
+                })
+
+                overlays.add(marker)
+            }
+        }
+
+        DisposableEffect(Unit) {
+            onDispose {
+                mapView.onDetach()
+            }
+        }
+
+        var customCoordinatesDialog by remember { mutableStateOf(false) }
+
+        Box(
+            modifier = Modifier.fillMaxWidth().fillMaxHeight(fraction = 0.9f),
+        ) {
+            AndroidView(
+                factory = { mapView }
+            )
+            Row(
+                modifier = Modifier
+                    .align(Alignment.BottomEnd)
+                    .padding(10.dp),
+                horizontalArrangement = Arrangement.spacedBy(10.dp),
+            ) {
+                FilledIconButton(
+                    onClick = {
+                        val lat = marker?.position?.latitude ?: coordinates.first
+                        val lon = marker?.position?.longitude ?: coordinates.second
+                        property.value.setAny(lat to lon)
+                        dismiss()
+                    }) {
+                    Icon(
+                        modifier = Modifier
+                            .size(60.dp)
+                            .padding(5.dp),
+                        imageVector = Icons.Filled.Check,
+                        contentDescription = null
+                    )
+                }
+
+                FilledIconButton(
+                    onClick = {
+                        customCoordinatesDialog = true
+                    }) {
+                    Icon(
+                        modifier = Modifier
+                            .size(60.dp)
+                            .padding(5.dp),
+                        imageVector = Icons.Filled.Edit,
+                        contentDescription = null
+                    )
+                }
+            }
+
+            if (customCoordinatesDialog) {
+                val lat = remember { mutableStateOf(coordinates.first.toString()) }
+                val lon = remember { mutableStateOf(coordinates.second.toString()) }
+
+                DefaultDialogCard(
+                    modifier = Modifier.align(Alignment.Center)
+                ) {
+                    TextField(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(all = 10.dp),
+                        value = lat.value,
+                        onValueChange = { lat.value = it },
+                        label = { Text(text = "Latitude") },
+                        singleLine = true
+                    )
+                    TextField(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(all = 10.dp),
+                        value = lon.value,
+                        onValueChange = { lon.value = it },
+                        label = { Text(text = "Longitude") },
+                        singleLine = true
+                    )
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.SpaceEvenly,
+                    ) {
+                        Button(onClick = {
+                            customCoordinatesDialog = false
+                        }) {
+                            Text(text = translation["button.cancel"])
+                        }
+
+                        Button(onClick = {
+                            marker?.position = GeoPoint(lat.value.toDouble(), lon.value.toDouble())
+                            mapView.controller.setCenter(marker?.position)
+                            mapView.invalidate()
+                            customCoordinatesDialog = false
+                        }) {
+                            Text(text = translation["button.ok"])
+                        }
+                    }
                 }
             }
         }

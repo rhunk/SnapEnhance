@@ -60,6 +60,12 @@ open class ConfigContainer(
         container.parentContainerKey = it
     }.get()
 
+    protected fun mapCoordinates(
+        key: String,
+        defaultValue: Pair<Double, Double> = 0.0 to 0.0,
+        params: ConfigParamsBuilder = {}
+    ) = registerProperty(key, DataProcessors.MAP_COORDINATES, PropertyValue(defaultValue), params)
+
     fun toJson(): JsonObject {
         val json = JsonObject()
         properties.forEach { (propertyKey, propertyValue) ->

@@ -149,7 +149,10 @@ class FeaturesSection : Section() {
 
         if (showDialog) {
             Dialog(
-                onDismissRequest = { showDialog = false }
+                properties = DialogProperties(
+                    usePlatformDefaultWidth = false
+                ),
+                onDismissRequest = { showDialog = false },
             ) {
                 dialogComposable()
             }
@@ -178,6 +181,24 @@ class FeaturesSection : Section() {
                     onCheckedChange = registerClickCallback {
                         state = state.not()
                         propertyValue.setAny(state)
+                    }
+                )
+            }
+
+            DataProcessors.Type.MAP_COORDINATES -> {
+                registerDialogOnClickCallback()
+                dialogComposable = {
+                    alertDialogs.ChooseLocationDialog(property) {
+                        showDialog = false
+                    }
+                }
+
+                Text(
+                    overflow = TextOverflow.Ellipsis,
+                    maxLines = 1,
+                    modifier = Modifier.widthIn(0.dp, 120.dp),
+                    text = (propertyValue.get() as Pair<*, *>).let {
+                        "${it.first.toString().toFloatOrNull() ?: 0F}, ${it.second.toString().toFloatOrNull() ?: 0F}"
                     }
                 )
             }

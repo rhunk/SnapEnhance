@@ -4,6 +4,10 @@ import me.rhunk.snapenhance.common.config.ConfigContainer
 import me.rhunk.snapenhance.common.config.FeatureNotice
 
 class Global : ConfigContainer() {
+    inner class SpoofLocation : ConfigContainer(hasGlobalState = true) {
+        val coordinates = mapCoordinates("coordinates", 0.0 to 0.0) { requireRestart()} // lat, long
+    }
+    val spoofLocation = container("spoofLocation", SpoofLocation())
     val snapchatPlus = boolean("snapchat_plus") { addNotices(FeatureNotice.BAN_RISK); requireRestart() }
     val disableMetrics = boolean("disable_metrics")
     val blockAds = boolean("block_ads")

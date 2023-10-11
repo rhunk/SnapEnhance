@@ -52,10 +52,6 @@
             android:exported="true"
             android:theme="@style/AppTheme"
             android:excludeFromRecents="true" />
-        <activity
-            android:name=".ui.MapActivity"
-            android:exported="true"
-            android:excludeFromRecents="true" />
         <activity android:name=".bridge.ForceStartActivity"
             android:theme="@android:style/Theme.NoDisplay"
             android:excludeFromRecents="true"
