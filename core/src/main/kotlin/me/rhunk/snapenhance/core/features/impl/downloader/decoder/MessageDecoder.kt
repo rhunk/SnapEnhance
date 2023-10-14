@@ -60,6 +60,10 @@ object MessageDecoder {
             .toList()
     }
 
+    fun getEncodedMediaReferences(messageContent: MessageContent): List<String> {
+        return getEncodedMediaReferences(gson.toJsonTree(messageContent.instanceNonNull()))
+    }
+
     fun getMediaReferences(messageContent: JsonElement): List<JsonElement> {
         return messageContent.asJsonObject.getAsJsonArray("mRemoteMediaReferences")
             .asSequence()

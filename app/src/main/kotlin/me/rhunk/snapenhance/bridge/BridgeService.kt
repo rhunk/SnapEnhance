@@ -5,6 +5,7 @@ import android.content.Intent
 import android.os.IBinder
 import me.rhunk.snapenhance.RemoteSideContext
 import me.rhunk.snapenhance.SharedContextHolder
+import me.rhunk.snapenhance.bridge.snapclient.MessagingBridge
 import me.rhunk.snapenhance.common.bridge.types.BridgeFileType
 import me.rhunk.snapenhance.common.bridge.types.FileActionType
 import me.rhunk.snapenhance.common.bridge.wrapper.LocaleWrapper
@@ -22,6 +23,11 @@ class BridgeService : Service() {
     private lateinit var messageLoggerWrapper: MessageLoggerWrapper
     private lateinit var remoteSideContext: RemoteSideContext
     lateinit var syncCallback: SyncCallback
+    var messagingBridge: MessagingBridge? = null
+
+    override fun onDestroy() {
+        remoteSideContext.bridgeService = null
+    }
 
     override fun onBind(intent: Intent): IBinder? {
         remoteSideContext = SharedContextHolder.remote(this).apply {
@@ -177,6 +183,9 @@ class BridgeService : Service() {
 
         override fun getE2eeInterface() = remoteSideContext.e2eeImplementation
         override fun getMessageLogger() = messageLoggerWrapper
+        override fun registerMessagingBridge(bridge: MessagingBridge) {
+            messagingBridge = bridge
+        }
 
         override fun openSettingsOverlay() {
             runCatching {

@@ -19,6 +19,7 @@ import me.rhunk.snapenhance.core.bridge.loadFromBridge
 import me.rhunk.snapenhance.core.data.SnapClassCache
 import me.rhunk.snapenhance.core.event.events.impl.SnapWidgetBroadcastReceiveEvent
 import me.rhunk.snapenhance.core.event.events.impl.UnaryCallEvent
+import me.rhunk.snapenhance.core.messaging.CoreMessagingBridge
 import me.rhunk.snapenhance.core.util.hook.HookStage
 import me.rhunk.snapenhance.core.util.hook.hook
 import kotlin.system.measureTimeMillis
@@ -116,6 +117,7 @@ class SnapEnhance {
                     logCritical(null, throwable)
                 }
             }
+            bridgeClient.registerMessagingBridge(CoreMessagingBridge(this))
 
             reloadConfig()
             actionManager.init()

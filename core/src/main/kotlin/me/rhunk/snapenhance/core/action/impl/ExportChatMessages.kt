@@ -25,16 +25,7 @@ import java.io.File
 import kotlin.math.absoluteValue
 
 class ExportChatMessages : AbstractAction() {
-    private val callbackClass by lazy {  context.mappings.getMappedClass("callbacks", "Callback") }
-
     private val fetchConversationWithMessagesCallbackClass by lazy {  context.mappings.getMappedClass("callbacks", "FetchConversationWithMessagesCallback") }
-
-    private val enterConversationMethod by lazy {
-        context.classCache.conversationManager.methods.first { it.name == "enterConversation" }
-    }
-    private val exitConversationMethod by lazy {
-        context.classCache.conversationManager.methods.first { it.name == "exitConversation" }
-    }
     private val fetchConversationWithMessagesPaginatedMethod by lazy {
         context.classCache.conversationManager.methods.first { it.name == "fetchConversationWithMessagesPaginated" }
     }
@@ -162,32 +153,6 @@ class ExportChatMessages : AbstractAction() {
         }
     }
 
-    private suspend fun conversationAction(isEntering: Boolean, conversationId: String, conversationType: String?) = suspendCancellableCoroutine { continuation ->
-        val callback = CallbackBuilder(callbackClass)
-            .override("onSuccess") { _ ->
-                continuation.resumeWith(Result.success(Unit))
-            }
-            .override("onError") {
-                continuation.resumeWith(Result.failure(Exception("Failed to ${if (isEntering) "enter" else "exit"} conversation")))
-            }.build()
-
-        if (isEntering) {
-            enterConversationMethod.invoke(
-                conversationManagerInstance,
-                SnapUUID.fromString(conversationId).instanceNonNull(),
-                enterConversationMethod.parameterTypes[1].enumConstants.first { it.toString() == conversationType },
-                callback
-            )
-        } else {
-            exitConversationMethod.invoke(
-                conversationManagerInstance,
-                SnapUUID.fromString(conversationId).instanceNonNull(),
-                Long.MAX_VALUE,
-                callback
-            )
-        }
-    }
-
     private suspend fun fetchMessagesPaginated(conversationId: String, lastMessageId: Long, amount: Int) = suspendCancellableCoroutine { continuation ->
         val callback = CallbackBuilder(fetchConversationWithMessagesCallbackClass)
             .override("onFetchConversationWithMessagesComplete") { param ->
@@ -212,10 +177,6 @@ class ExportChatMessages : AbstractAction() {
         //first fetch the first message
         val conversationId = friendFeedEntry.key!!
         val conversationName = friendFeedEntry.feedDisplayName ?: friendFeedEntry.friendDisplayName!!.split("|").lastOrNull() ?: "unknown"
-
-        runCatching {
-            conversationAction(true, conversationId, if (friendFeedEntry.feedDisplayName != null) "USERCREATEDGROUP" else "ONEONONE")
-        }
 
         logDialog(context.translation.format("chat_export.exporting_message", "conversation" to conversationName))
 
@@ -266,10 +227,6 @@ class ExportChatMessages : AbstractAction() {
         logDialog("\n" + context.translation.format("chat_export.exported_to",
             "path" to outputFile.absolutePath.toString()
         ) + "\n")
-
-        runCatching {
-            conversationAction(false, conversationId, null)
-        }
     }
 
     private fun exportChatForConversations(conversations: List<FriendFeedEntry>) {

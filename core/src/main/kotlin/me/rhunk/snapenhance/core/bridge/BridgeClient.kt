@@ -16,6 +16,7 @@ import me.rhunk.snapenhance.bridge.DownloadCallback
 import me.rhunk.snapenhance.bridge.SyncCallback
 import me.rhunk.snapenhance.bridge.e2ee.E2eeInterface
 import me.rhunk.snapenhance.bridge.scripting.IScripting
+import me.rhunk.snapenhance.bridge.snapclient.MessagingBridge
 import me.rhunk.snapenhance.common.BuildConfig
 import me.rhunk.snapenhance.common.bridge.FileLoaderWrapper
 import me.rhunk.snapenhance.common.bridge.types.BridgeFileType
@@ -146,6 +147,8 @@ class BridgeClient(
     fun getE2eeInterface(): E2eeInterface = service.getE2eeInterface()
 
     fun getMessageLogger() = service.messageLogger
+
+    fun registerMessagingBridge(bridge: MessagingBridge) = service.registerMessagingBridge(bridge)
 
     fun openSettingsOverlay() = service.openSettingsOverlay()
     fun closeSettingsOverlay() = service.closeSettingsOverlay()

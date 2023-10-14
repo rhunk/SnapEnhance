@@ -7,6 +7,7 @@ import me.rhunk.snapenhance.bridge.scripting.IScripting;
 import me.rhunk.snapenhance.bridge.e2ee.E2eeInterface;
 import me.rhunk.snapenhance.bridge.MessageLoggerInterface;
 import me.rhunk.snapenhance.bridge.ConfigStateListener;
+import me.rhunk.snapenhance.bridge.snapclient.MessagingBridge;
 
 interface BridgeInterface {
     /**
@@ -79,6 +80,8 @@ interface BridgeInterface {
     E2eeInterface getE2eeInterface();
 
     MessageLoggerInterface getMessageLogger();
+
+    void registerMessagingBridge(MessagingBridge bridge);
 
     void openSettingsOverlay();
 

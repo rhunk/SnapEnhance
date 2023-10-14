@@ -48,7 +48,7 @@ class RemoteSideContext(
     val coroutineScope = CoroutineScope(Dispatchers.IO)
 
     private var _activity: WeakReference<ComponentActivity>? = null
-    lateinit var bridgeService: BridgeService
+    var bridgeService: BridgeService? = null
 
     var activity: ComponentActivity?
         get() = _activity?.get()
@@ -158,11 +158,13 @@ class RemoteSideContext(
         log.debug(message.toString())
     }
 
+    fun hasMessagingBridge() = bridgeService != null && bridgeService?.messagingBridge != null
+
     fun checkForRequirements(overrideRequirements: Int? = null): Boolean {
         var requirements = overrideRequirements ?: 0
 
         if(BuildConfig.DEBUG) {
-            var unixTime = System.currentTimeMillis() / 1000 //unix time in seconds cuz cool
+            val unixTime = System.currentTimeMillis() / 1000 //unix time in seconds cuz cool
             if(BuildConfig.BUILD_DATE + 604800 < unixTime.toInt()) {
                 Toast.makeText(androidContext, "This SnapEnhance build has expired.", Toast.LENGTH_LONG).show();
                 throw RuntimeException("This build has expired. This crash is intentional.")

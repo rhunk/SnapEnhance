@@ -1,0 +1,16 @@
+package me.rhunk.snapenhance.bridge.snapclient;
+
+import java.util.List;
+import me.rhunk.snapenhance.bridge.snapclient.types.Message;
+
+interface MessagingBridge {
+    @nullable Message fetchMessage(String conversationId, String clientMessageId);
+
+    @nullable Message fetchMessageByServerId(String conversationId, String serverMessageId);
+
+    @nullable List<Message> fetchConversationWithMessagesPaginated(String conversationId, int limit, long beforeMessageId);
+
+    @nullable String updateMessage(String conversationId, String clientMessageId, String messageUpdate);
+
+    @nullable String getOneToOneConversationId(String userId);
+}

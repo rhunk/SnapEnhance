@@ -8,6 +8,7 @@ import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.RemoveRedEye
 import androidx.compose.material.icons.rounded.Add
 import androidx.compose.material.icons.rounded.DeleteForever
 import androidx.compose.material3.*
@@ -42,8 +43,7 @@ class SocialSection : Section() {
 
     companion object {
         const val MAIN_ROUTE = "social_route"
-        const val FRIEND_INFO_ROUTE = "friend_info/{id}"
-        const val GROUP_INFO_ROUTE = "group_info/{id}"
+        const val MESSAGING_PREVIEW_ROUTE = "messaging_preview/?id={id}&scope={scope}"
     }
 
     private var currentScopeContent: ScopeContent? = null
@@ -70,11 +70,25 @@ class SocialSection : Section() {
                 composable(scope.tabRoute) {
                     val id = it.arguments?.getString("id") ?: return@composable
                     remember {
-                        ScopeContent(context, this@SocialSection, navController, scope, id).also { tab ->
+                        ScopeContent(
+                            context,
+                            this@SocialSection,
+                            navController,
+                            scope,
+                            id
+                        ).also { tab ->
                             currentScopeContent = tab
                         }
                     }.Content()
                 }
+            }
+
+            composable(MESSAGING_PREVIEW_ROUTE) {
+                val id = it.arguments?.getString("id") ?: return@composable
+                val scope = it.arguments?.getString("scope") ?: return@composable
+                remember {
+                    MessagingPreview(context, SocialScope.getByName(scope), id)
+                }.Content()
             }
         }
     }
@@ -90,13 +104,15 @@ class SocialSection : Section() {
                     remember { AlertDialogs(context.translation) }.ConfirmDialog(
                         title = "Are you sure you want to delete this ${scopeContent.scope.key.lowercase()}?",
                         onDismiss = { deleteConfirmDialog = false },
-                        onConfirm = { scopeContent.deleteScope(coroutineScope); deleteConfirmDialog = false }
+                        onConfirm = {
+                            scopeContent.deleteScope(coroutineScope); deleteConfirmDialog = false
+                        }
                     )
                 }
             }
         }
 
-        if (currentRoute != MAIN_ROUTE) {
+        if (currentRoute == SocialScope.FRIEND.tabRoute || currentRoute == SocialScope.GROUP.tabRoute) {
             IconButton(
                 onClick = { deleteConfirmDialog = true },
             ) {
@@ -128,7 +144,11 @@ class SocialSection : Section() {
 
             if (listSize == 0) {
                 item {
-                    Text(text = "(empty)", modifier = Modifier.fillMaxWidth().padding(10.dp), textAlign = TextAlign.Center)
+                    Text(
+                        text = "(empty)", modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(10.dp), textAlign = TextAlign.Center
+                    )
                 }
             }
 
@@ -149,31 +169,41 @@ class SocialSection : Section() {
                             )
                         },
                 ) {
-                    when (scope) {
-                        SocialScope.GROUP -> {
-                            val group = groupList[index]
-                            Column(
-                                modifier = Modifier
-                                    .padding(10.dp)
-                                    .fillMaxSize(),
-                                verticalArrangement = Arrangement.Center
-                            ) {
-                                Text(text = group.name, maxLines = 1, fontWeight = FontWeight.Bold)
+                    Row(
+                        modifier = Modifier
+                            .padding(10.dp)
+                            .fillMaxSize(),
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        when (scope) {
+                            SocialScope.GROUP -> {
+                                val group = groupList[index]
+                                Column(
+                                    modifier = Modifier
+                                        .padding(10.dp)
+                                        .fillMaxWidth()
+                                        .weight(1f)
+                                ) {
+                                    Text(
+                                        text = group.name,
+                                        maxLines = 1,
+                                        fontWeight = FontWeight.Bold
+                                    )
+                                }
                             }
-                        }
-                        SocialScope.FRIEND -> {
-                            val friend = friendList[index]
-                            val streaks = remember { context.modDatabase.getFriendStreaks(friend.userId) }
 
-                            Row(
-                                modifier = Modifier
-                                    .padding(10.dp)
-                                    .fillMaxSize(),
-                                verticalAlignment = Alignment.CenterVertically
-                            ) {
+                            SocialScope.FRIEND -> {
+                                val friend = friendList[index]
+                                val streaks =
+                                    remember { context.modDatabase.getFriendStreaks(friend.userId) }
+
                                 BitmojiImage(
                                     context = context,
-                                    url = BitmojiSelfie.getBitmojiSelfie(friend.selfieId, friend.bitmojiId, BitmojiSelfie.BitmojiSelfieType.THREE_D)
+                                    url = BitmojiSelfie.getBitmojiSelfie(
+                                        friend.selfieId,
+                                        friend.bitmojiId,
+                                        BitmojiSelfie.BitmojiSelfieType.THREE_D
+                                    )
                                 )
                                 Column(
                                     modifier = Modifier
@@ -181,8 +211,17 @@ class SocialSection : Section() {
                                         .fillMaxWidth()
                                         .weight(1f)
                                 ) {
-                                    Text(text = friend.displayName ?: friend.mutableUsername, maxLines = 1, fontWeight = FontWeight.Bold)
-                                    Text(text = friend.mutableUsername, maxLines = 1, fontSize = 12.sp, fontWeight = FontWeight.Light)
+                                    Text(
+                                        text = friend.displayName ?: friend.mutableUsername,
+                                        maxLines = 1,
+                                        fontWeight = FontWeight.Bold
+                                    )
+                                    Text(
+                                        text = friend.mutableUsername,
+                                        maxLines = 1,
+                                        fontSize = 12.sp,
+                                        fontWeight = FontWeight.Light
+                                    )
                                 }
                                 Row(
                                     verticalAlignment = Alignment.CenterVertically
@@ -197,13 +236,28 @@ class SocialSection : Section() {
                                             else MaterialTheme.colorScheme.primary
                                         )
                                         Text(
-                                            text = context.translation.format("manager.sections.social.streaks_expiration_short", "hours" to ((streaks.expirationTimestamp - System.currentTimeMillis()) / 3600000).toInt().toString()),
+                                            text = context.translation.format(
+                                                "manager.sections.social.streaks_expiration_short",
+                                                "hours" to ((streaks.expirationTimestamp - System.currentTimeMillis()) / 3600000).toInt()
+                                                    .toString()
+                                            ),
                                             maxLines = 1,
                                             fontWeight = FontWeight.Bold
                                         )
                                     }
                                 }
                             }
+                        }
+
+                        FilledIconButton(onClick = {
+                            navController.navigate(
+                                MESSAGING_PREVIEW_ROUTE.replace("{id}", id).replace("{scope}", scope.key)
+                            )
+                        }) {
+                            Icon(
+                                imageVector = Icons.Filled.RemoveRedEye,
+                                contentDescription = null
+                            )
                         }
                     }
                 }
@@ -258,15 +312,24 @@ class SocialSection : Section() {
                             selected = pagerState.currentPage == index,
                             onClick = {
                                 coroutineScope.launch {
-                                    pagerState.animateScrollToPage( index )
+                                    pagerState.animateScrollToPage(index)
                                 }
                             },
-                            text = { Text(text = title, maxLines = 2, overflow = TextOverflow.Ellipsis) }
+                            text = {
+                                Text(
+                                    text = title,
+                                    maxLines = 2,
+                                    overflow = TextOverflow.Ellipsis
+                                )
+                            }
                         )
                     }
                 }
 
-                HorizontalPager(modifier = Modifier.padding(paddingValues), state = pagerState) { page ->
+                HorizontalPager(
+                    modifier = Modifier.padding(paddingValues),
+                    state = pagerState
+                ) { page ->
                     when (page) {
                         0 -> ScopeList(SocialScope.FRIEND)
                         1 -> ScopeList(SocialScope.GROUP)

@@ -220,7 +220,7 @@ class AddFriendDialog(
                             getCurrentState = { context.modDatabase.getGroupInfo(group.conversationId) != null }
                         ) { state ->
                             if (state) {
-                                context.bridgeService.triggerScopeSync(SocialScope.GROUP, group.conversationId)
+                                context.bridgeService?.triggerScopeSync(SocialScope.GROUP, group.conversationId)
                             } else {
                                 context.modDatabase.deleteGroup(group.conversationId)
                             }
@@ -247,7 +247,7 @@ class AddFriendDialog(
                             getCurrentState = { context.modDatabase.getFriendInfo(friend.userId) != null }
                         ) { state ->
                             if (state) {
-                                context.bridgeService.triggerScopeSync(SocialScope.FRIEND, friend.userId)
+                                context.bridgeService?.triggerScopeSync(SocialScope.FRIEND, friend.userId)
                             } else {
                                 context.modDatabase.deleteFriend(friend.userId)
                             }
