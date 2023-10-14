@@ -3,8 +3,8 @@ package me.rhunk.snapenhance.scripting.impl
 import android.os.DeadObjectException
 import me.rhunk.snapenhance.bridge.scripting.IPCListener
 import me.rhunk.snapenhance.common.logger.AbstractLogger
-import me.rhunk.snapenhance.common.scripting.IPCInterface
-import me.rhunk.snapenhance.common.scripting.Listener
+import me.rhunk.snapenhance.common.scripting.impl.IPCInterface
+import me.rhunk.snapenhance.common.scripting.impl.Listener
 import me.rhunk.snapenhance.common.scripting.type.ModuleInfo
 import java.util.concurrent.ConcurrentHashMap
 

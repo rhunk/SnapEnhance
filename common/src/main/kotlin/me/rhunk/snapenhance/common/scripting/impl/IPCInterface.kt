@@ -1,4 +1,4 @@
-package me.rhunk.snapenhance.common.scripting
+package me.rhunk.snapenhance.common.scripting.impl
 
 typealias Listener = (Array<out String?>) -> Unit
 

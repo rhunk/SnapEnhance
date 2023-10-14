@@ -25,6 +25,10 @@ open class ScriptRuntime(
         }
     }
 
+    fun getModuleByName(name: String): JSModule? {
+        return modules.values.find { it.moduleInfo.name == name }
+    }
+
     private fun readModuleInfo(reader: BufferedReader): ModuleInfo {
         val header = reader.readLine()
         if (!header.startsWith("// ==SE_module==")) {

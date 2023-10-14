@@ -6,18 +6,20 @@ import me.rhunk.snapenhance.RemoteSideContext
 import me.rhunk.snapenhance.bridge.scripting.IPCListener
 import me.rhunk.snapenhance.bridge.scripting.IScripting
 import me.rhunk.snapenhance.common.scripting.ScriptRuntime
+import me.rhunk.snapenhance.common.scripting.impl.ConfigInterface
+import me.rhunk.snapenhance.common.scripting.impl.ConfigTransactionType
 import me.rhunk.snapenhance.common.scripting.type.ModuleInfo
 import me.rhunk.snapenhance.scripting.impl.IPCListeners
 import me.rhunk.snapenhance.scripting.impl.RemoteManagerIPC
-import me.rhunk.snapenhance.scripting.impl.ui.InterfaceBuilder
+import me.rhunk.snapenhance.scripting.impl.RemoteScriptConfig
 import me.rhunk.snapenhance.scripting.impl.ui.InterfaceManager
+import java.io.File
 import java.io.InputStream
 
 class RemoteScriptManager(
-    private val context: RemoteSideContext,
+    val context: RemoteSideContext,
 ) : IScripting.Stub() {
     val runtime = ScriptRuntime(context.androidContext, context.log)
-    private val userInterfaces = mutableMapOf<String, MutableMap<String, InterfaceBuilder>>()
 
     private val cachedModuleInfo = mutableMapOf<String, ModuleInfo>()
     private val ipcListeners = IPCListeners()
@@ -40,19 +42,15 @@ class RemoteScriptManager(
 
     fun init() {
         runtime.buildModuleObject = { module ->
-            putConst("ipc", this, RemoteManagerIPC(module.moduleInfo, context.log, ipcListeners))
-            putConst("im", this, InterfaceManager(module.moduleInfo, context.log) { name, interfaceBuilder ->
-                userInterfaces.getOrPut(module.moduleInfo.name) {
-                    mutableMapOf()
-                }[name] = interfaceBuilder
-            })
+            module.extras["ipc"] = RemoteManagerIPC(module.moduleInfo, context.log, ipcListeners)
+            module.extras["im"] = InterfaceManager(module.moduleInfo, context.log)
+            module.extras["config"] = RemoteScriptConfig(this@RemoteScriptManager, module.moduleInfo, context.log).also {
+                it.load()
+            }
         }
 
         sync()
         enabledScripts.forEach { name ->
-            if (getModuleDataFolder(name) == null) {
-                context.log.warn("Module data folder not found for $name")
-            }
             loadScript(name)
         }
     }
@@ -62,19 +60,17 @@ class RemoteScriptManager(
         runtime.load(name, content)
     }
 
-    fun getScriptInterface(scriptName: String, interfaceName: String)
-            = userInterfaces[scriptName]?.get(interfaceName)
-
-
     private fun <R> getScriptInputStream(name: String, callback: (InputStream?) -> R): R {
         val file = getScriptsFolder()?.findFile(name) ?: return callback(null)
         return context.androidContext.contentResolver.openInputStream(file.uri)?.use(callback) ?: callback(null)
     }
 
-    private fun getModuleDataFolder(moduleFileName: String): DocumentFile? {
-        val folderName = moduleFileName.substringBeforeLast(".js")
-        val folder = getScriptsFolder() ?: return null
-        return folder.findFile(folderName) ?: folder.createDirectory(folderName)
+    fun getModuleDataFolder(moduleFileName: String): File {
+        return context.androidContext.filesDir.resolve("modules").resolve(moduleFileName).also {
+            if (!it.exists()) {
+                it.mkdirs()
+            }
+        }
     }
 
     private fun getScriptsFolder() = runCatching {
@@ -113,5 +109,36 @@ class RemoteScriptManager(
         }.onFailure {
             context.log.error("Failed to send message for $eventName", it)
         }
+    }
+
+    override fun configTransaction(
+        module: String?,
+        action: String,
+        key: String?,
+        value: String?,
+        save: Boolean
+    ): String? {
+        val scriptConfig = runtime.getModuleByName(module ?: return null)?.extras?.get("config") as? ConfigInterface ?: return null.also {
+            context.log.warn("Failed to get config interface for $module")
+        }
+        val transactionType = ConfigTransactionType.fromKey(action)
+
+        return runCatching {
+            scriptConfig.run {
+                if (transactionType == ConfigTransactionType.GET) {
+                    return get(key ?: return@runCatching null, value)
+                }
+                when (transactionType) {
+                    ConfigTransactionType.SET -> set(key ?: return@runCatching null, value, save)
+                    ConfigTransactionType.SAVE -> save()
+                    ConfigTransactionType.LOAD -> load()
+                    ConfigTransactionType.DELETE -> delete()
+                    else -> {}
+                }
+                null
+            }
+        }.onFailure {
+            context.log.error("Failed to perform config transaction", it)
+        }.getOrDefault("")
     }
 }

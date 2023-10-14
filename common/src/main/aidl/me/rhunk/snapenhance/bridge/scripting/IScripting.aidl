@@ -10,4 +10,6 @@ interface IScripting {
     void registerIPCListener(String channel, String eventName, IPCListener listener);
 
     void sendIPCMessage(String channel, String eventName, in String[] args);
+
+    @nullable String configTransaction(String module, String action, @nullable String key, @nullable String value, boolean save);
 }

@@ -14,6 +14,7 @@ import androidx.compose.ui.unit.sp
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import me.rhunk.snapenhance.common.scripting.type.ModuleInfo
+import me.rhunk.snapenhance.scripting.impl.ui.InterfaceManager
 import me.rhunk.snapenhance.ui.manager.Section
 import me.rhunk.snapenhance.ui.util.pullrefresh.PullRefreshIndicator
 import me.rhunk.snapenhance.ui.util.pullrefresh.pullRefresh
@@ -88,7 +89,8 @@ class ScriptsSection : Section() {
     @Composable
     fun ScriptSettings(script: ModuleInfo) {
         val settingsInterface = remember {
-            context.scriptManager.getScriptInterface(script.name, "settings")
+            val module = context.scriptManager.runtime.getModuleByName(script.name) ?: return@remember null
+            (module.extras["im"] as? InterfaceManager)?.buildInterface("settings")
         } ?: run {
             Text(
                 text = "This module does not have any settings",
@@ -100,7 +102,6 @@ class ScriptsSection : Section() {
 
         ScriptInterface(interfaceBuilder = settingsInterface)
     }
-
 
     @Composable
     override fun Content() {

@@ -12,15 +12,15 @@ import org.mozilla.javascript.annotations.JSFunction
 
 class InterfaceBuilder {
     val nodes = mutableListOf<Node>()
-    var onLaunchedCallback: (() -> Unit)? = null
+    var onDisposeCallback: (() -> Unit)? = null
 
 
     private fun createNode(type: NodeType, block: Node.() -> Unit): Node {
         return Node(type).apply(block).also { nodes.add(it) }
     }
 
-    fun onLaunched(block: () -> Unit) {
-        onLaunchedCallback = block
+    fun onDispose(block: () -> Unit) {
+        onDisposeCallback = block
     }
 
     fun row(block: (InterfaceBuilder) -> Unit) = RowColumnNode(NodeType.ROW).apply {
@@ -66,14 +66,25 @@ class InterfaceBuilder {
 
 class InterfaceManager(
     private val moduleInfo: ModuleInfo,
-    private val logger: AbstractLogger,
-    private val registerInterface: (String, InterfaceBuilder) -> Unit,
+    private val logger: AbstractLogger
 ) {
-    @JSFunction
-    fun create(name: String, callback: Function) {
-        logger.info("Creating interface $name for ${moduleInfo.name}")
-        val interfaceBuilder = InterfaceBuilder()
-        callback.call(Context.getCurrentContext(), callback, callback, arrayOf(interfaceBuilder))
-        registerInterface(name, interfaceBuilder)
+    private val interfaces = mutableMapOf<String, () -> InterfaceBuilder?>()
+
+    fun buildInterface(name: String): InterfaceBuilder? {
+        return interfaces[name]?.invoke()
+    }
+
+    @JSFunction fun create(name: String, callback: Function) {
+        interfaces[name] = {
+            val interfaceBuilder = InterfaceBuilder()
+            runCatching {
+                Context.enter()
+                callback.call(Context.getCurrentContext(), callback, callback, arrayOf(interfaceBuilder))
+                Context.exit()
+                interfaceBuilder
+            }.onFailure {
+                logger.error("Failed to create interface $name for ${moduleInfo.name}", it)
+            }.getOrNull()
+        }
     }
 }

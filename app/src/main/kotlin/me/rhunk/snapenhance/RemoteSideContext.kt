@@ -14,6 +14,8 @@ import coil.ImageLoader
 import coil.decode.VideoFrameDecoder
 import coil.disk.DiskCache
 import coil.memory.MemoryCache
+import com.google.gson.Gson
+import com.google.gson.GsonBuilder
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import me.rhunk.snapenhance.bridge.BridgeService
@@ -80,6 +82,8 @@ class RemoteSideContext(
             }
             .components { add(VideoFrameDecoder.Factory()) }.build()
     }
+
+    val gson: Gson by lazy { GsonBuilder().setPrettyPrinting().create() }
 
     fun reload() {
         log.verbose("Loading RemoteSideContext")

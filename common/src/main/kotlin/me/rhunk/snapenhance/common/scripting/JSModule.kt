@@ -18,6 +18,7 @@ class JSModule(
     val moduleInfo: ModuleInfo,
     val content: String,
 ) {
+    val extras = mutableMapOf<String, Any>()
     private lateinit var moduleObject: ScriptableObject
 
     fun load(block: ScriptableObject.() -> Unit) {
@@ -115,8 +116,10 @@ class JSModule(
                     Undefined.instance
                 }
             }
-
             block(moduleObject)
+            extras.forEach { (key, value) ->
+                moduleObject.putConst(key, moduleObject, value)
+            }
             evaluateString(moduleObject, content, moduleInfo.name, 1, null)
         }
     }

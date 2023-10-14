@@ -1,12 +1,11 @@
 package me.rhunk.snapenhance.core.scripting
 
 import android.content.Context
-import me.rhunk.snapenhance.bridge.scripting.IPCListener
 import me.rhunk.snapenhance.bridge.scripting.IScripting
 import me.rhunk.snapenhance.common.logger.AbstractLogger
-import me.rhunk.snapenhance.common.scripting.IPCInterface
-import me.rhunk.snapenhance.common.scripting.Listener
 import me.rhunk.snapenhance.common.scripting.ScriptRuntime
+import me.rhunk.snapenhance.core.scripting.impl.CoreIPC
+import me.rhunk.snapenhance.core.scripting.impl.CoreScriptConfig
 import me.rhunk.snapenhance.core.scripting.impl.ScriptHooker
 
 class CoreScriptRuntime(
@@ -18,38 +17,19 @@ class CoreScriptRuntime(
     fun connect(scriptingInterface: IScripting) {
         scriptingInterface.apply {
             buildModuleObject = { module ->
-                putConst("ipc", this, object: IPCInterface() {
-                    override fun onBroadcast(channel: String, eventName: String, listener: Listener) {
-                        registerIPCListener(channel, eventName, object: IPCListener.Stub() {
-                            override fun onMessage(args: Array<out String?>) {
-                                listener(args)
-                            }
-                        })
-                    }
-
-                    override fun on(eventName: String, listener: Listener) {
-                        onBroadcast(module.moduleInfo.name, eventName, listener)
-                    }
-
-                    override fun emit(eventName: String, vararg args: String?) {
-                        broadcast(module.moduleInfo.name, eventName, *args)
-                    }
-
-                    override fun broadcast(channel: String, eventName: String, vararg args: String?) {
-                        sendIPCMessage(channel, eventName, args)
-                    }
-                })
-                putConst("hooker", this, ScriptHooker(module.moduleInfo, logger, androidContext.classLoader).also {
+                module.extras["ipc"] = CoreIPC(this@apply, module.moduleInfo)
+                module.extras["hooker"] = ScriptHooker(module.moduleInfo, logger, androidContext.classLoader).also {
                     scriptHookers.add(it)
-                })
+                }
+                module.extras["config"] = CoreScriptConfig(this@apply, module.moduleInfo)
             }
-        }
 
-        scriptingInterface.enabledScripts.forEach { path ->
-            runCatching {
-                load(path, scriptingInterface.getScriptContent(path))
-            }.onFailure {
-                logger.error("Failed to load script $path", it)
+            enabledScripts.forEach { path ->
+                runCatching {
+                    load(path, scriptingInterface.getScriptContent(path))
+                }.onFailure {
+                    logger.error("Failed to load script $path", it)
+                }
             }
         }
     }

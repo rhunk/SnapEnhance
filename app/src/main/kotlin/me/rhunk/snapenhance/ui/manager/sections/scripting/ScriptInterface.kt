@@ -147,8 +147,14 @@ fun ScriptInterface(interfaceBuilder: InterfaceBuilder) {
             DrawNode(node)
         }
 
-        LaunchedEffect(interfaceBuilder) {
-            interfaceBuilder.onLaunchedCallback?.invoke()
+        DisposableEffect(Unit) {
+            onDispose {
+                runCatching {
+                    interfaceBuilder.onDisposeCallback?.invoke()
+                }.onFailure {
+                    AbstractLogger.directError("Error running onDisposed callback", it)
+                }
+            }
         }
     }
 }
