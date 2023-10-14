@@ -25,6 +25,7 @@ import me.rhunk.snapenhance.common.util.protobuf.ProtoReader
 import me.rhunk.snapenhance.common.util.snap.SnapWidgetBroadcastReceiverHelper
 import me.rhunk.snapenhance.ui.util.AlertDialogs
 import me.rhunk.snapenhance.ui.util.Dialog
+import kotlin.random.Random
 
 class MessagingPreview(
     private val context: RemoteSideContext,
@@ -135,7 +136,10 @@ class MessagingPreview(
 
             if (deleteAllConfirmationDialog) {
                 Dialog(onDismissRequest = { deleteAllConfirmationDialog = false }) {
-                    alertDialogs.ConfirmDialog(title = "Are you sure you want to delete all your messages?", onDismiss = {
+                    alertDialogs.ConfirmDialog(
+                        title = "Are you sure you want to delete all your messages?",
+                        message = "Warning: This action may flag your account for spam if used excessively.",
+                        onDismiss = {
                         deleteAllConfirmationDialog = false
                     }, onConfirm = {
                         deletedMessageCount = 0
@@ -161,6 +165,7 @@ class MessagingPreview(
 
                                 fetchedMessages.forEach {
                                     deleteIndividualMessage(it.serverMessageId)
+                                    delay(Random.nextLong(50, 170))
                                 }
 
                                 lastMessageId = fetchedMessages.first().clientMessageId

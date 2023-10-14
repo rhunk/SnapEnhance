@@ -94,6 +94,11 @@ class SocialSection : Section() {
                     currentMessagingPreview = messagePreview
                 }
                 messagePreview.Content()
+                DisposableEffect(Unit) {
+                    onDispose {
+                        currentMessagingPreview = null
+                    }
+                }
             }
         }
     }
