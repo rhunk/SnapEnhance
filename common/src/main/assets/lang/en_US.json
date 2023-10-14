@@ -16,6 +16,7 @@
             "dialog": "To continue you need to fit the following requirements:",
             "notification_access": "Notification Access",
             "battery_optimization": "Battery Optimization",
+            "display_over_other_apps": "Display Over Other Apps",
             "request_button": "Request"
         }
     },
