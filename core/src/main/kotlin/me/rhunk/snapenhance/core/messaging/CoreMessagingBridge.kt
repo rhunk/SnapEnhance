@@ -28,6 +28,7 @@ class CoreMessagingBridge(
     private val context: ModContext
 ) : MessagingBridge.Stub() {
     private val conversationManager get() = context.feature(Messaging::class).conversationManager
+    override fun getMyUserId() = context.database.myUserId
 
     override fun fetchMessage(conversationId: String, clientMessageId: String): Message? {
         return runBlocking {
@@ -116,7 +117,7 @@ class CoreMessagingBridge(
 
     override fun updateMessage(
         conversationId: String,
-        clientMessageId: String,
+        clientMessageId: Long,
         messageUpdate: String
     ): String? {
         return runBlocking {

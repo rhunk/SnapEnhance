@@ -47,6 +47,7 @@ class SocialSection : Section() {
     }
 
     private var currentScopeContent: ScopeContent? = null
+    private var currentMessagingPreview by mutableStateOf(null as MessagingPreview?)
 
     private val addFriendDialog by lazy {
         AddFriendDialog(context, this)
@@ -83,12 +84,16 @@ class SocialSection : Section() {
                 }
             }
 
-            composable(MESSAGING_PREVIEW_ROUTE) {
-                val id = it.arguments?.getString("id") ?: return@composable
-                val scope = it.arguments?.getString("scope") ?: return@composable
-                remember {
+            composable(MESSAGING_PREVIEW_ROUTE) { navBackStackEntry ->
+                val id = navBackStackEntry.arguments?.getString("id") ?: return@composable
+                val scope = navBackStackEntry.arguments?.getString("scope") ?: return@composable
+                val messagePreview = remember {
                     MessagingPreview(context, SocialScope.getByName(scope), id)
-                }.Content()
+                }
+                LaunchedEffect(key1 = id) {
+                    currentMessagingPreview = messagePreview
+                }
+                messagePreview.Content()
             }
         }
     }
@@ -110,6 +115,10 @@ class SocialSection : Section() {
                     )
                 }
             }
+        }
+
+        if (currentRoute == MESSAGING_PREVIEW_ROUTE) {
+            currentMessagingPreview?.TopBarAction()
         }
 
         if (currentRoute == SocialScope.FRIEND.tabRoute || currentRoute == SocialScope.GROUP.tabRoute) {
