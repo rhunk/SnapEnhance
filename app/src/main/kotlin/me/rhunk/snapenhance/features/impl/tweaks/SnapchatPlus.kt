@@ -6,11 +6,11 @@ import me.rhunk.snapenhance.features.FeatureLoadParams
 import me.rhunk.snapenhance.hook.HookStage
 import me.rhunk.snapenhance.hook.Hooker
 
-class SnapchatPlus: Feature("SnapchatPlus", loadParams = FeatureLoadParams.ACTIVITY_CREATE_ASYNC) {
+class SnapchatPlus: Feature("SnapchatPlus", loadParams = FeatureLoadParams.INIT_SYNC) {
     private val originalSubscriptionTime = (System.currentTimeMillis() - 7776000000L)
     private val expirationTimeMillis = (System.currentTimeMillis() + 15552000000L)
 
-    override fun asyncOnActivityCreate() {
+    override fun init() {
         if (!context.config.bool(ConfigProperty.SNAPCHAT_PLUS)) return
 
         val subscriptionInfoClass = context.mappings.getMappedClass("SubscriptionInfoClass")
