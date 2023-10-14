@@ -26,7 +26,9 @@ class BridgeService : Service() {
     var messagingBridge: MessagingBridge? = null
 
     override fun onDestroy() {
-        remoteSideContext.bridgeService = null
+        if (::remoteSideContext.isInitialized) {
+            remoteSideContext.bridgeService = null
+        }
     }
 
     override fun onBind(intent: Intent): IBinder? {

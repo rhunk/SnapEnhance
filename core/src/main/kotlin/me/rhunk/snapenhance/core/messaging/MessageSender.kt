@@ -1,8 +1,6 @@
 package me.rhunk.snapenhance.core.messaging
 
 import me.rhunk.snapenhance.common.data.ContentType
-import me.rhunk.snapenhance.common.data.MetricsMessageMediaType
-import me.rhunk.snapenhance.common.data.MetricsMessageType
 import me.rhunk.snapenhance.common.util.protobuf.ProtoWriter
 import me.rhunk.snapenhance.core.ModContext
 import me.rhunk.snapenhance.core.features.impl.messaging.Messaging
@@ -59,34 +57,10 @@ class MessageSender(
 
     private val sendMessageCallback by lazy { context.mappings.getMappedClass("callbacks", "SendMessageCallback") }
 
-    private val platformAnalyticsCreatorClass by lazy {
-        context.mappings.getMappedClass("PlatformAnalyticsCreator")
-    }
-
-    private fun defaultPlatformAnalytics(): ByteArray {
-        val analyticsSource = platformAnalyticsCreatorClass.constructors[0].parameterTypes[0]
-        val chatAnalyticsSource = analyticsSource.enumConstants.first { it.toString() == "CHAT" }
-
-        val platformAnalyticsDefaultArgs = arrayOf(chatAnalyticsSource, null, null, null, null, null, null, null, null, null, 0L, 0L,
-            null, null, false, null, null, 0L, null, null, false, null, null,
-            null, null, null, null, null, null, null, null, null, null, null,
-            null, null, null, null, null, null, false, null, null, false, 0L, -2, 8191)
-
-        val platformAnalyticsInstance = platformAnalyticsCreatorClass.constructors[0].newInstance(
-            *platformAnalyticsDefaultArgs
-        ) ?: throw Exception("Failed to create platform analytics instance")
-
-        return platformAnalyticsInstance.javaClass.declaredMethods.first { it.returnType == ByteArray::class.java }
-            .invoke(platformAnalyticsInstance) as ByteArray?
-            ?: throw Exception("Failed to get platform analytics content")
-    }
-
     private fun createLocalMessageContentTemplate(
         contentType: ContentType,
         messageContent: ByteArray,
         localMediaReference: ByteArray? = null,
-        metricMessageMediaType: MetricsMessageMediaType = MetricsMessageMediaType.DERIVED_FROM_MESSAGE_TYPE,
-        metricsMediaType: MetricsMessageType = MetricsMessageType.TEXT,
         savePolicy: String = "PROHIBITED",
     ): String {
         return """
@@ -104,12 +78,10 @@ class MessageSender(
                 }
             }],
             "mPlatformAnalytics": {
-                "mAttemptId": {
-                  "mId": [${(1..16).map { (-127 ..127).random() }.joinToString(",")}]
-                },
-                "mContent": [${defaultPlatformAnalytics().joinToString(",")}],
-                "mMetricsMessageMediaType": "${metricMessageMediaType.name}",
-                "mMetricsMessageType": "${metricsMediaType.name}",
+                "mAttemptId": null,
+                "mContent": [],
+                "mMetricsMessageMediaType": "NO_MEDIA",
+                "mMetricsMessageType": "TEXT",
                 "mReactionSource": "NONE"
             },
             "mSavePolicy": "$savePolicy"
@@ -129,35 +101,6 @@ class MessageSender(
 
         sendMessageWithContentMethod.invoke(context.feature(Messaging::class).conversationManager, messageDestinations.instanceNonNull(), localMessageContent, callback)
     }
-
-    //TODO: implement sendSnapMessage
-    /*
-    fun sendSnapMessage(conversations: List<SnapUUID>, chatMediaType: ChatMediaType, uri: Uri, onError: (Any) -> Unit = {}, onSuccess: () -> Unit = {}) {
-        val mediaReferenceBuffer = FlatBufferBuilder(0).apply {
-            val uriOffset = createString(uri.toString())
-            forceDefaults(true)
-            startTable(2)
-            addOffset(1, uriOffset, 0)
-            addInt(0, chatMediaType.value, 0)
-            finish(endTable())
-            finished()
-        }.sizedByteArray()
-
-        internalSendMessage(conversations, createLocalMessageContentTemplate(
-            contentType = ContentType.SNAP,
-            messageContent = redSnapProto(chatMediaType == ChatMediaType.AUDIO || chatMediaType == ChatMediaType.VIDEO),
-            localMediaReference = mediaReferenceBuffer,
-            metricMessageMediaType = MetricsMessageMediaType.IMAGE,
-            metricsMediaType = MetricsMessageType.SNAP
-        ), CallbackBuilder(sendMessageCallback)
-            .override("onSuccess") {
-                onSuccess()
-            }
-            .override("onError") {
-                onError(it.arg(0))
-            }
-            .build())
-    }*/
 
     fun sendChatMessage(conversations: List<SnapUUID>, message: String, onError: (Any) -> Unit = {}, onSuccess: () -> Unit = {}) {
         internalSendMessage(conversations, createLocalMessageContentTemplate(ContentType.CHAT, ProtoWriter().apply {

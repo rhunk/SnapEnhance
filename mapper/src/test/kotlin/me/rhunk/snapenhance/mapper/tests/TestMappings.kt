@@ -16,7 +16,6 @@ class TestMappings {
             DefaultMediaItemMapper::class,
             MediaQualityLevelProviderMapper::class,
             OperaPageViewControllerMapper::class,
-            PlatformAnalyticsCreatorMapper::class,
             PlusSubscriptionMapper::class,
             ScCameraSettingsMapper::class,
             StoryBoostStateMapper::class,
