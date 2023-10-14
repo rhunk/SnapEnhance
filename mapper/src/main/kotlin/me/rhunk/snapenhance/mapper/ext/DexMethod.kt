@@ -1,4 +1,4 @@
-package me.rhunk.snapmapper.ext
+package me.rhunk.snapenhance.mapper.ext
 
 import org.jf.dexlib2.iface.MethodImplementation
 import org.jf.dexlib2.iface.instruction.formats.Instruction21c

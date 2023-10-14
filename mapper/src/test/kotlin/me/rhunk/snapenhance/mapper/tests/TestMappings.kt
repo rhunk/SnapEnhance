@@ -1,8 +1,8 @@
 package me.rhunk.snapenhance.mapper.tests
 
 import com.google.gson.GsonBuilder
-import me.rhunk.snapmapper.Mapper
-import me.rhunk.snapmapper.impl.*
+import me.rhunk.snapenhance.mapper.Mapper
+import me.rhunk.snapenhance.mapper.impl.*
 import org.junit.Test
 import java.io.File
 
@@ -17,7 +17,6 @@ class TestMappings {
             MediaQualityLevelProviderMapper::class,
             EnumMapper::class,
             OperaPageViewControllerMapper::class,
-            PlatformAnalyticsCreatorMapper::class,
             PlusSubscriptionMapper::class,
             ScCameraSettingsMapper::class,
             StoryBoostStateMapper::class,

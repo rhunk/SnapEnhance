@@ -1,10 +1,10 @@
-package me.rhunk.snapmapper.impl
+package me.rhunk.snapenhance.mapper.impl
 
-import me.rhunk.snapmapper.AbstractClassMapper
-import me.rhunk.snapmapper.MapperContext
-import me.rhunk.snapmapper.ext.getClassName
-import me.rhunk.snapmapper.ext.getSuperClassName
-import me.rhunk.snapmapper.ext.isFinal
+import me.rhunk.snapenhance.mapper.AbstractClassMapper
+import me.rhunk.snapenhance.mapper.MapperContext
+import me.rhunk.snapenhance.mapper.ext.getClassName
+import me.rhunk.snapenhance.mapper.ext.getSuperClassName
+import me.rhunk.snapenhance.mapper.ext.isFinal
 
 class CallbackMapper : AbstractClassMapper() {
     override fun run(context: MapperContext) {

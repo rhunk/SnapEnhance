@@ -1,12 +1,12 @@
-package me.rhunk.snapmapper.impl
+package me.rhunk.snapenhance.mapper.impl
 
-import me.rhunk.snapmapper.AbstractClassMapper
-import me.rhunk.snapmapper.MapperContext
-import me.rhunk.snapmapper.ext.getClassName
-import me.rhunk.snapmapper.ext.hasConstructorString
-import me.rhunk.snapmapper.ext.hasStaticConstructorString
-import me.rhunk.snapmapper.ext.isAbstract
-import me.rhunk.snapmapper.ext.isEnum
+import me.rhunk.snapenhance.mapper.AbstractClassMapper
+import me.rhunk.snapenhance.mapper.MapperContext
+import me.rhunk.snapenhance.mapper.ext.getClassName
+import me.rhunk.snapenhance.mapper.ext.hasConstructorString
+import me.rhunk.snapenhance.mapper.ext.hasStaticConstructorString
+import me.rhunk.snapenhance.mapper.ext.isAbstract
+import me.rhunk.snapenhance.mapper.ext.isEnum
 
 class OperaPageViewControllerMapper : AbstractClassMapper() {
     override fun run(context: MapperContext) {

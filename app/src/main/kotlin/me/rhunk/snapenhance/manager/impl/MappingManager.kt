@@ -7,21 +7,9 @@ import me.rhunk.snapenhance.Logger
 import me.rhunk.snapenhance.ModContext
 import me.rhunk.snapenhance.bridge.types.BridgeFileType
 import me.rhunk.snapenhance.manager.Manager
+import me.rhunk.snapenhance.mapper.Mapper
+import me.rhunk.snapenhance.mapper.impl.*
 import me.rhunk.snapenhance.ui.ViewAppearanceHelper
-import me.rhunk.snapmapper.Mapper
-import me.rhunk.snapmapper.impl.BCryptClassMapper
-import me.rhunk.snapmapper.impl.CallbackMapper
-import me.rhunk.snapmapper.impl.CompositeConfigurationProviderMapper
-import me.rhunk.snapmapper.impl.DefaultMediaItemMapper
-import me.rhunk.snapmapper.impl.EnumMapper
-import me.rhunk.snapmapper.impl.FriendsFeedEventDispatcherMapper
-import me.rhunk.snapmapper.impl.MediaQualityLevelProviderMapper
-import me.rhunk.snapmapper.impl.OperaPageViewControllerMapper
-import me.rhunk.snapmapper.impl.PlatformAnalyticsCreatorMapper
-import me.rhunk.snapmapper.impl.PlusSubscriptionMapper
-import me.rhunk.snapmapper.impl.ScCameraSettingsMapper
-import me.rhunk.snapmapper.impl.ScoreUpdateMapper
-import me.rhunk.snapmapper.impl.StoryBoostStateMapper
 import java.nio.charset.StandardCharsets
 import java.util.concurrent.ConcurrentHashMap
 import kotlin.system.measureTimeMillis
@@ -35,7 +23,6 @@ class MappingManager(private val context: ModContext) : Manager {
         MediaQualityLevelProviderMapper::class,
         EnumMapper::class,
         OperaPageViewControllerMapper::class,
-        PlatformAnalyticsCreatorMapper::class,
         PlusSubscriptionMapper::class,
         ScCameraSettingsMapper::class,
         StoryBoostStateMapper::class,

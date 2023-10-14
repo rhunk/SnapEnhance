@@ -1,11 +1,11 @@
-package me.rhunk.snapmapper.impl
+package me.rhunk.snapenhance.mapper.impl
 
-import me.rhunk.snapmapper.AbstractClassMapper
-import me.rhunk.snapmapper.MapperContext
-import me.rhunk.snapmapper.ext.findConstString
-import me.rhunk.snapmapper.ext.getClassName
-import me.rhunk.snapmapper.ext.hasStaticConstructorString
-import me.rhunk.snapmapper.ext.isEnum
+import me.rhunk.snapenhance.mapper.AbstractClassMapper
+import me.rhunk.snapenhance.mapper.MapperContext
+import me.rhunk.snapenhance.mapper.ext.findConstString
+import me.rhunk.snapenhance.mapper.ext.getClassName
+import me.rhunk.snapenhance.mapper.ext.hasStaticConstructorString
+import me.rhunk.snapenhance.mapper.ext.isEnum
 import java.lang.reflect.Modifier
 
 class CompositeConfigurationProviderMapper : AbstractClassMapper() {
