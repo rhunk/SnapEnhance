@@ -217,7 +217,7 @@ class ProtoReader(private val buffer: ByteArray) {
                                 return@runCatching
                             }
                             //auto detect ascii strings
-                            if (array.all { it in 0x20..0x7E }) {
+                            if (array.all { it in (0x20..0x7E) || it == 0x0A.toByte() || it == 0x0D.toByte() }) {
                                 stringBuilder.append("string: ${array.toString(Charsets.UTF_8)}\n")
                                 return@runCatching
                             }
