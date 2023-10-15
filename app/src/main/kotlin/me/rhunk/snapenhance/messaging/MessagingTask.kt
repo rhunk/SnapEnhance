@@ -36,9 +36,10 @@ object MessagingConstraints {
             this.senderId == myUserId
         }
     }
-    val CONTENT_TYPE: (ContentType) -> MessagingTaskConstraint = { contentType: ContentType ->
+    val CONTENT_TYPE: (Array<ContentType>) -> MessagingTaskConstraint = {
+        val contentTypes = it.map { type -> type.id };
         {
-            this.contentType == contentType.id
+            contentTypes.contains(this.contentType)
         }
     }
 }
@@ -46,10 +47,10 @@ object MessagingConstraints {
 class MessagingTask(
     private val messagingBridge: MessagingBridge,
     private val conversationId: String,
-    private val taskType: MessagingTaskType,
-    private val constraints: List<MessagingTaskConstraint>,
+    val taskType: MessagingTaskType,
+    val constraints: List<MessagingTaskConstraint>,
     private val processedMessageCount: MutableIntState,
-    private val onSuccess: (message: Message) -> Unit = {},
+    val onSuccess: (message: Message) -> Unit = {},
     private val onFailure: (message: Message, reason: String) -> Unit = { _, _ -> },
     private val overrideClientMessageIds: List<Long>? = null,
     private val amountToProcess: Int? = null,

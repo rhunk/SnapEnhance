@@ -82,27 +82,100 @@ class MessagingPreview(
     }
 
     @Composable
+    private fun ConstraintsSelectionDialog(
+        onChoose: (Array<ContentType>) -> Unit,
+        onDismiss: () -> Unit
+    ) {
+        val selectedTypes = remember { mutableStateListOf<ContentType>() }
+        var selectAllState by remember { mutableStateOf(false) }
+        val availableTypes = remember { arrayOf(
+            ContentType.CHAT,
+            ContentType.NOTE,
+            ContentType.SNAP,
+            ContentType.STICKER,
+            ContentType.EXTERNAL_MEDIA
+        ) }
+
+        fun toggleContentType(contentType: ContentType) {
+            if (selectAllState) return
+            if (selectedTypes.contains(contentType)) {
+                selectedTypes.remove(contentType)
+            } else {
+                selectedTypes.add(contentType)
+            }
+        }
+
+        Surface(
+            modifier = Modifier
+                .fillMaxWidth()
+                .background(MaterialTheme.colorScheme.surface)
+        ) {
+            Column(
+                modifier = Modifier.padding(15.dp),
+                horizontalAlignment = Alignment.CenterHorizontally,
+                verticalArrangement = Arrangement.spacedBy(5.dp)
+            ) {
+                Text("Choose content types to process")
+                Spacer(modifier = Modifier.height(5.dp))
+                availableTypes.forEach { contentType ->
+                    Row(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(2.dp)
+                            .pointerInput(Unit) {
+                                detectTapGestures(onTap = { toggleContentType(contentType) })
+                            },
+                        horizontalArrangement = Arrangement.spacedBy(8.dp),
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Checkbox(
+                            checked = selectedTypes.contains(contentType),
+                            enabled = !selectAllState,
+                            onCheckedChange = { toggleContentType(contentType) }
+                        )
+                        Text(text = contentType.toString())
+                    }
+                }
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(5.dp),
+                    horizontalArrangement = Arrangement.spacedBy(10.dp),
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Switch(checked = selectAllState, onCheckedChange = {
+                        selectAllState = it
+                    })
+                    Text(text = "Select all")
+                }
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth(),
+                    horizontalArrangement = Arrangement.SpaceEvenly,
+                ) {
+                    Button(onClick = { onDismiss() }) {
+                        Text("Cancel")
+                    }
+                    Button(onClick = {
+                        onChoose(if (selectAllState) ContentType.entries.toTypedArray()
+                         else selectedTypes.toTypedArray())
+                    }) {
+                        Text("Continue")
+                    }
+                }
+            }
+        }
+    }
+
+    @Composable
     fun TopBarAction() {
-        var showDropDown by remember { mutableStateOf(false) }
+        var taskSelectionDropdown by remember { mutableStateOf(false) }
+        var selectConstraintsDialog by remember { mutableStateOf(false) }
         var activeTask by remember { mutableStateOf(null as MessagingTask?) }
         var activeJob by remember { mutableStateOf(null as Job?) }
         val processMessageCount = remember { mutableIntStateOf(0) }
 
-        fun triggerMessagingTask(taskType: MessagingTaskType, constraints: List<MessagingTaskConstraint> = listOf(), onSuccess: (Message) -> Unit = {}) {
-            showDropDown = false
-            processMessageCount.intValue = 0
-            activeTask = MessagingTask(
-                messagingBridge = messagingBridge,
-                conversationId = conversationId!!,
-                taskType = taskType,
-                constraints = constraints,
-                overrideClientMessageIds = selectedMessages.takeIf { it.isNotEmpty() }?.toList(),
-                processedMessageCount = processMessageCount,
-                onFailure = { message, reason ->
-                    context.log.verbose("Failed to process message ${message.clientMessageId}: $reason")
-                }
-            )
-            selectedMessages.clear()
+        fun runCurrentTask() {
             activeJob = coroutineScope.launch(Dispatchers.IO) {
                 activeTask?.run()
                 withContext(Dispatchers.Main) {
@@ -120,21 +193,58 @@ class MessagingPreview(
             }
         }
 
+        fun launchMessagingTask(taskType: MessagingTaskType, constraints: List<MessagingTaskConstraint> = listOf(), onSuccess: (Message) -> Unit = {}) {
+            taskSelectionDropdown = false
+            processMessageCount.intValue = 0
+            activeTask = MessagingTask(
+                messagingBridge, conversationId!!, taskType, constraints,
+                overrideClientMessageIds = selectedMessages.takeIf { it.isNotEmpty() }?.toList(),
+                processedMessageCount = processMessageCount,
+                onSuccess = onSuccess,
+                onFailure = { message, reason ->
+                    context.log.verbose("Failed to process message ${message.clientMessageId}: $reason")
+                }
+            )
+            selectedMessages.clear()
+        }
+
+        if (selectConstraintsDialog && activeTask != null) {
+            Dialog(onDismissRequest = {
+                selectConstraintsDialog = false
+                activeTask = null
+            }) {
+                ConstraintsSelectionDialog(
+                    onChoose = { contentTypes ->
+                        launchMessagingTask(
+                            taskType = activeTask!!.taskType,
+                            constraints = activeTask!!.constraints + MessagingConstraints.CONTENT_TYPE(contentTypes),
+                            onSuccess = activeTask!!.onSuccess
+                        )
+                        runCurrentTask()
+                        selectConstraintsDialog = false
+                    },
+                    onDismiss = {
+                        selectConstraintsDialog = false
+                        activeTask = null
+                    }
+                )
+            }
+        }
+
         if (activeJob != null) {
             Dialog(onDismissRequest = {
                 activeJob?.cancel()
                 activeJob = null
                 activeTask = null
             }) {
-                Column(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .background(MaterialTheme.colorScheme.surface)
-                        .border(1.dp, MaterialTheme.colorScheme.onSurface, RoundedCornerShape(20.dp))
-                        .padding(15.dp),
+                Column(modifier = Modifier
+                    .fillMaxWidth()
+                    .background(MaterialTheme.colorScheme.surface)
+                    .padding(15.dp)
+                    .border(1.dp, MaterialTheme.colorScheme.onSurface, RoundedCornerShape(20.dp)),
                     horizontalAlignment = Alignment.CenterHorizontally,
-                    verticalArrangement = Arrangement.spacedBy(5.dp)
-                ) {
+                    verticalArrangement = Arrangement.spacedBy(5.dp))
+                {
                     Text("Processed ${processMessageCount.intValue} messages")
                     if (activeTask?.hasFixedGoal() == true) {
                         LinearProgressIndicator(
@@ -157,14 +267,12 @@ class MessagingPreview(
             }
         }
 
-        IconButton(onClick = { showDropDown = !showDropDown }) {
+        IconButton(onClick = { taskSelectionDropdown = !taskSelectionDropdown }) {
             Icon(imageVector = Icons.Filled.MoreVert, contentDescription = null)
         }
 
         if (selectedMessages.isNotEmpty()) {
-            IconButton(onClick = {
-                selectedMessages.clear()
-            }) {
+            IconButton(onClick = { selectedMessages.clear() }) {
                 Icon(imageVector = Icons.Filled.Close, contentDescription = "Close")
             }
         }
@@ -177,30 +285,32 @@ class MessagingPreview(
             shapes = MaterialTheme.shapes.copy(medium = RoundedCornerShape(50.dp))
         ) {
             DropdownMenu(
-                expanded = showDropDown, onDismissRequest = {
-                    showDropDown = false
-                }
+                expanded = taskSelectionDropdown, onDismissRequest = { taskSelectionDropdown = false }
             ) {
                 val hasSelection = selectedMessages.isNotEmpty()
                 ActionButton(text = if (hasSelection) "Save selection" else "Save all", icon = Icons.Rounded.BookmarkAdded) {
-                    triggerMessagingTask(MessagingTaskType.SAVE)
+                    launchMessagingTask(MessagingTaskType.SAVE)
+                    selectConstraintsDialog = true
                 }
                 ActionButton(text = if (hasSelection) "Unsave selection" else "Unsave all", icon = Icons.Rounded.BookmarkBorder) {
-                    triggerMessagingTask(MessagingTaskType.UNSAVE)
+                    launchMessagingTask(MessagingTaskType.UNSAVE)
+                    selectConstraintsDialog = true
                 }
                 ActionButton(text = if (hasSelection) "Mark selected Snap as seen" else "Mark all Snaps as seen", icon = Icons.Rounded.RemoveRedEye) {
-                    triggerMessagingTask(MessagingTaskType.READ, listOf(
+                    launchMessagingTask(MessagingTaskType.READ, listOf(
                         MessagingConstraints.NO_USER_ID(myUserId),
-                        MessagingConstraints.CONTENT_TYPE(ContentType.SNAP)
+                        MessagingConstraints.CONTENT_TYPE(arrayOf(ContentType.SNAP))
                     ))
+                    runCurrentTask()
                 }
                 ActionButton(text = if (hasSelection) "Delete selected" else "Delete all", icon = Icons.Rounded.DeleteForever) {
-                    triggerMessagingTask(MessagingTaskType.DELETE, listOf(MessagingConstraints.USER_ID(myUserId))) { message ->
+                    launchMessagingTask(MessagingTaskType.DELETE, listOf(MessagingConstraints.USER_ID(myUserId))) { message ->
                         coroutineScope.launch {
                             messages.remove(message.serverMessageId)
                             messageSize = messages.size
                         }
                     }
+                    selectConstraintsDialog = true
                 }
             }
         }
