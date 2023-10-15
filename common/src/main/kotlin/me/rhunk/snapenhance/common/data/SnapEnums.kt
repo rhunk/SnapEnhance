@@ -10,6 +10,7 @@ enum class NotificationType (
     val key: String,
     val isIncoming: Boolean = false,
     val associatedOutgoingContentType: ContentType? = null,
+    private vararg val aliases: String
 ) {
     SCREENSHOT("chat_screenshot", true, ContentType.STATUS_CONVERSATION_CAPTURE_SCREENSHOT),
     SCREEN_RECORD("chat_screen_record", true, ContentType.STATUS_CONVERSATION_CAPTURE_RECORD),
@@ -20,15 +21,22 @@ enum class NotificationType (
     CHAT_REPLY("chat_reply",true),
     TYPING("typing", true),
     STORIES("stories",true),
-    CHAT_REACTION("chat_reaction", true),
-    SNAP_REACTION("snap_reaction", true),
-    VOICENOTE_REACTION("voicenote_reaction", true),
+    DM_REACTION("chat_reaction", true, null,"snap_reaction", "voicenote_reaction"),
+    GROUP_REACTION("group_chat_reaction", true, null,"group_snap_reaction", "group_voicenote_reaction"),
     INITIATE_AUDIO("initiate_audio",true),
     ABANDON_AUDIO("abandon_audio", false, ContentType.STATUS_CALL_MISSED_AUDIO),
     INITIATE_VIDEO("initiate_video",true),
     ABANDON_VIDEO("abandon_video", false, ContentType.STATUS_CALL_MISSED_VIDEO);
 
+    fun isMatch(key: String): Boolean {
+        return this.key == key || aliases.contains(key)
+    }
+
     companion object {
+        fun getByKey(key: String): NotificationType? {
+            return entries.firstOrNull { it.key == key }
+        }
+
         fun getIncomingValues(): List<NotificationType> {
             return entries.filter { it.isIncoming }.toList()
         }

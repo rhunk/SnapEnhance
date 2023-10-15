@@ -14,6 +14,7 @@ import de.robv.android.xposed.XposedBridge
 import de.robv.android.xposed.XposedHelpers
 import me.rhunk.snapenhance.common.data.ContentType
 import me.rhunk.snapenhance.common.data.MediaReferenceType
+import me.rhunk.snapenhance.common.data.NotificationType
 import me.rhunk.snapenhance.common.data.download.SplitMediaAssetType
 import me.rhunk.snapenhance.common.util.protobuf.ProtoReader
 import me.rhunk.snapenhance.common.util.snap.MediaDownloaderHelper
@@ -354,10 +355,11 @@ class Notifications : Feature("Notifications", loadParams = FeatureLoadParams.IN
 
                     context.log.debug("received message type: $messageType")
 
-                    if (states.contains(messageType.replaceFirst("mischief_", "")
-                                .replaceFirst("group_your_", "")
-                                .replaceFirst("group_other_", ""))
-                        ) {
+                    val formattedMessageType = messageType.replaceFirst("mischief_", "")
+                        .replaceFirst("group_your_", "group_")
+                        .replaceFirst("group_other_", "group_")
+
+                    if (states.mapNotNull { NotificationType.getByKey(it) }.any { it.isMatch(formattedMessageType) }) {
                         param.setResult(null)
                     }
                 }
