@@ -99,6 +99,7 @@ class FeatureManager(
             SnapToChatMedia::class,
             FriendFeedMessagePreview::class,
             HideStreakRestore::class,
+            HideFriendFeedEntry::class,
         )
 
         initializeFeatures()

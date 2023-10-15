@@ -34,7 +34,7 @@ enum class MessagingRuleType(
     AUTO_DOWNLOAD("auto_download", true),
     STEALTH("stealth", true),
     AUTO_SAVE("auto_save", true),
-    HIDE_CHAT_FEED("hide_chat_feed", false, showInFriendMenu = false),
+    HIDE_FRIEND_FEED("hide_friend_feed", false, showInFriendMenu = false),
     E2E_ENCRYPTION("e2e_encryption", false),
     PIN_CONVERSATION("pin_conversation", false, showInFriendMenu = false);
 

@@ -97,8 +97,8 @@
                     "whitelist": "Auto save"
                 }
             },
-            "hide_chat_feed": {
-                "name": "Hide from Chat feed"
+            "hide_friend_feed": {
+                "name": "Hide from Friend Feed"
             },
             "e2e_encryption": {
                 "name": "Use E2E Encryption"
@@ -253,6 +253,10 @@
                     "streak_expiration_info": {
                         "name": "Show Streak Expiration Info",
                         "description": "Shows a Streak Expiration timer next to the Streaks counter"
+                    },
+                    "hide_friend_feed_entry": {
+                        "name": "Hide Friend Feed Entry",
+                        "description": "Hides a specific friend from the Friend Feed\nUse the social tab to manage this feature"
                     },
                     "hide_streak_restore": {
                         "name": "Hide Streak Restore",
