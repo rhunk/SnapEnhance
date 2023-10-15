@@ -11,17 +11,25 @@ import me.rhunk.snapenhance.core.util.ktx.getObjectField
 import me.rhunk.snapenhance.core.wrapper.impl.SnapUUID
 
 class Messaging : Feature("Messaging", loadParams = FeatureLoadParams.ACTIVITY_CREATE_SYNC or FeatureLoadParams.INIT_ASYNC or FeatureLoadParams.INIT_SYNC) {
-    lateinit var conversationManager: Any
+    private var _conversationManager: Any? = null
+    val conversationManager: Any
+        get() = _conversationManager ?: throw IllegalStateException("ConversationManager is not initialized").also {
+            context.longToast("Failed to get conversation manager. Please restart Snapchat")
+        }
 
     var openedConversationUUID: SnapUUID? = null
+        private set
     var lastFetchConversationUserUUID: SnapUUID? = null
+        private set
     var lastFetchConversationUUID: SnapUUID? = null
+        private set
     var lastFetchGroupConversationUUID: SnapUUID? = null
     var lastFocusedMessageId: Long = -1
+        private set
 
     override fun init() {
         Hooker.hookConstructor(context.classCache.conversationManager, HookStage.BEFORE) {
-            conversationManager = it.thisObject()
+            _conversationManager = it.thisObject()
         }
     }
 

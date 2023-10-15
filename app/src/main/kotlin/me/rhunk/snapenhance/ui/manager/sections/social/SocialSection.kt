@@ -237,9 +237,7 @@ class SocialSection : Section() {
                                         fontWeight = FontWeight.Light
                                     )
                                 }
-                                Row(
-                                    verticalAlignment = Alignment.CenterVertically
-                                ) {
+                                Row(verticalAlignment = Alignment.CenterVertically) {
                                     if (streaks != null && streaks.notify) {
                                         Icon(
                                             imageVector = ImageVector.vectorResource(id = R.drawable.streak_icon),
@@ -268,10 +266,7 @@ class SocialSection : Section() {
                                 MESSAGING_PREVIEW_ROUTE.replace("{id}", id).replace("{scope}", scope.key)
                             )
                         }) {
-                            Icon(
-                                imageVector = Icons.Filled.RemoveRedEye,
-                                contentDescription = null
-                            )
+                            Icon(imageVector = Icons.Filled.RemoveRedEye, contentDescription = null)
                         }
                     }
                 }

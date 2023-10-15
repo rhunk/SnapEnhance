@@ -1,18 +1,25 @@
 package me.rhunk.snapenhance.ui.manager.sections.social
 
+import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.lazy.rememberLazyListState
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Close
-import androidx.compose.material.icons.filled.Delete
-import androidx.compose.material.icons.filled.DeleteForever
+import androidx.compose.material.icons.filled.MoreVert
+import androidx.compose.material.icons.rounded.BookmarkAdded
+import androidx.compose.material.icons.rounded.BookmarkBorder
+import androidx.compose.material.icons.rounded.DeleteForever
+import androidx.compose.material.icons.rounded.RemoveRedEye
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.unit.dp
 import kotlinx.coroutines.*
@@ -23,71 +30,121 @@ import me.rhunk.snapenhance.common.data.ContentType
 import me.rhunk.snapenhance.common.data.SocialScope
 import me.rhunk.snapenhance.common.util.protobuf.ProtoReader
 import me.rhunk.snapenhance.common.util.snap.SnapWidgetBroadcastReceiverHelper
-import me.rhunk.snapenhance.ui.util.AlertDialogs
+import me.rhunk.snapenhance.messaging.MessagingConstraints
+import me.rhunk.snapenhance.messaging.MessagingTask
+import me.rhunk.snapenhance.messaging.MessagingTaskConstraint
+import me.rhunk.snapenhance.messaging.MessagingTaskType
 import me.rhunk.snapenhance.ui.util.Dialog
-import kotlin.random.Random
 
 class MessagingPreview(
     private val context: RemoteSideContext,
     private val scope: SocialScope,
     private val scopeId: String
 ) {
-    private val alertDialogs by lazy { AlertDialogs(context.translation) }
-
     private lateinit var coroutineScope: CoroutineScope
     private lateinit var messagingBridge: MessagingBridge
     private lateinit var previewScrollState: LazyListState
     private val myUserId by lazy { messagingBridge.myUserId }
 
     private var conversationId: String? = null
-    private val messages = sortedMapOf<Long, Message>()
+    private val messages = sortedMapOf<Long, Message>() // server message id => message
     private var messageSize by mutableIntStateOf(0)
     private var lastMessageId = Long.MAX_VALUE
-    private val selectedMessages = mutableStateListOf<Long>()
+    private val selectedMessages = mutableStateListOf<Long>() // client message id
 
     private fun toggleSelectedMessage(messageId: Long) {
         if (selectedMessages.contains(messageId)) selectedMessages.remove(messageId)
         else selectedMessages.add(messageId)
     }
 
+    @Composable
+    private fun ActionButton(
+        text: String,
+        icon: ImageVector,
+        onClick: () -> Unit,
+    ) {
+        DropdownMenuItem(
+            onClick = onClick,
+            text = {
+                Row(
+                    modifier = Modifier.padding(5.dp),
+                    horizontalArrangement = Arrangement.spacedBy(8.dp),
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Icon(
+                        imageVector = icon,
+                        contentDescription = null
+                    )
+                    Text(text = text)
+                }
+            }
+        )
+    }
 
     @Composable
     fun TopBarAction() {
-        var deletedMessageCount by remember { mutableIntStateOf(0) }
-        var messageDeleteJob by remember { mutableStateOf(null as Job?) }
+        var showDropDown by remember { mutableStateOf(false) }
+        var activeTask by remember { mutableStateOf(null as MessagingTask?) }
+        var activeJob by remember { mutableStateOf(null as Job?) }
+        val processMessageCount = remember { mutableIntStateOf(0) }
 
-        fun deleteIndividualMessage(serverMessageId: Long) {
-            val message = messages[serverMessageId] ?: return
-            if (message.senderId != myUserId) return
-
-            val error = messagingBridge.updateMessage(conversationId, message.clientMessageId, "ERASE")
-
-            if (error != null) {
-                context.shortToast("Failed to delete message: $error")
-            } else {
-                coroutineScope.launch {
-                    deletedMessageCount++
-                    messages.remove(serverMessageId)
-                    messageSize = messages.size
+        fun triggerMessagingTask(taskType: MessagingTaskType, constraints: List<MessagingTaskConstraint> = listOf(), onSuccess: (Message) -> Unit = {}) {
+            showDropDown = false
+            processMessageCount.intValue = 0
+            activeTask = MessagingTask(
+                messagingBridge = messagingBridge,
+                conversationId = conversationId!!,
+                taskType = taskType,
+                constraints = constraints,
+                overrideClientMessageIds = selectedMessages.takeIf { it.isNotEmpty() }?.toList(),
+                processedMessageCount = processMessageCount,
+                onFailure = { message, reason ->
+                    context.log.verbose("Failed to process message ${message.clientMessageId}: $reason")
+                }
+            )
+            selectedMessages.clear()
+            activeJob = coroutineScope.launch(Dispatchers.IO) {
+                activeTask?.run()
+                withContext(Dispatchers.Main) {
+                    activeTask = null
+                    activeJob = null
+                }
+            }.also { job ->
+                job.invokeOnCompletion {
+                    if (it != null) {
+                        context.log.verbose("Failed to process messages: ${it.message}")
+                        return@invokeOnCompletion
+                    }
+                    context.longToast("Processed ${processMessageCount.intValue} messages")
                 }
             }
         }
 
-        if (messageDeleteJob != null) {
+        if (activeJob != null) {
             Dialog(onDismissRequest = {
-                messageDeleteJob?.cancel()
-                messageDeleteJob = null
+                activeJob?.cancel()
+                activeJob = null
+                activeTask = null
             }) {
-                Card {
-                    Column(
-                        modifier = Modifier
-                            .padding(20.dp)
-                            .fillMaxWidth(),
-                        verticalArrangement = Arrangement.Center,
-                        horizontalAlignment = Alignment.CenterHorizontally
-                    ) {
-                        Text("Deleting messages ($deletedMessageCount)")
-                        Spacer(modifier = Modifier.height(10.dp))
+                Column(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .background(MaterialTheme.colorScheme.surface)
+                        .border(1.dp, MaterialTheme.colorScheme.onSurface, RoundedCornerShape(20.dp))
+                        .padding(15.dp),
+                    horizontalAlignment = Alignment.CenterHorizontally,
+                    verticalArrangement = Arrangement.spacedBy(5.dp)
+                ) {
+                    Text("Processed ${processMessageCount.intValue} messages")
+                    if (activeTask?.hasFixedGoal() == true) {
+                        LinearProgressIndicator(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(5.dp),
+                            progress = processMessageCount.intValue.toFloat() / selectedMessages.size.toFloat(),
+                            color = MaterialTheme.colorScheme.primary
+                        )
+                    } else {
                         CircularProgressIndicator(
                             modifier = Modifier
                                 .padding()
@@ -100,93 +157,51 @@ class MessagingPreview(
             }
         }
 
+        IconButton(onClick = { showDropDown = !showDropDown }) {
+            Icon(imageVector = Icons.Filled.MoreVert, contentDescription = null)
+        }
 
         if (selectedMessages.isNotEmpty()) {
             IconButton(onClick = {
-                deletedMessageCount = 0
-                messageDeleteJob = coroutineScope.launch(Dispatchers.IO) {
-                    selectedMessages.toList().also {
-                        selectedMessages.clear()
-                    }.forEach { messageId ->
-                        deleteIndividualMessage(messageId)
-                    }
-                }.apply {
-                    invokeOnCompletion {
-                        context.shortToast("Successfully deleted $deletedMessageCount messages")
-                        messageDeleteJob = null
-                    }
-                }
-            }) {
-                Icon(
-                    imageVector = Icons.Filled.Delete,
-                    contentDescription = "Delete"
-                )
-            }
-
-            IconButton(onClick = {
                 selectedMessages.clear()
             }) {
-                Icon(
-                    imageVector = Icons.Filled.Close,
-                    contentDescription = "Close"
-                )
+                Icon(imageVector = Icons.Filled.Close, contentDescription = "Close")
             }
-        } else {
-            var deleteAllConfirmationDialog by remember { mutableStateOf(false) }
+        }
 
-            if (deleteAllConfirmationDialog) {
-                Dialog(onDismissRequest = { deleteAllConfirmationDialog = false }) {
-                    alertDialogs.ConfirmDialog(
-                        title = "Are you sure you want to delete all your messages?",
-                        message = "Warning: This action may flag your account for spam if used excessively.",
-                        onDismiss = {
-                        deleteAllConfirmationDialog = false
-                    }, onConfirm = {
-                        deletedMessageCount = 0
-                        deleteAllConfirmationDialog = false
-                        messageDeleteJob = coroutineScope.launch(Dispatchers.IO) {
-                            var lastMessageId = Long.MAX_VALUE
-
-                            do {
-                                val fetchedMessages = messagingBridge.fetchConversationWithMessagesPaginated(
-                                    conversationId!!,
-                                    100,
-                                    lastMessageId
-                                )
-
-                                if (fetchedMessages == null) {
-                                    context.shortToast("Failed to fetch messages")
-                                    return@launch
-                                }
-
-                                if (fetchedMessages.isEmpty()) {
-                                    break
-                                }
-
-                                fetchedMessages.forEach {
-                                    deleteIndividualMessage(it.serverMessageId)
-                                    delay(Random.nextLong(50, 170))
-                                }
-
-                                lastMessageId = fetchedMessages.first().clientMessageId
-                            } while (true)
-                        }.apply {
-                            invokeOnCompletion {
-                                messageDeleteJob = null
-                                context.shortToast("Successfully deleted $deletedMessageCount messages")
-                            }
-                        }
-                    })
+        MaterialTheme(
+            colorScheme = MaterialTheme.colorScheme.copy(
+                surface = MaterialTheme.colorScheme.inverseSurface,
+                onSurface = MaterialTheme.colorScheme.inverseOnSurface
+            ),
+            shapes = MaterialTheme.shapes.copy(medium = RoundedCornerShape(50.dp))
+        ) {
+            DropdownMenu(
+                expanded = showDropDown, onDismissRequest = {
+                    showDropDown = false
                 }
-            }
-
-            IconButton(onClick = {
-                deleteAllConfirmationDialog = true
-            }) {
-                Icon(
-                    imageVector = Icons.Filled.DeleteForever,
-                    contentDescription = "Delete"
-                )
+            ) {
+                val hasSelection = selectedMessages.isNotEmpty()
+                ActionButton(text = if (hasSelection) "Save selection" else "Save all", icon = Icons.Rounded.BookmarkAdded) {
+                    triggerMessagingTask(MessagingTaskType.SAVE)
+                }
+                ActionButton(text = if (hasSelection) "Unsave selection" else "Unsave all", icon = Icons.Rounded.BookmarkBorder) {
+                    triggerMessagingTask(MessagingTaskType.UNSAVE)
+                }
+                ActionButton(text = if (hasSelection) "Mark selected Snap as seen" else "Mark all Snaps as seen", icon = Icons.Rounded.RemoveRedEye) {
+                    triggerMessagingTask(MessagingTaskType.READ, listOf(
+                        MessagingConstraints.NO_USER_ID(myUserId),
+                        MessagingConstraints.CONTENT_TYPE(ContentType.SNAP)
+                    ))
+                }
+                ActionButton(text = if (hasSelection) "Delete selected" else "Delete all", icon = Icons.Rounded.DeleteForever) {
+                    triggerMessagingTask(MessagingTaskType.DELETE, listOf(MessagingConstraints.USER_ID(myUserId))) { message ->
+                        coroutineScope.launch {
+                            messages.remove(message.serverMessageId)
+                            messageSize = messages.size
+                        }
+                    }
+                }
             }
         }
     }
@@ -224,7 +239,7 @@ class MessagingPreview(
                 }
             }
             items(messageSize) {index ->
-                val elementKey = remember(index) { messages.entries.elementAt(index).key }
+                val elementKey = remember(index) { messages.entries.elementAt(index).value.clientMessageId }
                 val messageReader = ProtoReader(messages.entries.elementAt(index).value.content)
                 val contentType = ContentType.fromMessageContainer(messageReader)
 
