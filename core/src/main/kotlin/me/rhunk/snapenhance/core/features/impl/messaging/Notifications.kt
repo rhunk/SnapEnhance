@@ -354,7 +354,10 @@ class Notifications : Feature("Notifications", loadParams = FeatureLoadParams.IN
 
                     context.log.debug("received message type: $messageType")
 
-                    if (states.contains(messageType.replaceFirst("mischief_", ""))) {
+                    if (states.contains(messageType.replaceFirst("mischief_", "")
+                                .replaceFirst("group_your_", "")
+                                .replaceFirst("group_other_", ""))
+                        ) {
                         param.setResult(null)
                     }
                 }
