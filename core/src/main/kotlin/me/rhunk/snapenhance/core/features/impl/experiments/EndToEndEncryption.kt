@@ -12,6 +12,7 @@ import android.view.ViewGroup.MarginLayoutParams
 import android.widget.Button
 import android.widget.TextView
 import me.rhunk.snapenhance.common.data.ContentType
+import me.rhunk.snapenhance.common.data.MessageState
 import me.rhunk.snapenhance.common.data.MessagingRuleType
 import me.rhunk.snapenhance.common.data.RuleState
 import me.rhunk.snapenhance.common.util.protobuf.ProtoEditor
@@ -268,25 +269,26 @@ class EndToEndEncryption : MessagingRuleFeature(
         }.digest()
     }
 
-    private fun messageHook(conversationId: String, messageId: Long, senderId: String, messageContent: MessageContent) {
-        if (messageContent.contentType != ContentType.STATUS && decryptedMessageCache.containsKey(messageId)) {
-            val (contentType, buffer) = decryptedMessageCache[messageId]!!
-            messageContent.contentType = contentType
-            messageContent.content = buffer
-            return
+    fun tryDecryptMessage(senderId: String, clientMessageId: Long, conversationId: String, contentType: ContentType, messageBuffer: ByteArray): Pair<ContentType, ByteArray> {
+        if (contentType != ContentType.STATUS && decryptedMessageCache.containsKey(clientMessageId)) {
+            return decryptedMessageCache[clientMessageId]!!
         }
 
-        val reader = ProtoReader(messageContent.content)
-        messageContent.contentType = fixContentType(messageContent.contentType!!, reader)
+        val reader = ProtoReader(messageBuffer)
+        var outputBuffer = messageBuffer
+        var outputContentType = fixContentType(contentType, reader) ?: contentType
+        val conversationParticipants by lazy {
+            getE2EParticipants(conversationId)
+        }
 
         fun setMessageContent(buffer: ByteArray) {
-            messageContent.content = buffer
-            messageContent.contentType = fixContentType(messageContent.contentType, ProtoReader(buffer))
-            decryptedMessageCache[messageId] = messageContent.contentType!! to buffer
+            outputBuffer = buffer
+            outputContentType = fixContentType(outputContentType, ProtoReader(buffer)) ?: outputContentType
+            decryptedMessageCache[clientMessageId] = outputContentType to buffer
         }
 
         fun replaceMessageText(text: String) {
-            messageContent.content = ProtoWriter().apply {
+            outputBuffer = ProtoWriter().apply {
                 from(2) {
                     addString(1, text)
                 }
@@ -297,9 +299,6 @@ class EndToEndEncryption : MessagingRuleFeature(
         reader.followPath(2, 1) {
             val messageTypeId = getVarInt(1)?.toInt() ?: return@followPath
             val isMe = context.database.myUserId == senderId
-            val conversationParticipants by lazy {
-                getE2EParticipants(conversationId)
-            }
 
             if (messageTypeId == ENCRYPTED_MESSAGE_ID) {
                 runCatching {
@@ -314,7 +313,7 @@ class EndToEndEncryption : MessagingRuleFeature(
                             setMessageContent(
                                 e2eeInterface.decryptMessage(participantId, ciphertext, iv)
                             )
-                            encryptedMessages.add(messageId)
+                            encryptedMessages.add(clientMessageId)
                             return@eachBuffer
                         }
 
@@ -323,14 +322,14 @@ class EndToEndEncryption : MessagingRuleFeature(
                         setMessageContent(
                             e2eeInterface.decryptMessage(senderId, ciphertext, iv)
                         )
-                        encryptedMessages.add(messageId)
+                        encryptedMessages.add(clientMessageId)
                     }
                 }.onFailure {
-                    context.log.error("Failed to decrypt message id: $messageId", it)
-                    messageContent.contentType = ContentType.CHAT
-                    messageContent.content = ProtoWriter().apply {
+                    context.log.error("Failed to decrypt message id: $clientMessageId", it)
+                    outputContentType = ContentType.CHAT
+                    outputBuffer = ProtoWriter().apply {
                         from(2) {
-                            addString(1, "Failed to decrypt message, id=$messageId. Check logcat for more details.")
+                            addString(1, "Failed to decrypt message, id=$clientMessageId. Check logcat for more details.")
                         }
                     }.toByteArray()
                 }
@@ -354,15 +353,23 @@ class EndToEndEncryption : MessagingRuleFeature(
 
             when (messageTypeId) {
                 REQUEST_PK_MESSAGE_ID -> {
-                    pkRequests[messageId] = payload
+                    pkRequests[clientMessageId] = payload
                     replaceMessageText("You just received a public key request. Click below to accept it.")
                 }
                 RESPONSE_SK_MESSAGE_ID -> {
-                    secretResponses[messageId] = payload
+                    secretResponses[clientMessageId] = payload
                     replaceMessageText("Your friend just accepted your public key. Click below to accept the secret.")
                 }
             }
         }
+
+        return outputContentType to outputBuffer
+    }
+
+    private fun messageHook(conversationId: String, messageId: Long, senderId: String, messageContent: MessageContent) {
+        val (contentType, buffer) = tryDecryptMessage(senderId, messageId, conversationId, messageContent.contentType ?: ContentType.CHAT, messageContent.content)
+        messageContent.contentType = contentType
+        messageContent.content = buffer
     }
 
     override fun asyncInit() {
@@ -474,6 +481,7 @@ class EndToEndEncryption : MessagingRuleFeature(
 
         context.event.subscribe(BuildMessageEvent::class, priority = 0) { event ->
             val message = event.message
+            if (message.messageState != MessageState.COMMITTED) return@subscribe
             val conversationId = message.messageDescriptor.conversationId.toString()
             messageHook(
                 conversationId = conversationId,

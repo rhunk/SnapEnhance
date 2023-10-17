@@ -36,7 +36,7 @@ class CoreMessagingBridge(
                 val callback = CallbackBuilder(
                     context.mappings.getMappedClass("callbacks", "FetchMessageCallback")
                 ).override("onFetchMessageComplete") { param ->
-                    val message = me.rhunk.snapenhance.core.wrapper.impl.Message(param.arg(1)).toBridge()
+                    val message = me.rhunk.snapenhance.core.wrapper.impl.Message(param.arg(0)).toBridge()
                     continuation.resumeWith(Result.success(message))
                 }
                 .override("onServerRequest", shouldUnhook = false) {}
@@ -47,7 +47,7 @@ class CoreMessagingBridge(
                 context.classCache.conversationManager.methods.first { it.name == "fetchMessage" }.invoke(
                     conversationManager,
                     SnapUUID.fromString(conversationId).instanceNonNull(),
-                    clientMessageId,
+                    clientMessageId.toLong(),
                     callback
                 )
             }

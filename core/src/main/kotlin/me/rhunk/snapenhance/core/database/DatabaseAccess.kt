@@ -26,6 +26,10 @@ class DatabaseAccess(private val context: ModContext) : Manager {
         context.androidContext.getDatabasePath("main.db")
     }
 
+    private val dmOtherParticipantCache by lazy {
+        getAllDMOtherParticipants().toMutableMap()
+    }
+
     private fun openMain(): SQLiteDatabase {
         return SQLiteDatabase.openDatabase(
             mainDatabase.absolutePath,
@@ -95,7 +99,7 @@ class DatabaseAccess(private val context: ModContext) : Manager {
     val myUserId by lazy {
         safeDatabaseOperation(openArroyo()) { arroyoDatabase: SQLiteDatabase ->
             arroyoDatabase.rawQuery(buildString {
-                append("SELECT * FROM required_values WHERE key = 'USERID'")
+                append("SELECT value FROM required_values WHERE key = 'USERID'")
             }, null).use { query ->
                 if (!query.moveToFirst()) {
                     return@safeDatabaseOperation null
@@ -163,7 +167,7 @@ class DatabaseAccess(private val context: ModContext) : Manager {
     fun getConversationType(conversationId: String): Int? {
         return safeDatabaseOperation(openArroyo()) { database ->
             database.rawQuery(
-                "SELECT * FROM user_conversation WHERE client_conversation_id = ?",
+                "SELECT conversation_type FROM user_conversation WHERE client_conversation_id = ?",
                 arrayOf(conversationId)
             ).use { query ->
                 if (!query.moveToFirst()) {
@@ -186,10 +190,30 @@ class DatabaseAccess(private val context: ModContext) : Manager {
         }
     }
 
+    private fun getAllDMOtherParticipants(): Map<String, String?> {
+        return safeDatabaseOperation(openArroyo()) { arroyoDatabase: SQLiteDatabase ->
+            arroyoDatabase.rawQuery(
+                "SELECT client_conversation_id, user_id FROM user_conversation WHERE conversation_type = 0",
+                null
+            ).use { query ->
+                val participants = mutableMapOf<String, String>()
+                if (!query.moveToFirst()) {
+                    return@safeDatabaseOperation null
+                }
+                do {
+                    participants[query.getString(query.getColumnIndex("client_conversation_id"))] =
+                        query.getString(query.getColumnIndex("user_id"))
+                } while (query.moveToNext())
+                participants
+            }
+        } ?: emptyMap()
+    }
+
     fun getDMOtherParticipant(conversationId: String): String? {
+        if (dmOtherParticipantCache.containsKey(conversationId)) return dmOtherParticipantCache[conversationId]
         return safeDatabaseOperation(openArroyo()) { cursor ->
             cursor.rawQuery(
-                "SELECT * FROM user_conversation WHERE client_conversation_id = ? AND conversation_type = 0",
+                "SELECT user_id FROM user_conversation WHERE client_conversation_id = ? AND conversation_type = 0",
                 arrayOf(conversationId)
             ).use { query ->
                 val participants = mutableListOf<String>()
@@ -201,7 +225,7 @@ class DatabaseAccess(private val context: ModContext) : Manager {
                 } while (query.moveToNext())
                 participants.firstOrNull { it != myUserId }
             }
-        }
+        }.also { dmOtherParticipantCache[conversationId] = it }
     }
 
 
@@ -214,7 +238,7 @@ class DatabaseAccess(private val context: ModContext) : Manager {
     fun getConversationParticipants(conversationId: String): List<String>? {
         return safeDatabaseOperation(openArroyo()) { arroyoDatabase: SQLiteDatabase ->
             arroyoDatabase.rawQuery(
-                "SELECT * FROM user_conversation WHERE client_conversation_id = ?",
+                "SELECT user_id FROM user_conversation WHERE client_conversation_id = ?",
                 arrayOf(conversationId)
             ).use {
                 if (!it.moveToFirst()) {

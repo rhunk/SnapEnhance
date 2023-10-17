@@ -15,8 +15,10 @@ import me.rhunk.snapenhance.common.util.protobuf.ProtoReader
 import me.rhunk.snapenhance.core.event.events.impl.BindViewEvent
 import me.rhunk.snapenhance.core.features.Feature
 import me.rhunk.snapenhance.core.features.FeatureLoadParams
+import me.rhunk.snapenhance.core.features.impl.experiments.EndToEndEncryption
 import me.rhunk.snapenhance.core.ui.addForegroundDrawable
 import me.rhunk.snapenhance.core.ui.removeForegroundDrawable
+import me.rhunk.snapenhance.core.util.EvictingMap
 import kotlin.math.absoluteValue
 
 @SuppressLint("DiscouragedApi")
@@ -27,11 +29,16 @@ class FriendFeedMessagePreview : Feature("FriendFeedMessagePreview", loadParams 
         ).getColor(0, 0)
     }
 
+    private val friendNameCache = EvictingMap<String, String>(100)
+
     private fun getDimens(name: String) = context.resources.getDimensionPixelSize(context.resources.getIdentifier(name, "dimen", Constants.SNAPCHAT_PACKAGE_NAME))
 
     override fun onActivityCreate() {
         val setting = context.config.userInterface.friendFeedMessagePreview
         if (setting.globalState != true) return
+
+        val hasE2EE = context.config.experimental.e2eEncryption.globalState == true
+        val endToEndEncryption by lazy { context.feature(EndToEndEncryption::class) }
 
         val ffItemId = context.resources.getIdentifier("ff_item", "id", Constants.SNAPCHAT_PACKAGE_NAME)
 
@@ -58,17 +65,29 @@ class FriendFeedMessagePreview : Feature("FriendFeedMessagePreview", loadParams 
                 frameLayout.removeForegroundDrawable("ffItem")
 
                 val stringMessages = context.database.getMessagesFromConversationId(conversationId, setting.amount.get().absoluteValue)?.mapNotNull { message ->
-                    val messageContainer = message.messageContent
-                        ?.let { ProtoReader(it) }
-                        ?.followPath(4, 4)
+                    val messageContainer =
+                        message.messageContent
+                            ?.let { ProtoReader(it) }
+                            ?.followPath(4, 4)?.let { messageReader ->
+                                takeIf { hasE2EE }?.let takeIf@{
+                                    endToEndEncryption.tryDecryptMessage(
+                                        senderId = message.senderId ?: return@takeIf null,
+                                        clientMessageId = message.clientMessageId.toLong(),
+                                        conversationId =  message.clientConversationId ?: return@takeIf null,
+                                        contentType = ContentType.fromId(message.contentType),
+                                        messageBuffer = messageReader.getBuffer()
+                                    ).second
+                                }?.let { ProtoReader(it) } ?: messageReader
+                            }
                         ?: return@mapNotNull null
 
                     val messageString = messageContainer.getString(2, 1)
                         ?: ContentType.fromMessageContainer(messageContainer)?.name
                         ?: return@mapNotNull null
 
-                    val friendName = context.database.getFriendInfo(message.senderId ?: return@mapNotNull null)?.let { it.displayName?: it.mutableUsername } ?: "Unknown"
-
+                    val friendName = friendNameCache.getOrPut(message.senderId ?: return@mapNotNull null) {
+                        context.database.getFriendInfo(message.senderId ?: return@mapNotNull null)?.let { it.displayName?: it.mutableUsername } ?: "Unknown"
+                    }
                     "$friendName: $messageString"
                 }?.reversed() ?: return@friendFeedItem
 

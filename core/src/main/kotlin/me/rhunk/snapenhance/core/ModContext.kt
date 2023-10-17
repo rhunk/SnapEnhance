@@ -27,6 +27,7 @@ import me.rhunk.snapenhance.core.features.Feature
 import me.rhunk.snapenhance.core.logger.CoreLogger
 import me.rhunk.snapenhance.core.manager.impl.ActionManager
 import me.rhunk.snapenhance.core.manager.impl.FeatureManager
+import me.rhunk.snapenhance.core.messaging.CoreMessagingBridge
 import me.rhunk.snapenhance.core.messaging.MessageSender
 import me.rhunk.snapenhance.core.scripting.CoreScriptRuntime
 import me.rhunk.snapenhance.core.util.media.HttpServer
@@ -61,6 +62,7 @@ class ModContext {
     val eventDispatcher = EventDispatcher(this)
     val native = NativeLib()
     val scriptRuntime by lazy { CoreScriptRuntime(androidContext, log) }
+    val messagingBridge = CoreMessagingBridge(this)
 
     val isDeveloper by lazy { config.scripting.developerMode.get() }
 
