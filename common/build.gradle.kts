@@ -32,6 +32,5 @@ dependencies {
     implementation(libs.androidx.documentfile)
     implementation(libs.rhino)
 
-    implementation(project(":stub"))
     implementation(project(":mapper"))
 }

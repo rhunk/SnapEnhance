@@ -26,7 +26,6 @@ dependencies {
     implementation(libs.rhino)
 
     implementation(project(":common"))
-    implementation(project(":stub"))
     implementation(project(":mapper"))
     implementation(project(":native"))
 }
