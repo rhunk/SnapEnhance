@@ -29,11 +29,8 @@ jobs:
       - name: Clean Gradle Cache
         run: ./gradlew clean
 
-      - name: Build armv8 APK
-        run: ./gradlew assembleArmv8Debug
-
-      - name: Build armv7 APK
-        run: ./gradlew assembleArmv7Debug
+      - name: Build all
+        run: ./gradlew assembleDebug
 
       - name: Build Version
         run: ./gradlew getVersion
@@ -50,7 +47,14 @@ jobs:
       - name: Rename APK files
         run: |
           mv app/build/outputs/apk/armv8/debug/*.apk app/build/outputs/apk/armv8/debug/snapenhance-${{ env.version }}-armv8-${{ steps.version-env.outputs.sha_short }}.apk
-          mv app/build/outputs/apk/armv7/debug/*.apk app/build/outputs/apk/armv7/debug/snapenhance-${{ env.version }}-armv7-${{ steps.version-env.outputs.sha_short }}.apk      
+          mv app/build/outputs/apk/armv7/debug/*.apk app/build/outputs/apk/armv7/debug/snapenhance-${{ env.version }}-armv7-${{ steps.version-env.outputs.sha_short }}.apk
+          mv app/build/outputs/apk/all/debug/*.apk app/build/outputs/apk/all/debug/snapenhance-${{ env.version }}-universal-${{ steps.version-env.outputs.sha_short }}.apk      
+        
+      - name: Upload core
+        uses: actions/upload-artifact@v3.1.2
+        with:
+          name: core
+          path: app/build/outputs/apk/core/debug/*.apk
       
       - name: Upload armv8
         uses: actions/upload-artifact@v3.1.2
@@ -63,6 +67,12 @@ jobs:
         with:
           name: snapenhance-armv7-debug
           path: app/build/outputs/apk/armv7/debug/*
+          
+      - name: Upload universal
+        uses: actions/upload-artifact@v3.1.2
+        with:
+          name: snapenhance-universal-debug
+          path: app/build/outputs/apk/all/debug/*.apk
 
       - name: CI Upload armv8
         if:  ${{ inputs.ci_upload }} 
