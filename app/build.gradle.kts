@@ -143,7 +143,9 @@ dependencies {
     fullImplementation(libs.coil.compose)
     fullImplementation(libs.coil.video)
     fullImplementation(libs.androidx.ui.tooling.preview)
-    debugImplementation(libs.androidx.ui.tooling)
+    properties["debug_flavor"]?.let {
+        debugImplementation(libs.androidx.ui.tooling)
+    }
 }
 
 afterEvaluate {
