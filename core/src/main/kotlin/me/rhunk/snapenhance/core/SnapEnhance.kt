@@ -20,6 +20,7 @@ import me.rhunk.snapenhance.core.data.SnapClassCache
 import me.rhunk.snapenhance.core.event.events.impl.SnapWidgetBroadcastReceiveEvent
 import me.rhunk.snapenhance.core.event.events.impl.UnaryCallEvent
 import me.rhunk.snapenhance.core.messaging.CoreMessagingBridge
+import me.rhunk.snapenhance.core.util.LSPatchUpdater
 import me.rhunk.snapenhance.core.util.hook.HookStage
 import me.rhunk.snapenhance.core.util.hook.hook
 import kotlin.system.measureTimeMillis
@@ -48,22 +49,21 @@ class SnapEnhance {
     init {
         Application::class.java.hook("attach", HookStage.BEFORE) { param ->
             appContext.apply {
-                androidContext = param.arg<Context>(0).also {
-                    classLoader = it.classLoader
-                }
+                androidContext = param.arg<Context>(0).also { classLoader = it.classLoader }
                 bridgeClient = BridgeClient(appContext)
                 bridgeClient.apply {
                     connect(
-                        timeout = {
-                            crash("SnapEnhance bridge service is not responding. Please download stable version from https://github.com/rhunk/SnapEnhance/releases", it)
+                        onFailure = {
+                            crash("Snapchat can't connect to the SnapEnhance app. Please download stable version from https://github.com/rhunk/SnapEnhance/releases", it)
                         }
                     ) { bridgeResult ->
                         if (!bridgeResult) {
-                            logCritical("Cannot connect to bridge service")
+                            logCritical("Cannot connect to the SnapEnhance app")
                             softRestartApp()
                             return@connect
                         }
                         runCatching {
+                            LSPatchUpdater.onBridgeConnected(appContext, bridgeClient)
                             measureTimeMillis {
                                 runBlocking {
                                     init(this)

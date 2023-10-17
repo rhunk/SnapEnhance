@@ -44,43 +44,45 @@ class BridgeClient(
     private lateinit var future: CompletableFuture<Boolean>
     private lateinit var service: BridgeInterface
 
-    fun connect(timeout: (Throwable) -> Unit, onResult: (Boolean) -> Unit) {
+    fun connect(onFailure: (Throwable) -> Unit, onResult: (Boolean) -> Unit) {
         this.future = CompletableFuture()
 
         with(context.androidContext) {
-            //ensure the remote process is running
-            startActivity(Intent()
-                .setClassName(BuildConfig.APPLICATION_ID, BuildConfig.APPLICATION_ID + ".bridge.ForceStartActivity")
-                .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_MULTIPLE_TASK)
-            )
-
-            val intent = Intent()
-                .setClassName(BuildConfig.APPLICATION_ID, BuildConfig.APPLICATION_ID + ".bridge.BridgeService")
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
-                bindService(
-                    intent,
-                    Context.BIND_AUTO_CREATE,
-                    Executors.newSingleThreadExecutor(),
-                    this@BridgeClient
-                )
-            } else {
-                XposedHelpers.callMethod(
-                    this,
-                    "bindServiceAsUser",
-                    intent,
-                    this@BridgeClient,
-                    Context.BIND_AUTO_CREATE,
-                    Handler(HandlerThread("BridgeClient").apply {
-                        start()
-                    }.looper),
-                    android.os.Process.myUserHandle()
+            runCatching {
+                startActivity(Intent()
+                    .setClassName(BuildConfig.APPLICATION_ID, BuildConfig.APPLICATION_ID + ".bridge.ForceStartActivity")
+                    .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_MULTIPLE_TASK)
                 )
             }
-        }
-        runCatching {
-            onResult(future.get(15, TimeUnit.SECONDS))
-        }.onFailure {
-            timeout(it)
+
+            //ensure the remote process is running
+            runCatching {
+                val intent = Intent()
+                    .setClassName(BuildConfig.APPLICATION_ID, BuildConfig.APPLICATION_ID + ".bridge.BridgeService")
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+                    bindService(
+                        intent,
+                        Context.BIND_AUTO_CREATE,
+                        Executors.newSingleThreadExecutor(),
+                        this@BridgeClient
+                    )
+                } else {
+                    XposedHelpers.callMethod(
+                        this,
+                        "bindServiceAsUser",
+                        intent,
+                        this@BridgeClient,
+                        Context.BIND_AUTO_CREATE,
+                        Handler(HandlerThread("BridgeClient").apply {
+                            start()
+                        }.looper),
+                        android.os.Process.myUserHandle()
+                    )
+                }
+                onResult(future.get(15, TimeUnit.SECONDS))
+            }.onFailure {
+                onFailure(it)
+            }
         }
     }
 
