@@ -57,7 +57,9 @@ class EndToEndEncryption : MessagingRuleFeature(
     private val encryptedMessages = mutableListOf<Long>()
 
     private fun getE2EParticipants(conversationId: String): List<String> {
-        return context.database.getConversationParticipants(conversationId)?.filter { friendId -> e2eeInterface.friendKeyExists(friendId) } ?: emptyList()
+        return context.database.getConversationParticipants(conversationId)?.filter { friendId ->
+            friendId != context.database.myUserId && e2eeInterface.friendKeyExists(friendId)
+        } ?: emptyList()
     }
 
     private fun askForKeys(conversationId: String) {
@@ -281,10 +283,11 @@ class EndToEndEncryption : MessagingRuleFeature(
             getE2EParticipants(conversationId)
         }
 
-        fun setMessageContent(buffer: ByteArray) {
+        fun setDecryptedMessage(buffer: ByteArray) {
             outputBuffer = buffer
             outputContentType = fixContentType(outputContentType, ProtoReader(buffer)) ?: outputContentType
             decryptedMessageCache[clientMessageId] = outputContentType to buffer
+            encryptedMessages.add(clientMessageId)
         }
 
         fun replaceMessageText(text: String) {
@@ -303,6 +306,8 @@ class EndToEndEncryption : MessagingRuleFeature(
             if (messageTypeId == ENCRYPTED_MESSAGE_ID) {
                 runCatching {
                     eachBuffer(2) {
+                        if (encryptedMessages.contains(clientMessageId)) return@eachBuffer
+
                         val participantIdHash = getByteArray(1) ?: return@eachBuffer
                         val iv = getByteArray(2) ?: return@eachBuffer
                         val ciphertext = getByteArray(3) ?: return@eachBuffer
@@ -310,19 +315,13 @@ class EndToEndEncryption : MessagingRuleFeature(
                         if (isMe) {
                             if (conversationParticipants.isEmpty()) return@eachBuffer
                             val participantId = conversationParticipants.firstOrNull { participantIdHash.contentEquals(hashParticipantId(it, iv)) } ?: return@eachBuffer
-                            setMessageContent(
-                                e2eeInterface.decryptMessage(participantId, ciphertext, iv)
-                            )
-                            encryptedMessages.add(clientMessageId)
+                            setDecryptedMessage(e2eeInterface.decryptMessage(participantId, ciphertext, iv))
                             return@eachBuffer
                         }
 
                         if (!participantIdHash.contentEquals(hashParticipantId(context.database.myUserId, iv))) return@eachBuffer
 
-                        setMessageContent(
-                            e2eeInterface.decryptMessage(senderId, ciphertext, iv)
-                        )
-                        encryptedMessages.add(clientMessageId)
+                        setDecryptedMessage(e2eeInterface.decryptMessage(senderId, ciphertext, iv))
                     }
                 }.onFailure {
                     context.log.error("Failed to decrypt message id: $clientMessageId", it)
@@ -381,7 +380,7 @@ class EndToEndEncryption : MessagingRuleFeature(
             val messageContent = event.messageContent
             val destinations = event.destinations
 
-            val e2eeConversations = destinations.conversations.filter { getState(it.toString()) }
+            val e2eeConversations = destinations.conversations.filter { getState(it.toString()) && getE2EParticipants(it.toString()).isNotEmpty() }
 
             if (e2eeConversations.isEmpty()) return@subscribe
 
@@ -420,7 +419,7 @@ class EndToEndEncryption : MessagingRuleFeature(
             val participantsIds = conversationIds.map { getE2EParticipants(it.toString()) }.flatten().distinct()
 
             if (participantsIds.isEmpty()) {
-                context.longToast("You don't have any friends in this conversation to encrypt messages with!")
+                context.shortToast("You don't have any friends in this conversation to encrypt messages with!")
                 return@subscribe
             }
             val messageReader = protoReader.followPath(4) ?: return@subscribe
