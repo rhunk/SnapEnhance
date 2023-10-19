@@ -2,6 +2,7 @@ package me.rhunk.snapenhance.core.messaging
 
 import android.os.Environment
 import android.util.Base64InputStream
+import android.util.Base64OutputStream
 import com.google.gson.JsonArray
 import com.google.gson.JsonNull
 import com.google.gson.JsonObject
@@ -21,11 +22,7 @@ import me.rhunk.snapenhance.core.features.impl.downloader.decoder.AttachmentType
 import me.rhunk.snapenhance.core.features.impl.downloader.decoder.MessageDecoder
 import me.rhunk.snapenhance.core.wrapper.impl.Message
 import me.rhunk.snapenhance.core.wrapper.impl.SnapUUID
-import java.io.BufferedInputStream
-import java.io.File
-import java.io.FileOutputStream
-import java.io.InputStream
-import java.io.OutputStream
+import java.io.*
 import java.text.SimpleDateFormat
 import java.util.Collections
 import java.util.Date
@@ -34,6 +31,7 @@ import java.util.concurrent.Executors
 import java.util.concurrent.TimeUnit
 import java.util.zip.Deflater
 import java.util.zip.DeflaterInputStream
+import java.util.zip.DeflaterOutputStream
 import java.util.zip.ZipFile
 import kotlin.io.encoding.Base64
 import kotlin.io.encoding.ExperimentalEncodingApi
@@ -172,17 +170,15 @@ class MessageExporter(
 
             mediaFiles.forEach { (key, filePair) ->
                 output.write("<div class=\"media-$key\"><!-- ".toByteArray())
-
-                val deflateInputStream = DeflaterInputStream(filePair.second.inputStream(), Deflater(Deflater.BEST_COMPRESSION, true))
-                val base64InputStream = XposedHelpers.newInstance(
-                    Base64InputStream::class.java,
-                    deflateInputStream,
-                    android.util.Base64.DEFAULT or android.util.Base64.NO_WRAP,
-                    true
-                ) as InputStream
-                base64InputStream.copyTo(output)
-                deflateInputStream.close()
-
+                filePair.second.inputStream().use { inputStream ->
+                    val deflateInputStream = DeflaterInputStream(inputStream, Deflater(Deflater.BEST_COMPRESSION, true))
+                    (XposedHelpers.newInstance(
+                        Base64InputStream::class.java,
+                        deflateInputStream,
+                        android.util.Base64.DEFAULT or android.util.Base64.NO_WRAP,
+                        true
+                    ) as InputStream).copyTo(output)
+                }
                 output.write(" --></div>\n".toByteArray())
                 output.flush()
                 updateProgress("wrote")
@@ -191,7 +187,17 @@ class MessageExporter(
 
             //write the json file
             output.write("<script type=\"application/json\" class=\"exported_content\">".toByteArray())
-            exportJson(output)
+
+            val deflateOutputStream = DeflaterOutputStream((XposedHelpers.newInstance(
+                    Base64OutputStream::class.java,
+                    output,
+                    android.util.Base64.DEFAULT or android.util.Base64.NO_WRAP,
+                    true
+                ) as OutputStream), Deflater(Deflater.BEST_COMPRESSION, true))
+
+            exportJson(deflateOutputStream)
+            deflateOutputStream.finish()
+
             output.write("</script>\n".toByteArray())
 
             printLog("writing template...")
