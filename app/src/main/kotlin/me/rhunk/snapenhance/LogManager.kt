@@ -111,21 +111,18 @@ class LogManager(
     var lineAddListener = { _: LogLine -> }
 
     private val logFolder = File(remoteSideContext.androidContext.cacheDir, "logs")
-    private val preferences: SharedPreferences
-
     private var logFile: File
 
     init {
         if (!logFolder.exists()) {
             logFolder.mkdirs()
         }
-        preferences = remoteSideContext.androidContext.getSharedPreferences("logger", 0)
-        logFile = preferences.getString("log_file", null)?.let { File(it) }?.takeIf { it.exists() } ?: run {
+        logFile = remoteSideContext.sharedPreferences.getString("log_file", null)?.let { File(it) }?.takeIf { it.exists() } ?: run {
             newLogFile()
             logFile
         }
 
-        if (System.currentTimeMillis() - preferences.getLong("last_created", 0) > LOG_LIFETIME.inWholeMilliseconds) {
+        if (System.currentTimeMillis() - remoteSideContext.sharedPreferences.getLong("last_created", 0) > LOG_LIFETIME.inWholeMilliseconds) {
             newLogFile()
         }
     }
@@ -141,7 +138,7 @@ class LogManager(
         logFile = File(logFolder, "snapenhance_${getCurrentDateTime(pathSafe = true)}.log").also {
             it.createNewFile()
         }
-        preferences.edit().putString("log_file", logFile.absolutePath).putLong("last_created", currentTime).apply()
+        remoteSideContext.sharedPreferences.edit().putString("log_file", logFile.absolutePath).putLong("last_created", currentTime).apply()
     }
 
     fun clearLogs() {

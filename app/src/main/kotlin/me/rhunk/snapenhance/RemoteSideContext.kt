@@ -3,6 +3,7 @@ package me.rhunk.snapenhance
 import android.app.Activity
 import android.content.Context
 import android.content.Intent
+import android.content.SharedPreferences
 import android.content.pm.PackageManager
 import android.net.Uri
 import android.os.Build
@@ -54,6 +55,7 @@ class RemoteSideContext(
         get() = _activity?.get()
         set(value) { _activity?.clear(); _activity = WeakReference(value) }
 
+    val sharedPreferences: SharedPreferences get() = androidContext.getSharedPreferences("prefs", 0)
     val config = ModConfig()
     val translation = LocaleWrapper()
     val mappings = MappingsWrapper()
