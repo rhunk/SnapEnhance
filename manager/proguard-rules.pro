@@ -1,0 +1,2 @@
+-dontwarn com.google.errorprone.annotations.**
+-dontwarn com.google.auto.value.**
