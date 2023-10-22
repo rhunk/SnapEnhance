@@ -43,35 +43,39 @@ class BridgeService : Service() {
     }
 
     fun triggerScopeSync(scope: SocialScope, id: String, updateOnly: Boolean = false) {
-        val modDatabase = remoteSideContext.modDatabase
-        val syncedObject = when (scope) {
-            SocialScope.FRIEND -> {
-                if (updateOnly && modDatabase.getFriendInfo(id) == null) return
-                syncCallback.syncFriend(id)
+        runCatching {
+            val modDatabase = remoteSideContext.modDatabase
+            val syncedObject = when (scope) {
+                SocialScope.FRIEND -> {
+                    if (updateOnly && modDatabase.getFriendInfo(id) == null) return
+                    syncCallback.syncFriend(id)
+                }
+                SocialScope.GROUP -> {
+                    if (updateOnly && modDatabase.getGroupInfo(id) == null) return
+                    syncCallback.syncGroup(id)
+                }
+                else -> null
             }
-            SocialScope.GROUP -> {
-                if (updateOnly && modDatabase.getGroupInfo(id) == null) return
-                syncCallback.syncGroup(id)
+
+            if (syncedObject == null) {
+                remoteSideContext.log.error("Failed to sync $scope $id")
+                return
             }
-            else -> null
-        }
 
-        if (syncedObject == null) {
-            remoteSideContext.log.error("Failed to sync $scope $id")
-            return
-        }
-
-        when (scope) {
-            SocialScope.FRIEND -> {
-                SerializableDataObject.fromJson<FriendInfo>(syncedObject).let {
-                    modDatabase.syncFriend(it)
+            when (scope) {
+                SocialScope.FRIEND -> {
+                    SerializableDataObject.fromJson<FriendInfo>(syncedObject).let {
+                        modDatabase.syncFriend(it)
+                    }
+                }
+                SocialScope.GROUP -> {
+                    SerializableDataObject.fromJson<MessagingGroupInfo>(syncedObject).let {
+                        modDatabase.syncGroupInfo(it)
+                    }
                 }
             }
-            SocialScope.GROUP -> {
-                SerializableDataObject.fromJson<MessagingGroupInfo>(syncedObject).let {
-                    modDatabase.syncGroupInfo(it)
-                }
-            }
+        }.onFailure {
+            remoteSideContext.log.error("Failed to sync $scope $id", it)
         }
     }
 
@@ -147,18 +151,10 @@ class BridgeService : Service() {
             syncCallback = callback
             measureTimeMillis {
                 remoteSideContext.modDatabase.getFriends().map { it.userId } .forEach { friendId ->
-                    runCatching {
-                        triggerScopeSync(SocialScope.FRIEND, friendId, true)
-                    }.onFailure {
-                        remoteSideContext.log.error("Failed to sync friend $friendId", it)
-                    }
+                    triggerScopeSync(SocialScope.FRIEND, friendId, true)
                 }
                 remoteSideContext.modDatabase.getGroups().map { it.conversationId }.forEach { groupId ->
-                    runCatching {
-                        triggerScopeSync(SocialScope.GROUP, groupId, true)
-                    }.onFailure {
-                        remoteSideContext.log.error("Failed to sync group $groupId", it)
-                    }
+                    triggerScopeSync(SocialScope.GROUP, groupId, true)
                 }
             }.also {
                 remoteSideContext.log.verbose("Syncing remote took $it ms")
