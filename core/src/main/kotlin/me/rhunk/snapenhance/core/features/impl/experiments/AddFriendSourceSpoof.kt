@@ -23,6 +23,11 @@ class AddFriendSourceSpoof : Feature("AddFriendSourceSpoof", loadParams = Featur
             }
 
             when (spoofedSource) {
+                "added_by_quick_add" -> {
+                    setEnum(1, "PROFILE")
+                    setEnum(2, "ADD_FRIENDS_BUTTON_ON_TOP_BAR_ON_FRIENDS_FEED")
+                    setEnum(3, "ADDED_BY_SUGGESTED")
+                }
                 "added_by_group_chat" -> {
                     setEnum(1, "PROFILE")
                     setEnum(2, "GROUP_PROFILE")
