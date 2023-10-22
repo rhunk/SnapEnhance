@@ -111,7 +111,6 @@ class LSPatch(
             dstZFile.add("assets/lspatch/so/$native/liblspatch.so", context.assets.open("lspatch/so/$native/liblspatch.so"), false)
         }
 
-
         //embed modules
         printLog("embedding modules")
         modules.forEach { (packageName, module) ->

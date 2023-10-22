@@ -10,7 +10,7 @@
     <application
         android:label="SE Manager"
         android:icon="@android:drawable/ic_input_add">
-        <activity android:name=".MainActivity" android:exported="true">
+        <activity android:name=".ui.MainActivity" android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />

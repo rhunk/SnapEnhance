@@ -1,4 +1,4 @@
-package me.rhunk.snapenhance.manager
+package me.rhunk.snapenhance.manager.ui
 
 import android.os.Build
 import android.os.Bundle
@@ -30,6 +30,7 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import me.rhunk.snapenhance.manager.BuildConfig
 import me.rhunk.snapenhance.manager.lspatch.LSPatch
 import java.io.File
 import java.io.PrintWriter
@@ -76,7 +77,8 @@ class MainActivity : ComponentActivity() {
                                 val lspatch = LSPatch(
                                     context,
                                     mapOf(
-                                        BuildConfig.APPLICATION_ID to File(context.packageManager.getPackageInfo(BuildConfig.APPLICATION_ID, 0).applicationInfo.sourceDir)
+                                        BuildConfig.APPLICATION_ID to File(context.packageManager.getPackageInfo(
+                                            BuildConfig.APPLICATION_ID, 0).applicationInfo.sourceDir)
                                     )
                                 ) { printLog(it) }
                                 lspatch.patch(
