@@ -41,6 +41,7 @@ import java.io.ByteArrayInputStream
 import java.lang.ref.WeakReference
 import java.security.cert.CertificateFactory
 import java.security.cert.X509Certificate
+import kotlin.time.Duration.Companion.days
 
 
 class RemoteSideContext(
@@ -166,9 +167,8 @@ class RemoteSideContext(
         var requirements = overrideRequirements ?: 0
 
         if(BuildConfig.DEBUG) {
-            val unixTime = System.currentTimeMillis() / 1000 //unix time in seconds cuz cool
-            if(BuildConfig.BUILD_DATE + 604800 < unixTime.toInt()) {
-                Toast.makeText(androidContext, "This SnapEnhance build has expired.", Toast.LENGTH_LONG).show();
+            if(System.currentTimeMillis() - BuildConfig.BUILD_TIMESTAMP > 16.days.inWholeMilliseconds) {
+                Toast.makeText(androidContext, "This SnapEnhance build has expired. More info on t.me/snapenhance_ci", Toast.LENGTH_LONG).show();
                 throw RuntimeException("This build has expired. This crash is intentional.")
             }
         }
