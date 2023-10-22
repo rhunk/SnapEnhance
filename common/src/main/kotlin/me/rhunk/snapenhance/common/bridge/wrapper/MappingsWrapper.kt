@@ -4,6 +4,7 @@ import android.content.Context
 import com.google.gson.GsonBuilder
 import com.google.gson.JsonElement
 import com.google.gson.JsonParser
+import me.rhunk.snapenhance.common.BuildConfig
 import me.rhunk.snapenhance.common.Constants
 import me.rhunk.snapenhance.common.bridge.FileLoaderWrapper
 import me.rhunk.snapenhance.common.bridge.types.BridgeFileType
@@ -35,11 +36,13 @@ class MappingsWrapper : FileLoaderWrapper(BridgeFileType.MAPPINGS, "{}".toByteAr
     private lateinit var context: Context
 
     private val mappings = ConcurrentHashMap<String, Any>()
-    private var snapBuildNumber: Long = 0
+    private var mappingUniqueHash: Long = 0
+
+    private fun getUniqueBuildId() = (getSnapchatPackageInfo()?.longVersionCode ?: -1) xor BuildConfig.BUILD_HASH.hashCode().toLong()
 
     fun init(context: Context) {
         this.context = context
-        snapBuildNumber = getSnapchatVersionCode()
+        mappingUniqueHash = getUniqueBuildId()
 
         if (isFileExists()) {
             runCatching {
@@ -57,24 +60,16 @@ class MappingsWrapper : FileLoaderWrapper(BridgeFileType.MAPPINGS, "{}".toByteAr
         )
     }.getOrNull()
 
-    fun getSnapchatVersionCode() = getSnapchatPackageInfo()?.longVersionCode ?: -1
-    fun getApplicationSourceDir() = getSnapchatPackageInfo()?.applicationInfo?.sourceDir
-    fun getGeneratedBuildNumber() = snapBuildNumber
-
-    fun isMappingsOutdated(): Boolean {
-        return snapBuildNumber != getSnapchatVersionCode() || isMappingsLoaded().not()
-    }
-
-    fun isMappingsLoaded(): Boolean {
-        return mappings.isNotEmpty()
-    }
+    fun getGeneratedBuildNumber() = mappingUniqueHash
+    fun isMappingsOutdated() = mappingUniqueHash != getUniqueBuildId() || isMappingsLoaded().not()
+    fun isMappingsLoaded() = mappings.isNotEmpty()
 
     private fun loadCached() {
         if (!isFileExists()) {
             throw Exception("Mappings file does not exist")
         }
         val mappingsObject = JsonParser.parseString(read().toString(Charsets.UTF_8)).asJsonObject.also {
-            snapBuildNumber = it["snap_build_number"].asLong
+            mappingUniqueHash = it["unique_hash"].asLong
         }
 
         mappingsObject.entrySet().forEach { (key, value): Map.Entry<String, JsonElement> ->
@@ -91,18 +86,18 @@ class MappingsWrapper : FileLoaderWrapper(BridgeFileType.MAPPINGS, "{}".toByteAr
     }
 
     fun refresh() {
-        snapBuildNumber = getSnapchatVersionCode()
+        mappingUniqueHash = getUniqueBuildId()
         val mapper = Mapper(*mappers)
 
         runCatching {
-            mapper.loadApk(getApplicationSourceDir() ?: throw Exception("Failed to get APK"))
+            mapper.loadApk(getSnapchatPackageInfo()?.applicationInfo?.sourceDir ?: throw Exception("Failed to get APK"))
         }.onFailure {
             throw Exception("Failed to load APK", it)
         }
 
         measureTimeMillis {
             val result = mapper.start().apply {
-                addProperty("snap_build_number", snapBuildNumber)
+                addProperty("unique_hash", mappingUniqueHash)
             }
             write(result.toString().toByteArray())
         }

@@ -112,7 +112,7 @@ android {
 androidComponents {
     onVariants(selector().withFlavor("abi", "core")) {
         it.packaging.jniLibs.apply {
-            pickFirsts.set(listOf("**/lib${rootProject.ext["nativeName"]}.so"))
+            pickFirsts.set(listOf("**/lib${rootProject.ext["buildHash"]}.so"))
             excludes.set(listOf("**/*.so"))
         }
     }

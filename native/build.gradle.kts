@@ -3,7 +3,7 @@ plugins {
     alias(libs.plugins.kotlinAndroid)
 }
 
-val nativeName = rootProject.ext.get("nativeName")
+val nativeName = rootProject.ext.get("buildHash")
 
 android {
     namespace = rootProject.ext["applicationId"].toString() + ".nativelib"
