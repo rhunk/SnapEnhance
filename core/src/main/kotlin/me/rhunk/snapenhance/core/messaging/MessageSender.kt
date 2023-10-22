@@ -79,7 +79,7 @@ class MessageSender(
             }],
             "mPlatformAnalytics": {
                 "mAttemptId": null,
-                "mContent": [],
+                "mContent": null,
                 "mMetricsMessageMediaType": "NO_MEDIA",
                 "mMetricsMessageType": "TEXT",
                 "mReactionSource": "NONE"
