@@ -3,6 +3,7 @@ import com.android.build.gradle.internal.api.BaseVariantOutputImpl
 plugins {
     alias(libs.plugins.androidApplication)
     alias(libs.plugins.kotlinAndroid)
+    id("kotlin-parcelize")
 }
 
 android {
@@ -74,6 +75,7 @@ dependencies {
     implementation(libs.guava)
     implementation(libs.apksig)
     implementation(libs.gson)
+    implementation(libs.okhttp)
     implementation(libs.androidx.material3)
     implementation(libs.androidx.activity.ktx)
     implementation(libs.androidx.navigation.compose)
