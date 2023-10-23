@@ -116,13 +116,16 @@ class FriendFeedInfoMenu : AbstractMenu() {
 
         messages.forEach { message ->
             val sender = participants[message.senderId]
-            val protoReader = (
-                messageLogger.takeIf { it.isEnabled }?.getMessageProto(conversationId, message.clientMessageId.toLong()) ?: ProtoReader(message.messageContent ?: return@forEach).followPath(4, 4)
-            ) ?: return@forEach
+            val messageProtoReader =
+                messageLogger.takeIf {
+                    it.isEnabled && message.contentType == ContentType.STATUS.id // only process deleted messages
+                }?.getMessageProto(conversationId, message.clientMessageId.toLong())
+                 ?: ProtoReader(message.messageContent ?: return@forEach).followPath(4, 4)
+                 ?: return@forEach
 
-            val contentType = ContentType.fromMessageContainer(protoReader) ?: ContentType.fromId(message.contentType)
+            val contentType = ContentType.fromMessageContainer(messageProtoReader) ?: ContentType.fromId(message.contentType)
             var messageString = if (contentType == ContentType.CHAT) {
-                protoReader.getString(2, 1) ?: return@forEach
+                messageProtoReader.getString(2, 1) ?: return@forEach
             } else {
                 contentType.name
             }

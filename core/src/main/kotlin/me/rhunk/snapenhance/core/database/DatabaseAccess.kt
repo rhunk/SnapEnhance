@@ -12,59 +12,65 @@ import me.rhunk.snapenhance.common.util.ktx.getStringOrNull
 import me.rhunk.snapenhance.core.ModContext
 import me.rhunk.snapenhance.core.logger.CoreLogger
 import me.rhunk.snapenhance.core.manager.Manager
-import java.io.File
+import java.lang.ref.WeakReference
+
+inline fun <T> SQLiteDatabase.performOperation(crossinline query: SQLiteDatabase.() -> T?): T? {
+    synchronized(this) {
+        if (!isOpen) {
+            return null
+        }
+        return runCatching {
+            query()
+        }.onFailure {
+            CoreLogger.xposedLog("Database operation failed", it)
+        }.getOrNull()
+    }
+}
 
 @SuppressLint("Range")
-class DatabaseAccess(private val context: ModContext) : Manager {
-    private val databaseLock = Any()
-
-    private val arroyoDatabase: File by lazy {
-        context.androidContext.getDatabasePath("arroyo.db")
-    }
-
-    private val mainDatabase: File by lazy {
-        context.androidContext.getDatabasePath("main.db")
-    }
-
+class DatabaseAccess(
+    private val context: ModContext
+) : Manager {
     private val dmOtherParticipantCache by lazy {
-        getAllDMOtherParticipants().toMutableMap()
-    }
-
-    private fun openMain(): SQLiteDatabase {
-        return SQLiteDatabase.openDatabase(
-            mainDatabase.absolutePath,
-            null,
-            SQLiteDatabase.OPEN_READONLY
-        )!!
-    }
-
-    private fun openArroyo(): SQLiteDatabase {
-        return SQLiteDatabase.openDatabase(
-            arroyoDatabase.absolutePath,
-            null,
-            SQLiteDatabase.OPEN_READONLY
-        )!!
-    }
-
-    fun hasArroyo(): Boolean {
-        return arroyoDatabase.exists()
-    }
-
-    private fun <T> safeDatabaseOperation(
-        database: SQLiteDatabase,
-        query: (SQLiteDatabase) -> T?
-    ): T? {
-        synchronized(databaseLock) {
-            if (!database.isOpen) {
-                return null
+        (openArroyo().performOperation {
+            rawQuery(
+                "SELECT client_conversation_id, user_id FROM user_conversation WHERE conversation_type = 0 AND user_id != ?",
+                arrayOf(myUserId)
+            ).use { query ->
+                val participants = mutableMapOf<String, String?>()
+                if (!query.moveToFirst()) {
+                    return@performOperation null
+                }
+                do {
+                    participants[query.getString(query.getColumnIndex("client_conversation_id"))] =
+                        query.getString(query.getColumnIndex("user_id"))
+                } while (query.moveToNext())
+                participants
             }
-            return runCatching {
-                query(database)
-            }.onFailure {
-                CoreLogger.xposedLog("Database operation failed", it)
-            }.getOrNull()
-        }
+        } ?: emptyMap()).toMutableMap()
     }
+
+    private var databaseWeakMap = mutableMapOf<String, WeakReference<SQLiteDatabase>?>()
+
+    private fun openLocalDatabase(fileName: String): SQLiteDatabase {
+        if (databaseWeakMap.containsKey(fileName)) {
+            val database = databaseWeakMap[fileName]?.get()
+            if (database != null && database.isOpen) return database
+        }
+
+        return SQLiteDatabase.openDatabase(
+            context.androidContext.getDatabasePath(fileName).absolutePath,
+            null,
+            SQLiteDatabase.OPEN_READONLY
+        )?.also {
+            databaseWeakMap[fileName] = WeakReference(it)
+        } ?: throw IllegalStateException("Failed to open database $fileName")
+    }
+
+    private fun openMain() = openLocalDatabase("main.db")
+    private fun openArroyo() = openLocalDatabase("arroyo.db")
+
+    fun hasArroyo(): Boolean = context.androidContext.getDatabasePath("arroyo.db").exists()
 
     private fun <T : DatabaseObject> readDatabaseObject(
         obj: T,
@@ -85,10 +91,10 @@ class DatabaseAccess(private val context: ModContext) : Manager {
     }
 
     fun getFeedEntryByUserId(userId: String): FriendFeedEntry? {
-        return safeDatabaseOperation(openMain()) { database ->
+        return openMain().performOperation {
             readDatabaseObject(
                 FriendFeedEntry(),
-                database,
+                this,
                 "FriendsFeedView",
                 "friendUserId = ?",
                 arrayOf(userId)
@@ -97,23 +103,23 @@ class DatabaseAccess(private val context: ModContext) : Manager {
     }
 
     val myUserId by lazy {
-        safeDatabaseOperation(openArroyo()) { arroyoDatabase: SQLiteDatabase ->
-            arroyoDatabase.rawQuery(buildString {
+        openArroyo().performOperation {
+            rawQuery(buildString {
                 append("SELECT value FROM required_values WHERE key = 'USERID'")
             }, null).use { query ->
                 if (!query.moveToFirst()) {
-                    return@safeDatabaseOperation null
+                    return@performOperation null
                 }
                 query.getStringOrNull("value")!!
             }
-        }!!
+        } ?: context.androidContext.getSharedPreferences("user_session_shared_pref", 0).getString("key_user_id", null)!!
     }
 
     fun getFeedEntryByConversationId(conversationId: String): FriendFeedEntry? {
-        return safeDatabaseOperation(openMain()) {
+        return openMain().performOperation {
             readDatabaseObject(
                 FriendFeedEntry(),
-                it,
+                this,
                 "FriendsFeedView",
                 "key = ?",
                 arrayOf(conversationId)
@@ -122,10 +128,10 @@ class DatabaseAccess(private val context: ModContext) : Manager {
     }
 
     fun getFriendInfo(userId: String): FriendInfo? {
-        return safeDatabaseOperation(openMain()) {
+        return openMain().performOperation {
             readDatabaseObject(
                 FriendInfo(),
-                it,
+                this,
                 "FriendWithUsername",
                 "userId = ?",
                 arrayOf(userId)
@@ -134,8 +140,8 @@ class DatabaseAccess(private val context: ModContext) : Manager {
     }
 
     fun getFeedEntries(limit: Int): List<FriendFeedEntry> {
-        return safeDatabaseOperation(openMain()) { database ->
-            database.rawQuery(
+        return openMain().performOperation {
+            rawQuery(
                 "SELECT * FROM FriendsFeedView ORDER BY _id LIMIT ?",
                 arrayOf(limit.toString())
             ).use { query ->
@@ -153,10 +159,10 @@ class DatabaseAccess(private val context: ModContext) : Manager {
     }
 
     fun getConversationMessageFromId(clientMessageId: Long): ConversationMessage? {
-        return safeDatabaseOperation(openArroyo()) {
+        return openArroyo().performOperation {
             readDatabaseObject(
                 ConversationMessage(),
-                it,
+                this,
                 "conversation_message",
                 "client_message_id = ?",
                 arrayOf(clientMessageId.toString())
@@ -165,13 +171,13 @@ class DatabaseAccess(private val context: ModContext) : Manager {
     }
 
     fun getConversationType(conversationId: String): Int? {
-        return safeDatabaseOperation(openArroyo()) { database ->
-            database.rawQuery(
+        return openArroyo().performOperation {
+            rawQuery(
                 "SELECT conversation_type FROM user_conversation WHERE client_conversation_id = ?",
                 arrayOf(conversationId)
             ).use { query ->
                 if (!query.moveToFirst()) {
-                    return@safeDatabaseOperation null
+                    return@performOperation null
                 }
                 query.getInt(query.getColumnIndex("conversation_type"))
             }
@@ -179,10 +185,10 @@ class DatabaseAccess(private val context: ModContext) : Manager {
     }
 
     fun getConversationLinkFromUserId(userId: String): UserConversationLink? {
-        return safeDatabaseOperation(openArroyo()) {
+        return openArroyo().performOperation {
             readDatabaseObject(
                 UserConversationLink(),
-                it,
+                this,
                 "user_conversation",
                 "user_id = ? AND conversation_type = 0",
                 arrayOf(userId)
@@ -190,35 +196,16 @@ class DatabaseAccess(private val context: ModContext) : Manager {
         }
     }
 
-    private fun getAllDMOtherParticipants(): Map<String, String?> {
-        return safeDatabaseOperation(openArroyo()) { arroyoDatabase: SQLiteDatabase ->
-            arroyoDatabase.rawQuery(
-                "SELECT client_conversation_id, user_id FROM user_conversation WHERE conversation_type = 0",
-                null
-            ).use { query ->
-                val participants = mutableMapOf<String, String>()
-                if (!query.moveToFirst()) {
-                    return@safeDatabaseOperation null
-                }
-                do {
-                    participants[query.getString(query.getColumnIndex("client_conversation_id"))] =
-                        query.getString(query.getColumnIndex("user_id"))
-                } while (query.moveToNext())
-                participants
-            }
-        } ?: emptyMap()
-    }
-
     fun getDMOtherParticipant(conversationId: String): String? {
         if (dmOtherParticipantCache.containsKey(conversationId)) return dmOtherParticipantCache[conversationId]
-        return safeDatabaseOperation(openArroyo()) { cursor ->
-            cursor.rawQuery(
+        return openArroyo().performOperation {
+            rawQuery(
                 "SELECT user_id FROM user_conversation WHERE client_conversation_id = ? AND conversation_type = 0",
                 arrayOf(conversationId)
             ).use { query ->
                 val participants = mutableListOf<String>()
                 if (!query.moveToFirst()) {
-                    return@safeDatabaseOperation null
+                    return@performOperation null
                 }
                 do {
                     participants.add(query.getString(query.getColumnIndex("user_id")))
@@ -230,19 +217,19 @@ class DatabaseAccess(private val context: ModContext) : Manager {
 
 
     fun getStoryEntryFromId(storyId: String): StoryEntry? {
-        return safeDatabaseOperation(openMain()) {
-            readDatabaseObject(StoryEntry(), it, "Story", "storyId = ?", arrayOf(storyId))
+        return openMain().performOperation  {
+            readDatabaseObject(StoryEntry(), this, "Story", "storyId = ?", arrayOf(storyId))
         }
     }
 
     fun getConversationParticipants(conversationId: String): List<String>? {
-        return safeDatabaseOperation(openArroyo()) { arroyoDatabase: SQLiteDatabase ->
-            arroyoDatabase.rawQuery(
+        return openArroyo().performOperation {
+            rawQuery(
                 "SELECT user_id FROM user_conversation WHERE client_conversation_id = ?",
                 arrayOf(conversationId)
             ).use {
                 if (!it.moveToFirst()) {
-                    return@safeDatabaseOperation null
+                    return@performOperation null
                 }
                 val participants = mutableListOf<String>()
                 do {
@@ -257,13 +244,13 @@ class DatabaseAccess(private val context: ModContext) : Manager {
         conversationId: String,
         limit: Int
     ): List<ConversationMessage>? {
-        return safeDatabaseOperation(openArroyo()) { arroyoDatabase: SQLiteDatabase ->
-            arroyoDatabase.rawQuery(
+        return openArroyo().performOperation {
+            rawQuery(
                 "SELECT * FROM conversation_message WHERE client_conversation_id = ? ORDER BY creation_timestamp DESC LIMIT ?",
                 arrayOf(conversationId, limit.toString())
             ).use { query ->
                 if (!query.moveToFirst()) {
-                    return@safeDatabaseOperation null
+                    return@performOperation null
                 }
                 val messages = mutableListOf<ConversationMessage>()
                 do {
@@ -277,13 +264,13 @@ class DatabaseAccess(private val context: ModContext) : Manager {
     }
 
     fun getAddSource(userId: String): String? {
-        return safeDatabaseOperation(openMain()) { database ->
-            database.rawQuery(
+        return openMain().performOperation  {
+            rawQuery(
                 "SELECT addSource FROM FriendWhoAddedMe WHERE userId = ?",
                 arrayOf(userId)
             ).use {
                 if (!it.moveToFirst()) {
-                    return@safeDatabaseOperation null
+                    return@performOperation null
                 }
                 it.getStringOrNull("addSource")
             }
