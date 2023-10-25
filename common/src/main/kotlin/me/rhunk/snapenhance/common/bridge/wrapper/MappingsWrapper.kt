@@ -30,6 +30,7 @@ class MappingsWrapper : FileLoaderWrapper(BridgeFileType.MAPPINGS, "{}".toByteAr
             ScoreUpdateMapper::class,
             FriendRelationshipChangerMapper::class,
             ViewBinderMapper::class,
+            FriendingDataSourcesMapper::class,
         )
     }
 

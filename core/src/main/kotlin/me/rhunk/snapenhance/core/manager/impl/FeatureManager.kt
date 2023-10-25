@@ -100,6 +100,7 @@ class FeatureManager(
             FriendFeedMessagePreview::class,
             HideStreakRestore::class,
             HideFriendFeedEntry::class,
+            HideQuickAddFriendFeed::class,
         )
 
         initializeFeatures()

@@ -262,6 +262,10 @@
                         "name": "Hide Streak Restore",
                         "description": "Hides the Restore button in the friend feed"
                     },
+                    "hide_quick_add_friend_feed": {
+                        "name": "Hide Quick Add in Friend Feed",
+                        "description": "Hides the Quick Add section in the friend feed"
+                    },
                     "hide_story_sections": {
                         "name": "Hide Story Section",
                         "description": "Hide certain UI Elements shown in the story section"
