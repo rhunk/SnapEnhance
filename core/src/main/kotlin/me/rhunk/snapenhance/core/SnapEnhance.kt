@@ -33,7 +33,7 @@ class SnapEnhance {
             SnapClassCache(classLoader)
         }
     }
-    private val appContext = ModContext()
+    private lateinit var appContext: ModContext
     private var isBridgeInitialized = false
     private var isActivityPaused = false
 
@@ -47,9 +47,11 @@ class SnapEnhance {
 
     init {
         Application::class.java.hook("attach", HookStage.BEFORE) { param ->
-            appContext.apply {
+            appContext = ModContext(
                 androidContext = param.arg<Context>(0).also { classLoader = it.classLoader }
-                bridgeClient = BridgeClient(appContext)
+            )
+            appContext.apply {
+                bridgeClient = BridgeClient(this)
                 bridgeClient.apply {
                     connect(
                         onFailure = {

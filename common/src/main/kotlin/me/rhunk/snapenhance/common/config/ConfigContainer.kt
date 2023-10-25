@@ -1,5 +1,6 @@
 package me.rhunk.snapenhance.common.config
 
+import android.content.Context
 import com.google.gson.JsonObject
 import kotlin.reflect.KProperty
 
@@ -80,6 +81,12 @@ open class ConfigContainer(
             val jsonElement = json.get(key.name) ?: return@forEach
             //TODO: check incoming values
             properties[key]?.setAny(key.dataType.deserializeAny(jsonElement))
+        }
+    }
+
+    open fun lateInit(context: Context) {
+        properties.values.filter { it.getNullable() is ConfigContainer }.forEach {
+            (it.get() as ConfigContainer).lateInit(context)
         }
     }
 

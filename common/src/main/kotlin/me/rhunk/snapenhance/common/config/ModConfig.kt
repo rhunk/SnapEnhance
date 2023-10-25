@@ -12,7 +12,9 @@ import me.rhunk.snapenhance.common.config.impl.RootConfig
 import me.rhunk.snapenhance.common.logger.AbstractLogger
 import kotlin.properties.Delegates
 
-class ModConfig {
+class ModConfig(
+    private val context: Context
+) {
     var locale: String = LocaleWrapper.DEFAULT_LOCALE
 
     private val gson: Gson = GsonBuilder().setPrettyPrinting().create()
@@ -24,8 +26,10 @@ class ModConfig {
     lateinit var root: RootConfig
         private set
 
+    private fun createRootConfig() = RootConfig().apply { lateInit(context) }
+
     private fun load() {
-        root = RootConfig()
+        root = createRootConfig()
         wasPresent = file.isFileExists()
         if (!file.isFileExists()) {
             writeConfig()
@@ -95,7 +99,7 @@ class ModConfig {
 
         configStateListener?.also {
             runCatching {
-                compareDiff(RootConfig().apply {
+                compareDiff(createRootConfig().apply {
                     fromJson(gson.fromJson(file.read().toString(Charsets.UTF_8), JsonObject::class.java))
                 }, root)
 

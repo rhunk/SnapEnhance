@@ -36,10 +36,11 @@ import me.rhunk.snapenhance.nativelib.NativeLib
 import kotlin.reflect.KClass
 import kotlin.system.exitProcess
 
-class ModContext {
+class ModContext(
+    val androidContext: Context
+) {
     val coroutineScope = CoroutineScope(Dispatchers.IO)
 
-    lateinit var androidContext: Context
     lateinit var bridgeClient: BridgeClient
     var mainActivity: Activity? = null
 
@@ -47,7 +48,7 @@ class ModContext {
     val resources: Resources get() = androidContext.resources
     val gson: Gson = GsonBuilder().create()
 
-    private val _config = ModConfig()
+    private val _config = ModConfig(androidContext)
     val config by _config::root
     val log by lazy { CoreLogger(this.bridgeClient) }
     val translation = LocaleWrapper()

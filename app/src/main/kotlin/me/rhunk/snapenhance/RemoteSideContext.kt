@@ -57,7 +57,7 @@ class RemoteSideContext(
         set(value) { _activity?.clear(); _activity = WeakReference(value) }
 
     val sharedPreferences: SharedPreferences get() = androidContext.getSharedPreferences("prefs", 0)
-    val config = ModConfig()
+    val config = ModConfig(androidContext)
     val translation = LocaleWrapper()
     val mappings = MappingsWrapper()
     val downloadTaskManager = DownloadTaskManager()
