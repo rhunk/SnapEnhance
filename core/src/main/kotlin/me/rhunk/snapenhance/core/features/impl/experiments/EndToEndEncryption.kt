@@ -130,6 +130,7 @@ class EndToEndEncryption : MessagingRuleFeature(
                 context.longToast("Failed to accept public key")
                 return@warnKeyOverwrite
             }
+            setState(conversationId, true)
             context.longToast("Public key successfully accepted")
 
             sendCustomMessage(conversationId, RESPONSE_SK_MESSAGE_ID) {
@@ -150,6 +151,7 @@ class EndToEndEncryption : MessagingRuleFeature(
                 context.longToast("Failed to accept secret")
                 return@warnKeyOverwrite
             }
+            setState(conversationId, true)
             context.longToast("Done! You can now exchange encrypted messages with this friend.")
         }
     }
@@ -411,7 +413,7 @@ class EndToEndEncryption : MessagingRuleFeature(
                 conversationIds.add(SnapUUID.fromBytes(getByteArray(1, 1, 1) ?: return@eachBuffer))
             }
 
-            if (conversationIds.any { !getState(it.toString()) }) {
+            if (conversationIds.any { !getState(it.toString()) || getE2EParticipants(it.toString()).isEmpty() }) {
                 context.log.debug("Skipping encryption for conversation ids: ${conversationIds.joinToString(", ")}")
                 return@subscribe
             }
