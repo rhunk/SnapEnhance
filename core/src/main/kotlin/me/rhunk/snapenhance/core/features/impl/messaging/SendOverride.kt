@@ -11,7 +11,6 @@ import me.rhunk.snapenhance.core.features.FeatureLoadParams
 import me.rhunk.snapenhance.core.messaging.MessageSender
 import me.rhunk.snapenhance.core.ui.ViewAppearanceHelper
 import me.rhunk.snapenhance.nativelib.NativeLib
-import kotlin.math.absoluteValue
 
 class SendOverride : Feature("Send Override", loadParams = FeatureLoadParams.INIT_SYNC) {
     private var isLastSnapSavable = false
@@ -33,18 +32,6 @@ class SendOverride : Feature("Send Override", loadParams = FeatureLoadParams.INI
         context.event.subscribe(UnaryCallEvent::class) { event ->
             if (event.uri != "/messagingcoreservice.MessagingCoreService/CreateContentMessage") return@subscribe
             val protoEditor = ProtoEditor(event.buffer)
-
-            context.config.experimental.customStoryExpiration.get().takeIf { it > 0 }?.absoluteValue?.also { expirationInHours ->
-                protoEditor.edit(3, 2, 2) {
-                    remove(1)
-                    add(1) {
-                        from(2) {
-                            addVarInt(1, expirationInHours)
-                            context.log.verbose("add story expiration to $expirationInHours hours")
-                        }
-                    }
-                }
-            }
 
             if (isLastSnapSavable && ProtoReader(event.buffer).containsPath(*Constants.ARROYO_MEDIA_CONTAINER_PROTO_PATH, 11)) {
                 protoEditor.edit(*Constants.ARROYO_MEDIA_CONTAINER_PROTO_PATH, 11, 5, 2) {
