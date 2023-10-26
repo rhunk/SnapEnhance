@@ -18,7 +18,7 @@ Requirements:
 - Rooted using Magisk or KernelSU
 - LSPosed installed and fully functional
 
-Although using this in an unrooted enviroment using something like LSPatch should be working fine, it is not recommended to do so, use at your own risk!
+Although using this in an unrooted environment using something like LSPatch should be working fine, it is not recommended to do so, use at your own risk!
 
 1. Install the module APK from either this [Github repo](https://github.com/rhunk/SnapEnhance/releases) or the [LSPosed repo](https://modules.lsposed.org/module/me.rhunk.snapenhance)
 2. Turn on the module in LSPosed and make sure Snapchat is in scope
