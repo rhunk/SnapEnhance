@@ -20,9 +20,9 @@ class MapperContext(
         return classMap[name.toString()]
     }
 
-    private val mappings = mutableMapOf<String, Any>()
+    private val mappings = mutableMapOf<String, Any?>()
 
-    fun addMapping(key: String, vararg array: Pair<String, Any>) {
+    fun addMapping(key: String, vararg array: Pair<String, Any?>) {
         mappings[key] = array.toMap()
     }
 

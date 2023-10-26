@@ -26,6 +26,7 @@ class SnapchatPlus: Feature("SnapchatPlus", loadParams = FeatureLoadParams.INIT_
             param.setArg(3, expirationTimeMillis)
         }
 
+        // optional as ConfigurationOverride does this too
         if (context.config.experimental.hiddenSnapchatPlusFeatures.get()) {
             findClass("com.snap.plus.FeatureCatalog").methods.last {
                 !it.name.contains("init") &&

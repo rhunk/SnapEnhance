@@ -113,6 +113,18 @@ object Hooker {
             hookConsumer(param)
         }.also { unhooks.addAll(it) }
     }
+
+    inline fun ephemeralHookConstructor(
+        clazz: Class<*>,
+        stage: HookStage,
+        crossinline hookConsumer: (HookAdapter) -> Unit
+    ) {
+        val unhooks: MutableSet<XC_MethodHook.Unhook> = HashSet()
+        hookConstructor(clazz, stage) { param->
+            hookConsumer(param)
+            unhooks.forEach{ it.unhook() }
+        }.also { unhooks.addAll(it) }
+    }
 }
 
 fun Class<*>.hookConstructor(
