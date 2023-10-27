@@ -57,15 +57,19 @@ class Messaging : Feature("Messaging", loadParams = FeatureLoadParams.ACTIVITY_C
         }
 
         with(context.classCache.conversationManager) {
-            Hooker.hook(this, "enterConversation", HookStage.BEFORE) {
-                openedConversationUUID = SnapUUID(it.arg(0))
+            Hooker.hook(this, "enterConversation", HookStage.BEFORE) { param ->
+                openedConversationUUID = SnapUUID(param.arg(0))
+                if (context.config.messaging.bypassMessageRetentionPolicy.get()) {
+                    val callback = param.argNullable<Any>(2) ?: return@hook
+                    callback::class.java.methods.firstOrNull { it.name == "onSuccess" }?.invoke(callback)
+                    param.setResult(null)
+                }
             }
 
             Hooker.hook(this, "exitConversation", HookStage.BEFORE) {
                 openedConversationUUID = null
             }
         }
-
     }
 
     override fun asyncInit() {

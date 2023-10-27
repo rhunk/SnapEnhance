@@ -328,6 +328,10 @@
                         "name": "Disable Replay in FF",
                         "description": "Disables the ability to replay with a long press from the Friend Feed"
                     },
+                    "message_preview_length": {
+                        "name": "Message Preview Length",
+                        "description": "Specify the amount of messages to get previewed"
+                    },
                     "prevent_message_sending": {
                         "name": "Prevent Message Sending",
                         "description": "Prevents sending certain types of messages"
@@ -352,9 +356,9 @@
                         "name": "Gallery Media Send Override",
                         "description": "Spoofs the media source when sending from the Gallery"
                     },
-                    "message_preview_length": {
-                        "name": "Message Preview Length",
-                        "description": "Specify the amount of messages to get previewed"
+                    "bypass_message_retention_policy": {
+                        "name": "Bypass Message Retention Policy",
+                        "description": "Prevents messages from being deleted after viewing them"
                     }
                 }
             },

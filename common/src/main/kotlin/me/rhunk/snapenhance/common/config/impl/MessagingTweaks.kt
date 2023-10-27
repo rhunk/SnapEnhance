@@ -10,6 +10,7 @@ class MessagingTweaks : ConfigContainer() {
     val hideTypingNotifications = boolean("hide_typing_notifications")
     val unlimitedSnapViewTime = boolean("unlimited_snap_view_time")
     val disableReplayInFF = boolean("disable_replay_in_ff")
+    val messagePreviewLength = integer("message_preview_length", defaultValue = 20)
     val autoSaveMessagesInConversations = multiple("auto_save_messages_in_conversations",
         "CHAT",
         "SNAP",
@@ -27,5 +28,5 @@ class MessagingTweaks : ConfigContainer() {
     }
     val messageLogger = boolean("message_logger") { addNotices(FeatureNotice.UNSTABLE); requireRestart() }
     val galleryMediaSendOverride = boolean("gallery_media_send_override") { nativeHooks() }
-    val messagePreviewLength = integer("message_preview_length", defaultValue = 20)
+    val bypassMessageRetentionPolicy = boolean("bypass_message_retention_policy") { addNotices(FeatureNotice.UNSTABLE); requireRestart() }
 }
