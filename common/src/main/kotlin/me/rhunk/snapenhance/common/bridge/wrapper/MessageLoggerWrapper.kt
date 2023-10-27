@@ -10,18 +10,31 @@ import java.util.UUID
 class MessageLoggerWrapper(
     private val databaseFile: File
 ): MessageLoggerInterface.Stub() {
-    private lateinit var database: SQLiteDatabase
+    private var _database: SQLiteDatabase? = null
+
+    private val database get() = synchronized(this) {
+        _database?.takeIf { it.isOpen } ?: run {
+            _database?.close()
+            val openedDatabase = SQLiteDatabase.openDatabase(databaseFile.absolutePath, null, SQLiteDatabase.CREATE_IF_NECESSARY or SQLiteDatabase.OPEN_READWRITE)
+            SQLiteDatabaseHelper.createTablesFromSchema(openedDatabase, mapOf(
+                "messages" to listOf(
+                    "id INTEGER PRIMARY KEY",
+                    "conversation_id VARCHAR",
+                    "message_id BIGINT",
+                    "message_data BLOB"
+                )
+            ))
+            _database = openedDatabase
+            openedDatabase
+        }
+    }
+
+    protected fun finalize() {
+        _database?.close()
+    }
 
     fun init() {
-        database = SQLiteDatabase.openDatabase(databaseFile.absolutePath, null, SQLiteDatabase.CREATE_IF_NECESSARY or SQLiteDatabase.OPEN_READWRITE)
-        SQLiteDatabaseHelper.createTablesFromSchema(database, mapOf(
-            "messages" to listOf(
-                "id INTEGER PRIMARY KEY",
-                "conversation_id VARCHAR",
-                "message_id BIGINT",
-                "message_data BLOB"
-            )
-        ))
+
     }
 
     override fun getLoggedIds(conversationId: Array<String>, limit: Int): LongArray {
