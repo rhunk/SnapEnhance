@@ -118,7 +118,6 @@ class SnapEnhance {
                     logCritical(null, throwable)
                 }
             }
-            bridgeClient.registerMessagingBridge(messagingBridge)
 
             reloadConfig()
             actionManager.init()
@@ -136,6 +135,7 @@ class SnapEnhance {
             eventDispatcher.init()
             //if mappings aren't loaded, we can't initialize features
             if (!mappings.isMappingsLoaded()) return
+            bridgeClient.registerMessagingBridge(messagingBridge)
             features.init()
             scriptRuntime.connect(bridgeClient.getScriptingInterface())
             syncRemote()

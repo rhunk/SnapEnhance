@@ -1,5 +1,6 @@
 package me.rhunk.snapenhance.core.features.impl.messaging
 
+import me.rhunk.snapenhance.common.ReceiversConfig
 import me.rhunk.snapenhance.core.event.events.impl.OnSnapInteractionEvent
 import me.rhunk.snapenhance.core.features.Feature
 import me.rhunk.snapenhance.core.features.FeatureLoadParams
@@ -12,10 +13,8 @@ import me.rhunk.snapenhance.core.wrapper.impl.SnapUUID
 
 class Messaging : Feature("Messaging", loadParams = FeatureLoadParams.ACTIVITY_CREATE_SYNC or FeatureLoadParams.INIT_ASYNC or FeatureLoadParams.INIT_SYNC) {
     private var _conversationManager: Any? = null
-    val conversationManager: Any
-        get() = _conversationManager ?: throw IllegalStateException("ConversationManager is not initialized").also {
-            context.longToast("Failed to get conversation manager. Please restart Snapchat")
-        }
+    val conversationManager: Any?
+        get() = _conversationManager
 
     var openedConversationUUID: SnapUUID? = null
         private set
@@ -28,8 +27,12 @@ class Messaging : Feature("Messaging", loadParams = FeatureLoadParams.ACTIVITY_C
         private set
 
     override fun init() {
-        Hooker.hookConstructor(context.classCache.conversationManager, HookStage.BEFORE) {
-            _conversationManager = it.thisObject()
+        Hooker.hookConstructor(context.classCache.conversationManager, HookStage.BEFORE) { param ->
+            _conversationManager = param.thisObject()
+            context.messagingBridge.triggerSessionStart()
+            context.mainActivity?.takeIf { it.intent.getBooleanExtra(ReceiversConfig.MESSAGING_PREVIEW_EXTRA,false) }?.run {
+                finishAndRemoveTask()
+            }
         }
     }
 

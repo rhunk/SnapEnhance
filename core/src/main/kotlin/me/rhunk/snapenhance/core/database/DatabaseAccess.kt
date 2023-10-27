@@ -58,13 +58,18 @@ class DatabaseAccess(
             if (database != null && database.isOpen) return database
         }
 
-        return SQLiteDatabase.openDatabase(
-            context.androidContext.getDatabasePath(fileName).absolutePath,
-            null,
-            SQLiteDatabase.OPEN_READONLY
-        )?.also {
-            databaseWeakMap[fileName] = WeakReference(it)
-        } ?: throw IllegalStateException("Failed to open database $fileName")
+        return runCatching {
+            SQLiteDatabase.openDatabase(
+                context.androidContext.getDatabasePath(fileName).absolutePath,
+                null,
+                SQLiteDatabase.OPEN_READONLY
+            )?.also {
+                databaseWeakMap[fileName] = WeakReference(it)
+            }
+        }.onFailure {
+            context.log.error("Failed to open database $fileName, restarting!", it)
+            context.softRestartApp()
+        }.getOrNull() ?: throw IllegalStateException("Failed to open database $fileName")
     }
 
     private fun openMain() = openLocalDatabase("main.db")

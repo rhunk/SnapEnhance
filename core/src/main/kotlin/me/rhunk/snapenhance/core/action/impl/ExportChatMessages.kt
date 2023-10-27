@@ -30,10 +30,6 @@ class ExportChatMessages : AbstractAction() {
         context.classCache.conversationManager.methods.first { it.name == "fetchConversationWithMessagesPaginated" }
     }
 
-    private val conversationManagerInstance by lazy {
-        context.feature(Messaging::class).conversationManager
-    }
-
     private val dialogLogs = mutableListOf<String>()
     private var currentActionDialog: AlertDialog? = null
 
@@ -165,7 +161,7 @@ class ExportChatMessages : AbstractAction() {
             }.build()
 
         fetchConversationWithMessagesPaginatedMethod.invoke(
-            conversationManagerInstance,
+            context.feature(Messaging::class).conversationManager,
             SnapUUID.fromString(conversationId).instanceNonNull(),
             lastMessageId,
             amount,

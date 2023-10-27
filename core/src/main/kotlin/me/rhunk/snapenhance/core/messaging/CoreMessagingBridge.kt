@@ -3,6 +3,7 @@ package me.rhunk.snapenhance.core.messaging
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.suspendCancellableCoroutine
 import me.rhunk.snapenhance.bridge.snapclient.MessagingBridge
+import me.rhunk.snapenhance.bridge.snapclient.SessionStartListener
 import me.rhunk.snapenhance.bridge.snapclient.types.Message
 import me.rhunk.snapenhance.core.ModContext
 import me.rhunk.snapenhance.core.features.impl.downloader.decoder.MessageDecoder
@@ -28,6 +29,18 @@ class CoreMessagingBridge(
     private val context: ModContext
 ) : MessagingBridge.Stub() {
     private val conversationManager get() = context.feature(Messaging::class).conversationManager
+    private var sessionStartListener: SessionStartListener? = null
+
+    fun triggerSessionStart() {
+        sessionStartListener?.onConnected()
+        sessionStartListener = null
+    }
+
+    override fun isSessionStarted() = conversationManager != null
+    override fun registerSessionStartListener(listener: SessionStartListener) {
+        sessionStartListener = listener
+    }
+
     override fun getMyUserId() = context.database.myUserId
 
     override fun fetchMessage(conversationId: String, clientMessageId: String): Message? {

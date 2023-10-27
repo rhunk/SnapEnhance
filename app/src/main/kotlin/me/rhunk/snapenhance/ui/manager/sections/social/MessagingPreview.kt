@@ -1,5 +1,6 @@
 package me.rhunk.snapenhance.ui.manager.sections.social
 
+import android.content.Intent
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.gestures.detectTapGestures
@@ -25,7 +26,10 @@ import androidx.compose.ui.unit.dp
 import kotlinx.coroutines.*
 import me.rhunk.snapenhance.RemoteSideContext
 import me.rhunk.snapenhance.bridge.snapclient.MessagingBridge
+import me.rhunk.snapenhance.bridge.snapclient.SessionStartListener
 import me.rhunk.snapenhance.bridge.snapclient.types.Message
+import me.rhunk.snapenhance.common.Constants
+import me.rhunk.snapenhance.common.ReceiversConfig
 import me.rhunk.snapenhance.common.data.ContentType
 import me.rhunk.snapenhance.common.data.SocialScope
 import me.rhunk.snapenhance.common.util.protobuf.ProtoReader
@@ -419,6 +423,22 @@ class MessagingPreview(
         conversationId = if (scope == SocialScope.FRIEND) messagingBridge.getOneToOneConversationId(scopeId) else scopeId
         if (conversationId == null) {
             context.longToast("Failed to fetch conversation id")
+            return
+        }
+        if (!messagingBridge.isSessionStarted) {
+            context.androidContext.packageManager.getLaunchIntentForPackage(
+                Constants.SNAPCHAT_PACKAGE_NAME
+            )?.let {
+                val mainIntent = Intent.makeRestartActivityTask(it.component).apply {
+                    putExtra(ReceiversConfig.MESSAGING_PREVIEW_EXTRA, true)
+                }
+                context.androidContext.startActivity(mainIntent)
+            }
+            messagingBridge.registerSessionStartListener(object: SessionStartListener.Stub() {
+                override fun onConnected() {
+                    fetchNewMessages()
+                }
+            })
             return
         }
         fetchNewMessages()

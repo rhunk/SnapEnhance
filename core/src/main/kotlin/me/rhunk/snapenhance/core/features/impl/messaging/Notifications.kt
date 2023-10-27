@@ -315,7 +315,7 @@ class Notifications : Feature("Notifications", loadParams = FeatureLoadParams.IN
                     notificationType.contains(it)
                 }) return@hook
 
-            val conversationManager: Any = context.feature(Messaging::class).conversationManager
+            val conversationManager: Any = context.feature(Messaging::class).conversationManager ?: return@hook
 
             synchronized(notificationDataQueue) {
                 notificationDataQueue[messageId.toLong()] = notificationData
