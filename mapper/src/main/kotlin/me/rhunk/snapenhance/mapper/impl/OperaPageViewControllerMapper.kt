@@ -26,6 +26,7 @@ class OperaPageViewControllerMapper : AbstractClassMapper() {
                 val onDisplayStateChange = clazz.methods.first {
                     if (it.returnType != "V" || it.parameterTypes.size != 1) return@first false
                     val firstParameterType = getClass(it.parameterTypes[0]) ?: return@first false
+                    if (firstParameterType.type == clazz.type || !firstParameterType.isAbstract()) return@first false
                     //check if the class contains a field with the enumViewStateClass type
                     firstParameterType.fields.any { field ->
                         field.type == viewStateField.type
