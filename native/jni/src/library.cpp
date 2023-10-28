@@ -119,7 +119,7 @@ void JNICALL init(JNIEnv *env, jobject clazz, jobject classloader) {
     auto unaryCall_func = util::find_signature(
             client_module.base, client_module.size,
             ARM64 ? "A8 03 1F F8 C2 00 00 94" : "0A 90 00 F0 3F F9",
-            ARM64 ? -0x48 : -0x38
+            ARM64 ? -0x48 : -0x37
     );
 
     if (unaryCall_func != 0) {
