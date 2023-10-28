@@ -101,6 +101,7 @@ class FeatureManager(
             HideStreakRestore::class,
             HideFriendFeedEntry::class,
             HideQuickAddFriendFeed::class,
+            CallStartConfirmation::class,
         )
 
         initializeFeatures()

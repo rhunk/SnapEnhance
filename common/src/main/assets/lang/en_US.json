@@ -332,6 +332,10 @@
                         "name": "Message Preview Length",
                         "description": "Specify the amount of messages to get previewed"
                     },
+                    "call_start_confirmation": {
+                        "name": "Call Start Confirmation",
+                        "description": "Shows a confirmation dialog when starting a call"
+                    },
                     "prevent_message_sending": {
                         "name": "Prevent Message Sending",
                         "description": "Prevents sending certain types of messages"
@@ -783,6 +787,11 @@
         "title": "Profile Picture Downloader",
         "avatar_option": "Avatar",
         "background_option": "Background"
+    },
+
+    "call_start_confirmation": {
+        "dialog_title": "Start Call",
+        "dialog_message": "Are you sure you want to start a call?"
     },
 
     "download_processor": {
