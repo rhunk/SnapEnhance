@@ -25,7 +25,7 @@ import me.rhunk.snapenhance.ui.manager.Section
 import me.rhunk.snapenhance.ui.util.OnLifecycleEvent
 
 class TasksSection : Section() {
-    private lateinit var activeTasks: MutableMap<Long, PendingTask>
+    private var activeTasks by mutableStateOf(listOf<PendingTask>())
     private lateinit var recentTasks: MutableList<Task>
 
     @Composable
@@ -48,14 +48,14 @@ class TasksSection : Section() {
                         onClick = {
                             context.taskManager.clearAllTasks()
                             recentTasks.clear()
-                            activeTasks.toList().forEach {
+                            activeTasks.forEach {
                                 runCatching {
-                                    it.second.cancel()
+                                    it.cancel()
                                 }.onFailure { throwable ->
-                                    context.log.error("Failed to cancel task ${it.first}", throwable)
+                                    context.log.error("Failed to cancel task $it", throwable)
                                 }
-                                activeTasks.remove(it.first)
                             }
+                            activeTasks = listOf()
                             context.taskManager.getActiveTasks().clear()
                             showConfirmDialog = false
                         }
@@ -90,7 +90,11 @@ class TasksSection : Section() {
                 taskProgressLabel = label
                 taskProgress = progress
             }
-        ).also { pendingTask?.addListener(it) }}
+        ) }
+
+        LaunchedEffect(Unit) {
+            pendingTask?.addListener(listener)
+        }
 
         DisposableEffect(Unit) {
             onDispose {
@@ -163,7 +167,6 @@ class TasksSection : Section() {
     override fun Content() {
         val scrollState = rememberLazyListState()
         val scope = rememberCoroutineScope()
-        activeTasks = remember { mutableStateMapOf() }
         recentTasks = remember { mutableStateListOf() }
         var lastFetchedTaskId: Long? by remember { mutableStateOf(null) }
 
@@ -172,28 +175,27 @@ class TasksSection : Section() {
                 val tasks = context.taskManager.fetchStoredTasks(lastFetchedTaskId ?: Long.MAX_VALUE)
                 if (tasks.isNotEmpty()) {
                     lastFetchedTaskId = tasks.keys.last()
-                    recentTasks.addAll(tasks.filter { !activeTasks.containsKey(it.key) }.values)
+                    scope.launch {
+                        val activeTaskIds = activeTasks.map { it.taskId }
+                        recentTasks.addAll(tasks.filter { it.key !in activeTaskIds }.values)
+                    }
                 }
             }
         }
 
         fun fetchActiveTasks() {
-            scope.launch {
-                activeTasks.clear()
-                activeTasks.putAll(context.taskManager.getActiveTasks())
-            }
+            activeTasks = context.taskManager.getActiveTasks().values.sortedByDescending { it.taskId }.toMutableList()
         }
 
-        SideEffect {
+        LaunchedEffect(Unit) {
             fetchActiveTasks()
         }
 
         OnLifecycleEvent { _, event ->
-            when (event) {
-                Lifecycle.Event.ON_RESUME -> {
+            if (event == Lifecycle.Event.ON_RESUME) {
+                scope.launch {
                     fetchActiveTasks()
                 }
-                else -> {}
             }
         }
 
@@ -213,11 +215,10 @@ class TasksSection : Section() {
                     }
                 }
             }
-            items(activeTasks.size) { index ->
-                val pendingTask = activeTasks.values.elementAt(index)
+            items(activeTasks, key = { it.task.hash }) {pendingTask ->
                 TaskCard(modifier = Modifier.padding(8.dp), pendingTask.task, pendingTask = pendingTask)
             }
-            items(recentTasks) { task ->
+            items(recentTasks, key = { it.hash }) { task ->
                 TaskCard(modifier = Modifier.padding(8.dp), task)
             }
             item {

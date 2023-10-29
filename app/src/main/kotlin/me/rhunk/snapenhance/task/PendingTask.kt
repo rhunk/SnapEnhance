@@ -61,6 +61,7 @@ data class Task(
 }
 
 class PendingTask(
+    val taskId: Long,
     val task: Task
 ) {
     private val listeners = mutableListOf<PendingTaskListener>()

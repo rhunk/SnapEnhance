@@ -180,12 +180,14 @@ class DownloadProcessor (
     private fun downloadInputMedias(pendingTask: PendingTask, downloadRequest: DownloadRequest) = runBlocking {
         val jobs = mutableListOf<Job>()
         val downloadedMedias = mutableMapOf<InputMedia, File>()
+        var totalSize = 1L
+        val inputMediaDownloadedBytes = mutableMapOf<InputMedia, Long>()
         val inputMediaProgress = ConcurrentHashMap<InputMedia, String>()
 
         fun updateDownloadProgress() {
             pendingTask.updateProgress(
                 inputMediaProgress.values.joinToString("\n"),
-                progress = (jobs.filter { it.isActive }.size.toDouble() / jobs.size.toDouble() * 100.0).toInt()
+                progress = (inputMediaDownloadedBytes.values.sum() * 100 / totalSize).toInt().coerceIn(0, 100)
             )
         }
 
@@ -207,6 +209,7 @@ class DownloadProcessor (
                     while (decryptedInputStream.read(buffer).also { read = it } != -1) {
                         outputStream.write(buffer, 0, read)
                         totalRead += read
+                        inputMediaDownloadedBytes[inputMedia] = totalRead
                         if (totalRead - lastTotalRead > 1024 * 1024) {
                             setProgress("${totalRead / 1024}KB/${estimatedSize / 1024}KB")
                             lastTotalRead = totalRead
@@ -219,6 +222,7 @@ class DownloadProcessor (
                 when (inputMedia.type) {
                     DownloadMediaType.PROTO_MEDIA -> {
                         RemoteMediaResolver.downloadBoltMedia(Base64.UrlSafe.decode(inputMedia.content), decryptionCallback = { it }, resultCallback = { inputStream, length ->
+                            totalSize += length
                             handleInputStream(inputStream, estimatedSize = length)
                         })
                     }
@@ -227,6 +231,7 @@ class DownloadProcessor (
                             requestMethod = "GET"
                             setRequestProperty("User-Agent", Constants.USER_AGENT)
                             connect()
+                            totalSize += contentLength.toLong()
                             handleInputStream(inputStream, estimatedSize = contentLength.toLong())
                         }
                     }

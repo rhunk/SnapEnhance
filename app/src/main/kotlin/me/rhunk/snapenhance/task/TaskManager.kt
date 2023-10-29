@@ -89,7 +89,7 @@ class TaskManager(
             updateTask(taskId, task)
         }
 
-        val pendingTask = PendingTask(task)
+        val pendingTask = PendingTask(taskId, task)
         activeTasks[taskId] = pendingTask
         return pendingTask
     }
