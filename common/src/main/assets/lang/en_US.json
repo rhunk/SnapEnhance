@@ -274,9 +274,9 @@
                         "name": "Hide UI Components",
                         "description": "Select which UI components to hide"
                     },
-                    "2d_bitmoji_selfie": {
-                        "name": "2D Bitmoji Selfie",
-                        "description": "Brings back the 2D Bitmoji selfies from older Snapchat versions\nYou may need to clean the Snapchat cache for this to take effect"
+                    "old_bitmoji_selfie": {
+                        "name": "Old Bitmoji Selfie",
+                        "description": "Brings back the Bitmoji selfies from older Snapchat versions"
                     },
                     "disable_spotlight": {
                         "name": "Disable Spotlight",
@@ -693,6 +693,10 @@
             "bypass_video_length_restriction": {
                 "single": "Single media",
                 "split": "Split media"
+            },
+            "old_bitmoji_selfie": {
+                "2d": "2D Bitmoji",
+                "3d": "3D Bitmoji"
             }
         }
     },
