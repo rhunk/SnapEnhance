@@ -25,10 +25,9 @@ import me.rhunk.snapenhance.core.features.Feature
 import me.rhunk.snapenhance.core.features.FeatureLoadParams
 import me.rhunk.snapenhance.core.features.impl.downloader.MediaDownloader
 import me.rhunk.snapenhance.core.features.impl.downloader.decoder.MessageDecoder
-import me.rhunk.snapenhance.core.logger.CoreLogger
+import me.rhunk.snapenhance.core.features.impl.spying.StealthMode
 import me.rhunk.snapenhance.core.util.CallbackBuilder
 import me.rhunk.snapenhance.core.util.hook.HookStage
-import me.rhunk.snapenhance.core.util.hook.Hooker
 import me.rhunk.snapenhance.core.util.hook.hook
 import me.rhunk.snapenhance.core.util.ktx.setObjectField
 import me.rhunk.snapenhance.core.util.media.PreviewUtils
@@ -39,6 +38,7 @@ class Notifications : Feature("Notifications", loadParams = FeatureLoadParams.IN
     companion object{
         const val ACTION_REPLY = "me.rhunk.snapenhance.action.notification.REPLY"
         const val ACTION_DOWNLOAD = "me.rhunk.snapenhance.action.notification.DOWNLOAD"
+        const val ACTION_MARK_AS_READ = "me.rhunk.snapenhance.action.notification.MARK_AS_READ"
         const val SNAPCHAT_NOTIFICATION_GROUP = "snapchat_notification_group"
     }
 
@@ -63,6 +63,8 @@ class Notifications : Feature("Notifications", loadParams = FeatureLoadParams.IN
     private val notificationManager by lazy {
         context.androidContext.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
     }
+
+    private val translations by lazy { context.translation.getCategory("better_notifications") }
 
     private val betterNotificationFilter by lazy {
         context.config.messaging.betterNotifications.get()
@@ -118,17 +120,21 @@ class Notifications : Feature("Notifications", loadParams = FeatureLoadParams.IN
             actions.add(action)
         }
 
-        newAction("Reply", ACTION_REPLY, {
+        newAction(translations["button.reply"], ACTION_REPLY, {
             betterNotificationFilter.contains("reply_button") && contentType == ContentType.CHAT
         }) {
             val chatReplyInput = RemoteInput.Builder("chat_reply_input")
-                .setLabel("Reply")
+                .setLabel(translations["button.reply"])
                 .build()
             it.addRemoteInput(chatReplyInput)
         }
 
-        newAction("Download", ACTION_DOWNLOAD, {
+        newAction(translations["button.download"], ACTION_DOWNLOAD, {
             betterNotificationFilter.contains("download_button") && (contentType == ContentType.EXTERNAL_MEDIA || contentType == ContentType.SNAP)
+        }) {}
+
+        newAction(translations["button.mark_as_read"], ACTION_MARK_AS_READ, {
+            betterNotificationFilter.contains("mark_as_read_button")
         }) {}
 
         notificationBuilder.setActions(*actions.toTypedArray())
@@ -141,7 +147,6 @@ class Notifications : Feature("Notifications", loadParams = FeatureLoadParams.IN
             val conversationId = intent.getStringExtra("conversation_id") ?: return@subscribe
             val messageId = intent.getLongExtra("message_id", -1)
             val notificationId = intent.getIntExtra("notification_id", -1)
-            val notificationManager = event.androidContext.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
 
             val updateNotification: (Int, (Notification) -> Unit) -> Unit = { id, notificationBuilder ->
                 notificationManager.activeNotifications.firstOrNull { it.id == id }?.let {
@@ -176,6 +181,47 @@ class Notifications : Feature("Notifications", loadParams = FeatureLoadParams.IN
                     }.onFailure {
                         context.longToast(it)
                     }
+                }
+                ACTION_MARK_AS_READ -> {
+                    runCatching {
+                        if (context.feature(StealthMode::class).canUseRule(conversationId)) {
+                            context.longToast(translations["stealth_mode_notice"])
+                            return@subscribe
+                        }
+
+                        val conversationManager = context.feature(Messaging::class).conversationManager ?: return@subscribe
+
+                        context.classCache.conversationManager.methods.first { it.name == "displayedMessages"}?.invoke(
+                            conversationManager,
+                            SnapUUID.fromString(conversationId).instanceNonNull(),
+                            messageId,
+                            CallbackBuilder(context.mappings.getMappedClass("callbacks", "Callback"))
+                                .override("onError") {
+                                    context.log.error("Failed to mark message as read: ${it.arg(0) as Any}")
+                                    context.shortToast("Failed to mark message as read")
+                                }.build()
+                        )
+
+                        val conversationMessage = context.database.getConversationMessageFromId(messageId) ?: return@subscribe
+
+                        if (conversationMessage.contentType == ContentType.SNAP.id) {
+                            context.classCache.conversationManager.methods.first { it.name == "updateMessage"}?.invoke(
+                                conversationManager,
+                                SnapUUID.fromString(conversationId).instanceNonNull(),
+                                messageId,
+                                context.classCache.messageUpdateEnum.enumConstants.first { it.toString() == "READ" },
+                                CallbackBuilder(context.mappings.getMappedClass("callbacks", "Callback"))
+                                    .override("onError") {
+                                        context.log.error("Failed to open snap: ${it.arg(0) as Any}")
+                                        context.shortToast("Failed to open snap")
+                                    }.build()
+                            )
+                        }
+                    }.onFailure {
+                        context.log.error("Failed to mark message as read", it)
+                        context.shortToast("Failed to mark message as read. Check logs for more details")
+                    }
+                    notificationManager.cancel(notificationId)
                 }
                 else -> return@subscribe
             }
@@ -282,7 +328,7 @@ class Notifications : Feature("Notifications", loadParams = FeatureLoadParams.IN
                                 sendNotificationData(notificationData.copy(notification = notificationBuilder.build()), true)
                                 return@onEach
                             }.onFailure {
-                                CoreLogger.xposedLog("Failed to send preview notification", it)
+                                context.log.error("Failed to send preview notification", it)
                             }
                         }
                     }
@@ -302,7 +348,7 @@ class Notifications : Feature("Notifications", loadParams = FeatureLoadParams.IN
 
         val fetchConversationWithMessagesCallback = context.mappings.getMappedClass("callbacks", "FetchConversationWithMessagesCallback")
 
-        Hooker.hook(notifyAsUserMethod, HookStage.BEFORE) { param ->
+        notifyAsUserMethod.hook(HookStage.BEFORE) { param ->
             val notificationData = NotificationData(param.argNullable(0), param.arg(1), param.arg(2), param.arg(3))
 
             val extras: Bundle = notificationData.notification.extras.getBundle("system_notification_extras")?: return@hook

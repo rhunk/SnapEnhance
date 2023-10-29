@@ -597,6 +597,7 @@
                 "snap": "Show media",
                 "reply_button": "Add reply button",
                 "download_button": "Add download button",
+                "mark_as_read_button": "Mark as Read button",
                 "group": "Group notifications"
             },
             "friend_feed_menu_buttons": {
@@ -780,6 +781,15 @@
         "cancel": "Cancel",
         "open": "Open",
         "download": "Download"
+    },
+
+    "better_notifications": {
+        "button": {
+            "reply": "Reply",
+            "download": "Download",
+            "mark_as_read": "Mark as Read"
+        },
+        "stealth_mode_notice": "Can't mark as read in stealth mode"
     },
 
     "profile_picture_downloader": {
