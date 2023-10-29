@@ -122,8 +122,8 @@ class MessageExporter(
                         runCatching {
                             RemoteMediaResolver.downloadBoltMedia(protoMediaReference, decryptionCallback = {
                                 (attachment.attachmentInfo?.encryption?.decryptInputStream(it) ?: it)
-                            }) {
-                                it.use { inputStream ->
+                            }) { downloadedInputStream, _ ->
+                                downloadedInputStream.use { inputStream ->
                                     MediaDownloaderHelper.getSplitElements(inputStream) { type, splitInputStream ->
                                         val fileName = "${type}_${Base64.UrlSafe.encode(protoMediaReference).replace("=", "")}"
                                         val bufferedInputStream = BufferedInputStream(splitInputStream)

@@ -2,11 +2,7 @@ package me.rhunk.snapenhance.ui.manager
 
 import androidx.compose.foundation.layout.RowScope
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.DataObject
-import androidx.compose.material.icons.filled.Download
-import androidx.compose.material.icons.filled.Group
-import androidx.compose.material.icons.filled.Home
-import androidx.compose.material.icons.filled.Stars
+import androidx.compose.material.icons.filled.*
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.navigation.NavController
@@ -14,7 +10,7 @@ import androidx.navigation.NavGraphBuilder
 import androidx.navigation.compose.composable
 import me.rhunk.snapenhance.RemoteSideContext
 import me.rhunk.snapenhance.ui.manager.sections.NotImplemented
-import me.rhunk.snapenhance.ui.manager.sections.downloads.DownloadsSection
+import me.rhunk.snapenhance.ui.manager.sections.TasksSection
 import me.rhunk.snapenhance.ui.manager.sections.features.FeaturesSection
 import me.rhunk.snapenhance.ui.manager.sections.home.HomeSection
 import me.rhunk.snapenhance.ui.manager.sections.scripting.ScriptsSection
@@ -26,10 +22,10 @@ enum class EnumSection(
     val icon: ImageVector,
     val section: KClass<out Section> = NotImplemented::class
 ) {
-    DOWNLOADS(
-        route = "downloads",
-        icon = Icons.Filled.Download,
-        section = DownloadsSection::class
+    TASKS(
+        route = "tasks",
+        icon = Icons.Filled.TaskAlt,
+        section = TasksSection::class
     ),
     FEATURES(
         route = "features",

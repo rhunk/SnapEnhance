@@ -53,7 +53,7 @@ object RemoteMediaResolver {
         }
     }
     
-    fun downloadBoltMedia(protoKey: ByteArray, decryptionCallback: (InputStream) -> InputStream = { it }, resultCallback: (InputStream) -> Unit) {
+    fun downloadBoltMedia(protoKey: ByteArray, decryptionCallback: (InputStream) -> InputStream = { it }, resultCallback: (stream: InputStream, length: Long) -> Unit) {
         okHttpClient.newCall(newResolveRequest(protoKey)).execute().use { response ->
             if (!response.isSuccessful) {
                 throw Throwable("invalid response ${response.code}")
@@ -61,7 +61,8 @@ object RemoteMediaResolver {
             resultCallback(
                 decryptionCallback(
                     response.body.byteStream()
-                )
+                ),
+                response.body.contentLength()
             )
         }
     }

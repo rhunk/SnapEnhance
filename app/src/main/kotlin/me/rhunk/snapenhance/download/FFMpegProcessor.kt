@@ -3,6 +3,7 @@ package me.rhunk.snapenhance.download
 import com.arthenica.ffmpegkit.FFmpegKit
 import com.arthenica.ffmpegkit.FFmpegSession
 import com.arthenica.ffmpegkit.Level
+import com.arthenica.ffmpegkit.Statistics
 import kotlinx.coroutines.suspendCancellableCoroutine
 import me.rhunk.snapenhance.LogManager
 import me.rhunk.snapenhance.common.config.impl.DownloaderConfig
@@ -35,7 +36,8 @@ class ArgumentList : LinkedHashMap<String, MutableList<String>>() {
 
 class FFMpegProcessor(
     private val logManager: LogManager,
-    private val ffmpegOptions: DownloaderConfig.FFMpegOptions
+    private val ffmpegOptions: DownloaderConfig.FFMpegOptions,
+    private val onStatistics: (Statistics) -> Unit = {}
 ) {
     companion object {
         private const val TAG = "ffmpeg-processor"
@@ -88,7 +90,7 @@ class FFMpegProcessor(
                     Level.AV_LOG_VERBOSE -> LogLevel.VERBOSE
                     else -> return@logFunction
                 }, log.message)
-            }, { logManager.verbose(it.toString(), "ffmpeg-stats") }, Executors.newSingleThreadExecutor())
+            }, { onStatistics(it) }, Executors.newSingleThreadExecutor())
     }
 
     suspend fun execute(args: Request) {

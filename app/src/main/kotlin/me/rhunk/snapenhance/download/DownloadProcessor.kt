@@ -18,14 +18,24 @@ import me.rhunk.snapenhance.bridge.DownloadCallback
 import me.rhunk.snapenhance.common.Constants
 import me.rhunk.snapenhance.common.ReceiversConfig
 import me.rhunk.snapenhance.common.data.FileType
-import me.rhunk.snapenhance.common.data.download.*
+import me.rhunk.snapenhance.common.data.download.DownloadMediaType
+import me.rhunk.snapenhance.common.data.download.DownloadMetadata
+import me.rhunk.snapenhance.common.data.download.DownloadRequest
+import me.rhunk.snapenhance.common.data.download.InputMedia
+import me.rhunk.snapenhance.common.data.download.SplitMediaAssetType
 import me.rhunk.snapenhance.common.util.snap.MediaDownloaderHelper
 import me.rhunk.snapenhance.common.util.snap.RemoteMediaResolver
+import me.rhunk.snapenhance.task.PendingTask
+import me.rhunk.snapenhance.task.PendingTaskListener
+import me.rhunk.snapenhance.task.Task
+import me.rhunk.snapenhance.task.TaskStatus
+import me.rhunk.snapenhance.task.TaskType
 import java.io.File
 import java.io.InputStream
 import java.net.HttpURLConnection
 import java.net.URL
-import java.util.zip.ZipInputStream
+import java.util.UUID
+import java.util.concurrent.ConcurrentHashMap
 import javax.xml.parsers.DocumentBuilderFactory
 import javax.xml.transform.TransformerFactory
 import javax.xml.transform.dom.DOMSource
@@ -33,6 +43,7 @@ import javax.xml.transform.stream.StreamResult
 import kotlin.coroutines.coroutineContext
 import kotlin.io.encoding.Base64
 import kotlin.io.encoding.ExperimentalEncodingApi
+import kotlin.math.absoluteValue
 
 data class DownloadedFile(
     val file: File,
@@ -52,12 +63,6 @@ class DownloadProcessor (
         remoteSideContext.translation.getCategory("download_processor")
     }
 
-    private val ffmpegProcessor by lazy {
-        FFMpegProcessor(
-            remoteSideContext.log,
-            remoteSideContext.config.root.downloader.ffmpegOptions
-        )
-    }
     private val gson by lazy { GsonBuilder().setPrettyPrinting().create() }
 
     private fun fallbackToast(message: Any) {
@@ -84,26 +89,16 @@ class DownloadProcessor (
         fallbackToast(it)
     }
 
-    private fun extractZip(inputStream: InputStream): List<File> {
-        val files = mutableListOf<File>()
-        val zipInputStream = ZipInputStream(inputStream)
-        var entry = zipInputStream.nextEntry
-
-        while (entry != null) {
-            createMediaTempFile().also { file ->
-                file.outputStream().use { outputStream ->
-                    zipInputStream.copyTo(outputStream)
-                }
-                files += file
-            }
-            entry = zipInputStream.nextEntry
+    private fun newFFMpegProcessor(pendingTask: PendingTask) = FFMpegProcessor(
+        logManager = remoteSideContext.log,
+        ffmpegOptions = remoteSideContext.config.root.downloader.ffmpegOptions,
+        onStatistics = {
+            pendingTask.updateProgress("Processing (frames=${it.videoFrameNumber}, fps=${it.videoFps}, time=${it.time}, bitrate=${it.bitrate}, speed=${it.speed})")
         }
-
-        return files
-    }
+    )
 
     @SuppressLint("UnspecifiedRegisterReceiverFlag")
-    private suspend fun saveMediaToGallery(inputFile: File, downloadObject: DownloadObject) {
+    private suspend fun saveMediaToGallery(pendingTask: PendingTask, inputFile: File, metadata: DownloadMetadata) {
         if (coroutineContext.job.isCancelled) return
 
         runCatching {
@@ -111,6 +106,7 @@ class DownloadProcessor (
 
             if (fileType == FileType.UNKNOWN) {
                 callbackOnFailure(translation.format("failed_gallery_toast", "error" to "Unknown media type"), null)
+                pendingTask.fail("Unknown media type")
                 return
             }
 
@@ -124,6 +120,7 @@ class DownloadProcessor (
                         else -> throw Exception("Invalid image format")
                     }
 
+                    pendingTask.updateProgress("Converting image to $format")
                     val outputStream = inputFile.outputStream()
                     bitmap.compress(compressFormat, 100, outputStream)
                     outputStream.close()
@@ -132,12 +129,12 @@ class DownloadProcessor (
                 }
             }
 
-            val fileName = downloadObject.metadata.outputPath.substringAfterLast("/") + "." + fileType.fileExtension
+            val fileName = metadata.outputPath.substringAfterLast("/") + "." + fileType.fileExtension
 
             val outputFolder = DocumentFile.fromTreeUri(remoteSideContext.androidContext, Uri.parse(remoteSideContext.config.root.downloader.saveFolder.get()))
                 ?: throw Exception("Failed to open output folder")
 
-            val outputFileFolder = downloadObject.metadata.outputPath.let {
+            val outputFileFolder = metadata.outputPath.let {
                 if (it.contains("/")) {
                     it.substringBeforeLast("/").split("/").fold(outputFolder) { folder, name ->
                         folder.findFile(name) ?: folder.createDirectory(name)!!
@@ -150,12 +147,13 @@ class DownloadProcessor (
             val outputFile = outputFileFolder.createFile(fileType.mimeType, fileName)!!
             val outputStream = remoteSideContext.androidContext.contentResolver.openOutputStream(outputFile.uri)!!
 
+            pendingTask.updateProgress("Saving media to gallery")
             inputFile.inputStream().use { inputStream ->
                 inputStream.copyTo(outputStream)
             }
 
-            downloadObject.outputFile = outputFile.uri.toString()
-            downloadObject.downloadStage = DownloadStage.SAVED
+            pendingTask.task.extra = outputFile.uri.toString()
+            pendingTask.success()
 
             runCatching {
                 val mediaScanIntent = Intent("android.intent.action.MEDIA_SCANNER_SCAN_FILE")
@@ -171,7 +169,7 @@ class DownloadProcessor (
         }.onFailure { exception ->
             remoteSideContext.log.error("Failed to save media to gallery", exception)
             callbackOnFailure(translation.format("failed_gallery_toast", "error" to exception.toString()), exception.message)
-            downloadObject.downloadStage = DownloadStage.FAILED
+            pendingTask.fail("Failed to save media to gallery")
         }
     }
 
@@ -179,37 +177,64 @@ class DownloadProcessor (
         return File.createTempFile("media", ".tmp")
     }
 
-    private fun downloadInputMedias(downloadRequest: DownloadRequest) = runBlocking {
+    private fun downloadInputMedias(pendingTask: PendingTask, downloadRequest: DownloadRequest) = runBlocking {
         val jobs = mutableListOf<Job>()
         val downloadedMedias = mutableMapOf<InputMedia, File>()
+        val inputMediaProgress = ConcurrentHashMap<InputMedia, String>()
+
+        fun updateDownloadProgress() {
+            pendingTask.updateProgress(
+                inputMediaProgress.values.joinToString("\n"),
+                progress = (jobs.filter { it.isActive }.size.toDouble() / jobs.size.toDouble() * 100.0).toInt()
+            )
+        }
 
         downloadRequest.inputMedias.forEach { inputMedia ->
-            fun handleInputStream(inputStream: InputStream) {
+            fun setProgress(progress: String) {
+                inputMediaProgress[inputMedia] = progress
+                updateDownloadProgress()
+            }
+
+            fun handleInputStream(inputStream: InputStream, estimatedSize: Long = 0L) {
                 createMediaTempFile().apply {
-                    (inputMedia.encryption?.decryptInputStream(inputStream) ?: inputStream).copyTo(outputStream())
+                    val decryptedInputStream = (inputMedia.encryption?.decryptInputStream(inputStream) ?: inputStream).buffered()
+                    val outputStream = outputStream()
+                    val buffer = ByteArray(DEFAULT_BUFFER_SIZE)
+                    var read: Int
+                    var totalRead = 0L
+                    var lastTotalRead = 0L
+
+                    while (decryptedInputStream.read(buffer).also { read = it } != -1) {
+                        outputStream.write(buffer, 0, read)
+                        totalRead += read
+                        if (totalRead - lastTotalRead > 1024 * 1024) {
+                            setProgress("${totalRead / 1024}KB/${estimatedSize / 1024}KB")
+                            lastTotalRead = totalRead
+                        }
+                    }
                 }.also { downloadedMedias[inputMedia] = it }
             }
 
             launch {
                 when (inputMedia.type) {
                     DownloadMediaType.PROTO_MEDIA -> {
-                        RemoteMediaResolver.downloadBoltMedia(Base64.UrlSafe.decode(inputMedia.content), decryptionCallback = { it }, resultCallback = {
-                            handleInputStream(it)
+                        RemoteMediaResolver.downloadBoltMedia(Base64.UrlSafe.decode(inputMedia.content), decryptionCallback = { it }, resultCallback = { inputStream, length ->
+                            handleInputStream(inputStream, estimatedSize = length)
                         })
-                    }
-                    DownloadMediaType.DIRECT_MEDIA -> {
-                        val decoded = Base64.UrlSafe.decode(inputMedia.content)
-                        createMediaTempFile().apply {
-                            writeBytes(decoded)
-                        }.also { downloadedMedias[inputMedia] = it }
                     }
                     DownloadMediaType.REMOTE_MEDIA -> {
                         with(URL(inputMedia.content).openConnection() as HttpURLConnection) {
                             requestMethod = "GET"
                             setRequestProperty("User-Agent", Constants.USER_AGENT)
                             connect()
-                            handleInputStream(inputStream)
+                            handleInputStream(inputStream, estimatedSize = contentLength.toLong())
                         }
+                    }
+                    DownloadMediaType.DIRECT_MEDIA -> {
+                        val decoded = Base64.UrlSafe.decode(inputMedia.content)
+                        createMediaTempFile().apply {
+                            writeBytes(decoded)
+                        }.also { downloadedMedias[inputMedia] = it }
                     }
                     else -> {
                         downloadedMedias[inputMedia] = File(inputMedia.content)
@@ -222,7 +247,7 @@ class DownloadProcessor (
         downloadedMedias
     }
 
-    private suspend fun downloadRemoteMedia(downloadObjectObject: DownloadObject, downloadedMedias: Map<InputMedia, DownloadedFile>, downloadRequest: DownloadRequest) {
+    private suspend fun downloadRemoteMedia(pendingTask: PendingTask, metadata: DownloadMetadata, downloadedMedias: Map<InputMedia, DownloadedFile>, downloadRequest: DownloadRequest) {
         downloadRequest.inputMedias.first().let { inputMedia ->
             val mediaType = inputMedia.type
             val media = downloadedMedias[inputMedia]!!
@@ -231,19 +256,19 @@ class DownloadProcessor (
                 if (inputMedia.attachmentType == "NOTE") {
                     remoteSideContext.config.root.downloader.forceVoiceNoteFormat.getNullable()?.let { format ->
                         val outputFile = File.createTempFile("voice_note", ".$format")
-                        ffmpegProcessor.execute(FFMpegProcessor.Request(
+                        newFFMpegProcessor(pendingTask).execute(FFMpegProcessor.Request(
                             action = FFMpegProcessor.Action.AUDIO_CONVERSION,
                             input = media.file,
                             output = outputFile
                         ))
                         media.file.delete()
-                        saveMediaToGallery(outputFile, downloadObjectObject)
+                        saveMediaToGallery(pendingTask, outputFile, metadata)
                         outputFile.delete()
                         return
                     }
                 }
 
-                saveMediaToGallery(media.file, downloadObjectObject)
+                saveMediaToGallery(pendingTask, media.file, metadata)
                 media.file.delete()
                 return
             }
@@ -267,19 +292,19 @@ class DownloadProcessor (
             callbackOnProgress(translation.format("download_toast", "path" to dashPlaylistFile.nameWithoutExtension))
             val outputFile = File.createTempFile("dash", ".mp4")
             runCatching {
-                ffmpegProcessor.execute(FFMpegProcessor.Request(
+                newFFMpegProcessor(pendingTask).execute(FFMpegProcessor.Request(
                     action = FFMpegProcessor.Action.DOWNLOAD_DASH,
                     input = dashPlaylistFile,
                     output = outputFile,
                     startTime = dashOptions.offsetTime,
                     duration = dashOptions.duration
                 ))
-                saveMediaToGallery(outputFile, downloadObjectObject)
+                saveMediaToGallery(pendingTask, outputFile, metadata)
             }.onFailure { exception ->
                 if (coroutineContext.job.isCancelled) return@onFailure
                 remoteSideContext.log.error("Failed to download dash media", exception)
                 callbackOnFailure(translation.format("failed_processing_toast", "error" to exception.toString()), exception.message)
-                downloadObjectObject.downloadStage = DownloadStage.FAILED
+                pendingTask.fail("Failed to download dash media")
             }
 
             dashPlaylistFile.delete()
@@ -299,35 +324,35 @@ class DownloadProcessor (
             val downloadMetadata = gson.fromJson(intent.getStringExtra(ReceiversConfig.DOWNLOAD_METADATA_EXTRA)!!, DownloadMetadata::class.java)
             val downloadRequest = gson.fromJson(intent.getStringExtra(ReceiversConfig.DOWNLOAD_REQUEST_EXTRA)!!, DownloadRequest::class.java)
 
-            remoteSideContext.downloadTaskManager.canDownloadMedia(downloadMetadata.mediaIdentifier)?.let { downloadStage ->
-                translation[if (downloadStage.isFinalStage) {
-                    "already_downloaded_toast"
+            remoteSideContext.taskManager.getTaskByHash(downloadMetadata.mediaIdentifier)?.let { task ->
+                remoteSideContext.log.debug("already queued or downloaded")
+
+                if (task.status.isFinalStage()) {
+                    callbackOnFailure(translation["already_downloaded_toast"], null)
                 } else {
-                    "already_queued_toast"
-                }].let {
-                    callbackOnFailure(it, null)
+                    callbackOnFailure(translation["already_queued_toast"], null)
                 }
                 return@launch
             }
 
-            val downloadObjectObject = DownloadObject(
-                metadata = downloadMetadata
+            remoteSideContext.log.debug("downloading media")
+            val pendingTask = remoteSideContext.taskManager.createPendingTask(
+                Task(
+                    type = TaskType.DOWNLOAD,
+                    title = downloadMetadata.downloadSource + " (" + downloadMetadata.mediaAuthor + ")",
+                    hash = (downloadMetadata.mediaIdentifier ?: UUID.randomUUID().toString()).hashCode().absoluteValue.toString(16)
+                )
             ).apply {
-                updateTaskCallback = {
-                    remoteSideContext.downloadTaskManager.updateTask(it)
-                }
-            }
-
-            downloadObjectObject.also {
-                remoteSideContext.downloadTaskManager.addTask(it)
-            }.apply {
-                job = coroutineContext.job
-                downloadStage = DownloadStage.DOWNLOADING
+                status = TaskStatus.RUNNING
+                addListener(PendingTaskListener(onCancel = {
+                    coroutineContext.job.cancel()
+                }))
+                updateProgress("Downloading...")
             }
 
             runCatching {
                 //first download all input medias into cache
-                val downloadedMedias = downloadInputMedias(downloadRequest).map {
+                val downloadedMedias = downloadInputMedias(pendingTask, downloadRequest).map {
                     it.key to DownloadedFile(it.value, FileType.fromFile(it.value))
                 }.toMap().toMutableMap()
                 remoteSideContext.log.verbose("downloaded ${downloadedMedias.size} medias")
@@ -369,21 +394,20 @@ class DownloadProcessor (
                     val mergedOverlay: File = File.createTempFile("merged", ".mp4")
                     runCatching {
                         callbackOnProgress(translation.format("processing_toast", "path" to media.file.nameWithoutExtension))
-                        downloadObjectObject.downloadStage = DownloadStage.MERGING
 
-                        ffmpegProcessor.execute(FFMpegProcessor.Request(
+                        newFFMpegProcessor(pendingTask).execute(FFMpegProcessor.Request(
                             action = FFMpegProcessor.Action.MERGE_OVERLAY,
                             input = renamedMedia,
                             output = mergedOverlay,
                             overlay = renamedOverlayMedia
                         ))
 
-                        saveMediaToGallery(mergedOverlay, downloadObjectObject)
+                        saveMediaToGallery(pendingTask, mergedOverlay, downloadMetadata)
                     }.onFailure { exception ->
                         if (coroutineContext.job.isCancelled) return@onFailure
                         remoteSideContext.log.error("Failed to merge overlay", exception)
                         callbackOnFailure(translation.format("failed_processing_toast", "error" to exception.toString()), exception.message)
-                        downloadObjectObject.downloadStage = DownloadStage.MERGE_FAILED
+                        pendingTask.fail("Failed to merge overlay")
                     }
 
                     mergedOverlay.delete()
@@ -392,9 +416,9 @@ class DownloadProcessor (
                     return@launch
                 }
 
-                downloadRemoteMedia(downloadObjectObject, downloadedMedias, downloadRequest)
+                downloadRemoteMedia(pendingTask, downloadMetadata, downloadedMedias, downloadRequest)
             }.onFailure { exception ->
-                downloadObjectObject.downloadStage = DownloadStage.FAILED
+                pendingTask.fail("Failed to download media")
                 remoteSideContext.log.error("Failed to download media", exception)
                 callbackOnFailure(translation["failed_generic_toast"], exception.message)
             }

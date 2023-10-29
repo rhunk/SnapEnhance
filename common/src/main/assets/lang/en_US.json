@@ -23,7 +23,7 @@
 
     "manager": {
         "routes": {
-            "downloads": "Downloads",
+            "tasks": "Tasks",
             "features": "Features",
             "home": "Home",
             "home_settings": "Settings",
