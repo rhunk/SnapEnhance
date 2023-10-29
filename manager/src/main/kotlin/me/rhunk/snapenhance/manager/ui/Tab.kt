@@ -1,6 +1,7 @@
 package me.rhunk.snapenhance.manager.ui
 
 import android.os.Bundle
+import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.graphics.vector.ImageVector
@@ -46,4 +47,10 @@ open class Tab(
 
     @Composable
     open fun Content() {}
+
+    fun toast(message: String) {
+        activity.runOnUiThread {
+            Toast.makeText(activity, message, Toast.LENGTH_SHORT).show()
+        }
+    }
 }

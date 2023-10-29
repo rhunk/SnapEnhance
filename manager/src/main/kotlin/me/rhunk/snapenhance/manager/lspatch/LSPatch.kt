@@ -52,6 +52,44 @@ class LSPatch(
         }.toByteArray()
     }
 
+    private fun provideSigningExtension(): SigningExtension {
+        val keyStore = KeyStore.getInstance(KeyStore.getDefaultType())
+        keyStore.load(context.assets.open("lspatch/keystore.jks"), "android".toCharArray())
+        val key = keyStore.getEntry("androiddebugkey", KeyStore.PasswordProtection("android".toCharArray())) as KeyStore.PrivateKeyEntry
+        val certificates = key.certificateChain.mapNotNull { it as? X509Certificate }.toTypedArray()
+
+        return SigningExtension(
+            SigningOptions.builder().apply {
+                setMinSdkVersion(28)
+                setV2SigningEnabled(true)
+                setCertificates(*certificates)
+                setKey(key.privateKey)
+            }.build()
+        )
+    }
+
+    private fun resignApk(inputApkFile: File, outputFile: File) {
+        printLog("Resigning ${inputApkFile.absolutePath} to ${outputFile.absolutePath}")
+        val dstZFile = ZFile.openReadWrite(outputFile, Z_FILE_OPTIONS)
+        val inZFile = ZFile.openReadOnly(inputApkFile)
+
+        inZFile.entries().forEach { entry ->
+            dstZFile.add(entry.centralDirectoryHeader.name, entry.open())
+        }
+
+        // sign apk
+        runCatching {
+            provideSigningExtension().register(dstZFile)
+        }.onFailure {
+            throw Exception("Failed to sign apk", it)
+        }
+
+        dstZFile.realign()
+        dstZFile.close()
+        inZFile.close()
+        printLog("Done")
+    }
+
     @Suppress("UNCHECKED_CAST")
     @OptIn(ExperimentalEncodingApi::class)
     private fun patchApk(inputApkFile: File, outputFile: File) {
@@ -70,19 +108,7 @@ class LSPatch(
 
         // sign apk
         runCatching {
-            val keyStore = KeyStore.getInstance(KeyStore.getDefaultType())
-            keyStore.load(context.assets.open("lspatch/keystore.jks"), "android".toCharArray())
-            val key = keyStore.getEntry("androiddebugkey", KeyStore.PasswordProtection("android".toCharArray())) as KeyStore.PrivateKeyEntry
-            SigningExtension(
-                SigningOptions.builder().apply {
-                    setMinSdkVersion(28)
-                    setV2SigningEnabled(true)
-                    setCertificates(*(key.certificateChain as Array<X509Certificate>))
-                    setKey(key.privateKey)
-                }.build()
-            ).apply {
-                register(dstZFile)
-            }
+            provideSigningExtension().register(dstZFile)
         }.onFailure {
             throw Exception("Failed to sign apk", it)
         }
@@ -98,7 +124,6 @@ class LSPatch(
         //add config
         printLog("Adding config")
         dstZFile.add("assets/lspatch/config.json", ByteArrayInputStream(patchConfig.toByteArray()))
-
 
         // add loader dex
         printLog("Adding dex files")
@@ -116,7 +141,6 @@ class LSPatch(
         modules.forEach { (packageName, module) ->
             dstZFile.add("assets/lspatch/modules/$packageName.apk", module.inputStream())
         }
-
 
         // link apk entries
         printLog("Linking apk entries")
@@ -138,7 +162,22 @@ class LSPatch(
         printLog("Done")
     }
 
-    fun patch(input: File, outputFile: File) {
+    fun patchSplits(inputs: List<File>): List<File> {
+        val outputs = mutableListOf<File>()
+        inputs.forEach { input ->
+            val outputFile = File.createTempFile("patched", ".apk", context.cacheDir)
+            if (input.name.contains("split")) {
+                resignApk(input, outputFile)
+                outputs.add(outputFile)
+                return@forEach
+            }
+            patch(input, outputFile)
+            outputs.add(outputFile)
+        }
+        return outputs
+    }
+
+    private fun patch(input: File, outputFile: File) {
         //check if input apk is already patched
         var isAlreadyPatched = false
         var inputFile = input

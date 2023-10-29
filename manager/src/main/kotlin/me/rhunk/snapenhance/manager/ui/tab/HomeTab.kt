@@ -29,11 +29,13 @@ import me.rhunk.snapenhance.manager.BuildConfig
 import me.rhunk.snapenhance.manager.lspatch.config.Constants
 import me.rhunk.snapenhance.manager.ui.Tab
 import me.rhunk.snapenhance.manager.ui.tab.download.SEDownloadTab
+import me.rhunk.snapenhance.manager.ui.tab.download.SnapchatPatchTab
 
 class HomeTab : Tab("home", true, icon = Icons.Default.Home) {
     override fun init(activity: ComponentActivity) {
         super.init(activity)
         registerNestedTab(SEDownloadTab::class)
+        registerNestedTab(SnapchatPatchTab::class)
     }
 
     @Composable
@@ -73,7 +75,7 @@ class HomeTab : Tab("home", true, icon = Icons.Default.Home) {
                                 Text(text = "Patched", fontSize = 16.sp, color = MaterialTheme.colorScheme.onSurface)
                             }
                             OutlinedButton(onClick = {
-
+                                navigation.navigateTo(SnapchatPatchTab::class)
                             }) {
                                 Text(text = if (isLSPatched) "Repatch" else "Patch")
                             }

@@ -8,10 +8,7 @@ import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.wrapContentWidth
-import androidx.compose.material3.Icon
-import androidx.compose.material3.NavigationBar
-import androidx.compose.material3.NavigationBarItem
-import androidx.compose.material3.Text
+import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
@@ -31,15 +28,26 @@ class Navigation(
     private val tabs: List<Tab>,
     private val defaultTab: KClass<out Tab>
 ) {
-
+    @OptIn(ExperimentalMaterial3Api::class)
     @Composable
     fun TopBar() {
-
+        val navBackStackEntry by navHostController.currentBackStackEntryAsState()
+        val currentTab = tabs.firstOrNull { it.route == navBackStackEntry?.destination?.route }
+        TopAppBar(title = {
+            Text(text = currentTab?.route ?: "")
+        }, navigationIcon =  {
+            currentTab?.icon?.let {
+                Icon(imageVector = it, contentDescription = null)
+            }
+        }, actions = {
+            currentTab?.TopBar()
+        })
     }
 
     @Composable
     fun FloatingActionButtons() {
-
+        val navBackStackEntry by navHostController.currentBackStackEntryAsState()
+        tabs.firstOrNull { it.route == navBackStackEntry?.destination?.route }?.FloatingActionButtons()
     }
 
     fun navigateTo(tab: KClass<out Tab>) {

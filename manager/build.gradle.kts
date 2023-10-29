@@ -75,6 +75,7 @@ dependencies {
     implementation(libs.guava)
     implementation(libs.apksig)
     implementation(libs.gson)
+    implementation(libs.jsoup)
     implementation(libs.okhttp)
     implementation(libs.androidx.material3)
     implementation(libs.androidx.activity.ktx)

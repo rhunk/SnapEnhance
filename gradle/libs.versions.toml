@@ -2,6 +2,7 @@
 agp = "8.1.2"
 apksig = "8.0.2"
 guava = "32.1.3-jre"
+jsoup = "1.16.2"
 kotlin = "1.9.0"
 kotlinx-coroutines-android = "1.7.3"
 
@@ -44,6 +45,7 @@ dexlib2 = { group = "org.smali", name = "dexlib2", version.ref = "dexlib2" }
 ffmpeg-kit = { group = "com.arthenica", name = "ffmpeg-kit-full-gpl", version.ref = "ffmpeg-kit" }
 gson = { group = "com.google.code.gson", name = "gson", version.ref = "gson" }
 guava = { module = "com.google.guava:guava", version.ref = "guava" }
+jsoup = { module = "org.jsoup:jsoup", version.ref = "jsoup" }
 junit = { module = "junit:junit", version.ref = "junit" }
 okhttp = { group = "com.squareup.okhttp3", name = "okhttp", version.ref = "okhttp" }
 osmdroid-android = { group = "org.osmdroid", name = "osmdroid-android", version.ref = "osmdroid-android" }
