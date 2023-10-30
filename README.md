@@ -16,7 +16,7 @@ We no longer offer official LSPatch binaries for obvious reasons. However, you'r
 ## Quick Start
 Requirements:
 - Rooted using Magisk or KernelSU
-- LSPosed is installed and fully functional
+- LSPosed installed and fully functional
 
 Although using this in an unrooted environment using something like LSPatch should be working fine, it is not recommended to do so, use at your own risk!
 
@@ -101,3 +101,5 @@ When redistributing the software, it must remain under the same [GPLv3](https://
 - [iBasim](https://github.com/ibasim)
 - [xerta555](https://github.com/xerta555)
 - [TheVisual](https://github.com/TheVisual)
+- [mishrasamiksha](https://github.com/mishrasamiksha)
+- [Shivam250702](https://github.com/Shivam250702)
