@@ -1,4 +1,4 @@
-package me.rhunk.snapenhance.manager.ui
+package me.rhunk.snapenhance.manager.ui.tab
 
 import android.os.Bundle
 import android.widget.Toast
@@ -8,6 +8,7 @@ import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.navigation.NavGraphBuilder
 import androidx.navigation.compose.composable
 import me.rhunk.snapenhance.manager.data.SharedConfig
+import me.rhunk.snapenhance.manager.ui.Navigation
 import kotlin.reflect.KClass
 
 open class Tab(

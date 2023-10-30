@@ -18,4 +18,7 @@ class SharedConfig(
 
     var snapEnhancePackageName get() = sharedPreferences.getString("snapEnhancePackageName", "me.rhunk.snapenhance")?.takeIf { it.isNotEmpty() } ?: "me.rhunk.snapenhance"
         set(value) = sharedPreferences.edit().putString("snapEnhancePackageName", value).apply()
+
+    var useRootInstaller get() = sharedPreferences.getBoolean("useRootInstaller", false)
+        set(value) = sharedPreferences.edit().putBoolean("useRootInstaller", value).apply()
 }

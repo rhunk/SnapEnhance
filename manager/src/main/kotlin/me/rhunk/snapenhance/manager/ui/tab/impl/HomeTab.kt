@@ -1,4 +1,4 @@
-package me.rhunk.snapenhance.manager.ui.tab
+package me.rhunk.snapenhance.manager.ui.tab.impl
 
 import android.content.pm.ApplicationInfo.FLAG_DEBUGGABLE
 import android.content.pm.PackageInfo
@@ -11,6 +11,8 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.OpenInNew
+import androidx.compose.material.icons.filled.Check
+import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.Home
 import androidx.compose.material3.Card
 import androidx.compose.material3.Icon
@@ -26,9 +28,9 @@ import androidx.compose.ui.unit.sp
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import me.rhunk.snapenhance.manager.lspatch.config.Constants
-import me.rhunk.snapenhance.manager.ui.Tab
-import me.rhunk.snapenhance.manager.ui.tab.download.SEDownloadTab
-import me.rhunk.snapenhance.manager.ui.tab.download.SnapchatPatchTab
+import me.rhunk.snapenhance.manager.ui.tab.Tab
+import me.rhunk.snapenhance.manager.ui.tab.impl.download.SEDownloadTab
+import me.rhunk.snapenhance.manager.ui.tab.impl.download.SnapchatPatchTab
 
 class HomeTab : Tab("home", true, icon = Icons.Default.Home) {
     override fun init(activity: ComponentActivity) {
@@ -106,19 +108,22 @@ class HomeTab : Tab("home", true, icon = Icons.Default.Home) {
                     Row(
                         modifier = Modifier
                             .weight(1f),
-                        horizontalArrangement = Arrangement.spacedBy(5.dp, Alignment.End),
+                        horizontalArrangement = Arrangement.spacedBy(10.dp, Alignment.End),
                         verticalAlignment = Alignment.CenterVertically
                     ) {
                         snapchatAppInfo?.let { appInfo ->
                             val isLSPatched = appInfo.applicationInfo.appComponentFactory == Constants.PROXY_APP_COMPONENT_FACTORY
                             if (isLSPatched) {
-                                Text(text = "Patched", fontSize = 16.sp, color = MaterialTheme.colorScheme.onSurface)
+                                Icon(imageVector = Icons.Default.Check, contentDescription = null)
+                                Text(text = "Patched", fontSize = 16.sp)
+                            } else {
+                                Icon(imageVector = Icons.Default.Close, contentDescription = null)
+                                Text(text = "Not patched", fontSize = 16.sp, color = MaterialTheme.colorScheme.onSurface)
                             }
                         } ?: run {
                             Text(text = "Not installed", fontSize = 16.sp, color = MaterialTheme.colorScheme.onSurface)
                         }
 
-                        Icon(imageVector = Icons.AutoMirrored.Default.OpenInNew, contentDescription = null, Modifier.padding(10.dp))
                     }
                 }
 

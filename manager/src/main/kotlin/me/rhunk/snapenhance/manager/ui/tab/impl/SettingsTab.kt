@@ -1,4 +1,4 @@
-package me.rhunk.snapenhance.manager.ui.tab
+package me.rhunk.snapenhance.manager.ui.tab.impl
 
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
@@ -21,7 +21,7 @@ import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
-import me.rhunk.snapenhance.manager.ui.Tab
+import me.rhunk.snapenhance.manager.ui.tab.Tab
 
 class SettingsTab : Tab("settings", isPrimary = true, icon = Icons.Default.Settings) {
     @Composable
@@ -98,6 +98,34 @@ class SettingsTab : Tab("settings", isPrimary = true, icon = Icons.Default.Setti
         }
     }
 
+
+    @Composable
+    private fun ConfigBooleanRow(getValue: () -> Boolean, setValue: (Boolean) -> Unit, label: String) {
+        var value by remember { mutableStateOf(getValue()) }
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .clickable {
+                    value = !value
+                    setValue(value)
+                },
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Column(
+                modifier = Modifier
+                    .weight(1f)
+                    .padding(16.dp),
+                verticalArrangement = Arrangement.spacedBy(4.dp)
+            ) {
+                Text(text = label, fontSize = 16.sp)
+            }
+            Checkbox(checked = value, onCheckedChange = {
+                value = it
+                setValue(it)
+            }, modifier = Modifier.padding(5.dp))
+        }
+    }
+
     @Composable
     override fun Content() {
         Column {
@@ -105,12 +133,17 @@ class SettingsTab : Tab("settings", isPrimary = true, icon = Icons.Default.Setti
             ConfigEditRow(
                 getValue = { sharedConfig.snapchatPackageName },
                 setValue = { sharedConfig.snapchatPackageName = it },
-                label = "Snapchat package name"
+                label = "Override Snapchat package name"
             )
             ConfigEditRow(
                 getValue = { sharedConfig.snapEnhancePackageName },
                 setValue = { sharedConfig.snapEnhancePackageName = it },
-                label = "SnapEnhance package name"
+                label = "Override SnapEnhance package name"
+            )
+            ConfigBooleanRow(
+                getValue = { sharedConfig.useRootInstaller },
+                setValue = { sharedConfig.useRootInstaller = it },
+                label = "Use root installer"
             )
         }
     }

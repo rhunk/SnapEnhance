@@ -72,6 +72,7 @@ configurations {
 
 dependencies {
     implementation(fileTree(mapOf("dir" to "libs", "include" to listOf("*.jar"))))
+    implementation(libs.libsu)
     implementation(libs.guava)
     implementation(libs.apksig)
     implementation(libs.gson)

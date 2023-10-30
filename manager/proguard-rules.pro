@@ -1,3 +1,3 @@
 -dontwarn com.google.errorprone.annotations.**
 -dontwarn com.google.auto.value.**
--keep enum me.rhunk.snapenhance.manager.** { *; }
+-keep class me.rhunk.snapenhance.manager.ui.tab.** { *; }

@@ -1,4 +1,4 @@
-package me.rhunk.snapenhance.manager.ui.tab.download
+package me.rhunk.snapenhance.manager.ui.tab.impl.download
 
 import android.os.Bundle
 import androidx.activity.ComponentActivity
@@ -26,8 +26,8 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import me.rhunk.snapenhance.manager.data.download.SEArtifact
 import me.rhunk.snapenhance.manager.data.download.SEVersion
-import me.rhunk.snapenhance.manager.ui.Tab
 import me.rhunk.snapenhance.manager.ui.components.DowngradeNoticeDialog
+import me.rhunk.snapenhance.manager.ui.tab.Tab
 import okhttp3.OkHttpClient
 import okhttp3.Request
 import java.text.SimpleDateFormat

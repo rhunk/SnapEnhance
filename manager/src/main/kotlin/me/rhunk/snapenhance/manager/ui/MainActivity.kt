@@ -9,10 +9,13 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.remember
 import androidx.compose.ui.platform.LocalContext
 import androidx.navigation.compose.rememberNavController
+import com.topjohnwu.superuser.Shell
+import me.rhunk.snapenhance.manager.BuildConfig
 import me.rhunk.snapenhance.manager.data.SharedConfig
-import me.rhunk.snapenhance.manager.ui.tab.HomeTab
-import me.rhunk.snapenhance.manager.ui.tab.SettingsTab
-import me.rhunk.snapenhance.manager.ui.tab.download.InstallPackageTab
+import me.rhunk.snapenhance.manager.ui.tab.Tab
+import me.rhunk.snapenhance.manager.ui.tab.impl.HomeTab
+import me.rhunk.snapenhance.manager.ui.tab.impl.SettingsTab
+import me.rhunk.snapenhance.manager.ui.tab.impl.download.InstallPackageTab
 
 class MainActivity : ComponentActivity() {
     companion object{
@@ -22,6 +25,11 @@ class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
+        Shell.enableVerboseLogging = BuildConfig.DEBUG;
+        Shell.setDefaultBuilder(Shell.Builder.create()
+            .setFlags(Shell.FLAG_REDIRECT_STDERR)
+            .setTimeout(10)
+        );
         val tabs = primaryTabs.mapNotNull {
             runCatching { it.java.constructors.first().newInstance() as Tab }.getOrNull()
         }.toMutableList().apply {

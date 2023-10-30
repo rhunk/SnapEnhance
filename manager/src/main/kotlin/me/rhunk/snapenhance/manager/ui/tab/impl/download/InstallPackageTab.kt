@@ -1,4 +1,4 @@
-package me.rhunk.snapenhance.manager.ui.tab.download
+package me.rhunk.snapenhance.manager.ui.tab.impl.download
 
 import android.content.Intent
 import android.net.Uri
@@ -18,11 +18,12 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.core.content.FileProvider
 import androidx.core.net.toUri
+import com.topjohnwu.superuser.Shell
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import me.rhunk.snapenhance.manager.data.download.InstallStage
-import me.rhunk.snapenhance.manager.ui.Tab
-import me.rhunk.snapenhance.manager.ui.tab.HomeTab
+import me.rhunk.snapenhance.manager.ui.tab.Tab
+import me.rhunk.snapenhance.manager.ui.tab.impl.HomeTab
 import okhttp3.OkHttpClient
 import okhttp3.Request
 import java.io.File
@@ -31,16 +32,18 @@ import java.io.File
 class InstallPackageTab : Tab("install_app") {
     private lateinit var installPackageIntentLauncher: ActivityResultLauncher<Intent>
     private lateinit var uninstallPackageIntentLauncher: ActivityResultLauncher<Intent>
-    private var uninstallPackageCallback: ((resultCode: Int, data: Intent?) -> Unit)? = null
-    private var installPackageCallback: ((resultCode: Int, data: Intent?) -> Unit)? = null
+    private var uninstallPackageCallback: ((resultCode: Int) -> Unit)? = null
+    private var installPackageCallback: ((resultCode: Int) -> Unit)? = null
+
+    private val hasRoot get() = sharedConfig.useRootInstaller
 
     override fun init(activity: ComponentActivity) {
         super.init(activity)
         installPackageIntentLauncher = activity.registerForActivityResult(ActivityResultContracts.StartActivityForResult()) {
-            installPackageCallback?.invoke(it.resultCode, it.data)
+            installPackageCallback?.invoke(it.resultCode)
         }
         uninstallPackageIntentLauncher = activity.registerForActivityResult(ActivityResultContracts.StartActivityForResult()) {
-            uninstallPackageCallback?.invoke(it.resultCode, it.data)
+            uninstallPackageCallback?.invoke(it.resultCode)
         }
     }
 
@@ -135,9 +138,36 @@ class InstallPackageTab : Tab("install_app") {
             }
         }
 
+        fun uninstallPackageRoot(): Boolean {
+            val result = Shell.su("pm uninstall $appPackage").exec()
+            if (result.isSuccess) {
+                return true
+            }
+            toast("Root uninstall failed: ${result.out}")
+            return false
+        }
+
+        fun installPackageRoot(): Boolean {
+            val result = Shell.su(
+                "cp \"${downloadedFile!!.absolutePath}\" /data/local/tmp/",
+                "pm install -r \"/data/local/tmp/${downloadedFile!!.name}\"",
+                "rm /data/local/tmp/${downloadedFile!!.name}"
+            ).exec()
+            if (result.isSuccess) {
+                installStage = InstallStage.DONE
+                return true
+            }
+            toast("Root install failed: ${result.out}")
+            return false
+        }
+
         fun installPackage() {
             installStage = InstallStage.INSTALLING
-            installPackageCallback = resultCallbacks@{ code, _ ->
+            if (hasRoot && installPackageRoot()) {
+                downloadedFile?.delete()
+                return
+            }
+            installPackageCallback = resultCallbacks@{ code ->
                 installStage = if (code != ComponentActivity.RESULT_OK) {
                     InstallStage.ERROR
                 } else {
@@ -163,11 +193,15 @@ class InstallPackageTab : Tab("install_app") {
                     }
                     if (shouldUninstall) {
                         installStage = InstallStage.UNINSTALLING
+                        if (hasRoot && uninstallPackageRoot()) {
+                            installPackage()
+                            return@launch
+                        }
                         val intent = Intent(Intent.ACTION_UNINSTALL_PACKAGE).apply {
                             data = "package:$appPackage".toUri()
                             putExtra(Intent.EXTRA_RETURN_RESULT, true)
                         }
-                        uninstallPackageCallback = resultCallback@{ resultCode, _ ->
+                        uninstallPackageCallback = resultCallback@{ resultCode ->
                             if (resultCode != ComponentActivity.RESULT_OK) {
                                 installStage = InstallStage.ERROR
                                 downloadedFile?.delete()

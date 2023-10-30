@@ -1,10 +1,12 @@
-package me.rhunk.snapenhance.manager.ui.tab.download
+package me.rhunk.snapenhance.manager.ui.tab.impl.download
 
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.DeleteForever
@@ -21,8 +23,11 @@ import kotlinx.coroutines.withContext
 import me.rhunk.snapenhance.manager.R
 import me.rhunk.snapenhance.manager.data.APKMirror
 import me.rhunk.snapenhance.manager.data.DownloadItem
-import me.rhunk.snapenhance.manager.ui.Tab
+import me.rhunk.snapenhance.manager.lspatch.config.Constants
 import me.rhunk.snapenhance.manager.ui.components.ConfirmationDialog
+import me.rhunk.snapenhance.manager.ui.tab.Tab
+import java.io.File
+import java.util.zip.ZipFile
 
 @OptIn(ExperimentalMaterial3Api::class)
 class SnapchatPatchTab : Tab("snapchat_download") {
@@ -145,9 +150,70 @@ class SnapchatPatchTab : Tab("snapchat_download") {
     @Composable
     override fun Content() {
         var showSelectSnapchatVersionDialog by remember { mutableStateOf(false) }
+        var showRestoreMenuDialog by remember { mutableStateOf(false) }
+
         var selectedSnapchatVersion by remember { mutableStateOf(null as DownloadItem?) }
         val installedSnapEnhanceVersion = remember { runCatching { activity.packageManager.getPackageInfo(
             sharedConfig.snapEnhancePackageName, 0) }.getOrNull() }
+
+        val installedSnapchatPackage = remember { runCatching { activity.packageManager.getPackageInfo(
+            sharedConfig.snapchatPackageName, 0) }.getOrNull() }
+        val isInstalledSnapchatPatched = remember { installedSnapchatPackage?.applicationInfo?.appComponentFactory == Constants.PROXY_APP_COMPONENT_FACTORY }
+        val isSnapchatNotSplitConfig = remember {
+            installedSnapchatPackage?.applicationInfo?.let { it.splitSourceDirs == null || it.splitSourceDirs?.isEmpty() == true } ?: false
+        }
+
+        if (showRestoreMenuDialog) {
+            fun triggerSnapchatInstallation(shouldUninstall: Boolean) {
+                val apkFile = File(installedSnapchatPackage?.applicationInfo?.sourceDir ?: return).also {
+                    if (!it.exists()) return
+                }
+                toast("Extracting origin apk")
+                val originApk = File.createTempFile("origin", ".apk", activity.externalCacheDirs.first()).also {
+                    it.deleteOnExit()
+                }
+                ZipFile(apkFile).let { zipFile ->
+                    zipFile.getEntry("assets/lspatch/origin.apk")?.apply {
+                        originApk.outputStream().use { output ->
+                            zipFile.getInputStream(this).copyTo(output)
+                        }
+                    } ?: run {
+                        toast("Failed to extract origin apk")
+                        return
+                    }
+                }
+
+                showRestoreMenuDialog = false
+
+                navigation.navigateTo(InstallPackageTab::class, args = Bundle().apply {
+                    putString("downloadPath", originApk.absolutePath)
+                    putString("appPackage", sharedConfig.snapchatPackageName)
+                    putBoolean("uninstall", shouldUninstall)
+                }, noHistory = true)
+            }
+
+            AlertDialog(onDismissRequest = { showRestoreMenuDialog = false }) {
+                Card {
+                    Column(
+                        modifier = Modifier.padding(16.dp).fillMaxWidth(),
+                        horizontalAlignment = Alignment.CenterHorizontally,
+                        verticalArrangement = Arrangement.spacedBy(10.dp)
+                    ) {
+                        Button(onClick = {
+                            triggerSnapchatInstallation(true)
+                        }) {
+                            Text("Uninstall & Install")
+                        }
+                        Button(onClick = {
+                            triggerSnapchatInstallation(false)
+                        }) {
+                            Text("Update")
+                        }
+                    }
+                }
+            }
+        }
+
 
         if (showSelectSnapchatVersionDialog) {
             AlertDialog(onDismissRequest = { showSelectSnapchatVersionDialog = false }) {
@@ -159,11 +225,11 @@ class SnapchatPatchTab : Tab("snapchat_download") {
         }
 
         Column(
-            modifier = Modifier.fillMaxSize(),
+            modifier = Modifier.fillMaxSize().verticalScroll(rememberScrollState()),
             horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.spacedBy(10.dp)
+            verticalArrangement = Arrangement.spacedBy(5.dp)
         ) {
-            Text("Select a version to download and patch")
+            Text("Patch Snapchat")
 
             ElevatedCard(
                 modifier = Modifier.padding(10.dp),
@@ -203,6 +269,7 @@ class SnapchatPatchTab : Tab("snapchat_download") {
 
             Column(
                 modifier = Modifier.padding(top = 10.dp, bottom = 10.dp, start = 20.dp, end = 20.dp),
+                horizontalAlignment = Alignment.CenterHorizontally,
                 verticalArrangement = Arrangement.spacedBy(5.dp)
             ) {
                 Button(
@@ -218,16 +285,42 @@ class SnapchatPatchTab : Tab("snapchat_download") {
                     Text("Download & Patch")
                 }
 
-                Button(
-                    modifier = Modifier.fillMaxWidth(),
-                    enabled = selectedSnapchatVersion != null,
-                    onClick = {
-                        navigation.navigateTo(LSPatchTab::class, args = Bundle().apply {
-                            putParcelable("downloadItem", selectedSnapchatVersion)
-                        }, noHistory = true)
+                if (isSnapchatNotSplitConfig) {
+                    Button(
+                        modifier = Modifier.fillMaxWidth(),
+                        onClick = {
+                            navigation.navigateTo(LSPatchTab::class, args = Bundle().apply {
+                                putString("localItemFile", installedSnapchatPackage?.applicationInfo?.sourceDir ?: return@apply)
+                                putString("modulePath", installedSnapEnhanceVersion?.applicationInfo?.sourceDir ?: return@apply)
+                            }, noHistory = true)
+                        }
+                    ) {
+                        Text("Patch from existing installation")
                     }
-                ) {
-                    Text("Install/Restore Original Snapchat")
+                }
+
+                if (isInstalledSnapchatPatched) {
+                    Text("Restore Snapchat", modifier = Modifier.padding(20.dp))
+                    Button(
+                        modifier = Modifier.fillMaxWidth(),
+                        enabled = selectedSnapchatVersion != null,
+                        onClick = {
+                            navigation.navigateTo(LSPatchTab::class, args = Bundle().apply {
+                                putParcelable("downloadItem", selectedSnapchatVersion)
+                            }, noHistory = true)
+                        }
+                    ) {
+                        Text("Install/Restore Original Snapchat")
+                    }
+
+                    if (isSnapchatNotSplitConfig) {
+                        Button(
+                            modifier = Modifier.fillMaxWidth(),
+                            onClick = { showRestoreMenuDialog = true }
+                        ) {
+                            Text("Restore Snapchat from existing installation")
+                        }
+                    }
                 }
             }
         }

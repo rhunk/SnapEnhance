@@ -1,6 +1,7 @@
 [versions]
 agp = "8.1.2"
 apksig = "8.0.2"
+libsu = "5.2.1"
 guava = "32.1.3-jre"
 jsoup = "1.16.2"
 kotlin = "1.9.0"
@@ -40,6 +41,7 @@ apksig = { module = "com.android.tools.build:apksig", version.ref = "apksig" }
 bcprov-jdk18on = { module = "org.bouncycastle:bcprov-jdk18on", version.ref = "bcprov-jdk18on" }
 coil-compose = { module = "io.coil-kt:coil-compose", version.ref = "coil-compose" }
 coil-video = { module = "io.coil-kt:coil-video", version.ref = "coil-compose" }
+libsu = { module = "com.github.topjohnwu.libsu:core", version.ref = "libsu" }
 coroutines = { group = "org.jetbrains.kotlinx", name = "kotlinx-coroutines-android", version.ref = "kotlinx-coroutines-android" }
 dexlib2 = { group = "org.smali", name = "dexlib2", version.ref = "dexlib2" }
 ffmpeg-kit = { group = "com.arthenica", name = "ffmpeg-kit-full-gpl", version.ref = "ffmpeg-kit" }
