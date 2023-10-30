@@ -50,25 +50,22 @@ class Navigation(
         tabs.firstOrNull { it.route == navBackStackEntry?.destination?.route }?.FloatingActionButtons()
     }
 
-    fun navigateTo(tab: KClass<out Tab>) {
-        navHostController.navigate(tabs.first { it::class == tab }.route)
-    }
-
-    fun navigateTo(tab: KClass<out Tab>, noHistory: Boolean) {
+    fun navigateTo(tab: KClass<out Tab>, noHistory: Boolean = false) {
         navHostController.navigate(tabs.first { it::class == tab }.route) {
-            restoreState = false
-            launchSingleTop = true
-            popUpTo(navHostController.graph.findStartDestination().id) {
-                saveState = true
+            if (noHistory) {
+                restoreState = false
+                launchSingleTop = true
+                popUpTo(navHostController.graph.findStartDestination().id) {
+                    saveState = true
+                }
             }
         }
     }
 
-    fun navigateTo(tab: KClass<out Tab>, args: Bundle) {
-        navHostController.currentBackStackEntry?.savedStateHandle?.apply {
-            set("args", args)
-        }
-        navigateTo(tab)
+
+    fun navigateTo(tab: KClass<out Tab>, args: Bundle, noHistory: Boolean = false) {
+        navigateTo(tab, noHistory)
+        navHostController.currentBackStackEntry?.savedStateHandle?.set("args", args)
     }
 
     @Composable

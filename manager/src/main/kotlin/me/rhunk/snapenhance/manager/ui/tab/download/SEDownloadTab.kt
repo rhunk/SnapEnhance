@@ -5,7 +5,11 @@ import androidx.activity.ComponentActivity
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
@@ -20,22 +24,20 @@ import androidx.compose.ui.window.Dialog
 import com.google.gson.JsonParser
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
-import me.rhunk.snapenhance.manager.BuildConfig
 import me.rhunk.snapenhance.manager.data.download.SEArtifact
 import me.rhunk.snapenhance.manager.data.download.SEVersion
 import me.rhunk.snapenhance.manager.ui.Tab
+import me.rhunk.snapenhance.manager.ui.components.DowngradeNoticeDialog
 import okhttp3.OkHttpClient
 import okhttp3.Request
 import java.text.SimpleDateFormat
 import java.util.Locale
 
 
-class SEDownloadTab : Tab("se_downloads") {
+class SEDownloadTab : Tab("se_download") {
     private fun fetchSEReleases(): List<SEVersion>? {
         return runCatching {
-            val endpoint =
-                Request.Builder().url("https://api.github.com/repos/rhunk/SnapEnhance/releases")
-                    .build()
+            val endpoint = Request.Builder().url("https://api.github.com/repos/rhunk/SnapEnhance/releases").build()
             val response = OkHttpClient().newCall(endpoint).execute()
             if (!response.isSuccessful) return null
 
@@ -69,36 +71,6 @@ class SEDownloadTab : Tab("se_downloads") {
 
     override fun init(activity: ComponentActivity) {
         super.init(activity)
-        registerNestedTab(InstallAppTab::class)
-    }
-
-    @Composable
-    private fun DowngradeNoticeDialog(onDismiss: () -> Unit, onSuccess: () -> Unit) {
-        Card {
-            Column(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(16.dp),
-                horizontalAlignment = Alignment.CenterHorizontally,
-                verticalArrangement = Arrangement.spacedBy(16.dp),
-            ) {
-                Text(text = "Downgrade Notice", fontSize = 24.sp)
-                Text(text = "You are about to update the app. If you're installing an older version over a newer one, make sure you have CorePatch installed. Otherwise, you will need to uninstall and install.", fontSize = 12.sp)
-            }
-            Row(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(16.dp),
-                horizontalArrangement = Arrangement.SpaceAround
-            ) {
-                Button(onClick = onDismiss) {
-                    Text(text = "Cancel")
-                }
-                Button(onClick = onSuccess) {
-                    Text(text = "Continue")
-                }
-            }
-        }
     }
 
     @Composable
@@ -110,20 +82,16 @@ class SEDownloadTab : Tab("se_downloads") {
 
         var selectedVersion by remember { mutableStateOf(null as SEVersion?) }
         var selectedArtifact by remember { mutableStateOf(null as SEArtifact?) }
-        val appPackageName = remember { sharedConfig.snapEnhancePackageName ?: BuildConfig.APPLICATION_ID }
-        val isAppInstalled = remember { runCatching { activity.packageManager.getPackageInfo(appPackageName, 0) != null }.getOrNull() != null }
+        val isAppInstalled = remember { runCatching { activity.packageManager.getPackageInfo(sharedConfig.snapEnhancePackageName, 0) != null }.getOrNull() != null }
 
         var showDowngradeNotice by remember { mutableStateOf(false) }
 
         fun triggerPackageInstallation(shouldUninstall: Boolean) {
-            navigation.navigateTo(InstallAppTab::class, Bundle().apply {
-                putParcelable("artifact", selectedArtifact)
-                putString(
-                    "appPackage",
-                    sharedConfig.snapEnhancePackageName ?: BuildConfig.APPLICATION_ID
-                )
+            navigation.navigateTo(InstallPackageTab::class, Bundle().apply {
+                putString("downloadPath", selectedArtifact?.downloadUrl)
+                putString("appPackage", sharedConfig.snapEnhancePackageName)
                 putBoolean("uninstall", shouldUninstall)
-            })
+            }, noHistory = true)
         }
 
         if (showDowngradeNotice) {
@@ -141,12 +109,12 @@ class SEDownloadTab : Tab("se_downloads") {
             verticalArrangement = Arrangement.spacedBy(16.dp),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            Text(text = "SnapEnhance Builds")
+            Text(text = "Choose SnapEnhance version")
 
             LazyColumn(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .fillMaxHeight(0.8f),
+                    .weight(1f),
                 verticalArrangement = Arrangement.spacedBy(10.dp)
             ) {
                 item {

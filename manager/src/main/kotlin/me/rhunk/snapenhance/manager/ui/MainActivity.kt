@@ -12,10 +12,11 @@ import androidx.navigation.compose.rememberNavController
 import me.rhunk.snapenhance.manager.data.SharedConfig
 import me.rhunk.snapenhance.manager.ui.tab.HomeTab
 import me.rhunk.snapenhance.manager.ui.tab.SettingsTab
+import me.rhunk.snapenhance.manager.ui.tab.download.InstallPackageTab
 
 class MainActivity : ComponentActivity() {
     companion object{
-        private val primaryTabs = listOf(HomeTab::class, SettingsTab::class)
+        private val primaryTabs = listOf(HomeTab::class, SettingsTab::class, InstallPackageTab::class)
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {

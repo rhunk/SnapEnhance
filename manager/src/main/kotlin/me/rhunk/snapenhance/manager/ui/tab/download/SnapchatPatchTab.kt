@@ -1,12 +1,13 @@
 package me.rhunk.snapenhance.manager.ui.tab.download
 
+import android.os.Bundle
+import androidx.activity.ComponentActivity
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Delete
+import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.DeleteForever
-import androidx.compose.material.icons.filled.Download
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -14,7 +15,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
-import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -25,73 +25,14 @@ import me.rhunk.snapenhance.manager.ui.Tab
 import me.rhunk.snapenhance.manager.ui.components.ConfirmationDialog
 
 @OptIn(ExperimentalMaterial3Api::class)
-class SnapchatPatchTab : Tab("snapchat_download_tab") {
-    private val apkCache by lazy {
-        activity.cacheDir.resolve("snapchat_apk_cache").also {
-            if (!it.exists()) it.mkdirs()
-        }
-    }
+class SnapchatPatchTab : Tab("snapchat_download") {
     private val apkMirror =  APKMirror()
     private val cachedDownloadItems = mutableListOf<DownloadItem>()
     private var currentPage by mutableIntStateOf(1)
 
-    private fun isDownloaded(hash: String): Boolean {
-        return apkCache.resolve("${hash}.apk").exists()
-    }
-
-    private fun deleteDownload(hash: String) {
-        runCatching {
-            apkCache.resolve("${hash}.apk").delete()
-        }.onFailure {
-            it.printStackTrace()
-            toast("Failed to delete download. It may have already been deleted.")
-        }
-    }
-
-    private suspend fun downloadSnapchatVersion(downloadItem: DownloadItem, onProgress: (Float) -> Unit, onSuccess: suspend () -> Unit) {
-        withContext(Dispatchers.IO) {
-            toast("Downloading ${downloadItem.title}...")
-            val downloadLink = apkMirror.fetchDownloadLink(downloadItem.downloadPage) ?: run {
-                toast("Failed to fetch download link")
-                return@withContext
-            }
-
-            val downloadResponse = apkMirror.okhttpClient.newCall(
-                okhttp3.Request.Builder()
-                    .url(downloadLink)
-                    .build()
-            ).execute()
-
-            if (!downloadResponse.isSuccessful) {
-                toast("Failed to download")
-                return@withContext
-            }
-
-            val apkFile = apkCache.resolve("${downloadItem.hash}.apk")
-            apkFile.outputStream().use { outputStream ->
-                runCatching {
-                    downloadResponse.body.byteStream().use { inputStream ->
-                        val buffer = ByteArray(DEFAULT_BUFFER_SIZE)
-                        var read: Int
-                        var totalRead = 0L
-                        val totalSize = downloadResponse.body.contentLength()
-                        while (inputStream.read(buffer).also { read = it } != -1) {
-                            outputStream.write(buffer, 0, read)
-                            totalRead += read
-                            onProgress(totalRead.toFloat() / totalSize.toFloat())
-                        }
-                    }
-                }.onFailure {
-                    it.printStackTrace()
-                    toast("Failed to save apk")
-                    return@withContext
-                }
-            }
-
-            withContext(Dispatchers.Main) {
-                onSuccess()
-            }
-        }
+    override fun init(activity: ComponentActivity) {
+        super.init(activity)
+        registerNestedTab(LSPatchTab::class)
     }
 
     @Composable
@@ -106,7 +47,7 @@ class SnapchatPatchTab : Tab("snapchat_download_tab") {
                 ConfirmationDialog(title = "Are you sure you want to delete all downloads?", onDismiss = { deleteAllDialog = false }) {
                     deleteAllDialog = false
                     runCatching {
-                        apkCache.listFiles()?.forEach { it.deleteRecursively() }
+                        sharedConfig.apkCache.listFiles()?.forEach { it.deleteRecursively() }
                     }.onFailure {
                         toast("Failed to delete downloads")
                         it.printStackTrace()
@@ -118,25 +59,7 @@ class SnapchatPatchTab : Tab("snapchat_download_tab") {
     }
 
     @Composable
-    private fun DownloadItemRow(coroutineScope: CoroutineScope, item: DownloadItem) {
-        var isDownloading by remember { mutableStateOf(false) }
-        var downloadProgress by remember { mutableFloatStateOf(-1f) }
-        var isDownloaded by remember { mutableStateOf(isDownloaded(item.hash)) }
-
-        var showDeleteCurrentDownloadDialog by remember { mutableStateOf(false) }
-
-        if (showDeleteCurrentDownloadDialog) {
-            AlertDialog(onDismissRequest = { showDeleteCurrentDownloadDialog = false }) {
-                ConfirmationDialog(title = "Are you sure you want to delete this download?", onDismiss = { showDeleteCurrentDownloadDialog = false }) {
-                    coroutineScope.launch {
-                        deleteDownload(item.hash)
-                        isDownloaded = false
-                    }
-                    showDeleteCurrentDownloadDialog = false
-                }
-            }
-        }
-
+    private fun DownloadItemRow(item: DownloadItem, onSelected: () -> Unit = {}) {
         ElevatedCard(
             modifier = Modifier.padding(10.dp),
         ) {
@@ -157,7 +80,6 @@ class SnapchatPatchTab : Tab("snapchat_download_tab") {
                     verticalArrangement = Arrangement.spacedBy(5.dp)
                 ) {
                     Text(item.shortTitle)
-                    Text(item.releaseDate)
                     if (!item.isBeta) {
                         Text("Recommended", color = MaterialTheme.colorScheme.tertiary)
                     }
@@ -166,34 +88,54 @@ class SnapchatPatchTab : Tab("snapchat_download_tab") {
                     modifier = Modifier.padding(5.dp),
                     horizontalArrangement = Arrangement.spacedBy(5.dp),
                 ) {
-                    if (!isDownloaded) {
-                        if (isDownloading) {
-                            if (downloadProgress != -1f) {
-                                CircularProgressIndicator(progress = downloadProgress, modifier = Modifier.size(40.dp))
-                            } else {
-                                CircularProgressIndicator(modifier = Modifier.size(40.dp))
-                            }
-                        } else {
-                            FilledIconButton(onClick = {
-                                coroutineScope.launch {
-                                    isDownloading = true
-                                    downloadProgress = -1f
-                                    downloadSnapchatVersion(item, onProgress = {
-                                        downloadProgress = it
-                                    }, onSuccess = { isDownloaded = true })
-                                    isDownloading = false
+                    FilledIconButton(onClick = { onSelected() }) {
+                        Icon(imageVector = Icons.Default.Check, contentDescription = null)
+                    }
+                }
+            }
+        }
+    }
+
+
+    @Composable
+    private fun SelectSnapchatVersionDialog(onSelected: (DownloadItem) -> Unit = {}) {
+        val coroutineScope = rememberCoroutineScope()
+        var isFetching by remember { mutableStateOf(false) }
+        val downloadItems = remember { cachedDownloadItems.toMutableStateList() }
+
+        LazyColumn {
+            items(downloadItems, key = { it.hash }) { item ->
+                DownloadItemRow(item) {
+                    onSelected(item)
+                }
+            }
+            item {
+                Box(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(20.dp),
+                    contentAlignment = Alignment.Center
+                ) {
+                    CircularProgressIndicator(modifier = Modifier.alpha(if (isFetching) 1f else 0f))
+                }
+                SideEffect {
+                    if (isFetching) return@SideEffect
+                    isFetching = true
+                    coroutineScope.launch {
+                        runCatching {
+                            withContext(Dispatchers.IO) {
+                                apkMirror.fetchSnapchatVersions(currentPage)?.let {
+                                    withContext(Dispatchers.Main) {
+                                        cachedDownloadItems.addAll(it)
+                                        downloadItems.addAll(it)
+                                    }
                                 }
-                            }) {
-                                Icon(imageVector = Icons.Default.Download, contentDescription = null)
                             }
+                        }.onFailure {
+                            it.printStackTrace()
                         }
-                    } else {
-                        Button(onClick = { /*TODO*/ }) {
-                            Text("Patch")
-                        }
-                        IconButton(onClick = { showDeleteCurrentDownloadDialog = true }) {
-                            Icon(imageVector = Icons.Default.Delete, contentDescription = null)
-                        }
+                        ++currentPage
+                        isFetching = false
                     }
                 }
             }
@@ -202,9 +144,19 @@ class SnapchatPatchTab : Tab("snapchat_download_tab") {
 
     @Composable
     override fun Content() {
-        val coroutineScope = rememberCoroutineScope()
-        var isFetching by remember { mutableStateOf(false) }
-        val downloadItems = remember { cachedDownloadItems.toMutableStateList() }
+        var showSelectSnapchatVersionDialog by remember { mutableStateOf(false) }
+        var selectedSnapchatVersion by remember { mutableStateOf(null as DownloadItem?) }
+        val installedSnapEnhanceVersion = remember { runCatching { activity.packageManager.getPackageInfo(
+            sharedConfig.snapEnhancePackageName, 0) }.getOrNull() }
+
+        if (showSelectSnapchatVersionDialog) {
+            AlertDialog(onDismissRequest = { showSelectSnapchatVersionDialog = false }) {
+                SelectSnapchatVersionDialog {
+                    selectedSnapchatVersion = it
+                    showSelectSnapchatVersionDialog = false
+                }
+            }
+        }
 
         Column(
             modifier = Modifier.fillMaxSize(),
@@ -212,39 +164,70 @@ class SnapchatPatchTab : Tab("snapchat_download_tab") {
             verticalArrangement = Arrangement.spacedBy(10.dp)
         ) {
             Text("Select a version to download and patch")
-            LazyColumn {
-                items(downloadItems, key = { it.hash }) { item ->
-                    DownloadItemRow(coroutineScope, item)
+
+            ElevatedCard(
+                modifier = Modifier.padding(10.dp),
+            ) {
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(10.dp),
+                    horizontalArrangement = Arrangement.SpaceBetween,
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Icon(painter = painterResource(R.drawable.sclogo), contentDescription = null, tint = MaterialTheme.colorScheme.onSurface, modifier = Modifier.size(40.dp))
+                    if (selectedSnapchatVersion == null) {
+                        Text(text = "Snapchat")
+                    }
+                    Text(text = selectedSnapchatVersion?.shortTitle ?: "Not Selected")
+                    Button(onClick = { showSelectSnapchatVersionDialog = true }) {
+                        Text("Choose")
+                    }
                 }
-                item {
-                    Box(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(20.dp),
-                        contentAlignment = Alignment.Center
-                    ) {
-                        CircularProgressIndicator(modifier = Modifier.alpha(if (isFetching) 1f else 0f))
+            }
+
+            ElevatedCard(
+                modifier = Modifier.padding(10.dp),
+            ) {
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(20.dp),
+                    horizontalArrangement = Arrangement.SpaceBetween,
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Text(text = "SnapEnhance")
+                    Text(text = installedSnapEnhanceVersion?.versionName ?: "Not installed")
+                }
+            }
+
+            Column(
+                modifier = Modifier.padding(top = 10.dp, bottom = 10.dp, start = 20.dp, end = 20.dp),
+                verticalArrangement = Arrangement.spacedBy(5.dp)
+            ) {
+                Button(
+                    modifier = Modifier.fillMaxWidth(),
+                    enabled = selectedSnapchatVersion != null && installedSnapEnhanceVersion != null,
+                    onClick = {
+                        navigation.navigateTo(LSPatchTab::class, args = Bundle().apply {
+                            putParcelable("downloadItem", selectedSnapchatVersion)
+                            putString("modulePath", installedSnapEnhanceVersion?.applicationInfo?.sourceDir)
+                        }, noHistory = true)
                     }
-                    SideEffect {
-                        if (isFetching) return@SideEffect
-                        isFetching = true
-                        coroutineScope.launch {
-                            runCatching {
-                                withContext(Dispatchers.IO) {
-                                    apkMirror.fetchSnapchatVersions(currentPage)?.let {
-                                        withContext(Dispatchers.Main) {
-                                            cachedDownloadItems.addAll(it)
-                                            downloadItems.addAll(it)
-                                        }
-                                    }
-                                }
-                            }.onFailure {
-                                it.printStackTrace()
-                            }
-                            ++currentPage
-                            isFetching = false
-                        }
+                ) {
+                    Text("Download & Patch")
+                }
+
+                Button(
+                    modifier = Modifier.fillMaxWidth(),
+                    enabled = selectedSnapchatVersion != null,
+                    onClick = {
+                        navigation.navigateTo(LSPatchTab::class, args = Bundle().apply {
+                            putParcelable("downloadItem", selectedSnapchatVersion)
+                        }, noHistory = true)
                     }
+                ) {
+                    Text("Install/Restore Original Snapchat")
                 }
             }
         }

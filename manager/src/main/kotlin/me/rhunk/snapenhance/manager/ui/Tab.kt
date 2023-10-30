@@ -27,7 +27,7 @@ open class Tab(
     lateinit var navigation: Navigation
     lateinit var sharedConfig: SharedConfig
 
-    fun getArguments() = navigation.navHostController.previousBackStackEntry?.savedStateHandle?.get<Bundle>("args")
+    fun getArguments() = navigation.navHostController.currentBackStackEntry?.savedStateHandle?.get<Bundle>("args")
 
     open fun init(activity: ComponentActivity) {
         this.activity = activity

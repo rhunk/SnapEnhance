@@ -1,20 +1,19 @@
 package me.rhunk.snapenhance.manager.ui.tab.download
 
 import android.content.Intent
+import android.net.Uri
 import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.contract.ActivityResultContracts
-import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.*
 import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.Text
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.core.content.FileProvider
@@ -22,7 +21,6 @@ import androidx.core.net.toUri
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import me.rhunk.snapenhance.manager.data.download.InstallStage
-import me.rhunk.snapenhance.manager.data.download.SEArtifact
 import me.rhunk.snapenhance.manager.ui.Tab
 import me.rhunk.snapenhance.manager.ui.tab.HomeTab
 import okhttp3.OkHttpClient
@@ -30,7 +28,7 @@ import okhttp3.Request
 import java.io.File
 
 
-class InstallAppTab : Tab("install_app") {
+class InstallPackageTab : Tab("install_app") {
     private lateinit var installPackageIntentLauncher: ActivityResultLauncher<Intent>
     private lateinit var uninstallPackageIntentLauncher: ActivityResultLauncher<Intent>
     private var uninstallPackageCallback: ((resultCode: Int, data: Intent?) -> Unit)? = null
@@ -46,14 +44,26 @@ class InstallAppTab : Tab("install_app") {
         }
     }
 
+    private fun downloadArtifact(url: String, progress: (Float) -> Unit): File? {
+        val urlScheme = Uri.parse(url).scheme
+        if (urlScheme != "https" && urlScheme != "http") {
+            val file = File(url)
+            val dest = File(activity.externalCacheDirs.first(), file.name).also {
+                it.deleteOnExit()
+            }
+            if (dest.exists()) return file
+            file.copyTo(dest)
+            return dest
+        }
 
-    private fun downloadArtifact(artifact: SEArtifact, progress: (Int) -> Unit): File? {
-        val endpoint = Request.Builder().url(artifact.downloadUrl).build()
+        val endpoint = Request.Builder().url(url).build()
         val response = OkHttpClient().newCall(endpoint).execute()
         if (!response.isSuccessful) throw Throwable("Failed to download artifact: ${response.code}")
 
         return response.body.byteStream().use { input ->
-            val file = activity.externalCacheDirs.first().resolve(artifact.fileName)
+            val file = File.createTempFile("artifact", ".apk", activity.externalCacheDirs.first()).also {
+                it.deleteOnExit()
+            }
             runCatching {
                 file.outputStream().use { output ->
                     val buffer = ByteArray(4 * 1024)
@@ -63,7 +73,7 @@ class InstallAppTab : Tab("install_app") {
                     while (input.read(buffer).also { read = it } != -1) {
                         output.write(buffer, 0, read)
                         totalRead += read
-                        progress((totalRead * 100 / totalSize).toInt())
+                        progress(totalRead.toFloat() / totalSize.toFloat())
                     }
                 }
                 file
@@ -78,7 +88,7 @@ class InstallAppTab : Tab("install_app") {
         val coroutineScope = rememberCoroutineScope()
         val context = LocalContext.current
         var installStage by remember { mutableStateOf(InstallStage.DOWNLOADING) }
-        var downloadProgress by remember { mutableIntStateOf(0) }
+        var downloadProgress by remember { mutableFloatStateOf(-1f) }
         var downloadedFile by remember { mutableStateOf<File?>(null) }
 
         LaunchedEffect(Unit) {
@@ -86,12 +96,12 @@ class InstallAppTab : Tab("install_app") {
             installPackageCallback = null
         }
 
-        val artifact = getArguments()?.getParcelable<SEArtifact>("artifact") ?: return
+        val downloadPath = getArguments()?.getString("downloadPath") ?: return
         val appPackage = getArguments()?.getString("appPackage") ?: return
         val shouldUninstall = getArguments()?.getBoolean("uninstall") ?: false
 
         Column(
-            modifier = Modifier.fillMaxSize(),
+            modifier = Modifier.fillMaxSize().padding(16.dp),
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.spacedBy(16.dp, Alignment.CenterVertically)
         ) {
@@ -106,21 +116,22 @@ class InstallAppTab : Tab("install_app") {
 
             when (installStage) {
                 InstallStage.DOWNLOADING -> {
-                    Text(text = "Downloading ${artifact.fileName}... ($downloadProgress%)")
+                    Text(text = "Downloading ...")
+                    LinearProgressIndicator(progress = downloadProgress, Modifier.fillMaxWidth().height(4.dp), strokeCap = StrokeCap.Round)
                 }
                 InstallStage.UNINSTALLING -> {
                     Text(text = "Uninstalling app $appPackage...")
                 }
                 InstallStage.INSTALLING -> {
-                    Text(text = "Installing ${artifact.fileName}...")
+                    Text(text = "Installing ...")
                 }
                 InstallStage.DONE -> {
                     LaunchedEffect(Unit) {
                         navigation.navigateTo(HomeTab::class, noHistory = true)
-                        Toast.makeText(context, "${artifact.fileName} installed successfully!", Toast.LENGTH_SHORT).show()
+                        Toast.makeText(context, "Successfully installed $appPackage!", Toast.LENGTH_SHORT).show()
                     }
                 }
-                InstallStage.ERROR -> Text(text = "Failed to install ${artifact.fileName}. Check logcat for more details.")
+                InstallStage.ERROR -> Text(text = "Failed to install $appPackage. Check logcat for more details.")
             }
         }
 
@@ -136,7 +147,6 @@ class InstallAppTab : Tab("install_app") {
             }
 
             installPackageIntentLauncher.launch(Intent(Intent.ACTION_INSTALL_PACKAGE).apply {
-                println(context)
                 data = FileProvider.getUriForFile(context, "me.rhunk.snapenhance.manager.provider", downloadedFile!!)
                 setFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
                 putExtra(Intent.EXTRA_RETURN_RESULT, true)
@@ -146,29 +156,33 @@ class InstallAppTab : Tab("install_app") {
 
         LaunchedEffect(Unit) {
             coroutineScope.launch(Dispatchers.IO) {
-                downloadedFile = downloadArtifact(artifact) {
-                    downloadProgress = it
-                } ?: run {
-                    installStage = InstallStage.ERROR
-                    return@launch
-                }
-                if (shouldUninstall) {
-                    installStage = InstallStage.UNINSTALLING
-                    val intent = Intent(Intent.ACTION_UNINSTALL_PACKAGE).apply {
-                        data = "package:$appPackage".toUri()
-                        putExtra(Intent.EXTRA_RETURN_RESULT, true)
+                runCatching {
+                    downloadedFile = downloadArtifact(downloadPath) { downloadProgress = it } ?: run {
+                        installStage = InstallStage.ERROR
+                        return@launch
                     }
-                    uninstallPackageCallback = resultCallback@{ resultCode, _ ->
-                        if (resultCode != ComponentActivity.RESULT_OK) {
-                            installStage = InstallStage.ERROR
-                            downloadedFile?.delete()
-                            return@resultCallback
+                    if (shouldUninstall) {
+                        installStage = InstallStage.UNINSTALLING
+                        val intent = Intent(Intent.ACTION_UNINSTALL_PACKAGE).apply {
+                            data = "package:$appPackage".toUri()
+                            putExtra(Intent.EXTRA_RETURN_RESULT, true)
                         }
+                        uninstallPackageCallback = resultCallback@{ resultCode, _ ->
+                            if (resultCode != ComponentActivity.RESULT_OK) {
+                                installStage = InstallStage.ERROR
+                                downloadedFile?.delete()
+                                return@resultCallback
+                            }
+                            installPackage()
+                        }
+                        uninstallPackageIntentLauncher.launch(intent)
+                    } else {
                         installPackage()
                     }
-                    uninstallPackageIntentLauncher.launch(intent)
-                } else {
-                    installPackage()
+                }.onFailure {
+                    it.printStackTrace()
+                    installStage = InstallStage.ERROR
+                    downloadedFile?.delete()
                 }
             }
         }

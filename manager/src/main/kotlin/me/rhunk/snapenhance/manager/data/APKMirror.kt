@@ -1,17 +1,24 @@
 package me.rhunk.snapenhance.manager.data
 
+import android.os.Parcelable
+import kotlinx.parcelize.IgnoredOnParcel
+import kotlinx.parcelize.Parcelize
 import okhttp3.OkHttpClient
 import okhttp3.Request
 import org.jsoup.Jsoup
 import kotlin.math.absoluteValue
 
+@Parcelize
 data class DownloadItem(
     val title: String,
     val releaseDate: String,
     val downloadPage: String
-) {
+): Parcelable {
+    @IgnoredOnParcel
     val shortTitle = title.substringBefore("(").trim()
+    @IgnoredOnParcel
     val hash = (title + releaseDate + downloadPage).hashCode().absoluteValue.toString(16)
+    @IgnoredOnParcel
     val isBeta = title.contains("Beta", ignoreCase = true)
 }
 

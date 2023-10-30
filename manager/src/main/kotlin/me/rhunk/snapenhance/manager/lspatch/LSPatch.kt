@@ -137,8 +137,9 @@ class LSPatch(
         }
 
         //embed modules
-        printLog("embedding modules")
+        printLog("Embedding modules")
         modules.forEach { (packageName, module) ->
+            printLog("- $packageName")
             dstZFile.add("assets/lspatch/modules/$packageName.apk", module.inputStream())
         }
 
@@ -162,17 +163,17 @@ class LSPatch(
         printLog("Done")
     }
 
-    fun patchSplits(inputs: List<File>): List<File> {
-        val outputs = mutableListOf<File>()
+    fun patchSplits(inputs: List<File>): Map<String, File> {
+        val outputs = mutableMapOf<String, File>()
         inputs.forEach { input ->
-            val outputFile = File.createTempFile("patched", ".apk", context.cacheDir)
+            val outputFile = File.createTempFile("patched", ".apk", context.externalCacheDir ?: context.cacheDir)
             if (input.name.contains("split")) {
                 resignApk(input, outputFile)
-                outputs.add(outputFile)
+                outputs[input.name] = outputFile
                 return@forEach
             }
             patch(input, outputFile)
-            outputs.add(outputFile)
+            outputs["base.apk"] = outputFile
         }
         return outputs
     }
@@ -206,8 +207,6 @@ class LSPatch(
             outputFile.delete()
             printLog("Failed to patch")
             printLog(it)
-        }.onSuccess {
-            outputFile.delete()
         }
     }
 }
