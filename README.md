@@ -5,18 +5,18 @@
   
 # SnapEnhance
 SnapEnhance is an Xposed mod that enhances your Snapchat experience.<br/><br/>
-Please note that this project is currently in development, so bugs and crashes may occur. If you encounter any issues, we encourage you to report them. To do this simply visit our [issues](https://github.com/rhunk/SnapEnhance/issues) page and create an issue, make sure to follow the guidelines.
+Please note that this project is currently in development, so bugs and crashes may occur. If you encounter any issues, we encourage you to report them. To do this, simply visit our [issues](https://github.com/rhunk/SnapEnhance/issues) page and create an issue, make sure to follow the guidelines.
 </div>
 
 ## Download 
-To Download the latest stable release, please visit the [Releases](https://github.com/rhunk/SnapEnhance/releases) page.<br/>
+To download the latest stable release, please visit the [Releases](https://github.com/rhunk/SnapEnhance/releases) page.<br/>
 You can also download the latest debug build from the [Actions](https://github.com/rhunk/SnapEnhance/actions) section.<br/>
 We no longer offer official LSPatch binaries for obvious reasons. However, you're welcome to patch them yourself, as they should theoretically work without any issues.
 
 ## Quick Start
 Requirements:
 - Rooted using Magisk or KernelSU
-- LSPosed installed and fully functional
+- LSPosed is installed and fully functional
 
 Although using this in an unrooted environment using something like LSPatch should be working fine, it is not recommended to do so, use at your own risk!
 
@@ -47,7 +47,7 @@ Although using this in an unrooted environment using something like LSPatch shou
 
   - Download any message in a chat (Snaps, External Media, Voice Notes, etc.)
   - Download any story (Private, Public, or Professional)
-  - Anti Auto-download (Prevents automatic Downloading on specific conversations)
+  - Anti Auto-download (Prevents automatic Downloading in specific conversations)
   - Gallery Media Send Override
   - Auto Save Messages
   - Force Source Quality
