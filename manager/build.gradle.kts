@@ -42,7 +42,12 @@ android {
             proguardFiles += file("proguard-rules.pro")
         }
         debug {
-            isMinifyEnabled = false
+            (properties["debug_assemble_task"] == null).also {
+                isDebuggable = !it
+                isMinifyEnabled = it
+                isShrinkResources = it
+            }
+            proguardFiles += file("proguard-rules.pro")
         }
     }
 
@@ -78,6 +83,7 @@ dependencies {
     implementation(libs.gson)
     implementation(libs.jsoup)
     implementation(libs.okhttp)
+    implementation(platform(libs.androidx.compose.bom))
     implementation(libs.androidx.material3)
     implementation(libs.androidx.activity.ktx)
     implementation(libs.androidx.navigation.compose)

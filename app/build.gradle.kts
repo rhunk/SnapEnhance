@@ -134,6 +134,7 @@ dependencies {
     implementation(libs.osmdroid.android)
     implementation(libs.rhino)
     implementation(libs.androidx.activity.ktx)
+    fullImplementation(platform(libs.androidx.compose.bom))
     fullImplementation(libs.bcprov.jdk18on)
     fullImplementation(libs.androidx.navigation.compose)
     fullImplementation(libs.androidx.material.icons.core)
@@ -151,7 +152,6 @@ dependencies {
 afterEvaluate {
     properties["debug_assemble_task"]?.let { tasks.findByName(it.toString()) }?.doLast {
         runCatching {
-            val apkDebugFile = android.applicationVariants.find { it.buildType.name == "debug" && it.flavorName == properties["debug_flavor"] }?.outputs?.first()?.outputFile ?: return@doLast
             exec {
                 commandLine("adb", "shell", "am", "force-stop", "com.snapchat.android")
             }

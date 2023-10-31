@@ -9,13 +9,12 @@ kotlinx-coroutines-android = "1.7.3"
 
 activity-ktx = "1.8.0"
 androidx-documentfile = "1.1.0-alpha01"
-material-icons-core = "1.5.3"
-material-icons-extended = "1.6.0-alpha07"
 coil-compose = "2.4.0"
 navigation-compose = "2.7.4"
 osmdroid-android = "6.1.17"
-recyclerview = "1.3.1"
+recyclerview = "1.3.2"
 
+compose-bom = "2023.10.01"
 bcprov-jdk18on = "1.76"
 dexlib2 = "2.5.2"
 ffmpeg-kit = "5.1.LTS" # DO NOT UPDATE FFMPEG-KIT TO "5.1" it breaks stuff :3
@@ -24,19 +23,19 @@ junit = "4.13.2"
 material3 = "1.1.2"
 okhttp = "5.0.0-alpha.11"
 rhino = "1.7.14"
-ui-tooling-preview = "1.5.3"
 
 
 [libraries]
+androidx-compose-bom = { group = "androidx.compose", name = "compose-bom", version.ref = "compose-bom" }
 androidx-activity-ktx = { group = "androidx.activity", name = "activity-ktx", version.ref = "activity-ktx" }
 androidx-documentfile = { group = "androidx.documentfile", name = "documentfile", version.ref = "androidx-documentfile" }
 androidx-material3 = { group = "androidx.compose.material3", name = "material3", version.ref = "material3" }
-androidx-material-icons-core = { module = "androidx.compose.material:material-icons-core", version.ref = "material-icons-core" }
-androidx-material-icons-extended = { module = "androidx.compose.material:material-icons-extended", version.ref = "material-icons-extended" }
-androidx-material-ripple = { module = "androidx.compose.material:material-ripple", version.ref = "material-icons-core" }
+androidx-material-icons-core = { module = "androidx.compose.material:material-icons-core" }
+androidx-material-icons-extended = { module = "androidx.compose.material:material-icons-extended" }
+androidx-material-ripple = { module = "androidx.compose.material:material-ripple" }
 androidx-navigation-compose = { module = "androidx.navigation:navigation-compose", version.ref = "navigation-compose" }
-androidx-ui-tooling = { module = "androidx.compose.ui:ui-tooling", version.ref = "ui-tooling-preview" }
-androidx-ui-tooling-preview = { module = "androidx.compose.ui:ui-tooling-preview", version.ref = "ui-tooling-preview" }
+androidx-ui-tooling = { module = "androidx.compose.ui:ui-tooling" }
+androidx-ui-tooling-preview = { module = "androidx.compose.ui:ui-tooling-preview" }
 apksig = { module = "com.android.tools.build:apksig", version.ref = "apksig" }
 bcprov-jdk18on = { module = "org.bouncycastle:bcprov-jdk18on", version.ref = "bcprov-jdk18on" }
 coil-compose = { module = "io.coil-kt:coil-compose", version.ref = "coil-compose" }
