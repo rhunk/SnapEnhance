@@ -9,6 +9,7 @@ import com.google.gson.JsonObject
 import com.google.gson.JsonParser
 import me.rhunk.snapenhance.common.data.ContentType
 import me.rhunk.snapenhance.common.data.MessageState
+import me.rhunk.snapenhance.common.util.ktx.longHashCode
 import me.rhunk.snapenhance.common.util.protobuf.ProtoReader
 import me.rhunk.snapenhance.core.event.events.impl.BindViewEvent
 import me.rhunk.snapenhance.core.event.events.impl.BuildMessageEvent
@@ -19,13 +20,6 @@ import me.rhunk.snapenhance.core.ui.removeForegroundDrawable
 import me.rhunk.snapenhance.core.util.EvictingMap
 import java.util.concurrent.Executors
 import kotlin.system.measureTimeMillis
-
-private fun Any.longHashCode(): Long {
-    var h = 1125899906842597L
-    val value = this.toString()
-    for (element in value) h = 31 * h + element.code.toLong()
-    return h
-}
 
 class MessageLogger : Feature("MessageLogger",
     loadParams = FeatureLoadParams.INIT_SYNC or

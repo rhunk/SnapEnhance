@@ -23,6 +23,7 @@ import me.rhunk.snapenhance.common.data.download.DownloadMetadata
 import me.rhunk.snapenhance.common.data.download.DownloadRequest
 import me.rhunk.snapenhance.common.data.download.InputMedia
 import me.rhunk.snapenhance.common.data.download.SplitMediaAssetType
+import me.rhunk.snapenhance.common.util.ktx.longHashCode
 import me.rhunk.snapenhance.common.util.snap.MediaDownloaderHelper
 import me.rhunk.snapenhance.common.util.snap.RemoteMediaResolver
 import me.rhunk.snapenhance.task.PendingTask
@@ -328,11 +329,13 @@ class DownloadProcessor (
         remoteSideContext.coroutineScope.launch {
             val downloadMetadata = gson.fromJson(intent.getStringExtra(ReceiversConfig.DOWNLOAD_METADATA_EXTRA)!!, DownloadMetadata::class.java)
             val downloadRequest = gson.fromJson(intent.getStringExtra(ReceiversConfig.DOWNLOAD_REQUEST_EXTRA)!!, DownloadRequest::class.java)
+            val downloadId = (downloadMetadata.mediaIdentifier ?: UUID.randomUUID().toString()).longHashCode().absoluteValue.toString(16)
 
-            remoteSideContext.taskManager.getTaskByHash(downloadMetadata.mediaIdentifier)?.let { task ->
+            remoteSideContext.taskManager.getTaskByHash(downloadId)?.let { task ->
                 remoteSideContext.log.debug("already queued or downloaded")
 
                 if (task.status.isFinalStage()) {
+                    if (task.status != TaskStatus.SUCCESS) return@let
                     callbackOnFailure(translation["already_downloaded_toast"], null)
                 } else {
                     callbackOnFailure(translation["already_queued_toast"], null)
@@ -345,7 +348,7 @@ class DownloadProcessor (
                 Task(
                     type = TaskType.DOWNLOAD,
                     title = downloadMetadata.downloadSource + " (" + downloadMetadata.mediaAuthor + ")",
-                    hash = (downloadMetadata.mediaIdentifier ?: UUID.randomUUID().toString()).hashCode().absoluteValue.toString(16)
+                    hash = downloadId
                 )
             ).apply {
                 status = TaskStatus.RUNNING
