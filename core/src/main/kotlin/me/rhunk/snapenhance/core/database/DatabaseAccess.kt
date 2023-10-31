@@ -68,13 +68,13 @@ class DatabaseAccess(
             }
         }.onFailure {
             context.log.error("Failed to open database $fileName, restarting!", it)
-            context.softRestartApp()
         }.getOrNull() ?: throw IllegalStateException("Failed to open database $fileName")
     }
 
     private fun openMain() = openLocalDatabase("main.db")
     private fun openArroyo() = openLocalDatabase("arroyo.db")
 
+    fun hasMain(): Boolean = context.androidContext.getDatabasePath("main.db").exists()
     fun hasArroyo(): Boolean = context.androidContext.getDatabasePath("arroyo.db").exists()
 
     private fun <T : DatabaseObject> readDatabaseObject(

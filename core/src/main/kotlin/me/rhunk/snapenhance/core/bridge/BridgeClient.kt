@@ -13,6 +13,7 @@ import de.robv.android.xposed.XposedHelpers
 import me.rhunk.snapenhance.bridge.BridgeInterface
 import me.rhunk.snapenhance.bridge.ConfigStateListener
 import me.rhunk.snapenhance.bridge.DownloadCallback
+import me.rhunk.snapenhance.bridge.MessageLoggerInterface
 import me.rhunk.snapenhance.bridge.SyncCallback
 import me.rhunk.snapenhance.bridge.e2ee.E2eeInterface
 import me.rhunk.snapenhance.bridge.scripting.IScripting
@@ -103,6 +104,7 @@ class BridgeClient(
 
     fun broadcastLog(tag: String, level: String, message: String) = service.broadcastLog(tag, level, message)
 
+    //TODO: use interfaces instead of direct file access
     fun createAndReadFile(
         fileType: BridgeFileType,
         defaultContent: ByteArray
@@ -123,11 +125,14 @@ class BridgeClient(
         LocalePair(it.key, it.value)
     }
 
-    fun getApplicationApkPath() = service.getApplicationApkPath()
+    fun getApplicationApkPath(): String = service.getApplicationApkPath()
 
     fun enqueueDownload(intent: Intent, callback: DownloadCallback) = service.enqueueDownload(intent, callback)
 
-    fun sync(callback: SyncCallback) = service.sync(callback)
+    fun sync(callback: SyncCallback) {
+        if (!context.database.hasMain()) return
+        service.sync(callback)
+    }
 
     fun triggerSync(scope: SocialScope, id: String) = service.triggerSync(scope.key, id)
 
@@ -148,7 +153,7 @@ class BridgeClient(
 
     fun getE2eeInterface(): E2eeInterface = service.getE2eeInterface()
 
-    fun getMessageLogger() = service.messageLogger
+    fun getMessageLogger(): MessageLoggerInterface = service.messageLogger
 
     fun registerMessagingBridge(bridge: MessagingBridge) = service.registerMessagingBridge(bridge)
 
