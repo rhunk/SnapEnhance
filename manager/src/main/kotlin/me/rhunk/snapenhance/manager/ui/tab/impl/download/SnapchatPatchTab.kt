@@ -299,27 +299,25 @@ class SnapchatPatchTab : Tab("snapchat_download") {
                     }
                 }
 
-                if (isInstalledSnapchatPatched) {
-                    Text("Restore Snapchat", modifier = Modifier.padding(20.dp))
+                Text("Restore Snapchat", modifier = Modifier.padding(20.dp))
+                Button(
+                    modifier = Modifier.fillMaxWidth(),
+                    enabled = selectedSnapchatVersion != null,
+                    onClick = {
+                        navigation.navigateTo(LSPatchTab::class, args = Bundle().apply {
+                            putParcelable("downloadItem", selectedSnapchatVersion)
+                        }, noHistory = true)
+                    }
+                ) {
+                    Text("Install/Restore Original Snapchat")
+                }
+
+                if (isInstalledSnapchatPatched && isSnapchatNotSplitConfig) {
                     Button(
                         modifier = Modifier.fillMaxWidth(),
-                        enabled = selectedSnapchatVersion != null,
-                        onClick = {
-                            navigation.navigateTo(LSPatchTab::class, args = Bundle().apply {
-                                putParcelable("downloadItem", selectedSnapchatVersion)
-                            }, noHistory = true)
-                        }
+                        onClick = { showRestoreMenuDialog = true }
                     ) {
-                        Text("Install/Restore Original Snapchat")
-                    }
-
-                    if (isSnapchatNotSplitConfig) {
-                        Button(
-                            modifier = Modifier.fillMaxWidth(),
-                            onClick = { showRestoreMenuDialog = true }
-                        ) {
-                            Text("Restore Snapchat from existing installation")
-                        }
+                        Text("Restore Snapchat from existing installation")
                     }
                 }
             }
