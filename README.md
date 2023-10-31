@@ -156,9 +156,12 @@ We do not collect any user information. However, please be aware that third-part
   - [osmdroid](https://github.com/osmdroid/osmdroid)
   - [coil](https://github.com/coil-kt/coil)
   - [Dobby](https://github.com/jmpews/Dobby)
+  - [rhino](https://github.com/mozilla/rhino)
+  - [libsu](https://github.com/topjohnwu/libsu)
 </details>
 
 ## Contributors
+Thanks to everyone involved including the [third-party libraries](https://github.com/rhunk/SnapEnhance/tree/refactor_2_0_0?tab=readme-ov-file#privacy) used!
 - [rathmerdominik](https://github.com/rathmerdominik)
 - [Flole998](https://github.com/Flole998)
 - [authorisation](https://github.com/authorisation/)
@@ -166,14 +169,6 @@ We do not collect any user information. However, please be aware that third-part
 - [iBasim](https://github.com/ibasim)
 - [xerta555](https://github.com/xerta555)
 - [TheVisual](https://github.com/TheVisual)  
-
-## Credits
-- [LSPosed](https://github.com/LSPosed/LSPosed)
-- [dexlib2](https://android.googlesource.com/platform/external/smali/+/refs/heads/main/dexlib2/)
-- [ffmpeg-kit-full-gpl](https://github.com/arthenica/ffmpeg-kit)
-- [osmdroid](https://github.com/osmdroid/osmdroid)
-- [coil](https://github.com/coil-kt/coil)
-- [Dobby](https://github.com/jmpews/Dobby)
 
 
 ## Donate
