@@ -205,28 +205,28 @@ class MessageExporter(
             runCatching {
                 ZipFile(context.bridgeClient.getApplicationApkPath()).use { apkFile ->
                     //export rawinflate.js
-                    apkFile.getEntry("assets/web/rawinflate.js").let { entry ->
+                    apkFile.getEntry("assets/web/rawinflate.js")?.let { entry ->
                         output.write("<script>".toByteArray())
                         apkFile.getInputStream(entry).copyTo(output)
                         output.write("</script>\n".toByteArray())
                     }
 
                     //export avenir next font
-                    apkFile.getEntry("res/font/avenir_next_medium.ttf").let { entry ->
+                    apkFile.getEntry("assets/web/avenir_next_medium.ttf")?.let { entry ->
                         val encodedFontData = Base64.Default.encode(apkFile.getInputStream(entry).readBytes())
                         output.write("""
-                        <style>
-                            @font-face {
-                                font-family: 'Avenir Next';
-                                src: url('data:font/truetype;charset=utf-8;base64, $encodedFontData');
-                                font-weight: normal;
-                                font-style: normal;
-                            }
-                        </style>
-                    """.trimIndent().toByteArray())
+                            <style>
+                                @font-face {
+                                    font-family: 'Avenir Next';
+                                    src: url('data:font/truetype;charset=utf-8;base64, $encodedFontData');
+                                    font-weight: normal;
+                                    font-style: normal;
+                                }
+                            </style>
+                        """.trimIndent().toByteArray())
                     }
 
-                    apkFile.getEntry("assets/web/export_template.html").let { entry ->
+                    apkFile.getEntry("assets/web/export_template.html")?.let { entry ->
                         apkFile.getInputStream(entry).copyTo(output)
                     }
 
