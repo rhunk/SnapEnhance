@@ -33,6 +33,7 @@ import me.rhunk.snapenhance.core.util.EvictingMap
 import me.rhunk.snapenhance.core.util.ktx.getObjectField
 import me.rhunk.snapenhance.core.wrapper.impl.MessageContent
 import me.rhunk.snapenhance.core.wrapper.impl.SnapUUID
+import me.rhunk.snapenhance.nativelib.NativeLib
 import java.security.MessageDigest
 import kotlin.random.Random
 
@@ -389,6 +390,12 @@ class EndToEndEncryption : MessagingRuleFeature(
             if (e2eeConversations.size != destinations.conversations.size) {
                 if (!forceMessageEncryption) return@subscribe
                 context.longToast("You can't send encrypted content to both encrypted and unencrypted conversations!")
+                event.canceled = true
+                return@subscribe
+            }
+
+            if (!NativeLib.initialized) {
+                context.longToast("Failed to send! Please enable Native Hooks in the settings.")
                 event.canceled = true
                 return@subscribe
             }
