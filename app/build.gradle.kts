@@ -1,4 +1,5 @@
 import com.android.build.gradle.internal.api.BaseVariantOutputImpl
+import org.gradle.configurationcache.extensions.capitalized
 
 plugins {
     alias(libs.plugins.androidApplication)
@@ -33,7 +34,7 @@ android {
             proguardFiles += file("proguard-rules.pro")
         }
         debug {
-            (properties["debug_assemble_task"] == null).also {
+            (properties["debug_flavor"] == null).also {
                 isDebuggable = !it
                 isMinifyEnabled = it
                 isShrinkResources = it
@@ -150,16 +151,14 @@ dependencies {
 }
 
 afterEvaluate {
-    properties["debug_assemble_task"]?.let { tasks.findByName(it.toString()) }?.doLast {
+    properties["debug_flavor"]?.toString()?.let { tasks.findByName("install${it.capitalized()}Debug") }?.doLast {
         runCatching {
             exec {
-                commandLine("adb", "shell", "am", "force-stop", "com.snapchat.android")
+                commandLine("adb", "shell", "am", "force-stop", properties["debug_package_name"])
             }
+            Thread.sleep(1000L)
             exec {
-                commandLine("adb", "install", "-r", "-d", apkDebugFile.absolutePath)
-            }
-            exec {
-                commandLine("adb", "shell", "am", "start", "com.snapchat.android")
+                commandLine("adb", "shell", "am", "start", properties["debug_package_name"])
             }
         }
     }

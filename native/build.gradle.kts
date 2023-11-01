@@ -29,7 +29,7 @@ android {
             }
             ndk {
                 //noinspection ChromeOsAbiSupport
-                abiFilters += properties["custom_abi_filters"]?.toString()?.split(",")
+                abiFilters += properties["debug_abi_filters"]?.toString()?.split(",")
                     ?: listOf("arm64-v8a", "armeabi-v7a")
             }
         }
