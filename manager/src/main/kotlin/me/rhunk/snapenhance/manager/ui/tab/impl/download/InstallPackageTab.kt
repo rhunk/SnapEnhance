@@ -99,9 +99,13 @@ class InstallPackageTab : Tab("install_app") {
             installPackageCallback = null
         }
 
-        val downloadPath = getArguments()?.getString("downloadPath") ?: return
-        val appPackage = getArguments()?.getString("appPackage") ?: return
-        val shouldUninstall = getArguments()?.getBoolean("uninstall") ?: false
+        val downloadPath = remember { getArguments()?.getString("downloadPath") } ?: return
+        val appPackage = remember { getArguments()?.getString("appPackage") } ?: return
+        val shouldUninstall = remember { getArguments()?.getBoolean("uninstall")?.let {
+            if (runCatching { activity.packageManager.getPackageInfo(appPackage, 0) }.getOrNull() == null) {
+                false
+            } else it
+        } ?: false }
 
         Column(
             modifier = Modifier.fillMaxSize().padding(16.dp),
