@@ -102,6 +102,7 @@ class FeatureManager(
             HideFriendFeedEntry::class,
             HideQuickAddFriendFeed::class,
             CallStartConfirmation::class,
+            SnapPreview::class,
         )
 
         initializeFeatures()

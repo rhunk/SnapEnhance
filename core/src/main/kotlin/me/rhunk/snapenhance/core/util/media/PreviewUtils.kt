@@ -8,6 +8,7 @@ import android.media.MediaDataSource
 import android.media.MediaMetadataRetriever
 import me.rhunk.snapenhance.common.data.FileType
 import java.io.File
+import kotlin.math.max
 
 object PreviewUtils {
     fun createPreview(data: ByteArray, isVideo: Boolean): Bitmap? {
@@ -52,14 +53,20 @@ object PreviewUtils {
         }
     }
 
-    private fun resizeBitmap(bitmap: Bitmap, outWidth: Int, outHeight: Int): Bitmap? {
-        val scaleWidth = outWidth.toFloat() / bitmap.width
-        val scaleHeight = outHeight.toFloat() / bitmap.height
-        val matrix = Matrix()
-        matrix.postScale(scaleWidth, scaleHeight)
-        val resizedBitmap = Bitmap.createBitmap(bitmap, 0, 0, bitmap.width, bitmap.height, matrix, false)
-        bitmap.recycle()
-        return resizedBitmap
+    fun resizeBitmap(source: Bitmap, outWidth: Int, outHeight: Int): Bitmap {
+        val sourceWidth = source.getWidth()
+        val sourceHeight = source.getHeight()
+        val scale = max(outWidth.toFloat() / sourceWidth, outHeight.toFloat() / sourceHeight)
+
+        val dx = (outWidth - (scale * sourceWidth)) / 2F
+        val dy = (outHeight - (scale * sourceHeight)) / 2F
+        val dest = Bitmap.createBitmap(outWidth, outHeight, source.getConfig())
+        val canvas = Canvas(dest)
+        canvas.drawBitmap(source, Matrix().apply {
+            postScale(scale, scale)
+            postTranslate(dx, dy)
+        }, null)
+        return dest
     }
 
     fun mergeBitmapOverlay(originalMedia: Bitmap, overlayLayer: Bitmap): Bitmap {

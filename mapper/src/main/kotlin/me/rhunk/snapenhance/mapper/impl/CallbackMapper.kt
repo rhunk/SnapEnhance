@@ -17,6 +17,10 @@ class CallbackMapper : AbstractClassMapper() {
 
                 if (clazz.getClassName().endsWith("\$CppProxy")) return@filter false
 
+                // ignore dummy ContentCallback class
+                if (superclassName.endsWith("ContentCallback") && !clazz.methods.first { it.name == "<init>" }.parameterTypes.contains("Z"))
+                    return@filter false
+
                 val superClass = getClass(clazz.superclass) ?: return@filter false
                 !superClass.isFinal()
             }.map {

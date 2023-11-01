@@ -232,6 +232,10 @@
                             }
                         }
                     },
+                    "snap_preview": {
+                        "name": "Snap Preview",
+                        "description": "Displays a small preview next to unseen Snaps in chat"
+                    },
                     "bootstrap_override": {
                         "name": "Bootstrap Override",
                         "description": "Overrides user interface bootstrap settings",
