@@ -49,13 +49,19 @@ jobs:
           mv app/build/outputs/apk/armv8/debug/*.apk app/build/outputs/apk/armv8/debug/snapenhance-${{ env.version }}-armv8-${{ steps.version-env.outputs.sha_short }}.apk
           mv app/build/outputs/apk/armv7/debug/*.apk app/build/outputs/apk/armv7/debug/snapenhance-${{ env.version }}-armv7-${{ steps.version-env.outputs.sha_short }}.apk
           mv app/build/outputs/apk/all/debug/*.apk app/build/outputs/apk/all/debug/snapenhance-${{ env.version }}-universal-${{ steps.version-env.outputs.sha_short }}.apk      
-        
+
+      - name: Upload manager
+        uses: actions/upload-artifact@v3.1.2
+        with:
+          name: manager
+          path: manager/build/outputs/apk/debug/*.apk
+
       - name: Upload core
         uses: actions/upload-artifact@v3.1.2
         with:
           name: core
           path: app/build/outputs/apk/core/debug/*.apk
-      
+
       - name: Upload armv8
         uses: actions/upload-artifact@v3.1.2
         with:
