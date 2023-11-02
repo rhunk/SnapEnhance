@@ -9,6 +9,7 @@ import me.rhunk.snapenhance.core.ui.ViewAppearanceHelper
 import me.rhunk.snapenhance.core.util.hook.HookAdapter
 import me.rhunk.snapenhance.core.util.hook.HookStage
 import me.rhunk.snapenhance.core.util.hook.hook
+import me.rhunk.snapenhance.core.util.ktx.getId
 
 class CallStartConfirmation : Feature("CallStartConfirmation", loadParams = FeatureLoadParams.ACTIVITY_CREATE_SYNC) {
     private fun hookTouchEvent(param: HookAdapter, motionEvent: MotionEvent, onConfirm: () -> Unit) {
@@ -33,8 +34,8 @@ class CallStartConfirmation : Feature("CallStartConfirmation", loadParams = Feat
             }
         }
 
-        val callButton1 = context.resources.getIdentifier("friend_action_button3", "id", "com.snapchat.android")
-        val callButton2 = context.resources.getIdentifier("friend_action_button4", "id", "com.snapchat.android")
+        val callButton1 = context.resources.getId("friend_action_button3")
+        val callButton2 = context.resources.getId("friend_action_button4")
 
         findClass("com.snap.ui.view.stackdraw.StackDrawLayout").hook("onTouchEvent", HookStage.BEFORE) { param ->
             val view = param.thisObject<View>()

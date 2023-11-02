@@ -6,6 +6,7 @@ import android.graphics.BitmapFactory
 import android.graphics.drawable.BitmapDrawable
 import android.graphics.drawable.Drawable
 import android.view.View
+import android.view.ViewGroup
 import android.widget.Button
 import android.widget.CompoundButton
 import android.widget.Switch
@@ -221,7 +222,7 @@ class FriendFeedInfoMenu : AbstractMenu() {
         viewConsumer(switch)
     }
 
-    fun inject(viewModel: View, viewConsumer: ((View) -> Unit)) {
+    override fun inject(parent: ViewGroup, view: View, viewConsumer: ((View) -> Unit)) {
         val modContext = context
 
         val friendFeedMenuOptions by context.config.userInterface.friendFeedMenuButtons
@@ -229,19 +230,17 @@ class FriendFeedInfoMenu : AbstractMenu() {
 
         val (conversationId, targetUser) = getCurrentConversationInfo()
 
-        val previewButton = Button(viewModel.context).apply {
-            text = modContext.translation["friend_menu_option.preview"]
-            applyTheme(viewModel.width, hasRadius = true)
-            setOnClickListener {
-                showPreview(
-                    targetUser,
-                    conversationId
-                )
-            }
-        }
-
         if (friendFeedMenuOptions.contains("conversation_info")) {
-            viewConsumer(previewButton)
+            viewConsumer(Button(view.context).apply {
+                text = modContext.translation["friend_menu_option.preview"]
+                applyTheme(view.width, hasRadius = true)
+                setOnClickListener {
+                    showPreview(
+                        targetUser,
+                        conversationId
+                    )
+                }
+            })
         }
 
         modContext.features.getRuleFeatures().forEach { ruleFeature ->

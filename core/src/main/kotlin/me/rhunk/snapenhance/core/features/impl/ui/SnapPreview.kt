@@ -1,10 +1,11 @@
 package me.rhunk.snapenhance.core.features.impl.ui
 
 import android.annotation.SuppressLint
-import android.graphics.*
+import android.graphics.Bitmap
+import android.graphics.Canvas
+import android.graphics.Paint
 import android.graphics.drawable.ShapeDrawable
 import android.graphics.drawable.shapes.Shape
-import me.rhunk.snapenhance.common.Constants
 import me.rhunk.snapenhance.common.data.ContentType
 import me.rhunk.snapenhance.common.util.protobuf.ProtoReader
 import me.rhunk.snapenhance.core.event.events.impl.BindViewEvent
@@ -15,6 +16,7 @@ import me.rhunk.snapenhance.core.ui.removeForegroundDrawable
 import me.rhunk.snapenhance.core.util.EvictingMap
 import me.rhunk.snapenhance.core.util.hook.HookStage
 import me.rhunk.snapenhance.core.util.hook.hook
+import me.rhunk.snapenhance.core.util.ktx.getDimens
 import me.rhunk.snapenhance.core.util.ktx.getObjectField
 import me.rhunk.snapenhance.core.util.media.PreviewUtils
 import java.io.File
@@ -44,9 +46,9 @@ class SnapPreview : Feature("SnapPreview", loadParams = FeatureLoadParams.INIT_S
     @SuppressLint("DiscouragedApi")
     override fun onActivityCreate() {
         if (!isEnabled) return
-        val chatMediaCardHeight = context.resources.getDimensionPixelSize(context.resources.getIdentifier("chat_media_card_height", "dimen", Constants.SNAPCHAT_PACKAGE_NAME))
-        val chatMediaCardSnapMargin = context.resources.getDimensionPixelSize(context.resources.getIdentifier("chat_media_card_snap_margin", "dimen", Constants.SNAPCHAT_PACKAGE_NAME))
-        val chatMediaCardSnapMarginStartSdl = context.resources.getDimensionPixelSize(context.resources.getIdentifier("chat_media_card_snap_margin_start_sdl", "dimen", Constants.SNAPCHAT_PACKAGE_NAME))
+        val chatMediaCardHeight = context.resources.getDimens("chat_media_card_height")
+        val chatMediaCardSnapMargin = context.resources.getDimens("chat_media_card_snap_margin")
+        val chatMediaCardSnapMarginStartSdl = context.resources.getDimens("chat_media_card_snap_margin_start_sdl")
 
         fun decodeMedia(file: File) = runCatching {
             bitmapCache.getOrPut(file.absolutePath) {

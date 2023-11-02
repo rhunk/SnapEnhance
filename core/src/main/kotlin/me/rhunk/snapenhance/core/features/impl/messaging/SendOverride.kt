@@ -1,6 +1,5 @@
 package me.rhunk.snapenhance.core.features.impl.messaging
 
-import me.rhunk.snapenhance.common.Constants
 import me.rhunk.snapenhance.common.data.ContentType
 import me.rhunk.snapenhance.common.util.protobuf.ProtoEditor
 import me.rhunk.snapenhance.common.util.protobuf.ProtoReader
@@ -14,6 +13,7 @@ import me.rhunk.snapenhance.nativelib.NativeLib
 
 class SendOverride : Feature("Send Override", loadParams = FeatureLoadParams.INIT_SYNC) {
     private var isLastSnapSavable = false
+    private val arroyoMessageContainerPath = intArrayOf(4, 4)
     private val typeNames by lazy {
         mutableListOf(
             "ORIGINAL",
@@ -33,8 +33,8 @@ class SendOverride : Feature("Send Override", loadParams = FeatureLoadParams.INI
             if (event.uri != "/messagingcoreservice.MessagingCoreService/CreateContentMessage") return@subscribe
             val protoEditor = ProtoEditor(event.buffer)
 
-            if (isLastSnapSavable && ProtoReader(event.buffer).containsPath(*Constants.ARROYO_MEDIA_CONTAINER_PROTO_PATH, 11)) {
-                protoEditor.edit(*Constants.ARROYO_MEDIA_CONTAINER_PROTO_PATH, 11, 5, 2) {
+            if (isLastSnapSavable && ProtoReader(event.buffer).containsPath(*arroyoMessageContainerPath, 11)) {
+                protoEditor.edit(*arroyoMessageContainerPath, 11, 5, 2) {
                     remove(8)
                     addBuffer(6, byteArrayOf())
                 }

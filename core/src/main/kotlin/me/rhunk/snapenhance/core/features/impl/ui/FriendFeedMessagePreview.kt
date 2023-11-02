@@ -9,7 +9,6 @@ import android.graphics.drawable.shapes.Shape
 import android.text.TextPaint
 import android.view.View
 import android.view.ViewGroup
-import me.rhunk.snapenhance.common.Constants
 import me.rhunk.snapenhance.common.data.ContentType
 import me.rhunk.snapenhance.common.util.protobuf.ProtoReader
 import me.rhunk.snapenhance.core.event.events.impl.BindViewEvent
@@ -19,19 +18,20 @@ import me.rhunk.snapenhance.core.features.impl.experiments.EndToEndEncryption
 import me.rhunk.snapenhance.core.ui.addForegroundDrawable
 import me.rhunk.snapenhance.core.ui.removeForegroundDrawable
 import me.rhunk.snapenhance.core.util.EvictingMap
+import me.rhunk.snapenhance.core.util.ktx.getDimens
+import me.rhunk.snapenhance.core.util.ktx.getId
+import me.rhunk.snapenhance.core.util.ktx.getIdentifier
 import kotlin.math.absoluteValue
 
 @SuppressLint("DiscouragedApi")
 class FriendFeedMessagePreview : Feature("FriendFeedMessagePreview", loadParams = FeatureLoadParams.ACTIVITY_CREATE_SYNC) {
     private val sigColorTextPrimary by lazy {
         context.mainActivity!!.theme.obtainStyledAttributes(
-            intArrayOf(context.resources.getIdentifier("sigColorTextPrimary", "attr", Constants.SNAPCHAT_PACKAGE_NAME))
+            intArrayOf(context.resources.getIdentifier("sigColorTextPrimary", "attr"))
         ).getColor(0, 0)
     }
 
     private val friendNameCache = EvictingMap<String, String>(100)
-
-    private fun getDimens(name: String) = context.resources.getDimensionPixelSize(context.resources.getIdentifier(name, "dimen", Constants.SNAPCHAT_PACKAGE_NAME))
 
     override fun onActivityCreate() {
         val setting = context.config.userInterface.friendFeedMessagePreview
@@ -40,13 +40,13 @@ class FriendFeedMessagePreview : Feature("FriendFeedMessagePreview", loadParams 
         val hasE2EE = context.config.experimental.e2eEncryption.globalState == true
         val endToEndEncryption by lazy { context.feature(EndToEndEncryption::class) }
 
-        val ffItemId = context.resources.getIdentifier("ff_item", "id", Constants.SNAPCHAT_PACKAGE_NAME)
+        val ffItemId = context.resources.getId("ff_item")
 
-        val secondaryTextSize = getDimens("ff_feed_cell_secondary_text_size").toFloat()
-        val ffSdlAvatarMargin = getDimens("ff_sdl_avatar_margin")
-        val ffSdlAvatarSize = getDimens("ff_sdl_avatar_size")
-        val ffSdlAvatarStartMargin = getDimens("ff_sdl_avatar_start_margin")
-        val ffSdlPrimaryTextStartMargin = getDimens("ff_sdl_primary_text_start_margin").toFloat()
+        val secondaryTextSize = context.resources.getDimens("ff_feed_cell_secondary_text_size").toFloat()
+        val ffSdlAvatarMargin = context.resources.getDimens("ff_sdl_avatar_margin")
+        val ffSdlAvatarSize = context.resources.getDimens("ff_sdl_avatar_size")
+        val ffSdlAvatarStartMargin = context.resources.getDimens("ff_sdl_avatar_start_margin")
+        val ffSdlPrimaryTextStartMargin = context.resources.getDimens("ff_sdl_primary_text_start_margin").toFloat()
 
         val feedEntryHeight = ffSdlAvatarSize + ffSdlAvatarMargin * 2 + ffSdlAvatarStartMargin
         val separatorHeight = (context.resources.displayMetrics.density * 2).toInt()

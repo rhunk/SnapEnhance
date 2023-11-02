@@ -5,36 +5,21 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.FrameLayout
 import android.widget.ImageView
-import me.rhunk.snapenhance.common.Constants
 import me.rhunk.snapenhance.core.ui.menu.AbstractMenu
+import me.rhunk.snapenhance.core.util.ktx.getDimens
+import me.rhunk.snapenhance.core.util.ktx.getDrawable
+import me.rhunk.snapenhance.core.util.ktx.getStyledAttributes
 
 
 @SuppressLint("DiscouragedApi")
 class SettingsGearInjector : AbstractMenu() {
-    private val headerButtonOpaqueIconTint by lazy {
-        context.resources.getIdentifier("headerButtonOpaqueIconTint", "attr", Constants.SNAPCHAT_PACKAGE_NAME).let {
-            context.androidContext.theme.obtainStyledAttributes(intArrayOf(it)).getColorStateList(0)
-        }
-    }
+    override fun inject(parent: ViewGroup, view: View, viewConsumer: (View) -> Unit) {
+        val firstView = (view as ViewGroup).getChildAt(0)
 
-    private val settingsSvg by lazy {
-        context.resources.getIdentifier("svg_settings_32x32", "drawable", Constants.SNAPCHAT_PACKAGE_NAME).let {
-            context.resources.getDrawable(it, context.androidContext.theme)
-        }
-    }
+        val ngsHovaHeaderSearchIconBackgroundMarginLeft = context.resources.getDimens("ngs_hova_header_search_icon_background_margin_left")
 
-    private val ngsHovaHeaderSearchIconBackgroundMarginLeft by lazy {
-        context.resources.getIdentifier("ngs_hova_header_search_icon_background_margin_left", "dimen", Constants.SNAPCHAT_PACKAGE_NAME).let {
-            context.resources.getDimensionPixelSize(it)
-        }
-    }
-
-    @SuppressLint("SetTextI18n", "ClickableViewAccessibility")
-    fun inject(parent: ViewGroup, child: View) {
-        val firstView = (child as ViewGroup).getChildAt(0)
-
-        child.clipChildren = false
-        child.addView(FrameLayout(parent.context).apply {
+        view.clipChildren = false
+        view.addView(FrameLayout(parent.context).apply {
             layoutParams = FrameLayout.LayoutParams(firstView.layoutParams.width, firstView.layoutParams.height).apply {
                 y = 0f
                 x = -(ngsHovaHeaderSearchIconBackgroundMarginLeft + firstView.layoutParams.width).toFloat()
@@ -52,7 +37,7 @@ class SettingsGearInjector : AbstractMenu() {
             }
 
             parent.setOnTouchListener { _, event ->
-                if (child.visibility == View.INVISIBLE || child.alpha == 0F) return@setOnTouchListener false
+                if (view.visibility == View.INVISIBLE || view.alpha == 0F) return@setOnTouchListener false
 
                 val viewLocation = IntArray(2)
                 getLocationOnScreen(viewLocation)
@@ -73,8 +58,8 @@ class SettingsGearInjector : AbstractMenu() {
                 layoutParams = FrameLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT, 17).apply {
                     gravity = android.view.Gravity.CENTER
                 }
-                setImageDrawable(settingsSvg)
-                headerButtonOpaqueIconTint?.let {
+                setImageDrawable(context.resources.getDrawable("svg_settings_32x32", context.theme))
+                context.resources.getStyledAttributes("headerButtonOpaqueIconTint", context.theme).getColorStateList(0)?.let {
                     imageTintList = it
                 }
             })

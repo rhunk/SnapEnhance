@@ -6,43 +6,42 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.FrameLayout
 import android.widget.LinearLayout
-import me.rhunk.snapenhance.common.Constants
 import me.rhunk.snapenhance.core.event.events.impl.AddViewEvent
 import me.rhunk.snapenhance.core.features.Feature
 import me.rhunk.snapenhance.core.features.FeatureLoadParams
 import me.rhunk.snapenhance.core.features.impl.messaging.Messaging
 import me.rhunk.snapenhance.core.ui.ViewTagState
+import me.rhunk.snapenhance.core.ui.menu.AbstractMenu
+import me.rhunk.snapenhance.core.util.ktx.getIdentifier
 import java.lang.reflect.Modifier
+import kotlin.reflect.KClass
 
 @SuppressLint("DiscouragedApi")
 class MenuViewInjector : Feature("MenuViewInjector", loadParams = FeatureLoadParams.ACTIVITY_CREATE_ASYNC) {
     private val viewTagState = ViewTagState()
 
-    private val friendFeedInfoMenu = FriendFeedInfoMenu()
-    private val operaContextActionMenu = OperaContextActionMenu()
-    private val chatActionMenu = ChatActionMenu()
-    private val settingMenu = SettingsMenu()
-    private val settingsGearInjector = SettingsGearInjector()
-
+    private val menuMap = mutableMapOf<KClass<*>, AbstractMenu>()
     private val newChatString by lazy {
-        context.resources.getString(context.resources.getIdentifier("new_chat", "string", Constants.SNAPCHAT_PACKAGE_NAME))
+        context.resources.getString(context.resources.getIdentifier("new_chat", "string"))
     }
 
     @SuppressLint("ResourceType")
     override fun asyncOnActivityCreate() {
-        friendFeedInfoMenu.context = context
-        operaContextActionMenu.context = context
-        chatActionMenu.context = context
-        settingMenu.context = context
-        settingsGearInjector.context = context
+        menuMap[SettingsGearInjector::class] = SettingsGearInjector()
+        menuMap[FriendFeedInfoMenu::class] = FriendFeedInfoMenu()
+        menuMap[OperaContextActionMenu::class] = OperaContextActionMenu()
+        menuMap[ChatActionMenu::class] = ChatActionMenu()
+        menuMap[SettingsMenu::class] = SettingsMenu()
+
+        menuMap.values.forEach { it.context = context }
 
         val messaging = context.feature(Messaging::class)
 
-        val actionSheetItemsContainerLayoutId = context.resources.getIdentifier("action_sheet_items_container", "id", Constants.SNAPCHAT_PACKAGE_NAME)
-        val actionSheetContainer = context.resources.getIdentifier("action_sheet_container", "id", Constants.SNAPCHAT_PACKAGE_NAME)
-        val actionMenu = context.resources.getIdentifier("action_menu", "id", Constants.SNAPCHAT_PACKAGE_NAME)
-        val componentsHolder = context.resources.getIdentifier("components_holder", "id", Constants.SNAPCHAT_PACKAGE_NAME)
-        val feedNewChat = context.resources.getIdentifier("feed_new_chat", "id", Constants.SNAPCHAT_PACKAGE_NAME)
+        val actionSheetItemsContainerLayoutId = context.resources.getIdentifier("action_sheet_items_container", "id")
+        val actionSheetContainer = context.resources.getIdentifier("action_sheet_container", "id")
+        val actionMenu = context.resources.getIdentifier("action_menu", "id")
+        val componentsHolder = context.resources.getIdentifier("components_holder", "id")
+        val feedNewChat = context.resources.getIdentifier("feed_new_chat", "id")
 
         context.event.subscribe(AddViewEvent::class) { event ->
             val originalAddView: (View) -> Unit = {
@@ -56,17 +55,17 @@ class MenuViewInjector : Feature("MenuViewInjector", loadParams = FeatureLoadPar
 
             val viewGroup: ViewGroup = event.parent
             val childView: View = event.view
-            operaContextActionMenu.inject(event.parent, childView)
+            menuMap[OperaContextActionMenu::class]!!.inject(viewGroup, childView, originalAddView)
 
             if (event.parent.id == componentsHolder && childView.id == feedNewChat) {
-                settingsGearInjector.inject(event.parent, childView)
+                menuMap[SettingsGearInjector::class]!!.inject(viewGroup, childView, originalAddView)
                 return@subscribe
             }
 
             //download in chat snaps and notes from the chat action menu
             if (viewGroup.javaClass.name.endsWith("ActionMenuChatItemContainer")) {
                 if (viewGroup.parent == null || viewGroup.parent.parent == null) return@subscribe
-                chatActionMenu.inject(viewGroup)
+                menuMap[ChatActionMenu::class]!!.inject(viewGroup, childView, originalAddView)
                 return@subscribe
             }
 
@@ -87,7 +86,7 @@ class MenuViewInjector : Feature("MenuViewInjector", loadParams = FeatureLoadPar
 
                 val viewList = mutableListOf<View>()
                 context.runOnUiThread {
-                    friendFeedInfoMenu.inject(injectedLayout) { view ->
+                    menuMap[FriendFeedInfoMenu::class]?.inject(event.parent, injectedLayout) { view ->
                         view.layoutParams = LinearLayout.LayoutParams(
                             ViewGroup.LayoutParams.MATCH_PARENT,
                             ViewGroup.LayoutParams.WRAP_CONTENT
@@ -124,7 +123,7 @@ class MenuViewInjector : Feature("MenuViewInjector", loadParams = FeatureLoadPar
 
                 //the 3 dot button shows a menu which contains the first item as a Plain object
                 if (viewGroup.getChildCount() == 0 && itemStringInterface != null && itemStringInterface.toString().startsWith("Plain(primaryText=$newChatString")) {
-                    settingMenu.inject(viewGroup, originalAddView)
+                    menuMap[SettingsMenu::class]!!.inject(viewGroup, childView, originalAddView)
                     viewGroup.addOnAttachStateChangeListener(object: View.OnAttachStateChangeListener {
                         override fun onViewAttachedToWindow(v: View) {}
                         override fun onViewDetachedFromWindow(v: View) {
@@ -139,7 +138,7 @@ class MenuViewInjector : Feature("MenuViewInjector", loadParams = FeatureLoadPar
                 //filter by the slot index
                 if (viewGroup.getChildCount() != context.config.userInterface.friendFeedMenuPosition.get()) return@subscribe
                 if (viewTagState[viewGroup]) return@subscribe
-                friendFeedInfoMenu.inject(viewGroup, originalAddView)
+                menuMap[FriendFeedInfoMenu::class]!!.inject(viewGroup, childView, originalAddView)
             }
         }
     }

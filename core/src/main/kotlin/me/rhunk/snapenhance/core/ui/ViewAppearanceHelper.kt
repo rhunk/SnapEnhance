@@ -12,11 +12,14 @@ import android.graphics.drawable.Drawable
 import android.graphics.drawable.ShapeDrawable
 import android.graphics.drawable.StateListDrawable
 import android.graphics.drawable.shapes.Shape
+import android.os.SystemClock
 import android.view.Gravity
+import android.view.MotionEvent
 import android.view.View
 import android.widget.Switch
 import android.widget.TextView
-import me.rhunk.snapenhance.common.Constants
+import me.rhunk.snapenhance.core.util.ktx.getDimens
+import me.rhunk.snapenhance.core.util.ktx.getIdentifier
 import kotlin.random.Random
 
 fun View.applyTheme(componentWidth: Int? = null, hasRadius: Boolean = false, isAmoled: Boolean = true) {
@@ -54,11 +57,28 @@ fun View.addForegroundDrawable(tag: String, drawable: Drawable) {
     updateForegroundDrawable()
 }
 
+fun View.triggerCloseTouchEvent() {
+    arrayOf(MotionEvent.ACTION_DOWN, MotionEvent.ACTION_UP).forEach {
+        this.dispatchTouchEvent(
+            MotionEvent.obtain(
+                SystemClock.uptimeMillis(),
+                SystemClock.uptimeMillis(),
+                it, 0f, 0f, 0
+            )
+        )
+    }
+}
+
+fun View.iterateParent(predicate: (View) -> Boolean) {
+    var parent = this.parent as? View ?: return
+    while (true) {
+        if (predicate(parent)) return
+        parent = parent.parent as? View ?: return
+    }
+}
+
 
 object ViewAppearanceHelper {
-    @SuppressLint("UseSwitchCompatOrMaterialCode", "RtlHardcoded", "DiscouragedApi",
-        "ClickableViewAccessibility"
-    )
     private var sigColorTextPrimary: Int = 0
     private var sigColorBackgroundSurface: Int = 0
 
@@ -81,16 +101,16 @@ object ViewAppearanceHelper {
         if (sigColorBackgroundSurface == 0 || sigColorTextPrimary == 0) {
             with(component.context.theme) {
                 sigColorTextPrimary = obtainStyledAttributes(
-                    intArrayOf(resources.getIdentifier("sigColorTextPrimary", "attr", Constants.SNAPCHAT_PACKAGE_NAME))
+                    intArrayOf(resources.getIdentifier("sigColorTextPrimary", "attr"))
                 ).getColor(0, 0)
 
                 sigColorBackgroundSurface = obtainStyledAttributes(
-                    intArrayOf(resources.getIdentifier("sigColorBackgroundSurface", "attr", Constants.SNAPCHAT_PACKAGE_NAME))
+                    intArrayOf(resources.getIdentifier("sigColorBackgroundSurface", "attr"))
                 ).getColor(0, 0)
             }
         }
 
-        val snapchatFontResId = resources.getIdentifier("avenir_next_medium", "font", Constants.SNAPCHAT_PACKAGE_NAME)
+        val snapchatFontResId = resources.getIdentifier("avenir_next_medium", "font")
         val scalingFactor = resources.displayMetrics.densityDpi.toDouble() / 400
 
         with(component) {
@@ -117,9 +137,7 @@ object ViewAppearanceHelper {
         }
 
         if (component is Switch) {
-            with(resources) {
-                component.switchMinWidth = getDimension(getIdentifier("v11_switch_min_width", "dimen", Constants.SNAPCHAT_PACKAGE_NAME)).toInt()
-            }
+            component.switchMinWidth = resources.getDimens("v11_switch_min_width")
             component.trackTintList = ColorStateList(
                 arrayOf(intArrayOf(-android.R.attr.state_checked), intArrayOf(android.R.attr.state_checked)
                 ), intArrayOf(

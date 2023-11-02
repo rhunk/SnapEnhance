@@ -3,12 +3,12 @@ package me.rhunk.snapenhance.core.features.impl.experiments
 import android.annotation.SuppressLint
 import android.content.res.TypedArray
 import android.graphics.drawable.ColorDrawable
-import me.rhunk.snapenhance.common.Constants
 import me.rhunk.snapenhance.core.features.Feature
 import me.rhunk.snapenhance.core.features.FeatureLoadParams
 import me.rhunk.snapenhance.core.util.hook.HookStage
 import me.rhunk.snapenhance.core.util.hook.Hooker
 import me.rhunk.snapenhance.core.util.hook.hook
+import me.rhunk.snapenhance.core.util.ktx.getIdentifier
 
 class AmoledDarkMode : Feature("Amoled Dark Mode", loadParams = FeatureLoadParams.ACTIVITY_CREATE_SYNC) {
     @SuppressLint("DiscouragedApi")
@@ -18,7 +18,7 @@ class AmoledDarkMode : Feature("Amoled Dark Mode", loadParams = FeatureLoadParam
 
         fun getAttribute(name: String): Int {
             if (attributeCache.containsKey(name)) return attributeCache[name]!!
-            return context.resources.getIdentifier(name, "attr", Constants.SNAPCHAT_PACKAGE_NAME).also { attributeCache[name] = it }
+            return context.resources.getIdentifier(name, "attr").also { attributeCache[name] = it }
         }
 
         context.androidContext.theme.javaClass.getMethod("obtainStyledAttributes", IntArray::class.java).hook(

@@ -7,16 +7,14 @@ import android.view.ViewGroup
 import android.widget.Button
 import android.widget.LinearLayout
 import android.widget.ScrollView
-import me.rhunk.snapenhance.common.Constants
 import me.rhunk.snapenhance.core.features.impl.downloader.MediaDownloader
 import me.rhunk.snapenhance.core.ui.applyTheme
 import me.rhunk.snapenhance.core.ui.menu.AbstractMenu
+import me.rhunk.snapenhance.core.util.ktx.getId
 
 @SuppressLint("DiscouragedApi")
 class OperaContextActionMenu : AbstractMenu() {
-    private val contextCardsScrollView by lazy {
-        context.resources.getIdentifier("context_cards_scroll_view", "id", Constants.SNAPCHAT_PACKAGE_NAME)
-    }
+    private val contextCardsScrollView by lazy { context.resources.getId("context_cards_scroll_view") }
 
     /*
     LinearLayout :
@@ -52,15 +50,15 @@ class OperaContextActionMenu : AbstractMenu() {
     }
 
     @SuppressLint("SetTextI18n")
-    fun inject(viewGroup: ViewGroup, childView: View) {
+    override fun inject(parent: ViewGroup, view: View, viewConsumer: (View) -> Unit) {
         try {
-            if (viewGroup.parent !is ScrollView) return
-            val parent = viewGroup.parent as ScrollView
-            if (parent.id != contextCardsScrollView) return
-            if (childView !is LinearLayout) return
-            if (!isViewGroupButtonMenuContainer(childView as ViewGroup)) return
+            if (parent.parent !is ScrollView) return
+            val parentView = parent.parent as ScrollView
+            if (parentView.id != contextCardsScrollView) return
+            if (view !is LinearLayout) return
+            if (!isViewGroupButtonMenuContainer(view as ViewGroup)) return
 
-            val linearLayout = LinearLayout(childView.getContext())
+            val linearLayout = LinearLayout(view.context)
             linearLayout.orientation = LinearLayout.VERTICAL
             linearLayout.gravity = Gravity.CENTER
             linearLayout.layoutParams =
@@ -71,21 +69,21 @@ class OperaContextActionMenu : AbstractMenu() {
             val translation = context.translation
             val mediaDownloader = context.feature(MediaDownloader::class)
 
-            linearLayout.addView(Button(childView.getContext()).apply {
+            linearLayout.addView(Button(view.context).apply {
                 text = translation["opera_context_menu.download"]
                 setOnClickListener { mediaDownloader.downloadLastOperaMediaAsync() }
                 applyTheme(isAmoled = false)
             })
 
             if (context.isDeveloper) {
-                linearLayout.addView(Button(childView.getContext()).apply {
+                linearLayout.addView(Button(view.context).apply {
                     text = "Show debug info"
                     setOnClickListener { mediaDownloader.showLastOperaDebugMediaInfo() }
                     applyTheme(isAmoled = false)
                 })
             }
 
-            (childView as ViewGroup).addView(linearLayout, 0)
+            (view as ViewGroup).addView(linearLayout, 0)
         } catch (e: Throwable) {
             context.log.error("Error while injecting OperaContextActionMenu", e)
         }

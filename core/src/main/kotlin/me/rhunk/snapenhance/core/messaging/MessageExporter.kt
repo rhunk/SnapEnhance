@@ -22,7 +22,11 @@ import me.rhunk.snapenhance.core.features.impl.downloader.decoder.AttachmentType
 import me.rhunk.snapenhance.core.features.impl.downloader.decoder.MessageDecoder
 import me.rhunk.snapenhance.core.wrapper.impl.Message
 import me.rhunk.snapenhance.core.wrapper.impl.SnapUUID
-import java.io.*
+import java.io.BufferedInputStream
+import java.io.File
+import java.io.FileOutputStream
+import java.io.InputStream
+import java.io.OutputStream
 import java.text.SimpleDateFormat
 import java.util.Collections
 import java.util.Date
@@ -96,7 +100,7 @@ class MessageExporter(
         writer.flush()
     }
 
-    suspend fun exportHtml(output: OutputStream) {
+    private suspend fun exportHtml(output: OutputStream) {
         val downloadMediaCacheFolder = File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS), "SnapEnhance/cache").also { it.mkdirs() }
         val mediaFiles = Collections.synchronizedMap(mutableMapOf<String, Pair<FileType, File>>())
         val threadPool = Executors.newFixedThreadPool(15)
@@ -318,14 +322,15 @@ class MessageExporter(
     }
 
     suspend fun exportTo(exportFormat: ExportFormat) {
-        val output = FileOutputStream(outputFile)
-
-        when (exportFormat) {
-            ExportFormat.HTML -> exportHtml(output)
-            ExportFormat.JSON -> exportJson(output)
-            ExportFormat.TEXT -> exportText(output)
+        withContext(Dispatchers.IO) {
+            FileOutputStream(outputFile).apply {
+                when (exportFormat) {
+                    ExportFormat.HTML -> exportHtml(this)
+                    ExportFormat.JSON -> exportJson(this)
+                    ExportFormat.TEXT -> exportText(this)
+                }
+                close()
+            }
         }
-
-        output.close()
     }
 }

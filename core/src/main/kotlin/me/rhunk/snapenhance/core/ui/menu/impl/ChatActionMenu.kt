@@ -2,15 +2,12 @@ package me.rhunk.snapenhance.core.ui.menu.impl
 
 import android.annotation.SuppressLint
 import android.content.Context
-import android.os.SystemClock
-import android.view.MotionEvent
 import android.view.View
 import android.view.ViewGroup
 import android.view.ViewGroup.MarginLayoutParams
 import android.widget.Button
 import android.widget.LinearLayout
 import android.widget.TextView
-import me.rhunk.snapenhance.common.Constants
 import me.rhunk.snapenhance.common.data.ContentType
 import me.rhunk.snapenhance.common.util.protobuf.ProtoReader
 import me.rhunk.snapenhance.core.features.impl.downloader.MediaDownloader
@@ -20,6 +17,8 @@ import me.rhunk.snapenhance.core.ui.ViewAppearanceHelper
 import me.rhunk.snapenhance.core.ui.ViewTagState
 import me.rhunk.snapenhance.core.ui.applyTheme
 import me.rhunk.snapenhance.core.ui.menu.AbstractMenu
+import me.rhunk.snapenhance.core.ui.triggerCloseTouchEvent
+import me.rhunk.snapenhance.core.util.ktx.getDimens
 import java.time.Instant
 
 
@@ -27,35 +26,11 @@ import java.time.Instant
 class ChatActionMenu : AbstractMenu() {
     private val viewTagState = ViewTagState()
 
-    private val defaultGap by lazy {
-        context.androidContext.resources.getDimensionPixelSize(
-            context.androidContext.resources.getIdentifier(
-                "default_gap",
-                "dimen",
-                Constants.SNAPCHAT_PACKAGE_NAME
-            )
-        )
-    }
+    private val defaultGap by lazy { context.resources.getDimens("default_gap") }
 
-    private val chatActionMenuItemMargin by lazy {
-        context.androidContext.resources.getDimensionPixelSize(
-            context.androidContext.resources.getIdentifier(
-                "chat_action_menu_item_margin",
-                "dimen",
-                Constants.SNAPCHAT_PACKAGE_NAME
-            )
-        )
-    }
+    private val chatActionMenuItemMargin by lazy { context.resources.getDimens("chat_action_menu_item_margin") }
 
-    private val actionMenuItemHeight by lazy {
-        context.androidContext.resources.getDimensionPixelSize(
-            context.androidContext.resources.getIdentifier(
-                "action_menu_item_height",
-                "dimen",
-                Constants.SNAPCHAT_PACKAGE_NAME
-            )
-        )
-    }
+    private val actionMenuItemHeight by lazy { context.resources.getDimens("action_menu_item_height") }
 
     private fun createContainer(viewGroup: ViewGroup): LinearLayout {
         val parent = viewGroup.parent.parent as ViewGroup
@@ -87,22 +62,11 @@ class ChatActionMenu : AbstractMenu() {
         get() = context.database.getConversationMessageFromId(context.feature(Messaging::class).lastFocusedMessageId)
 
     @SuppressLint("SetTextI18n", "DiscouragedApi", "ClickableViewAccessibility")
-    fun inject(viewGroup: ViewGroup) {
-        val parent = viewGroup.parent.parent as? ViewGroup ?: return
-        if (viewTagState[parent]) return
+    override fun inject(parent: ViewGroup, view: View, viewConsumer: (View) -> Unit) {
+        val viewGroup = parent.parent.parent as? ViewGroup ?: return
+        if (viewTagState[viewGroup]) return
         //close the action menu using a touch event
-        val closeActionMenu = {
-            viewGroup.dispatchTouchEvent(
-                MotionEvent.obtain(
-                    SystemClock.uptimeMillis(),
-                    SystemClock.uptimeMillis(),
-                    MotionEvent.ACTION_DOWN,
-                    0f,
-                    0f,
-                    0
-                )
-            )
-        }
+        val closeActionMenu = { parent.triggerCloseTouchEvent() }
 
         val messaging = context.feature(Messaging::class)
         val messageLogger = context.feature(MessageLogger::class)
@@ -123,7 +87,7 @@ class ChatActionMenu : AbstractMenu() {
             }
 
             with(button) {
-                applyTheme(parent.width, true)
+                applyTheme(viewGroup.width, true)
                 layoutParams = MarginLayoutParams(
                     ViewGroup.LayoutParams.MATCH_PARENT,
                     ViewGroup.LayoutParams.WRAP_CONTENT
@@ -168,7 +132,7 @@ class ChatActionMenu : AbstractMenu() {
         }
 
         if (context.isDeveloper) {
-            parent.addView(createContainer(viewGroup).apply {
+            viewGroup.addView(createContainer(viewGroup).apply {
                 val debugText = StringBuilder()
 
                 setOnClickListener {
@@ -221,6 +185,6 @@ class ChatActionMenu : AbstractMenu() {
             })
         }
 
-        parent.addView(buttonContainer)
+        viewGroup.addView(buttonContainer)
     }
 }

@@ -20,7 +20,7 @@ fun Any.setObjectField(fieldName: String, value: Any?) {
 fun Any.getObjectFieldOrNull(fieldName: String): Any? {
     return try {
         getObjectField(fieldName)
-    } catch (e: Exception) {
+    } catch (t: Throwable) {
         null
     }
 }

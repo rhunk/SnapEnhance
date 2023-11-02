@@ -1,7 +1,7 @@
 package me.rhunk.snapenhance.common
 
 object Constants {
-    const val SNAPCHAT_PACKAGE_NAME = "com.snapchat.android"
+    val SNAPCHAT_PACKAGE_NAME get() = "com.snapchat.android"
 
     val ARROYO_MEDIA_CONTAINER_PROTO_PATH = intArrayOf(4, 4)
 
