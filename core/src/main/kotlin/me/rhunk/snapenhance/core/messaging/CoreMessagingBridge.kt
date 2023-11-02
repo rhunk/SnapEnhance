@@ -13,13 +13,13 @@ import me.rhunk.snapenhance.core.features.impl.messaging.Messaging
 
 fun me.rhunk.snapenhance.core.wrapper.impl.Message.toBridge(): Message {
     return Message().also { output ->
-        output.conversationId = this.messageDescriptor.conversationId.toString()
+        output.conversationId = this.messageDescriptor!!.conversationId.toString()
         output.senderId = this.senderId.toString()
-        output.clientMessageId = this.messageDescriptor.messageId
-        output.serverMessageId = this.orderKey
-        output.contentType = this.messageContent.contentType?.id ?: -1
-        output.content = this.messageContent.content
-        output.mediaReferences = MessageDecoder.getEncodedMediaReferences(this.messageContent)
+        output.clientMessageId = this.messageDescriptor!!.messageId!!
+        output.serverMessageId = this.orderKey!!
+        output.contentType = this.messageContent?.contentType?.id ?: -1
+        output.content = this.messageContent?.content
+        output.mediaReferences = MessageDecoder.getEncodedMediaReferences(this.messageContent!!)
     }
 }
 

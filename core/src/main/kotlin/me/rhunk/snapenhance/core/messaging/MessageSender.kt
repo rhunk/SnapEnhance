@@ -94,12 +94,12 @@ class MessageSender(
 
         val localMessageContent = context.gson.fromJson(localMessageContentTemplate, context.classCache.localMessageContent)
         val messageDestinations = MessageDestinations(AbstractWrapper.newEmptyInstance(context.classCache.messageDestinations)).also {
-            it.conversations = conversations
-            it.mPhoneNumbers = arrayListOf()
-            it.stories = arrayListOf()
+            it.conversations = conversations.toCollection(ArrayList())
+            it.mPhoneNumbers = arrayListOf<Any>()
+            it.stories = arrayListOf<Any>()
         }
 
-        sendMessageWithContentMethod.invoke(context.feature(Messaging::class).conversationManager, messageDestinations.instanceNonNull(), localMessageContent, callback)
+        sendMessageWithContentMethod.invoke(context.feature(Messaging::class).conversationManager?.instanceNonNull(), messageDestinations.instanceNonNull(), localMessageContent, callback)
     }
 
     fun sendChatMessage(conversations: List<SnapUUID>, message: String, onError: (Any) -> Unit = {}, onSuccess: () -> Unit = {}) {

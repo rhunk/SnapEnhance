@@ -68,11 +68,11 @@ class InstantDelete : Feature("InstantDelete", loadParams = FeatureLoadParams.AC
 
                     if (chatActionMenuOptions["chat_action_menu_erase_quote"] == menuOptionText.text) {
                         conversationManager.fetchMessage(conversationId, messageId.toLong(), onSuccess = { message ->
-                            val quotedMessage = message.messageContent.quotedMessage.takeIf { it.isPresent() }!!
+                            val quotedMessage = message.messageContent!!.quotedMessage!!.takeIf { it.isPresent() }!!
 
                             conversationManager.updateMessage(
                                 conversationId,
-                                quotedMessage.content.messageId,
+                                quotedMessage.content!!.messageId!!,
                                 MessageUpdate.ERASE,
                                 onResult = onCallbackResult
                             )

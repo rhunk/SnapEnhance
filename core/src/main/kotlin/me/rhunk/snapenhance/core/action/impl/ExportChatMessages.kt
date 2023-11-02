@@ -176,7 +176,7 @@ class ExportChatMessages : AbstractAction() {
             }
 
             fetchedMessages.firstOrNull()?.let {
-                lastMessageId = it.messageDescriptor.messageId
+                lastMessageId = it.messageDescriptor!!.messageId!!
             }
             setStatus("Exporting (${foundMessages.size} / ${foundMessages.firstOrNull()?.orderKey})")
         }

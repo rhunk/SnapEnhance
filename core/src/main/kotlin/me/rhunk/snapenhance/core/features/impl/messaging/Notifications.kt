@@ -27,7 +27,6 @@ import me.rhunk.snapenhance.core.features.FeatureLoadParams
 import me.rhunk.snapenhance.core.features.impl.downloader.MediaDownloader
 import me.rhunk.snapenhance.core.features.impl.downloader.decoder.MessageDecoder
 import me.rhunk.snapenhance.core.features.impl.spying.StealthMode
-import me.rhunk.snapenhance.core.util.CallbackBuilder
 import me.rhunk.snapenhance.core.util.hook.HookStage
 import me.rhunk.snapenhance.core.util.hook.hook
 import me.rhunk.snapenhance.core.util.ktx.setObjectField
@@ -264,14 +263,14 @@ class Notifications : Feature("Notifications", loadParams = FeatureLoadParams.IN
                     }
                 }
 
-                val contentType = snapMessage.messageContent.contentType ?: return@onEach
-                val contentData = snapMessage.messageContent.content
+                val contentType = snapMessage.messageContent!!.contentType ?: return@onEach
+                val contentData = snapMessage.messageContent!!.content!!
 
                 val formatUsername: (String) -> String = { "$senderUsername: $it" }
                 val notificationCache = cachedMessages.let { it.computeIfAbsent(conversationId) { mutableListOf() } }
                 val appendNotifications: () -> Unit = { setNotificationText(notificationData.notification, conversationId)}
 
-                setupNotificationActionButtons(contentType, conversationId, snapMessage.messageDescriptor.messageId, notificationData)
+                setupNotificationActionButtons(contentType, conversationId, snapMessage.messageDescriptor!!.messageId!!, notificationData)
 
                 when (contentType) {
                     ContentType.NOTE -> {
@@ -286,14 +285,14 @@ class Notifications : Feature("Notifications", loadParams = FeatureLoadParams.IN
                     }
                     ContentType.SNAP, ContentType.EXTERNAL_MEDIA -> {
                         val mediaReferences = MessageDecoder.getMediaReferences(
-                            messageContent = context.gson.toJsonTree(snapMessage.messageContent.instanceNonNull())
+                            messageContent = context.gson.toJsonTree(snapMessage.messageContent!!.instanceNonNull())
                         )
 
                         val mediaReferenceKeys = mediaReferences.map { reference ->
                             reference.asJsonObject.getAsJsonArray("mContentObject").map { it.asByte }.toByteArray()
                         }
 
-                        MessageDecoder.decode(snapMessage.messageContent).firstOrNull()?.also { media ->
+                        MessageDecoder.decode(snapMessage.messageContent!!).firstOrNull()?.also { media ->
                             val mediaType = MediaReferenceType.valueOf(mediaReferences.first().asJsonObject["mMediaType"].asString)
 
                             runCatching {

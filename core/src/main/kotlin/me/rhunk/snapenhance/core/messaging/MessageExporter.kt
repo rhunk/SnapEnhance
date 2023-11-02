@@ -74,8 +74,8 @@ class MessageExporter(
     }
 
     private fun serializeMessageContent(message: Message): String? {
-        return if (message.messageContent.contentType == ContentType.CHAT) {
-            ProtoReader(message.messageContent.content).getString(2, 1) ?: "Failed to parse message"
+        return if (message.messageContent!!.contentType == ContentType.CHAT) {
+            ProtoReader(message.messageContent!!.content!!).getString(2, 1) ?: "Failed to parse message"
         } else null
     }
 
@@ -93,8 +93,8 @@ class MessageExporter(
             val sender = conversationParticipants[message.senderId.toString()]
             val senderUsername = sender?.usernameForSorting ?: message.senderId.toString()
             val senderDisplayName = sender?.displayName ?: message.senderId.toString()
-            val messageContent = serializeMessageContent(message) ?: message.messageContent.contentType?.name
-            val date = SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.ENGLISH).format(Date(message.messageMetadata.createdAt))
+            val messageContent = serializeMessageContent(message) ?: message.messageContent!!.contentType?.name
+            val date = SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.ENGLISH).format(Date(message.messageMetadata!!.createdAt!!))
             writer.write("[$date] - $senderDisplayName (${senderUsername}): $messageContent\n")
         }
         writer.flush()
@@ -110,17 +110,17 @@ class MessageExporter(
 
             fun updateProgress(type: String) {
                 val total = messages.filter {
-                    mediaToDownload?.contains(it.messageContent.contentType) ?: false
+                    mediaToDownload?.contains(it.messageContent!!.contentType) ?: false
                 }.size
                 processCount++
                 printLog("$type $processCount/$total")
             }
 
             messages.filter {
-                mediaToDownload?.contains(it.messageContent.contentType) ?: false
+                mediaToDownload?.contains(it.messageContent!!.contentType) ?: false
             }.forEach { message ->
                 threadPool.execute {
-                    MessageDecoder.decode(message.messageContent).forEach decode@{ attachment ->
+                    MessageDecoder.decode(message.messageContent!!).forEach decode@{ attachment ->
                         val protoMediaReference = Base64.UrlSafe.decode(attachment.mediaUrlKey ?: return@decode)
 
                         runCatching {
@@ -145,8 +145,8 @@ class MessageExporter(
 
                             updateProgress("downloaded")
                         }.onFailure {
-                            printLog("failed to download media for ${message.messageDescriptor.conversationId}_${message.orderKey}")
-                            context.log.error("failed to download media for ${message.messageDescriptor.conversationId}_${message.orderKey}", it)
+                            printLog("failed to download media for ${message.messageDescriptor!!.conversationId}_${message.orderKey}")
+                            context.log.error("failed to download media for ${message.messageDescriptor!!.conversationId}_${message.orderKey}", it)
                         }
                     }
                 }
@@ -270,7 +270,7 @@ class MessageExporter(
                     add(JsonObject().apply {
                         addProperty("orderKey", message.orderKey)
                         addProperty("senderId", participants.getOrDefault(message.senderId.toString(), -1))
-                        addProperty("type", message.messageContent.contentType.toString())
+                        addProperty("type", message.messageContent!!.contentType.toString())
 
                         fun addUUIDList(name: String, list: List<SnapUUID>) {
                             add(name, JsonArray().apply {
@@ -278,12 +278,12 @@ class MessageExporter(
                             })
                         }
 
-                        addUUIDList("savedBy", message.messageMetadata.savedBy)
-                        addUUIDList("seenBy", message.messageMetadata.seenBy)
-                        addUUIDList("openedBy", message.messageMetadata.openedBy)
+                        addUUIDList("savedBy", message.messageMetadata!!.savedBy!!)
+                        addUUIDList("seenBy", message.messageMetadata!!.seenBy!!)
+                        addUUIDList("openedBy", message.messageMetadata!!.openedBy!!)
 
                         add("reactions", JsonObject().apply {
-                            message.messageMetadata.reactions.forEach { reaction ->
+                            message.messageMetadata!!.reactions!!.forEach { reaction ->
                                 addProperty(
                                     participants.getOrDefault(reaction.userId.toString(), -1L).toString(),
                                     reaction.reactionId
@@ -291,13 +291,13 @@ class MessageExporter(
                             }
                         })
 
-                        addProperty("createdTimestamp", message.messageMetadata.createdAt)
-                        addProperty("readTimestamp", message.messageMetadata.readAt)
+                        addProperty("createdTimestamp", message.messageMetadata!!.createdAt)
+                        addProperty("readTimestamp", message.messageMetadata!!.readAt)
                         addProperty("serializedContent", serializeMessageContent(message))
-                        addProperty("rawContent", Base64.UrlSafe.encode(message.messageContent.content))
+                        addProperty("rawContent", Base64.UrlSafe.encode(message.messageContent!!.content!!))
 
                         add("attachments", JsonArray().apply {
-                            MessageDecoder.decode(message.messageContent)
+                            MessageDecoder.decode(message.messageContent!!)
                                 .forEach attachments@{ attachments ->
                                 if (attachments.type == AttachmentType.STICKER) //TODO: implement stickers
                                     return@attachments

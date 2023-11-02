@@ -26,8 +26,8 @@ class AutoSave : MessagingRuleFeature("Auto Save", MessagingRuleType.AUTO_SAVE, 
     }
 
     private fun saveMessage(conversationId: SnapUUID, message: Message) {
-        val messageId = message.messageDescriptor.messageId
-        if (messageLogger.takeIf { it.isEnabled }?.isMessageDeleted(conversationId.toString(), message.messageDescriptor.messageId) == true) return
+        val messageId = message.messageDescriptor!!.messageId!!
+        if (messageLogger.takeIf { it.isEnabled }?.isMessageDeleted(conversationId.toString(), messageId) == true) return
         if (message.messageState != MessageState.COMMITTED) return
 
         runCatching {
@@ -50,8 +50,8 @@ class AutoSave : MessagingRuleFeature("Auto Save", MessagingRuleType.AUTO_SAVE, 
 
     private fun canSaveMessage(message: Message): Boolean {
         if (context.mainActivity == null || context.isMainActivityPaused) return false
-        if (message.messageMetadata.savedBy.any { uuid -> uuid.toString() == context.database.myUserId }) return false
-        val contentType = message.messageContent.contentType.toString()
+        if (message.messageMetadata!!.savedBy!!.any { uuid -> uuid.toString() == context.database.myUserId }) return false
+        val contentType = message.messageContent!!.contentType.toString()
 
         return autoSaveFilter.any { it == contentType }
     }
@@ -96,7 +96,7 @@ class AutoSave : MessagingRuleFeature("Auto Save", MessagingRuleType.AUTO_SAVE, 
             { autoSaveFilter.isNotEmpty() }
         ) { param ->
             val message = Message(param.arg(0))
-            val conversationId = message.messageDescriptor.conversationId
+            val conversationId = message.messageDescriptor!!.conversationId!!
             if (!canSaveInConversation(conversationId.toString())) return@hook
             if (!canSaveMessage(message)) return@hook
 

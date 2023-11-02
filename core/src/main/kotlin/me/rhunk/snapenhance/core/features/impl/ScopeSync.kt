@@ -29,7 +29,7 @@ class ScopeSync : Feature("Scope Sync", loadParams = FeatureLoadParams.INIT_SYNC
             if (event.messageContent.contentType != ContentType.SNAP) return@subscribe
 
             event.addCallbackResult("onSuccess") {
-                event.destinations.conversations.map { it.toString() }.forEach { conversationId ->
+                event.destinations.conversations!!.map { it.toString() }.forEach { conversationId ->
                     updateJobs[conversationId]?.also { it.cancel() }
 
                     updateJobs[conversationId] = (context.coroutineScope.launch {

@@ -58,7 +58,7 @@ class SendOverride : Feature("Send Override", loadParams = FeatureLoadParams.INI
             if (localMessageContent.contentType != ContentType.EXTERNAL_MEDIA) return@subscribe
 
             //prevent story replies
-            val messageProtoReader = ProtoReader(localMessageContent.content)
+            val messageProtoReader = ProtoReader(localMessageContent.content!!)
             if (messageProtoReader.contains(7)) return@subscribe
 
             event.canceled = true

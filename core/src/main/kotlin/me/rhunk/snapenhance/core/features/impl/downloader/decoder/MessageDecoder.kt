@@ -77,7 +77,7 @@ object MessageDecoder {
 
     fun decode(messageContent: MessageContent): List<DecodedAttachment> {
         return decode(
-            ProtoReader(messageContent.content),
+            ProtoReader(messageContent.content!!),
             customMediaReferences = getEncodedMediaReferences(gson.toJsonTree(messageContent.instanceNonNull()))
         )
     }

@@ -1,14 +1,21 @@
 package me.rhunk.snapenhance.core.wrapper.impl
 
 import me.rhunk.snapenhance.common.data.MessageState
-import me.rhunk.snapenhance.core.util.ktx.getObjectField
 import me.rhunk.snapenhance.core.wrapper.AbstractWrapper
+import org.mozilla.javascript.annotations.JSGetter
+import org.mozilla.javascript.annotations.JSSetter
 
 class Message(obj: Any?) : AbstractWrapper(obj) {
-    val orderKey get() = instanceNonNull().getObjectField("mOrderKey") as Long
-    val senderId get() = SnapUUID(instanceNonNull().getObjectField("mSenderId"))
-    val messageContent get() = MessageContent(instanceNonNull().getObjectField("mMessageContent"))
-    val messageDescriptor get() = MessageDescriptor(instanceNonNull().getObjectField("mDescriptor"))
-    val messageMetadata get() = MessageMetadata(instanceNonNull().getObjectField("mMetadata"))
+    @get:JSGetter @set:JSSetter
+    var orderKey by field<Long>("mOrderKey")
+    @get:JSGetter @set:JSSetter
+    var senderId by field("mSenderId") { SnapUUID(it) }
+    @get:JSGetter @set:JSSetter
+    var messageContent by field("mMessageContent") { MessageContent(it) }
+    @get:JSGetter @set:JSSetter
+    var messageDescriptor by field("mDescriptor") { MessageDescriptor(it) }
+    @get:JSGetter @set:JSSetter
+    var messageMetadata by field("mMetadata") { MessageMetadata(it) }
+    @get:JSGetter @set:JSSetter
     var messageState by enum("mState", MessageState.COMMITTED)
 }

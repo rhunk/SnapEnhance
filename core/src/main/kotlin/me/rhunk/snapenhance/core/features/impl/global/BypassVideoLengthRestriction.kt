@@ -40,7 +40,7 @@ class BypassVideoLengthRestriction :
                 })
 
                 context.event.subscribe(SendMessageWithContentEvent::class) { event ->
-                    if (event.destinations.stories.isEmpty()) return@subscribe
+                    if (event.destinations.stories!!.isEmpty()) return@subscribe
                     fileObserver.startWatching()
                 }
             }

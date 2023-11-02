@@ -7,7 +7,10 @@ import me.rhunk.snapenhance.core.wrapper.AbstractWrapper
 
 typealias CallbackResult = (error: String?) -> Unit
 
-class ConversationManager(val context: ModContext, obj: Any) : AbstractWrapper(obj) {
+class ConversationManager(
+    val context: ModContext,
+    obj: Any
+) : AbstractWrapper(obj) {
     private fun findMethodByName(name: String) = context.classCache.conversationManager.declaredMethods.find { it.name == name } ?: throw RuntimeException("Could not find method $name")
 
     private val updateMessageMethod by lazy { findMethodByName("updateMessage") }

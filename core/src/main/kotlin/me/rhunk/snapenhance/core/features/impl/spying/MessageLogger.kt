@@ -101,14 +101,14 @@ class MessageLogger : Feature("MessageLogger",
             val messageInstance = event.message.instanceNonNull()
             if (event.message.messageState != MessageState.COMMITTED) return@subscribe
 
-            cachedIdLinks[event.message.messageDescriptor.messageId] = event.message.orderKey
-            val conversationId = event.message.messageDescriptor.conversationId.toString()
+            cachedIdLinks[event.message.messageDescriptor!!.messageId!!] = event.message.orderKey!!
+            val conversationId = event.message.messageDescriptor!!.conversationId.toString()
             //exclude messages sent by me
             if (event.message.senderId.toString() == context.database.myUserId) return@subscribe
 
-            val uniqueMessageIdentifier = computeMessageIdentifier(conversationId, event.message.orderKey)
+            val uniqueMessageIdentifier = computeMessageIdentifier(conversationId, event.message.orderKey!!)
 
-            if (event.message.messageContent.contentType != ContentType.STATUS) {
+            if (event.message.messageContent!!.contentType != ContentType.STATUS) {
                 if (fetchedMessages.contains(uniqueMessageIdentifier)) return@subscribe
                 fetchedMessages.add(uniqueMessageIdentifier)
 

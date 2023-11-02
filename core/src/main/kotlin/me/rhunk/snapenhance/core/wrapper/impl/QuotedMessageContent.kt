@@ -1,10 +1,10 @@
 package me.rhunk.snapenhance.core.wrapper.impl
 
-import me.rhunk.snapenhance.core.util.ktx.getObjectField
-import me.rhunk.snapenhance.core.util.ktx.setObjectField
 import me.rhunk.snapenhance.core.wrapper.AbstractWrapper
+import org.mozilla.javascript.annotations.JSGetter
+import org.mozilla.javascript.annotations.JSSetter
 
 class QuotedMessageContent(obj: Any?) : AbstractWrapper(obj) {
-    var messageId get() = instanceNonNull().getObjectField("mMessageId") as Long
-        set(value) = instanceNonNull().setObjectField("mMessageId", value)
+    @get:JSGetter @set:JSSetter
+    var messageId by field<Long>("mMessageId")
 }

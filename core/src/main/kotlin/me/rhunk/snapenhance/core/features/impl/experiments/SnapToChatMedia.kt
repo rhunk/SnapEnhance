@@ -12,10 +12,10 @@ class SnapToChatMedia : Feature("SnapToChatMedia", loadParams = FeatureLoadParam
         if (!context.config.experimental.snapToChatMedia.get()) return
 
         context.event.subscribe(BuildMessageEvent::class, priority = 100) { event ->
-            if (event.message.messageContent.contentType != ContentType.SNAP) return@subscribe
+            if (event.message.messageContent!!.contentType != ContentType.SNAP) return@subscribe
 
-            val snapMessageContent = ProtoReader(event.message.messageContent.content).followPath(11)?.getBuffer() ?: return@subscribe
-            event.message.messageContent.content = ProtoWriter().apply {
+            val snapMessageContent = ProtoReader(event.message.messageContent!!.content!!).followPath(11)?.getBuffer() ?: return@subscribe
+            event.message.messageContent!!.content = ProtoWriter().apply {
                 from(3) {
                     addBuffer(3, snapMessageContent)
                 }
