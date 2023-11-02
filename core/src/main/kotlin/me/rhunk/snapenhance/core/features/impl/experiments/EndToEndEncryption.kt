@@ -369,7 +369,7 @@ class EndToEndEncryption : MessagingRuleFeature(
     }
 
     private fun messageHook(conversationId: String, messageId: Long, senderId: String, messageContent: MessageContent) {
-        val (contentType, buffer) = tryDecryptMessage(senderId, messageId, conversationId, messageContent.contentType ?: ContentType.CHAT, messageContent.content)
+        val (contentType, buffer) = tryDecryptMessage(senderId, messageId, conversationId, messageContent.contentType ?: ContentType.CHAT, messageContent.content!!)
         messageContent.contentType = contentType
         messageContent.content = buffer
     }
@@ -383,11 +383,11 @@ class EndToEndEncryption : MessagingRuleFeature(
             val messageContent = event.messageContent
             val destinations = event.destinations
 
-            val e2eeConversations = destinations.conversations.filter { getState(it.toString()) && getE2EParticipants(it.toString()).isNotEmpty() }
+            val e2eeConversations = destinations.conversations!!.filter { getState(it.toString()) && getE2EParticipants(it.toString()).isNotEmpty() }
 
             if (e2eeConversations.isEmpty()) return@subscribe
 
-            if (e2eeConversations.size != destinations.conversations.size) {
+            if (e2eeConversations.size != destinations.conversations!!.size || destinations.stories?.isNotEmpty() == true) {
                 if (!forceMessageEncryption) return@subscribe
                 context.longToast("You can't send encrypted content to both encrypted and unencrypted conversations!")
                 event.canceled = true
@@ -414,10 +414,20 @@ class EndToEndEncryption : MessagingRuleFeature(
         context.event.subscribe(UnaryCallEvent::class) { event ->
             if (event.uri != "/messagingcoreservice.MessagingCoreService/CreateContentMessage") return@subscribe
             val protoReader = ProtoReader(event.buffer)
+            var hasStory = false
 
             val conversationIds = mutableListOf<SnapUUID>()
             protoReader.eachBuffer(3) {
+                if (contains(2)) {
+                    hasStory = true
+                    return@eachBuffer
+                }
                 conversationIds.add(SnapUUID.fromBytes(getByteArray(1, 1, 1) ?: return@eachBuffer))
+            }
+
+            if (hasStory) {
+                context.log.debug("Skipping encryption for story message")
+                return@subscribe
             }
 
             if (conversationIds.any { !getState(it.toString()) || getE2EParticipants(it.toString()).isEmpty() }) {
@@ -490,15 +500,15 @@ class EndToEndEncryption : MessagingRuleFeature(
         context.event.subscribe(BuildMessageEvent::class, priority = 0) { event ->
             val message = event.message
             if (message.messageState != MessageState.COMMITTED) return@subscribe
-            val conversationId = message.messageDescriptor.conversationId.toString()
+            val conversationId = message.messageDescriptor!!.conversationId.toString()
             messageHook(
                 conversationId = conversationId,
-                messageId = message.messageDescriptor.messageId,
+                messageId = message.messageDescriptor!!.messageId!!,
                 senderId = message.senderId.toString(),
-                messageContent = message.messageContent
+                messageContent = message.messageContent!!
             )
 
-            message.messageContent.instanceNonNull()
+            message.messageContent!!.instanceNonNull()
                 .getObjectField("mQuotedMessage")
                 ?.getObjectField("mContent")
                 ?.also { quotedMessage ->
