@@ -15,7 +15,6 @@ import me.rhunk.snapenhance.core.features.impl.experiments.*
 import me.rhunk.snapenhance.core.features.impl.global.*
 import me.rhunk.snapenhance.core.features.impl.messaging.*
 import me.rhunk.snapenhance.core.features.impl.spying.MessageLogger
-import me.rhunk.snapenhance.core.features.impl.experiments.SnapToChatMedia
 import me.rhunk.snapenhance.core.features.impl.spying.StealthMode
 import me.rhunk.snapenhance.core.features.impl.tweaks.CameraTweaks
 import me.rhunk.snapenhance.core.features.impl.ui.*
@@ -103,6 +102,7 @@ class FeatureManager(
             HideQuickAddFriendFeed::class,
             CallStartConfirmation::class,
             SnapPreview::class,
+            InstantDelete::class,
         )
 
         initializeFeatures()

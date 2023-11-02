@@ -74,10 +74,9 @@ class ConversationManager(val context: ModContext, obj: Any) : AbstractWrapper(o
             conversationId.toSnapUUID().instanceNonNull(),
             messageId,
             CallbackBuilder(context.mappings.getMappedClass("callbacks", "FetchMessageCallback"))
-                .override("onSuccess") { param ->
+                .override("onFetchMessageComplete") { param ->
                     onSuccess(Message(param.arg(0)))
                 }
-                .override("onServerRequest", shouldUnhook = false) {}
                 .override("onError") {
                     onError(it.arg<Any>(0).toString())
                 }.build()
@@ -96,7 +95,6 @@ class ConversationManager(val context: ModContext, obj: Any) : AbstractWrapper(o
                 .override("onFetchMessageComplete") { param ->
                     onSuccess(Message(param.arg(1)))
                 }
-                .override("onServerRequest", shouldUnhook = false) {}
                 .override("onError") {
                     onError(it.arg<Any>(0).toString())
                 }.build()

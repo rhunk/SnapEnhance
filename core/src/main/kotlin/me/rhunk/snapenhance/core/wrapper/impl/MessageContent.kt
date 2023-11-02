@@ -9,5 +9,7 @@ class MessageContent(obj: Any?) : AbstractWrapper(obj) {
     var content
         get() = instanceNonNull().getObjectField("mContent") as ByteArray
         set(value) = instanceNonNull().setObjectField("mContent", value)
+    val quotedMessage
+        get() = QuotedMessage(instanceNonNull().getObjectField("mQuotedMessage"))
     var contentType by enum("mContentType", ContentType.UNKNOWN)
 }

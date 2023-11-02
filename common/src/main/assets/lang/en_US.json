@@ -344,6 +344,10 @@
                         "name": "Prevent Message Sending",
                         "description": "Prevents sending certain types of messages"
                     },
+                    "instant_delete": {
+                        "name": "Instant Delete",
+                        "description": "Removes the confirmation dialog when deleting messages"
+                    },
                     "better_notifications": {
                         "name": "Better Notifications",
                         "description": "Adds more information in received notifications"
