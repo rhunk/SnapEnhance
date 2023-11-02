@@ -192,15 +192,16 @@ class MessageExporter(
             //write the json file
             output.write("<script type=\"application/json\" class=\"exported_content\">".toByteArray())
 
-            val deflateOutputStream = DeflaterOutputStream((XposedHelpers.newInstance(
-                    Base64OutputStream::class.java,
-                    output,
-                    android.util.Base64.DEFAULT or android.util.Base64.NO_WRAP,
-                    true
-                ) as OutputStream), Deflater(Deflater.BEST_COMPRESSION, true))
-
+            val b64os = (XposedHelpers.newInstance(
+                Base64OutputStream::class.java,
+                output,
+                android.util.Base64.DEFAULT or android.util.Base64.NO_WRAP,
+                true
+            ) as OutputStream)
+            val deflateOutputStream = DeflaterOutputStream(b64os, Deflater(Deflater.BEST_COMPRESSION, true), true)
             exportJson(deflateOutputStream)
             deflateOutputStream.finish()
+            b64os.flush()
 
             output.write("</script>\n".toByteArray())
 
