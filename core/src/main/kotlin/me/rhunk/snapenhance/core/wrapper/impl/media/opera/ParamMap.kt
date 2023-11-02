@@ -1,6 +1,6 @@
 package me.rhunk.snapenhance.core.wrapper.impl.media.opera
 
-import me.rhunk.snapenhance.core.util.ReflectionHelper
+import me.rhunk.snapenhance.common.util.ktx.findFields
 import me.rhunk.snapenhance.core.util.ktx.getObjectField
 import me.rhunk.snapenhance.core.wrapper.AbstractWrapper
 import java.lang.reflect.Field
@@ -9,10 +9,9 @@ import java.util.concurrent.ConcurrentHashMap
 @Suppress("UNCHECKED_CAST")
 class ParamMap(obj: Any?) : AbstractWrapper(obj) {
     private val paramMapField: Field by lazy {
-        ReflectionHelper.searchFieldTypeInSuperClasses(
-            instanceNonNull().javaClass,
-            ConcurrentHashMap::class.java
-        )!!
+        instanceNonNull()::class.java.findFields(once = true) {
+            it.type == ConcurrentHashMap::class.java
+        }.firstOrNull() ?: throw RuntimeException("Could not find paramMap field")
     }
 
     val concurrentHashMap: ConcurrentHashMap<Any, Any>

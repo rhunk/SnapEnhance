@@ -5,11 +5,10 @@ import kotlinx.coroutines.suspendCancellableCoroutine
 import me.rhunk.snapenhance.bridge.snapclient.MessagingBridge
 import me.rhunk.snapenhance.bridge.snapclient.SessionStartListener
 import me.rhunk.snapenhance.bridge.snapclient.types.Message
+import me.rhunk.snapenhance.common.data.MessageUpdate
 import me.rhunk.snapenhance.core.ModContext
 import me.rhunk.snapenhance.core.features.impl.downloader.decoder.MessageDecoder
 import me.rhunk.snapenhance.core.features.impl.messaging.Messaging
-import me.rhunk.snapenhance.core.util.CallbackBuilder
-import me.rhunk.snapenhance.core.wrapper.impl.SnapUUID
 
 
 fun me.rhunk.snapenhance.core.wrapper.impl.Message.toBridge(): Message {
@@ -46,23 +45,14 @@ class CoreMessagingBridge(
     override fun fetchMessage(conversationId: String, clientMessageId: String): Message? {
         return runBlocking {
             suspendCancellableCoroutine { continuation ->
-                val callback = CallbackBuilder(
-                    context.mappings.getMappedClass("callbacks", "FetchMessageCallback")
-                ).override("onFetchMessageComplete") { param ->
-                    val message = me.rhunk.snapenhance.core.wrapper.impl.Message(param.arg(0)).toBridge()
-                    continuation.resumeWith(Result.success(message))
-                }
-                .override("onServerRequest", shouldUnhook = false) {}
-                .override("onError") {
-                    continuation.resumeWith(Result.success(null))
-                }.build()
-
-                context.classCache.conversationManager.methods.first { it.name == "fetchMessage" }.invoke(
-                    conversationManager,
-                    SnapUUID.fromString(conversationId).instanceNonNull(),
+                conversationManager?.fetchMessage(
+                    conversationId,
                     clientMessageId.toLong(),
-                    callback
-                )
+                    onSuccess = {
+                        continuation.resumeWith(Result.success(it.toBridge()))
+                    },
+                    onError = { continuation.resumeWith(Result.success(null)) }
+                ) ?: continuation.resumeWith(Result.success(null))
             }
         }
     }
@@ -73,26 +63,14 @@ class CoreMessagingBridge(
     ): Message? {
         return runBlocking {
             suspendCancellableCoroutine { continuation ->
-                val callback = CallbackBuilder(
-                    context.mappings.getMappedClass("callbacks", "FetchMessageCallback")
-                ).override("onFetchMessageComplete") { param ->
-                    val message = me.rhunk.snapenhance.core.wrapper.impl.Message(param.arg(1)).toBridge()
-                    continuation.resumeWith(Result.success(message))
-                }
-                .override("onServerRequest", shouldUnhook = false) {}
-                .override("onError") {
-                    continuation.resumeWith(Result.success(null))
-                }.build()
-
-                val serverMessageIdentifier = context.androidContext.classLoader.loadClass("com.snapchat.client.messaging.ServerMessageIdentifier")
-                    .getConstructor(context.classCache.snapUUID, Long::class.javaPrimitiveType)
-                    .newInstance(SnapUUID.fromString(conversationId).instanceNonNull(), serverMessageId.toLong())
-
-                context.classCache.conversationManager.methods.first { it.name == "fetchMessageByServerId" }.invoke(
-                    conversationManager,
-                    serverMessageIdentifier,
-                    callback
-                )
+                conversationManager?.fetchMessageByServerId(
+                    conversationId,
+                    serverMessageId,
+                    onSuccess = {
+                        continuation.resumeWith(Result.success(it.toBridge()))
+                    },
+                    onError = { continuation.resumeWith(Result.success(null)) }
+                ) ?: continuation.resumeWith(Result.success(null))
             }
         }
     }
@@ -104,26 +82,17 @@ class CoreMessagingBridge(
     ): List<Message>? {
         return runBlocking {
             suspendCancellableCoroutine { continuation ->
-                val callback = CallbackBuilder(
-                    context.mappings.getMappedClass("callbacks", "FetchConversationWithMessagesCallback")
-                ).override("onFetchConversationWithMessagesComplete") { param ->
-                    val messagesList = param.arg<List<*>>(1).map {
-                        me.rhunk.snapenhance.core.wrapper.impl.Message(it).toBridge()
-                    }
-                    continuation.resumeWith(Result.success(messagesList))
-                }
-                .override("onServerRequest", shouldUnhook = false) {}
-                .override("onError") {
-                    continuation.resumeWith(Result.success(null))
-                }.build()
-
-                context.classCache.conversationManager.methods.first { it.name == "fetchConversationWithMessagesPaginated" }.invoke(
-                    conversationManager,
-                    SnapUUID.fromString(conversationId).instanceNonNull(),
+                conversationManager?.fetchConversationWithMessagesPaginated(
+                    conversationId,
                     beforeMessageId,
                     limit,
-                    callback
-                )
+                    onSuccess = { messages ->
+                        continuation.resumeWith(Result.success(messages.map { it.toBridge() }))
+                    },
+                    onError = {
+                        continuation.resumeWith(Result.success(null))
+                    }
+                ) ?: continuation.resumeWith(Result.success(null))
             }
         }
     }
@@ -135,22 +104,14 @@ class CoreMessagingBridge(
     ): String? {
         return runBlocking {
             suspendCancellableCoroutine { continuation ->
-                val callback = CallbackBuilder(
-                    context.mappings.getMappedClass("callbacks", "Callback")
-                ).override("onSuccess") {
-                    continuation.resumeWith(Result.success(null))
-                }
-                .override("onError") {
-                    continuation.resumeWith(Result.success(it.arg<Any>(0).toString()))
-                }.build()
-
-                context.classCache.conversationManager.methods.first { it.name == "updateMessage" }.invoke(
-                    conversationManager,
-                    SnapUUID.fromString(conversationId).instanceNonNull(),
+                conversationManager?.updateMessage(
+                    conversationId,
                     clientMessageId,
-                    context.classCache.messageUpdateEnum.enumConstants.first { it.toString() == messageUpdate },
-                    callback
-                )
+                    MessageUpdate.valueOf(messageUpdate),
+                    onResult = {
+                        continuation.resumeWith(Result.success(it))
+                    }
+                ) ?: continuation.resumeWith(Result.success("ConversationManager is null"))
             }
         }
     }

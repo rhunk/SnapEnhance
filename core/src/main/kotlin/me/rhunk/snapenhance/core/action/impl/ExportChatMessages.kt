@@ -18,18 +18,11 @@ import me.rhunk.snapenhance.core.logger.CoreLogger
 import me.rhunk.snapenhance.core.messaging.ExportFormat
 import me.rhunk.snapenhance.core.messaging.MessageExporter
 import me.rhunk.snapenhance.core.ui.ViewAppearanceHelper
-import me.rhunk.snapenhance.core.util.CallbackBuilder
 import me.rhunk.snapenhance.core.wrapper.impl.Message
-import me.rhunk.snapenhance.core.wrapper.impl.SnapUUID
 import java.io.File
 import kotlin.math.absoluteValue
 
 class ExportChatMessages : AbstractAction() {
-    private val fetchConversationWithMessagesCallbackClass by lazy {  context.mappings.getMappedClass("callbacks", "FetchConversationWithMessagesCallback") }
-    private val fetchConversationWithMessagesPaginatedMethod by lazy {
-        context.classCache.conversationManager.methods.first { it.name == "fetchConversationWithMessagesPaginated" }
-    }
-
     private val dialogLogs = mutableListOf<String>()
     private var currentActionDialog: AlertDialog? = null
 
@@ -149,24 +142,14 @@ class ExportChatMessages : AbstractAction() {
         }
     }
 
-    private suspend fun fetchMessagesPaginated(conversationId: String, lastMessageId: Long, amount: Int) = suspendCancellableCoroutine { continuation ->
-        val callback = CallbackBuilder(fetchConversationWithMessagesCallbackClass)
-            .override("onFetchConversationWithMessagesComplete") { param ->
-                val messagesList = param.arg<List<*>>(1).map { Message(it) }
-                continuation.resumeWith(Result.success(messagesList))
-            }
-            .override("onServerRequest", shouldUnhook = false) {}
-            .override("onError") {
-                continuation.resumeWith(Result.failure(Exception("Failed to fetch messages")))
-            }.build()
-
-        fetchConversationWithMessagesPaginatedMethod.invoke(
-            context.feature(Messaging::class).conversationManager,
-            SnapUUID.fromString(conversationId).instanceNonNull(),
+    private suspend fun fetchMessagesPaginated(conversationId: String, lastMessageId: Long, amount: Int): List<Message> = suspendCancellableCoroutine { continuation ->
+        context.feature(Messaging::class).conversationManager?.fetchConversationWithMessagesPaginated(conversationId,
             lastMessageId,
-            amount,
-            callback
-        )
+            amount, onSuccess = { messages ->
+                continuation.resumeWith(Result.success(messages))
+            }, onError = {
+                continuation.resumeWith(Result.success(emptyList()))
+            }) ?: continuation.resumeWith(Result.success(emptyList()))
     }
 
     private suspend fun exportFullConversation(friendFeedEntry: FriendFeedEntry) {

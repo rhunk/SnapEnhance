@@ -26,10 +26,10 @@ class CallbackBuilder(
 
     fun build(): Any {
         //get the first param of the first constructor to get the class of the invoker
-        val invokerClass: Class<*> = callbackClass.constructors[0].parameterTypes[0]
-        //get the invoker field based on the invoker class
-        val invokerField = callbackClass.fields.first { field: Field ->
-            field.type.isAssignableFrom(invokerClass)
+        val rxEmitter: Class<*> = callbackClass.constructors[0].parameterTypes[0]
+        //get the emitter field based on the class
+        val rxEmitterField = callbackClass.fields.first { field: Field ->
+            field.type.isAssignableFrom(rxEmitter)
         }
         //get the callback field based on the callback class
         val callbackInstance = createEmptyObject(callbackClass.constructors[0])!!
@@ -44,8 +44,8 @@ class CallbackBuilder(
 
             //default hook that unhooks the callback and returns null
             val defaultHook: (HookAdapter) -> Boolean = defaultHook@{
-                //checking invokerField ensure that's the callback was created by the CallbackBuilder
-                if (invokerField.get(it.thisObject()) != null) return@defaultHook false
+                //ensure that's the callback was created by the CallbackBuilder
+                if (rxEmitterField.get(it.thisObject()) != null) return@defaultHook false
                 if ((it.thisObject() as Any).hashCode() != callbackInstanceHashCode) return@defaultHook false
                 it.setResult(null)
                 true

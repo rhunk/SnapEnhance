@@ -6,6 +6,8 @@ import me.rhunk.snapenhance.core.wrapper.AbstractWrapper
 import java.nio.ByteBuffer
 import java.util.UUID
 
+fun String.toSnapUUID() = SnapUUID.fromString(this)
+
 class SnapUUID(obj: Any?) : AbstractWrapper(obj) {
     private val uuidString by lazy { toUUID().toString() }
 

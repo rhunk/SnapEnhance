@@ -1,13 +1,13 @@
 package me.rhunk.snapenhance.core.features.impl.messaging
 
 import me.rhunk.snapenhance.common.data.MessageState
+import me.rhunk.snapenhance.common.data.MessageUpdate
 import me.rhunk.snapenhance.common.data.MessagingRuleType
 import me.rhunk.snapenhance.core.features.FeatureLoadParams
 import me.rhunk.snapenhance.core.features.MessagingRuleFeature
 import me.rhunk.snapenhance.core.features.impl.spying.MessageLogger
 import me.rhunk.snapenhance.core.features.impl.spying.StealthMode
 import me.rhunk.snapenhance.core.logger.CoreLogger
-import me.rhunk.snapenhance.core.util.CallbackBuilder
 import me.rhunk.snapenhance.core.util.hook.HookStage
 import me.rhunk.snapenhance.core.util.hook.Hooker
 import me.rhunk.snapenhance.core.util.ktx.getObjectField
@@ -21,14 +21,6 @@ class AutoSave : MessagingRuleFeature("Auto Save", MessagingRuleType.AUTO_SAVE, 
     private val messageLogger by lazy { context.feature(MessageLogger::class) }
     private val messaging by lazy { context.feature(Messaging::class) }
 
-    private val fetchConversationWithMessagesCallbackClass by lazy {  context.mappings.getMappedClass("callbacks", "FetchConversationWithMessagesCallback") }
-    private val callbackClass by lazy {  context.mappings.getMappedClass("callbacks", "Callback") }
-
-    private val updateMessageMethod by lazy { context.classCache.conversationManager.methods.first { it.name == "updateMessage" } }
-    private val fetchConversationWithMessagesPaginatedMethod by lazy {
-        context.classCache.conversationManager.methods.first { it.name == "fetchConversationWithMessagesPaginated" }
-    }
-
     private val autoSaveFilter by lazy {
         context.config.messaging.autoSaveMessagesInConversations.get()
     }
@@ -39,20 +31,17 @@ class AutoSave : MessagingRuleFeature("Auto Save", MessagingRuleType.AUTO_SAVE, 
         if (message.messageState != MessageState.COMMITTED) return
 
         runCatching {
-            val callback = CallbackBuilder(callbackClass)
-                .override("onError") {
-                    context.log.warn("Error saving message $messageId")
-                }.build()
-
-            updateMessageMethod.invoke(
-                context.feature(Messaging::class).conversationManager,
-                conversationId.instanceNonNull(),
+            context.feature(Messaging::class).conversationManager?.updateMessage(
+                conversationId.toString(),
                 messageId,
-                context.classCache.messageUpdateEnum.enumConstants.first { it.toString() == "SAVE" },
-                callback
-            )
+                MessageUpdate.SAVE
+            ) {
+                if (it != null) {
+                    context.log.warn("Error saving message $messageId: $it")
+                }
+            }
         }.onFailure {
-            CoreLogger.xposedLog("Error saving message $messageId", it)
+            context.log.error("Error saving message $messageId", it)
         }
 
         //delay between saves
@@ -60,6 +49,7 @@ class AutoSave : MessagingRuleFeature("Auto Save", MessagingRuleType.AUTO_SAVE, 
     }
 
     private fun canSaveMessage(message: Message): Boolean {
+        if (context.mainActivity == null || context.isMainActivityPaused) return false
         if (message.messageMetadata.savedBy.any { uuid -> uuid.toString() == context.database.myUserId }) return false
         val contentType = message.messageContent.contentType.toString()
 
@@ -121,14 +111,14 @@ class AutoSave : MessagingRuleFeature("Auto Save", MessagingRuleType.AUTO_SAVE, 
             HookStage.BEFORE,
             { autoSaveFilter.isNotEmpty() }
         ) {
-            val callback = CallbackBuilder(fetchConversationWithMessagesCallbackClass).build()
             val conversationUUID = messaging.openedConversationUUID ?: return@hook
             runCatching {
-                fetchConversationWithMessagesPaginatedMethod.invoke(
-                    messaging.conversationManager, conversationUUID.instanceNonNull(),
+                messaging.conversationManager?.fetchConversationWithMessagesPaginated(
+                    conversationUUID.toString(),
                     Long.MAX_VALUE,
                     10,
-                    callback
+                    onSuccess = {},
+                    onError = {}
                 )
             }.onFailure {
                 CoreLogger.xposedLog("failed to save message", it)

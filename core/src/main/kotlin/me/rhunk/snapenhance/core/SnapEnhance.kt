@@ -35,7 +35,6 @@ class SnapEnhance {
     }
     private lateinit var appContext: ModContext
     private var isBridgeInitialized = false
-    private var isActivityPaused = false
 
     private fun hookMainActivity(methodName: String, stage: HookStage = HookStage.AFTER, block: Activity.() -> Unit) {
         Activity::class.java.hook(methodName, stage, { isBridgeInitialized }) { param ->
@@ -91,14 +90,14 @@ class SnapEnhance {
 
         hookMainActivity("onPause") {
             appContext.bridgeClient.closeSettingsOverlay()
-            isActivityPaused = true
+            appContext.isMainActivityPaused = true
         }
 
         var activityWasResumed = false
         //we need to reload the config when the app is resumed
         //FIXME: called twice at first launch
         hookMainActivity("onResume") {
-            isActivityPaused = false
+            appContext.isMainActivityPaused = false
             if (!activityWasResumed) {
                 activityWasResumed = true
                 return@hookMainActivity
@@ -175,7 +174,7 @@ class SnapEnhance {
         }
 
         fun runLater(task: () -> Unit) {
-            if (isActivityPaused) {
+            if (appContext.isMainActivityPaused) {
                 tasks.add(task)
             } else {
                 task()

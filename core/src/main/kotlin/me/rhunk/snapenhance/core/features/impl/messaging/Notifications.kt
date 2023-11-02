@@ -14,6 +14,7 @@ import de.robv.android.xposed.XposedBridge
 import de.robv.android.xposed.XposedHelpers
 import me.rhunk.snapenhance.common.data.ContentType
 import me.rhunk.snapenhance.common.data.MediaReferenceType
+import me.rhunk.snapenhance.common.data.MessageUpdate
 import me.rhunk.snapenhance.common.data.NotificationType
 import me.rhunk.snapenhance.common.data.download.SplitMediaAssetType
 import me.rhunk.snapenhance.common.util.protobuf.ProtoReader
@@ -191,31 +192,26 @@ class Notifications : Feature("Notifications", loadParams = FeatureLoadParams.IN
 
                         val conversationManager = context.feature(Messaging::class).conversationManager ?: return@subscribe
 
-                        context.classCache.conversationManager.methods.first { it.name == "displayedMessages"}?.invoke(
-                            conversationManager,
-                            SnapUUID.fromString(conversationId).instanceNonNull(),
+                        conversationManager.displayedMessages(
+                            conversationId,
                             messageId,
-                            CallbackBuilder(context.mappings.getMappedClass("callbacks", "Callback"))
-                                .override("onError") {
-                                    context.log.error("Failed to mark message as read: ${it.arg(0) as Any}")
-                                    context.shortToast("Failed to mark message as read")
-                                }.build()
+                            onResult = {
+                                if (it != null) {
+                                    context.log.error("Failed to mark conversation as read: $it")
+                                    context.shortToast("Failed to mark conversation as read")
+                                }
+                            }
                         )
 
                         val conversationMessage = context.database.getConversationMessageFromId(messageId) ?: return@subscribe
 
                         if (conversationMessage.contentType == ContentType.SNAP.id) {
-                            context.classCache.conversationManager.methods.first { it.name == "updateMessage"}?.invoke(
-                                conversationManager,
-                                SnapUUID.fromString(conversationId).instanceNonNull(),
-                                messageId,
-                                context.classCache.messageUpdateEnum.enumConstants.first { it.toString() == "READ" },
-                                CallbackBuilder(context.mappings.getMappedClass("callbacks", "Callback"))
-                                    .override("onError") {
-                                        context.log.error("Failed to open snap: ${it.arg(0) as Any}")
-                                        context.shortToast("Failed to open snap")
-                                    }.build()
-                            )
+                            conversationManager.updateMessage(conversationId, messageId, MessageUpdate.READ) {
+                                if (it != null) {
+                                    context.log.error("Failed to open snap: $it")
+                                    context.shortToast("Failed to open snap")
+                                }
+                            }
                         }
                     }.onFailure {
                         context.log.error("Failed to mark message as read", it)
@@ -346,8 +342,6 @@ class Notifications : Feature("Notifications", loadParams = FeatureLoadParams.IN
     override fun init() {
         setupBroadcastReceiverHook()
 
-        val fetchConversationWithMessagesCallback = context.mappings.getMappedClass("callbacks", "FetchConversationWithMessagesCallback")
-
         notifyAsUserMethod.hook(HookStage.BEFORE) { param ->
             val notificationData = NotificationData(param.argNullable(0), param.arg(1), param.arg(2), param.arg(3))
 
@@ -361,22 +355,16 @@ class Notifications : Feature("Notifications", loadParams = FeatureLoadParams.IN
                     notificationType.contains(it)
                 }) return@hook
 
-            val conversationManager: Any = context.feature(Messaging::class).conversationManager ?: return@hook
-
             synchronized(notificationDataQueue) {
                 notificationDataQueue[messageId.toLong()] = notificationData
             }
 
-            val callback = CallbackBuilder(fetchConversationWithMessagesCallback)
-                .override("onFetchConversationWithMessagesComplete") { callbackParam ->
-                    val messageList = (callbackParam.arg(1) as List<Any>).map { msg -> Message(msg) }
-                    fetchMessagesResult(conversationId, messageList)
-                }
-                .override("onError") {
-                    context.log.error("Failed to fetch message ${it.arg(0) as Any}")
-                }.build()
+            context.feature(Messaging::class).conversationManager?.fetchConversationWithMessages(conversationId, onSuccess = { messages ->
+                fetchMessagesResult(conversationId, messages)
+            }, onError = {
+                context.log.error("Failed to fetch conversation with messages: $it")
+            })
 
-            fetchConversationWithMessagesMethod.invoke(conversationManager, SnapUUID.fromString(conversationId).instanceNonNull(), callback)
             param.setResult(null)
         }
 

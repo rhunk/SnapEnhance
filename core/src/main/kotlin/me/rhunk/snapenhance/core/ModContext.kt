@@ -67,6 +67,8 @@ class ModContext(
 
     val isDeveloper by lazy { config.scripting.developerMode.get() }
 
+    var isMainActivityPaused = false
+
     fun <T : Feature> feature(featureClass: KClass<T>): T {
         return features.get(featureClass)!!
     }

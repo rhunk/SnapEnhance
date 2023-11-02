@@ -9,6 +9,7 @@ class SnapClassCache (
     val presenceSession by lazy { findClass("com.snapchat.talkcorev3.PresenceSession\$CppProxy") }
     val message by lazy { findClass("com.snapchat.client.messaging.Message") }
     val messageUpdateEnum by lazy { findClass("com.snapchat.client.messaging.MessageUpdate") }
+    val serverMessageIdentifier by lazy { findClass("com.snapchat.client.messaging.ServerMessageIdentifier") }
     val unifiedGrpcService by lazy { findClass("com.snapchat.client.grpc.UnifiedGrpcService\$CppProxy") }
     val networkApi by lazy { findClass("com.snapchat.client.network_api.NetworkApi\$CppProxy") }
     val messageDestinations by lazy { findClass("com.snapchat.client.messaging.MessageDestinations") }

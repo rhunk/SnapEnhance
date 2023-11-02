@@ -9,12 +9,13 @@ import me.rhunk.snapenhance.core.util.hook.HookStage
 import me.rhunk.snapenhance.core.util.hook.Hooker
 import me.rhunk.snapenhance.core.util.hook.hook
 import me.rhunk.snapenhance.core.util.ktx.getObjectField
+import me.rhunk.snapenhance.core.wrapper.impl.ConversationManager
 import me.rhunk.snapenhance.core.wrapper.impl.SnapUUID
 
 class Messaging : Feature("Messaging", loadParams = FeatureLoadParams.ACTIVITY_CREATE_SYNC or FeatureLoadParams.INIT_ASYNC or FeatureLoadParams.INIT_SYNC) {
-    private var _conversationManager: Any? = null
-    val conversationManager: Any?
-        get() = _conversationManager
+    var conversationManager: ConversationManager? = null
+        private set
+
 
     var openedConversationUUID: SnapUUID? = null
         private set
@@ -28,7 +29,7 @@ class Messaging : Feature("Messaging", loadParams = FeatureLoadParams.ACTIVITY_C
 
     override fun init() {
         Hooker.hookConstructor(context.classCache.conversationManager, HookStage.BEFORE) { param ->
-            _conversationManager = param.thisObject()
+            conversationManager = ConversationManager(context, param.thisObject())
             context.messagingBridge.triggerSessionStart()
             context.mainActivity?.takeIf { it.intent.getBooleanExtra(ReceiversConfig.MESSAGING_PREVIEW_EXTRA,false) }?.run {
                 finishAndRemoveTask()
