@@ -64,6 +64,10 @@ class SnapEnhance {
                         }
                         runCatching {
                             LSPatchUpdater.onBridgeConnected(appContext, bridgeClient)
+                        }.onFailure {
+                            logCritical("Failed to init LSPatchUpdater", it)
+                        }
+                        runCatching {
                             measureTimeMillis {
                                 runBlocking {
                                     init(this)

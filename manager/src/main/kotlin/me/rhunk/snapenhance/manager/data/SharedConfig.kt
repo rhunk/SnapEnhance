@@ -21,4 +21,7 @@ class SharedConfig(
 
     var useRootInstaller get() = sharedPreferences.getBoolean("useRootInstaller", false)
         set(value) = sharedPreferences.edit().putBoolean("useRootInstaller", value).apply()
+
+    var obfuscateLSPatch get() = sharedPreferences.getBoolean("obfuscateLSPatch", false)
+        set(value) = sharedPreferences.edit().putBoolean("obfuscateLSPatch", value).apply()
 }

@@ -16,6 +16,7 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.cancel
 import kotlinx.coroutines.launch
 import me.rhunk.snapenhance.manager.data.APKMirror
 import me.rhunk.snapenhance.manager.data.DownloadItem
@@ -85,7 +86,7 @@ class LSPatchTab : Tab("lspatch") {
                 sharedConfig.snapEnhancePackageName to module,
             ), printLog = {
                 log("[LSPatch] $it")
-            })
+            }, obfuscate = sharedConfig.obfuscateLSPatch)
 
             log("== Patching apk ==")
             val outputFiles = lsPatch.patchSplits(listOf(apkFile!!))
@@ -135,6 +136,12 @@ class LSPatchTab : Tab("lspatch") {
                         status += it.message + "\n" + it.stackTraceToString()
                     }
                 }
+            }
+        }
+
+        DisposableEffect(Unit) {
+            onDispose {
+                coroutineScope.cancel()
             }
         }
 

@@ -5,8 +5,8 @@ import me.rhunk.snapenhance.core.features.FeatureLoadParams
 import me.rhunk.snapenhance.core.util.hook.HookStage
 import me.rhunk.snapenhance.core.util.hook.Hooker
 
-class DeviceSpooferHook: Feature("device_spoofer", loadParams = FeatureLoadParams.ACTIVITY_CREATE_ASYNC)  {
-	override fun asyncOnActivityCreate() {
+class DeviceSpooferHook: Feature("device_spoofer", loadParams = FeatureLoadParams.INIT_SYNC)  {
+	override fun init() {
 		if (context.config.experimental.spoof.globalState != true) return
 
 		val fingerprint by context.config.experimental.spoof.device.fingerprint

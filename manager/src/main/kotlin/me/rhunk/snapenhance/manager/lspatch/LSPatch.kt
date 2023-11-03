@@ -10,7 +10,6 @@ import com.google.gson.Gson
 import com.wind.meditor.core.ManifestEditor
 import com.wind.meditor.property.AttributeItem
 import com.wind.meditor.property.ModificationProperty
-import me.rhunk.snapenhance.manager.lspatch.config.Constants.ORIGINAL_APK_ASSET_PATH
 import me.rhunk.snapenhance.manager.lspatch.config.Constants.PROXY_APP_COMPONENT_FACTORY
 import me.rhunk.snapenhance.manager.lspatch.config.PatchConfig
 import me.rhunk.snapenhance.manager.lspatch.util.ApkSignatureHelper
@@ -22,28 +21,22 @@ import java.security.cert.X509Certificate
 import java.util.zip.ZipFile
 import kotlin.io.encoding.Base64
 import kotlin.io.encoding.ExperimentalEncodingApi
+import kotlin.random.Random
 
 
 //https://github.com/LSPosed/LSPatch/blob/master/patch/src/main/java/org/lsposed/patch/LSPatch.java
 class LSPatch(
     private val context: Context,
     private val modules: Map<String, File>, //packageName -> file
+    private val obfuscate: Boolean,
     private val printLog: (Any) -> Unit
 ) {
-    companion object {
-        private val Z_FILE_OPTIONS = ZFileOptions().setAlignmentRule(
-            AlignmentRules.compose(
-                AlignmentRules.constantForSuffix(".so", 4096),
-                AlignmentRules.constantForSuffix(ORIGINAL_APK_ASSET_PATH, 4096)
-            )
-        )
-    }
 
-    private fun patchManifest(data: ByteArray, lspatchMetadata: String): ByteArray {
+    private fun patchManifest(data: ByteArray, lspatchMetadata: Pair<String, String>): ByteArray {
         val property = ModificationProperty()
 
         property.addApplicationAttribute(AttributeItem("appComponentFactory", PROXY_APP_COMPONENT_FACTORY))
-        property.addMetaData(ModificationProperty.MetaData("lspatch", lspatchMetadata))
+        property.addMetaData(ModificationProperty.MetaData(lspatchMetadata.first, lspatchMetadata.second))
 
         return ByteArrayOutputStream().apply {
             ManifestEditor(ByteArrayInputStream(data), this, property).processManifest()
@@ -70,7 +63,7 @@ class LSPatch(
 
     private fun resignApk(inputApkFile: File, outputFile: File) {
         printLog("Resigning ${inputApkFile.absolutePath} to ${outputFile.absolutePath}")
-        val dstZFile = ZFile.openReadWrite(outputFile, Z_FILE_OPTIONS)
+        val dstZFile = ZFile.openReadWrite(outputFile, ZFileOptions())
         val inZFile = ZFile.openReadOnly(inputApkFile)
 
         inZFile.entries().forEach { entry ->
@@ -90,12 +83,42 @@ class LSPatch(
         printLog("Done")
     }
 
+    private fun uniqueHash(): String {
+        return Random.nextBytes(Random.nextInt(5, 10)).joinToString("") { "%02x".format(it) }
+    }
+
     @Suppress("UNCHECKED_CAST")
     @OptIn(ExperimentalEncodingApi::class)
     private fun patchApk(inputApkFile: File, outputFile: File) {
         printLog("Patching ${inputApkFile.absolutePath} to ${outputFile.absolutePath}")
-        val dstZFile = ZFile.openReadWrite(outputFile, Z_FILE_OPTIONS)
-        val sourceApkFile = dstZFile.addNestedZip({ ORIGINAL_APK_ASSET_PATH }, inputApkFile, false)
+
+        val obfuscationCacheFolder = File(context.cacheDir, "lspatch").apply {
+            if (exists()) deleteRecursively()
+            mkdirs()
+        }
+        val lspatchObfuscation = LSPatchObfuscation(obfuscationCacheFolder) { printLog(it) }
+        val dexObfuscationConfig = if (obfuscate) DexObfuscationConfig(
+            packageName = uniqueHash(),
+            metadataManifestField = uniqueHash(),
+            metaLoaderFilePath = uniqueHash(),
+            configFilePath = uniqueHash(),
+            loaderFilePath = uniqueHash(),
+            libNativeFilePath = mapOf(
+                "arm64-v8a" to uniqueHash() + ".so",
+                "armeabi-v7a" to uniqueHash() + ".so",
+            ),
+            originApkPath = uniqueHash(),
+            cachedOriginApkPath = uniqueHash(),
+            openAtApkPath = uniqueHash(),
+            assetModuleFolderPath = uniqueHash(),
+        ) else null
+
+        val dstZFile = ZFile.openReadWrite(outputFile, ZFileOptions().setAlignmentRule(
+            AlignmentRules.compose(
+                AlignmentRules.constantForSuffix(".so", 4096),
+                AlignmentRules.constantForSuffix("assets/" + (dexObfuscationConfig?.originApkPath ?: "lspatch/origin.apk"), 4096)
+            )
+        ))
 
         val patchConfig = PatchConfig(
             useManager = false,
@@ -115,32 +138,37 @@ class LSPatch(
 
         printLog("Patching manifest")
 
+        val sourceApkFile = dstZFile.addNestedZip({ "assets/" + (dexObfuscationConfig?.originApkPath ?: "lspatch/origin.apk") }, inputApkFile, false)
         val originalManifestEntry = sourceApkFile.get("AndroidManifest.xml") ?: throw Exception("No original manifest found")
         originalManifestEntry.open().use { inputStream ->
-            val patchedManifestData = patchManifest(inputStream.readBytes(), Base64.encode(patchConfig.toByteArray()))
+            val patchedManifestData = patchManifest(inputStream.readBytes(), (dexObfuscationConfig?.metadataManifestField ?: "lspatch") to Base64.encode(patchConfig.toByteArray()))
             dstZFile.add("AndroidManifest.xml", patchedManifestData.inputStream())
         }
 
         //add config
         printLog("Adding config")
-        dstZFile.add("assets/lspatch/config.json", ByteArrayInputStream(patchConfig.toByteArray()))
+        dstZFile.add("assets/" + (dexObfuscationConfig?.configFilePath ?: "lspatch/config.json"), ByteArrayInputStream(patchConfig.toByteArray()))
 
         // add loader dex
-        printLog("Adding dex files")
-        dstZFile.add("classes.dex", context.assets.open("lspatch/dexes/metaloader.dex"))
-        dstZFile.add("assets/lspatch/loader.dex", context.assets.open("lspatch/dexes/loader.dex"))
+        printLog("Adding loader dex")
+        context.assets.open("lspatch/dexes/loader.dex").use { inputStream ->
+            dstZFile.add("assets/" + (dexObfuscationConfig?.loaderFilePath ?: "lspatch/loader.dex"), dexObfuscationConfig?.let {
+                lspatchObfuscation.obfuscateLoader(inputStream, it).inputStream()
+            } ?: inputStream)
+        }
 
         //add natives
         printLog("Adding natives")
         context.assets.list("lspatch/so")?.forEach { native ->
-            dstZFile.add("assets/lspatch/so/$native/liblspatch.so", context.assets.open("lspatch/so/$native/liblspatch.so"), false)
+            dstZFile.add("assets/${dexObfuscationConfig?.libNativeFilePath?.get(native) ?: "lspatch/so/$native/liblspatch.so"}", context.assets.open("lspatch/so/$native/liblspatch.so"), false)
         }
 
         //embed modules
         printLog("Embedding modules")
         modules.forEach { (packageName, module) ->
-            printLog("- $packageName")
-            dstZFile.add("assets/lspatch/modules/$packageName.apk", module.inputStream())
+            val obfuscatedPackageName = dexObfuscationConfig?.packageName ?: packageName
+            printLog("- $obfuscatedPackageName")
+            dstZFile.add("assets/${dexObfuscationConfig?.assetModuleFolderPath ?: "lspatch/modules"}/$obfuscatedPackageName.apk", module.inputStream())
         }
 
         // link apk entries
@@ -148,7 +176,7 @@ class LSPatch(
 
         for (entry in sourceApkFile.entries()) {
             val name = entry.centralDirectoryHeader.name
-            if (name.startsWith("classes") && name.endsWith(".dex")) continue
+            if (dexObfuscationConfig == null && name.startsWith("classes") && name.endsWith(".dex")) continue
             if (dstZFile[name] != null) continue
             if (name == "AndroidManifest.xml") continue
             if (name.startsWith("META-INF") && (name.endsWith(".SF") || name.endsWith(".MF") || name.endsWith(
@@ -158,8 +186,20 @@ class LSPatch(
             sourceApkFile.addFileLink(name, name)
         }
 
+        printLog("Adding meta loader dex")
+        context.assets.open("lspatch/dexes/metaloader.dex").use { inputStream ->
+            dstZFile.add(dexObfuscationConfig?.let { "classes9.dex" } ?: "classes.dex", dexObfuscationConfig?.let {
+                lspatchObfuscation.obfuscateMetaLoader(inputStream, it).inputStream()
+            } ?: inputStream)
+        }
+
+        printLog("Writing apk")
         dstZFile.realign()
         dstZFile.close()
+        sourceApkFile.close()
+
+        printLog("Cleaning obfuscation cache")
+        obfuscationCacheFolder.deleteRecursively()
         printLog("Done")
     }
 

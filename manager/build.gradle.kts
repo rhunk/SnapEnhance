@@ -80,6 +80,7 @@ dependencies {
     implementation(libs.libsu)
     implementation(libs.guava)
     implementation(libs.apksig)
+    implementation(libs.dexlib2)
     implementation(libs.gson)
     implementation(libs.jsoup)
     implementation(libs.okhttp)

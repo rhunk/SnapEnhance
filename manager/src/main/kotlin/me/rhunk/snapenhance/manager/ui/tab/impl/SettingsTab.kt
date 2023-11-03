@@ -145,6 +145,11 @@ class SettingsTab : Tab("settings", isPrimary = true, icon = Icons.Default.Setti
                 setValue = { sharedConfig.useRootInstaller = it },
                 label = "Use root installer"
             )
+            ConfigBooleanRow(
+                getValue = { sharedConfig.obfuscateLSPatch },
+                setValue = { sharedConfig.obfuscateLSPatch = it },
+                label = "Obfuscate LSPatch (experimental)"
+            )
         }
     }
 }

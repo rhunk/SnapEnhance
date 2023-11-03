@@ -18,11 +18,24 @@ object LSPatchUpdater {
     }
 
     fun onBridgeConnected(context: ModContext, bridgeClient: BridgeClient) {
+        val obfuscatedModulePath by lazy {
+            (runCatching {
+                context::class.java.classLoader?.loadClass("org.lsposed.lspatch.share.Constants")
+            }.getOrNull())?.declaredFields?.firstOrNull { it.name == "MANAGER_PACKAGE_NAME" }?.also {
+                it.isAccessible = true
+            }?.get(null) as? String
+        }
+
         val embeddedModule = context.androidContext.cacheDir
             .resolve("lspatch")
             .resolve(BuildConfig.APPLICATION_ID).let { moduleDir ->
                 if (!moduleDir.exists()) return@let null
                 moduleDir.listFiles()?.firstOrNull { it.extension == "apk" }
+            } ?: obfuscatedModulePath?.let { path ->
+                context.androidContext.cacheDir.resolve(path).let dir@{ moduleDir ->
+                    if (!moduleDir.exists()) return@dir null
+                    moduleDir.listFiles()?.firstOrNull { it.extension == "apk" }
+                } ?: return
             } ?: return
 
         context.log.verbose("Found embedded SE at ${embeddedModule.absolutePath}", TAG)
