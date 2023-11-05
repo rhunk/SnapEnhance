@@ -3,6 +3,7 @@ package me.rhunk.snapenhance.core.wrapper.impl
 import me.rhunk.snapenhance.common.data.MessageUpdate
 import me.rhunk.snapenhance.core.ModContext
 import me.rhunk.snapenhance.core.util.CallbackBuilder
+import me.rhunk.snapenhance.core.util.ktx.setObjectField
 import me.rhunk.snapenhance.core.wrapper.AbstractWrapper
 
 typealias CallbackResult = (error: String?) -> Unit
@@ -63,7 +64,7 @@ class ConversationManager(
     fun displayedMessages(conversationId: String, messageId: Long, onResult: CallbackResult = {}) {
         displayedMessagesMethod.invoke(
             instanceNonNull(),
-            conversationId.toSnapUUID(),
+            conversationId.toSnapUUID().instanceNonNull(),
             messageId,
             CallbackBuilder(context.mappings.getMappedClass("callbacks", "Callback"))
                 .override("onSuccess") { onResult(null) }
@@ -87,16 +88,17 @@ class ConversationManager(
     }
 
     fun fetchMessageByServerId(conversationId: String, serverMessageId: String, onSuccess: (Message) -> Unit, onError: (error: String) -> Unit) {
-        val serverMessageIdentifier = context.classCache.serverMessageIdentifier
-            .getConstructor(context.classCache.snapUUID, Long::class.javaPrimitiveType)
-            .newInstance(conversationId.toSnapUUID().instanceNonNull(), serverMessageId.toLong())
+        val serverMessageIdentifier = CallbackBuilder.createEmptyObject(context.classCache.serverMessageIdentifier.constructors.first())?.apply {
+            setObjectField("mServerConversationId", conversationId.toSnapUUID().instanceNonNull())
+            setObjectField("mServerMessageId", serverMessageId.toLong())
+        }
 
         fetchMessageByServerId.invoke(
             instanceNonNull(),
             serverMessageIdentifier,
             CallbackBuilder(context.mappings.getMappedClass("callbacks", "FetchMessageCallback"))
                 .override("onFetchMessageComplete") { param ->
-                    onSuccess(Message(param.arg(1)))
+                    onSuccess(Message(param.arg(0)))
                 }
                 .override("onError") {
                     onError(it.arg<Any>(0).toString())

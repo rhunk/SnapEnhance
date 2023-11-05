@@ -58,7 +58,7 @@ class HookAdapter(
         return XposedBridge.invokeOriginalMethod(method(), thisObject(), args())
     }
 
-    fun invokeOriginal(args: Array<Any>): Any? {
+    fun invokeOriginal(args: Array<Any?>): Any? {
         return XposedBridge.invokeOriginalMethod(method(), thisObject(), args)
     }
 

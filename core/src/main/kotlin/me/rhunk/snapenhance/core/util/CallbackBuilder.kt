@@ -73,15 +73,16 @@ class CallbackBuilder(
             //compute the args for the constructor with null or default primitive values
             val args = constructor.parameterTypes.map { type: Class<*> ->
                 if (type.isPrimitive) {
-                    when (type.name) {
-                        "boolean" -> return@map false
-                        "byte" -> return@map 0.toByte()
-                        "char" -> return@map 0.toChar()
-                        "short" -> return@map 0.toShort()
-                        "int" -> return@map 0
-                        "long" -> return@map 0L
-                        "float" -> return@map 0f
-                        "double" -> return@map 0.0
+                    return@map when (type.name) {
+                        "boolean" -> false
+                        "byte" -> 0.toByte()
+                        "char" -> 0.toChar()
+                        "short" -> 0.toShort()
+                        "int" -> 0
+                        "long" -> 0L
+                        "float" -> 0f
+                        "double" -> 0.0
+                        else -> null
                     }
                 }
                 null
