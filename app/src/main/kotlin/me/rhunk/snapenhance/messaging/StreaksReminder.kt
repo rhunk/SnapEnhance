@@ -16,6 +16,9 @@ import me.rhunk.snapenhance.SharedContextHolder
 import me.rhunk.snapenhance.bridge.ForceStartActivity
 import me.rhunk.snapenhance.common.util.snap.BitmojiSelfie
 import me.rhunk.snapenhance.ui.util.ImageRequestHelper
+import kotlin.time.Duration.Companion.hours
+import kotlin.time.Duration.Companion.milliseconds
+import kotlin.time.Duration.Companion.minutes
 
 class StreaksReminder(
     private val remoteSideContext: RemoteSideContext? = null
@@ -37,11 +40,21 @@ class StreaksReminder(
     override fun onReceive(ctx: Context, intent: Intent) {
         val remoteSideContext = this.remoteSideContext ?: SharedContextHolder.remote(ctx)
         val streaksReminderConfig = remoteSideContext.config.root.streaksReminder
+        val sharedPreferences = remoteSideContext.sharedPreferences
 
         if (streaksReminderConfig.globalState != true) return
 
+        val interval = streaksReminderConfig.interval.get()
         val remainingHours = streaksReminderConfig.remainingHours.get()
 
+        if (sharedPreferences.getLong("lastStreaksReminder", 0).milliseconds + interval.hours - 10.minutes > System.currentTimeMillis().milliseconds) return
+        sharedPreferences.edit().putLong("lastStreaksReminder", System.currentTimeMillis()).apply()
+
+        remoteSideContext.androidContext.getSystemService(AlarmManager::class.java).setRepeating(
+            AlarmManager.RTC_WAKEUP, 5000, interval.toLong() * 60 * 60 * 1000,
+            PendingIntent.getBroadcast(remoteSideContext.androidContext, 0, Intent(remoteSideContext.androidContext, StreaksReminder::class.java),
+                PendingIntent.FLAG_IMMUTABLE)
+        )
 
         val notifyFriendList = remoteSideContext.modDatabase.getFriends()
             .associateBy { remoteSideContext.modDatabase.getFriendStreaks(it.userId) }
@@ -102,18 +115,9 @@ class StreaksReminder(
         }
     }
 
-    //TODO: ask for notifications permission for a13+
     fun init() {
         if (remoteSideContext == null) throw IllegalStateException("RemoteSideContext is null")
-        val reminderConfig = remoteSideContext.config.root.streaksReminder.also {
-            if (it.globalState != true) return
-        }
-
-        remoteSideContext.androidContext.getSystemService(AlarmManager::class.java).setRepeating(
-            AlarmManager.RTC_WAKEUP, 5000, reminderConfig.interval.get().toLong() * 60 * 60 * 1000,
-            PendingIntent.getBroadcast(remoteSideContext.androidContext, 0, Intent(remoteSideContext.androidContext, StreaksReminder::class.java),
-                PendingIntent.FLAG_IMMUTABLE)
-        )
+        if (remoteSideContext.config.root.streaksReminder.globalState != true) return
 
         onReceive(remoteSideContext.androidContext, Intent())
     }
