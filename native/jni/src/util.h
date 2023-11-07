@@ -47,12 +47,12 @@ namespace util {
                 continue;
             }
 
-            if (flags[0] != 'r' || flags[2] != 'x') {
-                continue;
+            if (addr == 0 && flags[0] == 'r' && flags[2] == 'x') {
+                addr = start - offset;
             }
-            addr = start - offset;
-            size = end - start;
-            break;
+            if (addr != 0) {
+                size += end - start;
+            }
         }
         fclose(file);
         return {addr, size};
@@ -95,5 +95,36 @@ namespace util {
             }
         }
         return 0;
+    }
+
+    std::vector<uintptr_t> find_signatures(uintptr_t module_base, uintptr_t size, const std::string &pattern, int offset = 0) {
+        std::vector<uintptr_t> results;
+        std::vector<char> bytes;
+        std::vector<char> mask;
+
+        for (size_t i = 0; i < pattern.size(); i += 3) {
+            if (pattern[i] == '?') {
+                bytes.push_back(0);
+                mask.push_back('?');
+            } else {
+                bytes.push_back(std::stoi(pattern.substr(i, 2), nullptr, 16));
+                mask.push_back('x');
+            }
+        }
+
+        for (size_t i = 0; i < size; i++) {
+            bool found = true;
+            for (size_t j = 0; j < bytes.size(); j++) {
+                if (mask[j] == '?' || bytes[j] == *(char *) (module_base + i + j)) {
+                    continue;
+                }
+                found = false;
+                break;
+            }
+            if (found) {
+                results.push_back(module_base + i + offset);
+            }
+        }
+        return results;
     }
 }
