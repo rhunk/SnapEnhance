@@ -318,13 +318,19 @@ class EndToEndEncryption : MessagingRuleFeature(
                         if (isMe) {
                             if (conversationParticipants.isEmpty()) return@eachBuffer
                             val participantId = conversationParticipants.firstOrNull { participantIdHash.contentEquals(hashParticipantId(it, iv)) } ?: return@eachBuffer
-                            setDecryptedMessage(e2eeInterface.decryptMessage(participantId, ciphertext, iv))
+                            setDecryptedMessage(e2eeInterface.decryptMessage(participantId, ciphertext, iv) ?: run {
+                                context.log.warn("Failed to decrypt message for participant $participantId")
+                                return@eachBuffer
+                            })
                             return@eachBuffer
                         }
 
                         if (!participantIdHash.contentEquals(hashParticipantId(context.database.myUserId, iv))) return@eachBuffer
 
-                        setDecryptedMessage(e2eeInterface.decryptMessage(senderId, ciphertext, iv))
+                        setDecryptedMessage(e2eeInterface.decryptMessage(senderId, ciphertext, iv)?: run {
+                            context.log.warn("Failed to decrypt message")
+                            return@eachBuffer
+                        })
                     }
                 }.onFailure {
                     context.log.error("Failed to decrypt message id: $clientMessageId", it)
