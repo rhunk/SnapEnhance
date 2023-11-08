@@ -612,6 +612,7 @@
                 "auto_download": "\u2B07\uFE0F Auto Download",
                 "auto_save": "\uD83D\uDCAC Auto Save Messages",
                 "stealth": "\uD83D\uDC7B Stealth Mode",
+                "mark_as_seen": "\uD83D\uDC40 Mark Snaps as seen",
                 "conversation_info": "\uD83D\uDC64 Conversation Info",
                 "e2e_encryption": "\uD83D\uDD12 Use E2E Encryption"
             },
@@ -710,6 +711,7 @@
     },
 
     "friend_menu_option": {
+        "mark_as_seen": "Mark Snaps as seen",
         "preview": "Preview",
         "stealth_mode": "Stealth Mode",
         "auto_download_blacklist": "Auto Download Blacklist",

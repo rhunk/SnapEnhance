@@ -9,9 +9,15 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.Button
 import android.widget.CompoundButton
+import android.widget.ProgressBar
 import android.widget.Switch
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 import me.rhunk.snapenhance.common.data.ContentType
 import me.rhunk.snapenhance.common.data.FriendLinkType
+import me.rhunk.snapenhance.common.data.MessageUpdate
 import me.rhunk.snapenhance.common.database.impl.ConversationMessage
 import me.rhunk.snapenhance.common.database.impl.FriendInfo
 import me.rhunk.snapenhance.common.database.impl.UserConversationLink
@@ -29,6 +35,9 @@ import java.text.SimpleDateFormat
 import java.util.Calendar
 import java.util.Date
 import java.util.Locale
+import kotlin.coroutines.resume
+import kotlin.coroutines.suspendCoroutine
+import kotlin.random.Random
 
 class FriendFeedInfoMenu : AbstractMenu() {
     private fun getImageDrawable(url: String): Drawable {
@@ -98,6 +107,44 @@ class FriendFeedInfoMenu : AbstractMenu() {
                 "OK"
             ) { dialog: DialogInterface, _: Int -> dialog.dismiss() }
             builder.show()
+        }
+    }
+
+    private fun markAsSeen(conversationId: String) {
+        val messaging = context.feature(Messaging::class)
+        val messageIds = messaging.getFeedCachedMessageIds(conversationId)?.takeIf { it.isNotEmpty() } ?: run {
+            context.shortToast("No recent snaps found")
+            return
+        }
+
+        var job: Job? = null
+        val dialog = ViewAppearanceHelper.newAlertDialogBuilder(context.mainActivity)
+            .setTitle("Processing...")
+            .setView(ProgressBar(context.mainActivity).apply {
+                setPadding(10, 10, 10, 10)
+            })
+            .setOnDismissListener { job?.cancel() }
+            .show()
+
+        context.coroutineScope.launch(Dispatchers.IO) {
+            messageIds.forEach { messageId ->
+                suspendCoroutine { continuation ->
+                    messaging.conversationManager?.updateMessage(conversationId, messageId, MessageUpdate.READ) {
+                        continuation.resume(Unit)
+                        if (it != null && it != "DUPLICATEREQUEST") {
+                            context.log.error("Error marking message as read $it")
+                        }
+                    }
+                }
+                delay(Random.nextLong(20, 60))
+                context.runOnUiThread {
+                    dialog.setTitle("Processing... (${messageIds.indexOf(messageId) + 1}/${messageIds.size})")
+                }
+            }
+        }.also { job = it }.invokeOnCompletion {
+            context.runOnUiThread {
+                dialog.dismiss()
+            }
         }
     }
 
@@ -252,6 +299,14 @@ class FriendFeedInfoMenu : AbstractMenu() {
                 { ruleFeature.getState(conversationId) },
                 { ruleFeature.setState(conversationId, it) }
             )
+        }
+
+        if (friendFeedMenuOptions.contains("mark_as_seen")) {
+            viewConsumer(Button(view.context).apply {
+                text = modContext.translation["friend_menu_option.mark_as_seen"]
+                applyTheme(view.width, hasRadius = true)
+                setOnClickListener { markAsSeen(conversationId) }
+            })
         }
     }
 }

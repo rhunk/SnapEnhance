@@ -5,18 +5,20 @@ import me.rhunk.snapenhance.core.event.events.impl.OnSnapInteractionEvent
 import me.rhunk.snapenhance.core.features.Feature
 import me.rhunk.snapenhance.core.features.FeatureLoadParams
 import me.rhunk.snapenhance.core.features.impl.spying.StealthMode
+import me.rhunk.snapenhance.core.util.EvictingMap
 import me.rhunk.snapenhance.core.util.hook.HookStage
 import me.rhunk.snapenhance.core.util.hook.Hooker
 import me.rhunk.snapenhance.core.util.hook.hook
+import me.rhunk.snapenhance.core.util.hook.hookConstructor
 import me.rhunk.snapenhance.core.util.ktx.getObjectField
+import me.rhunk.snapenhance.core.util.ktx.getObjectFieldOrNull
 import me.rhunk.snapenhance.core.wrapper.impl.ConversationManager
+import me.rhunk.snapenhance.core.wrapper.impl.Message
 import me.rhunk.snapenhance.core.wrapper.impl.SnapUUID
 
 class Messaging : Feature("Messaging", loadParams = FeatureLoadParams.ACTIVITY_CREATE_SYNC or FeatureLoadParams.INIT_ASYNC or FeatureLoadParams.INIT_SYNC) {
     var conversationManager: ConversationManager? = null
         private set
-
-
     var openedConversationUUID: SnapUUID? = null
         private set
     var lastFetchConversationUserUUID: SnapUUID? = null
@@ -27,8 +29,10 @@ class Messaging : Feature("Messaging", loadParams = FeatureLoadParams.ACTIVITY_C
     var lastFocusedMessageId: Long = -1
         private set
 
+    private val feedCachedSnapMessages = EvictingMap<String, List<Long>>(100)
+
     override fun init() {
-        Hooker.hookConstructor(context.classCache.conversationManager, HookStage.BEFORE) { param ->
+        context.classCache.conversationManager.hookConstructor(HookStage.BEFORE) { param ->
             conversationManager = ConversationManager(context, param.thisObject())
             context.messagingBridge.triggerSessionStart()
             context.mainActivity?.takeIf { it.intent.getBooleanExtra(ReceiversConfig.MESSAGING_PREVIEW_EXTRA,false) }?.run {
@@ -36,6 +40,8 @@ class Messaging : Feature("Messaging", loadParams = FeatureLoadParams.ACTIVITY_C
             }
         }
     }
+
+    fun getFeedCachedMessageIds(conversationId: String) = feedCachedSnapMessages[conversationId]
 
     override fun onActivityCreate() {
         context.mappings.getMappedObjectNullable("FriendsFeedEventDispatcher").let { it as? Map<*, *> }?.let { mappings ->
@@ -49,6 +55,19 @@ class Messaging : Feature("Messaging", loadParams = FeatureLoadParams.ACTIVITY_C
                     lastFetchGroupConversationUUID = SnapUUID.fromString(conversationId)
                 }
             }
+        }
+
+        val myUserId = context.database.myUserId
+
+        context.classCache.feedEntry.hookConstructor(HookStage.AFTER) { param ->
+            val instance = param.thisObject<Any>()
+            val interactionInfo = instance.getObjectFieldOrNull("mInteractionInfo") ?: return@hookConstructor
+            val messages = (interactionInfo.getObjectFieldOrNull("mMessages") as? List<*>)?.map { Message(it) } ?: return@hookConstructor
+            val conversationId = SnapUUID(instance.getObjectFieldOrNull("mConversationId") ?: return@hookConstructor).toString()
+
+            feedCachedSnapMessages[conversationId] = messages.filter { msg ->
+                msg.messageMetadata?.seenBy?.none { it.toString() == myUserId } == true
+            }.sortedBy { it.orderKey }.mapNotNull { it.messageDescriptor?.messageId }
         }
 
         context.mappings.getMappedClass("callbacks", "GetOneOnOneConversationIdsCallback").hook("onSuccess", HookStage.BEFORE) { param ->
@@ -96,12 +115,12 @@ class Messaging : Feature("Messaging", loadParams = FeatureLoadParams.ACTIVITY_C
             lastFocusedMessageId = event.messageId
         }
 
-        Hooker.hook(context.classCache.conversationManager, "fetchMessage", HookStage.BEFORE) { param ->
+        context.classCache.conversationManager.hook("fetchMessage", HookStage.BEFORE) { param ->
             lastFetchConversationUserUUID = SnapUUID((param.arg(0) as Any))
             lastFocusedMessageId = param.arg(1)
         }
 
-        Hooker.hook(context.classCache.conversationManager, "sendTypingNotification", HookStage.BEFORE, {
+        context.classCache.conversationManager.hook("sendTypingNotification", HookStage.BEFORE, {
             hideTypingNotification || stealthMode.canUseRule(openedConversationUUID.toString())
         }) {
             it.setResult(null)
