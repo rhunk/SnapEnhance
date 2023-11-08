@@ -94,7 +94,7 @@ class Notifications : Feature("Notifications", loadParams = FeatureLoadParams.IN
         notification
     ) as Notification.Builder
 
-    private fun setNotificationText(notification: Notification, conversationId: String) {
+    private fun computeNotificationMessages(notification: Notification, conversationId: String) {
         val messageText = StringBuilder().apply {
             cachedMessages.computeIfAbsent(conversationId) { sortedMapOf() }.forEach {
                 if (isNotEmpty()) append("\n")
@@ -147,7 +147,7 @@ class Notifications : Feature("Notifications", loadParams = FeatureLoadParams.IN
         }
 
         newAction(translations["button.download"], ACTION_DOWNLOAD, {
-            betterNotificationFilter.contains("download_button") && (contentType == ContentType.EXTERNAL_MEDIA || contentType == ContentType.SNAP)
+            betterNotificationFilter.contains("download_button") && betterNotificationFilter.contains("media_preview") && (contentType == ContentType.EXTERNAL_MEDIA || contentType == ContentType.SNAP)
         }) {}
 
         newAction(translations["button.mark_as_read"], ACTION_MARK_AS_READ, {
@@ -182,7 +182,7 @@ class Notifications : Feature("Notifications", loadParams = FeatureLoadParams.IN
                 withContext(Dispatchers.Main) {
                     updateNotification(notificationId) { notification ->
                         notification.flags = notification.flags or Notification.FLAG_ONLY_ALERT_ONCE
-                        setNotificationText(notification, conversationId)
+                        computeNotificationMessages(notification, conversationId)
                     }
                 }
             }
@@ -256,7 +256,7 @@ class Notifications : Feature("Notifications", loadParams = FeatureLoadParams.IN
 
     private fun sendNotification(message: Message, notificationData: NotificationData, forceCreate: Boolean) {
         val conversationId = message.messageDescriptor?.conversationId.toString()
-        val notificationId = if (forceCreate) System.nanoTime().toInt() else notificationData.id
+        val notificationId = if (forceCreate) System.nanoTime().toInt() else message.messageDescriptor?.conversationId?.toBytes().contentHashCode()
         sentNotifications.computeIfAbsent(notificationId) { conversationId }
 
         if (betterNotificationFilter.contains("group")) {
@@ -286,7 +286,7 @@ class Notifications : Feature("Notifications", loadParams = FeatureLoadParams.IN
         }.send()
     }
 
-    private fun onMessageReceived(data: NotificationData, message: Message) {
+    private fun onMessageReceived(data: NotificationData, notificationType: String, message: Message) {
         val conversationId = message.messageDescriptor?.conversationId.toString()
         val orderKey = message.orderKey ?: return
         val senderUsername by lazy {
@@ -295,21 +295,30 @@ class Notifications : Feature("Notifications", loadParams = FeatureLoadParams.IN
             } ?: "Unknown"
         }
 
-        val formatUsername: (String) -> String = { "$senderUsername: $it" }
-        val notificationCache = cachedMessages.let { it.computeIfAbsent(conversationId) { sortedMapOf() } }
-        val appendNotifications: () -> Unit = { setNotificationText(data.notification, conversationId)}
-
-
-        when (val contentType = message.messageContent!!.contentType) {
-            ContentType.NOTE -> {
-                notificationCache[orderKey] = formatUsername("sent audio note")
-                appendNotifications()
+        val contentType = message.messageContent!!.contentType!!.let { contentType ->
+            when {
+                notificationType.contains("screenshot") -> ContentType.STATUS_CONVERSATION_CAPTURE_SCREENSHOT
+                else -> contentType
             }
+        }
+        val computeMessages: () -> Unit = { computeNotificationMessages(data.notification, conversationId)}
+
+        fun setNotificationText(text: String, includeUsername: Boolean = true) {
+            cachedMessages.computeIfAbsent(conversationId) {
+                sortedMapOf()
+            }[orderKey] = if (includeUsername) "$senderUsername: $text" else text
+        }
+
+        when (
+            contentType.takeIf {
+                (it != ContentType.SNAP && it != ContentType.EXTERNAL_MEDIA) || betterNotificationFilter.contains("media_preview")
+            } ?: ContentType.UNKNOWN
+        ) {
             ContentType.CHAT -> {
                 ProtoReader(message.messageContent!!.content!!).getString(2, 1)?.trim()?.let {
-                    notificationCache[orderKey] = formatUsername(it)
+                    setNotificationText(it)
                 }
-                appendNotifications()
+                computeMessages()
             }
             ContentType.SNAP, ContentType.EXTERNAL_MEDIA -> {
                 val mediaReferences = MessageDecoder.getMediaReferences(
@@ -353,10 +362,11 @@ class Notifications : Feature("Notifications", loadParams = FeatureLoadParams.IN
                 }
             }
             else -> {
-                notificationCache[orderKey] = formatUsername("sent ${contentType?.name?.lowercase()}")
-                appendNotifications()
+                setNotificationText("[" + context.translation.getCategory("content_type")[contentType.name] + "]")
+                computeMessages()
             }
         }
+        if (!betterNotificationFilter.contains("chat_preview")) return
 
         sendNotification(message, data, false)
     }
@@ -377,9 +387,8 @@ class Notifications : Feature("Notifications", loadParams = FeatureLoadParams.IN
             } ?: return@hook
 
             val serverMessageId = extras.getString("message_id") ?: return@hook
-            val notificationType = extras.getString("notification_type") ?: return@hook
-
-            if (betterNotificationFilter.none { notificationType.contains(it, ignoreCase = true) }) return@hook
+            val notificationType = extras.getString("notification_type")?.lowercase() ?: return@hook
+            if (!betterNotificationFilter.contains("chat_preview") && !betterNotificationFilter.contains("media_preview")) return@hook
 
             param.setResult(null)
             val conversationManager = context.feature(Messaging::class).conversationManager ?: return@hook
@@ -387,10 +396,16 @@ class Notifications : Feature("Notifications", loadParams = FeatureLoadParams.IN
             context.coroutineScope.launch(coroutineDispatcher) {
                 suspendCoroutine { continuation ->
                     conversationManager.fetchMessageByServerId(conversationId, serverMessageId, onSuccess = {
-                        onMessageReceived(notificationData, it)
+                        if (it.senderId.toString() == context.database.myUserId) {
+                            param.invokeOriginal()
+                            continuation.resumeWith(Result.success(Unit))
+                            return@fetchMessageByServerId
+                        }
+                        onMessageReceived(notificationData, notificationType, it)
                         continuation.resumeWith(Result.success(Unit))
                     }, onError = {
                         context.log.error("Failed to fetch message id ${serverMessageId}: $it")
+                        param.invokeOriginal()
                         continuation.resumeWith(Result.success(Unit))
                     })
                 }

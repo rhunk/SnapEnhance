@@ -605,8 +605,8 @@
                 "always_dark": "Always Dark"
             },
             "better_notifications": {
-                "chat": "Show chat messages",
-                "snap": "Show media",
+                "chat_preview": "Show a preview of chat",
+                "media_preview": "Show a preview of media",
                 "reply_button": "Add reply button",
                 "download_button": "Add download button",
                 "mark_as_read_button": "Mark as Read button",
@@ -720,6 +720,29 @@
         "stealth_mode": "Stealth Mode",
         "auto_download_blacklist": "Auto Download Blacklist",
         "anti_auto_save": "Anti Auto Save"
+    },
+
+    "content_type": {
+        "CHAT": "Chat",
+        "SNAP": "Snap",
+        "EXTERNAL_MEDIA": "External Media",
+        "NOTE": "Audio Note",
+        "STICKER": "Sticker",
+        "STATUS": "Status",
+        "LOCATION": "Location",
+        "STATUS_SAVE_TO_CAMERA_ROLL": "Saved to Camera Roll",
+        "STATUS_CONVERSATION_CAPTURE_SCREENSHOT": "Screenshot",
+        "STATUS_CONVERSATION_CAPTURE_RECORD": "Screen Record",
+        "STATUS_CALL_MISSED_VIDEO": "Missed Video Call",
+        "STATUS_CALL_MISSED_AUDIO": "Missed Audio Call",
+        "LIVE_LOCATION_SHARE": "Live Location Share",
+        "CREATIVE_TOOL_ITEM": "Creative Tool Item",
+        "FAMILY_CENTER_INVITE": "Family Center Invite",
+        "FAMILY_CENTER_ACCEPT": "Family Center Accept",
+        "FAMILY_CENTER_LEAVE": "Family Center Leave",
+        "STATUS_PLUS_GIFT": "Status Plus Gift",
+        "TINY_SNAP": "Tiny Snap",
+        "STATUS_COUNTDOWN": "Countdown"
     },
 
     "chat_action_menu": {
