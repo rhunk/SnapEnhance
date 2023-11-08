@@ -4,9 +4,11 @@ import android.Manifest
 import android.annotation.SuppressLint
 import android.content.ContextWrapper
 import android.content.pm.PackageManager
+import android.graphics.Bitmap
 import android.hardware.camera2.CameraCharacteristics
 import android.hardware.camera2.CameraCharacteristics.Key
 import android.hardware.camera2.CameraManager
+import android.media.Image
 import android.util.Range
 import me.rhunk.snapenhance.core.features.Feature
 import me.rhunk.snapenhance.core.features.FeatureLoadParams
@@ -15,6 +17,8 @@ import me.rhunk.snapenhance.core.util.hook.hook
 import me.rhunk.snapenhance.core.util.hook.hookConstructor
 import me.rhunk.snapenhance.core.util.ktx.setObjectField
 import me.rhunk.snapenhance.core.wrapper.impl.ScSize
+import java.io.ByteArrayOutputStream
+import java.nio.ByteBuffer
 
 class CameraTweaks : Feature("Camera Tweaks", loadParams = FeatureLoadParams.ACTIVITY_CREATE_SYNC) {
 
@@ -68,6 +72,21 @@ class CameraTweaks : Feature("Camera Tweaks", loadParams = FeatureLoadParams.ACT
                 captureResolutionConfig?.let {
                     captureResolution.first = it[0]
                     captureResolution.second = it[1]
+                }
+            }
+        }
+
+        if (context.config.camera.blackPhotos.get()) {
+            findClass("android.media.ImageReader\$SurfaceImage").hook("getPlanes", HookStage.AFTER) { param ->
+                val image = param.thisObject() as? Image ?: return@hook
+                val planes = param.getResult() as? Array<*> ?: return@hook
+                val output = ByteArrayOutputStream()
+                Bitmap.createBitmap(image.width, image.height, Bitmap.Config.ARGB_8888).apply {
+                    compress(Bitmap.CompressFormat.JPEG, 100, output)
+                    recycle()
+                }
+                planes.filterNotNull().forEach {  plane ->
+                    plane.setObjectField("mBuffer", ByteBuffer.wrap(output.toByteArray()))
                 }
             }
         }

@@ -40,6 +40,7 @@ class Camera : ConfigContainer() {
 
     val disable = boolean("disable_camera")
     val immersiveCameraPreview = boolean("immersive_camera_preview") { addNotices(FeatureNotice.UNSTABLE) }
+    val blackPhotos = boolean("black_photos")
     val overridePreviewResolution get() = _overridePreviewResolution
     val overridePictureResolution get() = _overridePictureResolution
     val customFrameRate = unique("custom_frame_rate",

@@ -434,6 +434,10 @@
                         "name": "Disable Camera",
                         "description": "Prevents Snapchat from using the cameras available on your device"
                     },
+                    "black_photos": {
+                        "name": "Black Photos",
+                        "description": "Replaces captured photos with a black background\nVideos are not affected"
+                    },
                     "immersive_camera_preview": {
                         "name": "Immersive Preview",
                         "description": "Prevents Snapchat from Cropping the Camera preview\nThis might cause the camera to flicker on some devices"
