@@ -57,13 +57,13 @@ class Messaging : Feature("Messaging", loadParams = FeatureLoadParams.ACTIVITY_C
             }
         }
 
-        val myUserId = context.database.myUserId
 
         context.classCache.feedEntry.hookConstructor(HookStage.AFTER) { param ->
             val instance = param.thisObject<Any>()
             val interactionInfo = instance.getObjectFieldOrNull("mInteractionInfo") ?: return@hookConstructor
             val messages = (interactionInfo.getObjectFieldOrNull("mMessages") as? List<*>)?.map { Message(it) } ?: return@hookConstructor
             val conversationId = SnapUUID(instance.getObjectFieldOrNull("mConversationId") ?: return@hookConstructor).toString()
+            val myUserId = context.database.myUserId
 
             feedCachedSnapMessages[conversationId] = messages.filter { msg ->
                 msg.messageMetadata?.seenBy?.none { it.toString() == myUserId } == true

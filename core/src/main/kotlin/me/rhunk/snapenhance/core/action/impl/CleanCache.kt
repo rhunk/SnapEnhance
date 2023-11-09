@@ -17,6 +17,7 @@ class CleanCache : AbstractAction() {
             "databases/journal.db",
             "databases/arroyo.db",
             "databases/arroyo.db-wal",
+            "databases/arroyo.db-shm",
             "databases/native_content_manager/*"
         )
     }
