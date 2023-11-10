@@ -10,6 +10,7 @@ import android.widget.ScrollView
 import me.rhunk.snapenhance.core.features.impl.downloader.MediaDownloader
 import me.rhunk.snapenhance.core.ui.applyTheme
 import me.rhunk.snapenhance.core.ui.menu.AbstractMenu
+import me.rhunk.snapenhance.core.ui.triggerCloseTouchEvent
 import me.rhunk.snapenhance.core.util.ktx.getId
 
 @SuppressLint("DiscouragedApi")
@@ -71,7 +72,10 @@ class OperaContextActionMenu : AbstractMenu() {
 
             linearLayout.addView(Button(view.context).apply {
                 text = translation["opera_context_menu.download"]
-                setOnClickListener { mediaDownloader.downloadLastOperaMediaAsync() }
+                setOnClickListener {
+                    mediaDownloader.downloadLastOperaMediaAsync()
+                    parentView.triggerCloseTouchEvent()
+                }
                 applyTheme(isAmoled = false)
             })
 
