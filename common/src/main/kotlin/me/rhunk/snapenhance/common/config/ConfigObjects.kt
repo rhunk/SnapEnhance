@@ -38,7 +38,8 @@ class ConfigParams(
     var icon: String? = null,
     var disabledKey: String? = null,
     var customTranslationPath: String? = null,
-    var customOptionTranslationPath: String? = null
+    var customOptionTranslationPath: String? = null,
+    var inputCheck: ((String) -> Boolean)? = { true },
 ) {
     val notices get() = _notices?.let { FeatureNotice.entries.filter { flag -> it and flag.id != 0 } } ?: emptyList()
     val flags get() = _flags?.let { ConfigFlag.entries.filter { flag -> it and flag.id != 0 } } ?: emptyList()

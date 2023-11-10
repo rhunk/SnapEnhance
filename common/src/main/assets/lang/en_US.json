@@ -454,6 +454,14 @@
                         "name": "Override Picture Resolution",
                         "description": "Overrides the picture resolution"
                     },
+                    "custom_preview_resolution": {
+                        "name": "Custom Preview Resolution",
+                        "description": "Sets a custom camera preview resolution, width x height (e.g. 1920x1080).\nThe custom resolution must be supported by your device"
+                    },
+                    "custom_picture_resolution": {
+                        "name": "Custom Picture Resolution",
+                        "description": "Sets a custom picture resolution, width x height (e.g. 1920x1080).\nThe custom resolution must be supported by your device"
+                    },
                     "custom_frame_rate": {
                         "name": "Custom Frame Rate",
                         "description": "Overrides the camera frame rate"

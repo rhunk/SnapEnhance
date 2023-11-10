@@ -22,13 +22,14 @@ import java.nio.ByteBuffer
 
 class CameraTweaks : Feature("Camera Tweaks", loadParams = FeatureLoadParams.ACTIVITY_CREATE_SYNC) {
 
-    private fun parseResolution(resolution: String): IntArray {
-        return resolution.split("x").map { it.toInt() }.toIntArray()
+    private fun parseResolution(resolution: String): IntArray? {
+        return runCatching { resolution.split("x").map { it.toInt() }.toIntArray() }.getOrNull()
     }
 
     @SuppressLint("MissingPermission", "DiscouragedApi")
     override fun onActivityCreate() {
-        if (context.config.camera.disable.get()) {
+        val config = context.config.camera
+        if (config.disable.get()) {
             ContextWrapper::class.java.hook("checkPermission", HookStage.BEFORE) { param ->
                 val permission = param.arg<String>(0)
                 if (permission == Manifest.permission.CAMERA) {
@@ -41,10 +42,12 @@ class CameraTweaks : Feature("Camera Tweaks", loadParams = FeatureLoadParams.ACT
             }
         }
 
-        val previewResolutionConfig = context.config.camera.overridePreviewResolution.getNullable()?.let { parseResolution(it) }
-        val captureResolutionConfig = context.config.camera.overridePictureResolution.getNullable()?.let { parseResolution(it) }
+        val previewResolutionConfig = config.customPreviewResolution.getNullable()?.takeIf { it.isNotEmpty() }?.let { parseResolution(it) }
+            ?: config.overridePreviewResolution.getNullable()?.let { parseResolution(it) }
+        val captureResolutionConfig = config.customPictureResolution.getNullable()?.takeIf { it.isNotEmpty() }?.let { parseResolution(it) }
+            ?: config.overridePictureResolution.getNullable()?.let { parseResolution(it) }
 
-        context.config.camera.customFrameRate.getNullable()?.also { value ->
+        config.customFrameRate.getNullable()?.also { value ->
             val customFrameRate = value.toInt()
             CameraCharacteristics::class.java.hook("get", HookStage.AFTER)  { param ->
                 val key = param.arg<Key<*>>(0)
@@ -76,7 +79,7 @@ class CameraTweaks : Feature("Camera Tweaks", loadParams = FeatureLoadParams.ACT
             }
         }
 
-        if (context.config.camera.blackPhotos.get()) {
+        if (config.blackPhotos.get()) {
             findClass("android.media.ImageReader\$SurfaceImage").hook("getPlanes", HookStage.AFTER) { param ->
                 val image = param.thisObject() as? Image ?: return@hook
                 val planes = param.getResult() as? Array<*> ?: return@hook

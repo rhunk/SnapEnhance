@@ -176,7 +176,7 @@ class AlertDialogs(
         val focusRequester = remember { FocusRequester() }
 
         DefaultDialogCard {
-            val fieldValue = remember {
+            var fieldValue by remember {
                 mutableStateOf(property.value.get().toString().let {
                     TextFieldValue(
                         text = it,
@@ -193,10 +193,8 @@ class AlertDialogs(
                         focusRequester.requestFocus()
                     }
                     .focusRequester(focusRequester),
-                value = fieldValue.value,
-                onValueChange = {
-                    fieldValue.value = it
-                },
+                value = fieldValue,
+                onValueChange = { fieldValue = it },
                 keyboardOptions = when (property.key.dataType.type) {
                     DataProcessors.Type.INTEGER -> KeyboardOptions(keyboardType = KeyboardType.Number)
                     DataProcessors.Type.FLOAT -> KeyboardOptions(keyboardType = KeyboardType.Decimal)
@@ -215,22 +213,27 @@ class AlertDialogs(
                     Text(text = translation["button.cancel"])
                 }
                 Button(onClick = {
+                    if (fieldValue.text.isNotEmpty() && property.key.params.inputCheck?.invoke(fieldValue.text) == false) {
+                        dismiss()
+                        return@Button
+                    }
+
                     when (property.key.dataType.type) {
                         DataProcessors.Type.INTEGER -> {
                             runCatching {
-                                property.value.setAny(fieldValue.value.text.toInt())
+                                property.value.setAny(fieldValue.text.toInt())
                             }.onFailure {
                                 property.value.setAny(0)
                             }
                         }
                         DataProcessors.Type.FLOAT -> {
                             runCatching {
-                                property.value.setAny(fieldValue.value.text.toFloat())
+                                property.value.setAny(fieldValue.text.toFloat())
                             }.onFailure {
                                 property.value.setAny(0f)
                             }
                         }
-                        else -> property.value.setAny(fieldValue.value.text)
+                        else -> property.value.setAny(fieldValue.text)
                     }
                     dismiss()
                 }) {

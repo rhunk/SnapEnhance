@@ -41,10 +41,12 @@ class Camera : ConfigContainer() {
     val disable = boolean("disable_camera")
     val immersiveCameraPreview = boolean("immersive_camera_preview") { addNotices(FeatureNotice.UNSTABLE) }
     val blackPhotos = boolean("black_photos")
-    val overridePreviewResolution get() = _overridePreviewResolution
-    val overridePictureResolution get() = _overridePictureResolution
     val customFrameRate = unique("custom_frame_rate",
         "5", "10", "20", "25", "30", "48", "60", "90", "120"
     ) { addNotices(FeatureNotice.UNSTABLE); addFlags(ConfigFlag.NO_TRANSLATE) }
     val forceCameraSourceEncoding = boolean("force_camera_source_encoding")
+    val overridePreviewResolution get() = _overridePreviewResolution
+    val overridePictureResolution get() = _overridePictureResolution
+    val customPreviewResolution = string("custom_preview_resolution") { addNotices(FeatureNotice.UNSTABLE); inputCheck = { it.matches(Regex("\\d+x\\d+")) } }
+    val customPictureResolution = string("custom_picture_resolution") { addNotices(FeatureNotice.UNSTABLE); inputCheck = { it.matches(Regex("\\d+x\\d+")) } }
 }
