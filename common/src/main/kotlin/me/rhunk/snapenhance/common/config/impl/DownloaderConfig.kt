@@ -42,6 +42,7 @@ class DownloaderConfig : ConfigContainer() {
         addFlags(ConfigFlag.NO_TRANSLATE)
     }
     val downloadProfilePictures = boolean("download_profile_pictures") { requireRestart() }
+    val operaDownloadButton = boolean("opera_download_button") { requireRestart() }
     val chatDownloadContextMenu = boolean("chat_download_context_menu")
     val ffmpegOptions = container("ffmpeg_options", FFMpegOptions()) { addNotices(FeatureNotice.UNSTABLE) }
     val logging = multiple("logging", "started", "success", "progress", "failure").apply {

@@ -27,9 +27,10 @@ class MenuViewInjector : Feature("MenuViewInjector", loadParams = FeatureLoadPar
 
     @SuppressLint("ResourceType")
     override fun asyncOnActivityCreate() {
+        menuMap[OperaContextActionMenu::class] = OperaContextActionMenu()
+        menuMap[OperaDownloadIconMenu::class] = OperaDownloadIconMenu()
         menuMap[SettingsGearInjector::class] = SettingsGearInjector()
         menuMap[FriendFeedInfoMenu::class] = FriendFeedInfoMenu()
-        menuMap[OperaContextActionMenu::class] = OperaContextActionMenu()
         menuMap[ChatActionMenu::class] = ChatActionMenu()
         menuMap[SettingsMenu::class] = SettingsMenu()
 
@@ -42,6 +43,7 @@ class MenuViewInjector : Feature("MenuViewInjector", loadParams = FeatureLoadPar
         val actionMenu = context.resources.getIdentifier("action_menu", "id")
         val componentsHolder = context.resources.getIdentifier("components_holder", "id")
         val feedNewChat = context.resources.getIdentifier("feed_new_chat", "id")
+        val contextMenuButtonIconView = context.resources.getIdentifier("context_menu_button_icon_view", "id")
 
         context.event.subscribe(AddViewEvent::class) { event ->
             val originalAddView: (View) -> Unit = {
@@ -56,6 +58,10 @@ class MenuViewInjector : Feature("MenuViewInjector", loadParams = FeatureLoadPar
             val viewGroup: ViewGroup = event.parent
             val childView: View = event.view
             menuMap[OperaContextActionMenu::class]!!.inject(viewGroup, childView, originalAddView)
+
+            if (childView.id == contextMenuButtonIconView) {
+                menuMap[OperaDownloadIconMenu::class]!!.inject(viewGroup, childView, originalAddView)
+            }
 
             if (event.parent.id == componentsHolder && childView.id == feedNewChat) {
                 menuMap[SettingsGearInjector::class]!!.inject(viewGroup, childView, originalAddView)

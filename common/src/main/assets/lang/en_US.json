@@ -166,6 +166,10 @@
                         "name": "Download Profile Pictures",
                         "description": "Allows you to download Profile Pictures from the profile page"
                     },
+                    "opera_download_button": {
+                        "name": "Opera Download Button",
+                        "description": "Adds a download button on the top right corner when viewing a Snap"
+                    },
                     "chat_download_context_menu": {
                         "name": "Chat Download Context Menu",
                         "description": "Allows you to download media from a conversation by long-pressing them"
