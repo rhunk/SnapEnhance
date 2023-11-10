@@ -312,6 +312,10 @@
                 "name": "Messaging",
                 "description": "Change how you interact with friends",
                 "properties": {
+                    "bypass_screenshot_detection": {
+                        "name": "Bypass Screenshot Detection",
+                        "description": "Prevents Snapchat from detecting when you take a screenshot"
+                    },
                     "anonymous_story_viewing": {
                         "name": "Anonymous Story Viewing",
                         "description": "Prevents anyone from knowing you've seen their story"
