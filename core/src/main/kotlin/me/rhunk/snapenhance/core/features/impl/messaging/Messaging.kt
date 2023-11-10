@@ -98,16 +98,17 @@ class Messaging : Feature("Messaging", loadParams = FeatureLoadParams.ACTIVITY_C
     override fun asyncInit() {
         val stealthMode = context.feature(StealthMode::class)
 
-        val hideBitmojiPresence by context.config.messaging.hideBitmojiPresence
-        val hideTypingNotification by context.config.messaging.hideTypingNotifications
-
         arrayOf("activate", "deactivate", "processTypingActivity").forEach { hook ->
             Hooker.hook(context.classCache.presenceSession, hook, HookStage.BEFORE, {
-                hideBitmojiPresence || stealthMode.canUseRule(openedConversationUUID.toString())
+                context.config.messaging.hideBitmojiPresence.get() || stealthMode.canUseRule(openedConversationUUID.toString())
             }) {
                 it.setResult(null)
             }
         }
+
+        context.classCache.presenceSession.hook("startPeeking", HookStage.BEFORE, {
+            context.config.messaging.hidePeekAPeek.get() || stealthMode.canUseRule(openedConversationUUID.toString())
+        }) { it.setResult(null) }
 
         //get last opened snap for media downloader
         context.event.subscribe(OnSnapInteractionEvent::class) { event ->
@@ -121,7 +122,7 @@ class Messaging : Feature("Messaging", loadParams = FeatureLoadParams.ACTIVITY_C
         }
 
         context.classCache.conversationManager.hook("sendTypingNotification", HookStage.BEFORE, {
-            hideTypingNotification || stealthMode.canUseRule(openedConversationUUID.toString())
+            context.config.messaging.hideTypingNotifications.get() || stealthMode.canUseRule(openedConversationUUID.toString())
         }) {
             it.setResult(null)
         }

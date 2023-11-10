@@ -7,6 +7,7 @@ import me.rhunk.snapenhance.common.data.NotificationType
 class MessagingTweaks : ConfigContainer() {
     val bypassScreenshotDetection = boolean("bypass_screenshot_detection") { requireRestart() }
     val anonymousStoryViewing = boolean("anonymous_story_viewing")
+    val hidePeekAPeek = boolean("hide_peek_a_peek")
     val hideBitmojiPresence = boolean("hide_bitmoji_presence")
     val hideTypingNotifications = boolean("hide_typing_notifications")
     val unlimitedSnapViewTime = boolean("unlimited_snap_view_time")

@@ -324,6 +324,10 @@
                         "name": "Anonymous Story Viewing",
                         "description": "Prevents anyone from knowing you've seen their story"
                     },
+                    "hide_peek_a_peek": {
+                        "name": "Hide Peek-a-Peek",
+                        "description": "Prevents notification from being sent when you half swipe into a chat"
+                    },
                     "hide_bitmoji_presence": {
                         "name": "Hide Bitmoji Presence",
                         "description": "Prevents your Bitmoji from popping up while in Chat"
