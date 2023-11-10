@@ -97,10 +97,13 @@ class ModConfig(
             }
         }
 
+        val oldConfig = runCatching { file.read().toString(Charsets.UTF_8) }.getOrNull()
+        file.write(exportToString().toByteArray(Charsets.UTF_8))
+
         configStateListener?.also {
             runCatching {
                 compareDiff(createRootConfig().apply {
-                    fromJson(gson.fromJson(file.read().toString(Charsets.UTF_8), JsonObject::class.java))
+                    fromJson(gson.fromJson(oldConfig ?: return@runCatching, JsonObject::class.java))
                 }, root)
 
                 if (configChanged) {
@@ -112,8 +115,6 @@ class ModConfig(
                 AbstractLogger.directError("Error while calling config state listener", it, "ConfigStateListener")
             }
         }
-
-        file.write(exportToString().toByteArray(Charsets.UTF_8))
     }
 
     fun loadFromString(string: String) {
