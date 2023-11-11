@@ -18,11 +18,13 @@ class EventBus(
     private val subscribers = mutableMapOf<KClass<out Event>, MutableMap<Int, IListener<out Event>>>()
 
     fun <T : Event> subscribe(event: KClass<T>, listener: IListener<T>, priority: Int? = null) {
-        if (!subscribers.containsKey(event)) {
-            subscribers[event] = sortedMapOf()
+        synchronized(subscribers) {
+            if (!subscribers.containsKey(event)) {
+                subscribers[event] = sortedMapOf()
+            }
+            val lastSubscriber = subscribers[event]?.keys?.lastOrNull() ?: 0
+            subscribers[event]?.put(priority ?: (lastSubscriber + 1), listener)
         }
-        val lastSubscriber = subscribers[event]?.keys?.lastOrNull() ?: 0
-        subscribers[event]?.put(priority ?: (lastSubscriber + 1), listener)
     }
 
     inline fun <T : Event> subscribe(event: KClass<T>, priority: Int? = null, crossinline listener: (T) -> Unit) = subscribe(event, { true }, priority, listener)
@@ -43,7 +45,9 @@ class EventBus(
     }
 
     fun <T : Event> unsubscribe(event: KClass<T>, listener: IListener<T>) {
-        subscribers[event]?.values?.remove(listener)
+        synchronized(subscribers) {
+            subscribers[event]?.values?.remove(listener)
+        }
     }
 
     fun <T : Event> post(event: T, afterBlock: T.() -> Unit = {}): T? {

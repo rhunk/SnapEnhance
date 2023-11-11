@@ -2,6 +2,7 @@ package me.rhunk.snapenhance.core.database
 
 import android.database.Cursor
 import android.database.sqlite.SQLiteDatabase
+import android.database.sqlite.SQLiteDatabase.OpenParams
 import android.database.sqlite.SQLiteDatabaseCorruptException
 import me.rhunk.snapenhance.common.database.DatabaseObject
 import me.rhunk.snapenhance.common.database.impl.ConversationMessage
@@ -9,12 +10,11 @@ import me.rhunk.snapenhance.common.database.impl.FriendFeedEntry
 import me.rhunk.snapenhance.common.database.impl.FriendInfo
 import me.rhunk.snapenhance.common.database.impl.StoryEntry
 import me.rhunk.snapenhance.common.database.impl.UserConversationLink
+import me.rhunk.snapenhance.common.util.ktx.getIntOrNull
 import me.rhunk.snapenhance.common.util.ktx.getInteger
 import me.rhunk.snapenhance.common.util.ktx.getStringOrNull
 import me.rhunk.snapenhance.core.ModContext
 import me.rhunk.snapenhance.core.manager.Manager
-import me.rhunk.snapenhance.core.ui.ViewAppearanceHelper
-import java.io.File
 
 
 class DatabaseAccess(
@@ -25,30 +25,12 @@ class DatabaseAccess(
 
     private inline fun <T> SQLiteDatabase.performOperation(crossinline query: SQLiteDatabase.() -> T?): T? {
         return runCatching {
-            query()
+            synchronized(this) {
+                query()
+            }
         }.onFailure {
             context.log.error("Database operation failed", it)
         }.getOrNull()
-    }
-
-    private var hasShownDatabaseError = false
-
-    private fun showDatabaseError(databasePath: String, throwable: Throwable) {
-        if (hasShownDatabaseError) return
-        hasShownDatabaseError = true
-        context.runOnUiThread {
-            if (context.mainActivity == null) return@runOnUiThread
-            ViewAppearanceHelper.newAlertDialogBuilder(context.mainActivity)
-                .setTitle("SnapEnhance")
-                .setMessage("Failed to query $databasePath database!\n\n${throwable.localizedMessage}\n\nRestarting Snapchat may fix this issue. If the issue persists, try to clean the app data and cache.")
-                .setPositiveButton("Restart Snapchat") { _, _ ->
-                    File(databasePath).takeIf { it.exists() }?.delete()
-                    context.softRestartApp()
-                }
-                .setNegativeButton("Dismiss") { dialog, _ ->
-                    dialog.dismiss()
-                }.show()
-        }
     }
 
     private fun SQLiteDatabase.safeRawQuery(query: String, args: Array<String>? = null): Cursor? {
@@ -57,19 +39,18 @@ class DatabaseAccess(
         }.onFailure {
             if (it !is SQLiteDatabaseCorruptException) {
                 context.log.error("Failed to execute query $query", it)
-                showDatabaseError(this.path, it)
                 return@onFailure
             }
-            context.log.warn("Database ${this.path} is corrupted!")
+            context.longToast("Database ${this.path} is corrupted! Restarting ...")
             context.androidContext.deleteDatabase(this.path)
-            showDatabaseError(this.path, it)
+            context.crash("Database ${this.path} is corrupted!", it)
         }.getOrNull()
     }
 
     private val dmOtherParticipantCache by lazy {
         (arroyoDb?.performOperation {
             safeRawQuery(
-                "SELECT client_conversation_id, user_id FROM user_conversation WHERE conversation_type = 0 AND user_id != ?",
+                "SELECT client_conversation_id, conversation_type, user_id FROM user_conversation WHERE user_id != ?",
                 arrayOf(myUserId)
             )?.use { query ->
                 val participants = mutableMapOf<String, String?>()
@@ -77,7 +58,13 @@ class DatabaseAccess(
                     return@performOperation null
                 }
                 do {
-                    participants[query.getStringOrNull("client_conversation_id")!!] = query.getStringOrNull("user_id")!!
+                    val conversationId = query.getStringOrNull("client_conversation_id") ?: continue
+                    val userId = query.getStringOrNull("user_id") ?: continue
+                    participants[conversationId] = when (query.getIntOrNull("conversation_type")) {
+                        0 -> userId
+                        else -> null
+                    }
+                    participants[userId] = null
                 } while (query.moveToNext())
                 participants
             }
@@ -89,13 +76,16 @@ class DatabaseAccess(
         if (!dbPath.exists()) return null
         return runCatching {
             SQLiteDatabase.openDatabase(
-                dbPath.absolutePath,
-                null,
-                SQLiteDatabase.OPEN_READONLY or SQLiteDatabase.NO_LOCALIZED_COLLATORS
+                dbPath,
+                OpenParams.Builder()
+                    .setOpenFlags(SQLiteDatabase.OPEN_READONLY)
+                    .setErrorHandler {
+                        context.androidContext.deleteDatabase(dbPath.absolutePath)
+                        context.softRestartApp()
+                    }.build()
             )
         }.onFailure {
             context.log.error("Failed to open database $fileName!", it)
-            showDatabaseError(dbPath.absolutePath, it)
         }.getOrNull()
     }
 
@@ -137,6 +127,7 @@ class DatabaseAccess(
     }
 
     val myUserId by lazy {
+        context.androidContext.getSharedPreferences("user_session_shared_pref", 0).getString("key_user_id", null) ?:
         arroyoDb?.performOperation {
             safeRawQuery(buildString {
                 append("SELECT value FROM required_values WHERE key = 'USERID'")
@@ -146,7 +137,7 @@ class DatabaseAccess(
                 }
                 query.getStringOrNull("value")!!
             }
-        } ?: context.androidContext.getSharedPreferences("user_session_shared_pref", 0).getString("key_user_id", null)!!
+        }!!
     }
 
     fun getFeedEntryByConversationId(conversationId: String): FriendFeedEntry? {
@@ -241,8 +232,8 @@ class DatabaseAccess(
                     participants.add(query.getStringOrNull("user_id")!!)
                 } while (query.moveToNext())
                 participants.firstOrNull { it != myUserId }
-            }
-        }.also { dmOtherParticipantCache[conversationId] = it }
+            }.also { dmOtherParticipantCache[conversationId] = it }
+        }
     }
 
 
@@ -253,18 +244,28 @@ class DatabaseAccess(
     }
 
     fun getConversationParticipants(conversationId: String): List<String>? {
+        if (dmOtherParticipantCache[conversationId] != null) return dmOtherParticipantCache[conversationId]?.let { listOf(myUserId, it) }
         return arroyoDb?.performOperation {
             safeRawQuery(
-                "SELECT user_id FROM user_conversation WHERE client_conversation_id = ?",
+                "SELECT user_id, conversation_type FROM user_conversation WHERE client_conversation_id = ?",
                 arrayOf(conversationId)
-            )?.use {
-                if (!it.moveToFirst()) {
+            )?.use { cursor ->
+                if (!cursor.moveToFirst()) {
                     return@performOperation null
                 }
                 val participants = mutableListOf<String>()
+                var conversationType = -1
                 do {
-                    participants.add(it.getStringOrNull("user_id")!!)
-                } while (it.moveToNext())
+                    if (conversationType == -1) conversationType = cursor.getInteger("conversation_type")
+                    participants.add(cursor.getStringOrNull("user_id")!!)
+                } while (cursor.moveToNext())
+
+                if (!dmOtherParticipantCache.containsKey(conversationId)) {
+                    dmOtherParticipantCache[conversationId] = when (conversationType) {
+                        0 -> participants.firstOrNull { it != myUserId }
+                        else -> null
+                    }
+                }
                 participants
             }
         }
