@@ -1,8 +1,6 @@
-package me.rhunk.snapenhance.manager.lspatch
+package me.rhunk.snapenhance.manager.patch
 
 import android.content.Context
-import com.android.tools.build.apkzlib.sign.SigningExtension
-import com.android.tools.build.apkzlib.sign.SigningOptions
 import com.android.tools.build.apkzlib.zip.AlignmentRules
 import com.android.tools.build.apkzlib.zip.ZFile
 import com.android.tools.build.apkzlib.zip.ZFileOptions
@@ -10,14 +8,13 @@ import com.google.gson.Gson
 import com.wind.meditor.core.ManifestEditor
 import com.wind.meditor.property.AttributeItem
 import com.wind.meditor.property.ModificationProperty
-import me.rhunk.snapenhance.manager.lspatch.config.Constants.PROXY_APP_COMPONENT_FACTORY
-import me.rhunk.snapenhance.manager.lspatch.config.PatchConfig
-import me.rhunk.snapenhance.manager.lspatch.util.ApkSignatureHelper
+import me.rhunk.snapenhance.manager.patch.config.Constants.PROXY_APP_COMPONENT_FACTORY
+import me.rhunk.snapenhance.manager.patch.config.PatchConfig
+import me.rhunk.snapenhance.manager.patch.util.ApkSignatureHelper
+import me.rhunk.snapenhance.manager.patch.util.ApkSignatureHelper.provideSigningExtension
 import java.io.ByteArrayInputStream
 import java.io.ByteArrayOutputStream
 import java.io.File
-import java.security.KeyStore
-import java.security.cert.X509Certificate
 import java.util.zip.ZipFile
 import kotlin.io.encoding.Base64
 import kotlin.io.encoding.ExperimentalEncodingApi
@@ -45,22 +42,6 @@ class LSPatch(
         }.toByteArray()
     }
 
-    private fun provideSigningExtension(): SigningExtension {
-        val keyStore = KeyStore.getInstance(KeyStore.getDefaultType())
-        keyStore.load(context.assets.open("lspatch/keystore.jks"), "android".toCharArray())
-        val key = keyStore.getEntry("androiddebugkey", KeyStore.PasswordProtection("android".toCharArray())) as KeyStore.PrivateKeyEntry
-        val certificates = key.certificateChain.mapNotNull { it as? X509Certificate }.toTypedArray()
-
-        return SigningExtension(
-            SigningOptions.builder().apply {
-                setMinSdkVersion(28)
-                setV2SigningEnabled(true)
-                setCertificates(*certificates)
-                setKey(key.privateKey)
-            }.build()
-        )
-    }
-
     private fun resignApk(inputApkFile: File, outputFile: File) {
         printLog("Resigning ${inputApkFile.absolutePath} to ${outputFile.absolutePath}")
         val dstZFile = ZFile.openReadWrite(outputFile, ZFileOptions())
@@ -72,7 +53,7 @@ class LSPatch(
 
         // sign apk
         runCatching {
-            provideSigningExtension().register(dstZFile)
+            provideSigningExtension(context.assets.open("lspatch/keystore.jks")).register(dstZFile)
         }.onFailure {
             throw Exception("Failed to sign apk", it)
         }
@@ -131,7 +112,7 @@ class LSPatch(
 
         // sign apk
         runCatching {
-            provideSigningExtension().register(dstZFile)
+            provideSigningExtension(context.assets.open("lspatch/keystore.jks")).register(dstZFile)
         }.onFailure {
             throw Exception("Failed to sign apk", it)
         }

@@ -23,7 +23,7 @@ import kotlinx.coroutines.withContext
 import me.rhunk.snapenhance.manager.R
 import me.rhunk.snapenhance.manager.data.APKMirror
 import me.rhunk.snapenhance.manager.data.DownloadItem
-import me.rhunk.snapenhance.manager.lspatch.config.Constants
+import me.rhunk.snapenhance.manager.patch.config.Constants
 import me.rhunk.snapenhance.manager.ui.components.ConfirmationDialog
 import me.rhunk.snapenhance.manager.ui.tab.Tab
 import java.io.File

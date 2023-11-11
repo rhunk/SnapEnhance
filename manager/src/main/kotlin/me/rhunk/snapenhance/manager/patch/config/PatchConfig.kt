@@ -1,4 +1,4 @@
-package me.rhunk.snapenhance.manager.lspatch.config
+package me.rhunk.snapenhance.manager.patch.config
 
 data class PatchConfig(
     val useManager: Boolean = false,

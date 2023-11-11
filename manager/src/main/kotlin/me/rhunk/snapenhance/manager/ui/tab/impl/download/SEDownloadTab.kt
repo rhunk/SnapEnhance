@@ -24,6 +24,7 @@ import androidx.compose.ui.window.Dialog
 import com.google.gson.JsonParser
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import me.rhunk.snapenhance.manager.BuildConfig
 import me.rhunk.snapenhance.manager.data.download.SEArtifact
 import me.rhunk.snapenhance.manager.data.download.SEVersion
 import me.rhunk.snapenhance.manager.ui.components.DowngradeNoticeDialog
@@ -82,7 +83,9 @@ class SEDownloadTab : Tab("se_download") {
 
         var selectedVersion by remember { mutableStateOf(null as SEVersion?) }
         var selectedArtifact by remember { mutableStateOf(null as SEArtifact?) }
-        val isAppInstalled = remember { runCatching { activity.packageManager.getPackageInfo(sharedConfig.snapEnhancePackageName, 0) != null }.getOrNull() != null }
+        val snapEnhanceApp = remember {
+            runCatching { activity.packageManager.getPackageInfo(BuildConfig.APPLICATION_ID, 0) }.getOrNull()
+        }
 
         var showDowngradeNotice by remember { mutableStateOf(false) }
 
@@ -209,7 +212,21 @@ class SEDownloadTab : Tab("se_download") {
                     .fillMaxWidth(),
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
-                if (isAppInstalled) {
+                if (snapEnhanceApp != null) {
+                    if (sharedConfig.enableRepackage && sharedConfig.snapEnhancePackageName != snapEnhanceApp.packageName) {
+                        Button(
+                            onClick = {
+                                navigation.navigateTo(RepackageTab::class, Bundle().apply {
+                                    putString("apkPath", snapEnhanceApp.applicationInfo.sourceDir)
+                                    putString("oldPackage", snapEnhanceApp.packageName)
+                                }, noHistory = true)
+                            },
+                            enabled = true,
+                            modifier = Modifier.fillMaxWidth()
+                        ) {
+                            Text(text = "Repackage installed version (>=2.0.0)")
+                        }
+                    }
                     Button(
                         onClick = {
                             triggerPackageInstallation(true)
@@ -222,7 +239,7 @@ class SEDownloadTab : Tab("se_download") {
                 }
                 Button(
                     onClick = {
-                        if (isAppInstalled) {
+                        if (snapEnhanceApp != null) {
                             showDowngradeNotice = true
                         } else {
                             triggerPackageInstallation(false)
@@ -231,7 +248,7 @@ class SEDownloadTab : Tab("se_download") {
                     enabled = selectedVersion != null && selectedArtifact != null,
                     modifier = Modifier.fillMaxWidth()
                 ) {
-                    Text(text = if (isAppInstalled) "Update" else "Install")
+                    Text(text = if (snapEnhanceApp != null) "Update" else "Install")
                 }
             }
         }

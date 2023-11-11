@@ -1,11 +1,16 @@
-package me.rhunk.snapenhance.manager.lspatch.util;
+package me.rhunk.snapenhance.manager.patch.util;
 
+import com.android.tools.build.apkzlib.sign.SigningExtension
+import com.android.tools.build.apkzlib.sign.SigningOptions
 import java.io.IOException
+import java.io.InputStream
 import java.io.RandomAccessFile
 import java.io.UnsupportedEncodingException
 import java.nio.ByteBuffer
 import java.nio.ByteOrder
+import java.security.KeyStore
 import java.security.cert.Certificate
+import java.security.cert.X509Certificate
 import java.util.Enumeration
 import java.util.jar.JarEntry
 import java.util.jar.JarFile
@@ -15,6 +20,22 @@ import java.util.jar.JarFile
 object ApkSignatureHelper {
     private val APK_V2_MAGIC = charArrayOf('A', 'P', 'K', ' ', 'S', 'i', 'g', ' ',
         'B', 'l', 'o', 'c', 'k', ' ', '4', '2')
+
+    fun provideSigningExtension(keyStoreInputStream: InputStream): SigningExtension {
+        val keyStore = KeyStore.getInstance(KeyStore.getDefaultType())
+        keyStore.load(keyStoreInputStream, "android".toCharArray())
+        val key = keyStore.getEntry("androiddebugkey", KeyStore.PasswordProtection("android".toCharArray())) as KeyStore.PrivateKeyEntry
+        val certificates = key.certificateChain.mapNotNull { it as? X509Certificate }.toTypedArray()
+
+        return SigningExtension(
+            SigningOptions.builder().apply {
+                setMinSdkVersion(28)
+                setV2SigningEnabled(true)
+                setCertificates(*certificates)
+                setKey(key.privateKey)
+            }.build()
+        )
+    }
 
     private fun toChars(mSignature: ByteArray): CharArray {
         val N = mSignature.size

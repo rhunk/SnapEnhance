@@ -16,10 +16,11 @@ import me.rhunk.snapenhance.manager.ui.tab.Tab
 import me.rhunk.snapenhance.manager.ui.tab.impl.HomeTab
 import me.rhunk.snapenhance.manager.ui.tab.impl.SettingsTab
 import me.rhunk.snapenhance.manager.ui.tab.impl.download.InstallPackageTab
+import me.rhunk.snapenhance.manager.ui.tab.impl.download.RepackageTab
 
 class MainActivity : ComponentActivity() {
     companion object{
-        private val primaryTabs = listOf(HomeTab::class, SettingsTab::class, InstallPackageTab::class)
+        private val primaryTabs = listOf(HomeTab::class, SettingsTab::class, InstallPackageTab::class, RepackageTab::class)
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {

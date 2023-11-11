@@ -20,7 +20,7 @@ import kotlinx.coroutines.cancel
 import kotlinx.coroutines.launch
 import me.rhunk.snapenhance.manager.data.APKMirror
 import me.rhunk.snapenhance.manager.data.DownloadItem
-import me.rhunk.snapenhance.manager.lspatch.LSPatch
+import me.rhunk.snapenhance.manager.patch.LSPatch
 import me.rhunk.snapenhance.manager.ui.components.DowngradeNoticeDialog
 import me.rhunk.snapenhance.manager.ui.tab.Tab
 import okio.use

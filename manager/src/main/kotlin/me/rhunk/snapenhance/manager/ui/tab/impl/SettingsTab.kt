@@ -22,10 +22,11 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
 import me.rhunk.snapenhance.manager.ui.tab.Tab
+import kotlin.random.Random
 
 class SettingsTab : Tab("settings", isPrimary = true, icon = Icons.Default.Settings) {
     @Composable
-    private fun ConfigEditRow(getValue: () -> String?, setValue: (String) -> Unit, label: String) {
+    private fun ConfigEditRow(getValue: () -> String?, setValue: (String) -> Unit, label: String, randomValueProvider: (() -> String)? = null) {
         var showDialog by remember { mutableStateOf(false) }
 
         if (showDialog) {
@@ -64,6 +65,13 @@ class SettingsTab : Tab("settings", isPrimary = true, icon = Icons.Default.Setti
                                 showDialog = false
                             }) {
                                 Text(text = "Cancel")
+                            }
+                            if (randomValueProvider != null) {
+                                Button(onClick = {
+                                    textFieldValue = TextFieldValue(randomValueProvider(), TextRange(0))
+                                }) {
+                                    Text(text = "Random")
+                                }
                             }
                             Button(onClick = {
                                 setValue(textFieldValue.text)
@@ -131,14 +139,17 @@ class SettingsTab : Tab("settings", isPrimary = true, icon = Icons.Default.Setti
         Column {
             Spacer(modifier = Modifier.height(16.dp))
             ConfigEditRow(
-                getValue = { sharedConfig.snapchatPackageName },
-                setValue = { sharedConfig.snapchatPackageName = it },
-                label = "Override Snapchat package name"
-            )
-            ConfigEditRow(
                 getValue = { sharedConfig.snapEnhancePackageName },
                 setValue = { sharedConfig.snapEnhancePackageName = it },
-                label = "Override SnapEnhance package name"
+                label = "Override SnapEnhance package name",
+                randomValueProvider = {
+                    (0..Random.nextInt(7, 16)).map { ('a'..'z').random() }.joinToString("").chunked(4).joinToString(".")
+                }
+            )
+            ConfigBooleanRow(
+                getValue = { sharedConfig.enableRepackage },
+                setValue = { sharedConfig.enableRepackage = it },
+                label = "Repackage SnapEnhance (experimental)"
             )
             ConfigBooleanRow(
                 getValue = { sharedConfig.useRootInstaller },

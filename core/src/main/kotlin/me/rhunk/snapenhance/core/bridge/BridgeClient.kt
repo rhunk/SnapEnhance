@@ -18,7 +18,7 @@ import me.rhunk.snapenhance.bridge.SyncCallback
 import me.rhunk.snapenhance.bridge.e2ee.E2eeInterface
 import me.rhunk.snapenhance.bridge.scripting.IScripting
 import me.rhunk.snapenhance.bridge.snapclient.MessagingBridge
-import me.rhunk.snapenhance.common.BuildConfig
+import me.rhunk.snapenhance.common.Constants
 import me.rhunk.snapenhance.common.bridge.FileLoaderWrapper
 import me.rhunk.snapenhance.common.bridge.types.BridgeFileType
 import me.rhunk.snapenhance.common.bridge.types.FileActionType
@@ -51,7 +51,7 @@ class BridgeClient(
         with(context.androidContext) {
             runCatching {
                 startActivity(Intent()
-                    .setClassName(BuildConfig.APPLICATION_ID, BuildConfig.APPLICATION_ID + ".bridge.ForceStartActivity")
+                    .setClassName(Constants.SE_PACKAGE_NAME, "me.rhunk.snapenhance.bridge.ForceStartActivity")
                     .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_MULTIPLE_TASK)
                 )
             }
@@ -59,7 +59,7 @@ class BridgeClient(
             //ensure the remote process is running
             runCatching {
                 val intent = Intent()
-                    .setClassName(BuildConfig.APPLICATION_ID, BuildConfig.APPLICATION_ID + ".bridge.BridgeService")
+                    .setClassName(Constants.SE_PACKAGE_NAME,"me.rhunk.snapenhance.bridge.BridgeService")
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
                     bindService(
                         intent,

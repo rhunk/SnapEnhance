@@ -126,10 +126,10 @@ class RemoteSideContext(
             },
             modInfo = ModInfo(
                 loaderPackageName = MainActivity::class.java.`package`?.name,
-                buildPackageName = BuildConfig.APPLICATION_ID,
+                buildPackageName = androidContext.packageName,
                 buildVersion = BuildConfig.VERSION_NAME,
                 buildVersionCode = BuildConfig.VERSION_CODE.toLong(),
-                buildIssuer = androidContext.packageManager.getPackageInfo(BuildConfig.APPLICATION_ID, PackageManager.GET_SIGNING_CERTIFICATES)
+                buildIssuer = androidContext.packageManager.getPackageInfo(androidContext.packageName, PackageManager.GET_SIGNING_CERTIFICATES)
                     ?.signingInfo?.apkContentsSigners?.firstOrNull()?.let {
                         val certFactory = CertificateFactory.getInstance("X509")
                         val cert = certFactory.generateCertificate(ByteArrayInputStream(it.toByteArray())) as X509Certificate

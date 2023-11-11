@@ -1,6 +1,6 @@
 package me.rhunk.snapenhance.core.util
 
-import me.rhunk.snapenhance.common.BuildConfig
+import me.rhunk.snapenhance.common.Constants
 import me.rhunk.snapenhance.core.ModContext
 import me.rhunk.snapenhance.core.bridge.BridgeClient
 import java.io.File
@@ -28,7 +28,7 @@ object LSPatchUpdater {
 
         val embeddedModule = context.androidContext.cacheDir
             .resolve("lspatch")
-            .resolve(BuildConfig.APPLICATION_ID).let { moduleDir ->
+            .resolve(Constants.SE_PACKAGE_NAME).let { moduleDir ->
                 if (!moduleDir.exists()) return@let null
                 moduleDir.listFiles()?.firstOrNull { it.extension == "apk" }
             } ?: obfuscatedModulePath?.let { path ->
