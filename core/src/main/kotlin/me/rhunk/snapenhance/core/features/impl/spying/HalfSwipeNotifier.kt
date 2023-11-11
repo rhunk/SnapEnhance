@@ -43,10 +43,6 @@ class HalfSwipeNotifier : Feature("Half Swipe Notifier", loadParams = FeatureLoa
             presenceService = it.thisObject()
         }
 
-        PendingIntent::class.java.methods.find { it.name == "getActivity" }?.hook(HookStage.BEFORE) { param ->
-            context.log.verbose(param.args().toList())
-        }
-
         context.mappings.getMappedClass("callbacks", "PresenceServiceDelegate")
             .hook("notifyActiveConversationsChanged", HookStage.BEFORE) {
                 val activeConversations = presenceService::class.java.methods.find { it.name == "getActiveConversations" }?.invoke(presenceService) as? Map<*, *> ?: return@hook // conversationId, conversationInfo (this.mPeekingParticipants)
