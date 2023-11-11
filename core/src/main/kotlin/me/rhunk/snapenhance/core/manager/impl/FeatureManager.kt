@@ -15,6 +15,7 @@ import me.rhunk.snapenhance.core.features.impl.experiments.*
 import me.rhunk.snapenhance.core.features.impl.global.*
 import me.rhunk.snapenhance.core.features.impl.messaging.*
 import me.rhunk.snapenhance.core.features.impl.spying.MessageLogger
+import me.rhunk.snapenhance.core.features.impl.spying.HalfSwipeNotifier
 import me.rhunk.snapenhance.core.features.impl.spying.StealthMode
 import me.rhunk.snapenhance.core.features.impl.tweaks.CameraTweaks
 import me.rhunk.snapenhance.core.features.impl.tweaks.BypassScreenshotDetection
@@ -105,6 +106,7 @@ class FeatureManager(
             SnapPreview::class,
             InstantDelete::class,
             BypassScreenshotDetection::class,
+            HalfSwipeNotifier::class,
         )
 
         initializeFeatures()

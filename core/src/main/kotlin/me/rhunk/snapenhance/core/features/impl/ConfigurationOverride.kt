@@ -23,10 +23,11 @@ class ConfigurationOverride : Feature("Configuration Override", loadParams = Fea
         fun getConfigKeyInfo(key: Any?) = runCatching {
             if (key == null) return@runCatching null
             val keyClassMethods = key::class.java.methods
+            val keyName = keyClassMethods.firstOrNull { it.name == "getName" }?.invoke(key)?.toString() ?: key.toString()
             val category = keyClassMethods.firstOrNull { it.name == enumMappings["getCategory"].toString() }?.invoke(key)?.toString() ?: return null
             val valueHolder = keyClassMethods.firstOrNull { it.name == enumMappings["getValue"].toString() }?.invoke(key) ?: return null
             val defaultValue = valueHolder.getObjectField(enumMappings["defaultValueField"].toString()) ?: return null
-            ConfigKeyInfo(category, key.toString(), defaultValue)
+            ConfigKeyInfo(category, keyName, defaultValue)
         }.onFailure {
             context.log.error("Failed to get config key info", it)
         }.getOrNull()

@@ -12,6 +12,7 @@ class MessagingTweaks : ConfigContainer() {
     val hideTypingNotifications = boolean("hide_typing_notifications")
     val unlimitedSnapViewTime = boolean("unlimited_snap_view_time")
     val disableReplayInFF = boolean("disable_replay_in_ff")
+    val halfSwipeNotifier = boolean("half_swipe_notifier") { requireRestart() }
     val messagePreviewLength = integer("message_preview_length", defaultValue = 20)
     val callStartConfirmation = boolean("call_start_confirmation") { requireRestart() }
     val autoSaveMessagesInConversations = multiple("auto_save_messages_in_conversations",

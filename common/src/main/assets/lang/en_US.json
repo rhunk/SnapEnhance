@@ -344,6 +344,10 @@
                         "name": "Disable Replay in FF",
                         "description": "Disables the ability to replay with a long press from the Friend Feed"
                     },
+                    "half_swipe_notifier": {
+                        "name": "Half Swipe Notifier",
+                        "description": "Notifies you when someone half swipes into a conversation"
+                    },
                     "message_preview_length": {
                         "name": "Message Preview Length",
                         "description": "Specify the amount of messages to get previewed"
@@ -863,6 +867,12 @@
     "call_start_confirmation": {
         "dialog_title": "Start Call",
         "dialog_message": "Are you sure you want to start a call?"
+    },
+
+    "half_swipe_notifier": {
+        "notification_channel_name": "Half Swipe",
+        "notification_content_dm": "{friend} just half-swiped into your chat for {duration} seconds",
+        "notification_content_group": "{friend} just half-swiped into {group} for {duration} seconds"
     },
 
     "download_processor": {

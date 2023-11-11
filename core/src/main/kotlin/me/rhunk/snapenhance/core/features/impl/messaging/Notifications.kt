@@ -117,7 +117,7 @@ class Notifications : Feature("Notifications", loadParams = FeatureLoadParams.IN
 
     private fun setupNotificationActionButtons(contentType: ContentType, conversationId: String, message: Message, notificationData: NotificationData) {
         val actions = mutableListOf<Notification.Action>()
-        actions.addAll(notificationData.notification.actions)
+        actions.addAll(notificationData.notification.actions ?: emptyArray())
 
         fun newAction(title: String, remoteAction: String, filter: (() -> Boolean), builder: (Notification.Action.Builder) -> Unit) {
             if (!filter()) return
