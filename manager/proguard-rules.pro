@@ -1,3 +1,5 @@
 -dontwarn com.google.errorprone.annotations.**
 -dontwarn com.google.auto.value.**
+-keep enum * { *; }
+-keep class org.jf.dexlib2.** { *; }
 -keep class me.rhunk.snapenhance.manager.ui.tab.** { *; }
