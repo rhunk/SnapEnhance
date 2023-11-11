@@ -294,11 +294,13 @@ class MessagingPreview(
                 val hasSelection = selectedMessages.isNotEmpty()
                 ActionButton(text = if (hasSelection) "Save selection" else "Save all", icon = Icons.Rounded.BookmarkAdded) {
                     launchMessagingTask(MessagingTaskType.SAVE)
-                    selectConstraintsDialog = true
+                    if (hasSelection) runCurrentTask()
+                    else selectConstraintsDialog = true
                 }
                 ActionButton(text = if (hasSelection) "Unsave selection" else "Unsave all", icon = Icons.Rounded.BookmarkBorder) {
                     launchMessagingTask(MessagingTaskType.UNSAVE)
-                    selectConstraintsDialog = true
+                    if (hasSelection) runCurrentTask()
+                    else selectConstraintsDialog = true
                 }
                 ActionButton(text = if (hasSelection) "Mark selected Snap as seen" else "Mark all Snaps as seen", icon = Icons.Rounded.RemoveRedEye) {
                     launchMessagingTask(MessagingTaskType.READ, listOf(
@@ -314,7 +316,8 @@ class MessagingPreview(
                             messageSize = messages.size
                         }
                     }
-                    selectConstraintsDialog = true
+                    if (hasSelection) runCurrentTask()
+                    else selectConstraintsDialog = true
                 }
             }
         }
