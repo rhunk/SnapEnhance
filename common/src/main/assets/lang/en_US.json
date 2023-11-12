@@ -619,6 +619,10 @@
                     "hot_reload": {
                         "name": "Hot Reload",
                         "description": "Automatically reloads scripts when they change"
+                    },
+                    "disable_log_anonymization": {
+                        "name": "Disable Log Anonymization",
+                        "description": "Disables the anonymization of logs"
                     }
                 }
             }

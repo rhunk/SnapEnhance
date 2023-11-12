@@ -1,6 +1,5 @@
 package me.rhunk.snapenhance
 
-import android.content.SharedPreferences
 import android.util.Log
 import com.google.gson.GsonBuilder
 import me.rhunk.snapenhance.common.logger.AbstractLogger
@@ -108,6 +107,8 @@ class LogManager(
         private val LOG_LIFETIME = 24.hours
     }
 
+    private val anonymizeLogs by lazy { !remoteSideContext.config.root.scripting.disableLogAnonymization.get() }
+
     var lineAddListener = { _: LogLine -> }
 
     private val logFolder = File(remoteSideContext.androidContext.cacheDir, "logs")
@@ -201,7 +202,16 @@ class LogManager(
 
     fun internalLog(tag: String, logLevel: LogLevel, message: Any?) {
         runCatching {
-            val line = LogLine(logLevel, getCurrentDateTime(), tag, message.toString())
+            val line = LogLine(
+                logLevel = logLevel,
+                dateTime = getCurrentDateTime(),
+                tag = tag,
+                message = message.toString().let {
+                    if (anonymizeLogs)
+                        it.replace(Regex("[0-9a-f]{8}-[0-9a-f]{4}-{3}[0-9a-f]{12}", RegexOption.MULTILINE), "xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx")
+                    else it
+                }
+            )
             logFile.appendText("|$line\n", Charsets.UTF_8)
             lineAddListener(line)
             Log.println(logLevel.priority, tag, message.toString())
