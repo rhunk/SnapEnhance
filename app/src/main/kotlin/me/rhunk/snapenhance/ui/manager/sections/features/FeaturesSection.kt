@@ -30,6 +30,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.navigation.NavGraph.Companion.findStartDestination
 import androidx.navigation.NavGraphBuilder
 import androidx.navigation.NavOptions
 import androidx.navigation.compose.composable
@@ -83,6 +84,13 @@ class FeaturesSection : Section() {
         properties
     }
 
+    private fun navigateToMainRoot() {
+        navController.navigate(MAIN_ROUTE, NavOptions.Builder()
+            .setPopUpTo(navController.graph.findStartDestination().id, false)
+            .setLaunchSingleTop(true)
+            .build()
+        )
+    }
 
     override fun canGoBack() = sectionTopBarName() != featuresRouteName
 
@@ -385,7 +393,7 @@ class FeaturesSection : Section() {
                 onValueChange = { keyword ->
                     searchValue = keyword
                     if (keyword.isEmpty()) {
-                        navController.navigate(MAIN_ROUTE)
+                        navigateToMainRoot()
                         return@TextField
                     }
                     currentSearchJob?.cancel()
@@ -435,7 +443,7 @@ class FeaturesSection : Section() {
         IconButton(onClick = {
             showSearchBar = showSearchBar.not()
             if (!showSearchBar && currentRoute == SEARCH_FEATURE_ROUTE) {
-                navController.navigate(MAIN_ROUTE)
+                navigateToMainRoot()
             }
         }) {
             Icon(
@@ -504,7 +512,7 @@ class FeaturesSection : Section() {
         }
 
         if (showExportDropdownMenu) {
-            DropdownMenu(expanded = showExportDropdownMenu, onDismissRequest = { showExportDropdownMenu = false }) {
+            DropdownMenu(expanded = true, onDismissRequest = { showExportDropdownMenu = false }) {
                 actions.forEach { (name, action) ->
                     DropdownMenuItem(
                         text = {
