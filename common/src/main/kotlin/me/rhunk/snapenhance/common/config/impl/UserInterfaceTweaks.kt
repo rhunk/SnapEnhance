@@ -44,5 +44,6 @@ class UserInterfaceTweaks : ConfigContainer() {
     ) { requireRestart() }
     val oldBitmojiSelfie = unique("old_bitmoji_selfie", "2d", "3d") { requireCleanCache() }
     val disableSpotlight = boolean("disable_spotlight") { requireRestart() }
+    val hideSettingsGear = boolean("hide_settings_gear") { requireRestart() }
     val storyViewerOverride = unique("story_viewer_override", "DISCOVER_PLAYBACK_SEEKBAR", "VERTICAL_STORY_VIEWER") { requireRestart() }
 }

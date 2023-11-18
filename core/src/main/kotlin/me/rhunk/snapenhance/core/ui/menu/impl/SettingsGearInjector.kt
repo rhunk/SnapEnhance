@@ -14,6 +14,7 @@ import me.rhunk.snapenhance.core.util.ktx.getStyledAttributes
 @SuppressLint("DiscouragedApi")
 class SettingsGearInjector : AbstractMenu() {
     override fun inject(parent: ViewGroup, view: View, viewConsumer: (View) -> Unit) {
+        if (context.config.userInterface.hideSettingsGear.get()) return
         val firstView = (view as ViewGroup).getChildAt(0)
 
         val ngsHovaHeaderSearchIconBackgroundMarginLeft = context.resources.getDimens("ngs_hova_header_search_icon_background_margin_left")

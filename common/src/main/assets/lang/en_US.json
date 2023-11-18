@@ -290,9 +290,9 @@
                         "name": "Disable Spotlight",
                         "description": "Disables the Spotlight page"
                     },
-                    "startup_tab": {
-                        "name": "Startup Tab",
-                        "description": "Change the tab that opens on startup"
+                    "hide_settings_gear": {
+                        "name": "Hide Settings Gear",
+                        "description": "Hides the SnapEnhance Settings Gear in friend feed"
                     },
                     "story_viewer_override": {
                         "name": "Story Viewer Override",
