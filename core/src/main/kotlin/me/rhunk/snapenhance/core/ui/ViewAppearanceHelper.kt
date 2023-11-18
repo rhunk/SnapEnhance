@@ -16,6 +16,7 @@ import android.os.SystemClock
 import android.view.Gravity
 import android.view.MotionEvent
 import android.view.View
+import android.view.ViewGroup
 import android.widget.Switch
 import android.widget.TextView
 import me.rhunk.snapenhance.core.util.ktx.getDimens
@@ -67,6 +68,14 @@ fun View.triggerCloseTouchEvent() {
             )
         )
     }
+}
+
+fun ViewGroup.children(): List<View> {
+    val children = mutableListOf<View>()
+    for (i in 0 until childCount) {
+        children.add(getChildAt(i))
+    }
+    return children
 }
 
 fun View.iterateParent(predicate: (View) -> Boolean) {

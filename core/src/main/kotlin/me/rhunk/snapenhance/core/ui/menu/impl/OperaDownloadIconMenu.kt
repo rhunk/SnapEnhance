@@ -7,6 +7,7 @@ import android.view.ViewGroup
 import android.widget.FrameLayout
 import android.widget.ImageView
 import me.rhunk.snapenhance.core.features.impl.downloader.MediaDownloader
+import me.rhunk.snapenhance.core.ui.children
 import me.rhunk.snapenhance.core.ui.menu.AbstractMenu
 import me.rhunk.snapenhance.core.util.ktx.getDimens
 import me.rhunk.snapenhance.core.util.ktx.getDrawable
@@ -34,6 +35,19 @@ class OperaDownloadIconMenu : AbstractMenu() {
             setOnClickListener {
                 this@OperaDownloadIconMenu.context.feature(MediaDownloader::class).downloadLastOperaMediaAsync()
             }
+            addOnAttachStateChangeListener(object: View.OnAttachStateChangeListener {
+                override fun onViewAttachedToWindow(v: View) {
+                    v.visibility = View.VISIBLE
+                    (parent.parent as? ViewGroup)?.children()?.forEach { child ->
+                        if (child !is ViewGroup) return@forEach
+                        child.children().forEach {
+                            if (it::class.java.name.endsWith("PreviewToolbar")) v.visibility = View.GONE
+                        }
+                    }
+                }
+
+                override fun onViewDetachedFromWindow(v: View) {}
+            })
         }, 0)
     }
 }
