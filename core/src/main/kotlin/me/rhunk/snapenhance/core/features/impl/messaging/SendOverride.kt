@@ -54,6 +54,7 @@ class SendOverride : Feature("Send Override", loadParams = FeatureLoadParams.INI
             context.config.messaging.galleryMediaSendOverride.get()
         }) { event ->
             isLastSnapSavable = false
+            if (event.destinations.stories?.isNotEmpty() == true && event.destinations.conversations?.isEmpty() == true) return@subscribe
             val localMessageContent = event.messageContent
             if (localMessageContent.contentType != ContentType.EXTERNAL_MEDIA) return@subscribe
 
