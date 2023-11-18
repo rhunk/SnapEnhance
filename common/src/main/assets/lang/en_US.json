@@ -408,6 +408,10 @@
                         "name": "Snapchat Plus",
                         "description": "Enables Snapchat Plus features\nSome Server-sided features may not work"
                     },
+                    "disable_confirmation_dialogs": {
+                        "name": "Disable Confirmation Dialogs",
+                        "description": "Automatically confirms selected actions"
+                    },
                     "auto_updater": {
                         "name": "Auto Updater",
                         "description": "Automatically checks for new updates"
@@ -738,6 +742,14 @@
             "old_bitmoji_selfie": {
                 "2d": "2D Bitmoji",
                 "3d": "3D Bitmoji"
+            },
+            "disable_confirmation_dialogs": {
+                "remove_friend": "Remove Friend",
+                "block_friend": "Block Friend",
+                "ignore_friend": "Ignore Friend",
+                "hide_friend": "Hide Friend",
+                "hide_conversation": "Hide Conversation",
+                "clear_conversation": "Clear Conversation from Friend Feed"
             }
         }
     },

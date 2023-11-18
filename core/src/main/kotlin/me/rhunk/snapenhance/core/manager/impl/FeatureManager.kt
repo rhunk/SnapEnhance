@@ -107,6 +107,7 @@ class FeatureManager(
             InstantDelete::class,
             BypassScreenshotDetection::class,
             HalfSwipeNotifier::class,
+            DisableConfirmationDialogs::class,
         )
 
         initializeFeatures()

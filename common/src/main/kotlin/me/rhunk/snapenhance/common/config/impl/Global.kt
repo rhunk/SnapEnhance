@@ -9,6 +9,7 @@ class Global : ConfigContainer() {
     }
     val spoofLocation = container("spoofLocation", SpoofLocation())
     val snapchatPlus = boolean("snapchat_plus") { requireRestart() }
+    val disableConfirmationDialogs = multiple("disable_confirmation_dialogs", "remove_friend", "block_friend", "ignore_friend", "hide_friend", "hide_conversation", "clear_conversation") { requireRestart() }
     val disableMetrics = boolean("disable_metrics")
     val blockAds = boolean("block_ads")
     val bypassVideoLengthRestriction = unique("bypass_video_length_restriction", "split", "single") { addNotices(
