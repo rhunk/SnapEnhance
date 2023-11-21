@@ -66,7 +66,7 @@ class Messaging : Feature("Messaging", loadParams = FeatureLoadParams.ACTIVITY_C
             val myUserId = context.database.myUserId
 
             feedCachedSnapMessages[conversationId] = messages.filter { msg ->
-                msg.messageMetadata?.seenBy?.none { it.toString() == myUserId } == true
+                msg.messageMetadata?.openedBy?.none { it.toString() == myUserId } == true
             }.sortedBy { it.orderKey }.mapNotNull { it.messageDescriptor?.messageId }
         }
 
