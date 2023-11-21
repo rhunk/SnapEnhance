@@ -2,7 +2,9 @@ package me.rhunk.snapenhance.common.util.protobuf
 
 import java.util.UUID
 
-data class Wire(val id: Int, val type: WireType, val value: Any)
+data class Wire(val id: Int, val type: WireType, val value: Any) {
+    fun toReader() = ProtoReader(value as ByteArray)
+}
 
 class ProtoReader(private val buffer: ByteArray) {
     private var offset: Int = 0

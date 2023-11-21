@@ -26,6 +26,30 @@ class EditorContext(
 
     fun remove(id: Int) = wires.remove(id)
     fun remove(id: Int, index: Int) = wires[id]?.removeAt(index)
+
+    fun edit(id: Int, callback: EditorContext.() -> Unit) {
+        val wire = wires[id]?.firstOrNull() ?: return
+        val editor = ProtoEditor(wire.value as ByteArray)
+        editor.edit {
+            callback()
+        }
+        remove(id)
+        addBuffer(id, editor.toByteArray())
+    }
+
+    fun editEach(id: Int, callback: EditorContext.() -> Unit) {
+        val wires = wires[id] ?: return
+        val newWires = mutableListOf<Wire>()
+        wires.toList().forEachIndexed { _, wire ->
+            val editor = ProtoEditor(wire.value as ByteArray)
+            editor.edit {
+                callback()
+            }
+            newWires.add(Wire(wire.id, WireType.CHUNK, editor.toByteArray()))
+        }
+        wires.clear()
+        wires.addAll(newWires)
+    }
 }
 
 class ProtoEditor(
