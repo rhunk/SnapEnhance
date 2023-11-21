@@ -161,6 +161,7 @@ class FriendFeedInfoMenu : AbstractMenu() {
             .associateBy { it.userId!! }
         
         val messageBuilder = StringBuilder()
+        val translation = context.translation.getCategory("content_type")
 
         messages.forEach { message ->
             val sender = participants[message.senderId]
@@ -174,9 +175,7 @@ class FriendFeedInfoMenu : AbstractMenu() {
             val contentType = ContentType.fromMessageContainer(messageProtoReader) ?: ContentType.fromId(message.contentType)
             var messageString = if (contentType == ContentType.CHAT) {
                 messageProtoReader.getString(2, 1) ?: return@forEach
-            } else {
-                contentType.name
-            }
+            } else translation.getOrNull(contentType.name) ?: contentType.name
 
             if (contentType == ContentType.SNAP) {
                 messageString = "\uD83D\uDFE5" //red square

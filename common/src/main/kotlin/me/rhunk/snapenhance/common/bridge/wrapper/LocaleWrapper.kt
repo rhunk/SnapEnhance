@@ -80,6 +80,7 @@ class LocaleWrapper {
     }
 
     operator fun get(key: String) = translationMap[key] ?: key.also { AbstractLogger.directDebug("Missing translation for $key") }
+    fun getOrNull(key: String) = translationMap[key]
 
     fun format(key: String, vararg args: Pair<String, String>): String {
         return args.fold(get(key)) { acc, pair ->

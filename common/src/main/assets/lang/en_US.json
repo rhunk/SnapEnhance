@@ -672,13 +672,6 @@
                 "progress": "Progress",
                 "failure": "Failure"
             },
-            "auto_save_messages_in_conversations": {
-                "NOTE": "Audio Note",
-                "CHAT": "Chat",
-                "EXTERNAL_MEDIA": "External Media",
-                "SNAP": "Snap",
-                "STICKER": "Sticker"
-            },
             "notifications": {
                 "chat_screenshot": "Screenshot",
                 "chat_screen_record": "Screen Record",

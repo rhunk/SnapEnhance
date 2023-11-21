@@ -49,6 +49,7 @@ class MessagingPreview(
     private lateinit var messagingBridge: MessagingBridge
     private lateinit var previewScrollState: LazyListState
     private val myUserId by lazy { messagingBridge.myUserId }
+    private val contentTypeTranslation by lazy { context.translation.getCategory("content_type") }
 
     private var conversationId: String? = null
     private val messages = sortedMapOf<Long, Message>() // server message id => message
@@ -385,7 +386,7 @@ class MessagingPreview(
                             .padding(5.dp)
                     ) {
 
-                        Text("[$contentType] ${messageReader.getString(2, 1) ?: ""}")
+                        Text("[${contentType?.let { contentTypeTranslation.getOrNull(it.name) ?: it.name } }] ${messageReader.getString(2, 1) ?: ""}")
                     }
                 }
             }

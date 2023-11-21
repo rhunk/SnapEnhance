@@ -21,7 +21,7 @@ class MessagingTweaks : ConfigContainer() {
         "NOTE",
         "EXTERNAL_MEDIA",
         "STICKER"
-    ) { requireRestart() }
+    ) { requireRestart(); customOptionTranslationPath = "content_type" }
     val preventMessageSending = multiple("prevent_message_sending", *NotificationType.getOutgoingValues().map { it.key }.toTypedArray()) {
         customOptionTranslationPath = "features.options.notifications"
         nativeHooks()
