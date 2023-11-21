@@ -9,6 +9,7 @@ class CleanCache : AbstractAction() {
             "files/mbgl-offline.db",
             "files/native_content_manager/*",
             "files/file_manager/*",
+            "files/composer_cache/*",
             "files/blizzardv2/*",
             "files/streaming/*",
             "cache/*",
