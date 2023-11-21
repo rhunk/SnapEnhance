@@ -69,7 +69,7 @@ class MessagingTask(
             }
             onSuccess(message)
             processedMessageCount.intValue++
-            delay(Random.nextLong(50, 170))
+            delay(Random.nextLong(20, 50))
         }
     }
 
