@@ -161,7 +161,7 @@ We do not collect any user information. However, please be aware that third-part
 </details>
 
 ## Contributors
-Thanks to everyone involved including the [third-party libraries](https://github.com/rhunk/SnapEnhance/tree/refactor_2_0_0?tab=readme-ov-file#privacy) used!
+Thanks to everyone involved including the [third-party libraries](https://github.com/rhunk/SnapEnhance?tab=readme-ov-file#privacy) used!
 - [rathmerdominik](https://github.com/rathmerdominik)
 - [Flole998](https://github.com/Flole998)
 - [authorisation](https://github.com/authorisation/)
