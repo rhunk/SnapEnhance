@@ -75,8 +75,8 @@ object Hooker {
         methodName: String,
         stage: HookStage,
         crossinline hookConsumer: (HookAdapter) -> Unit
-    ) {
-        val unhooks: MutableSet<XC_MethodHook.Unhook> = HashSet()
+    ): List<() -> Unit> {
+        val unhooks = mutableSetOf<XC_MethodHook.Unhook>()
         hook(clazz, methodName, stage) { param->
             if (param.nullableThisObject<Any>().let {
                 if (it == null) unhooks.forEach { u -> u.unhook() }
@@ -84,6 +84,9 @@ object Hooker {
             }) return@hook
             hookConsumer(param)
         }.also { unhooks.addAll(it) }
+        return unhooks.map {
+            { it.unhook() }
+        }
     }
 
     inline fun ephemeralHook(

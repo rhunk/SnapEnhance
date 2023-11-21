@@ -324,6 +324,10 @@
                         "name": "Anonymous Story Viewing",
                         "description": "Prevents anyone from knowing you've seen their story"
                     },
+                    "prevent_story_rewatch_indicator": {
+                        "name": "Prevent Story Rewatch Indicator",
+                        "description": "Prevents anyone from knowing you've rewatched their story"
+                    },
                     "hide_peek_a_peek": {
                         "name": "Hide Peek-a-Peek",
                         "description": "Prevents notification from being sent when you half swipe into a chat"
@@ -419,6 +423,10 @@
                     "disable_metrics": {
                         "name": "Disable Metrics",
                         "description": "Blocks sending specific analytic data to Snapchat"
+                    },
+                    "disable_public_stories": {
+                        "name": "Disable Public Stories",
+                        "description": "Removes every public story from the Discover page\nMay require a clean cache to work properly"
                     },
                     "block_ads": {
                         "name": "Block Ads",

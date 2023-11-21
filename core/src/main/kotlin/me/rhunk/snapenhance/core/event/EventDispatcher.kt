@@ -136,11 +136,13 @@ class EventDispatcher(
                 NetworkApiRequestEvent(
                     url = request.getObjectField("mUrl") as String,
                     callback = param.arg(4),
+                    uploadDataProvider = param.argNullable(5),
                     request = request,
                 ).apply {
                     adapter = param
                 }
             ) {
+                if (canceled) param.setResult(null)
                 request.setObjectField("mUrl", url)
                 postHookEvent()
             }
