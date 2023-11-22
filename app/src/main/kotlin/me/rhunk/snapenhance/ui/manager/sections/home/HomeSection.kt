@@ -271,7 +271,7 @@ class HomeSection : Section() {
                 homeSubSection.LogsSection()
             }
             composable(SETTINGS_SECTION_ROUTE) {
-                SettingsSection().also { it.context = context }.Content()
+                SettingsSection(activityLauncherHelper).also { it.context = context }.Content()
             }
         }
     }

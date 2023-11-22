@@ -21,8 +21,10 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import me.rhunk.snapenhance.bridge.BridgeService
 import me.rhunk.snapenhance.common.BuildConfig
+import me.rhunk.snapenhance.common.bridge.types.BridgeFileType
 import me.rhunk.snapenhance.common.bridge.wrapper.LocaleWrapper
 import me.rhunk.snapenhance.common.bridge.wrapper.MappingsWrapper
+import me.rhunk.snapenhance.common.bridge.wrapper.MessageLoggerWrapper
 import me.rhunk.snapenhance.common.config.ModConfig
 import me.rhunk.snapenhance.e2ee.E2EEImplementation
 import me.rhunk.snapenhance.messaging.ModDatabase
@@ -67,6 +69,7 @@ class RemoteSideContext(
     val scriptManager = RemoteScriptManager(this)
     val settingsOverlay = SettingsOverlay(this)
     val e2eeImplementation = E2EEImplementation(this)
+    val messageLogger by lazy { MessageLoggerWrapper(androidContext.getDatabasePath(BridgeFileType.MESSAGE_LOGGER_DATABASE.fileName)) }
 
     //used to load bitmoji selfies and download previews
     val imageLoader by lazy {
@@ -104,6 +107,7 @@ class RemoteSideContext(
             modDatabase.init()
             streaksReminder.init()
             scriptManager.init()
+            messageLogger.init()
         }.onFailure {
             log.error("Failed to load RemoteSideContext", it)
         }

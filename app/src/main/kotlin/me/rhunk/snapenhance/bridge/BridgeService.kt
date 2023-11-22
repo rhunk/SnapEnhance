@@ -20,7 +20,6 @@ import me.rhunk.snapenhance.download.DownloadProcessor
 import kotlin.system.measureTimeMillis
 
 class BridgeService : Service() {
-    private lateinit var messageLoggerWrapper: MessageLoggerWrapper
     private lateinit var remoteSideContext: RemoteSideContext
     lateinit var syncCallback: SyncCallback
     var messagingBridge: MessagingBridge? = null
@@ -38,7 +37,6 @@ class BridgeService : Service() {
         remoteSideContext.apply {
             bridgeService = this@BridgeService
         }
-        messageLoggerWrapper = MessageLoggerWrapper(getDatabasePath(BridgeFileType.MESSAGE_LOGGER_DATABASE.fileName)).also { it.init() }
         return BridgeBinder()
     }
 
@@ -180,7 +178,7 @@ class BridgeService : Service() {
         override fun getScriptingInterface() = remoteSideContext.scriptManager
 
         override fun getE2eeInterface() = remoteSideContext.e2eeImplementation
-        override fun getMessageLogger() = messageLoggerWrapper
+        override fun getMessageLogger() = remoteSideContext.messageLogger
         override fun registerMessagingBridge(bridge: MessagingBridge) {
             messagingBridge = bridge
         }

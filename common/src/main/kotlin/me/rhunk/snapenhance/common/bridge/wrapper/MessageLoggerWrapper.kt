@@ -2,15 +2,18 @@ package me.rhunk.snapenhance.common.bridge.wrapper
 
 import android.content.ContentValues
 import android.database.sqlite.SQLiteDatabase
+import kotlinx.coroutines.*
 import me.rhunk.snapenhance.bridge.MessageLoggerInterface
 import me.rhunk.snapenhance.common.util.SQLiteDatabaseHelper
 import java.io.File
 import java.util.UUID
 
 class MessageLoggerWrapper(
-    private val databaseFile: File
+    val databaseFile: File
 ): MessageLoggerInterface.Stub() {
     private var _database: SQLiteDatabase? = null
+    @OptIn(ExperimentalCoroutinesApi::class)
+    private val coroutineScope = CoroutineScope(Dispatchers.IO.limitedParallelism(1))
 
     private val database get() = synchronized(this) {
         _database?.takeIf { it.isOpen } ?: run {
@@ -74,19 +77,35 @@ class MessageLoggerWrapper(
         if (state) {
             return false
         }
-        database.insert("messages", null, ContentValues().apply {
-            put("conversation_id", conversationId)
-            put("message_id", messageId)
-            put("message_data", serializedMessage)
-        })
+        runBlocking {
+            withContext(coroutineScope.coroutineContext) {
+                database.insert("messages", null, ContentValues().apply {
+                    put("conversation_id", conversationId)
+                    put("message_id", messageId)
+                    put("message_data", serializedMessage)
+                })
+            }
+        }
         return true
     }
 
     fun clearMessages() {
-        database.execSQL("DELETE FROM messages")
+        coroutineScope.launch {
+            database.execSQL("DELETE FROM messages")
+        }
+    }
+
+    fun getStoredMessageCount(): Int {
+        val cursor = database.rawQuery("SELECT COUNT(*) FROM messages", null)
+        cursor.moveToFirst()
+        val count = cursor.getInt(0)
+        cursor.close()
+        return count
     }
 
     override fun deleteMessage(conversationId: String, messageId: Long) {
-        database.execSQL("DELETE FROM messages WHERE conversation_id = ? AND message_id = ?", arrayOf(conversationId, messageId.toString()))
+        coroutineScope.launch {
+            database.execSQL("DELETE FROM messages WHERE conversation_id = ? AND message_id = ?", arrayOf(conversationId, messageId.toString()))
+        }
     }
 }
