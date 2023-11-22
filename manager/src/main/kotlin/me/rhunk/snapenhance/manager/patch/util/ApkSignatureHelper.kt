@@ -23,8 +23,8 @@ object ApkSignatureHelper {
 
     fun provideSigningExtension(keyStoreInputStream: InputStream): SigningExtension {
         val keyStore = KeyStore.getInstance(KeyStore.getDefaultType())
-        keyStore.load(keyStoreInputStream, "android".toCharArray())
-        val key = keyStore.getEntry("androiddebugkey", KeyStore.PasswordProtection("android".toCharArray())) as KeyStore.PrivateKeyEntry
+        keyStore.load(keyStoreInputStream, "123456".toCharArray())
+        val key = keyStore.getEntry("key0", KeyStore.PasswordProtection("123456".toCharArray())) as KeyStore.PrivateKeyEntry
         val certificates = key.certificateChain.mapNotNull { it as? X509Certificate }.toTypedArray()
 
         return SigningExtension(
