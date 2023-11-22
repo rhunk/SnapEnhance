@@ -279,7 +279,7 @@ class SnapchatPatchTab : Tab("snapchat_download") {
                         navigation.navigateTo(LSPatchTab::class, args = Bundle().apply {
                             putParcelable("downloadItem", selectedSnapchatVersion)
                             putString("modulePath", installedSnapEnhanceVersion?.applicationInfo?.sourceDir)
-                        }, noHistory = true)
+                        })
                     }
                 ) {
                     Text("Download & Patch")
@@ -292,7 +292,7 @@ class SnapchatPatchTab : Tab("snapchat_download") {
                             navigation.navigateTo(LSPatchTab::class, args = Bundle().apply {
                                 putString("localItemFile", installedSnapchatPackage?.applicationInfo?.sourceDir ?: return@apply)
                                 putString("modulePath", installedSnapEnhanceVersion?.applicationInfo?.sourceDir ?: return@apply)
-                            }, noHistory = true)
+                            })
                         }
                     ) {
                         Text("Patch from existing installation")
@@ -306,7 +306,7 @@ class SnapchatPatchTab : Tab("snapchat_download") {
                     onClick = {
                         navigation.navigateTo(LSPatchTab::class, args = Bundle().apply {
                             putParcelable("downloadItem", selectedSnapchatVersion)
-                        }, noHistory = true)
+                        })
                     }
                 ) {
                     Text("Install/Restore Original Snapchat")

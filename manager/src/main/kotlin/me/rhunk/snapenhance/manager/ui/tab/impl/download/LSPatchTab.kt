@@ -1,6 +1,7 @@
 package me.rhunk.snapenhance.manager.ui.tab.impl.download
 
 import android.os.Bundle
+import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
@@ -15,8 +16,11 @@ import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
+import androidx.navigation.NavGraphBuilder
+import androidx.navigation.compose.composable
+import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.cancel
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
 import me.rhunk.snapenhance.manager.data.APKMirror
 import me.rhunk.snapenhance.manager.data.DownloadItem
@@ -25,15 +29,19 @@ import me.rhunk.snapenhance.manager.ui.components.DowngradeNoticeDialog
 import me.rhunk.snapenhance.manager.ui.tab.Tab
 import okio.use
 import java.io.File
+import kotlin.properties.Delegates
 
 class LSPatchTab : Tab("lspatch") {
-    private var localItemFile: File? = null
-    private var downloadItem: DownloadItem? = null
-    private var snapEnhanceModule: File? = null
-    private var patchedApk by mutableStateOf<File?>(null)
     private val apkMirror = APKMirror()
 
-    private fun patch(log: (Any?) -> Unit, onProgress: (Float) -> Unit) {
+    private fun patch(
+        log: (Any?) -> Unit,
+        onProgress: (Float) -> Unit,
+        downloadItem: DownloadItem? = null,
+        snapEnhanceModule: File? = null,
+        localItemFile: File? = null,
+        patchedApk: MutableState<File?>,
+    ) {
         var apkFile: File? = localItemFile
 
         downloadItem?.let {
@@ -91,118 +99,131 @@ class LSPatchTab : Tab("lspatch") {
             log("== Patching apk ==")
             val outputFiles = lsPatch.patchSplits(listOf(apkFile!!))
 
-            patchedApk = outputFiles["base.apk"] ?: run {
+            patchedApk.value = outputFiles["base.apk"] ?: run {
                 log("== Failed to patch apk ==")
                 return
             }
             return
         }
-        patchedApk = apkFile
+        patchedApk.value = apkFile
     }
 
-    @Composable
     @Suppress("DEPRECATION")
-    override fun Content() {
-        this.localItemFile = remember { getArguments()?.getString("localItemFile")?.let { File(it) } }
-        this.downloadItem = remember { getArguments()?.getParcelable("downloadItem") }
-        this.snapEnhanceModule = remember {
-            getArguments()?.getString("modulePath")?.let {
-                File(it)
+    override fun build(navGraphBuilder: NavGraphBuilder) {
+        var currentJob: Job? = null
+        val coroutineScope = CoroutineScope(Dispatchers.IO)
+        val patchedApk = mutableStateOf<File?>(null)
+        val status = mutableStateOf("")
+        var progress by mutableFloatStateOf(-1f)
+        var isRunning by Delegates.observable(false) { _, _, newValue ->
+            if (!newValue) {
+                currentJob?.cancel()
+                currentJob = null
+                progress = -1f
             }
         }
 
-        val coroutineScope = rememberCoroutineScope()
-        var showDowngradeNoticeDialog by remember { mutableStateOf(false) }
+        navGraphBuilder.composable(route) {
+            var showDowngradeNoticeDialog by remember { mutableStateOf(false) }
 
-        var status by remember { mutableStateOf("") }
-        var progress by remember { mutableFloatStateOf(-1f) }
-
-        LaunchedEffect(this.snapEnhanceModule) {
-            patchedApk = null
-            coroutineScope.launch(Dispatchers.IO) {
-                runCatching {
-                    patch(log = {
+            LaunchedEffect(Unit) {
+                if (isRunning) return@LaunchedEffect
+                status.value = ""
+                coroutineScope.launch(Dispatchers.IO) {
+                    isRunning = true
+                    runCatching {
+                        patch(
+                            localItemFile = getArguments()?.getString("localItemFile")?.let { File(it) } ,
+                            log = {
+                                coroutineScope.launch {
+                                    status.value += when (it) {
+                                        is Throwable -> it.message + "\n" + it.stackTraceToString()
+                                        else -> it.toString()
+                                    } + "\n"
+                                }
+                            },
+                            downloadItem = getArguments()?.getParcelable("downloadItem"),
+                            snapEnhanceModule = getArguments()?.getString("modulePath")?.let {
+                                File(it)
+                            },
+                            patchedApk = patchedApk,
+                            onProgress = { progress = it }
+                        )
+                    }.onFailure {
                         coroutineScope.launch {
-                            status += when (it) {
-                                is Throwable -> it.message + "\n" + it.stackTraceToString()
-                                else -> it.toString()
-                            } + "\n"
+                            status.value += it.message + "\n" + it.stackTraceToString()
                         }
-                    }) {
-                        progress = it
                     }
-                }.onFailure {
-                    coroutineScope.launch {
-                        status += it.message + "\n" + it.stackTraceToString()
-                    }
-                }
-            }
-        }
-
-        DisposableEffect(Unit) {
-            onDispose {
-                coroutineScope.cancel()
-            }
-        }
-
-        val scrollState = rememberScrollState()
-
-        fun triggerInstallation(shouldUninstall: Boolean) {
-            navigation.navigateTo(InstallPackageTab::class, args = Bundle().apply {
-                putString("downloadPath", patchedApk?.absolutePath)
-                putString("appPackage", sharedConfig.snapchatPackageName)
-                putBoolean("uninstall", shouldUninstall)
-            })
-        }
-
-        Column(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(20.dp),
-            horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.spacedBy(10.dp)
-        ) {
-            Card(
-                modifier = Modifier
-                    .weight(1f)
-                    .padding(10.dp),
-            ) {
-                Column(
-                    modifier = Modifier
-                        .fillMaxSize()
-                        .verticalScroll(scrollState)
-                ) {
-                    Text(text = status, overflow = TextOverflow.Visible, modifier = Modifier.padding(10.dp))
-                }
-            }
-            if (progress != -1f) {
-                LinearProgressIndicator(progress = progress, modifier = Modifier.height(10.dp), strokeCap = StrokeCap.Round)
+                    isRunning = false
+                }.also { currentJob = it }
             }
 
-            if (patchedApk != null) {
-                Button(modifier = Modifier.fillMaxWidth(), onClick = {
-                    triggerInstallation(true)
-                }) {
-                    Text(text = "Uninstall & Install")
-                }
-
-                Button(modifier = Modifier.fillMaxWidth(), onClick = {
-                    showDowngradeNoticeDialog = true
-                }) {
-                    Text(text = "Update")
+            DisposableEffect(Unit) {
+                onDispose {
+                    if (isRunning) return@onDispose
+                    patchedApk.value = null
                 }
             }
 
-            LaunchedEffect(status) {
-                scrollState.scrollTo(scrollState.maxValue)
-            }
-        }
+            val scrollState = rememberScrollState()
 
-        if (showDowngradeNoticeDialog) {
-            Dialog(onDismissRequest = { showDowngradeNoticeDialog = false }) {
-                DowngradeNoticeDialog(onDismiss = { showDowngradeNoticeDialog = false }, onSuccess = {
-                    triggerInstallation(false)
+            fun triggerInstallation(shouldUninstall: Boolean) {
+                navigation.navigateTo(InstallPackageTab::class, args = Bundle().apply {
+                    putString("downloadPath", patchedApk.value?.absolutePath)
+                    putString("appPackage", sharedConfig.snapchatPackageName)
+                    putBoolean("uninstall", shouldUninstall)
                 })
+            }
+            BackHandler(isRunning) {}
+            Column(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(20.dp),
+                horizontalAlignment = Alignment.CenterHorizontally,
+                verticalArrangement = Arrangement.spacedBy(10.dp)
+            ) {
+                Card(
+                    modifier = Modifier
+                        .weight(1f)
+                        .padding(10.dp),
+                ) {
+                    Column(
+                        modifier = Modifier
+                            .fillMaxSize()
+                            .verticalScroll(scrollState)
+                    ) {
+                        Text(text = status.value, overflow = TextOverflow.Visible, modifier = Modifier.padding(10.dp))
+                    }
+                }
+                if (progress != -1f) {
+                    LinearProgressIndicator(progress = progress, modifier = Modifier.height(10.dp), strokeCap = StrokeCap.Round)
+                }
+
+                if (patchedApk.value != null) {
+                    Button(modifier = Modifier.fillMaxWidth(), onClick = {
+                        triggerInstallation(true)
+                    }) {
+                        Text(text = "Uninstall & Install")
+                    }
+
+                    Button(modifier = Modifier.fillMaxWidth(), onClick = {
+                        showDowngradeNoticeDialog = true
+                    }) {
+                        Text(text = "Update")
+                    }
+                }
+
+                LaunchedEffect(status) {
+                    scrollState.scrollTo(scrollState.maxValue)
+                }
+            }
+
+            if (showDowngradeNoticeDialog) {
+                Dialog(onDismissRequest = { showDowngradeNoticeDialog = false }) {
+                    DowngradeNoticeDialog(onDismiss = { showDowngradeNoticeDialog = false }, onSuccess = {
+                        triggerInstallation(false)
+                    })
+                }
             }
         }
     }
