@@ -42,6 +42,7 @@ class UserInterfaceTweaks : ConfigContainer() {
         "hide_chat_call_buttons",
         "hide_profile_call_buttons"
     ) { requireRestart() }
+    val operaMediaQuickInfo = boolean("opera_media_quick_info") { requireRestart() }
     val oldBitmojiSelfie = unique("old_bitmoji_selfie", "2d", "3d") { requireCleanCache() }
     val disableSpotlight = boolean("disable_spotlight") { requireRestart() }
     val hideSettingsGear = boolean("hide_settings_gear") { requireRestart() }

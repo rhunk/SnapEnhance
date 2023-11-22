@@ -7,11 +7,15 @@ import android.view.ViewGroup
 import android.widget.Button
 import android.widget.LinearLayout
 import android.widget.ScrollView
+import android.widget.TextView
 import me.rhunk.snapenhance.core.features.impl.downloader.MediaDownloader
 import me.rhunk.snapenhance.core.ui.applyTheme
 import me.rhunk.snapenhance.core.ui.menu.AbstractMenu
 import me.rhunk.snapenhance.core.ui.triggerCloseTouchEvent
 import me.rhunk.snapenhance.core.util.ktx.getId
+import me.rhunk.snapenhance.core.wrapper.impl.ScSize
+import java.text.DateFormat
+import java.util.Date
 
 @SuppressLint("DiscouragedApi")
 class OperaContextActionMenu : AbstractMenu() {
@@ -67,11 +71,65 @@ class OperaContextActionMenu : AbstractMenu() {
                     ViewGroup.LayoutParams.MATCH_PARENT,
                     ViewGroup.LayoutParams.MATCH_PARENT
                 )
-            val translation = context.translation
+            val translation = context.translation.getCategory("opera_context_menu")
             val mediaDownloader = context.feature(MediaDownloader::class)
+            val paramMap = mediaDownloader.lastSeenMapParams
+
+            if (paramMap != null && context.config.userInterface.operaMediaQuickInfo.get()) {
+                val playableStorySnapRecord = paramMap["PLAYABLE_STORY_SNAP_RECORD"]?.toString()
+                val sentTimestamp = playableStorySnapRecord?.substringAfter("timestamp=")
+                    ?.substringBefore(",")?.toLongOrNull()
+                    ?: paramMap["MESSAGE_ID"]?.toString()?.let { messageId ->
+                        context.database.getConversationMessageFromId(
+                            messageId.substring(messageId.lastIndexOf(":") + 1)
+                                .toLong()
+                        )?.creationTimestamp
+                    }
+                    ?: paramMap["SNAP_TIMESTAMP"]?.toString()?.toLongOrNull()
+                val dateFormat = DateFormat.getDateTimeInstance()
+                val creationTimestamp = playableStorySnapRecord?.substringAfter("creationTimestamp=")
+                    ?.substringBefore(",")?.toLongOrNull()
+                val expirationTimestamp = playableStorySnapRecord?.substringAfter("expirationTimestamp=")
+                    ?.substringBefore(",")?.toLongOrNull()
+                    ?: paramMap["SNAP_EXPIRATION_TIMESTAMP_MILLIS"]?.toString()?.toLongOrNull()
+
+                val mediaSize = paramMap["snap_size"]?.let { ScSize(it) }
+                val durationMs = paramMap["media_duration_ms"]?.toString()
+
+                val stringBuilder = StringBuilder().apply {
+                    if (sentTimestamp != null) {
+                        append(translation.format("sent_at", "date" to dateFormat.format(Date(sentTimestamp))))
+                        append("\n")
+                    }
+                    if (creationTimestamp != null) {
+                        append(translation.format("created_at", "date" to dateFormat.format(Date(creationTimestamp))))
+                        append("\n")
+                    }
+                    if (expirationTimestamp != null) {
+                        append(translation.format("expires_at", "date" to dateFormat.format(Date(expirationTimestamp))))
+                        append("\n")
+                    }
+                    if (mediaSize != null) {
+                        append(translation.format("media_size", "size" to "${mediaSize.first}x${mediaSize.second}"))
+                        append("\n")
+                    }
+                    if (durationMs != null) {
+                        append(translation.format("media_duration", "duration" to durationMs))
+                        append("\n")
+                    }
+                    if (last() == '\n') deleteCharAt(length - 1)
+                }
+
+                if (stringBuilder.isNotEmpty()) {
+                    linearLayout.addView(TextView(view.context).apply {
+                        text = stringBuilder.toString()
+                        setPadding(40, 10, 0, 0)
+                    })
+                }
+            }
 
             linearLayout.addView(Button(view.context).apply {
-                text = translation["opera_context_menu.download"]
+                text = translation["download"]
                 setOnClickListener {
                     mediaDownloader.downloadLastOperaMediaAsync()
                     parentView.triggerCloseTouchEvent()
@@ -81,7 +139,7 @@ class OperaContextActionMenu : AbstractMenu() {
 
             if (context.isDeveloper) {
                 linearLayout.addView(Button(view.context).apply {
-                    text = "Show debug info"
+                    text = translation["show_debug_info"]
                     setOnClickListener { mediaDownloader.showLastOperaDebugMediaInfo() }
                     applyTheme(isAmoled = false)
                 })

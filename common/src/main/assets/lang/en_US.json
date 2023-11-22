@@ -282,6 +282,10 @@
                         "name": "Hide UI Components",
                         "description": "Select which UI components to hide"
                     },
+                    "opera_media_quick_info": {
+                        "name": "Opera Media Quick Info",
+                        "description": "Shows useful information of media such as creation date in opera viewer context menu"
+                    },
                     "old_bitmoji_selfie": {
                         "name": "Old Bitmoji Selfie",
                         "description": "Brings back the Bitmoji selfies from older Snapchat versions"
@@ -793,7 +797,13 @@
     },
 
     "opera_context_menu": {
-        "download": "Download Media"
+        "download": "Download Media",
+        "sent_at": "Sent at {date}",
+        "created_at": "Created at {date}",
+        "expires_at": "Expires at {date}",
+        "media_size": "Media size: {size}",
+        "media_duration": "Media duration: {duration} ms",
+        "show_debug_info": "Show Debug Info"
     },
 
     "modal_option": {

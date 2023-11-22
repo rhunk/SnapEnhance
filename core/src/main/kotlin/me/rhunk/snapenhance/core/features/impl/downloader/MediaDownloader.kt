@@ -72,8 +72,8 @@ class SnapChapterInfo(
 @OptIn(ExperimentalEncodingApi::class)
 class MediaDownloader : MessagingRuleFeature("MediaDownloader", MessagingRuleType.AUTO_DOWNLOAD, loadParams = FeatureLoadParams.ACTIVITY_CREATE_ASYNC) {
     private var lastSeenMediaInfoMap: MutableMap<SplitMediaAssetType, MediaInfo>? = null
-    private var lastSeenMapParams: ParamMap? = null
-
+    var lastSeenMapParams: ParamMap? = null
+        private set
     private val translations by lazy {
         context.translation.getCategory("download_processor")
     }
@@ -81,6 +81,7 @@ class MediaDownloader : MessagingRuleFeature("MediaDownloader", MessagingRuleTyp
     private fun provideDownloadManagerClient(
         mediaIdentifier: String,
         mediaAuthor: String,
+        creationTimestamp: Long? = null,
         downloadSource: MediaDownloadSource,
         friendInfo: FriendInfo? = null
     ): DownloadManagerClient {
@@ -93,7 +94,7 @@ class MediaDownloader : MessagingRuleFeature("MediaDownloader", MessagingRuleTyp
             context.shortToast(translations["download_started_toast"])
         }
 
-        val outputPath = createNewFilePath(generatedHash, downloadSource, mediaAuthor)
+        val outputPath = createNewFilePath(generatedHash, downloadSource, mediaAuthor, creationTimestamp)
 
         return DownloadManagerClient(
             context = context,
@@ -133,11 +134,16 @@ class MediaDownloader : MessagingRuleFeature("MediaDownloader", MessagingRuleTyp
     }
 
 
-    private fun createNewFilePath(hexHash: String, downloadSource: MediaDownloadSource, mediaAuthor: String): String {
+    private fun createNewFilePath(
+        hexHash: String,
+        downloadSource: MediaDownloadSource,
+        mediaAuthor: String,
+        creationTimestamp: Long?
+    ): String {
         val pathFormat by context.config.downloader.pathFormat
         val sanitizedMediaAuthor = mediaAuthor.sanitizeForPath().ifEmpty { hexHash }
 
-        val currentDateTime = SimpleDateFormat("yyyy-MM-dd_HH-mm-ss", Locale.ENGLISH).format(System.currentTimeMillis())
+        val currentDateTime = SimpleDateFormat("yyyy-MM-dd_HH-mm-ss", Locale.ENGLISH).format(creationTimestamp ?: System.currentTimeMillis())
 
         val finalPath = StringBuilder()
 
@@ -299,6 +305,7 @@ class MediaDownloader : MessagingRuleFeature("MediaDownloader", MessagingRuleTyp
             downloadOperaMedia(provideDownloadManagerClient(
                 mediaIdentifier = "$conversationId$senderId${conversationMessage.serverMessageId}$mediaId",
                 mediaAuthor = authorUsername,
+                creationTimestamp = conversationMessage.creationTimestamp,
                 downloadSource = MediaDownloadSource.CHAT_MEDIA,
                 friendInfo = author
             ), mediaInfoMap)
@@ -343,6 +350,8 @@ class MediaDownloader : MessagingRuleFeature("MediaDownloader", MessagingRuleTyp
             downloadOperaMedia(provideDownloadManagerClient(
                 mediaIdentifier = paramMap["MEDIA_ID"].toString(),
                 mediaAuthor = authorName,
+                creationTimestamp = paramMap["PLAYABLE_STORY_SNAP_RECORD"]?.toString()?.substringAfter("timestamp=")
+                    ?.substringBefore(",")?.toLongOrNull(),
                 downloadSource = MediaDownloadSource.STORY,
                 friendInfo = author
             ), mediaInfoMap)
@@ -360,6 +369,7 @@ class MediaDownloader : MessagingRuleFeature("MediaDownloader", MessagingRuleTyp
                 mediaIdentifier = paramMap["SNAP_ID"].toString(),
                 mediaAuthor = userDisplayName,
                 downloadSource = MediaDownloadSource.PUBLIC_STORY,
+                creationTimestamp = paramMap["SNAP_TIMESTAMP"]?.toString()?.toLongOrNull(),
             ), mediaInfoMap)
             return
         }
@@ -369,7 +379,8 @@ class MediaDownloader : MessagingRuleFeature("MediaDownloader", MessagingRuleTyp
             downloadOperaMedia(provideDownloadManagerClient(
                 mediaIdentifier = paramMap["SNAP_ID"].toString(),
                 downloadSource = MediaDownloadSource.SPOTLIGHT,
-                mediaAuthor = paramMap["TIME_STAMP"].toString()
+                mediaAuthor = paramMap["CREATOR_DISPLAY_NAME"].toString(),
+                creationTimestamp = paramMap["SNAP_TIMESTAMP"]?.toString()?.toLongOrNull(),
             ), mediaInfoMap)
             return
         }
