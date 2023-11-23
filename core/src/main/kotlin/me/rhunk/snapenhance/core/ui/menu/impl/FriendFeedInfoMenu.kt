@@ -88,7 +88,8 @@ class FriendFeedInfoMenu : AbstractMenu() {
                     Calendar.LONG,
                     context.translation.loadedLocale
                 )?.let {
-                    context.translation.format("profile_info.birthday",
+                    if (profile.birthday == 0L) context.translation["profile_info.hidden_birthday"]
+                    else context.translation.format("profile_info.birthday",
                         "month" to it,
                         "day" to profile.birthday.toInt().toString())
                 },

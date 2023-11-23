@@ -829,6 +829,7 @@
         "display_name": "Display Name",
         "added_date": "Added Date",
         "birthday": "Birthday : {month} {day}",
+        "hidden_birthday": "Birthday : Hidden",
         "friendship": "Friendship",
         "add_source": "Add Source",
         "snapchat_plus": "Snapchat Plus",
