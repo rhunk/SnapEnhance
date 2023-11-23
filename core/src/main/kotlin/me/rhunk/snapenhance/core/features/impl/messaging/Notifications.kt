@@ -303,7 +303,8 @@ class Notifications : Feature("Notifications", loadParams = FeatureLoadParams.IN
         }
         val computeMessages: () -> Unit = { computeNotificationMessages(data.notification, conversationId)}
 
-        fun setNotificationText(text: String, includeUsername: Boolean = true) {
+        fun setNotificationText(text: String) {
+            val includeUsername = context.database.getDMOtherParticipant(conversationId) == null
             cachedMessages.computeIfAbsent(conversationId) {
                 sortedMapOf()
             }[orderKey] = if (includeUsername) "$senderUsername: $text" else text
