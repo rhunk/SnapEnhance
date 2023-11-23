@@ -135,6 +135,7 @@ class SnapEnhance {
 
             mappings.loadFromBridge(bridgeClient)
             mappings.init(androidContext)
+            database.init()
             eventDispatcher.init()
             //if mappings aren't loaded, we can't initialize features
             if (!mappings.isMappingsLoaded()) return

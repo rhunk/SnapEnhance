@@ -20,8 +20,14 @@ import me.rhunk.snapenhance.core.manager.Manager
 class DatabaseAccess(
     private val context: ModContext
 ) : Manager {
-    private val mainDb by lazy { openLocalDatabase("main.db") }
-    private val arroyoDb by lazy { openLocalDatabase("arroyo.db") }
+    companion object {
+        val DATABASES = mapOf(
+            "main" to "main.db",
+            "arroyo" to "arroyo.db"
+        )
+    }
+    private val mainDb by lazy { openLocalDatabase("main") }
+    private val arroyoDb by lazy { openLocalDatabase("arroyo") }
 
     private inline fun <T> SQLiteDatabase.performOperation(crossinline query: SQLiteDatabase.() -> T?): T? {
         return runCatching {
@@ -71,26 +77,45 @@ class DatabaseAccess(
         } ?: emptyMap()).toMutableMap()
     }
 
-    private fun openLocalDatabase(fileName: String): SQLiteDatabase? {
-        val dbPath = context.androidContext.getDatabasePath(fileName)
+    private fun openLocalDatabase(databaseName: String, writeMode: Boolean = false): SQLiteDatabase? {
+        val dbPath = context.androidContext.getDatabasePath(DATABASES[databaseName]!!)
         if (!dbPath.exists()) return null
         return runCatching {
             SQLiteDatabase.openDatabase(
                 dbPath,
                 OpenParams.Builder()
-                    .setOpenFlags(SQLiteDatabase.OPEN_READONLY)
+                    .setOpenFlags(
+                        if (writeMode) SQLiteDatabase.OPEN_READWRITE or SQLiteDatabase.ENABLE_WRITE_AHEAD_LOGGING
+                        else SQLiteDatabase.OPEN_READONLY
+                    )
                     .setErrorHandler {
                         context.androidContext.deleteDatabase(dbPath.absolutePath)
                         context.softRestartApp()
                     }.build()
             )
         }.onFailure {
-            context.log.error("Failed to open database $fileName!", it)
+            context.log.error("Failed to open database $databaseName!", it)
         }.getOrNull()
     }
 
     fun hasMain(): Boolean = mainDb?.isOpen == true
     fun hasArroyo(): Boolean = arroyoDb?.isOpen == true
+
+    override fun init() {
+        // perform integrity check on databases
+        DATABASES.forEach { (name, fileName) ->
+            openLocalDatabase(name, writeMode = true)?.apply {
+                rawQuery("PRAGMA integrity_check", null).use { query ->
+                    if (!query.moveToFirst() || query.getString(0).lowercase() != "ok") {
+                        context.log.error("Failed to perform integrity check on $fileName")
+                        context.androidContext.deleteDatabase(fileName)
+                        return@apply
+                    }
+                    context.log.verbose("database $fileName integrity check passed")
+                }
+            }?.close()
+        }
+    }
 
     fun finalize() {
         mainDb?.close()
