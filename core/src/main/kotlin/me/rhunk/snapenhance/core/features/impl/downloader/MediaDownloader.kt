@@ -86,7 +86,6 @@ class MediaDownloader : MessagingRuleFeature("MediaDownloader", MessagingRuleTyp
         friendInfo: FriendInfo? = null
     ): DownloadManagerClient {
         val generatedHash = mediaIdentifier.hashCode().toString(16).replaceFirst("-", "")
-
         val iconUrl = BitmojiSelfie.getBitmojiSelfie(friendInfo?.bitmojiSelfieId, friendInfo?.bitmojiAvatarId, BitmojiSelfie.BitmojiSelfieType.THREE_D)
 
         val downloadLogging by context.config.downloader.logging
@@ -300,7 +299,10 @@ class MediaDownloader : MessagingRuleFeature("MediaDownloader", MessagingRuleTyp
 
             val author = context.database.getFriendInfo(senderId) ?: return
             val authorUsername = author.usernameForSorting!!
-            val mediaId = paramMap["MEDIA_ID"]?.toString()?.split("-")?.getOrNull(1) ?: ""
+            val mediaId = paramMap["MEDIA_ID"]?.toString()?.let {
+                if (it.contains("-")) it.substringAfter("-")
+                else it
+            }?.substringBefore(".")
 
             downloadOperaMedia(provideDownloadManagerClient(
                 mediaIdentifier = "$conversationId$senderId${conversationMessage.serverMessageId}$mediaId",

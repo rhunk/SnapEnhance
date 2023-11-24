@@ -16,7 +16,7 @@ data class DecodedAttachment(
 ) {
     @OptIn(ExperimentalEncodingApi::class)
     val mediaUniqueId: String? by lazy {
-        runCatching { Base64.UrlSafe.decode(mediaUrlKey.toString()) }.getOrNull()?.let { ProtoReader(it).getString(2, 2) }
+        runCatching { Base64.UrlSafe.decode(mediaUrlKey.toString()) }.getOrNull()?.let { ProtoReader(it).getString(2, 2)?.substringBefore(".") }
     }
 }
 
