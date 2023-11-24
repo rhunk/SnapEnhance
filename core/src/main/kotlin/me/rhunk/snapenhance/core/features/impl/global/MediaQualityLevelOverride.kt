@@ -10,7 +10,7 @@ class MediaQualityLevelOverride : Feature("MediaQualityLevelOverride", loadParam
         val enumQualityLevel = context.mappings.getMappedClass("EnumQualityLevel")
         val mediaQualityLevelProvider = context.mappings.getMappedMap("MediaQualityLevelProvider")
 
-        val forceMediaSourceQuality by context.config.global.forceMediaSourceQuality
+        val forceMediaSourceQuality by context.config.global.forceUploadSourceQuality
 
         context.androidContext.classLoader.loadClass(mediaQualityLevelProvider["class"].toString()).hook(
             mediaQualityLevelProvider["method"].toString(),

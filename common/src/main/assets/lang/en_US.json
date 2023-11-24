@@ -298,9 +298,9 @@
                         "name": "Hide Settings Gear",
                         "description": "Hides the SnapEnhance Settings Gear in friend feed"
                     },
-                    "story_viewer_override": {
-                        "name": "Story Viewer Override",
-                        "description": "Turns on certain features which Snapchat hid"
+                    "vertical_story_viewer": {
+                        "name": "Vertical Story Viewer",
+                        "description": "Enables the vertical story viewer for all stories"
                     },
                     "friend_feed_menu_buttons": {
                         "name": "Friend Feed Menu Buttons",
@@ -444,9 +444,9 @@
                         "name": "Disable Google Play Services Dialogs",
                         "description": "Prevent Google Play Services availability dialogs from being shown"
                     },
-                    "force_media_source_quality": {
-                        "name": "Force Media Source Quality",
-                        "description": "Forces Snapchat's Media Quality to the specified value"
+                    "force_upload_source_quality": {
+                        "name": "Force Upload Source Quality",
+                        "description": "Forces Snapchat to upload media in the original quality\nPlease note that this may not remove metadata from media"
                     },
                     "disable_snap_splitting": {
                         "name": "Disable Snap Splitting",
@@ -713,11 +713,6 @@
                 "hide_live_location_share_button": "Remove Live Location Share Button",
                 "hide_stickers_button": "Remove Stickers Button",
                 "hide_voice_record_button": "Remove Voice Record Button"
-            },
-            "story_viewer_override": {
-                "OFF": "Off",
-                "DISCOVER_PLAYBACK_SEEKBAR": "Enable Discover Playback Seekbar",
-                "VERTICAL_STORY_VIEWER": "Enable Vertical Story Viewer"
             },
             "hide_story_sections": {
                 "hide_friend_suggestions": "Hide friend suggestions",

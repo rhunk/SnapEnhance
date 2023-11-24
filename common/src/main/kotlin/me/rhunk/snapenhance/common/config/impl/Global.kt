@@ -16,6 +16,6 @@ class Global : ConfigContainer() {
     val bypassVideoLengthRestriction = unique("bypass_video_length_restriction", "split", "single") { addNotices(
         FeatureNotice.BAN_RISK); requireRestart(); nativeHooks() }
     val disableGooglePlayDialogs = boolean("disable_google_play_dialogs") { requireRestart() }
-    val forceMediaSourceQuality = boolean("force_media_source_quality")
+    val forceUploadSourceQuality = boolean("force_upload_source_quality") { requireRestart() }
     val disableSnapSplitting = boolean("disable_snap_splitting") { addNotices(FeatureNotice.INTERNAL_BEHAVIOR) }
 }

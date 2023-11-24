@@ -15,6 +15,12 @@ data class ConfigKeyInfo(
     val defaultValue: Any?
 )
 
+data class ConfigFilter(
+    val filter: (ConfigKeyInfo) -> Boolean,
+    val defaultValue: Any?,
+    val isAppExperiment: Boolean = false
+)
+
 class ConfigurationOverride : Feature("Configuration Override", loadParams = FeatureLoadParams.INIT_SYNC) {
     override fun init() {
         val compositeConfigurationProviderMappings = context.mappings.getMappedMap("CompositeConfigurationProvider")
@@ -32,23 +38,20 @@ class ConfigurationOverride : Feature("Configuration Override", loadParams = Fea
             context.log.error("Failed to get config key info", it)
         }.getOrNull()
 
-        val propertyOverrides = mutableMapOf<String, Pair<((ConfigKeyInfo) -> Boolean), Any>>()
+        val propertyOverrides = mutableMapOf<String, ConfigFilter>()
 
-        fun overrideProperty(key: String, filter: (ConfigKeyInfo) -> Boolean, value: Any) {
-            propertyOverrides[key] = Pair(filter, value)
+        fun overrideProperty(key: String, filter: (ConfigKeyInfo) -> Boolean, value: Any, isAppExperiment: Boolean = false) {
+            propertyOverrides[key] = ConfigFilter(filter, value, isAppExperiment)
         }
 
         overrideProperty("STREAK_EXPIRATION_INFO", { context.config.userInterface.streakExpirationInfo.get() }, true)
+        overrideProperty("TRANSCODING_MAX_QUALITY", { context.config.global.forceUploadSourceQuality.get() }, true, isAppExperiment = true)
 
         overrideProperty("MEDIA_RECORDER_MAX_QUALITY_LEVEL", { context.config.camera.forceCameraSourceEncoding.get() }, true)
         overrideProperty("REDUCE_MY_PROFILE_UI_COMPLEXITY", { context.config.userInterface.mapFriendNameTags.get() }, true)
         overrideProperty("ENABLE_LONG_SNAP_SENDING", { context.config.global.disableSnapSplitting.get() }, true)
 
-        context.config.userInterface.storyViewerOverride.getNullable()?.let { state ->
-            overrideProperty("DF_ENABLE_SHOWS_PAGE_CONTROLS", { state == "DISCOVER_PLAYBACK_SEEKBAR" }, true)
-            overrideProperty("DF_VOPERA_FOR_STORIES", { state == "VERTICAL_STORY_VIEWER" }, true)
-        }
-
+        overrideProperty("DF_VOPERA_FOR_STORIES", { context.config.userInterface.verticalStoryViewer.get() }, true, isAppExperiment = true)
         overrideProperty("SPOTLIGHT_5TH_TAB_ENABLED", { context.config.userInterface.disableSpotlight.get() }, false)
 
         overrideProperty("BYPASS_AD_FEATURE_GATE", { context.config.global.blockAds.get() }, true)
@@ -96,8 +99,8 @@ class ConfigurationOverride : Feature("Configuration Override", loadParams = Fea
                     param.setResult(true)
                     return@hook
                 }
-                propertyOverrides[keyInfo.name]?.let { (filter, value) ->
-                    if (!filter(keyInfo)) return@let
+                propertyOverrides[keyInfo.name]?.let { (filter, value, isAppExperiment) ->
+                    if (!isAppExperiment || !filter(keyInfo)) return@let
                     param.setResult(value)
                 }
             }
@@ -122,7 +125,7 @@ class ConfigurationOverride : Feature("Configuration Override", loadParams = Fea
                     }
 
                     val propertyOverride = propertyOverrides[keyInfo.name] ?: return@hook
-                    if (propertyOverride.first(keyInfo)) param.setResult(true)
+                    if (propertyOverride.isAppExperiment && propertyOverride.filter(keyInfo)) param.setResult(true)
                 }
             }
 
