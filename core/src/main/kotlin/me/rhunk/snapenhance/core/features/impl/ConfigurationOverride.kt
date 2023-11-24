@@ -17,7 +17,7 @@ data class ConfigKeyInfo(
 
 data class ConfigFilter(
     val filter: (ConfigKeyInfo) -> Boolean,
-    val defaultValue: Any?,
+    val defaultValue: (ConfigKeyInfo) -> Any?,
     val isAppExperiment: Boolean = false
 )
 
@@ -40,24 +40,33 @@ class ConfigurationOverride : Feature("Configuration Override", loadParams = Fea
 
         val propertyOverrides = mutableMapOf<String, ConfigFilter>()
 
-        fun overrideProperty(key: String, filter: (ConfigKeyInfo) -> Boolean, value: Any, isAppExperiment: Boolean = false) {
+        fun overrideProperty(key: String, filter: (ConfigKeyInfo) -> Boolean, value: (ConfigKeyInfo) -> Any?, isAppExperiment: Boolean = false) {
             propertyOverrides[key] = ConfigFilter(filter, value, isAppExperiment)
         }
 
-        overrideProperty("STREAK_EXPIRATION_INFO", { context.config.userInterface.streakExpirationInfo.get() }, true)
-        overrideProperty("TRANSCODING_MAX_QUALITY", { context.config.global.forceUploadSourceQuality.get() }, true, isAppExperiment = true)
+        overrideProperty("STREAK_EXPIRATION_INFO", { context.config.userInterface.streakExpirationInfo.get() },
+            { true })
+        overrideProperty("TRANSCODING_MAX_QUALITY", { context.config.global.forceUploadSourceQuality.get() },
+            { true }, isAppExperiment = true)
 
-        overrideProperty("CAMERA_ME_ENABLE_HEVC_RECORDING", { context.config.camera.hevcRecording.get() }, true)
-        overrideProperty("MEDIA_RECORDER_MAX_QUALITY_LEVEL", { context.config.camera.forceCameraSourceEncoding.get() }, true)
-        overrideProperty("REDUCE_MY_PROFILE_UI_COMPLEXITY", { context.config.userInterface.mapFriendNameTags.get() }, true)
-        overrideProperty("ENABLE_LONG_SNAP_SENDING", { context.config.global.disableSnapSplitting.get() }, true)
+        overrideProperty("CAMERA_ME_ENABLE_HEVC_RECORDING", { context.config.camera.hevcRecording.get() },
+            { true })
+        overrideProperty("MEDIA_RECORDER_MAX_QUALITY_LEVEL", { context.config.camera.forceCameraSourceEncoding.get() },
+            { true })
+        overrideProperty("REDUCE_MY_PROFILE_UI_COMPLEXITY", { context.config.userInterface.mapFriendNameTags.get() },
+            { true })
+        overrideProperty("ENABLE_LONG_SNAP_SENDING", { context.config.global.disableSnapSplitting.get() },
+            { true })
 
-        overrideProperty("DF_VOPERA_FOR_STORIES", { context.config.userInterface.verticalStoryViewer.get() }, true, isAppExperiment = true)
-        overrideProperty("SPOTLIGHT_5TH_TAB_ENABLED", { context.config.userInterface.disableSpotlight.get() }, false)
+        overrideProperty("DF_VOPERA_FOR_STORIES", { context.config.userInterface.verticalStoryViewer.get() },
+            { true }, isAppExperiment = true)
+        overrideProperty("SPOTLIGHT_5TH_TAB_ENABLED", { context.config.userInterface.disableSpotlight.get() },
+            { false })
 
-        overrideProperty("BYPASS_AD_FEATURE_GATE", { context.config.global.blockAds.get() }, true)
-        arrayOf("CUSTOM_AD_TRACKER_URL", "CUSTOM_AD_INIT_SERVER_URL", "CUSTOM_AD_SERVER_URL").forEach {
-            overrideProperty(it, { context.config.global.blockAds.get() }, "http://127.0.0.1")
+        overrideProperty("BYPASS_AD_FEATURE_GATE", { context.config.global.blockAds.get() },
+            { true })
+        arrayOf("CUSTOM_AD_TRACKER_URL", "CUSTOM_AD_INIT_SERVER_URL", "CUSTOM_AD_SERVER_URL", "INIT_PRIMARY_URL", "INIT_SHADOW_URL").forEach {
+            overrideProperty(it, { context.config.global.blockAds.get() }, { "http://127.0.0.1" })
         }
 
         findClass(compositeConfigurationProviderMappings["class"].toString()).hook(
@@ -68,7 +77,7 @@ class ConfigurationOverride : Feature("Configuration Override", loadParams = Fea
 
             propertyOverrides[propertyKey.name]?.let { (filter, value) ->
                 if (!filter(propertyKey)) return@let
-                param.setResult(value)
+                param.setResult(value(propertyKey))
             }
         }
 
@@ -84,8 +93,9 @@ class ConfigurationOverride : Feature("Configuration Override", loadParams = Fea
             }
 
             propertyOverrides[key]?.let { (filter, value) ->
-                if (!filter(getConfigKeyInfo(enumData) ?: return@let)) return@let
-                setValue(value)
+                val keyInfo = getConfigKeyInfo(enumData) ?: return@let
+                if (!filter(keyInfo)) return@let
+                setValue(value(keyInfo))
             }
         }
 
@@ -95,14 +105,13 @@ class ConfigurationOverride : Feature("Configuration Override", loadParams = Fea
 
             findClass(appExperimentProviderMappings["GetBooleanAppExperimentClass"].toString()).hook("invoke", HookStage.BEFORE) { param ->
                 val keyInfo = getConfigKeyInfo(param.arg(1)) ?: return@hook
-                if (keyInfo.defaultValue !is Boolean) return@hook
                 if (customBooleanPropertyRules.any { it(keyInfo) }) {
                     param.setResult(true)
                     return@hook
                 }
                 propertyOverrides[keyInfo.name]?.let { (filter, value, isAppExperiment) ->
                     if (!isAppExperiment || !filter(keyInfo)) return@let
-                    param.setResult(value)
+                    param.setResult(value(keyInfo))
                 }
             }
 
@@ -119,7 +128,6 @@ class ConfigurationOverride : Feature("Configuration Override", loadParams = Fea
                     it.name == appExperimentProviderMappings["hasExperimentMethod"].toString()
                 }.hook(HookStage.BEFORE) { param ->
                     val keyInfo = getConfigKeyInfo(param.arg(0)) ?: return@hook
-                    if (keyInfo.defaultValue !is Boolean) return@hook
                     if (customBooleanPropertyRules.any { it(keyInfo) }) {
                         param.setResult(true)
                         return@hook
@@ -132,7 +140,7 @@ class ConfigurationOverride : Feature("Configuration Override", loadParams = Fea
 
             if (context.config.experimental.hiddenSnapchatPlusFeatures.get()) {
                 customBooleanPropertyRules.add { key ->
-                    key.category == "PLUS" && key.name?.endsWith("_GATE") == true
+                    key.category == "PLUS" && key.defaultValue is Boolean && key.name?.endsWith("_GATE") == true
                 }
             }
         }.onFailure {
