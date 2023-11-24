@@ -207,7 +207,7 @@ class LogManager(
                 dateTime = getCurrentDateTime(),
                 tag = tag,
                 message = message.toString().let {
-                    if (anonymizeLogs)
+                    if (remoteSideContext.config.isInitialized() && anonymizeLogs)
                         it.replace(Regex("[0-9a-f]{8}-[0-9a-f]{4}-{3}[0-9a-f]{12}", RegexOption.MULTILINE), "xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx")
                     else it
                 }
@@ -217,7 +217,7 @@ class LogManager(
             Log.println(logLevel.priority, tag, message.toString())
         }.onFailure {
             Log.println(Log.ERROR, tag, "Failed to log message: $message")
-            Log.println(Log.ERROR, tag, it.toString())
+            Log.println(Log.ERROR, tag, it.stackTraceToString())
         }
     }
 }

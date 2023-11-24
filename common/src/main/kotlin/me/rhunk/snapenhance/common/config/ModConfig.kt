@@ -26,6 +26,8 @@ class ModConfig(
     lateinit var root: RootConfig
         private set
 
+    fun isInitialized() = ::root.isInitialized
+
     private fun createRootConfig() = RootConfig().apply { lateInit(context) }
 
     private fun load() {
