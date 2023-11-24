@@ -497,6 +497,10 @@
                     "force_camera_source_encoding": {
                         "name": "Force Camera Source Encoding",
                         "description": "Forces the camera source encoding"
+                    },
+                    "hevc_recording": {
+                        "name": "HEVC Recording",
+                        "description": "Uses HEVC (H.265) codec for video recording"
                     }
                 }
             },

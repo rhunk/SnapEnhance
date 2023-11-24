@@ -44,6 +44,7 @@ class Camera : ConfigContainer() {
     val customFrameRate = unique("custom_frame_rate",
         "5", "10", "20", "25", "30", "48", "60", "90", "120"
     ) { addNotices(FeatureNotice.UNSTABLE); addFlags(ConfigFlag.NO_TRANSLATE) }
+    val hevcRecording = boolean("hevc_recording") { requireRestart(); addNotices(FeatureNotice.UNSTABLE) }
     val forceCameraSourceEncoding = boolean("force_camera_source_encoding")
     val overridePreviewResolution get() = _overridePreviewResolution
     val overridePictureResolution get() = _overridePictureResolution
