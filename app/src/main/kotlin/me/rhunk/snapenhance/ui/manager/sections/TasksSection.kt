@@ -148,7 +148,15 @@ class TasksSection : Section() {
 
                 Column {
                     if (pendingTask != null && !taskStatus.isFinalStage()) {
-                        CircularProgressIndicator(modifier = Modifier.size(30.dp))
+                        FilledIconButton(onClick = {
+                            runCatching {
+                                pendingTask.cancel()
+                            }.onFailure { throwable ->
+                                context.log.error("Failed to cancel task $pendingTask", throwable)
+                            }
+                        }) {
+                            Icon(Icons.Filled.Close, contentDescription = "Cancel")
+                        }
                     } else {
                         when (taskStatus) {
                             TaskStatus.SUCCESS -> Icon(Icons.Filled.Check, contentDescription = "Success", tint = MaterialTheme.colorScheme.primary)
