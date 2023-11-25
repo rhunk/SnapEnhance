@@ -1,6 +1,8 @@
 package me.rhunk.snapenhance.core.wrapper.impl
 
+import me.rhunk.snapenhance.common.data.ContentType
 import me.rhunk.snapenhance.common.data.MessageState
+import me.rhunk.snapenhance.common.util.protobuf.ProtoReader
 import me.rhunk.snapenhance.core.wrapper.AbstractWrapper
 import org.mozilla.javascript.annotations.JSGetter
 import org.mozilla.javascript.annotations.JSSetter
@@ -18,4 +20,8 @@ class Message(obj: Any?) : AbstractWrapper(obj) {
     var messageMetadata by field("mMetadata") { MessageMetadata(it) }
     @get:JSGetter @set:JSSetter
     var messageState by enum("mState", MessageState.COMMITTED)
+
+    fun serialize() = if (messageContent!!.contentType == ContentType.CHAT) {
+        ProtoReader(messageContent!!.content!!).getString(2, 1) ?: "Failed to parse message"
+    } else null
 }

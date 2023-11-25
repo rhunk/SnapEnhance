@@ -3,6 +3,7 @@ package me.rhunk.snapenhance.core.wrapper.impl
 import me.rhunk.snapenhance.common.data.MessageUpdate
 import me.rhunk.snapenhance.core.ModContext
 import me.rhunk.snapenhance.core.util.CallbackBuilder
+import me.rhunk.snapenhance.core.util.ktx.getObjectField
 import me.rhunk.snapenhance.core.util.ktx.setObjectField
 import me.rhunk.snapenhance.core.wrapper.AbstractWrapper
 
@@ -18,6 +19,7 @@ class ConversationManager(
     private val fetchConversationWithMessagesPaginatedMethod by lazy { findMethodByName("fetchConversationWithMessagesPaginated") }
     private val fetchConversationWithMessagesMethod by lazy { findMethodByName("fetchConversationWithMessages") }
     private val fetchMessageByServerId by lazy { findMethodByName("fetchMessageByServerId") }
+    private val fetchMessagesByServerIds by lazy { findMethodByName("fetchMessagesByServerIds") }
     private val displayedMessagesMethod by lazy { findMethodByName("displayedMessages") }
     private val fetchMessage by lazy { findMethodByName("fetchMessage") }
 
@@ -99,6 +101,27 @@ class ConversationManager(
             CallbackBuilder(context.mappings.getMappedClass("callbacks", "FetchMessageCallback"))
                 .override("onFetchMessageComplete") { param ->
                     onSuccess(Message(param.arg(0)))
+                }
+                .override("onError") {
+                    onError(it.arg<Any>(0).toString())
+                }.build()
+        )
+    }
+
+    fun fetchMessagesByServerIds(conversationId: String, serverMessageIds: List<Long>, onSuccess: (List<Message>) -> Unit, onError: (error: String) -> Unit) {
+        fetchMessagesByServerIds.invoke(
+            instanceNonNull(),
+            serverMessageIds.map {
+                CallbackBuilder.createEmptyObject(context.classCache.serverMessageIdentifier.constructors.first())?.apply {
+                    setObjectField("mServerConversationId", conversationId.toSnapUUID().instanceNonNull())
+                    setObjectField("mServerMessageId", it)
+                }
+            },
+            CallbackBuilder(context.mappings.getMappedClass("callbacks", "FetchMessagesByServerIdsCallback"))
+                .override("onSuccess") { param ->
+                    onSuccess(param.arg<List<*>>(0).mapNotNull {
+                        Message(it?.getObjectField("mMessage") ?: return@mapNotNull null)
+                    })
                 }
                 .override("onError") {
                     onError(it.arg<Any>(0).toString())

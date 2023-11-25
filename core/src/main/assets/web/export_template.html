@@ -232,15 +232,18 @@
     }
 
     function decodeMedia(element) {
-        const decodedData = new Uint8Array(
-            inflate(
-                base64decode(
-                    element.innerHTML.substring(5, element.innerHTML.length - 4)
+        try {
+            const decodedData = new Uint8Array(
+                inflate(
+                    base64decode(
+                        element.innerHTML.substring(5, element.innerHTML.length - 4)
+                    )
                 )
             )
-        )
-
-        return URL.createObjectURL(new Blob([decodedData]))
+            return URL.createObjectURL(new Blob([decodedData]))
+        } catch (e) {
+            return null
+        }
     }
 
     function makeMain() {

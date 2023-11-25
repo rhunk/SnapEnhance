@@ -5,18 +5,14 @@ import android.content.DialogInterface
 import android.os.Environment
 import android.text.InputType
 import android.widget.EditText
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.Job
-import kotlinx.coroutines.joinAll
-import kotlinx.coroutines.launch
-import kotlinx.coroutines.suspendCancellableCoroutine
+import kotlinx.coroutines.*
 import me.rhunk.snapenhance.common.data.ContentType
 import me.rhunk.snapenhance.common.database.impl.FriendFeedEntry
 import me.rhunk.snapenhance.core.action.AbstractAction
 import me.rhunk.snapenhance.core.features.impl.messaging.Messaging
 import me.rhunk.snapenhance.core.logger.CoreLogger
+import me.rhunk.snapenhance.core.messaging.ConversationExporter
 import me.rhunk.snapenhance.core.messaging.ExportFormat
-import me.rhunk.snapenhance.core.messaging.MessageExporter
 import me.rhunk.snapenhance.core.ui.ViewAppearanceHelper
 import me.rhunk.snapenhance.core.wrapper.impl.Message
 import java.io.File
@@ -83,6 +79,7 @@ class ExportChatMessages : AbstractAction() {
         context.runOnUiThread {
             val mediasToDownload = mutableListOf<ContentType>()
             val contentTypes = arrayOf(
+                ContentType.CHAT,
                 ContentType.SNAP,
                 ContentType.EXTERNAL_MEDIA,
                 ContentType.NOTE,
@@ -142,25 +139,54 @@ class ExportChatMessages : AbstractAction() {
         }
     }
 
-    private suspend fun fetchMessagesPaginated(conversationId: String, lastMessageId: Long, amount: Int): List<Message> = suspendCancellableCoroutine { continuation ->
-        context.feature(Messaging::class).conversationManager?.fetchConversationWithMessagesPaginated(conversationId,
-            lastMessageId,
-            amount, onSuccess = { messages ->
-                continuation.resumeWith(Result.success(messages))
-            }, onError = {
-                continuation.resumeWith(Result.success(emptyList()))
-            }) ?: continuation.resumeWith(Result.success(emptyList()))
+    private suspend fun fetchMessagesPaginated(conversationId: String, lastMessageId: Long, amount: Int): List<Message> = runBlocking {
+        for (i in 0..5) {
+            val messages: List<Message>? = suspendCancellableCoroutine { continuation ->
+                context.feature(Messaging::class).conversationManager?.fetchConversationWithMessagesPaginated(conversationId,
+                    lastMessageId,
+                    amount, onSuccess = { messages ->
+                        continuation.resumeWith(Result.success(messages))
+                    }, onError = {
+                        continuation.resumeWith(Result.success(null))
+                    }) ?: continuation.resumeWith(Result.success(null))
+            }
+            if (messages != null) return@runBlocking messages
+            logDialog("Retrying in 1 second...")
+            delay(1000)
+        }
+        logDialog("Failed to fetch messages")
+        emptyList()
     }
 
     private suspend fun exportFullConversation(friendFeedEntry: FriendFeedEntry) {
         //first fetch the first message
         val conversationId = friendFeedEntry.key!!
         val conversationName = friendFeedEntry.feedDisplayName ?: friendFeedEntry.friendDisplayName!!.split("|").lastOrNull() ?: "unknown"
+        val conversationParticipants = context.database.getConversationParticipants(friendFeedEntry.key!!)
+            ?.mapNotNull {
+                context.database.getFriendInfo(it)
+            }?.associateBy { it.userId!! } ?: emptyMap()
+
+        val publicFolder = File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS), "SnapEnhance")
+        val outputFile = publicFolder.resolve("conversation_${conversationName}_${System.currentTimeMillis()}.${exportType!!.extension}")
 
         logDialog(context.translation.format("chat_export.exporting_message", "conversation" to conversationName))
 
-        val foundMessages = fetchMessagesPaginated(conversationId, Long.MAX_VALUE, amount = 1).toMutableList()
-        var lastMessageId = foundMessages.firstOrNull()?.messageDescriptor?.messageId ?: run {
+        val conversationExporter = ConversationExporter(
+            context = context,
+            friendFeedEntry = friendFeedEntry,
+            conversationParticipants = conversationParticipants,
+            exportFormat = exportType!!,
+            messageTypeFilter = mediaToDownload,
+            cacheFolder = publicFolder.resolve("cache"),
+            outputFile = outputFile,
+        ).apply { init(); printLog = {
+            logDialog(it.toString())
+        } }
+
+        var foundMessageCount = 0
+
+        var lastMessageId = fetchMessagesPaginated(conversationId, Long.MAX_VALUE, amount = 1).firstOrNull()?.messageDescriptor?.messageId ?: run {
             logDialog(context.translation["chat_export.no_messages_found"])
             return
         }
@@ -168,40 +194,28 @@ class ExportChatMessages : AbstractAction() {
         while (true) {
             val fetchedMessages = fetchMessagesPaginated(conversationId, lastMessageId, amount = 500)
             if (fetchedMessages.isEmpty()) break
+            foundMessageCount += fetchedMessages.size
 
-            foundMessages.addAll(fetchedMessages)
-            if (amountOfMessages != null && foundMessages.size >= amountOfMessages!!) {
-                foundMessages.subList(amountOfMessages!!, foundMessages.size).clear()
+            if (amountOfMessages != null && foundMessageCount >= amountOfMessages!!) {
+                fetchedMessages.subList(0, amountOfMessages!! - foundMessageCount).reversed().forEach { message ->
+                    conversationExporter.readMessage(message)
+                }
                 break
+            }
+
+            fetchedMessages.reversed().forEach { message ->
+                conversationExporter.readMessage(message)
             }
 
             fetchedMessages.firstOrNull()?.let {
                 lastMessageId = it.messageDescriptor!!.messageId!!
             }
-            setStatus("Exporting (${foundMessages.size} / ${foundMessages.firstOrNull()?.orderKey})")
+            setStatus("Exporting (found ${foundMessageCount})")
         }
 
-        val outputFile = File(
-            Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS),
-            "SnapEnhance/conversation_${conversationName}_${System.currentTimeMillis()}.${exportType!!.extension}"
-        ).also { it.parentFile?.mkdirs() }
-
+        if (exportType == ExportFormat.HTML) conversationExporter.awaitDownload()
+        conversationExporter.close()
         logDialog(context.translation["chat_export.writing_output"])
-
-        runCatching {
-            MessageExporter(
-                context = context,
-                friendFeedEntry = friendFeedEntry,
-                outputFile = outputFile,
-                mediaToDownload = mediaToDownload,
-                printLog = ::logDialog
-            ).apply { readMessages(foundMessages) }.exportTo(exportType!!)
-        }.onFailure {
-            logDialog(context.translation.format("chat_export.export_failed","conversation" to it.message.toString()))
-            context.log.error("Failed to export conversation $conversationName", it)
-            return
-        }
-
         dialogLogs.clear()
         logDialog("\n" + context.translation.format("chat_export.exported_to",
             "path" to outputFile.absolutePath.toString()
