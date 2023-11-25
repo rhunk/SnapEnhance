@@ -115,7 +115,8 @@
         "refresh_mappings": "Refresh Mappings",
         "open_map": "Choose location on map",
         "check_for_updates": "Check for updates",
-        "export_chat_messages": "Export Chat Messages"
+        "export_chat_messages": "Export Chat Messages",
+        "bulk_remove_friends": "Bulk Remove Friends"
     },
 
     "features": {
@@ -835,16 +836,28 @@
         "snapchat_plus_state": {
             "subscribed": "Subscribed",
             "not_subscribed": "Not Subscribed"
-        },
-        "friendship_link_type": {
-            "mutual": "Mutual",
-            "outgoing": "Outgoing",
-            "blocked": "Blocked",
-            "deleted": "Deleted",
-            "following": "Following",
-            "suggested": "Suggested",
-            "incoming": "Incoming",
-            "incoming_follower": "Incoming Follower"
+        }
+    },
+
+    "friendship_link_type": {
+        "mutual": "Mutual",
+        "outgoing": "Outgoing",
+        "blocked": "Blocked",
+        "deleted": "Deleted",
+        "following": "Following",
+        "suggested": "Suggested",
+        "incoming": "Incoming",
+        "incoming_follower": "Incoming Follower"
+    },
+
+    "bulk_remove_friends": {
+        "title": "Bulk Remove Friend",
+        "progress_status": "Removing friends {index} of {total}",
+        "selection_dialog_title": "Select friends to remove",
+        "selection_dialog_remove_button": "Remove Selection",
+        "confirmation_dialog": {
+            "title": "Are you sure?",
+            "message": "This will remove all selected friends. This action cannot be undone."
         }
     },
 

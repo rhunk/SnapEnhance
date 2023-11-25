@@ -94,7 +94,7 @@ class FriendFeedInfoMenu : AbstractMenu() {
                         "day" to profile.birthday.toInt().toString())
                 },
                 translation["friendship"] to run {
-                    translation.getCategory("friendship_link_type")[FriendLinkType.fromValue(profile.friendLinkType).shortName]
+                    context.translation["friendship_link_type.${FriendLinkType.fromValue(profile.friendLinkType).shortName}"]
                 },
                 translation["add_source"] to context.database.getAddSource(profile.userId!!)?.takeIf { it.isNotEmpty() },
                 translation["snapchat_plus"] to run {

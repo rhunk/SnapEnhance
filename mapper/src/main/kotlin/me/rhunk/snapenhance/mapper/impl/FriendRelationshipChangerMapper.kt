@@ -18,9 +18,18 @@ class FriendRelationshipChangerMapper : AbstractClassMapper() {
                             it.parameters[4].type == "Ljava/lang/String;"
                 }
 
+                val removeFriendMethod = classDef.methods.first {
+                    it.parameterTypes.size == 5 &&
+                    it.parameterTypes[0] == "Ljava/lang/String;" &&
+                    getClass(it.parameterTypes[1])?.isEnum() == true &&
+                    it.parameterTypes[2] == "Ljava/lang/String;" &&
+                    it.parameterTypes[3] == "Ljava/lang/String;"
+                }
+
                 addMapping("FriendRelationshipChanger",
                     "class" to classDef.getClassName(),
-                    "addFriendMethod" to addFriendMethod.name
+                    "addFriendMethod" to addFriendMethod.name,
+                    "removeFriendMethod" to removeFriendMethod.name
                 )
                 return@mapper
             }

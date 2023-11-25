@@ -4,16 +4,22 @@ import me.rhunk.snapenhance.core.features.Feature
 import me.rhunk.snapenhance.core.features.FeatureLoadParams
 import me.rhunk.snapenhance.core.util.hook.HookStage
 import me.rhunk.snapenhance.core.util.hook.hook
+import me.rhunk.snapenhance.core.util.hook.hookConstructor
 
-class AddFriendSourceSpoof : Feature("AddFriendSourceSpoof", loadParams = FeatureLoadParams.ACTIVITY_CREATE_ASYNC) {
-    override fun asyncOnActivityCreate() {
+class AddFriendSourceSpoof : Feature("AddFriendSourceSpoof", loadParams = FeatureLoadParams.ACTIVITY_CREATE_SYNC) {
+    var friendRelationshipChangerInstance: Any? = null
+        private set
+
+    override fun onActivityCreate() {
         val friendRelationshipChangerMapping = context.mappings.getMappedMap("FriendRelationshipChanger")
+
+        findClass(friendRelationshipChangerMapping["class"].toString()).hookConstructor(HookStage.AFTER) { param ->
+            friendRelationshipChangerInstance = param.thisObject()
+        }
 
         findClass(friendRelationshipChangerMapping["class"].toString())
             .hook(friendRelationshipChangerMapping["addFriendMethod"].toString(), HookStage.BEFORE) { param ->
             val spoofedSource = context.config.experimental.addFriendSourceSpoof.getNullable() ?: return@hook
-
-            context.log.verbose("addFriendMethod: ${param.args().toList()}", featureKey)
 
             fun setEnum(index: Int, value: String) {
                 val enumData = param.arg<Any>(index)

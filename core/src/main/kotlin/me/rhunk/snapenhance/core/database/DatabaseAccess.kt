@@ -187,6 +187,25 @@ class DatabaseAccess(
         }
     }
 
+    fun getAllFriends(): List<FriendInfo> {
+        return mainDb?.performOperation {
+            safeRawQuery(
+                "SELECT * FROM FriendWithUsername",
+                null
+            )?.use { query ->
+                val list = mutableListOf<FriendInfo>()
+                while (query.moveToNext()) {
+                    val friendInfo = FriendInfo()
+                    try {
+                        friendInfo.write(query)
+                    } catch (_: Throwable) {}
+                    list.add(friendInfo)
+                }
+                list
+            }
+        } ?: emptyList()
+    }
+
     fun getFeedEntries(limit: Int): List<FriendFeedEntry> {
         return mainDb?.performOperation {
             safeRawQuery(
