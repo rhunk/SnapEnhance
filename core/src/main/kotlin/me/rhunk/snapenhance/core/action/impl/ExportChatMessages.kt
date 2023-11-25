@@ -167,7 +167,7 @@ class ExportChatMessages : AbstractAction() {
                 context.database.getFriendInfo(it)
             }?.associateBy { it.userId!! } ?: emptyMap()
 
-        val publicFolder = File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS), "SnapEnhance")
+        val publicFolder = File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS), "SnapEnhance").also { if (!it.exists()) it.mkdirs() }
         val outputFile = publicFolder.resolve("conversation_${conversationName}_${System.currentTimeMillis()}.${exportType!!.extension}")
 
         logDialog(context.translation.format("chat_export.exporting_message", "conversation" to conversationName))
@@ -178,7 +178,7 @@ class ExportChatMessages : AbstractAction() {
             conversationParticipants = conversationParticipants,
             exportFormat = exportType!!,
             messageTypeFilter = mediaToDownload,
-            cacheFolder = publicFolder.resolve("cache"),
+            cacheFolder = publicFolder.resolve("cache").also { if (!it.exists()) it.mkdirs() },
             outputFile = outputFile,
         ).apply { init(); printLog = {
             logDialog(it.toString())
