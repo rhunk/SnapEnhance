@@ -22,8 +22,13 @@ class BulkRemoveFriends : AbstractAction() {
             .show()
 
         context.coroutineScope.launch {
-            friendIds.forEach {
-                removeFriend(it)
+            friendIds.forEach { userId ->
+                runCatching {
+                    removeFriend(userId)
+                }.onFailure {
+                    context.log.error("Failed to remove friend $it", it)
+                    context.shortToast("Failed to remove friend $userId")
+                }
                 index++
                 withContext(Dispatchers.Main) {
                     dialog.setTitle(
@@ -55,6 +60,7 @@ class BulkRemoveFriends : AbstractAction() {
             "b42f1f70-5a8b-4c53-8c25-34e7ec9e6781", // myai
             "84ee8839-3911-492d-8b94-72dd80f3713a", // teamsnapchat
         )
+
         context.coroutineScope.launch(Dispatchers.Main) {
             val friends = context.database.getAllFriends().filter {
                 it.userId !in userIdBlacklist &&
