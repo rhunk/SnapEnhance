@@ -622,6 +622,10 @@
                     "hidden_snapchat_plus_features": {
                         "name": "Hidden Snapchat Plus Features",
                         "description": "Enables unreleased/beta Snapchat Plus features\nMight not work on older Snapchat versions"
+                    },
+                    "disable_composer_modules": {
+                        "name": "Disable Composer Modules",
+                        "description": "Prevents selected composer modules from being loaded\nNames must be separated by a comma"
                     }
                 }
             },

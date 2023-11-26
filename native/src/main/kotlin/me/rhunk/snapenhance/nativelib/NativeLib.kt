@@ -4,6 +4,8 @@ import android.util.Log
 
 class NativeLib {
     var nativeUnaryCallCallback: (NativeRequestData) -> Unit = {}
+    var nativeShouldLoadAsset: (String) -> Boolean = { true }
+
     companion object {
         var initialized = false
             private set
@@ -32,6 +34,11 @@ class NativeLib {
         if (!nativeRequestData.buffer.contentEquals(buffer) || nativeRequestData.canceled) return nativeRequestData
         return null
     }
+
+    @Suppress("unused")
+    private fun shouldLoadAsset(name: String) = runCatching {
+        nativeShouldLoadAsset(name)
+    }.getOrNull() ?: true
 
     fun loadNativeConfig(config: NativeConfig) {
         if (!initialized) return

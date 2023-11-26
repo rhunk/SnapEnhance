@@ -2,6 +2,7 @@
 #include <string>
 #include <dobby.h>
 #include <vector>
+#include <android/asset_manager.h>
 
 #include "logger.h"
 #include "config.h"
@@ -16,9 +17,14 @@
 
 static native_config_t *native_config;
 static JavaVM *java_vm;
+static jobject native_lib_object;
 static jmethodID native_lib_on_unary_call_method;
+static jmethodID native_lib_on_asset_load;
+
+// original functions
 static void *(*unaryCall_original)(void *, const char *, grpc::grpc_byte_buffer **, void *, void *, void *);
 static auto fstat_original = (int (*)(int, struct stat *)) nullptr;
+static AAsset* (*AAssetManager_open_original)(AAssetManager*, const char*, int) = nullptr;
 
 static int fstat_hook(int fd, struct stat *buf) {
     char name[256];
@@ -40,7 +46,6 @@ static int fstat_hook(int fd, struct stat *buf) {
     return fstat_original(fd, buf);
 }
 
-static jobject native_lib_object;
 
 static void *unaryCall_hook(void *unk1, const char *uri, grpc::grpc_byte_buffer **buffer_ptr, void *unk4, void *unk5, void *unk6) {
     // request without reference counter can be hooked using xposed ig
@@ -91,6 +96,19 @@ static void *unaryCall_hook(void *unk1, const char *uri, grpc::grpc_byte_buffer 
     return unaryCall_original(unk1, uri, buffer_ptr, unk4, unk5, unk6);
 }
 
+static AAsset* AAssetManager_open_hook(AAssetManager* mgr, const char* filename, int mode) {
+    if (native_config->hook_asset_open) {
+        JNIEnv *env = nullptr;
+        java_vm->GetEnv((void **)&env, JNI_VERSION_1_6);
+
+        if (!env->CallBooleanMethod(native_lib_object, native_lib_on_asset_load, env->NewStringUTF(filename))) {
+            return nullptr;
+        }
+    }
+
+    return AAssetManager_open_original(mgr, filename, mode);
+}
+
 void JNICALL init(JNIEnv *env, jobject clazz, jobject classloader) {
     LOGD("Initializing native");
     // config
@@ -99,6 +117,7 @@ void JNICALL init(JNIEnv *env, jobject clazz, jobject classloader) {
     // native lib object
     native_lib_object = env->NewGlobalRef(clazz);
     native_lib_on_unary_call_method = env->GetMethodID(env->GetObjectClass(clazz), "onNativeUnaryCall", "(Ljava/lang/String;[B)L" BUILD_NAMESPACE "/NativeRequestData;");
+    native_lib_on_asset_load = env->GetMethodID(env->GetObjectClass(clazz), "shouldLoadAsset", "(Ljava/lang/String;)Z");
 
     // load libclient.so
     util::load_library(env, classloader, "client");
@@ -128,6 +147,7 @@ void JNICALL init(JNIEnv *env, jobject clazz, jobject classloader) {
         LOGE("can't find unaryCall signature");
     }
 
+    DobbyHook((void *) AAssetManager_open, (void *) AAssetManager_open_hook, (void **) &AAssetManager_open_original);
     LOGD("Native initialized");
 }
 
@@ -137,6 +157,7 @@ void JNICALL load_config(JNIEnv *env, jobject _, jobject config_object) {
 
     native_config->disable_bitmoji = GET_CONFIG_BOOL("disableBitmoji");
     native_config->disable_metrics = GET_CONFIG_BOOL("disableMetrics");
+    native_config->hook_asset_open = GET_CONFIG_BOOL("hookAssetOpen");
 }
 
 extern "C" JNIEXPORT jint JNICALL JNI_OnLoad(JavaVM *vm, void *_) {

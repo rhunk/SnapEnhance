@@ -109,6 +109,7 @@ class FeatureManager(
             HalfSwipeNotifier::class,
             DisableConfirmationDialogs::class,
             Stories::class,
+            DisableComposerModules::class,
         )
 
         initializeFeatures()

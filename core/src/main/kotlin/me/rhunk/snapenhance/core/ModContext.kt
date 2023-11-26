@@ -149,7 +149,8 @@ class ModContext(
         native.loadNativeConfig(
             NativeConfig(
                 disableBitmoji = config.experimental.nativeHooks.disableBitmoji.get(),
-                disableMetrics = config.global.disableMetrics.get()
+                disableMetrics = config.global.disableMetrics.get(),
+                hookAssetOpen = config.experimental.disableComposerModules.get().isNotEmpty()
             )
         )
     }
