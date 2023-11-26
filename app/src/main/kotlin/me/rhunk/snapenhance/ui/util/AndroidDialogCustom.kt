@@ -82,7 +82,6 @@ fun Dialog(
     properties: DialogProperties = DialogProperties(),
     content: @Composable () -> Unit
 ) {
-    val context = LocalContext.current
     val view = LocalView.current
     val density = LocalDensity.current
     val layoutDirection = LocalLayoutDirection.current
@@ -112,7 +111,7 @@ fun Dialog(
 
     DisposableEffect(dialog) {
         // Set the dialog's window type to TYPE_APPLICATION_OVERLAY so it's compatible with compose overlays
-        if (Settings.canDrawOverlays(view.context) && context !is Activity) {
+        if (Settings.canDrawOverlays(view.context) && view.context !is Activity) {
             dialog.window?.setType(WindowManager.LayoutParams.TYPE_APPLICATION_OVERLAY)
         }
         dialog.show()
