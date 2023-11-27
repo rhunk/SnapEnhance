@@ -314,6 +314,10 @@
                     "enable_friend_feed_menu_bar": {
                         "name": "Friend Feed Menu Bar",
                         "description": "Enables the new Friend Feed Menu Bar"
+                    },
+                    "fidelius_indicator": {
+                        "name": "Fidelius Indicator",
+                        "description": "Adds a green circle next to messages that have been sent only to you"
                     }
                 }
             },

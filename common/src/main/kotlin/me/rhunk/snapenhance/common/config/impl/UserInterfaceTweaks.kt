@@ -47,4 +47,5 @@ class UserInterfaceTweaks : ConfigContainer() {
     val disableSpotlight = boolean("disable_spotlight") { requireRestart() }
     val hideSettingsGear = boolean("hide_settings_gear") { requireRestart() }
     val verticalStoryViewer = boolean("vertical_story_viewer") { requireRestart() }
+    val fideliusIndicator = boolean("fidelius_indicator") { requireRestart() }
 }

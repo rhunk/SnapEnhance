@@ -110,6 +110,7 @@ class FeatureManager(
             DisableConfirmationDialogs::class,
             Stories::class,
             DisableComposerModules::class,
+            FideliusIndicator::class,
         )
 
         initializeFeatures()
