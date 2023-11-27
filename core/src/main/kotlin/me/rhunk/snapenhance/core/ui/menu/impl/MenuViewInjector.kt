@@ -34,7 +34,7 @@ class MenuViewInjector : Feature("MenuViewInjector", loadParams = FeatureLoadPar
         menuMap[ChatActionMenu::class] = ChatActionMenu()
         menuMap[SettingsMenu::class] = SettingsMenu()
 
-        menuMap.values.forEach { it.context = context }
+        menuMap.values.forEach { it.context = context; it.init() }
 
         val messaging = context.feature(Messaging::class)
 

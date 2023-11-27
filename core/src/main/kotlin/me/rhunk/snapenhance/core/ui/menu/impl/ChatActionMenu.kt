@@ -18,6 +18,8 @@ import me.rhunk.snapenhance.core.ui.ViewTagState
 import me.rhunk.snapenhance.core.ui.applyTheme
 import me.rhunk.snapenhance.core.ui.menu.AbstractMenu
 import me.rhunk.snapenhance.core.ui.triggerCloseTouchEvent
+import me.rhunk.snapenhance.core.util.hook.HookStage
+import me.rhunk.snapenhance.core.util.hook.hook
 import me.rhunk.snapenhance.core.util.ktx.getDimens
 import java.time.Instant
 
@@ -60,6 +62,20 @@ class ChatActionMenu : AbstractMenu() {
 
     private val lastFocusedMessage
         get() = context.database.getConversationMessageFromId(context.feature(Messaging::class).lastFocusedMessageId)
+
+    override fun init() {
+        runCatching {
+            if (!context.config.downloader.chatDownloadContextMenu.get() && !context.config.messaging.messageLogger.get() && !context.isDeveloper) return
+            context.androidContext.classLoader.loadClass("com.snap.messaging.chat.features.actionmenu.ActionMenuChatItemContainer")
+                .hook("onMeasure", HookStage.BEFORE) { param ->
+                    param.setArg(1,
+                        View.MeasureSpec.makeMeasureSpec((context.resources.displayMetrics.heightPixels * 0.35).toInt(), View.MeasureSpec.AT_MOST)
+                    )
+                }
+        }.onFailure {
+            context.log.error("Failed to hook ActionMenuChatItemContainer: $it")
+        }
+    }
 
     @SuppressLint("SetTextI18n", "DiscouragedApi", "ClickableViewAccessibility")
     override fun inject(parent: ViewGroup, view: View, viewConsumer: (View) -> Unit) {
