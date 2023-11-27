@@ -4,16 +4,19 @@ import android.widget.ProgressBar
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.suspendCancellableCoroutine
 import kotlinx.coroutines.withContext
 import me.rhunk.snapenhance.common.data.FriendLinkType
 import me.rhunk.snapenhance.core.action.AbstractAction
 import me.rhunk.snapenhance.core.features.impl.experiments.AddFriendSourceSpoof
+import me.rhunk.snapenhance.core.features.impl.messaging.Messaging
+import me.rhunk.snapenhance.core.messaging.EnumBulkAction
 import me.rhunk.snapenhance.core.ui.ViewAppearanceHelper
 
-class BulkRemoveFriends : AbstractAction() {
-    private val translation by lazy { context.translation.getCategory("bulk_remove_friends") }
+class BulkMessagingAction : AbstractAction() {
+    private val translation by lazy { context.translation.getCategory("bulk_messaging_action") }
 
-    private fun removeFriends(friendIds: List<String>) {
+    private fun removeAction(ids: List<String>, action: (String) -> Unit = {}) {
         var index = 0
         val dialog = ViewAppearanceHelper.newAlertDialogBuilder(context.mainActivity)
             .setTitle("...")
@@ -22,17 +25,17 @@ class BulkRemoveFriends : AbstractAction() {
             .show()
 
         context.coroutineScope.launch {
-            friendIds.forEach { userId ->
+            ids.forEach { id ->
                 runCatching {
-                    removeFriend(userId)
+                    action(id)
                 }.onFailure {
-                    context.log.error("Failed to remove friend $it", it)
-                    context.shortToast("Failed to remove friend $userId")
+                    context.log.error("Failed to process $it", it)
+                    context.shortToast("Failed to process $id")
                 }
                 index++
                 withContext(Dispatchers.Main) {
                     dialog.setTitle(
-                        translation.format("progress_status", "index" to index.toString(), "total" to friendIds.size.toString())
+                        translation.format("progress_status", "index" to index.toString(), "total" to ids.size.toString())
                     )
                 }
                 delay(500)
@@ -40,6 +43,20 @@ class BulkRemoveFriends : AbstractAction() {
             withContext(Dispatchers.Main) {
                 dialog.dismiss()
             }
+        }
+    }
+
+    private suspend fun askActionType() = suspendCancellableCoroutine { cont ->
+        context.runOnUiThread {
+            ViewAppearanceHelper.newAlertDialogBuilder(context.mainActivity)
+                .setTitle(translation["choose_action_title"])
+                .setItems(EnumBulkAction.entries.map { translation["actions.${it.key}"] }.toTypedArray()) { _, which ->
+                    cont.resumeWith(Result.success(EnumBulkAction.entries[which]))
+                }
+                .setOnCancelListener {
+                    cont.resumeWith(Result.success(null))
+                }
+                .show()
         }
     }
 
@@ -62,6 +79,8 @@ class BulkRemoveFriends : AbstractAction() {
         )
 
         context.coroutineScope.launch(Dispatchers.Main) {
+            val bulkAction = askActionType() ?: return@launch
+
             val friends = context.database.getAllFriends().filter {
                 it.userId !in userIdBlacklist &&
                 it.addedTimestamp != -1L &&
@@ -74,7 +93,7 @@ class BulkRemoveFriends : AbstractAction() {
             val selectedFriends = mutableListOf<String>()
 
             ViewAppearanceHelper.newAlertDialogBuilder(context.mainActivity)
-                .setTitle(translation["selection_dialog_title"])
+                .setTitle(translation["actions.${bulkAction.key}"])
                 .setMultiChoiceItems(friends.map { friend ->
                     (friend.displayName?.let {
                         "$it (${friend.mutableUsername})"
@@ -87,13 +106,41 @@ class BulkRemoveFriends : AbstractAction() {
                         selectedFriends.remove(friends[which].userId)
                     }
                 }
-                .setPositiveButton(translation["selection_dialog_remove_button"]) { _, _ ->
+                .setPositiveButton(translation["selection_dialog_continue_button"]) { _, _ ->
                     confirmationDialog {
-                        removeFriends(selectedFriends)
+                        when (bulkAction) {
+                            EnumBulkAction.REMOVE_FRIENDS -> {
+                                removeAction(selectedFriends) {
+                                    removeFriend(it)
+                                }
+                            }
+                            EnumBulkAction.CLEAR_CONVERSATIONS -> clearConversations(selectedFriends)
+                        }
                     }
                 }
-                .setNegativeButton(context.translation["button.cancel"]) { _, _ -> }
+                .setNegativeButton(context.translation["button.cancel"]) { dialog, _ ->
+                    dialog.dismiss()
+                }
+                .setCancelable(false)
                 .show()
+        }
+    }
+
+    private fun clearConversations(friendIds: List<String>) {
+        val messaging = context.feature(Messaging::class)
+
+        messaging.conversationManager?.apply {
+            getOneOnOneConversationIds(friendIds, onError = { error ->
+                context.shortToast("Failed to fetch conversations: $error")
+            }, onSuccess = { conversations ->
+                context.runOnUiThread {
+                    removeAction(conversations.map { it.second }.distinct()) {
+                        messaging.clearConversationFromFeed(it, onError = { error ->
+                            context.shortToast("Failed to clear conversation: $error")
+                        })
+                    }
+                }
+            })
         }
     }
 

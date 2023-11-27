@@ -9,7 +9,7 @@ enum class EnumAction(
 ) {
     CLEAN_CACHE("clean_snapchat_cache", exitOnFinish = true),
     EXPORT_CHAT_MESSAGES("export_chat_messages"),
-    BULK_REMOVE_FRIENDS("bulk_remove_friends");
+    BULK_MESSAGING_ACTION("bulk_messaging_action");
 
     companion object {
         const val ACTION_PARAMETER = "se_action"

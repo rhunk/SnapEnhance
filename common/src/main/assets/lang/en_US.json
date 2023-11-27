@@ -116,7 +116,7 @@
         "open_map": "Choose location on map",
         "check_for_updates": "Check for updates",
         "export_chat_messages": "Export Chat Messages",
-        "bulk_remove_friends": "Bulk Remove Friends"
+        "bulk_messaging_action": "Bulk Messaging Action"
     },
 
     "features": {
@@ -865,14 +865,17 @@
         "incoming_follower": "Incoming Follower"
     },
 
-    "bulk_remove_friends": {
-        "title": "Bulk Remove Friend",
-        "progress_status": "Removing friends {index} of {total}",
-        "selection_dialog_title": "Select friends to remove",
-        "selection_dialog_remove_button": "Remove Selection",
+    "bulk_messaging_action": {
+        "choose_action_title": "Choose an action",
+        "progress_status": "Processing {index} of {total}",
+        "selection_dialog_continue_button": "Continue",
         "confirmation_dialog": {
             "title": "Are you sure?",
-            "message": "This will remove all selected friends. This action cannot be undone."
+            "message": "This will affect all selected friends. This action cannot be undone."
+        },
+        "actions": {
+            "remove_friends": "Remove Friends",
+            "clear_conversations": "Clear Conversations"
         }
     },
 

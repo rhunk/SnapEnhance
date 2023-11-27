@@ -15,10 +15,12 @@ import me.rhunk.snapenhance.core.util.ktx.getObjectFieldOrNull
 import me.rhunk.snapenhance.core.wrapper.impl.ConversationManager
 import me.rhunk.snapenhance.core.wrapper.impl.Message
 import me.rhunk.snapenhance.core.wrapper.impl.SnapUUID
+import me.rhunk.snapenhance.core.wrapper.impl.toSnapUUID
 
 class Messaging : Feature("Messaging", loadParams = FeatureLoadParams.ACTIVITY_CREATE_SYNC or FeatureLoadParams.INIT_ASYNC or FeatureLoadParams.INIT_SYNC) {
     var conversationManager: ConversationManager? = null
         private set
+    private var conversationManagerDelegate: Any? = null
     var openedConversationUUID: SnapUUID? = null
         private set
     var lastFetchConversationUserUUID: SnapUUID? = null
@@ -43,6 +45,22 @@ class Messaging : Feature("Messaging", loadParams = FeatureLoadParams.ACTIVITY_C
 
     fun getFeedCachedMessageIds(conversationId: String) = feedCachedSnapMessages[conversationId]
 
+    fun clearConversationFromFeed(conversationId: String, onError : (String) -> Unit = {}, onSuccess : () -> Unit = {}) {
+        conversationManager?.clearConversation(conversationId, onError = { onError(it) }, onSuccess = {
+            runCatching {
+                conversationManagerDelegate!!.let {
+                    it::class.java.methods.first { method ->
+                        method.name == "onConversationRemoved"
+                    }.invoke(conversationManagerDelegate, conversationId.toSnapUUID().instanceNonNull())
+                }
+                onSuccess()
+            }.onFailure {
+                context.log.error("Failed to invoke onConversationRemoved: $it")
+                onError(it.message ?: "Unknown error")
+            }
+        })
+    }
+
     override fun onActivityCreate() {
         context.mappings.getMappedObjectNullable("FriendsFeedEventDispatcher").let { it as? Map<*, *> }?.let { mappings ->
             findClass(mappings["class"].toString()).hook("onItemLongPress", HookStage.BEFORE) { param ->
@@ -57,6 +75,9 @@ class Messaging : Feature("Messaging", loadParams = FeatureLoadParams.ACTIVITY_C
             }
         }
 
+        context.mappings.getMappedClass("callbacks", "ConversationManagerDelegate").hookConstructor(HookStage.AFTER) { param ->
+            conversationManagerDelegate = param.thisObject()
+        }
 
         context.classCache.feedEntry.hookConstructor(HookStage.AFTER) { param ->
             val instance = param.thisObject<Any>()

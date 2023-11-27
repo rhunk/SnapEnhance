@@ -22,6 +22,8 @@ class ConversationManager(
     private val fetchMessagesByServerIds by lazy { findMethodByName("fetchMessagesByServerIds") }
     private val displayedMessagesMethod by lazy { findMethodByName("displayedMessages") }
     private val fetchMessage by lazy { findMethodByName("fetchMessage") }
+    private val clearConversation by lazy { findMethodByName("clearConversation") }
+    private val getOneOnOneConversationIds by lazy { findMethodByName("getOneOnOneConversationIds") }
 
 
     fun updateMessage(conversationId: String, messageId: Long, action: MessageUpdate, onResult: CallbackResult = {}) {
@@ -127,5 +129,23 @@ class ConversationManager(
                     onError(it.arg<Any>(0).toString())
                 }.build()
         )
+    }
+
+    fun clearConversation(conversationId: String, onSuccess: () -> Unit, onError: (error: String) -> Unit) {
+        val callback = CallbackBuilder(context.mappings.getMappedClass("callbacks", "Callback"))
+            .override("onSuccess") { onSuccess() }
+            .override("onError") { onError(it.arg<Any>(0).toString()) }.build()
+        clearConversation.invoke(instanceNonNull(), conversationId.toSnapUUID().instanceNonNull(), callback)
+    }
+
+    fun getOneOnOneConversationIds(userIds: List<String>, onSuccess: (List<Pair<String, String>>) -> Unit, onError: (error: String) -> Unit) {
+        val callback = CallbackBuilder(context.mappings.getMappedClass("callbacks", "GetOneOnOneConversationIdsCallback"))
+            .override("onSuccess") { param ->
+                onSuccess(param.arg<ArrayList<*>>(0).map {
+                    SnapUUID(it.getObjectField("mUserId")).toString() to SnapUUID(it.getObjectField("mConversationId")).toString()
+                })
+            }
+            .override("onError") { onError(it.arg<Any>(0).toString()) }.build()
+        getOneOnOneConversationIds.invoke(instanceNonNull(), userIds.map { it.toSnapUUID().instanceNonNull() }.toMutableList(), callback)
     }
 }
