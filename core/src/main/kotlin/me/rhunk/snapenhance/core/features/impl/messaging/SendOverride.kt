@@ -50,6 +50,55 @@ class SendOverride : Feature("Send Override", loadParams = FeatureLoadParams.INI
             event.buffer = protoEditor.toByteArray()
         }
 
+        val stripSnapMetadata = context.config.messaging.stripMediaMetadata.get()
+
+        context.event.subscribe(SendMessageWithContentEvent::class, {
+            stripSnapMetadata.isNotEmpty()
+        }) { event ->
+            val contentType = event.messageContent.contentType ?: return@subscribe
+
+            val newMessageContent = ProtoEditor(event.messageContent.content!!).apply {
+                when (contentType) {
+                    ContentType.SNAP, ContentType.EXTERNAL_MEDIA -> {
+                        edit(*(if (contentType == ContentType.SNAP) intArrayOf(11) else intArrayOf(3, 3))) {
+                            if (stripSnapMetadata.contains("hide_caption_text")) {
+                                edit(5) {
+                                    editEach(1) {
+                                        remove(2)
+                                    }
+                                }
+                            }
+                            if (stripSnapMetadata.contains("hide_snap_filters")) {
+                                remove(9)
+                                remove(11)
+                            }
+                            if (stripSnapMetadata.contains("hide_extras")) {
+                                remove(13)
+                                edit(5, 1) {
+                                    remove(2)
+                                }
+                            }
+                        }
+                    }
+                    ContentType.NOTE -> {
+                        if (stripSnapMetadata.contains("remove_audio_note_duration")) {
+                            edit(6, 1, 1) {
+                                remove(13)
+                            }
+                        }
+                        if (stripSnapMetadata.contains("remove_audio_note_transcript_capability")) {
+                            edit(6, 1) {
+                                remove(3)
+                            }
+                        }
+                    }
+                    else -> return@subscribe
+                }
+            }.toByteArray()
+
+            event.messageContent.content = newMessageContent
+        }
+
         context.event.subscribe(SendMessageWithContentEvent::class, {
             context.config.messaging.galleryMediaSendOverride.get()
         }) { event ->

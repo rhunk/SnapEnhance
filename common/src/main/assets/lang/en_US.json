@@ -393,6 +393,10 @@
                         "name": "Gallery Media Send Override",
                         "description": "Spoofs the media source when sending from the Gallery"
                     },
+                    "strip_media_metadata": {
+                        "name": "Strip Media Metadata",
+                        "description": "Removes metadata of media before sending as a message"
+                    },
                     "bypass_message_retention_policy": {
                         "name": "Bypass Message Retention Policy",
                         "description": "Prevents messages from being deleted after viewing them"
@@ -715,6 +719,13 @@
                 "NOTE": "Audio Note",
                 "SNAP": "Snap",
                 "SAVABLE_SNAP": "Savable Snap"
+            },
+            "strip_media_metadata": {
+                "hide_caption_text": "Hide Caption Text",
+                "hide_snap_filters": "Hide Snap Filters",
+                "hide_extras": "Hide Extras (e.g. mentions)",
+                "remove_audio_note_duration": "Remove Audio Note Duration",
+                "remove_audio_note_transcript_capability": "Remove Audio Note Transcript Capability"
             },
             "hide_ui_components": {
                 "hide_profile_call_buttons": "Remove Profile Call Buttons",
