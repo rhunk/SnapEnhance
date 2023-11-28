@@ -8,6 +8,7 @@ import me.rhunk.snapenhance.bridge.e2ee.E2eeInterface;
 import me.rhunk.snapenhance.bridge.MessageLoggerInterface;
 import me.rhunk.snapenhance.bridge.ConfigStateListener;
 import me.rhunk.snapenhance.bridge.snapclient.MessagingBridge;
+import android.app.Notification;
 
 interface BridgeInterface {
     /**
@@ -88,4 +89,6 @@ interface BridgeInterface {
     void closeSettingsOverlay();
 
     void registerConfigStateListener(in ConfigStateListener listener);
+
+    boolean sendNotification(String tag, int id, in Notification notification);
 }

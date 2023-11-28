@@ -1,6 +1,7 @@
 package me.rhunk.snapenhance.core.bridge
 
 
+import android.app.Notification
 import android.content.ComponentName
 import android.content.Context
 import android.content.Intent
@@ -161,4 +162,6 @@ class BridgeClient(
     fun closeSettingsOverlay() = service.closeSettingsOverlay()
 
     fun registerConfigStateListener(listener: ConfigStateListener) = service.registerConfigStateListener(listener)
+
+    fun sendNotification(tag: String?, id: Int, notification: Notification) = service.sendNotification(tag, id, notification)
 }

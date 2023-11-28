@@ -1,5 +1,7 @@
 package me.rhunk.snapenhance.bridge
 
+import android.app.Notification
+import android.app.NotificationManager
 import android.app.Service
 import android.content.Intent
 import android.os.IBinder
@@ -9,7 +11,6 @@ import me.rhunk.snapenhance.bridge.snapclient.MessagingBridge
 import me.rhunk.snapenhance.common.bridge.types.BridgeFileType
 import me.rhunk.snapenhance.common.bridge.types.FileActionType
 import me.rhunk.snapenhance.common.bridge.wrapper.LocaleWrapper
-import me.rhunk.snapenhance.common.bridge.wrapper.MessageLoggerWrapper
 import me.rhunk.snapenhance.common.data.MessagingFriendInfo
 import me.rhunk.snapenhance.common.data.MessagingGroupInfo
 import me.rhunk.snapenhance.common.data.SocialScope
@@ -201,6 +202,14 @@ class BridgeService : Service() {
 
         override fun registerConfigStateListener(listener: ConfigStateListener) {
             remoteSideContext.config.configStateListener = listener
+        }
+
+        override fun sendNotification(tag: String?, id: Int, notification: Notification): Boolean {
+            remoteSideContext.androidContext.getSystemService(NotificationManager::class.java).apply {
+                notify(tag, id, notification)
+            }
+
+            return true // TODO: check if android auto is connected
         }
     }
 }

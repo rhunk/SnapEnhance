@@ -47,9 +47,11 @@ class Notifications : Feature("Notifications", loadParams = FeatureLoadParams.IN
         val userHandle: UserHandle
     ) {
         fun send() {
-            XposedBridge.invokeOriginalMethod(notifyAsUserMethod, notificationManager, arrayOf(
-                tag, id, notification, userHandle
-            ))
+            if (!context.bridgeClient.sendNotification(tag, id, notification)) {
+                XposedBridge.invokeOriginalMethod(notifyAsUserMethod, notificationManager, arrayOf(
+                    tag, id, notification, userHandle
+                ))
+            }
         }
 
         fun copy(tag: String? = this.tag, id: Int = this.id, notification: Notification = this.notification, userHandle: UserHandle = this.userHandle) =
