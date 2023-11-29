@@ -122,10 +122,9 @@ class DownloadProcessor (
                     }
 
                     pendingTask.updateProgress("Converting image to $format")
-                    val outputStream = inputFile.outputStream()
-                    bitmap.compress(compressFormat, 100, outputStream)
-                    outputStream.close()
-
+                    inputFile.outputStream().use {
+                        bitmap.compress(compressFormat, 100, it)
+                    }
                     fileType = FileType.fromFile(inputFile)
                 }
             }
@@ -146,11 +145,12 @@ class DownloadProcessor (
             }
 
             val outputFile = outputFileFolder.createFile(fileType.mimeType, fileName)!!
-            val outputStream = remoteSideContext.androidContext.contentResolver.openOutputStream(outputFile.uri)!!
 
             pendingTask.updateProgress("Saving media to gallery")
-            inputFile.inputStream().use { inputStream ->
-                inputStream.copyTo(outputStream)
+            remoteSideContext.androidContext.contentResolver.openOutputStream(outputFile.uri)!!.use { outputStream ->
+                inputFile.inputStream().use { inputStream ->
+                    inputStream.copyTo(outputStream)
+                }
             }
 
             pendingTask.task.extra = outputFile.uri.toString()
@@ -201,19 +201,20 @@ class DownloadProcessor (
             fun handleInputStream(inputStream: InputStream, estimatedSize: Long = 0L) {
                 createMediaTempFile().apply {
                     val decryptedInputStream = (inputMedia.encryption?.decryptInputStream(inputStream) ?: inputStream).buffered()
-                    val outputStream = outputStream()
                     val buffer = ByteArray(DEFAULT_BUFFER_SIZE)
                     var read: Int
                     var totalRead = 0L
                     var lastTotalRead = 0L
 
-                    while (decryptedInputStream.read(buffer).also { read = it } != -1) {
-                        outputStream.write(buffer, 0, read)
-                        totalRead += read
-                        inputMediaDownloadedBytes[inputMedia] = totalRead
-                        if (totalRead - lastTotalRead > 1024 * 1024) {
-                            setProgress("${totalRead / 1024}KB/${estimatedSize / 1024}KB")
-                            lastTotalRead = totalRead
+                    outputStream().use { outputStream ->
+                        while (decryptedInputStream.read(buffer).also { read = it } != -1) {
+                            outputStream.write(buffer, 0, read)
+                            totalRead += read
+                            inputMediaDownloadedBytes[inputMedia] = totalRead
+                            if (totalRead - lastTotalRead > 1024 * 1024) {
+                                setProgress("${totalRead / 1024}KB/${estimatedSize / 1024}KB")
+                                lastTotalRead = totalRead
+                            }
                         }
                     }
                 }.also { downloadedMedias[inputMedia] = it }
@@ -224,7 +225,9 @@ class DownloadProcessor (
                     DownloadMediaType.PROTO_MEDIA -> {
                         RemoteMediaResolver.downloadBoltMedia(Base64.UrlSafe.decode(inputMedia.content), decryptionCallback = { it }, resultCallback = { inputStream, length ->
                             totalSize += length
-                            handleInputStream(inputStream, estimatedSize = length)
+                            inputStream.use {
+                                handleInputStream(it, estimatedSize = length)
+                            }
                         })
                     }
                     DownloadMediaType.REMOTE_MEDIA -> {
@@ -233,7 +236,9 @@ class DownloadProcessor (
                             setRequestProperty("User-Agent", Constants.USER_AGENT)
                             connect()
                             totalSize += contentLength.toLong()
-                            handleInputStream(inputStream, estimatedSize = contentLength.toLong())
+                            inputStream.use {
+                                handleInputStream(it, estimatedSize = contentLength.toLong())
+                            }
                         }
                     }
                     DownloadMediaType.DIRECT_MEDIA -> {
@@ -292,8 +297,9 @@ class DownloadProcessor (
             val dashOptions = downloadRequest.dashOptions!!
 
             val dashPlaylistFile = renameFromFileType(media.file, FileType.MPD)
-            val xmlData = dashPlaylistFile.outputStream()
-            TransformerFactory.newInstance().newTransformer().transform(DOMSource(playlistXml), StreamResult(xmlData))
+            dashPlaylistFile.outputStream().use {
+                TransformerFactory.newInstance().newTransformer().transform(DOMSource(playlistXml), StreamResult(it))
+            }
 
             callbackOnProgress(translation.format("download_toast", "path" to dashPlaylistFile.nameWithoutExtension))
             val outputFile = File.createTempFile("dash", ".mp4")
@@ -329,9 +335,8 @@ class DownloadProcessor (
         remoteSideContext.coroutineScope.launch {
             val downloadMetadata = gson.fromJson(intent.getStringExtra(ReceiversConfig.DOWNLOAD_METADATA_EXTRA)!!, DownloadMetadata::class.java)
             val downloadRequest = gson.fromJson(intent.getStringExtra(ReceiversConfig.DOWNLOAD_REQUEST_EXTRA)!!, DownloadRequest::class.java)
-            val downloadId = (downloadMetadata.mediaIdentifier ?: UUID.randomUUID().toString()).longHashCode().absoluteValue.toString(16)
 
-            remoteSideContext.taskManager.getTaskByHash(downloadId)?.let { task ->
+            remoteSideContext.taskManager.getTaskByHash(downloadMetadata.mediaIdentifier)?.let { task ->
                 remoteSideContext.log.debug("already queued or downloaded")
 
                 if (task.status.isFinalStage()) {
@@ -348,7 +353,7 @@ class DownloadProcessor (
                 Task(
                     type = TaskType.DOWNLOAD,
                     title = downloadMetadata.downloadSource + " (" + downloadMetadata.mediaAuthor + ")",
-                    hash = downloadId
+                    hash = downloadMetadata.mediaIdentifier
                 )
             ).apply {
                 status = TaskStatus.RUNNING
@@ -372,15 +377,19 @@ class DownloadProcessor (
                     val oldDownloadedMedias = downloadedMedias.toMap()
                     downloadedMedias.clear()
 
-                    MediaDownloaderHelper.getSplitElements(zipFile.file.inputStream()) { type, inputStream ->
-                        createMediaTempFile().apply {
-                            inputStream.copyTo(outputStream())
-                        }.also {
-                            downloadedMedias[InputMedia(
-                                type = DownloadMediaType.LOCAL_MEDIA,
-                                content = it.absolutePath,
-                                isOverlay = type == SplitMediaAssetType.OVERLAY
-                            )] = DownloadedFile(it, FileType.fromFile(it))
+                    zipFile.file.inputStream().use { zipFileInputStream ->
+                        MediaDownloaderHelper.getSplitElements(zipFileInputStream) { type, inputStream ->
+                            createMediaTempFile().apply {
+                                outputStream().use {
+                                    inputStream.copyTo(it)
+                                }
+                            }.also {
+                                downloadedMedias[InputMedia(
+                                    type = DownloadMediaType.LOCAL_MEDIA,
+                                    content = it.absolutePath,
+                                    isOverlay = type == SplitMediaAssetType.OVERLAY
+                                )] = DownloadedFile(it, FileType.fromFile(it))
+                            }
                         }
                     }
 

@@ -26,9 +26,9 @@ class DownloadManagerClient (
             DownloadRequest(
                 inputMedias = arrayOf(
                     InputMedia(
-                    content = playlistUrl,
-                    type = DownloadMediaType.REMOTE_MEDIA
-                )
+                        content = playlistUrl,
+                        type = DownloadMediaType.REMOTE_MEDIA
+                    )
                 ),
                 dashOptions = DashOptions(offsetTime, duration),
                 flags = DownloadRequest.Flags.IS_DASH_PLAYLIST

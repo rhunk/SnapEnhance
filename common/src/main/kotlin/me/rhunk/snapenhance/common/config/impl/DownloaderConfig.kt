@@ -46,6 +46,6 @@ class DownloaderConfig : ConfigContainer() {
     val chatDownloadContextMenu = boolean("chat_download_context_menu")
     val ffmpegOptions = container("ffmpeg_options", FFMpegOptions()) { addNotices(FeatureNotice.UNSTABLE) }
     val logging = multiple("logging", "started", "success", "progress", "failure").apply {
-        set(mutableListOf("started", "success"))
+        set(mutableListOf("success", "progress", "failure"))
     }
 }

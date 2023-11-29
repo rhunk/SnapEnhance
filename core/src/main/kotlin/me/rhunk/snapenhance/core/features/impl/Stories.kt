@@ -17,8 +17,11 @@ class Stories : Feature("Stories", loadParams = FeatureLoadParams.ACTIVITY_CREAT
             fun cancelRequest() {
                 runBlocking {
                     suspendCoroutine {
-                        context.httpServer.ensureServerStarted {
-                            event.url = "http://127.0.0.1:${context.httpServer.port}"
+                        context.httpServer.ensureServerStarted()?.let { server ->
+                            event.url = "http://127.0.0.1:${server.port}"
+                            it.resumeWith(Result.success(Unit))
+                        } ?: run {
+                            event.canceled = true
                             it.resumeWith(Result.success(Unit))
                         }
                     }

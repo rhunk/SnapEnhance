@@ -25,6 +25,7 @@ import me.rhunk.snapenhance.common.data.download.MediaDownloadSource
 import me.rhunk.snapenhance.common.data.download.SplitMediaAssetType
 import me.rhunk.snapenhance.common.database.impl.ConversationMessage
 import me.rhunk.snapenhance.common.database.impl.FriendInfo
+import me.rhunk.snapenhance.common.util.ktx.longHashCode
 import me.rhunk.snapenhance.common.util.protobuf.ProtoReader
 import me.rhunk.snapenhance.common.util.snap.BitmojiSelfie
 import me.rhunk.snapenhance.common.util.snap.MediaDownloaderHelper
@@ -54,9 +55,11 @@ import java.io.ByteArrayInputStream
 import java.nio.file.Paths
 import java.text.SimpleDateFormat
 import java.util.Locale
+import java.util.UUID
 import kotlin.coroutines.suspendCoroutine
 import kotlin.io.encoding.Base64
 import kotlin.io.encoding.ExperimentalEncodingApi
+import kotlin.math.absoluteValue
 
 private fun String.sanitizeForPath(): String {
     return this.replace(" ", "_")
@@ -85,7 +88,11 @@ class MediaDownloader : MessagingRuleFeature("MediaDownloader", MessagingRuleTyp
         downloadSource: MediaDownloadSource,
         friendInfo: FriendInfo? = null
     ): DownloadManagerClient {
-        val generatedHash = mediaIdentifier.hashCode().toString(16).replaceFirst("-", "")
+        val generatedHash = (
+            if (!context.config.downloader.allowDuplicate.get()) mediaIdentifier
+            else UUID.randomUUID().toString()
+        ).longHashCode().absoluteValue.toString(16)
+
         val iconUrl = BitmojiSelfie.getBitmojiSelfie(friendInfo?.bitmojiSelfieId, friendInfo?.bitmojiAvatarId, BitmojiSelfie.BitmojiSelfieType.THREE_D)
 
         val downloadLogging by context.config.downloader.logging
@@ -98,9 +105,7 @@ class MediaDownloader : MessagingRuleFeature("MediaDownloader", MessagingRuleTyp
         return DownloadManagerClient(
             context = context,
             metadata = DownloadMetadata(
-                mediaIdentifier = if (!context.config.downloader.allowDuplicate.get()) {
-                    generatedHash
-                } else null,
+                mediaIdentifier = generatedHash,
                 mediaAuthor = mediaAuthor,
                 downloadSource = downloadSource.key,
                 iconUrl = iconUrl,
@@ -161,7 +166,7 @@ class MediaDownloader : MessagingRuleFeature("MediaDownloader", MessagingRuleTyp
             finalPath.append(downloadSource.pathName).append("/")
         }
         if (pathFormat.contains("append_hash")) {
-            appendFileName(hexHash)
+            appendFileName(hexHash.substring(0, hexHash.length.coerceAtMost(8)))
         }
         if (pathFormat.contains("append_source")) {
             appendFileName(downloadSource.pathName)
@@ -228,10 +233,12 @@ class MediaDownloader : MessagingRuleFeature("MediaDownloader", MessagingRuleTyp
         Uri.parse(path).let { uri ->
             if (uri.scheme == "file") {
                 return@let suspendCoroutine<String> { continuation ->
-                    context.httpServer.ensureServerStarted {
+                    context.httpServer.ensureServerStarted()?.let { server ->
                         val file = Paths.get(uri.path).toFile()
-                        val url = putDownloadableContent(file.inputStream(), file.length())
+                        val url = server.putDownloadableContent(file.inputStream(), file.length())
                         continuation.resumeWith(Result.success(url))
+                    } ?: run {
+                        continuation.resumeWith(Result.failure(Exception("Failed to start http server")))
                     }
                 }
             }
@@ -426,7 +433,12 @@ class MediaDownloader : MessagingRuleFeature("MediaDownloader", MessagingRuleTyp
                     setTitle("Download dash media")
                     setMultiChoiceItems(
                         chapters.map { "Segment ${prettyPrintTime(it.offset)} - ${prettyPrintTime(it.offset + (it.duration ?: 0))}" }.toTypedArray(),
-                        List(chapters.size) { index -> currentChapterIndex == index }.toBooleanArray()
+                        List(chapters.size) { index ->
+                            if (currentChapterIndex == index) {
+                                selectedChapters.add(index)
+                                true
+                            } else false
+                        }.toBooleanArray()
                     ) { _, which, isChecked ->
                         if (isChecked) {
                             selectedChapters.add(which)
@@ -444,22 +456,19 @@ class MediaDownloader : MessagingRuleFeature("MediaDownloader", MessagingRuleTyp
                     }
                     setPositiveButton("Download") { _, _ ->
                         val groups = mutableListOf<MutableList<SnapChapterInfo>>()
-                        var currentGroup = mutableListOf<SnapChapterInfo>()
+
                         var lastChapterIndex = -1
-
-                        //check for consecutive chapters
-                        chapters.filterIndexed { index, _ -> selectedChapters.contains(index) }
-                            .forEachIndexed { index, pair ->
-                                if (lastChapterIndex != -1 && index != lastChapterIndex + 1) {
-                                    groups.add(currentGroup)
-                                    currentGroup = mutableListOf()
+                        // group consecutive chapters
+                        chapters.forEachIndexed { index, snapChapter ->
+                            lastChapterIndex = if (selectedChapters.contains(index)) {
+                                if (lastChapterIndex == -1) {
+                                    groups.add(mutableListOf())
                                 }
-                                currentGroup.add(pair)
-                                lastChapterIndex = index
-                        }
-
-                        if (currentGroup.isNotEmpty()) {
-                            groups.add(currentGroup)
+                                groups.last().add(snapChapter)
+                                index
+                            } else {
+                                -1
+                            }
                         }
 
                         groups.forEach { group ->

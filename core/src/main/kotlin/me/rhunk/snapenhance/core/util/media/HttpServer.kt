@@ -1,10 +1,6 @@
 package me.rhunk.snapenhance.core.util.media
 
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.Job
-import kotlinx.coroutines.delay
-import kotlinx.coroutines.launch
+import kotlinx.coroutines.*
 import me.rhunk.snapenhance.common.logger.AbstractLogger
 import java.io.BufferedReader
 import java.io.InputStream
@@ -16,12 +12,16 @@ import java.net.SocketException
 import java.util.Locale
 import java.util.StringTokenizer
 import java.util.concurrent.ConcurrentHashMap
+import kotlin.coroutines.suspendCoroutine
 import kotlin.random.Random
 
 class HttpServer(
     private val timeout: Int = 10000
 ) {
-    val port = Random.nextInt(10000, 65535)
+    private fun newRandomPort() = Random.nextInt(10000, 65535)
+
+    var port = newRandomPort()
+        private set
 
     private val coroutineScope = CoroutineScope(Dispatchers.IO)
     private var timeoutJob: Job? = null
@@ -30,42 +30,56 @@ class HttpServer(
     private val cachedData = ConcurrentHashMap<String, Pair<InputStream, Long>>()
     private var serverSocket: ServerSocket? = null
 
-    fun ensureServerStarted(callback: HttpServer.() -> Unit) {
-        if (serverSocket != null && !serverSocket!!.isClosed) {
-            callback(this)
-            return
-        }
+    fun ensureServerStarted(): HttpServer? {
+        if (serverSocket != null && serverSocket?.isClosed != true) return this
 
-        coroutineScope.launch(Dispatchers.IO) {
-            AbstractLogger.directDebug("starting http server on port $port")
-            serverSocket = ServerSocket(port)
-            callback(this@HttpServer)
-            while (!serverSocket!!.isClosed) {
-                try {
-                    val socket = serverSocket!!.accept()
-                    timeoutJob?.cancel()
-                    launch {
-                        handleRequest(socket)
-                        timeoutJob = launch {
-                            delay(timeout.toLong())
-                            AbstractLogger.directDebug("http server closed due to timeout")
-                            runCatching {
-                                socketJob?.cancel()
-                                socket.close()
-                                serverSocket?.close()
-                            }.onFailure {
-                                AbstractLogger.directError("failed to close socket", it)
+        return runBlocking {
+            withTimeoutOrNull(5000L) {
+                suspendCoroutine { continuation ->
+                    coroutineScope.launch(Dispatchers.IO) {
+                        AbstractLogger.directDebug("Starting http server on port $port")
+                        for (i in 0..5) {
+                            try {
+                                serverSocket = ServerSocket(port)
+                                break
+                            } catch (e: Throwable) {
+                                AbstractLogger.directError("failed to start http server on port $port", e)
+                                port = newRandomPort()
                             }
                         }
-                    }
-                } catch (e: SocketException) {
-                    AbstractLogger.directDebug("http server timed out")
-                    break;
-                } catch (e: Throwable) {
-                    AbstractLogger.directError("failed to handle request", e)
+                        continuation.resumeWith(Result.success(if (serverSocket == null) null.also {
+                            return@launch
+                        } else this@HttpServer))
+
+                        while (!serverSocket!!.isClosed) {
+                            try {
+                                val socket = serverSocket!!.accept()
+                                timeoutJob?.cancel()
+                                launch {
+                                    handleRequest(socket)
+                                    timeoutJob = launch {
+                                        delay(timeout.toLong())
+                                        AbstractLogger.directDebug("http server closed due to timeout")
+                                        runCatching {
+                                            socketJob?.cancel()
+                                            socket.close()
+                                            serverSocket?.close()
+                                        }.onFailure {
+                                            AbstractLogger.directError("failed to close socket", it)
+                                        }
+                                    }
+                                }
+                            } catch (e: SocketException) {
+                                AbstractLogger.directDebug("http server timed out")
+                                break;
+                            } catch (e: Throwable) {
+                                AbstractLogger.directError("failed to handle request", e)
+                            }
+                        }
+                    }.also { socketJob = it }
                 }
             }
-        }.also { socketJob = it }
+        }
     }
 
     fun close() {
@@ -112,18 +126,15 @@ class HttpServer(
         if (fileRequested.startsWith("/")) {
             fileRequested = fileRequested.substring(1)
         }
-        if (!cachedData.containsKey(fileRequested)) {
-            with(writer) {
-                println("HTTP/1.1 404 Not Found")
-                println("Content-type: " + "application/octet-stream")
-                println("Content-length: " + 0)
-                println()
-                flush()
-            }
+        val requestedData = cachedData[fileRequested] ?: writer.run {
+            println("HTTP/1.1 404 Not Found")
+            println("Content-type: " + "application/octet-stream")
+            println("Content-length: " + 0)
+            println()
+            flush()
             close()
             return
         }
-        val requestedData = cachedData[fileRequested]!!
         with(writer) {
             println("HTTP/1.1 200 OK")
             println("Content-type: " + "application/octet-stream")
@@ -131,9 +142,11 @@ class HttpServer(
             println()
             flush()
         }
-        requestedData.first.copyTo(outputStream)
-        outputStream.flush()
         cachedData.remove(fileRequested)
+        requestedData.first.use {
+            it.copyTo(outputStream)
+        }
+        outputStream.flush()
         close()
     }
 }

@@ -94,6 +94,8 @@ class FFMpegProcessor(
     }
 
     suspend fun execute(args: Request) {
+        // load ffmpeg native sync to avoid native crash
+        synchronized(this) { FFmpegKit.listSessions() }
         val globalArguments = ArgumentList().apply {
             this += "-y"
             this += "-threads" to ffmpegOptions.threads.get().toString()
