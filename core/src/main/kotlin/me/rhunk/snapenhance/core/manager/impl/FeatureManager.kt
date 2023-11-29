@@ -58,7 +58,7 @@ class FeatureManager(
         return features.find { it::class == featureClass } as? T
     }
 
-    fun getRuleFeatures() = features.filterIsInstance<MessagingRuleFeature>()
+    fun getRuleFeatures() = features.filterIsInstance<MessagingRuleFeature>().sortedBy { it.ruleType.ordinal }
 
     override fun init() {
         register(

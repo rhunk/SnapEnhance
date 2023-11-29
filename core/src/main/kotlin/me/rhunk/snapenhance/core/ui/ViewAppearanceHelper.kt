@@ -1,6 +1,7 @@
 package me.rhunk.snapenhance.core.ui
 
 import android.annotation.SuppressLint
+import android.app.Activity
 import android.app.AlertDialog
 import android.content.Context
 import android.content.res.ColorStateList
@@ -68,6 +69,10 @@ fun View.triggerCloseTouchEvent() {
             )
         )
     }
+}
+
+fun Activity.triggerRootCloseTouchEvent() {
+    findViewById<View>(android.R.id.content).triggerCloseTouchEvent()
 }
 
 fun ViewGroup.children(): List<View> {

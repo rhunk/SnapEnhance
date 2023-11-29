@@ -28,6 +28,7 @@ import me.rhunk.snapenhance.core.features.impl.spying.MessageLogger
 import me.rhunk.snapenhance.core.ui.ViewAppearanceHelper
 import me.rhunk.snapenhance.core.ui.applyTheme
 import me.rhunk.snapenhance.core.ui.menu.AbstractMenu
+import me.rhunk.snapenhance.core.ui.triggerRootCloseTouchEvent
 import java.net.HttpURLConnection
 import java.net.URL
 import java.text.DateFormat
@@ -305,7 +306,10 @@ class FriendFeedInfoMenu : AbstractMenu() {
             viewConsumer(Button(view.context).apply {
                 text = modContext.translation["friend_menu_option.mark_as_seen"]
                 applyTheme(view.width, hasRadius = true)
-                setOnClickListener { markAsSeen(conversationId) }
+                setOnClickListener {
+                    this@FriendFeedInfoMenu.context.mainActivity?.triggerRootCloseTouchEvent()
+                    markAsSeen(conversationId)
+                }
             })
         }
     }
