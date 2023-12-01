@@ -28,7 +28,7 @@ class MessagingTweaks : ConfigContainer() {
         nativeHooks()
     }
     val instantDelete = boolean("instant_delete") { requireRestart() }
-    val betterNotifications = multiple("better_notifications", "chat_preview", "media_preview", "reply_button", "download_button", "mark_as_read_button", "group") { requireRestart() }
+    val betterNotifications = multiple("better_notifications", "chat_preview", "media_preview", "reply_button", "download_button", "mark_as_read_button", "mark_as_read_and_save_in_chat", "group") { requireRestart() }
     val notificationBlacklist = multiple("notification_blacklist", *NotificationType.getIncomingValues().map { it.key }.toTypedArray()) {
         customOptionTranslationPath = "features.options.notifications"
     }

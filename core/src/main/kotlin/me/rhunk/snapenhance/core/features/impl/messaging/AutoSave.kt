@@ -15,7 +15,7 @@ import me.rhunk.snapenhance.core.wrapper.impl.Message
 import me.rhunk.snapenhance.core.wrapper.impl.SnapUUID
 import java.util.concurrent.Executors
 
-class AutoSave : MessagingRuleFeature("Auto Save", MessagingRuleType.AUTO_SAVE, loadParams = FeatureLoadParams.ACTIVITY_CREATE_ASYNC) {
+class AutoSave : MessagingRuleFeature("Auto Save", MessagingRuleType.AUTO_SAVE, loadParams = FeatureLoadParams.INIT_SYNC) {
     private val asyncSaveExecutorService = Executors.newSingleThreadExecutor()
 
     private val messageLogger by lazy { context.feature(MessageLogger::class) }
@@ -25,7 +25,7 @@ class AutoSave : MessagingRuleFeature("Auto Save", MessagingRuleType.AUTO_SAVE, 
         context.config.messaging.autoSaveMessagesInConversations.get()
     }
 
-    private fun saveMessage(conversationId: SnapUUID, message: Message) {
+    fun saveMessage(conversationId: SnapUUID, message: Message) {
         val messageId = message.messageDescriptor!!.messageId!!
         if (messageLogger.takeIf { it.isEnabled }?.isMessageDeleted(conversationId.toString(), messageId) == true) return
         if (message.messageState != MessageState.COMMITTED) return
@@ -48,22 +48,22 @@ class AutoSave : MessagingRuleFeature("Auto Save", MessagingRuleType.AUTO_SAVE, 
         Thread.sleep(100L)
     }
 
-    private fun canSaveMessage(message: Message): Boolean {
-        if (context.mainActivity == null || context.isMainActivityPaused) return false
+    fun canSaveMessage(message: Message, headless: Boolean = false): Boolean {
+        if (!headless && (context.mainActivity == null || context.isMainActivityPaused)) return false
         if (message.messageMetadata!!.savedBy!!.any { uuid -> uuid.toString() == context.database.myUserId }) return false
         val contentType = message.messageContent!!.contentType.toString()
 
         return autoSaveFilter.any { it == contentType }
     }
 
-    private fun canSaveInConversation(targetConversationId: String): Boolean {
+    fun canSaveInConversation(targetConversationId: String, headless: Boolean = false): Boolean {
         val messaging = context.feature(Messaging::class)
-        val openedConversationId = messaging.openedConversationUUID?.toString() ?: return false
+        if (!headless) {
+            if (messaging.openedConversationUUID?.toString() != targetConversationId) return false
+        }
 
-        if (openedConversationId != targetConversationId) return false
-
-        if (context.feature(StealthMode::class).canUseRule(openedConversationId)) return false
-        if (!canUseRule(openedConversationId)) return false
+        if (context.feature(StealthMode::class).canUseRule(targetConversationId)) return false
+        if (!canUseRule(targetConversationId)) return false
 
         return true
     }
