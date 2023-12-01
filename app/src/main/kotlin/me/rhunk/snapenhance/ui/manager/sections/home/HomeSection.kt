@@ -142,7 +142,7 @@ class HomeSection : Section() {
                 title = if (installationSummary.modInfo == null || installationSummary.modInfo.mappingsOutdated == true) {
                     "Mappings ${if (installationSummary.modInfo == null) "not generated" else "outdated"}"
                 } else {
-                    "Mappings version ${installationSummary.modInfo.mappingVersion}"
+                    "Mappings are up-to-date"
                 }
             ) {
                 Button(onClick = {

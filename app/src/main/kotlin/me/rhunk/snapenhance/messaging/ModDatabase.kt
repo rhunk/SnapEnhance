@@ -143,7 +143,7 @@ class ModDatabase(
 
                     database.execSQL("INSERT OR REPLACE INTO streaks (userId, notify, expirationTimestamp, length) VALUES (?, ?, ?, ?)", arrayOf(
                         friend.userId,
-                        streaks?.notify ?: false,
+                        streaks?.notify ?: true,
                         friend.streakExpirationTimestamp,
                         friend.streakLength
                     ))
