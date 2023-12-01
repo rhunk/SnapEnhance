@@ -61,6 +61,14 @@ class Messaging : Feature("Messaging", loadParams = FeatureLoadParams.ACTIVITY_C
         })
     }
 
+    fun localUpdateMessage(conversationId: String, message: Message) {
+        conversationManagerDelegate?.let {
+            it::class.java.methods.first { method ->
+                method.name == "onConversationUpdated"
+            }.invoke(conversationManagerDelegate, conversationId.toSnapUUID().instanceNonNull(), null, mutableListOf(message.instanceNonNull()), mutableListOf<Any>())
+        }
+    }
+
     override fun onActivityCreate() {
         context.mappings.getMappedObjectNullable("FriendsFeedEventDispatcher").let { it as? Map<*, *> }?.let { mappings ->
             findClass(mappings["class"].toString()).hook("onItemLongPress", HookStage.BEFORE) { param ->
@@ -75,8 +83,10 @@ class Messaging : Feature("Messaging", loadParams = FeatureLoadParams.ACTIVITY_C
             }
         }
 
-        context.mappings.getMappedClass("callbacks", "ConversationManagerDelegate").hookConstructor(HookStage.AFTER) { param ->
-            conversationManagerDelegate = param.thisObject()
+        context.mappings.getMappedClass("callbacks", "ConversationManagerDelegate").apply {
+            hookConstructor(HookStage.AFTER) { param ->
+                conversationManagerDelegate = param.thisObject()
+            }
         }
 
         context.classCache.feedEntry.hookConstructor(HookStage.AFTER) { param ->

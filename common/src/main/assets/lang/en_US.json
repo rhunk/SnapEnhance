@@ -581,9 +581,9 @@
                             }
                         }
                     },
-                    "snap_to_chat_media": {
-                        "name": "Snap to Chat Media",
-                        "description": "Converts snaps to chat external media"
+                    "convert_message_locally": {
+                        "name": "Convert Message Locally",
+                        "description": "Converts snaps to chat external media locally. This appears in chat download context menu"
                     },
                     "app_passcode": {
                         "name": "App Passcode",
@@ -813,7 +813,8 @@
     "chat_action_menu": {
         "preview_button": "Preview",
         "download_button": "Download",
-        "delete_logged_message_button": "Delete Logged Message"
+        "delete_logged_message_button": "Delete Logged Message",
+        "convert_message": "Convert Message"
     },
 
     "opera_context_menu": {

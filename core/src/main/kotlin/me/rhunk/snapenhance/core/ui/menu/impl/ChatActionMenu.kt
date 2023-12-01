@@ -13,6 +13,7 @@ import me.rhunk.snapenhance.common.util.protobuf.ProtoReader
 import me.rhunk.snapenhance.core.features.impl.downloader.MediaDownloader
 import me.rhunk.snapenhance.core.features.impl.messaging.Messaging
 import me.rhunk.snapenhance.core.features.impl.spying.MessageLogger
+import me.rhunk.snapenhance.core.features.impl.experiments.ConvertMessageLocally
 import me.rhunk.snapenhance.core.ui.ViewAppearanceHelper
 import me.rhunk.snapenhance.core.ui.ViewTagState
 import me.rhunk.snapenhance.core.ui.applyTheme
@@ -143,6 +144,33 @@ class ChatActionMenu : AbstractMenu() {
                     this@ChatActionMenu.context.executeAsync {
                         messageLogger.deleteMessage(messaging.openedConversationUUID.toString(), messaging.lastFocusedMessageId)
                     }
+                }
+            })
+        }
+
+        if (context.config.experimental.convertMessageLocally.get()) {
+            injectButton(Button(viewGroup.context).apply {
+                text = this@ChatActionMenu.context.translation["chat_action_menu.convert_message"]
+                setOnClickListener {
+                    closeActionMenu()
+                    messaging.conversationManager?.fetchMessage(
+                        messaging.openedConversationUUID.toString(),
+                        messaging.lastFocusedMessageId,
+                        onSuccess = {
+                            this@ChatActionMenu.context.runOnUiThread {
+                                runCatching {
+                                    this@ChatActionMenu.context.feature(ConvertMessageLocally::class)
+                                        .convertMessageInterface(it)
+                                }.onFailure {
+                                    this@ChatActionMenu.context.log.verbose("Failed to convert message: $it")
+                                    this@ChatActionMenu.context.shortToast("Failed to edit message: $it")
+                                }
+                            }
+                        },
+                        onError = {
+                            this@ChatActionMenu.context.shortToast("Failed to fetch message: $it")
+                        }
+                    )
                 }
             })
         }

@@ -10,7 +10,7 @@ class Experimental : ConfigContainer() {
 
     val nativeHooks = container("native_hooks", NativeHooks()) { icon = "Memory"; requireRestart() }
     val spoof = container("spoof", Spoof()) { icon = "Fingerprint" }
-    val snapToChatMedia = boolean("snap_to_chat_media") { requireRestart(); addNotices(FeatureNotice.UNSTABLE) }
+    val convertMessageLocally = boolean("convert_message_locally") { requireRestart() }
     val appPasscode = string("app_passcode")
     val appLockOnResume = boolean("app_lock_on_resume")
     val infiniteStoryBoost = boolean("infinite_story_boost")
