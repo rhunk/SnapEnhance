@@ -372,11 +372,16 @@ class MediaDownloader : MessagingRuleFeature("MediaDownloader", MessagingRuleTyp
         //public stories
         if ((snapSource == "PUBLIC_USER" || snapSource == "SAVED_STORY") &&
             (forceDownload || canAutoDownload("public_stories"))) {
-            val userDisplayName = (if (paramMap.containsKey("USER_DISPLAY_NAME")) paramMap["USER_DISPLAY_NAME"].toString() else "").sanitizeForPath()
+            val username = (
+                paramMap["USERNAME"]?.toString()?.substringAfter("value=")
+                    ?.substringBefore(")")?.substringBefore(",")
+                ?: paramMap["USER_DISPLAY_NAME"]?.toString()
+                ?: "unknown"
+            ).sanitizeForPath()
 
             downloadOperaMedia(provideDownloadManagerClient(
                 mediaIdentifier = paramMap["SNAP_ID"].toString(),
-                mediaAuthor = userDisplayName,
+                mediaAuthor = username,
                 downloadSource = MediaDownloadSource.PUBLIC_STORY,
                 creationTimestamp = paramMap["SNAP_TIMESTAMP"]?.toString()?.toLongOrNull(),
             ), mediaInfoMap)
