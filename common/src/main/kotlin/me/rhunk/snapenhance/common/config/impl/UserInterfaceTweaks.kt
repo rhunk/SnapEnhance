@@ -29,6 +29,7 @@ class UserInterfaceTweaks : ConfigContainer() {
     val snapPreview = boolean("snap_preview") { addNotices(FeatureNotice.UNSTABLE); requireRestart() }
     val bootstrapOverride = container("bootstrap_override", BootstrapOverride()) { requireRestart() }
     val mapFriendNameTags = boolean("map_friend_nametags") { requireRestart() }
+    val preventMessageListAutoScroll = boolean("prevent_message_list_auto_scroll") { requireRestart(); addNotices(FeatureNotice.UNSTABLE) }
     val streakExpirationInfo = boolean("streak_expiration_info") { requireRestart() }
     val hideFriendFeedEntry = boolean("hide_friend_feed_entry") { requireRestart() }
     val hideStreakRestore = boolean("hide_streak_restore") { requireRestart() }

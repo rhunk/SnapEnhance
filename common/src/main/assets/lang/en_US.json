@@ -259,6 +259,10 @@
                         "name": "Enhanced Friend Map Nametags",
                         "description": "Improves the Nametags of friends on the Snapmap"
                     },
+                    "prevent_message_list_auto_scroll": {
+                        "name": "Prevent Message List Auto Scroll",
+                        "description": "Prevents the message list from scrolling to the bottom when sending/receiving a message"
+                    },
                     "streak_expiration_info": {
                         "name": "Show Streak Expiration Info",
                         "description": "Shows a Streak Expiration timer next to the Streaks counter"

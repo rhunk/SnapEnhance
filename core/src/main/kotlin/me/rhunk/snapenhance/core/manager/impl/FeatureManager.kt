@@ -20,6 +20,7 @@ import me.rhunk.snapenhance.core.features.impl.spying.MessageLogger
 import me.rhunk.snapenhance.core.features.impl.spying.StealthMode
 import me.rhunk.snapenhance.core.features.impl.tweaks.BypassScreenshotDetection
 import me.rhunk.snapenhance.core.features.impl.tweaks.CameraTweaks
+import me.rhunk.snapenhance.core.features.impl.tweaks.PreventMessageListAutoScroll
 import me.rhunk.snapenhance.core.features.impl.ui.*
 import me.rhunk.snapenhance.core.logger.CoreLogger
 import me.rhunk.snapenhance.core.manager.Manager
@@ -111,6 +112,7 @@ class FeatureManager(
             Stories::class,
             DisableComposerModules::class,
             FideliusIndicator::class,
+            PreventMessageListAutoScroll::class,
         )
 
         initializeFeatures()
