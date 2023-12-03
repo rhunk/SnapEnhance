@@ -65,6 +65,7 @@ class FeatureManager(
         register(
             EndToEndEncryption::class,
             ScopeSync::class,
+            PreventMessageListAutoScroll::class,
             Messaging::class,
             MediaDownloader::class,
             StealthMode::class,
@@ -112,7 +113,6 @@ class FeatureManager(
             Stories::class,
             DisableComposerModules::class,
             FideliusIndicator::class,
-            PreventMessageListAutoScroll::class,
         )
 
         initializeFeatures()

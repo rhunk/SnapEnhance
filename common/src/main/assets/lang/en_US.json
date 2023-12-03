@@ -303,6 +303,10 @@
                         "name": "Hide Settings Gear",
                         "description": "Hides the SnapEnhance Settings Gear in friend feed"
                     },
+                    "friend_feed_menu_buttons": {
+                        "name": "Friend Feed Menu Buttons",
+                        "description": "Select which buttons to show in the Friend Feed Menu"
+                    },
                     "vertical_story_viewer": {
                         "name": "Vertical Story Viewer",
                         "description": "Enables the vertical story viewer for all stories"

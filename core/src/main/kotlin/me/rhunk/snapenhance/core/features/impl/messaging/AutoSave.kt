@@ -15,7 +15,7 @@ import me.rhunk.snapenhance.core.wrapper.impl.Message
 import me.rhunk.snapenhance.core.wrapper.impl.SnapUUID
 import java.util.concurrent.Executors
 
-class AutoSave : MessagingRuleFeature("Auto Save", MessagingRuleType.AUTO_SAVE, loadParams = FeatureLoadParams.INIT_SYNC) {
+class AutoSave : MessagingRuleFeature("Auto Save", MessagingRuleType.AUTO_SAVE, loadParams = FeatureLoadParams.ACTIVITY_CREATE_ASYNC) {
     private val asyncSaveExecutorService = Executors.newSingleThreadExecutor()
 
     private val messageLogger by lazy { context.feature(MessageLogger::class) }
