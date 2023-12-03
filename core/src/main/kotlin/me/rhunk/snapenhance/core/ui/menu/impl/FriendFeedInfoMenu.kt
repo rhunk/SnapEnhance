@@ -278,9 +278,10 @@ class FriendFeedInfoMenu : AbstractMenu() {
 
         val (conversationId, targetUser) = getCurrentConversationInfo()
 
+        val translation = context.translation.getCategory("friend_menu_option")
         if (friendFeedMenuOptions.contains("conversation_info")) {
             viewConsumer(Button(view.context).apply {
-                text = modContext.translation["friend_menu_option.preview"]
+                text = translation["preview"]
                 applyTheme(view.width, hasRadius = true)
                 setOnClickListener {
                     showPreview(
@@ -302,13 +303,26 @@ class FriendFeedInfoMenu : AbstractMenu() {
             )
         }
 
-        if (friendFeedMenuOptions.contains("mark_as_seen")) {
+        if (friendFeedMenuOptions.contains("mark_snaps_as_seen")) {
             viewConsumer(Button(view.context).apply {
-                text = modContext.translation["friend_menu_option.mark_as_seen"]
+                text = translation["mark_snaps_as_seen"]
                 applyTheme(view.width, hasRadius = true)
                 setOnClickListener {
                     this@FriendFeedInfoMenu.context.mainActivity?.triggerRootCloseTouchEvent()
                     markAsSeen(conversationId)
+                }
+            })
+        }
+
+        if (targetUser != null && friendFeedMenuOptions.contains("mark_stories_as_seen")) {
+            viewConsumer(Button(view.context).apply {
+                text = translation["mark_stories_as_seen"]
+                applyTheme(view.width, hasRadius = true)
+                setOnClickListener {
+                    this@FriendFeedInfoMenu.context.apply {
+                        mainActivity?.triggerRootCloseTouchEvent()
+                        database.markFriendStoriesAsSeen(targetUser)
+                    }
                 }
             })
         }

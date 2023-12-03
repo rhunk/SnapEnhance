@@ -351,4 +351,13 @@ class DatabaseAccess(
             }
         }
     }
+
+    fun markFriendStoriesAsSeen(userId: String) {
+        openLocalDatabase("main", writeMode = true)?.apply {
+            performOperation {
+                execSQL("UPDATE StorySnap SET viewed = 1 WHERE userId = ?", arrayOf(userId))
+            }
+            close()
+        }
+    }
 }

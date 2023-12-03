@@ -19,7 +19,7 @@ class UserInterfaceTweaks : ConfigContainer() {
     }
 
     val friendFeedMenuButtons = multiple(
-        "friend_feed_menu_buttons","conversation_info", "mark_as_seen", *MessagingRuleType.entries.filter { it.showInFriendMenu }.map { it.key }.toTypedArray()
+        "friend_feed_menu_buttons","conversation_info", "mark_snaps_as_seen", "mark_stories_as_seen", *MessagingRuleType.entries.filter { it.showInFriendMenu }.map { it.key }.toTypedArray()
     ).apply {
         set(mutableListOf("conversation_info", MessagingRuleType.STEALTH.key))
     }
