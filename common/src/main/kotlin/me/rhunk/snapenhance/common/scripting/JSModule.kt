@@ -81,7 +81,7 @@ class JSModule(
                         putFunction(method.name) { args ->
                             clazz.declaredMethods.find {
                                 it.name == method.name && it.parameterTypes.zip(args ?: emptyArray()).all { (type, arg) ->
-                                    type.isAssignableFrom(arg.javaClass)
+                                    type.isAssignableFrom(arg?.javaClass ?: return@all false)
                                 }
                             }?.invoke(null, *args ?: emptyArray())
                         }

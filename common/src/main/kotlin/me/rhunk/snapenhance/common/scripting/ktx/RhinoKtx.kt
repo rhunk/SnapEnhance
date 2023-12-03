@@ -23,7 +23,7 @@ fun Scriptable.function(name: String): Function? {
     return this.get(name, this) as? Function
 }
 
-fun ScriptableObject.putFunction(name: String, proxy: Scriptable.(Array<out Any>?) -> Any?) {
+fun ScriptableObject.putFunction(name: String, proxy: Scriptable.(Array<out Any?>?) -> Any?) {
     this.putConst(name, this, object: org.mozilla.javascript.BaseFunction() {
         override fun call(
             cx: Context?,

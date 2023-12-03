@@ -6,5 +6,6 @@ enum class NodeType {
     SWITCH,
     BUTTON,
     SLIDER,
-    LIST
+    LIST,
+    ACTION
 }

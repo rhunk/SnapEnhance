@@ -62,7 +62,7 @@ class ModContext(
     val event = EventBus(this)
     val eventDispatcher = EventDispatcher(this)
     val native = NativeLib()
-    val scriptRuntime by lazy { CoreScriptRuntime(androidContext, log) }
+    val scriptRuntime by lazy { CoreScriptRuntime(this, log) }
     val messagingBridge = CoreMessagingBridge(this)
 
     val isDeveloper by lazy { config.scripting.developerMode.get() }

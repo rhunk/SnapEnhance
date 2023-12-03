@@ -663,8 +663,8 @@
                         "name": "Module Folder",
                         "description": "The folder where the scripts are located"
                     },
-                    "hot_reload": {
-                        "name": "Hot Reload",
+                    "auto_reload": {
+                        "name": "Auto Reload",
                         "description": "Automatically reloads scripts when they change"
                     },
                     "disable_log_anonymization": {
@@ -790,6 +790,10 @@
                 "hide_friend": "Hide Friend",
                 "hide_conversation": "Hide Conversation",
                 "clear_conversation": "Clear Conversation from Friend Feed"
+            },
+            "auto_reload": {
+                "snapchat_only": "Snapchat Only",
+                "all": "All (Snapchat + SnapEnhance)"
             }
         }
     },

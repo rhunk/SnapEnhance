@@ -3,6 +3,7 @@ package me.rhunk.snapenhance.scripting
 import android.net.Uri
 import androidx.documentfile.provider.DocumentFile
 import me.rhunk.snapenhance.RemoteSideContext
+import me.rhunk.snapenhance.bridge.scripting.AutoReloadListener
 import me.rhunk.snapenhance.bridge.scripting.IPCListener
 import me.rhunk.snapenhance.bridge.scripting.IScripting
 import me.rhunk.snapenhance.common.scripting.ScriptRuntime
@@ -15,11 +16,29 @@ import me.rhunk.snapenhance.scripting.impl.RemoteScriptConfig
 import me.rhunk.snapenhance.scripting.impl.ui.InterfaceManager
 import java.io.File
 import java.io.InputStream
+import kotlin.system.exitProcess
 
 class RemoteScriptManager(
     val context: RemoteSideContext,
 ) : IScripting.Stub() {
     val runtime = ScriptRuntime(context.androidContext, context.log)
+
+    private var autoReloadListener: AutoReloadListener? = null
+    private val autoReloadHandler by lazy {
+        AutoReloadHandler(context.coroutineScope) {
+            runCatching {
+                autoReloadListener?.restartApp()
+                if (context.config.root.scripting.autoReload.getNullable() == "all") {
+                    exitProcess(1)
+                }
+            }.onFailure {
+                context.log.warn("Failed to restart app")
+                autoReloadListener = null
+            }
+        }.apply {
+            start()
+        }
+    }
 
     private val cachedModuleInfo = mutableMapOf<String, ModuleInfo>()
     private val ipcListeners = IPCListeners()
@@ -57,6 +76,9 @@ class RemoteScriptManager(
 
     fun loadScript(name: String) {
         val content = getScriptContent(name) ?: return
+        if (context.config.root.scripting.autoReload.getNullable() != null) {
+            autoReloadHandler.addFile(getScriptsFolder()?.findFile(name) ?: return)
+        }
         runtime.load(name, content)
     }
 
@@ -73,7 +95,7 @@ class RemoteScriptManager(
         }
     }
 
-    private fun getScriptsFolder() = runCatching {
+    fun getScriptsFolder() = runCatching {
         DocumentFile.fromTreeUri(context.androidContext, Uri.parse(context.config.root.scripting.moduleFolder.get()))
     }.onFailure {
         context.log.warn("Failed to get scripts folder")
@@ -140,5 +162,9 @@ class RemoteScriptManager(
         }.onFailure {
             context.log.error("Failed to perform config transaction", it)
         }.getOrDefault("")
+    }
+
+    override fun registerAutoReloadListener(listener: AutoReloadListener?) {
+        autoReloadListener = listener
     }
 }

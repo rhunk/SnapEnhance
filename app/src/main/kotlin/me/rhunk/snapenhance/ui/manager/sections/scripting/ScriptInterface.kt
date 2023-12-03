@@ -16,6 +16,8 @@ import me.rhunk.snapenhance.common.logger.AbstractLogger
 import me.rhunk.snapenhance.scripting.impl.ui.InterfaceBuilder
 import me.rhunk.snapenhance.scripting.impl.ui.components.Node
 import me.rhunk.snapenhance.scripting.impl.ui.components.NodeType
+import me.rhunk.snapenhance.scripting.impl.ui.components.impl.ActionNode
+import me.rhunk.snapenhance.scripting.impl.ui.components.impl.ActionType
 import kotlin.math.abs
 
 
@@ -68,6 +70,26 @@ private fun DrawNode(node: Node) {
     }
 
     when (node.type) {
+        NodeType.ACTION -> {
+            when ((node as ActionNode).actionType) {
+                ActionType.LAUNCHED -> {
+                    LaunchedEffect(node.key) {
+                        runCallbackSafe {
+                            node.callback()
+                        }
+                    }
+                }
+                ActionType.DISPOSE -> {
+                    DisposableEffect(Unit) {
+                        onDispose {
+                            runCallbackSafe {
+                                node.callback()
+                            }
+                        }
+                    }
+                }
+            }
+        }
         NodeType.COLUMN -> {
             Column(
                 verticalArrangement = arrangement as? Arrangement.Vertical ?: spacing?.let { Arrangement.spacedBy(it.dp) } ?: Arrangement.Top,

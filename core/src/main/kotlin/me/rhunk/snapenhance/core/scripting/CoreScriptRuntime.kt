@@ -1,17 +1,18 @@
 package me.rhunk.snapenhance.core.scripting
 
-import android.content.Context
+import me.rhunk.snapenhance.bridge.scripting.AutoReloadListener
 import me.rhunk.snapenhance.bridge.scripting.IScripting
 import me.rhunk.snapenhance.common.logger.AbstractLogger
 import me.rhunk.snapenhance.common.scripting.ScriptRuntime
+import me.rhunk.snapenhance.core.ModContext
 import me.rhunk.snapenhance.core.scripting.impl.CoreIPC
 import me.rhunk.snapenhance.core.scripting.impl.CoreScriptConfig
 import me.rhunk.snapenhance.core.scripting.impl.ScriptHooker
 
 class CoreScriptRuntime(
-    androidContext: Context,
+    private val modContext: ModContext,
     logger: AbstractLogger,
-): ScriptRuntime(androidContext, logger) {
+): ScriptRuntime(modContext.androidContext, logger) {
     private val scriptHookers = mutableListOf<ScriptHooker>()
 
     fun connect(scriptingInterface: IScripting) {
@@ -31,6 +32,12 @@ class CoreScriptRuntime(
                     logger.error("Failed to load script $path", it)
                 }
             }
+
+            registerAutoReloadListener(object : AutoReloadListener.Stub() {
+                override fun restartApp() {
+                    modContext.softRestartApp()
+                }
+            })
         }
     }
 }

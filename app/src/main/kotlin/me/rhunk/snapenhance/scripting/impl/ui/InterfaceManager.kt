@@ -4,6 +4,8 @@ import me.rhunk.snapenhance.common.logger.AbstractLogger
 import me.rhunk.snapenhance.common.scripting.type.ModuleInfo
 import me.rhunk.snapenhance.scripting.impl.ui.components.Node
 import me.rhunk.snapenhance.scripting.impl.ui.components.NodeType
+import me.rhunk.snapenhance.scripting.impl.ui.components.impl.ActionNode
+import me.rhunk.snapenhance.scripting.impl.ui.components.impl.ActionType
 import me.rhunk.snapenhance.scripting.impl.ui.components.impl.RowColumnNode
 import org.mozilla.javascript.Context
 import org.mozilla.javascript.Function
@@ -14,13 +16,20 @@ class InterfaceBuilder {
     val nodes = mutableListOf<Node>()
     var onDisposeCallback: (() -> Unit)? = null
 
-
     private fun createNode(type: NodeType, block: Node.() -> Unit): Node {
         return Node(type).apply(block).also { nodes.add(it) }
     }
 
     fun onDispose(block: () -> Unit) {
-        onDisposeCallback = block
+        nodes.add(ActionNode(ActionType.DISPOSE, callback = block))
+    }
+
+    fun onLaunched(block: () -> Unit) {
+        onLaunched(Unit, block)
+    }
+
+    fun onLaunched(key: Any, block: () -> Unit) {
+        nodes.add(ActionNode(ActionType.LAUNCHED, key, block))
     }
 
     fun row(block: (InterfaceBuilder) -> Unit) = RowColumnNode(NodeType.ROW).apply {
