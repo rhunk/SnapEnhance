@@ -363,7 +363,17 @@
                     },
                     "half_swipe_notifier": {
                         "name": "Half Swipe Notifier",
-                        "description": "Notifies you when someone half swipes into a conversation"
+                        "description": "Notifies you when someone half swipes into a conversation",
+                        "properties": {
+                            "min_duration": {
+                                "name": "Minimum Duration",
+                                "description": "The minimum duration of the half swipe (in seconds)"
+                            },
+                            "max_duration": {
+                                "name": "Maximum Duration",
+                                "description": "The maximum duration of the half swipe (in seconds)"
+                            }
+                        }
                     },
                     "message_preview_length": {
                         "name": "Message Preview Length",

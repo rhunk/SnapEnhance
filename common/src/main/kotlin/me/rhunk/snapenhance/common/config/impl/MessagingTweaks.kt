@@ -2,9 +2,19 @@ package me.rhunk.snapenhance.common.config.impl
 
 import me.rhunk.snapenhance.common.config.ConfigContainer
 import me.rhunk.snapenhance.common.config.FeatureNotice
+import me.rhunk.snapenhance.common.config.PropertyValue
 import me.rhunk.snapenhance.common.data.NotificationType
 
 class MessagingTweaks : ConfigContainer() {
+    inner class HalfSwipeNotifierConfig : ConfigContainer(hasGlobalState = true) {
+        val minDuration: PropertyValue<Int> = integer("min_duration", defaultValue = 0) {
+            inputCheck = { it.toIntOrNull()?.coerceAtLeast(0) != null && maxDuration.get() >= it.toInt() }
+        }
+        val maxDuration: PropertyValue<Int> = integer("max_duration", defaultValue = 20) {
+            inputCheck = { it.toIntOrNull()?.coerceAtLeast(0) != null && minDuration.get() <= it.toInt() }
+        }
+    }
+
     val bypassScreenshotDetection = boolean("bypass_screenshot_detection") { requireRestart() }
     val anonymousStoryViewing = boolean("anonymous_story_viewing")
     val preventStoryRewatchIndicator = boolean("prevent_story_rewatch_indicator") { requireRestart() }
@@ -13,7 +23,7 @@ class MessagingTweaks : ConfigContainer() {
     val hideTypingNotifications = boolean("hide_typing_notifications")
     val unlimitedSnapViewTime = boolean("unlimited_snap_view_time")
     val disableReplayInFF = boolean("disable_replay_in_ff")
-    val halfSwipeNotifier = boolean("half_swipe_notifier") { requireRestart() }
+    val halfSwipeNotifier = container("half_swipe_notifier", HalfSwipeNotifierConfig()) { requireRestart()}
     val messagePreviewLength = integer("message_preview_length", defaultValue = 20)
     val callStartConfirmation = boolean("call_start_confirmation") { requireRestart() }
     val autoSaveMessagesInConversations = multiple("auto_save_messages_in_conversations",

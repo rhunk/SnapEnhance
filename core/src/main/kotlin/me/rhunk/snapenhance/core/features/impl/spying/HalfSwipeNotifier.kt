@@ -36,7 +36,7 @@ class HalfSwipeNotifier : Feature("Half Swipe Notifier", loadParams = FeatureLoa
 
 
     override fun init() {
-        if (!context.config.messaging.halfSwipeNotifier.get()) return
+        if (context.config.messaging.halfSwipeNotifier.globalState != true) return
         lateinit var presenceService: Any
 
         findClass("com.snapchat.talkcorev3.PresenceService\$CppProxy").hookConstructor(HookStage.AFTER) {
@@ -84,7 +84,12 @@ class HalfSwipeNotifier : Feature("Half Swipe Notifier", loadParams = FeatureLoa
 
     private fun endPeeking(conversationId: String, userId: String) {
         startPeekingTimestamps[conversationId + userId]?.let { startPeekingTimestamp ->
-            val peekingDuration = (System.currentTimeMillis() - startPeekingTimestamp).milliseconds.inWholeSeconds.toString()
+            val peekingDuration = (System.currentTimeMillis() - startPeekingTimestamp).milliseconds.inWholeSeconds
+            val minDuration = context.config.messaging.halfSwipeNotifier.minDuration.get().toLong()
+            val maxDuration = context.config.messaging.halfSwipeNotifier.maxDuration.get().toLong()
+
+            if (minDuration > peekingDuration || maxDuration < peekingDuration) return
+
             val groupName = context.database.getFeedEntryByConversationId(conversationId)?.feedDisplayName
             val friendInfo = context.database.getFriendInfo(userId) ?: return
 
@@ -94,12 +99,12 @@ class HalfSwipeNotifier : Feature("Half Swipe Notifier", loadParams = FeatureLoa
                     translation.format("notification_content_group",
                         "friend" to (friendInfo.displayName ?: friendInfo.mutableUsername).toString(),
                         "group" to groupName,
-                        "duration" to peekingDuration
+                        "duration" to peekingDuration.toString()
                     )
                 } else {
                     translation.format("notification_content_dm",
                         "friend" to (friendInfo.displayName ?: friendInfo.mutableUsername).toString(),
-                        "duration" to peekingDuration
+                        "duration" to peekingDuration.toString()
                     )
                 })
                 .setContentIntent(
