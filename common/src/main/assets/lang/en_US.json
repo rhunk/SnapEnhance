@@ -322,6 +322,10 @@
                     "fidelius_indicator": {
                         "name": "Fidelius Indicator",
                         "description": "Adds a green circle next to messages that have been sent only to you"
+                    },
+                    "edit_text_override": {
+                        "name": "Edit Text Override",
+                        "description": "Overrides text field behavior"
                     }
                 }
             },
@@ -795,6 +799,10 @@
             "auto_reload": {
                 "snapchat_only": "Snapchat Only",
                 "all": "All (Snapchat + SnapEnhance)"
+            },
+            "edit_text_override": {
+                "multi_line_chat_input": "Multi Line Chat Input",
+                "bypass_text_input_limit": "Bypass Text Input Limit"
             }
         }
     },

@@ -113,6 +113,7 @@ class FeatureManager(
             Stories::class,
             DisableComposerModules::class,
             FideliusIndicator::class,
+            EditTextOverride::class,
         )
 
         initializeFeatures()
