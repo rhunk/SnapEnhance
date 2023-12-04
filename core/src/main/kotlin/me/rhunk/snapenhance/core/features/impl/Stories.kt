@@ -9,8 +9,8 @@ import me.rhunk.snapenhance.core.features.FeatureLoadParams
 import java.nio.ByteBuffer
 import kotlin.coroutines.suspendCoroutine
 
-class Stories : Feature("Stories", loadParams = FeatureLoadParams.ACTIVITY_CREATE_SYNC) {
-    override fun onActivityCreate() {
+class Stories : Feature("Stories", loadParams = FeatureLoadParams.INIT_SYNC) {
+    override fun init() {
         val disablePublicStories by context.config.global.disablePublicStories
 
         context.event.subscribe(NetworkApiRequestEvent::class) { event ->

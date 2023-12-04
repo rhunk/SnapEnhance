@@ -41,7 +41,8 @@ class UserInterfaceTweaks : ConfigContainer() {
         "hide_stickers_button",
         "hide_live_location_share_button",
         "hide_chat_call_buttons",
-        "hide_profile_call_buttons"
+        "hide_profile_call_buttons",
+        "hide_unread_chat_hint",
     ) { requireRestart() }
     val operaMediaQuickInfo = boolean("opera_media_quick_info") { requireRestart() }
     val oldBitmojiSelfie = unique("old_bitmoji_selfie", "2d", "3d") { requireCleanCache() }

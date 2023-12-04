@@ -752,7 +752,8 @@
                 "hide_chat_call_buttons": "Remove Chat Call Buttons",
                 "hide_live_location_share_button": "Remove Live Location Share Button",
                 "hide_stickers_button": "Remove Stickers Button",
-                "hide_voice_record_button": "Remove Voice Record Button"
+                "hide_voice_record_button": "Remove Voice Record Button",
+                "hide_unread_chat_hint": "Remove Unread Chat Hint"
             },
             "hide_story_sections": {
                 "hide_friend_suggestions": "Hide friend suggestions",

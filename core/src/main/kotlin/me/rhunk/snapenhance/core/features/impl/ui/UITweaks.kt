@@ -50,6 +50,7 @@ class UITweaks : Feature("UITweaks", loadParams = FeatureLoadParams.ACTIVITY_CRE
         val callButton2 = getId("friend_action_button4", "id")
 
         val chatNoteRecordButton = getId("chat_note_record_button", "id")
+        val unreadHintButton = getId("unread_hint_button", "id")
 
         View::class.java.hook("setVisibility", HookStage.BEFORE) { methodParam ->
             val viewId = (methodParam.thisObject() as View).id
@@ -144,6 +145,9 @@ class UITweaks : Feature("UITweaks", loadParams = FeatureLoadParams.ACTIVITY_CRE
                         view.post { view.visibility = View.GONE }
                     }
                 }
+            }
+            if (viewId == unreadHintButton && hiddenElements.contains("hide_unread_chat_hint")) {
+                event.canceled = true
             }
         }
     }
