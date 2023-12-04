@@ -2,6 +2,7 @@ package me.rhunk.snapenhance.common.config
 
 import android.content.Context
 import com.google.gson.JsonObject
+import me.rhunk.snapenhance.common.logger.AbstractLogger
 import kotlin.reflect.KProperty
 
 typealias ConfigParamsBuilder = ConfigParams.() -> Unit
@@ -78,9 +79,12 @@ open class ConfigContainer(
 
     fun fromJson(json: JsonObject) {
         properties.forEach { (key, _) ->
-            val jsonElement = json.get(key.name) ?: return@forEach
-            //TODO: check incoming values
-            properties[key]?.setAny(key.dataType.deserializeAny(jsonElement))
+            runCatching {
+                val jsonElement = json.get(key.name) ?: return@forEach
+                properties[key]?.setAny(key.dataType.deserializeAny(jsonElement))
+            }.onFailure {
+                AbstractLogger.directError("Failed to deserialize property ${key.name}", it)
+            }
         }
     }
 
