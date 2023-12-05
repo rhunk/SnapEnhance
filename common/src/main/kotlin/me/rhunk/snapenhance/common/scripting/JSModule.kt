@@ -135,7 +135,11 @@ class JSModule(
                     obj.get(key, obj) as? ScriptableObject ?: return@contextScope
                 }.get(split.last(), moduleObject) as? Function ?: return@contextScope
 
-                function.call(this, moduleObject, moduleObject, args)
+                runCatching {
+                    function.call(this, moduleObject, moduleObject, args)
+                }.onFailure {
+                    scriptRuntime.logger.error("Error while calling function $name", it)
+                }
             }
         }
     }

@@ -142,6 +142,7 @@ class SnapEnhance {
             bridgeClient.registerMessagingBridge(messagingBridge)
             features.init()
             scriptRuntime.connect(bridgeClient.getScriptingInterface())
+            scriptRuntime.eachModule { callFunction("module.onBeforeApplicationLoad", androidContext) }
             syncRemote()
         }
     }
