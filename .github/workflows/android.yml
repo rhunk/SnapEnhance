@@ -1,19 +1,19 @@
 name: Android CI
 on:
   push:
-    branches: [ "main" ]
+    branches: [ "dev" ]
     paths-ignore:
       - '**/README.md'
       - '.github/**'
   pull_request:
-    branches: [ "main" ]
+    branches: [ "dev" ]
   workflow_dispatch:
 jobs:
   build:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout repo
-        uses: actions/checkout@v4  
+        uses: actions/checkout@v4
         with:
           submodules: 'recursive'
     
@@ -28,7 +28,7 @@ jobs:
       - name: Set up node
         uses: actions/setup-node@v4
         with:
-          node-version: '18'
+          node-version: '20'
           
       - name: Install Dependencies
         run: |
@@ -51,7 +51,7 @@ jobs:
       - name: Set Environment Variables
         id: version-env
         run: | 
-          echo "version=$(cat app/build/version.txt)" >> $GITHUB_ENV  
+          echo "version=$(cat app/build/version.txt)" >> $GITHUB_ENV
           echo "sha_short=$(git rev-parse --short HEAD)" >> $GITHUB_OUTPUT
           
       - name: Git branch name

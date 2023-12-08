@@ -4,7 +4,7 @@ apksig = "8.2.0"
 libsu = "5.2.1"
 guava = "32.1.3-jre"
 jsoup = "1.17.1"
-kotlin = "1.9.0"
+kotlin = "1.9.21"
 kotlinx-coroutines-android = "1.7.3"
 
 activity-ktx = "1.8.1"
@@ -15,9 +15,9 @@ osmdroid-android = "6.1.17"
 recyclerview = "1.3.2"
 
 compose-bom = "2023.10.01"
-bcprov-jdk18on = "1.77"
+bcprov-jdk18on = "1.76" # Updating this to version "1.77" causes build problems.
 dexlib2 = "2.5.2"
-ffmpeg-kit = "5.1.LTS" # DO NOT UPDATE FFMPEG-KIT TO "5.1" it breaks stuff :3
+ffmpeg-kit = "6.0-2.LTS" # Didn't caused any build problems, needs testing.
 gson = "2.10.1"
 junit = "4.13.2"
 material3 = "1.1.2"
@@ -61,4 +61,3 @@ kotlinAndroid = { id = "org.jetbrains.kotlin.android", version.ref = "kotlin" }
 
 
 [bundles]
-
