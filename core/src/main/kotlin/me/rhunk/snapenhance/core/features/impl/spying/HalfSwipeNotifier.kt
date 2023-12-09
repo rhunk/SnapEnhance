@@ -117,6 +117,8 @@ class HalfSwipeNotifier : Feature("Half Swipe Notifier", loadParams = FeatureLoa
                         )
                     }
                 )
+                .setWhen(System.currentTimeMillis())
+                .setShowWhen(true)
                 .setAutoCancel(true)
                 .setSmallIcon(svgEyeDrawable)
                 .build()
