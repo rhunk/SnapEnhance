@@ -12,12 +12,12 @@ jobs:
     runs-on: macos-latest
     steps:
       - name: Checkout repo
-        uses: actions/checkout@v3  
+        uses: actions/checkout@v4
         with:
           submodules: 'recursive'
 
       - name: set up JDK 17
-        uses: actions/setup-java@v3
+        uses: actions/setup-java@v4
         with:
           java-version: '17'
           distribution: 'temurin'
@@ -37,8 +37,8 @@ jobs:
 
       - name: Set Environment Variables
         id: version-env
-        run: | 
-          echo "version=$(cat app/build/version.txt)" >> $GITHUB_ENV  
+        run: |
+          echo "version=$(cat app/build/version.txt)" >> $GITHUB_ENV
           echo "sha_short=$(git rev-parse --short HEAD)" >> $GITHUB_OUTPUT
       - name: Git branch name
         id: git-branch-name
@@ -48,42 +48,42 @@ jobs:
         run: |
           mv app/build/outputs/apk/armv8/debug/*.apk app/build/outputs/apk/armv8/debug/snapenhance-${{ env.version }}-armv8-${{ steps.version-env.outputs.sha_short }}.apk
           mv app/build/outputs/apk/armv7/debug/*.apk app/build/outputs/apk/armv7/debug/snapenhance-${{ env.version }}-armv7-${{ steps.version-env.outputs.sha_short }}.apk
-          mv app/build/outputs/apk/all/debug/*.apk app/build/outputs/apk/all/debug/snapenhance-${{ env.version }}-universal-${{ steps.version-env.outputs.sha_short }}.apk      
+          mv app/build/outputs/apk/all/debug/*.apk app/build/outputs/apk/all/debug/snapenhance-${{ env.version }}-universal-${{ steps.version-env.outputs.sha_short }}.apk
 
       - name: Upload manager
-        uses: actions/upload-artifact@v3.1.2
+        uses: actions/upload-artifact@v3
         with:
           name: manager
           path: manager/build/outputs/apk/debug/*.apk
 
       - name: Upload core
-        uses: actions/upload-artifact@v3.1.2
+        uses: actions/upload-artifact@v3
         with:
           name: core
           path: app/build/outputs/apk/core/debug/*.apk
 
       - name: Upload armv8
-        uses: actions/upload-artifact@v3.1.2
+        uses: actions/upload-artifact@v3
         with:
           name: snapenhance-armv8-debug
           path: app/build/outputs/apk/armv8/debug/*
 
       - name: Upload armv7
-        uses: actions/upload-artifact@v3.1.2
+        uses: actions/upload-artifact@v3
         with:
           name: snapenhance-armv7-debug
           path: app/build/outputs/apk/armv7/debug/*
-          
+
       - name: Upload universal
-        uses: actions/upload-artifact@v3.1.2
+        uses: actions/upload-artifact@v3
         with:
           name: snapenhance-universal-debug
           path: app/build/outputs/apk/all/debug/*.apk
 
       - name: CI Upload armv8
-        if:  ${{ inputs.ci_upload }} 
-        run: node ./.github/workflows/upload.js -t "${{ secrets.TELEGRAM_BOT_TOKEN }}" -f "app/build/outputs/apk/armv8/debug/snapenhance-${{ env.version }}-armv8-${{ steps.version-env.outputs.sha_short }}.apk" --caption "A new commit has been pushed to the ${{ env.GIT_BRANCH_NAME }} branch! ${{ steps.version-env.outputs.sha_short }}" --chatid "${{ secrets.TELEGRAM_CHAT_ID }}" 
+        if:  ${{ inputs.ci_upload }}
+        run: node ./.github/workflows/upload.js -t "${{ secrets.TELEGRAM_BOT_TOKEN }}" -f "app/build/outputs/apk/armv8/debug/snapenhance-${{ env.version }}-armv8-${{ steps.version-env.outputs.sha_short }}.apk" --caption "A new commit has been pushed to the ${{ env.GIT_BRANCH_NAME }} branch! ${{ steps.version-env.outputs.sha_short }}" --chatid "${{ secrets.TELEGRAM_CHAT_ID }}"
 
       - name: CI Upload armv7
-        if:  ${{ inputs.ci_upload }} 
-        run: node ./.github/workflows/upload.js -t "${{ secrets.TELEGRAM_BOT_TOKEN }}" -f "app/build/outputs/apk/armv7/debug/snapenhance-${{ env.version }}-armv7-${{ steps.version-env.outputs.sha_short }}.apk" --chatid "${{ secrets.TELEGRAM_CHAT_ID }}" 
+        if:  ${{ inputs.ci_upload }}
+        run: node ./.github/workflows/upload.js -t "${{ secrets.TELEGRAM_BOT_TOKEN }}" -f "app/build/outputs/apk/armv7/debug/snapenhance-${{ env.version }}-armv7-${{ steps.version-env.outputs.sha_short }}.apk" --chatid "${{ secrets.TELEGRAM_CHAT_ID }}"

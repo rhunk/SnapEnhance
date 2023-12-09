@@ -168,7 +168,8 @@ Thanks to everyone involved including the [third-party libraries](https://github
 - [RevealedSoulEven](https://github.com/revealedsouleven)
 - [iBasim](https://github.com/ibasim)
 - [xerta555](https://github.com/xerta555)
-- [TheVisual](https://github.com/TheVisual)  
+- [TheVisual](https://github.com/TheVisual)
+- [CanerKaraca23](https://github.com/CanerKaraca23)
 
 
 ## Donate

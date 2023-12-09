@@ -1,21 +1,22 @@
 [versions]
-agp = "8.1.2"
-apksig = "8.0.2"
+agp = "8.2.0"
+apksig = "8.2.0"
 libsu = "5.2.1"
 guava = "32.1.3-jre"
-jsoup = "1.16.2"
-kotlin = "1.9.0"
+jsoup = "1.17.1"
+kotlin = "1.9.21"
 kotlinx-coroutines-android = "1.7.3"
+compose-compiler = "1.5.6"
 
-activity-ktx = "1.8.0"
+activity-ktx = "1.8.1"
 androidx-documentfile = "1.1.0-alpha01"
-coil-compose = "2.4.0"
-navigation-compose = "2.7.4"
+coil-compose = "2.5.0"
+navigation-compose = "2.7.5"
 osmdroid-android = "6.1.17"
 recyclerview = "1.3.2"
 
 compose-bom = "2023.10.01"
-bcprov-jdk18on = "1.76"
+bcprov-jdk18on = "1.77"
 dexlib2 = "2.5.2"
 ffmpeg-kit = "5.1.LTS" # DO NOT UPDATE FFMPEG-KIT TO "5.1" it breaks stuff :3
 gson = "2.10.1"
@@ -61,4 +62,3 @@ kotlinAndroid = { id = "org.jetbrains.kotlin.android", version.ref = "kotlin" }
 
 
 [bundles]
-
