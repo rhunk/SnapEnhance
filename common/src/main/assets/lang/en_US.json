@@ -761,6 +761,7 @@
             },
             "hide_story_sections": {
                 "hide_friend_suggestions": "Hide friend suggestions",
+                "hide_suggested_friend_stories": "Hide suggested friend stories",
                 "hide_friends": "Hide friends section",
                 "hide_suggested": "Hide suggested section",
                 "hide_for_you": "Hide For You section"
