@@ -231,7 +231,7 @@ class MediaDownloader : MessagingRuleFeature("MediaDownloader", MessagingRuleTyp
 
     private fun handleLocalReferences(path: String) = runBlocking {
         Uri.parse(path).let { uri ->
-            if (uri.scheme == "file") {
+            if (uri.scheme == "file" || uri.scheme == null) {
                 return@let suspendCoroutine<String> { continuation ->
                     context.httpServer.ensureServerStarted()?.let { server ->
                         val file = Paths.get(uri.path).toFile()

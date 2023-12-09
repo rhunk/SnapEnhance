@@ -35,7 +35,7 @@ class UserInterfaceTweaks : ConfigContainer() {
     val hideStreakRestore = boolean("hide_streak_restore") { requireRestart() }
     val hideQuickAddFriendFeed = boolean("hide_quick_add_friend_feed") { requireRestart() }
     val hideStorySections = multiple("hide_story_sections",
-        "hide_friend_suggestions", "hide_friends", "hide_suggested", "hide_for_you") { requireRestart() }
+        "hide_friend_suggestions", "hide_suggested_friend_stories", "hide_friends", "hide_suggested", "hide_for_you") { requireRestart() }
     val hideUiComponents = multiple("hide_ui_components",
         "hide_voice_record_button",
         "hide_stickers_button",

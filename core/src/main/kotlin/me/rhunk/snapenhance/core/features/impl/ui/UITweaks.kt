@@ -7,7 +7,9 @@ import android.text.SpannableString
 import android.view.View
 import android.view.ViewGroup.MarginLayoutParams
 import android.widget.FrameLayout
+import me.rhunk.snapenhance.common.util.ktx.findFieldsToString
 import me.rhunk.snapenhance.core.event.events.impl.AddViewEvent
+import me.rhunk.snapenhance.core.event.events.impl.BindViewEvent
 import me.rhunk.snapenhance.core.features.Feature
 import me.rhunk.snapenhance.core.features.FeatureLoadParams
 import me.rhunk.snapenhance.core.util.hook.HookStage
@@ -51,6 +53,7 @@ class UITweaks : Feature("UITweaks", loadParams = FeatureLoadParams.ACTIVITY_CRE
 
         val chatNoteRecordButton = getId("chat_note_record_button", "id")
         val unreadHintButton = getId("unread_hint_button", "id")
+        val friendCardFrame = getId("friend_card_frame", "id")
 
         View::class.java.hook("setVisibility", HookStage.BEFORE) { methodParam ->
             val viewId = (methodParam.thisObject() as View).id
@@ -69,6 +72,16 @@ class UITweaks : Feature("UITweaks", loadParams = FeatureLoadParams.ACTIVITY_CRE
                 id == getId("ngs_hova_nav_larger_camera_button_size", "dimen")) {
                 param.setResult(0)
             }
+        }
+
+        context.event.subscribe(BindViewEvent::class, { hideStorySections.contains("hide_suggested_friend_stories") }) { event ->
+            if (event.view.id != friendCardFrame) return@subscribe
+
+            val friendStoryData = event.prevModel::class.java.findFieldsToString(event.prevModel, once = true) { _, value ->
+                value.contains("FriendStoryData")
+            }.firstOrNull()?.get(event.prevModel) ?: return@subscribe
+
+            event.view.visibility = if (friendStoryData.toString().contains("isFriendOfFriend=true")) View.GONE else View.VISIBLE
         }
 
         context.event.subscribe(AddViewEvent::class) { event ->
