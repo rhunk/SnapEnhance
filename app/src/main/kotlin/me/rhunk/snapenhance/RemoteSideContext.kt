@@ -171,9 +171,9 @@ class RemoteSideContext(
         var requirements = overrideRequirements ?: 0
 
         if(BuildConfig.DEBUG) {
-            if(System.currentTimeMillis() - BuildConfig.BUILD_TIMESTAMP > 16.days.inWholeMilliseconds) {
-                Toast.makeText(androidContext, "This SnapEnhance build has expired. More info on t.me/snapenhance_ci", Toast.LENGTH_LONG).show();
-                throw RuntimeException("This build has expired. This crash is intentional.")
+            if(System.currentTimeMillis() - BuildConfig.BUILD_TIMESTAMP > 28.days.inWholeMilliseconds) {
+                Toast.makeText(androidContext, "This SnapEnhance build has expired. This crash is intentional.", Toast.LENGTH_LONG).show();
+                throw RuntimeException("This build has expired. Install a newer one.")
             }
         }
 
