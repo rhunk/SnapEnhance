@@ -15,7 +15,7 @@ import javax.crypto.spec.SecretKeySpec
 class E2EEImplementation (
     private val context: RemoteSideContext
 ) : E2eeInterface.Stub() {
-    private val kyberDefaultParameters = KyberParameters.kyber1024_aes
+    private val kyberDefaultParameters = KyberParameters.kyber1024
     private val secureRandom = SecureRandom()
 
     private val e2eeFolder by lazy { File(context.androidContext.filesDir, "e2ee").also {
