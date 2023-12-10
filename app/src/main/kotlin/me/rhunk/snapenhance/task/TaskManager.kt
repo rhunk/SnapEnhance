@@ -50,6 +50,13 @@ class TaskManager(
         return runBlocking {
             suspendCoroutine {
                 queueExecutor.execute {
+                    taskDatabase.rawQuery("SELECT * FROM tasks WHERE hash = ?", arrayOf(task.hash)).use { cursor ->
+                        if (cursor.moveToNext()) {
+                            it.resumeWith(Result.success(cursor.getLong("id")))
+                            return@execute
+                        }
+                    }
+
                     val result = taskDatabase.insert("tasks", null, ContentValues().apply {
                         put("type", task.type.key)
                         put("hash", task.hash)
@@ -57,6 +64,7 @@ class TaskManager(
                         put("status", task.status.key)
                         put("extra", task.extra)
                     })
+
                     it.resumeWith(Result.success(result))
                 }
             }

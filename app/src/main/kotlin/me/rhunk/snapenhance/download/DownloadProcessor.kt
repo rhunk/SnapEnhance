@@ -341,6 +341,16 @@ class DownloadProcessor (
 
                 if (task.status.isFinalStage()) {
                     if (task.status != TaskStatus.SUCCESS) return@let
+                    // check if the media file has been deleted
+                    if (task.type == TaskType.DOWNLOAD) {
+                        val outputFile = runCatching {
+                            DocumentFile.fromTreeUri(remoteSideContext.androidContext, Uri.parse(task.extra))
+                        }.getOrNull()
+
+                        if (outputFile != null && !outputFile.exists()) {
+                            return@let
+                        }
+                    }
                     callbackOnFailure(translation["already_downloaded_toast"], null)
                 } else {
                     callbackOnFailure(translation["already_queued_toast"], null)
