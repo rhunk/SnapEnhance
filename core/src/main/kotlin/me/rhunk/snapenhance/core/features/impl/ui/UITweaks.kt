@@ -5,6 +5,7 @@ import android.content.Context
 import android.content.res.Resources
 import android.text.SpannableString
 import android.view.View
+import android.view.ViewGroup
 import android.view.ViewGroup.MarginLayoutParams
 import android.widget.FrameLayout
 import me.rhunk.snapenhance.common.util.ktx.findFieldsToString
@@ -81,7 +82,15 @@ class UITweaks : Feature("UITweaks", loadParams = FeatureLoadParams.ACTIVITY_CRE
                 value.contains("FriendStoryData")
             }.firstOrNull()?.get(event.prevModel) ?: return@subscribe
 
-            event.view.visibility = if (friendStoryData.toString().contains("isFriendOfFriend=true")) View.GONE else View.VISIBLE
+            event.view.layoutParams.apply {
+                if (friendStoryData.toString().contains("isFriendOfFriend=true")) {
+                    width = 0
+                    height = 0
+                } else {
+                    width = ViewGroup.LayoutParams.WRAP_CONTENT
+                    height = ViewGroup.LayoutParams.WRAP_CONTENT
+                }
+            }
         }
 
         context.event.subscribe(AddViewEvent::class) { event ->
