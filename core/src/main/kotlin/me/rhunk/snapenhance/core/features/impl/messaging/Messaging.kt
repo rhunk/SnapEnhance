@@ -1,6 +1,7 @@
 package me.rhunk.snapenhance.core.features.impl.messaging
 
 import me.rhunk.snapenhance.common.ReceiversConfig
+import me.rhunk.snapenhance.core.event.events.impl.ConversationUpdateEvent
 import me.rhunk.snapenhance.core.event.events.impl.OnSnapInteractionEvent
 import me.rhunk.snapenhance.core.features.Feature
 import me.rhunk.snapenhance.core.features.FeatureLoadParams
@@ -39,6 +40,21 @@ class Messaging : Feature("Messaging", loadParams = FeatureLoadParams.ACTIVITY_C
             context.messagingBridge.triggerSessionStart()
             context.mainActivity?.takeIf { it.intent.getBooleanExtra(ReceiversConfig.MESSAGING_PREVIEW_EXTRA,false) }?.run {
                 finishAndRemoveTask()
+            }
+        }
+
+        context.mappings.getMappedClass("callbacks", "ConversationManagerDelegate").apply {
+            hookConstructor(HookStage.AFTER) { param ->
+                conversationManagerDelegate = param.thisObject()
+            }
+            hook("onConversationUpdated", HookStage.BEFORE) { param ->
+                context.event.post(ConversationUpdateEvent(
+                    conversationId = SnapUUID(param.arg(0)).toString(),
+                    conversation = param.argNullable(1),
+                    messages = param.arg<ArrayList<*>>(2).map { Message(it) },
+                ).apply { adapter = param }) {
+                    param.setArg(2, messages.map { it.instanceNonNull() }.toCollection(ArrayList()))
+                }
             }
         }
     }
@@ -83,11 +99,6 @@ class Messaging : Feature("Messaging", loadParams = FeatureLoadParams.ACTIVITY_C
             }
         }
 
-        context.mappings.getMappedClass("callbacks", "ConversationManagerDelegate").apply {
-            hookConstructor(HookStage.AFTER) { param ->
-                conversationManagerDelegate = param.thisObject()
-            }
-        }
 
         context.classCache.feedEntry.hookConstructor(HookStage.AFTER) { param ->
             val instance = param.thisObject<Any>()

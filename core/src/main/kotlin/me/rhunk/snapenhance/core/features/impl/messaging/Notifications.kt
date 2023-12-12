@@ -37,7 +37,6 @@ import me.rhunk.snapenhance.core.util.ktx.setObjectField
 import me.rhunk.snapenhance.core.util.media.PreviewUtils
 import me.rhunk.snapenhance.core.wrapper.impl.Message
 import me.rhunk.snapenhance.core.wrapper.impl.SnapUUID
-import me.rhunk.snapenhance.core.wrapper.impl.toSnapUUID
 import kotlin.coroutines.suspendCoroutine
 
 class Notifications : Feature("Notifications", loadParams = FeatureLoadParams.INIT_SYNC) {
@@ -245,7 +244,7 @@ class Notifications : Feature("Notifications", loadParams = FeatureLoadParams.IN
                                         messages.reversed().forEach { message ->
                                             if (!autoSave.canSaveMessage(message, headless = true)) return@forEach
                                             context.coroutineScope.launch(coroutineDispatcher) {
-                                                autoSave.saveMessage(conversationId.toSnapUUID(), message)
+                                                autoSave.saveMessage(conversationId, message)
                                             }
                                         }
                                     },
