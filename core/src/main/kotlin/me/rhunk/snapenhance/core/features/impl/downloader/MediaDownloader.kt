@@ -100,7 +100,7 @@ class MediaDownloader : MessagingRuleFeature("MediaDownloader", MessagingRuleTyp
             context.shortToast(translations["download_started_toast"])
         }
 
-        val outputPath = createNewFilePath(generatedHash, downloadSource, mediaAuthor, creationTimestamp)
+        val outputPath = createNewFilePath(generatedHash.substring(0, generatedHash.length.coerceAtMost(8)), downloadSource, mediaAuthor, creationTimestamp)
 
         return DownloadManagerClient(
             context = context,
@@ -166,7 +166,7 @@ class MediaDownloader : MessagingRuleFeature("MediaDownloader", MessagingRuleTyp
             finalPath.append(downloadSource.pathName).append("/")
         }
         if (pathFormat.contains("append_hash")) {
-            appendFileName(hexHash.substring(0, hexHash.length.coerceAtMost(8)))
+            appendFileName(hexHash)
         }
         if (pathFormat.contains("append_source")) {
             appendFileName(downloadSource.pathName)
@@ -329,9 +329,7 @@ class MediaDownloader : MessagingRuleFeature("MediaDownloader", MessagingRuleTyp
             val playlistGroupString = playlistGroup.toString()
 
             val storyUserId = paramMap["TOPIC_SNAP_CREATOR_USER_ID"]?.toString() ?: if (playlistGroupString.contains("storyUserId=")) {
-                (playlistGroupString.indexOf("storyUserId=") + 12).let {
-                    playlistGroupString.substring(it, playlistGroupString.indexOf(",", it))
-                }
+                playlistGroupString.substringAfter("storyUserId=").substringBefore(",")
             } else {
                 //story replies
                 val arroyoMessageId = playlistGroup::class.java.methods.firstOrNull { it.name == "getId" }
@@ -372,16 +370,24 @@ class MediaDownloader : MessagingRuleFeature("MediaDownloader", MessagingRuleTyp
         //public stories
         if ((snapSource == "PUBLIC_USER" || snapSource == "SAVED_STORY") &&
             (forceDownload || canAutoDownload("public_stories"))) {
-            val username = (
-                paramMap["USERNAME"]?.toString()?.substringAfter("value=")
-                    ?.substringBefore(")")?.substringBefore(",")
-                ?: paramMap["USER_DISPLAY_NAME"]?.toString()
+
+            val author = (
+                paramMap["USER_ID"]?.let { context.database.getFriendInfo(it.toString())?.mutableUsername } // only for following users
+                ?: paramMap["USERNAME"]?.toString()?.takeIf {
+                    it.contains("value=")
+                }?.substringAfter("value=")?.substringBefore(")")?.substringBefore(",")
+                ?: paramMap["CONTEXT_USER_IDENTITY"]?.toString()?.takeIf {
+                    it.contains("username=")
+                }?.substringAfter("username=")?.substringBefore(",")
+                // fallback display name
+                ?: paramMap["USER_DISPLAY_NAME"]?.toString()?.takeIf { it.isNotEmpty() }
+                ?: paramMap["TIME_STAMP"]?.toString()
                 ?: "unknown"
             ).sanitizeForPath()
 
             downloadOperaMedia(provideDownloadManagerClient(
                 mediaIdentifier = paramMap["SNAP_ID"].toString(),
-                mediaAuthor = username,
+                mediaAuthor = author,
                 downloadSource = MediaDownloadSource.PUBLIC_STORY,
                 creationTimestamp = paramMap["SNAP_TIMESTAMP"]?.toString()?.toLongOrNull(),
             ), mediaInfoMap)
