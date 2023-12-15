@@ -28,7 +28,7 @@ jobs:
 
       - name: Sign armv7 APK
         id: sign_armv7_app
-        uses: kevin-david/zipalign-sign-android-release@v1.1.1
+        uses: kevin-david/zipalign-sign-android-release@main
         with:
           releaseDirectory: app/build/outputs/apk/armv7/release/
           signingKeyBase64: ${{ secrets.JAVA_KEYSTORE_DATA }}
@@ -37,14 +37,14 @@ jobs:
           keyPassword: ${{ secrets.KEY_PASSWORD }}
 
       - name: Upload armv7 artifact
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: app-armv7-release
           path: ${{ steps.sign_armv7_app.outputs.signedReleaseFile }}
 
       - name: Sign armv8 APK
         id: sign_armv8_app
-        uses: kevin-david/zipalign-sign-android-release@v1.1.1
+        uses: kevin-david/zipalign-sign-android-release@main
         with:
           releaseDirectory: app/build/outputs/apk/armv8/release/
           signingKeyBase64: ${{ secrets.JAVA_KEYSTORE_DATA }}
@@ -53,14 +53,13 @@ jobs:
           keyPassword: ${{ secrets.KEY_PASSWORD }}
 
       - name: Upload armv8 artifact
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: app-armv8-release
           path: ${{ steps.sign_armv8_app.outputs.signedReleaseFile }}
 
       - name: Generate Version
-        run: |
-          ./gradlew getVersion
+        run: ./gradlew getVersion
 
       - name: Set Version to Environment
         id: version-env
