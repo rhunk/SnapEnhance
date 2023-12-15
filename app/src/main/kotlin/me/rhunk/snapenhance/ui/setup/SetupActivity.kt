@@ -27,7 +27,7 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import me.rhunk.snapenhance.SharedContextHolder
-import me.rhunk.snapenhance.ui.AppMaterialTheme
+import me.rhunk.snapenhance.common.ui.AppMaterialTheme
 import me.rhunk.snapenhance.ui.setup.screens.SetupScreen
 import me.rhunk.snapenhance.ui.setup.screens.impl.MappingsScreen
 import me.rhunk.snapenhance.ui.setup.screens.impl.PermissionsScreen

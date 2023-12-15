@@ -12,7 +12,7 @@ import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
 import me.rhunk.snapenhance.RemoteSideContext
 import me.rhunk.snapenhance.SharedContextHolder
-import me.rhunk.snapenhance.ui.AppMaterialTheme
+import me.rhunk.snapenhance.common.ui.AppMaterialTheme
 
 class MainActivity : ComponentActivity() {
     private lateinit var sections: Map<EnumSection, Section>

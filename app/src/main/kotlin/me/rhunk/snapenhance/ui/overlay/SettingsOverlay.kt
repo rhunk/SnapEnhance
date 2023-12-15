@@ -24,7 +24,7 @@ import androidx.navigation.compose.rememberNavController
 import com.arthenica.ffmpegkit.Packages.getPackageName
 import me.rhunk.snapenhance.R
 import me.rhunk.snapenhance.RemoteSideContext
-import me.rhunk.snapenhance.ui.AppMaterialTheme
+import me.rhunk.snapenhance.common.ui.createComposeView
 import me.rhunk.snapenhance.ui.manager.EnumSection
 import me.rhunk.snapenhance.ui.manager.Navigation
 import me.rhunk.snapenhance.ui.manager.sections.features.FeaturesSection
@@ -117,20 +117,16 @@ class SettingsOverlay(
             }
 
             dialog.setContentView(
-                overlayComposeView(context.androidContext).apply {
-                    setContent {
-                        Column(
-                            modifier = Modifier
-                                .fillMaxSize()
-                                .padding(start = 15.dp, end = 15.dp, top = 25.dp, bottom = 25.dp)
-                                .clip(shape = MaterialTheme.shapes.large),
-                            horizontalAlignment = Alignment.CenterHorizontally,
-                            verticalArrangement = Arrangement.Center
-                        ) {
-                            AppMaterialTheme {
-                                OverlayContent()
-                            }
-                        }
+                createComposeView(context.androidContext) {
+                    Column(
+                        modifier = Modifier
+                            .fillMaxSize()
+                            .padding(start = 15.dp, end = 15.dp, top = 25.dp, bottom = 25.dp)
+                            .clip(shape = MaterialTheme.shapes.large),
+                        horizontalAlignment = Alignment.CenterHorizontally,
+                        verticalArrangement = Arrangement.Center
+                    ) {
+                        OverlayContent()
                     }
                 }
             )

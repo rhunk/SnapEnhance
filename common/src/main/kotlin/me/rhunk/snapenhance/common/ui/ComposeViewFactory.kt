@@ -1,10 +1,11 @@
-package me.rhunk.snapenhance.ui.overlay
+package me.rhunk.snapenhance.common.ui
 
 import android.content.Context
 import android.os.Bundle
 import androidx.activity.OnBackPressedDispatcher
 import androidx.activity.OnBackPressedDispatcherOwner
 import androidx.activity.setViewTreeOnBackPressedDispatcherOwner
+import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Recomposer
 import androidx.compose.ui.platform.AndroidUiDispatcher
 import androidx.compose.ui.platform.ComposeView
@@ -19,7 +20,7 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 
 // https://github.com/tberghuis/FloatingCountdownTimer/blob/master/app/src/main/java/xyz/tberghuis/floatingtimer/service/overlayViewFactory.kt
-fun overlayComposeView(service: Context) = ComposeView(service).apply {
+fun createComposeView(context: Context, content: @Composable () -> Unit) = ComposeView(context).apply {
     setViewCompositionStrategy(ViewCompositionStrategy.DisposeOnViewTreeLifecycleDestroyed)
     val lifecycleOwner = OverlayLifecycleOwner().apply {
         performRestore(null)
@@ -48,6 +49,12 @@ fun overlayComposeView(service: Context) = ComposeView(service).apply {
     compositionContext = recomposer
     runRecomposeScope.launch {
         recomposer.runRecomposeAndApplyChanges()
+    }
+
+    setContent {
+        AppMaterialTheme {
+            content()
+        }
     }
 }
 

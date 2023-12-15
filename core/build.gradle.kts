@@ -11,6 +11,14 @@ android {
         minSdk = 28
     }
 
+    buildFeatures {
+        compose = true
+    }
+
+    composeOptions {
+        kotlinCompilerExtensionVersion = libs.versions.compose.compiler.get()
+    }
+
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_17
         targetCompatibility = JavaVersion.VERSION_17
@@ -33,4 +41,12 @@ dependencies {
     implementation(project(":common"))
     implementation(project(":mapper"))
     implementation(project(":native"))
+
+    compileOnly(libs.androidx.activity.ktx)
+    compileOnly(platform(libs.androidx.compose.bom))
+    compileOnly(libs.androidx.navigation.compose)
+    compileOnly(libs.androidx.material.icons.core)
+    compileOnly(libs.androidx.material.ripple)
+    compileOnly(libs.androidx.material.icons.extended)
+    compileOnly(libs.androidx.material3)
 }

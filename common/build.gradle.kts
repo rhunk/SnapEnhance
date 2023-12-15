@@ -10,6 +10,11 @@ android {
     buildFeatures {
         aidl = true
         buildConfig = true
+        compose = true
+    }
+
+    composeOptions {
+        kotlinCompilerExtensionVersion = libs.versions.compose.compiler.get()
     }
 
     defaultConfig {
@@ -37,6 +42,14 @@ dependencies {
     implementation(libs.okhttp)
     implementation(libs.androidx.documentfile)
     implementation(libs.rhino)
+
+    compileOnly(libs.androidx.activity.ktx)
+    compileOnly(platform(libs.androidx.compose.bom))
+    compileOnly(libs.androidx.navigation.compose)
+    compileOnly(libs.androidx.material.icons.core)
+    compileOnly(libs.androidx.material.ripple)
+    compileOnly(libs.androidx.material.icons.extended)
+    compileOnly(libs.androidx.material3)
 
     implementation(project(":mapper"))
 }
