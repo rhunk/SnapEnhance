@@ -9,7 +9,7 @@ on:
 
 jobs:
   build:
-    runs-on: macos-latest
+    runs-on: ubuntu-latest
     steps:
       - name: Checkout repo
         uses: actions/checkout@v4
@@ -42,7 +42,7 @@ jobs:
           echo "sha_short=$(git rev-parse --short HEAD)" >> $GITHUB_OUTPUT
       - name: Git branch name
         id: git-branch-name
-        uses: EthanSK/git-branch-name-action@v1
+        uses: EthanSK/git-branch-name-action@main
 
       - name: Rename APK files
         run: |
@@ -51,31 +51,31 @@ jobs:
           mv app/build/outputs/apk/all/debug/*.apk app/build/outputs/apk/all/debug/snapenhance-${{ env.version }}-universal-${{ steps.version-env.outputs.sha_short }}.apk
 
       - name: Upload manager
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: manager
           path: manager/build/outputs/apk/debug/*.apk
 
       - name: Upload core
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: core
           path: app/build/outputs/apk/core/debug/*.apk
 
       - name: Upload armv8
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: snapenhance-armv8-debug
           path: app/build/outputs/apk/armv8/debug/*
 
       - name: Upload armv7
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: snapenhance-armv7-debug
           path: app/build/outputs/apk/armv7/debug/*
 
       - name: Upload universal
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: snapenhance-universal-debug
           path: app/build/outputs/apk/all/debug/*.apk
