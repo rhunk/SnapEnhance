@@ -567,35 +567,29 @@
                         "name": "Spoof",
                         "description": "Spoof various information about you",
                         "properties": {
-                            "device": {
-                                "name": "Device",
-                                "description": "Spoof your device information",
-                                "properties": {
-                                    "fingerprint": {
-                                        "name": "Device Fingerprint",
-                                        "description": "Spoofs your device Fingerprint"
-                                    },
-                                    "android_id": {
-                                        "name": "Android ID",
-                                        "description": "Spoofs your Android ID to the specified value"
-                                    },
-                                    "installer_package_name": {
-                                        "name": "Installer Package name",
-                                        "description": "Spoofs the installers Package name"
-                                    },
-                                    "debug_flag": {
-                                        "name": "Debug Flag",
-                                        "description": "Makes Snapchat debuggable"
-                                    },
-                                    "mock_location": {
-                                        "name": "Mock location",
-                                        "description": "Spoofs the Mock Location device state"
-                                    },
-                                    "split_classloader": {
-                                        "name": "Split Classloader",
-                                        "description": "Spoofs splitClassloader\nRequested by org.chromium.base.JNIUtils"
-                                    }
-                                }
+                            "play_store_installer_package_name": {
+                                "name": "Play Store Installer Package Name",
+                                "description": "Overrides the installer package name to com.android.vending"
+                            },
+                            "fingerprint": {
+                                "name": "Device Fingerprint",
+                                "description": "Spoofs your device Fingerprint"
+                            },
+                            "android_id": {
+                                "name": "Android ID",
+                                "description": "Spoofs your Android ID to the specified value"
+                            },
+                            "remove_vpn_transport_flag": {
+                                "name": "Remove VPN Transport Flag",
+                                "description": "Prevents Snapchat from detecting VPNs"
+                            },
+                            "remove_mock_location_flag": {
+                                "name": "Remove Mock Location Flag",
+                                "description": "Prevents Snapchat from detecting Mock location"
+                            },
+                            "randomize_persistent_device_token": {
+                                "name": "Randomize Persistent Device Token",
+                                "description": "Generates a random device token after each login"
                             }
                         }
                     },

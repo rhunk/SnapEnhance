@@ -9,6 +9,9 @@ import java.util.zip.ZipFile
 object LSPatchUpdater {
     private const val TAG = "LSPatchUpdater"
 
+    var HAS_LSPATCH = false
+        private set
+
     private fun getModuleUniqueHash(module: ZipFile): String {
         return module.entries().asSequence()
             .filter { !it.isDirectory }
@@ -38,6 +41,7 @@ object LSPatchUpdater {
                 } ?: return
             } ?: return
 
+        HAS_LSPATCH = true
         context.log.verbose("Found embedded SE at ${embeddedModule.absolutePath}", TAG)
 
         val seAppApk = File(bridgeClient.getApplicationApkPath()).also {
