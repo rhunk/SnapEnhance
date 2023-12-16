@@ -9,7 +9,6 @@ import me.rhunk.snapenhance.bridge.snapclient.MessagingBridge
 import me.rhunk.snapenhance.common.bridge.types.BridgeFileType
 import me.rhunk.snapenhance.common.bridge.types.FileActionType
 import me.rhunk.snapenhance.common.bridge.wrapper.LocaleWrapper
-import me.rhunk.snapenhance.common.bridge.wrapper.MessageLoggerWrapper
 import me.rhunk.snapenhance.common.data.MessagingFriendInfo
 import me.rhunk.snapenhance.common.data.MessagingGroupInfo
 import me.rhunk.snapenhance.common.data.SocialScope
@@ -56,7 +55,7 @@ class BridgeService : Service() {
             }
 
             if (syncedObject == null) {
-                remoteSideContext.log.error("Failed to sync $scope $id")
+                remoteSideContext.log.warn("Failed to sync $scope $id")
                 return
             }
 
