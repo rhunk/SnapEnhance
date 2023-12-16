@@ -691,7 +691,7 @@
                 "auto_save": "\uD83D\uDCAC Auto Save Messages",
                 "stealth": "\uD83D\uDC7B Stealth Mode",
                 "mark_snaps_as_seen": "\uD83D\uDC40 Mark Snaps as seen",
-                "mark_stories_as_seen": "\uD83D\uDC40 Mark Stories as seen",
+                "mark_stories_as_seen_locally": "\uD83D\uDC40 Mark Stories as seen locally",
                 "conversation_info": "\uD83D\uDC64 Conversation Info",
                 "e2e_encryption": "\uD83D\uDD12 Use E2E Encryption"
             },
@@ -804,7 +804,7 @@
 
     "friend_menu_option": {
         "mark_snaps_as_seen": "Mark Snaps as seen",
-        "mark_stories_as_seen": "Mark Stories as seen",
+        "mark_stories_as_seen_locally": "Mark Stories as seen locally",
         "preview": "Preview",
         "stealth_mode": "Stealth Mode",
         "auto_download_blacklist": "Auto Download Blacklist",

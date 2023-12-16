@@ -314,9 +314,9 @@ class FriendFeedInfoMenu : AbstractMenu() {
             })
         }
 
-        if (targetUser != null && friendFeedMenuOptions.contains("mark_stories_as_seen")) {
+        if (targetUser != null && friendFeedMenuOptions.contains("mark_stories_as_seen_locally")) {
             viewConsumer(Button(view.context).apply {
-                text = translation["mark_stories_as_seen"]
+                text = translation["mark_stories_as_seen_locally"]
                 applyTheme(view.width, hasRadius = true)
                 setOnClickListener {
                     this@FriendFeedInfoMenu.context.apply {
