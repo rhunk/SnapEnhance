@@ -100,7 +100,7 @@ class MediaDownloader : MessagingRuleFeature("MediaDownloader", MessagingRuleTyp
             context.shortToast(translations["download_started_toast"])
         }
 
-        val outputPath = createNewFilePath(generatedHash.substring(0, generatedHash.length.coerceAtMost(8)), downloadSource, mediaAuthor, creationTimestamp)
+        val outputPath = createNewFilePath(generatedHash.substring(0, generatedHash.length.coerceAtMost(8)), downloadSource, mediaAuthor, creationTimestamp?.takeIf { it > 0L })
 
         return DownloadManagerClient(
             context = context,
