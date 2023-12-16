@@ -3,28 +3,45 @@ package me.rhunk.snapenhance.core.action.impl
 import android.app.AlertDialog
 import android.content.DialogInterface
 import android.os.Environment
-import android.text.InputType
-import android.widget.EditText
+import android.view.WindowManager
+import androidx.compose.foundation.ScrollState
+import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.text.KeyboardActions
+import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.foundation.verticalScroll
+import androidx.compose.material3.*
+import androidx.compose.runtime.*
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.ExperimentalComposeUiApi
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalConfiguration
+import androidx.compose.ui.platform.LocalFocusManager
+import androidx.compose.ui.platform.LocalSoftwareKeyboardController
+import androidx.compose.ui.text.input.ImeAction
+import androidx.compose.ui.text.input.KeyboardType
+import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.ui.unit.dp
 import kotlinx.coroutines.*
 import me.rhunk.snapenhance.common.data.ContentType
 import me.rhunk.snapenhance.common.database.impl.FriendFeedEntry
+import me.rhunk.snapenhance.common.ui.createComposeView
 import me.rhunk.snapenhance.core.action.AbstractAction
 import me.rhunk.snapenhance.core.features.impl.messaging.Messaging
 import me.rhunk.snapenhance.core.logger.CoreLogger
 import me.rhunk.snapenhance.core.messaging.ConversationExporter
 import me.rhunk.snapenhance.core.messaging.ExportFormat
+import me.rhunk.snapenhance.core.messaging.ExportParams
 import me.rhunk.snapenhance.core.ui.ViewAppearanceHelper
 import me.rhunk.snapenhance.core.wrapper.impl.Message
 import java.io.File
 import kotlin.math.absoluteValue
 
 class ExportChatMessages : AbstractAction() {
+    private val translation by lazy { context.translation.getCategory("chat_export") }
     private val dialogLogs = mutableListOf<String>()
     private var currentActionDialog: AlertDialog? = null
-
-    private var exportType: ExportFormat? = null
-    private var mediaToDownload: List<ContentType>? = null
-    private var amountOfMessages: Int? = null
 
     private fun logDialog(message: String) {
         context.runOnUiThread {
@@ -41,101 +58,221 @@ class ExportChatMessages : AbstractAction() {
         }
     }
 
-    private suspend fun askExportType() = suspendCancellableCoroutine { cont ->
-        context.runOnUiThread {
-            ViewAppearanceHelper.newAlertDialogBuilder(context.mainActivity)
-                .setTitle(context.translation["chat_export.select_export_format"])
-                .setItems(ExportFormat.entries.map { it.name }.toTypedArray()) { _, which ->
-                    cont.resumeWith(Result.success(ExportFormat.entries[which]))
-                }
-                .setOnCancelListener {
-                    cont.resumeWith(Result.success(null))
-                }
-                .show()
+    @OptIn(ExperimentalMaterial3Api::class, ExperimentalComposeUiApi::class)
+    @Composable
+    private fun ExporterDialog(
+        getDialog: () -> AlertDialog? = { null }
+    ) {
+        val exporterTranslation = remember {
+            translation.getCategory("exporter_dialog")
         }
-    }
 
-    private suspend fun askAmountOfMessages() = suspendCancellableCoroutine { cont ->
-        context.coroutineScope.launch(Dispatchers.Main) {
-            val input = EditText(context.mainActivity)
-            input.inputType = InputType.TYPE_CLASS_NUMBER
-            input.setSingleLine()
-            input.maxLines = 1
+        var feedEntries by remember { mutableStateOf(emptyList<FriendFeedEntry>()) }
+        var exportType by remember { mutableStateOf(ExportFormat.HTML) }
+        val selectedFeedEntries = remember { mutableStateListOf<FriendFeedEntry>() }
+        val messageTypeFilter = remember { mutableStateListOf<ContentType>() }
+        var amountOfMessages by remember { mutableIntStateOf(-1) }
+        var downloadMedias by remember { mutableStateOf(false) }
 
-            ViewAppearanceHelper.newAlertDialogBuilder(context.mainActivity)
-                .setTitle(context.translation["chat_export.select_amount_of_messages"])
-                .setView(input)
-                .setPositiveButton(context.translation["button.ok"]) { _, _ ->
-                    cont.resumeWith(Result.success(input.text.takeIf { it.isNotEmpty() }?.toString()?.toIntOrNull()?.absoluteValue))
-                }
-                .setOnCancelListener {
-                    cont.resumeWith(Result.success(null))
-                }
-                .show()
-        }
-    }
+        Column(
+            modifier = Modifier
+                .fillMaxWidth()
+                .verticalScroll(remember { ScrollState(0) })
+                .padding(16.dp),
+            verticalArrangement = Arrangement.spacedBy(10.dp)
+        ) {
+            Text(exporterTranslation["select_conversations_title"])
+            run {
+                var expanded by remember { mutableStateOf(false) }
 
-    private suspend fun askMediaToDownload() = suspendCancellableCoroutine { cont ->
-        context.runOnUiThread {
-            val mediasToDownload = mutableListOf<ContentType>()
-            val contentTypes = arrayOf(
-                ContentType.CHAT,
-                ContentType.SNAP,
-                ContentType.EXTERNAL_MEDIA,
-                ContentType.NOTE,
-                ContentType.STICKER
-            )
-            ViewAppearanceHelper.newAlertDialogBuilder(context.mainActivity)
-                .setTitle(context.translation["chat_export.select_media_type"])
-                .setMultiChoiceItems(contentTypes.map { it.name }.toTypedArray(), BooleanArray(contentTypes.size) { false }) { _, which, isChecked ->
-                    val media = contentTypes[which]
-                    if (isChecked) {
-                        mediasToDownload.add(media)
-                    } else if (mediasToDownload.contains(media)) {
-                        mediasToDownload.remove(media)
+                ExposedDropdownMenuBox(
+                    expanded = expanded,
+                    onExpandedChange = { expanded = it },
+                ) {
+                    TextField(
+                        value = selectedFeedEntries.let {
+                            exporterTranslation.format("text_field_selection", "amount" to it.size.toString())
+                        },
+                        onValueChange = {},
+                        readOnly = true,
+                        singleLine = true,
+                        modifier = Modifier.menuAnchor()
+                    )
+
+                    ExposedDropdownMenu(expanded = expanded, onDismissRequest = { expanded = false }) {
+                        LazyColumn(
+                            modifier = Modifier.size(LocalConfiguration.current.screenWidthDp.dp, 300.dp)
+                        ) {
+                            items(feedEntries) { feedEntry ->
+                                DropdownMenuItem(
+                                    modifier = Modifier.fillMaxWidth(),
+                                    onClick = {
+                                        if (selectedFeedEntries.contains(feedEntry)) selectedFeedEntries -= feedEntry
+                                        else selectedFeedEntries += feedEntry
+                                    },
+                                    text = {
+                                        Row(
+                                            verticalAlignment = Alignment.CenterVertically
+                                        ) {
+                                            Checkbox(checked = selectedFeedEntries.contains(feedEntry), onCheckedChange = null)
+                                            Text(
+                                                text = feedEntry.feedDisplayName ?: feedEntry.friendDisplayName ?: "unknown",
+                                                overflow = TextOverflow.Ellipsis,
+                                                maxLines = 1
+                                            )
+                                        }
+                                    }
+                                )
+                            }
+                        }
                     }
                 }
-                .setOnCancelListener {
-                    cont.resumeWith(Result.success(null))
+            }
+
+            Text(exporterTranslation["export_file_format_title"])
+            run {
+                var expanded by remember { mutableStateOf(false) }
+
+                ExposedDropdownMenuBox(
+                    expanded = expanded,
+                    onExpandedChange = { expanded = it },
+                ) {
+                    TextField(
+                        value = exportType.extension,
+                        onValueChange = {},
+                        readOnly = true,
+                        modifier = Modifier.menuAnchor()
+                    )
+
+                    ExposedDropdownMenu(expanded = expanded, onDismissRequest = { expanded = false }) {
+                        ExportFormat.entries.forEach { exportFormat ->
+                            DropdownMenuItem(onClick = {
+                                exportType = exportFormat
+                                expanded = false
+                            }, text = {
+                                Text(text = exportFormat.name)
+                            })
+                        }
+                    }
                 }
-                .setPositiveButton(context.translation["button.ok"]) { _, _ ->
-                    cont.resumeWith(Result.success(mediasToDownload))
+            }
+            Text(exporterTranslation["message_type_filter_title"])
+            run {
+                var expanded by remember { mutableStateOf(false) }
+
+                ExposedDropdownMenuBox(
+                    expanded = expanded,
+                    onExpandedChange = { expanded = it },
+                ) {
+                    TextField(
+                        value = messageTypeFilter.takeIf { it.isNotEmpty() }?.let {
+                            exporterTranslation.format("text_field_selection", "amount" to it.size.toString())
+                        } ?: exporterTranslation["text_field_selection_all"],
+                        onValueChange = {},
+                        readOnly = true,
+                        modifier = Modifier.menuAnchor()
+                    )
+
+                    ExposedDropdownMenu(expanded = expanded, onDismissRequest = { expanded = false }) {
+                        arrayOf(
+                            ContentType.CHAT,
+                            ContentType.SNAP,
+                            ContentType.EXTERNAL_MEDIA,
+                            ContentType.NOTE,
+                            ContentType.STICKER
+                        ).forEach { contentType ->
+                            DropdownMenuItem(onClick = {
+                                if (messageTypeFilter.contains(contentType)) messageTypeFilter -= contentType
+                                else messageTypeFilter += contentType
+                            }, text = {
+                                Row(
+                                    verticalAlignment = Alignment.CenterVertically
+                                ) {
+                                    Checkbox(checked = messageTypeFilter.contains(contentType), onCheckedChange = null)
+                                    Text(text = contentType.name)
+                                }
+                            })
+                        }
+                    }
                 }
-                .show()
+            }
+
+            Text(exporterTranslation["amount_of_messages_title"])
+            val focusManager = LocalFocusManager.current
+            val keyboard = LocalSoftwareKeyboardController.current
+            TextField(
+                value = amountOfMessages.takeIf { it != -1 }?.toString() ?: "",
+                onValueChange = { amountOfMessages = it.toIntOrNull()?.absoluteValue ?: -1 },
+                singleLine = true,
+                keyboardOptions = KeyboardOptions(imeAction = ImeAction.Done, keyboardType = KeyboardType.Number),
+                keyboardActions = KeyboardActions(
+                    onDone = {
+                        focusManager.clearFocus()
+                        keyboard?.hide()
+                    })
+            )
+
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.spacedBy(10.dp),
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Checkbox(checked = downloadMedias, onCheckedChange = { downloadMedias = it })
+                Text(exporterTranslation["download_medias_title"])
+            }
+
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceEvenly,
+            ) {
+                Button(
+                    onClick = { getDialog()?.dismiss() }
+                ) {
+                    Text(text = translation["dialog_negative_button"])
+                }
+                Button(
+                    enabled = selectedFeedEntries.isNotEmpty(),
+                    onClick = {
+                        exportChatForConversations(selectedFeedEntries, ExportParams(
+                            exportFormat = exportType,
+                            messageTypeFilter = messageTypeFilter.takeIf { it.isNotEmpty() },
+                            amountOfMessages = amountOfMessages.takeIf { it != -1 },
+                            downloadMedias = downloadMedias
+                        ))
+                    }
+                ) {
+                    Text(text = translation["dialog_positive_button"])
+                }
+            }
+
+            LaunchedEffect(Unit) {
+                withContext(Dispatchers.IO) {
+                    feedEntries = context.database.getFeedEntries(500)
+                }
+            }
         }
     }
 
     override fun run() {
         context.coroutineScope.launch(Dispatchers.Main) {
-            exportType = askExportType() ?: return@launch
-            mediaToDownload = if (exportType == ExportFormat.HTML) askMediaToDownload() else null
-            amountOfMessages = askAmountOfMessages()
-
-            val friendFeedEntries = context.database.getFeedEntries(500)
-            val selectedConversations = mutableListOf<FriendFeedEntry>()
-
+            lateinit var exporterDialog: AlertDialog
             ViewAppearanceHelper.newAlertDialogBuilder(context.mainActivity)
-                .setTitle(context.translation["chat_export.select_conversation"])
-                .setMultiChoiceItems(
-                    friendFeedEntries.map { it.feedDisplayName ?: it.friendDisplayUsername!!.split("|").firstOrNull() }.toTypedArray(),
-                    BooleanArray(friendFeedEntries.size) { false }
-                ) { _, which, isChecked ->
-                    if (isChecked) {
-                        selectedConversations.add(friendFeedEntries[which])
-                    } else if (selectedConversations.contains(friendFeedEntries[which])) {
-                        selectedConversations.remove(friendFeedEntries[which])
+                .setTitle(translation["select_conversation"])
+                .setView(createComposeView(context.mainActivity!!) {
+                    Surface(
+                        modifier = Modifier.fillMaxWidth(),
+                        color = MaterialTheme.colorScheme.surface
+                    ) {
+                        ExporterDialog { exporterDialog }
                     }
+                })
+                .create().apply {
+                    exporterDialog = this
+                    setCanceledOnTouchOutside(false)
+                    show()
+                    window?.clearFlags(WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE or WindowManager.LayoutParams.FLAG_ALT_FOCUSABLE_IM)
+                    window?.setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_VISIBLE)
                 }
-                .setNegativeButton(context.translation["chat_export.dialog_negative_button"]) { dialog, _ ->
-                    dialog.dismiss()
-                }
-                .setNeutralButton(context.translation["chat_export.dialog_neutral_button"]) { _, _ ->
-                    exportChatForConversations(friendFeedEntries)
-                }
-                .setPositiveButton(context.translation["chat_export.dialog_positive_button"]) { _, _ ->
-                    exportChatForConversations(selectedConversations)
-                }
-                .show()
         }
     }
 
@@ -158,26 +295,72 @@ class ExportChatMessages : AbstractAction() {
         emptyList()
     }
 
-    private suspend fun exportFullConversation(friendFeedEntry: FriendFeedEntry) {
+    private fun exportChatForConversations(
+        conversations: List<FriendFeedEntry>,
+        exportParams: ExportParams,
+    ) {
+        dialogLogs.clear()
+        val jobs = mutableListOf<Job>()
+
+        currentActionDialog = ViewAppearanceHelper.newAlertDialogBuilder(context.mainActivity)
+            .setTitle(translation["exporting_chats"])
+            .setCancelable(false)
+            .setMessage("")
+            .create()
+        
+        val conversationSize = translation.format("processing_chats", "amount" to conversations.size.toString())
+        
+        logDialog(conversationSize)
+
+        context.coroutineScope.launch {
+            conversations.forEach { conversation ->
+                launch {
+                    runCatching {
+                        exportFullConversation(conversation, exportParams)
+                    }.onFailure {
+                        logDialog(translation.format("export_fail", "conversation" to conversation.key.toString()))
+                        logDialog(it.stackTraceToString())
+                        CoreLogger.xposedLog(it)
+                    }
+                }.also { jobs.add(it) }
+            }
+            jobs.joinAll()
+            logDialog(translation["finished"])
+        }.also {
+            currentActionDialog?.setButton(DialogInterface.BUTTON_POSITIVE, translation["dialog_negative_button"]) { dialog, _ ->
+                it.cancel()
+                jobs.forEach { it.cancel() }
+                dialog.dismiss()
+            }
+        }
+
+        currentActionDialog!!.also {
+            it.setCanceledOnTouchOutside(false)
+        }.show()
+    }
+
+    private suspend fun exportFullConversation(
+        feedEntry: FriendFeedEntry,
+        exportParams: ExportParams,
+    ) {
         //first fetch the first message
-        val conversationId = friendFeedEntry.key!!
-        val conversationName = friendFeedEntry.feedDisplayName ?: friendFeedEntry.friendDisplayName!!.split("|").lastOrNull() ?: "unknown"
-        val conversationParticipants = context.database.getConversationParticipants(friendFeedEntry.key!!)
+        val conversationId = feedEntry.key!!
+        val conversationName = feedEntry.feedDisplayName ?: feedEntry.friendDisplayName!!.split("|").lastOrNull() ?: "unknown"
+        val conversationParticipants = context.database.getConversationParticipants(feedEntry.key!!)
             ?.mapNotNull {
                 context.database.getFriendInfo(it)
             }?.associateBy { it.userId!! } ?: emptyMap()
 
         val publicFolder = File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS), "SnapEnhance").also { if (!it.exists()) it.mkdirs() }
-        val outputFile = publicFolder.resolve("conversation_${conversationName}_${System.currentTimeMillis()}.${exportType!!.extension}")
+        val outputFile = publicFolder.resolve("conversation_${conversationName}_${System.currentTimeMillis()}.${exportParams.exportFormat.extension}")
 
-        logDialog(context.translation.format("chat_export.exporting_message", "conversation" to conversationName))
+        logDialog(translation.format("exporting_message", "conversation" to conversationName))
 
         val conversationExporter = ConversationExporter(
             context = context,
-            friendFeedEntry = friendFeedEntry,
+            friendFeedEntry = feedEntry,
             conversationParticipants = conversationParticipants,
-            exportFormat = exportType!!,
-            messageTypeFilter = mediaToDownload,
+            exportParams = exportParams,
             cacheFolder = publicFolder.resolve("cache").also { if (!it.exists()) it.mkdirs() },
             outputFile = outputFile,
         ).apply { init(); printLog = {
@@ -187,17 +370,28 @@ class ExportChatMessages : AbstractAction() {
         var foundMessageCount = 0
 
         var lastMessageId = fetchMessagesPaginated(conversationId, Long.MAX_VALUE, amount = 1).firstOrNull()?.messageDescriptor?.messageId ?: run {
-            logDialog(context.translation["chat_export.no_messages_found"])
+            logDialog(translation["no_messages_found"])
             return
         }
 
         while (true) {
-            val fetchedMessages = fetchMessagesPaginated(conversationId, lastMessageId, amount = 500)
+            val fetchedMessages = fetchMessagesPaginated(conversationId, lastMessageId, amount = 500).toMutableList()
             if (fetchedMessages.isEmpty()) break
+
+            fetchedMessages.firstOrNull()?.let {
+                lastMessageId = it.messageDescriptor!!.messageId!!
+            }
+
+            exportParams.messageTypeFilter?.let { filter ->
+                fetchedMessages.removeIf { message ->
+                    !filter.contains(message.messageContent?.contentType ?: return@removeIf false)
+                }
+            }
+
             foundMessageCount += fetchedMessages.size
 
-            if (amountOfMessages != null && foundMessageCount >= amountOfMessages!!) {
-                fetchedMessages.subList(0, amountOfMessages!! - foundMessageCount).reversed().forEach { message ->
+            if (exportParams.amountOfMessages != null && foundMessageCount >= exportParams.amountOfMessages) {
+                fetchedMessages.reversed().subList(0, exportParams.amountOfMessages - (foundMessageCount - fetchedMessages.size)).forEach { message ->
                     conversationExporter.readMessage(message)
                 }
                 break
@@ -207,57 +401,15 @@ class ExportChatMessages : AbstractAction() {
                 conversationExporter.readMessage(message)
             }
 
-            fetchedMessages.firstOrNull()?.let {
-                lastMessageId = it.messageDescriptor!!.messageId!!
-            }
             setStatus("Exporting (found ${foundMessageCount})")
         }
 
-        if (exportType == ExportFormat.HTML) conversationExporter.awaitDownload()
+        if (exportParams.exportFormat == ExportFormat.HTML) conversationExporter.awaitDownload()
         conversationExporter.close()
-        logDialog(context.translation["chat_export.writing_output"])
+        logDialog(translation["writing_output"])
         dialogLogs.clear()
-        logDialog("\n" + context.translation.format("chat_export.exported_to",
+        logDialog("\n" + translation.format("exported_to",
             "path" to outputFile.absolutePath.toString()
         ) + "\n")
-    }
-
-    private fun exportChatForConversations(conversations: List<FriendFeedEntry>) {
-        dialogLogs.clear()
-        val jobs = mutableListOf<Job>()
-
-        currentActionDialog = ViewAppearanceHelper.newAlertDialogBuilder(context.mainActivity)
-            .setTitle(context.translation["chat_export.exporting_chats"])
-            .setCancelable(false)
-            .setMessage("")
-            .create()
-        
-        val conversationSize = context.translation.format("chat_export.processing_chats", "amount" to conversations.size.toString())
-        
-        logDialog(conversationSize)
-
-        context.coroutineScope.launch {
-            conversations.forEach { conversation ->
-                launch {
-                    runCatching {
-                        exportFullConversation(conversation)
-                    }.onFailure {
-                        logDialog(context.translation.format("chat_export.export_fail", "conversation" to conversation.key.toString()))
-                        logDialog(it.stackTraceToString())
-                        CoreLogger.xposedLog(it)
-                    }
-                }.also { jobs.add(it) }
-            }
-            jobs.joinAll()
-            logDialog(context.translation["chat_export.finished"])
-        }.also {
-            currentActionDialog?.setButton(DialogInterface.BUTTON_POSITIVE, context.translation["chat_export.dialog_negative_button"]) { dialog, _ ->
-                it.cancel()
-                jobs.forEach { it.cancel() }
-                dialog.dismiss()
-            }
-        }
-
-        currentActionDialog!!.show()
     }
 }

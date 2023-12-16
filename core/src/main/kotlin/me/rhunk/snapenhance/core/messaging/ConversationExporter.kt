@@ -34,8 +34,7 @@ class ConversationExporter(
     private val context: ModContext,
     private val friendFeedEntry: FriendFeedEntry,
     private val conversationParticipants: Map<String, FriendInfo>,
-    private val exportFormat: ExportFormat,
-    private val messageTypeFilter: List<ContentType>? = null,
+    private val exportParams: ExportParams,
     private val cacheFolder: File,
     private val outputFile: File
 ) {
@@ -44,13 +43,13 @@ class ConversationExporter(
     private val downloadThreadExecutor = Executors.newFixedThreadPool(4)
     private val writeThreadExecutor = Executors.newSingleThreadExecutor()
 
-    private val conversationJsonDataFile by lazy { cacheFolder.resolve("messages.json") }
+    private val conversationJsonDataFile by lazy { cacheFolder.resolve("messages_${friendFeedEntry.key}.json") }
     private val jsonDataWriter by lazy { JsonWriter(conversationJsonDataFile.writer()) }
     private val outputFileStream by lazy { outputFile.outputStream() }
     private val participants = mutableMapOf<String, Int>()
 
     fun init() {
-        when (exportFormat) {
+        when (exportParams.exportFormat) {
             ExportFormat.TEXT -> {
                 outputFileStream.write("Conversation id: ${friendFeedEntry.key}\n".toByteArray())
                 outputFileStream.write("Conversation name: ${friendFeedEntry.feedDisplayName}\n".toByteArray())
@@ -86,7 +85,7 @@ class ConversationExporter(
 
                 jsonDataWriter.name("messages").beginArray()
 
-                if (exportFormat != ExportFormat.HTML) return
+                if (exportParams.exportFormat != ExportFormat.HTML) return
                 outputFileStream.write("""
                     <!DOCTYPE html>
                     <html>
@@ -158,7 +157,7 @@ class ConversationExporter(
     }
 
     fun readMessage(message: Message) {
-        if (exportFormat == ExportFormat.TEXT) {
+        if (exportParams.exportFormat == ExportFormat.TEXT) {
             val (displayName, senderUsername) = conversationParticipants[message.senderId.toString()]?.let {
                 it.displayName to it.mutableUsername
             } ?: ("" to message.senderId.toString())
@@ -169,14 +168,9 @@ class ConversationExporter(
         }
         val contentType = message.messageContent?.contentType ?: return
 
-        if (messageTypeFilter != null) {
-            if (!messageTypeFilter.contains(contentType))  return
-
-            if (contentType == ContentType.NOTE || contentType == ContentType.SNAP || contentType == ContentType.EXTERNAL_MEDIA) {
-                downloadMedia(message)
-            }
+        if (exportParams.downloadMedias && (contentType == ContentType.NOTE || contentType == ContentType.SNAP || contentType == ContentType.EXTERNAL_MEDIA)) {
+            downloadMedia(message)
         }
-
 
         jsonDataWriter.apply {
             beginObject()
@@ -236,20 +230,20 @@ class ConversationExporter(
     }
 
     fun close() {
-        if (exportFormat != ExportFormat.TEXT) {
+        if (exportParams.exportFormat != ExportFormat.TEXT) {
             jsonDataWriter.endArray()
             jsonDataWriter.endObject()
             jsonDataWriter.flush()
             jsonDataWriter.close()
         }
 
-        if (exportFormat == ExportFormat.JSON) {
+        if (exportParams.exportFormat == ExportFormat.JSON) {
             conversationJsonDataFile.inputStream().use {
                 it.copyTo(outputFileStream)
             }
         }
 
-        if (exportFormat == ExportFormat.HTML) {
+        if (exportParams.exportFormat == ExportFormat.HTML) {
             //write the json file
             outputFileStream.write("<script type=\"application/json\" class=\"exported_content\">".toByteArray())
 
@@ -259,9 +253,14 @@ class ConversationExporter(
                 android.util.Base64.DEFAULT or android.util.Base64.NO_WRAP,
                 true
             ) as OutputStream).let { outputStream ->
-                val deflateOutputStream = DeflaterOutputStream(outputStream, Deflater(Deflater.BEST_COMPRESSION, true), true)
-                conversationJsonDataFile.inputStream().use {
-                    it.copyTo(deflateOutputStream)
+                val deflateOutputStream = DeflaterOutputStream(outputStream, Deflater(Deflater.BEST_SPEED, true), true)
+                conversationJsonDataFile.inputStream().use { fileInputStream ->
+                    val buffer = ByteArray(4096)
+                    var length: Int
+                    while (fileInputStream.read(buffer).also { length = it } > 0) {
+                        deflateOutputStream.write(buffer, 0, length)
+                        deflateOutputStream.flush()
+                    }
                 }
                 deflateOutputStream.finish()
                 outputStream.flush()

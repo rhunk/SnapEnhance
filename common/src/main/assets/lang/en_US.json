@@ -910,12 +910,16 @@
     },
 
     "chat_export": {
-        "select_export_format": "Select the Export Format",
-        "select_media_type": "Select Media Types to export",
-        "select_amount_of_messages": "Select the amount of messages to export (leave empty for all)",
-        "select_conversation": "Select a Conversation to export",
+        "exporter_dialog": {
+            "select_conversations_title": "Select Conversations",
+            "text_field_selection": "{amount} selected",
+            "text_field_selection_all": "All",
+            "export_file_format_title": "Export File Format",
+            "message_type_filter_title": "Filter Messages by Type",
+            "amount_of_messages_title": "Amount of Messages (leave it blank for all)",
+            "download_medias_title": "Download Medias"
+        },
         "dialog_negative_button": "Cancel",
-        "dialog_neutral_button": "Export All",
         "dialog_positive_button": "Export",
         "exported_to": "Exported to {path}",
         "exporting_chats": "Exporting Chats...",
