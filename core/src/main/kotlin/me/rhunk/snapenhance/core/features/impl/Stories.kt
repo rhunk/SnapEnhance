@@ -2,7 +2,6 @@ package me.rhunk.snapenhance.core.features.impl
 
 import kotlinx.coroutines.runBlocking
 import me.rhunk.snapenhance.common.util.protobuf.ProtoEditor
-import me.rhunk.snapenhance.common.util.protobuf.ProtoReader
 import me.rhunk.snapenhance.core.event.events.impl.NetworkApiRequestEvent
 import me.rhunk.snapenhance.core.features.Feature
 import me.rhunk.snapenhance.core.features.FeatureLoadParams
@@ -35,10 +34,13 @@ class Stories : Feature("Stories", loadParams = FeatureLoadParams.INIT_SYNC) {
                 }
                 if (!context.config.messaging.preventStoryRewatchIndicator.get()) return@subscribe
                 event.hookRequestBuffer { buffer ->
-                    if (ProtoReader(buffer).getVarInt(2, 7, 4) == 1L) {
-                        cancelRequest()
-                    }
-                    buffer
+                    ProtoEditor(buffer).apply {
+                        edit {
+                            get(2).removeIf {
+                                it.toReader().getVarInt(7, 4) == 1L
+                            }
+                        }
+                    }.toByteArray()
                 }
             }
 
