@@ -27,61 +27,148 @@ We no longer offer official LSPatch binaries for obvious reasons. However, you'r
 
 ## Features
 <details open>
-  <summary>Spying & Privacy</summary>
+  <summary>Downloader</summary>
 
-  - Message logger
-  - Prevent sending Read Receipts
-  - Hide Bitmoji Presence
-  - Better Notifications
-  - Disable Metrics
-  - Block Ads
-  - Unlimited Snap View Time
-  - Prevent Screenshot Notification
-  - Prevent Status Notifications
-  - Anonymous Story View
-  - Prevent Typing Notification
+  - Save Folder
+  - Auto Download Sources
+  - Prevent Self Auto Download 
+  - Path Format
+  - Allow Duplicate 
+  - Merge Overlays (Unstable)
+  - Force Image Format
+  - Force Voice Note Format
+  - Download Profile Pictures
+  - Opera Download Button 
+  - Chat Download Context Menu
+  - FFmpeg Options (Unstable)
+  - Logging
 </details>
 
 <details open>
-  <summary>Media Manager</summary>
+  <summary>User Interface</summary>
 
-  - Download any message in a chat (Snaps, External Media, Voice Notes, etc.)
-  - Download any story (Private, Public, or Professional)
-  - Anti Auto-download (Prevents automatic Downloading on specific conversations)
-  - Gallery Media Send Override
-  - Auto Save Messages
-  - Force Source Quality
-</details>
-
-<details open>
-  <summary>UI & Tweaks</summary>
-
-  - Disable Camera
-  - Immersive Camera Preview (Fix Snapchats camera bug)
-  - Hide certain UI Elements
+  - Friend Feed Menu Buttons 
+  - Friend Feed Position Index
+  - AMOLED Dark Mode (Unstable)
+  - Friend Feed Message Preview 
+  - Snap Preview (Unstable)
+  - Bootstrap Override 
+  - Enhance Friend Map Nametags
+  - Prevent Message List Auto Scroll  (Unstable)
   - Show Streak Expiration Info
-  - Disable Snap Splitting
-  - Disable Video Length Restriction
-  - Snapchat Plus
-  - New Map UI
-  - Location Spoofer
-  - Disable Spotlight
-  - Enable Official App Appearance Settings (Darkmode)
-  - Pin Conversations
-  - Multi Snap Limit bypass
-  - Override Startup Page
+  - Hide Friend Feed Entry
+  - Hide Streak Restore
+  - Hide Quick Add In Friend Feed
+  - Hide Story Section 
+  - Hide UI Components 
+  - Opera Media Quick Info
+  - Old Bitmoji Selfie 
+  - Disable Spotlight 
+  - Hide Settings Gear
+  - Vertical Story Viewer 
+  - Fidelius Indicator 
+  - Edit Text Override (Bans And Breaks Can Happen)
+</details>  
+
+<details open>
+  <summary>Messaging</summary>
+
+  - Bypass Screenshot Detection 
+  - Anonymous Story Viewing
+  - Prevent Story Rewatch Indicator 
+  - Hide Peak-a-Peak
+  - Hide Bitmoji Presence 
+  - Hide Typing Notifications 
+  - Unlimited Snap View Time 
+  - Disable Replay In FF
+  - Half Swipe Notifier
+  - Message Preview Length 
+  - Call Start Confirmation 
+  - Auto Save Messages 
+  - Prevent Message Sending (Hooks Required)
+  - Instant Delete 
+  - Better Notifications 
+  - Notifications Blacklist
+  - Message Logger (Unstable)
+  - Gallery Media Send Override (Hooks Required)
+  - Strip Media Megadata
+  - Bypass Message Retention Policy (Hooks Required)
+ </details>
+
+<details open>
+  <summary>Global</summary>
+
+  - Location 
+  - Snapchat Plus 
+  - Disable Confirmation Dialogs
+  - Disable Metrics 
+  - Disable Public Stories
+  - Block Ads
+  - Bypass Video Length Restriction (Bans Can Happen & Hooks Required) 
+  - Disable Google Play Services Dialogs 
+  - Force Upload Source Quality 
+  - Disable Snap Splitting (Breaks can happen) 
+</details>
+
+<details open>
+  <summary>Rules</summary>
+
+  - Stealth Mode 
+  - Auto Download 
+  - Auto Save
+</details>
+
+<details open>
+  <summary>Camera</summary>
+
+  - Disable Camera 
+  - Immersive Preview (Unstable)
+  - Black Photos 
+  - Custom Frame Rate (Unstable)
+  - HEVC Recording (Unstable)
+  - Force Camera Source Encoding
+  - Custom Preview Resolution (Unstable)
+  - Custom Picture Resolution (Unstable)
+  - Override Preview Resolution 
+  - Override Picture Resolution 
+</details> 
+
+<details open>
+  <summary>Streak Reminder</summary>
+
+  - Interval
+  - Remaining Time
+  - Group Notifications 
 </details>
 
 <details open>
   <summary>Experimental</summary>
 
-  - App Passcode
-  - Infinite Story Boost
-  - My Eyes Only Bypass
-  - AMOLED Dark Mode
-  - Chat Export (HTML, JSON and TXT)
+  - Native Hooks 
+  - Spoof
+  - Convert Message Locally 
+  - App Passcode 
+  - App Lock On Resume 
+  - Infinite Story Boost 
+  - My Eyes Only Passcode Bypass
+  - Unlimited Multi Snap (May Cause Bans)
+  - No Friend Score Delay 
+  - End-to-End Encryption (Hooks Required)
+  - Hidden Snapchat Plus Features (Unstable & May Cause Bans)
+  - Add Friend Spoof (May Cause Bans)
+  - Disable Composer Modules (May Cause Bans)
 </details>
 
+<details open>
+  <summary>Scripting</summary>
+  
+  - Module Folder 
+  - Auto Reload
+  - Disable Log Anonymization
+
+Please Note Scripting is in Early development (Not Yet Available To Use)<br/>
+</details>
+  
 ## FAQ
 <details>
   <summary>AI wallpapers and the Snapchat+ badge aren't working!</summary>
