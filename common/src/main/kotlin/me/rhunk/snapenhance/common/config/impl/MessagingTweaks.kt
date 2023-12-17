@@ -15,6 +15,39 @@ class MessagingTweaks : ConfigContainer() {
         }
     }
 
+    inner class MessageLoggerConfig : ConfigContainer(hasGlobalState = true) {
+        val keepMyOwnMessages = boolean("keep_my_own_messages")
+        private val autoPurge = unique("auto_purge", "1_hour", "3_hours", "6_hours", "12_hours", "1_day", "3_days", "1_week", "2_weeks", "1_month", "3_months", "6_months") {
+            disabledKey = "features.options.auto_purge.never"
+        }.apply { set("3_days") }
+
+        fun getAutoPurgeTime(): Long? {
+            return when (autoPurge.getNullable()) {
+                "1_hour" -> 3600000L
+                "3_hours" -> 10800000L
+                "6_hours" -> 21600000L
+                "12_hours" -> 43200000L
+                "1_day" -> 86400000L
+                "3_days" -> 259200000L
+                "1_week" -> 604800000L
+                "2_weeks" -> 1209600000L
+                "1_month" -> 2592000000L
+                "3_months" -> 7776000000L
+                "6_months" -> 15552000000L
+                else -> null
+            }
+        }
+
+        val messageFilter = multiple("message_filter", "CHAT",
+            "SNAP",
+            "NOTE",
+            "EXTERNAL_MEDIA",
+            "STICKER"
+        ) {
+            customOptionTranslationPath = "content_type"
+        }
+    }
+
     val bypassScreenshotDetection = boolean("bypass_screenshot_detection") { requireRestart() }
     val anonymousStoryViewing = boolean("anonymous_story_viewing")
     val preventStoryRewatchIndicator = boolean("prevent_story_rewatch_indicator") { requireRestart() }
@@ -42,7 +75,7 @@ class MessagingTweaks : ConfigContainer() {
     val notificationBlacklist = multiple("notification_blacklist", *NotificationType.getIncomingValues().map { it.key }.toTypedArray()) {
         customOptionTranslationPath = "features.options.notifications"
     }
-    val messageLogger = boolean("message_logger") { addNotices(FeatureNotice.UNSTABLE); requireRestart() }
+    val messageLogger = container("message_logger", MessageLoggerConfig()) { addNotices(FeatureNotice.UNSTABLE); requireRestart() }
     val galleryMediaSendOverride = boolean("gallery_media_send_override") { nativeHooks() }
     val stripMediaMetadata = multiple("strip_media_metadata", "hide_caption_text", "hide_snap_filters", "hide_extras", "remove_audio_note_duration", "remove_audio_note_transcript_capability") { requireRestart() }
     val bypassMessageRetentionPolicy = boolean("bypass_message_retention_policy") { addNotices(FeatureNotice.UNSTABLE); requireRestart() }

@@ -405,7 +405,21 @@
                     },
                     "message_logger": {
                         "name": "Message Logger",
-                        "description": "Prevents messages from being deleted"
+                        "description": "Prevents messages from being deleted",
+                        "properties": {
+                            "keep_my_own_messages": {
+                                "name": "Keep My Own Messages",
+                                "description": "Prevents your own messages from being deleted"
+                            },
+                            "auto_purge": {
+                                "name": "Auto Purge",
+                                "description": "Automatically deletes cached messages that are older than the specified amount of time"
+                            },
+                            "message_filter": {
+                                "name": "Message Filter",
+                                "description": "Select which messages should get logged (empty for all messages)"
+                            }
+                        }
                     },
                     "auto_save_messages_in_conversations": {
                         "name": "Auto Save Messages",
@@ -806,6 +820,20 @@
             "edit_text_override": {
                 "multi_line_chat_input": "Multi Line Chat Input",
                 "bypass_text_input_limit": "Bypass Text Input Limit"
+            },
+            "auto_purge": {
+                "never": "Never",
+                "1_hour": "1 Hour",
+                "3_hours": "3 Hours",
+                "6_hours": "6 Hours",
+                "12_hours": "12 Hours",
+                "1_day": "1 Day",
+                "3_days": "3 Days",
+                "1_week": "1 Week",
+                "2_weeks": "2 Weeks",
+                "1_month": "1 Month",
+                "3_months": "3 Months",
+                "6_months": "6 Months"
             }
         }
     },

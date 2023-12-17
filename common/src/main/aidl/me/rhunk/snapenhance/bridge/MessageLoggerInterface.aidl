@@ -15,12 +15,12 @@ interface MessageLoggerInterface {
     /**
      * Add a message to the message logger database if it is not already there
      */
-    boolean addMessage(String conversationId, long id, in byte[] message);
+    oneway void addMessage(String conversationId, long id, in byte[] message);
 
     /**
      * Delete a message from the message logger database
      */
-    void deleteMessage(String conversationId, long id);
+    oneway void deleteMessage(String conversationId, long id);
 
     /**
     * Add a story to the message logger database if it is not already there

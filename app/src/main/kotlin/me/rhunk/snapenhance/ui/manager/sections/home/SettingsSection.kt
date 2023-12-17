@@ -161,7 +161,7 @@ class SettingsSection(
                         }
                         Button(onClick = {
                             runCatching {
-                                context.messageLogger.clearAll()
+                                context.messageLogger.purgeAll()
                                 storedMessagesCount = 0
                                 storedStoriesCount = 0
                             }.onFailure {

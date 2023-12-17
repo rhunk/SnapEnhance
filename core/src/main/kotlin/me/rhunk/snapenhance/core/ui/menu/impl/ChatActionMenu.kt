@@ -66,7 +66,7 @@ class ChatActionMenu : AbstractMenu() {
 
     override fun init() {
         runCatching {
-            if (!context.config.downloader.chatDownloadContextMenu.get() && !context.config.messaging.messageLogger.get() && !context.isDeveloper) return
+            if (!context.config.downloader.chatDownloadContextMenu.get() && context.config.messaging.messageLogger.globalState != true && !context.isDeveloper) return
             context.androidContext.classLoader.loadClass("com.snap.messaging.chat.features.actionmenu.ActionMenuChatItemContainer")
                 .hook("onMeasure", HookStage.BEFORE) { param ->
                     param.setArg(1,
@@ -136,7 +136,7 @@ class ChatActionMenu : AbstractMenu() {
         }
 
         //delete logged message button
-        if (context.config.messaging.messageLogger.get()) {
+        if (context.config.messaging.messageLogger.globalState == true) {
             injectButton(Button(viewGroup.context).apply {
                 text = this@ChatActionMenu.context.translation["chat_action_menu.delete_logged_message_button"]
                 setOnClickListener {

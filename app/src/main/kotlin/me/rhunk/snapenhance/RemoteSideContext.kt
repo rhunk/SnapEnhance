@@ -108,6 +108,11 @@ class RemoteSideContext(
             streaksReminder.init()
             scriptManager.init()
             messageLogger.init()
+            config.root.messaging.messageLogger.takeIf {
+                it.globalState == true
+            }?.getAutoPurgeTime()?.let {
+                messageLogger.purgeAll(it)
+            }
         }.onFailure {
             log.error("Failed to load RemoteSideContext", it)
         }

@@ -26,12 +26,14 @@ class MessageLoggerWrapper(
             SQLiteDatabaseHelper.createTablesFromSchema(openedDatabase, mapOf(
                 "messages" to listOf(
                     "id INTEGER PRIMARY KEY",
+                    "added_timestamp BIGINT",
                     "conversation_id VARCHAR",
                     "message_id BIGINT",
                     "message_data BLOB"
                 ),
                 "stories" to listOf(
                     "id INTEGER PRIMARY KEY",
+                    "added_timestamp BIGINT",
                     "user_id VARCHAR",
                     "posted_timestamp BIGINT",
                     "created_timestamp BIGINT",
@@ -83,29 +85,33 @@ class MessageLoggerWrapper(
         return message
     }
 
-    override fun addMessage(conversationId: String, messageId: Long, serializedMessage: ByteArray): Boolean {
+    override fun addMessage(conversationId: String, messageId: Long, serializedMessage: ByteArray) {
         val cursor = database.rawQuery("SELECT message_id FROM messages WHERE conversation_id = ? AND message_id = ?", arrayOf(conversationId, messageId.toString()))
         val state = cursor.moveToFirst()
         cursor.close()
-        if (state) {
-            return false
-        }
+        if (state) return
         runBlocking {
             withContext(coroutineScope.coroutineContext) {
                 database.insert("messages", null, ContentValues().apply {
+                    put("added_timestamp", System.currentTimeMillis())
                     put("conversation_id", conversationId)
                     put("message_id", messageId)
                     put("message_data", serializedMessage)
                 })
             }
         }
-        return true
     }
 
-    fun clearAll() {
+    fun purgeAll(maxAge: Long? = null) {
         coroutineScope.launch {
-            database.execSQL("DELETE FROM messages")
-            database.execSQL("DELETE FROM stories")
+            maxAge?.let {
+                val maxTime = System.currentTimeMillis() - it
+                database.execSQL("DELETE FROM messages WHERE added_timestamp < ?", arrayOf(maxTime.toString()))
+                database.execSQL("DELETE FROM stories WHERE added_timestamp < ?", arrayOf(maxTime.toString()))
+            } ?: run {
+                database.execSQL("DELETE FROM messages")
+                database.execSQL("DELETE FROM stories")
+            }
         }
     }
 
@@ -141,6 +147,7 @@ class MessageLoggerWrapper(
             withContext(coroutineScope.coroutineContext) {
                 database.insert("stories", null, ContentValues().apply {
                     put("user_id", userId)
+                    put("added_timestamp", System.currentTimeMillis())
                     put("url", url)
                     put("posted_timestamp", postedAt)
                     put("created_timestamp", createdAt)
