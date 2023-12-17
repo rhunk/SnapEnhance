@@ -18,11 +18,7 @@ import kotlinx.coroutines.runBlocking
 import me.rhunk.snapenhance.bridge.DownloadCallback
 import me.rhunk.snapenhance.common.data.FileType
 import me.rhunk.snapenhance.common.data.MessagingRuleType
-import me.rhunk.snapenhance.common.data.download.DownloadMediaType
-import me.rhunk.snapenhance.common.data.download.DownloadMetadata
-import me.rhunk.snapenhance.common.data.download.InputMedia
-import me.rhunk.snapenhance.common.data.download.MediaDownloadSource
-import me.rhunk.snapenhance.common.data.download.SplitMediaAssetType
+import me.rhunk.snapenhance.common.data.download.*
 import me.rhunk.snapenhance.common.database.impl.ConversationMessage
 import me.rhunk.snapenhance.common.database.impl.FriendInfo
 import me.rhunk.snapenhance.common.util.ktx.longHashCode
@@ -53,18 +49,11 @@ import me.rhunk.snapenhance.core.wrapper.impl.media.opera.ParamMap
 import me.rhunk.snapenhance.core.wrapper.impl.media.toKeyPair
 import java.io.ByteArrayInputStream
 import java.nio.file.Paths
-import java.text.SimpleDateFormat
-import java.util.Locale
 import java.util.UUID
 import kotlin.coroutines.suspendCoroutine
 import kotlin.io.encoding.Base64
 import kotlin.io.encoding.ExperimentalEncodingApi
 import kotlin.math.absoluteValue
-
-private fun String.sanitizeForPath(): String {
-    return this.replace(" ", "_")
-        .replace(Regex("\\p{Cntrl}"), "")
-}
 
 class SnapChapterInfo(
     val offset: Long,
@@ -100,7 +89,13 @@ class MediaDownloader : MessagingRuleFeature("MediaDownloader", MessagingRuleTyp
             context.shortToast(translations["download_started_toast"])
         }
 
-        val outputPath = createNewFilePath(generatedHash.substring(0, generatedHash.length.coerceAtMost(8)), downloadSource, mediaAuthor, creationTimestamp?.takeIf { it > 0L })
+        val outputPath = createNewFilePath(
+            context.config,
+            generatedHash.substring(0, generatedHash.length.coerceAtMost(8)),
+            downloadSource,
+            mediaAuthor,
+            creationTimestamp?.takeIf { it > 0L }
+        )
 
         return DownloadManagerClient(
             context = context,
@@ -135,52 +130,6 @@ class MediaDownloader : MessagingRuleFeature("MediaDownloader", MessagingRuleTyp
                 }
             }
         )
-    }
-
-
-    private fun createNewFilePath(
-        hexHash: String,
-        downloadSource: MediaDownloadSource,
-        mediaAuthor: String,
-        creationTimestamp: Long?
-    ): String {
-        val pathFormat by context.config.downloader.pathFormat
-        val sanitizedMediaAuthor = mediaAuthor.sanitizeForPath().ifEmpty { hexHash }
-
-        val currentDateTime = SimpleDateFormat("yyyy-MM-dd_HH-mm-ss", Locale.ENGLISH).format(creationTimestamp ?: System.currentTimeMillis())
-
-        val finalPath = StringBuilder()
-
-        fun appendFileName(string: String) {
-            if (finalPath.isEmpty() || finalPath.endsWith("/")) {
-                finalPath.append(string)
-            } else {
-                finalPath.append("_").append(string)
-            }
-        }
-
-        if (pathFormat.contains("create_author_folder")) {
-            finalPath.append(sanitizedMediaAuthor).append("/")
-        }
-        if (pathFormat.contains("create_source_folder")) {
-            finalPath.append(downloadSource.pathName).append("/")
-        }
-        if (pathFormat.contains("append_hash")) {
-            appendFileName(hexHash)
-        }
-        if (pathFormat.contains("append_source")) {
-            appendFileName(downloadSource.pathName)
-        }
-        if (pathFormat.contains("append_username")) {
-            appendFileName(sanitizedMediaAuthor)
-        }
-        if (pathFormat.contains("append_date_time")) {
-            appendFileName(currentDateTime)
-        }
-
-        if (finalPath.isEmpty()) finalPath.append(hexHash)
-
-        return finalPath.toString()
     }
 
     /*

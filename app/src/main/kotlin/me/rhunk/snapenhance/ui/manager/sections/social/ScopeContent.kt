@@ -4,6 +4,7 @@ import android.content.Intent
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Switch
@@ -143,7 +144,7 @@ class ScopeContent(
         val hours = minutes / 60
         val days = hours / 24
         if (days > 0) {
-            stringBuilder.append("$days days ")
+            stringBuilder.append("$days day ")
             return stringBuilder.toString()
         }
         if (hours > 0) {
@@ -201,6 +202,22 @@ class ScopeContent(
         }
 
         Spacer(modifier = Modifier.height(16.dp))
+
+        if (context.config.root.experimental.storyLogger.get()) {
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.spacedBy(10.dp, Alignment.CenterHorizontally),
+            ) {
+                Button(onClick = {
+                    navController.navigate(SocialSection.LOGGED_STORIES_ROUTE.replace("{userId}", id))
+                }) {
+                    Text("Show Logged Stories")
+                }
+            }
+
+            Spacer(modifier = Modifier.height(16.dp))
+        }
+
         Column {
             //streaks
             streaks?.let {
@@ -241,6 +258,7 @@ class ScopeContent(
                     }
                 }
             }
+            Spacer(modifier = Modifier.height(16.dp))
             // e2ee section
 
             SectionTitle(translation["e2ee_title"])

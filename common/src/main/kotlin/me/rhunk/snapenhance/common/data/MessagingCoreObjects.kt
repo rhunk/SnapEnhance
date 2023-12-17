@@ -71,3 +71,12 @@ data class MessagingFriendInfo(
     val bitmojiId: String?,
     val selfieId: String?
 ) : SerializableDataObject()
+
+
+class StoryData(
+    val url: String,
+    val postedAt: Long,
+    val createdAt: Long,
+    val key: ByteArray?,
+    val iv: ByteArray?
+) : SerializableDataObject()

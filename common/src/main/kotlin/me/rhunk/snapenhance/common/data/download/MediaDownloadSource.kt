@@ -12,7 +12,8 @@ enum class MediaDownloadSource(
     STORY("story", "Story", "story"),
     PUBLIC_STORY("public_story", "Public Story", "public_story"),
     SPOTLIGHT("spotlight", "Spotlight", "spotlight"),
-    PROFILE_PICTURE("profile_picture", "Profile Picture", "profile_picture");
+    PROFILE_PICTURE("profile_picture", "Profile Picture", "profile_picture"),
+    STORY_LOGGER("story_logger", "Story Logger", "story_logger");
 
     fun matches(source: String?): Boolean {
         if (source == null) return false

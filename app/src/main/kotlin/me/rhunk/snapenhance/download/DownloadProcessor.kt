@@ -23,7 +23,6 @@ import me.rhunk.snapenhance.common.data.download.DownloadMetadata
 import me.rhunk.snapenhance.common.data.download.DownloadRequest
 import me.rhunk.snapenhance.common.data.download.InputMedia
 import me.rhunk.snapenhance.common.data.download.SplitMediaAssetType
-import me.rhunk.snapenhance.common.util.ktx.longHashCode
 import me.rhunk.snapenhance.common.util.snap.MediaDownloaderHelper
 import me.rhunk.snapenhance.common.util.snap.RemoteMediaResolver
 import me.rhunk.snapenhance.task.PendingTask
@@ -35,7 +34,6 @@ import java.io.File
 import java.io.InputStream
 import java.net.HttpURLConnection
 import java.net.URL
-import java.util.UUID
 import java.util.concurrent.ConcurrentHashMap
 import javax.xml.parsers.DocumentBuilderFactory
 import javax.xml.transform.TransformerFactory
@@ -44,7 +42,6 @@ import javax.xml.transform.stream.StreamResult
 import kotlin.coroutines.coroutineContext
 import kotlin.io.encoding.Base64
 import kotlin.io.encoding.ExperimentalEncodingApi
-import kotlin.math.absoluteValue
 
 data class DownloadedFile(
     val file: File,
@@ -331,11 +328,8 @@ class DownloadProcessor (
         return newFile
     }
 
-    fun onReceive(intent: Intent) {
+    fun enqueue(downloadRequest: DownloadRequest, downloadMetadata: DownloadMetadata) {
         remoteSideContext.coroutineScope.launch {
-            val downloadMetadata = gson.fromJson(intent.getStringExtra(ReceiversConfig.DOWNLOAD_METADATA_EXTRA)!!, DownloadMetadata::class.java)
-            val downloadRequest = gson.fromJson(intent.getStringExtra(ReceiversConfig.DOWNLOAD_REQUEST_EXTRA)!!, DownloadRequest::class.java)
-
             remoteSideContext.taskManager.getTaskByHash(downloadMetadata.mediaIdentifier)?.let { task ->
                 remoteSideContext.log.debug("already queued or downloaded")
 
@@ -450,5 +444,12 @@ class DownloadProcessor (
                 callbackOnFailure(translation["failed_generic_toast"], exception.message)
             }
         }
+    }
+
+    fun onReceive(intent: Intent) {
+        val downloadMetadata = gson.fromJson(intent.getStringExtra(ReceiversConfig.DOWNLOAD_METADATA_EXTRA)!!, DownloadMetadata::class.java)
+        val downloadRequest = gson.fromJson(intent.getStringExtra(ReceiversConfig.DOWNLOAD_REQUEST_EXTRA)!!, DownloadRequest::class.java)
+
+        enqueue(downloadRequest, downloadMetadata)
     }
 }

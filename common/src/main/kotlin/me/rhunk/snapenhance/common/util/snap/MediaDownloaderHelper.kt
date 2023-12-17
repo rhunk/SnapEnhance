@@ -22,7 +22,7 @@ object MediaDownloaderHelper {
         inputStream: InputStream,
         callback: (SplitMediaAssetType, InputStream) -> Unit
     ) {
-        val bufferedInputStream = BufferedInputStream(inputStream)
+        val bufferedInputStream = inputStream.buffered()
         val fileType = getFileType(bufferedInputStream)
 
         if (fileType != FileType.ZIP) {
@@ -30,16 +30,16 @@ object MediaDownloaderHelper {
             return
         }
 
-        val zipInputStream = ZipInputStream(bufferedInputStream)
-
-        var entry: ZipEntry? = zipInputStream.nextEntry
-        while (entry != null) {
-            if (entry.name.startsWith("overlay")) {
-                callback(SplitMediaAssetType.OVERLAY, zipInputStream)
-            } else if (entry.name.startsWith("media")) {
-                callback(SplitMediaAssetType.ORIGINAL, zipInputStream)
+        ZipInputStream(bufferedInputStream).use { zipInputStream ->
+            var entry: ZipEntry? = zipInputStream.nextEntry
+            while (entry != null) {
+                if (entry.name.startsWith("overlay")) {
+                    callback(SplitMediaAssetType.OVERLAY, zipInputStream)
+                } else if (entry.name.startsWith("media")) {
+                    callback(SplitMediaAssetType.ORIGINAL, zipInputStream)
+                }
+                entry = zipInputStream.nextEntry
             }
-            entry = zipInputStream.nextEntry
         }
     }
 }

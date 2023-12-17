@@ -122,9 +122,11 @@ class SettingsSection(
                     verticalArrangement = Arrangement.spacedBy(4.dp),
                 ) {
                     var storedMessagesCount by remember { mutableIntStateOf(0) }
+                    var storedStoriesCount by remember { mutableIntStateOf(0) }
                     LaunchedEffect(Unit) {
                         withContext(Dispatchers.IO) {
                             storedMessagesCount = context.messageLogger.getStoredMessageCount()
+                            storedStoriesCount = context.messageLogger.getStoredStoriesCount()
                         }
                     }
                     Row(
@@ -134,7 +136,13 @@ class SettingsSection(
                             .fillMaxWidth()
                             .padding(5.dp)
                     ) {
-                        Text(text = "$storedMessagesCount messages", modifier = Modifier.weight(1f))
+                        Column(
+                            modifier = Modifier.weight(1f),
+                            verticalArrangement = Arrangement.spacedBy(2.dp),
+                        ) {
+                            Text(text = "$storedMessagesCount messages")
+                            Text(text = "$storedStoriesCount stories")
+                        }
                         Button(onClick = {
                             runCatching {
                                 activityLauncherHelper.saveFile("message_logger.db", "application/octet-stream") { uri ->
@@ -153,8 +161,9 @@ class SettingsSection(
                         }
                         Button(onClick = {
                             runCatching {
-                                context.messageLogger.clearMessages()
+                                context.messageLogger.clearAll()
                                 storedMessagesCount = 0
+                                storedStoriesCount = 0
                             }.onFailure {
                                 context.log.error("Failed to clear messages", it)
                                 context.longToast("Failed to clear messages! ${it.localizedMessage}")

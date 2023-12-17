@@ -21,4 +21,9 @@ interface MessageLoggerInterface {
      * Delete a message from the message logger database
      */
     void deleteMessage(String conversationId, long id);
+
+    /**
+    * Add a story to the message logger database if it is not already there
+    */
+    boolean addStory(String userId, String url, long postedAt, long createdAt, in byte[] key, in byte[] iv);
 }

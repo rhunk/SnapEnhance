@@ -44,6 +44,7 @@ class SocialSection : Section() {
     companion object {
         const val MAIN_ROUTE = "social_route"
         const val MESSAGING_PREVIEW_ROUTE = "messaging_preview/?id={id}&scope={scope}"
+        const val LOGGED_STORIES_ROUTE = "logged_stories/?userId={userId}"
     }
 
     private var currentScopeContent: ScopeContent? = null
@@ -82,6 +83,11 @@ class SocialSection : Section() {
                         }
                     }.Content()
                 }
+            }
+
+            composable(LOGGED_STORIES_ROUTE) {
+                val userId = it.arguments?.getString("userId") ?: return@composable
+                LoggedStories(context, userId)
             }
 
             composable(MESSAGING_PREVIEW_ROUTE) { navBackStackEntry ->

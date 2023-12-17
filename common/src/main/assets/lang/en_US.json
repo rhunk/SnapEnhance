@@ -597,6 +597,10 @@
                         "name": "Convert Message Locally",
                         "description": "Converts snaps to chat external media locally. This appears in chat download context menu"
                     },
+                    "story_logger": {
+                        "name": "Story Logger",
+                        "description": "Provides a history of friends stories"
+                    },
                     "app_passcode": {
                         "name": "App Passcode",
                         "description": "Sets a passcode to lock the app"
