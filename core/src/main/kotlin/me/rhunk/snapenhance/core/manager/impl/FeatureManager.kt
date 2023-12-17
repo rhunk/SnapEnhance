@@ -114,6 +114,7 @@ class FeatureManager(
             DisableComposerModules::class,
             FideliusIndicator::class,
             EditTextOverride::class,
+            PreventForcedLogout::class,
         )
 
         initializeFeatures()
