@@ -26,35 +26,35 @@ You can also download the latest debug build from the [Actions](https://github.c
 We no longer offer official LSPatch binaries for obvious reasons. However, you're welcome to patch them yourself, as they should theoretically work without any issues.
 
 ## Features
-<details open>
-  <summary>Downloader</summary>
+<details closed>
+  <summary>Media Downloader</summary>
 
   - Save Folder
   - Auto Download Sources
   - Prevent Self Auto Download 
   - Path Format
   - Allow Duplicate 
-  - Merge Overlays (Unstable)
+  - Merge Overlays
   - Force Image Format
   - Force Voice Note Format
   - Download Profile Pictures
   - Opera Download Button 
   - Chat Download Context Menu
-  - FFmpeg Options (Unstable)
+  - FFmpeg Options
   - Logging
 </details>
 
-<details open>
+<details closed>
   <summary>User Interface</summary>
 
   - Friend Feed Menu Buttons 
   - Friend Feed Position Index
-  - AMOLED Dark Mode (Unstable)
+  - AMOLED Dark Mode
   - Friend Feed Message Preview 
-  - Snap Preview (Unstable)
+  - Snap Preview
   - Bootstrap Override 
   - Enhance Friend Map Nametags
-  - Prevent Message List Auto Scroll  (Unstable)
+  - Prevent Message List Auto Scroll
   - Show Streak Expiration Info
   - Hide Friend Feed Entry
   - Hide Streak Restore
@@ -67,10 +67,10 @@ We no longer offer official LSPatch binaries for obvious reasons. However, you'r
   - Hide Settings Gear
   - Vertical Story Viewer 
   - Fidelius Indicator 
-  - Edit Text Override (Bans And Breaks Can Happen)
+  - Edit Text Override
 </details>  
 
-<details open>
+<details closed>
   <summary>Messaging</summary>
 
   - Bypass Screenshot Detection 
@@ -85,17 +85,17 @@ We no longer offer official LSPatch binaries for obvious reasons. However, you'r
   - Message Preview Length 
   - Call Start Confirmation 
   - Auto Save Messages 
-  - Prevent Message Sending (Hooks Required)
+  - Prevent Message Sending
   - Instant Delete 
   - Better Notifications 
   - Notifications Blacklist
-  - Message Logger (Unstable)
-  - Gallery Media Send Override (Hooks Required)
-  - Strip Media Megadata
-  - Bypass Message Retention Policy (Hooks Required)
+  - Message Logger
+  - Gallery Media Send Override
+  - Strip Media Metadata
+  - Bypass Message Retention Policy
  </details>
 
-<details open>
+<details closed>
   <summary>Global</summary>
 
   - Location 
@@ -104,44 +104,29 @@ We no longer offer official LSPatch binaries for obvious reasons. However, you'r
   - Disable Metrics 
   - Disable Public Stories
   - Block Ads
-  - Bypass Video Length Restriction (Bans Can Happen & Hooks Required) 
+  - Bypass Video Length Restriction
   - Disable Google Play Services Dialogs 
   - Force Upload Source Quality 
-  - Disable Snap Splitting (Breaks can happen) 
+  - Disable Snap Splitting
+  - Streak Reminder
 </details>
 
-<details open>
-  <summary>Rules</summary>
-
-  - Stealth Mode 
-  - Auto Download 
-  - Auto Save
-</details>
-
-<details open>
+<details closed>
   <summary>Camera</summary>
 
   - Disable Camera 
-  - Immersive Preview (Unstable)
+  - Immersive Preview
   - Black Photos 
-  - Custom Frame Rate (Unstable)
-  - HEVC Recording (Unstable)
+  - Custom Frame Rate
+  - HEVC Recording
   - Force Camera Source Encoding
-  - Custom Preview Resolution (Unstable)
-  - Custom Picture Resolution (Unstable)
+  - Custom Preview Resolution
+  - Custom Picture Resolution
   - Override Preview Resolution 
   - Override Picture Resolution 
 </details> 
 
-<details open>
-  <summary>Streak Reminder</summary>
-
-  - Interval
-  - Remaining Time
-  - Group Notifications 
-</details>
-
-<details open>
+<details closed>
   <summary>Experimental</summary>
 
   - Native Hooks 
@@ -159,7 +144,7 @@ We no longer offer official LSPatch binaries for obvious reasons. However, you'r
   - Disable Composer Modules (May Cause Bans)
 </details>
 
-<details open>
+<details closed>
   <summary>Scripting</summary>
   
   - Module Folder 
