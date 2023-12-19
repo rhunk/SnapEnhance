@@ -131,7 +131,8 @@ We no longer offer official LSPatch binaries for obvious reasons. However, you'r
 
   - Native Hooks 
   - Spoof
-  - Convert Message Locally 
+  - Convert Message Locally
+  - Story Logger (Unstable)
   - App Passcode 
   - App Lock On Resume 
   - Infinite Story Boost 
@@ -142,6 +143,7 @@ We no longer offer official LSPatch binaries for obvious reasons. However, you'r
   - Hidden Snapchat Plus Features (Unstable & May Cause Bans)
   - Add Friend Spoof (May Cause Bans)
   - Disable Composer Modules (May Cause Bans)
+  - Prevent Forced Logout (Unstable & May Cause Bans)
 </details>
 
 <details closed>
