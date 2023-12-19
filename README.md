@@ -130,20 +130,20 @@ We no longer offer official LSPatch binaries for obvious reasons. However, you'r
   <summary>Experimental</summary>
 
   - Native Hooks 
-  - Spoof
+  - Device Spoof
   - Convert Message Locally
-  - Story Logger (Unstable)
-  - App Passcode 
-  - App Lock On Resume 
-  - Infinite Story Boost 
+  - Story Logger
+  - App Passcode
+  - App Lock On Resume
+  - Infinite Story Boost
   - My Eyes Only Passcode Bypass
-  - Unlimited Multi Snap (May Cause Bans)
-  - No Friend Score Delay 
-  - End-to-End Encryption (Hooks Required)
-  - Hidden Snapchat Plus Features (Unstable & May Cause Bans)
-  - Add Friend Spoof (May Cause Bans)
-  - Disable Composer Modules (May Cause Bans)
-  - Prevent Forced Logout (Unstable & May Cause Bans)
+  - Unlimited Multi Snap
+  - No Friend Score Delay
+  - End-to-End Encryption
+  - Enable Hidden Snapchat Plus Features
+  - Add Friend Spoof
+  - Disable Composer Modules
+  - Prevent Forced Logout
 </details>
 
 <details closed>
