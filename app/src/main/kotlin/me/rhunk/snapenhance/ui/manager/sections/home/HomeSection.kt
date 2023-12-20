@@ -299,7 +299,7 @@ class HomeSection : Section() {
                         .scale(1.75f)
                 )
                 Text(
-                    text = ("\u0065" + "\u0063" + "\u006e" + "\u0061" + "\u0068" + "\u006e" + "\u0045" + "\u0070" + "\u0061" + "\u006e" + "\u0053").reversed(),
+                    text = arrayOf("\u0065", "\u0063", "\u006e", "\u0061", "\u0068", "\u006e", "\u0045", "\u0070", "\u0061", "\u006e", "\u0053").reversed().joinToString(""),
                     fontSize = 30.sp,
                     modifier = Modifier.padding(16.dp),
                 )
