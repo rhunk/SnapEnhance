@@ -212,6 +212,10 @@
                     "logging": {
                         "name": "Logging",
                         "description": "Shows toasts when media is downloading"
+                    },
+                    "custom_path_format": {
+                        "name": "Custom Path Format",
+                        "description": "Specify a custom path format for downloaded media\n\nAvailable variables:\n - %username%\n - %source%\n - %hash%\n - %date_time%"
                     }
                 }
             },

@@ -48,4 +48,5 @@ class DownloaderConfig : ConfigContainer() {
     val logging = multiple("logging", "started", "success", "progress", "failure").apply {
         set(mutableListOf("success", "progress", "failure"))
     }
+    val customPathFormat = string("custom_path_format") { addNotices(FeatureNotice.UNSTABLE) }
 }
