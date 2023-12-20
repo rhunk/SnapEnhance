@@ -29,18 +29,14 @@ We no longer offer official LSPatch binaries for obvious reasons. However, you'r
 <details closed>
   <summary>Media Downloader</summary>
 
-  - Save Folder
-  - Auto Download Sources
-  - Prevent Self Auto Download 
-  - Path Format
-  - Allow Duplicate 
+  - Auto Download 
+  - Prevent Self Auto Download
   - Merge Overlays
   - Force Image Format
   - Force Voice Note Format
   - Download Profile Pictures
-  - Opera Download Button 
+  - Opera Download Button
   - Chat Download Context Menu
-  - FFmpeg Options
   - Logging
 </details>
 
@@ -48,11 +44,10 @@ We no longer offer official LSPatch binaries for obvious reasons. However, you'r
   <summary>User Interface</summary>
 
   - Friend Feed Menu Buttons 
-  - Friend Feed Position Index
   - AMOLED Dark Mode
   - Friend Feed Message Preview 
   - Snap Preview
-  - Bootstrap Override 
+  - Bootstrap Override (Default Home Tab & Persistent App Appearance)
   - Enhance Friend Map Nametags
   - Prevent Message List Auto Scroll
   - Show Streak Expiration Info
@@ -60,7 +55,7 @@ We no longer offer official LSPatch binaries for obvious reasons. However, you'r
   - Hide Streak Restore
   - Hide Quick Add In Friend Feed
   - Hide Story Section 
-  - Hide UI Components 
+  - Hide UI Components (voice record button, call buttons, ...)
   - Opera Media Quick Info
   - Old Bitmoji Selfie 
   - Disable Spotlight 
@@ -82,7 +77,6 @@ We no longer offer official LSPatch binaries for obvious reasons. However, you'r
   - Unlimited Snap View Time 
   - Disable Replay In FF
   - Half Swipe Notifier
-  - Message Preview Length 
   - Call Start Confirmation 
   - Auto Save Messages 
   - Prevent Message Sending
@@ -120,40 +114,27 @@ We no longer offer official LSPatch binaries for obvious reasons. However, you'r
   - Custom Frame Rate
   - HEVC Recording
   - Force Camera Source Encoding
-  - Custom Preview Resolution
-  - Custom Picture Resolution
-  - Override Preview Resolution 
-  - Override Picture Resolution 
+  - Override Preview/Picture Resolution 
 </details> 
 
 <details closed>
   <summary>Experimental</summary>
 
-  - Native Hooks 
   - Device Spoof
   - Convert Message Locally
   - Story Logger
   - App Passcode
-  - App Lock On Resume
   - Infinite Story Boost
   - My Eyes Only Passcode Bypass
   - Unlimited Multi Snap
   - No Friend Score Delay
   - End-to-End Encryption
   - Enable Hidden Snapchat Plus Features
-  - Add Friend Spoof
+  - Add Friend Source Spoof
   - Disable Composer Modules
   - Prevent Forced Logout
 </details>
 
-<details closed>
-  <summary>Scripting</summary>
-  
-  - Module Folder 
-  - Auto Reload
-  - Disable Log Anonymization
-
-Please Note Scripting is in Early development (Not Yet Available To Use)<br/>
 </details>
   
 ## FAQ
