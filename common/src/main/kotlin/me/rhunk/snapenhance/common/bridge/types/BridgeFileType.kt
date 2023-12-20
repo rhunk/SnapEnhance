@@ -8,7 +8,8 @@ enum class BridgeFileType(val value: Int, val fileName: String, val displayName:
     CONFIG(0, "config.json", "Config"),
     MAPPINGS(1, "mappings.json", "Mappings"),
     MESSAGE_LOGGER_DATABASE(2, "message_logger.db", "Message Logger",true),
-    PINNED_CONVERSATIONS(3, "pinned_conversations.txt", "Pinned Conversations");
+    PINNED_CONVERSATIONS(3, "pinned_conversations.txt", "Pinned Conversations"),
+    SUSPEND_LOCATION_STATE(4, "suspend_location_state.txt", "Suspend Location State");
 
     fun resolve(context: Context): File = if (isDatabase) {
         context.getDatabasePath(fileName)

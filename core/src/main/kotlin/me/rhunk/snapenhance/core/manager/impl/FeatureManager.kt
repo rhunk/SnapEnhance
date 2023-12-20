@@ -115,6 +115,7 @@ class FeatureManager(
             FideliusIndicator::class,
             EditTextOverride::class,
             PreventForcedLogout::class,
+            SuspendLocationUpdates::class,
         )
 
         initializeFeatures()

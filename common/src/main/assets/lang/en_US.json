@@ -453,6 +453,10 @@
                             }
                         }
                     },
+                    "suspend_location_updates": {
+                        "name": "Suspend Location Updates",
+                        "description": "Adds a button in map settings to suspend location updates"
+                    },
                     "snapchat_plus": {
                         "name": "Snapchat Plus",
                         "description": "Enables Snapchat Plus features\nSome Server-sided features may not work"
@@ -1030,5 +1034,9 @@
     "streaks_reminder": {
         "notification_title": "Streaks",
         "notification_text": "You will lose your Streak with {friend} in {hoursLeft} hours"
+    },
+
+    "suspend_location_updates": {
+        "switch_text": "Suspend Location Updates"
     }
 }

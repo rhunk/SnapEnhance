@@ -8,6 +8,7 @@ class Global : ConfigContainer() {
         val coordinates = mapCoordinates("coordinates", 0.0 to 0.0) { requireRestart()} // lat, long
     }
     val spoofLocation = container("spoofLocation", SpoofLocation())
+    val suspendLocationUpdates = boolean("suspend_location_updates") { requireRestart() }
     val snapchatPlus = boolean("snapchat_plus") { requireRestart() }
     val disableConfirmationDialogs = multiple("disable_confirmation_dialogs", "remove_friend", "block_friend", "ignore_friend", "hide_friend", "hide_conversation", "clear_conversation") { requireRestart() }
     val disableMetrics = boolean("disable_metrics")
