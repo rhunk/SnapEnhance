@@ -38,6 +38,7 @@ We no longer offer official LSPatch binaries for obvious reasons. However, you'r
   - Opera Download Button
   - Chat Download Context Menu
   - Logging
+  - Custom Path Format 
 </details>
 
 <details closed>
@@ -92,7 +93,8 @@ We no longer offer official LSPatch binaries for obvious reasons. However, you'r
 <details closed>
   <summary>Global</summary>
 
-  - Location 
+  - Location
+  - Suspend Location Updates 
   - Snapchat Plus 
   - Disable Confirmation Dialogs
   - Disable Metrics 
