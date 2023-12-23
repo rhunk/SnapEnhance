@@ -18,8 +18,9 @@ class Rules : ConfigContainer() {
             rules[ruleType] = unique(ruleType.key,"whitelist", "blacklist") {
                 customTranslationPath = "rules.properties.${ruleType.key}"
                 customOptionTranslationPath = "rules.modes"
+                addNotices(*ruleType.configNotices)
             }.apply {
-                set("whitelist")
+                set(ruleType.defaultValue)
             }
         }
     }

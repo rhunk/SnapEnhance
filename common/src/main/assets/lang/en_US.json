@@ -97,6 +97,14 @@
                     "whitelist": "Auto save"
                 }
             },
+            "unsaveable_messages": {
+                "name": "Unsaveable Messages",
+                "description": "Prevents messages from being saved in chat by other people",
+                "options": {
+                    "blacklist": "Exclude from Unsaveable Messages",
+                    "whitelist": "Unsaveable Messages"
+                }
+            },
             "hide_friend_feed": {
                 "name": "Hide from Friend Feed"
             },
@@ -719,6 +727,7 @@
             "friend_feed_menu_buttons": {
                 "auto_download": "\u2B07\uFE0F Auto Download",
                 "auto_save": "\uD83D\uDCAC Auto Save Messages",
+                "unsaveable_messages": "\u2B07\uFE0F Unsaveable Messages",
                 "stealth": "\uD83D\uDC7B Stealth Mode",
                 "mark_snaps_as_seen": "\uD83D\uDC40 Mark Snaps as seen",
                 "mark_stories_as_seen_locally": "\uD83D\uDC40 Mark Stories as seen locally",

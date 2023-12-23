@@ -47,7 +47,7 @@ class AutoSave : MessagingRuleFeature("Auto Save", MessagingRuleType.AUTO_SAVE, 
     }
 
     fun canSaveMessage(message: Message, headless: Boolean = false): Boolean {
-        if (message.messageState != MessageState.COMMITTED) return false
+        if (message.messageState != MessageState.COMMITTED || message.messageMetadata?.isSaveable != true) return false
 
         if (!headless && (context.mainActivity == null || context.isMainActivityPaused)) return false
         if (message.messageMetadata!!.savedBy!!.any { uuid -> uuid.toString() == context.database.myUserId }) return false

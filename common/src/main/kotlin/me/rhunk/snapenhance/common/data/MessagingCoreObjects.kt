@@ -1,5 +1,6 @@
 package me.rhunk.snapenhance.common.data
 
+import me.rhunk.snapenhance.common.config.FeatureNotice
 import me.rhunk.snapenhance.common.util.SerializableDataObject
 
 
@@ -29,11 +30,14 @@ enum class SocialScope(
 enum class MessagingRuleType(
     val key: String,
     val listMode: Boolean,
-    val showInFriendMenu: Boolean = true
+    val showInFriendMenu: Boolean = true,
+    val defaultValue: String? = "whitelist",
+    val configNotices: Array<FeatureNotice> = emptyArray()
 ) {
     STEALTH("stealth", true),
     AUTO_DOWNLOAD("auto_download", true),
-    AUTO_SAVE("auto_save", true),
+    AUTO_SAVE("auto_save", true, defaultValue = "blacklist"),
+    UNSAVEABLE_MESSAGES("unsaveable_messages", true, configNotices = arrayOf(FeatureNotice.REQUIRE_NATIVE_HOOKS), defaultValue = null),
     HIDE_FRIEND_FEED("hide_friend_feed", false, showInFriendMenu = false),
     E2E_ENCRYPTION("e2e_encryption", false),
     PIN_CONVERSATION("pin_conversation", false, showInFriendMenu = false);

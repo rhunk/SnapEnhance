@@ -21,6 +21,7 @@ import me.rhunk.snapenhance.core.features.impl.spying.StealthMode
 import me.rhunk.snapenhance.core.features.impl.tweaks.BypassScreenshotDetection
 import me.rhunk.snapenhance.core.features.impl.tweaks.CameraTweaks
 import me.rhunk.snapenhance.core.features.impl.tweaks.PreventMessageListAutoScroll
+import me.rhunk.snapenhance.core.features.impl.tweaks.UnsaveableMessages
 import me.rhunk.snapenhance.core.features.impl.ui.*
 import me.rhunk.snapenhance.core.logger.CoreLogger
 import me.rhunk.snapenhance.core.manager.Manager
@@ -80,6 +81,7 @@ class FeatureManager(
             AutoSave::class,
             UITweaks::class,
             ConfigurationOverride::class,
+            UnsaveableMessages::class,
             SendOverride::class,
             UnlimitedSnapViewTime::class,
             BypassVideoLengthRestriction::class,
