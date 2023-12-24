@@ -10,9 +10,11 @@ import me.rhunk.snapenhance.common.database.impl.FriendFeedEntry
 import me.rhunk.snapenhance.common.database.impl.FriendInfo
 import me.rhunk.snapenhance.common.database.impl.StoryEntry
 import me.rhunk.snapenhance.common.database.impl.UserConversationLink
+import me.rhunk.snapenhance.common.util.ktx.getBlobOrNull
 import me.rhunk.snapenhance.common.util.ktx.getIntOrNull
 import me.rhunk.snapenhance.common.util.ktx.getInteger
 import me.rhunk.snapenhance.common.util.ktx.getStringOrNull
+import me.rhunk.snapenhance.common.util.protobuf.ProtoReader
 import me.rhunk.snapenhance.core.ModContext
 import me.rhunk.snapenhance.core.manager.Manager
 
@@ -358,6 +360,29 @@ class DatabaseAccess(
                 execSQL("UPDATE StorySnap SET viewed = 1 WHERE userId = ?", arrayOf(userId))
             }
             close()
+        }
+    }
+
+    fun getAccessTokens(userId: String): Map<String, String>? {
+        return mainDb?.performOperation {
+            rawQuery(
+                "SELECT accessTokensPb FROM SnapToken WHERE userId = ?",
+                arrayOf(userId)
+            ).use {
+                if (!it.moveToFirst()) {
+                    return@performOperation null
+                }
+                val reader = ProtoReader(it.getBlobOrNull("accessTokensPb") ?: return@performOperation null)
+                val services = mutableMapOf<String, String>()
+
+                reader.eachBuffer(1) {
+                    val token = getString(1) ?: return@eachBuffer
+                    val service = getString(2)?.substringAfterLast("/") ?: return@eachBuffer
+                    services[service] = token
+                }
+
+                services
+            }
         }
     }
 }
