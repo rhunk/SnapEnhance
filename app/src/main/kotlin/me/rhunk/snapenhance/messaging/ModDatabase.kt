@@ -268,7 +268,7 @@ class ModDatabase(
                         version = cursor.getStringOrNull("version")!!,
                         description = cursor.getStringOrNull("description"),
                         author = cursor.getStringOrNull("author"),
-                        grantPermissions = null
+                        grantedPermissions = emptyList()
                     )
                 )
             }

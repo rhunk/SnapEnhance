@@ -1,13 +1,13 @@
 package me.rhunk.snapenhance.scripting.impl.ui
 
-import me.rhunk.snapenhance.common.logger.AbstractLogger
-import me.rhunk.snapenhance.common.scripting.type.ModuleInfo
+import me.rhunk.snapenhance.common.scripting.bindings.AbstractBinding
+import me.rhunk.snapenhance.common.scripting.bindings.BindingSide
+import me.rhunk.snapenhance.common.scripting.ktx.contextScope
 import me.rhunk.snapenhance.scripting.impl.ui.components.Node
 import me.rhunk.snapenhance.scripting.impl.ui.components.NodeType
 import me.rhunk.snapenhance.scripting.impl.ui.components.impl.ActionNode
 import me.rhunk.snapenhance.scripting.impl.ui.components.impl.ActionType
 import me.rhunk.snapenhance.scripting.impl.ui.components.impl.RowColumnNode
-import org.mozilla.javascript.Context
 import org.mozilla.javascript.Function
 import org.mozilla.javascript.annotations.JSFunction
 
@@ -73,27 +73,31 @@ class InterfaceBuilder {
 
 
 
-class InterfaceManager(
-    private val moduleInfo: ModuleInfo,
-    private val logger: AbstractLogger
-) {
+class InterfaceManager : AbstractBinding("interface-manager", BindingSide.MANAGER) {
     private val interfaces = mutableMapOf<String, () -> InterfaceBuilder?>()
 
     fun buildInterface(name: String): InterfaceBuilder? {
         return interfaces[name]?.invoke()
     }
 
+    override fun onDispose() {
+        interfaces.clear()
+    }
+
+    @Suppress("unused")
     @JSFunction fun create(name: String, callback: Function) {
         interfaces[name] = {
             val interfaceBuilder = InterfaceBuilder()
             runCatching {
-                Context.enter()
-                callback.call(Context.getCurrentContext(), callback, callback, arrayOf(interfaceBuilder))
-                Context.exit()
+                contextScope {
+                    callback.call(this, callback, callback, arrayOf(interfaceBuilder))
+                }
                 interfaceBuilder
             }.onFailure {
-                logger.error("Failed to create interface $name for ${moduleInfo.name}", it)
+                context.runtime.logger.error("Failed to create interface $name for ${context.moduleInfo.name}", it)
             }.getOrNull()
         }
     }
+
+    override fun getObject() = this
 }

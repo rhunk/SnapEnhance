@@ -2,6 +2,8 @@ package me.rhunk.snapenhance.common.scripting
 
 import android.os.Handler
 import android.widget.Toast
+import me.rhunk.snapenhance.common.scripting.bindings.AbstractBinding
+import me.rhunk.snapenhance.common.scripting.bindings.BindingsContext
 import me.rhunk.snapenhance.common.scripting.ktx.contextScope
 import me.rhunk.snapenhance.common.scripting.ktx.putFunction
 import me.rhunk.snapenhance.common.scripting.ktx.scriptableObject
@@ -12,14 +14,22 @@ import org.mozilla.javascript.ScriptableObject
 import org.mozilla.javascript.Undefined
 import org.mozilla.javascript.Wrapper
 import java.lang.reflect.Modifier
+import kotlin.reflect.KClass
 
 class JSModule(
     val scriptRuntime: ScriptRuntime,
     val moduleInfo: ModuleInfo,
     val content: String,
 ) {
-    val extras = mutableMapOf<String, Any>()
+    private val moduleBindings = mutableMapOf<String, AbstractBinding>()
     private lateinit var moduleObject: ScriptableObject
+
+    private val moduleBindingContext by lazy {
+        BindingsContext(
+            moduleInfo = moduleInfo,
+            runtime = scriptRuntime
+        )
+    }
 
     fun load(block: ScriptableObject.() -> Unit) {
         contextScope {
@@ -33,7 +43,7 @@ class JSModule(
                     putConst("author", this, moduleInfo.author)
                     putConst("minSnapchatVersion", this, moduleInfo.minSnapchatVersion)
                     putConst("minSEVersion", this, moduleInfo.minSEVersion)
-                    putConst("grantPermissions", this, moduleInfo.grantPermissions)
+                    putConst("grantedPermissions", this, moduleInfo.grantedPermissions)
                 })
             })
 
@@ -62,12 +72,16 @@ class JSModule(
 
             moduleObject.putFunction("findClass") {
                 val className = it?.get(0).toString()
-                classLoader.loadClass(className)
+                runCatching {
+                    classLoader.loadClass(className)
+                }.onFailure { throwable ->
+                    scriptRuntime.logger.error("Failed to load class $className", throwable)
+                }.getOrNull()
             }
 
             moduleObject.putFunction("type") { args ->
                 val className = args?.get(0).toString()
-                val clazz = classLoader.loadClass(className)
+                val clazz = runCatching { classLoader.loadClass(className) }.getOrNull() ?: return@putFunction Undefined.instance
 
                 scriptableObject("JavaClassWrapper") {
                     putFunction("newInstance") newInstance@{ args ->
@@ -95,12 +109,12 @@ class JSModule(
             }
 
             moduleObject.putFunction("logInfo") { args ->
-                scriptRuntime.logger.info(args?.joinToString(" ") {
-                    when (it) {
-                        is Wrapper -> it.unwrap().toString()
-                        else -> it.toString()
-                    }
-                } ?: "null")
+                scriptRuntime.logger.info(argsToString(args))
+                Undefined.instance
+            }
+
+            moduleObject.putFunction("logError") { args ->
+                scriptRuntime.logger.error(argsToString(arrayOf(args?.get(0))), args?.get(1) as? Throwable ?: Throwable())
                 Undefined.instance
             }
 
@@ -116,16 +130,38 @@ class JSModule(
                     Undefined.instance
                 }
             }
+
             block(moduleObject)
-            extras.forEach { (key, value) ->
-                moduleObject.putConst(key, moduleObject, value)
+
+            moduleBindings.forEach { (_, instance) ->
+                instance.context = moduleBindingContext
+
+                runCatching {
+                    instance.onInit()
+                }.onFailure {
+                    scriptRuntime.logger.error("Failed to init binding ${instance.name}", it)
+                }
             }
+
+            moduleObject.putFunction("require") { args ->
+                val bindingName = args?.get(0).toString()
+                moduleBindings[bindingName]?.getObject()
+            }
+
             evaluateString(moduleObject, content, moduleInfo.name, 1, null)
         }
     }
 
     fun unload() {
         callFunction("module.onUnload")
+        moduleBindings.entries.removeIf { (name, binding) ->
+            runCatching {
+                binding.onDispose()
+            }.onFailure {
+                scriptRuntime.logger.error("Failed to dispose binding $name", it)
+            }
+            true
+        }
     }
 
     fun callFunction(name: String, vararg args: Any?) {
@@ -142,5 +178,26 @@ class JSModule(
                 }
             }
         }
+    }
+    fun registerBindings(vararg bindings: AbstractBinding) {
+        bindings.forEach {
+            moduleBindings[it.name] = it.apply {
+                context = moduleBindingContext
+            }
+        }
+    }
+
+    @Suppress("UNCHECKED_CAST")
+    fun <T : Any> getBinding(clazz: KClass<T>): T? {
+        return moduleBindings.values.find { clazz.isInstance(it) } as? T
+    }
+
+    private fun argsToString(args: Array<out Any?>?): String {
+        return args?.joinToString(" ") {
+            when (it) {
+                is Wrapper -> it.unwrap().toString()
+                else -> it.toString()
+            }
+        } ?: "null"
     }
 }

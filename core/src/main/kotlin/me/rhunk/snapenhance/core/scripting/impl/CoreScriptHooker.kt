@@ -1,8 +1,9 @@
 package me.rhunk.snapenhance.core.scripting.impl
 
-import me.rhunk.snapenhance.common.logger.AbstractLogger
+import me.rhunk.snapenhance.common.scripting.bindings.AbstractBinding
+import me.rhunk.snapenhance.common.scripting.bindings.BindingSide
+import me.rhunk.snapenhance.common.scripting.ktx.scriptableObject
 import me.rhunk.snapenhance.common.scripting.toPrimitiveValue
-import me.rhunk.snapenhance.common.scripting.type.ModuleInfo
 import me.rhunk.snapenhance.core.util.hook.HookAdapter
 import me.rhunk.snapenhance.core.util.hook.HookStage
 import me.rhunk.snapenhance.core.util.hook.Hooker
@@ -71,21 +72,20 @@ class ScriptHookCallback(
 typealias HookCallback = (ScriptHookCallback) -> Unit
 typealias HookUnhook = () -> Unit
 
-@Suppress("unused", "MemberVisibilityCanBePrivate")
-class ScriptHooker(
-    private val moduleInfo: ModuleInfo,
-    private val logger: AbstractLogger,
-    private val classLoader: ClassLoader
-) {
+@Suppress("unused")
+class CoreScriptHooker: AbstractBinding("hooker", BindingSide.CORE) {
     private val hooks = mutableListOf<HookUnhook>()
 
-    // -- search for class members
+    val stage = scriptableObject {
+        putConst("BEFORE", this, "before")
+        putConst("AFTER", this, "after")
+    }
 
     private fun findClassSafe(className: String): Class<*>? {
         return runCatching {
-            classLoader.loadClass(className)
+            context.runtime.androidContext.classLoader.loadClass(className)
         }.onFailure {
-            logger.warn("Failed to load class $className")
+            context.runtime.logger.warn("Failed to load class $className")
         }.getOrNull()
     }
 
@@ -158,4 +158,11 @@ class ScriptHooker(
 
     fun hookAllConstructors(className: String, stage: String, callback: HookCallback)
         = findClassSafe(className)?.let { hookAllConstructors(it, stage, callback) }
+
+    override fun onDispose() {
+        hooks.forEach { it() }
+        hooks.clear()
+    }
+
+    override fun getObject() = this
 }

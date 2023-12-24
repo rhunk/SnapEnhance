@@ -6,6 +6,7 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.FolderOpen
+import androidx.compose.material.icons.filled.LibraryBooks
 import androidx.compose.material.icons.filled.Link
 import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material3.*
@@ -14,6 +15,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.core.net.toUri
 import androidx.documentfile.provider.DocumentFile
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
@@ -70,12 +72,27 @@ class ScriptsSection : Section() {
                 }
                 Switch(
                     checked = enabled,
-                    onCheckedChange = {
-                        context.modDatabase.setScriptEnabled(script.name, it)
-                        if (it) {
-                            context.scriptManager.loadScript(script.name)
+                    onCheckedChange = { isChecked ->
+                        context.modDatabase.setScriptEnabled(script.name, isChecked)
+                        enabled = isChecked
+                        runCatching {
+                            val modulePath = context.scriptManager.getModulePath(script.name)!!
+                            context.scriptManager.unloadScript(modulePath)
+                            if (isChecked) {
+                                context.scriptManager.loadScript(modulePath)
+                                context.scriptManager.runtime.getModuleByName(script.name)
+                                    ?.callFunction("module.onSnapEnhanceLoad")
+                                context.shortToast("Loaded script ${script.name}")
+                            } else {
+                                context.shortToast("Unloaded script ${script.name}")
+                            }
+                        }.onFailure { throwable ->
+                            enabled = !isChecked
+                            ("Failed to ${if (isChecked) "enable" else "disable"} script").let {
+                                context.log.error(it, throwable)
+                                context.shortToast(it)
+                            }
                         }
-                        enabled = it
                     }
                 )
             }
@@ -130,7 +147,7 @@ class ScriptsSection : Section() {
         val settingsInterface = remember {
             val module = context.scriptManager.runtime.getModuleByName(script.name) ?: return@remember null
             runCatching {
-                (module.extras["im"] as? InterfaceManager)?.buildInterface("settings")
+                (module.getBinding(InterfaceManager::class))?.buildInterface("settings")
             }.onFailure {
                 settingsError = it
             }.getOrNull()
@@ -226,6 +243,20 @@ class ScriptsSection : Section() {
                 state = pullRefreshState,
                 modifier = Modifier.align(Alignment.TopCenter)
             )
+        }
+    }
+
+    @Composable
+    override fun TopBarActions(rowScope: RowScope) {
+        rowScope.apply {
+            IconButton(onClick = {
+                context.androidContext.startActivity(Intent(Intent.ACTION_VIEW).apply {
+                    data = "https://github.com/SnapEnhance/docs".toUri()
+                    flags = Intent.FLAG_ACTIVITY_NEW_TASK
+                })
+            }) {
+                Icon(imageVector = Icons.Default.LibraryBooks, contentDescription = "Documentation")
+            }
         }
     }
 }

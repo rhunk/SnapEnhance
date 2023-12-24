@@ -5,6 +5,8 @@ enum class LogChannel(
     val shortName: String
 ) {
     CORE("SnapEnhanceCore", "core"),
+    COMMON("SnapEnhanceCommon", "common"),
+    SCRIPTING("Scripting", "scripting"),
     NATIVE("SnapEnhanceNative", "native"),
     MANAGER("SnapEnhanceManager", "manager"),
     XPOSED("LSPosed-Bridge", "xposed");

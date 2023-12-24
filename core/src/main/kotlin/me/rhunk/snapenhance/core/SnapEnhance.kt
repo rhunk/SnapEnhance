@@ -17,8 +17,8 @@ import me.rhunk.snapenhance.common.data.MessagingGroupInfo
 import me.rhunk.snapenhance.core.bridge.BridgeClient
 import me.rhunk.snapenhance.core.bridge.loadFromBridge
 import me.rhunk.snapenhance.core.data.SnapClassCache
-import me.rhunk.snapenhance.core.event.events.impl.SnapWidgetBroadcastReceiveEvent
 import me.rhunk.snapenhance.core.event.events.impl.NativeUnaryCallEvent
+import me.rhunk.snapenhance.core.event.events.impl.SnapWidgetBroadcastReceiveEvent
 import me.rhunk.snapenhance.core.util.LSPatchUpdater
 import me.rhunk.snapenhance.core.util.hook.HookStage
 import me.rhunk.snapenhance.core.util.hook.hook
@@ -142,7 +142,7 @@ class SnapEnhance {
             bridgeClient.registerMessagingBridge(messagingBridge)
             features.init()
             scriptRuntime.connect(bridgeClient.getScriptingInterface())
-            scriptRuntime.eachModule { callFunction("module.onBeforeApplicationLoad", androidContext) }
+            scriptRuntime.eachModule { callFunction("module.onSnapApplicationLoad", androidContext) }
             syncRemote()
         }
     }
@@ -151,7 +151,7 @@ class SnapEnhance {
         measureTimeMillis {
             with(appContext) {
                 features.onActivityCreate()
-                scriptRuntime.eachModule { callFunction("module.onSnapActivity", mainActivity!!) }
+                scriptRuntime.eachModule { callFunction("module.onSnapMainActivityCreate", mainActivity!!) }
             }
         }.also { time ->
             appContext.log.verbose("onActivityCreate took $time")

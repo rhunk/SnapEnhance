@@ -7,5 +7,5 @@ data class ModuleInfo(
     val author: String? = null,
     val minSnapchatVersion: Long? = null,
     val minSEVersion: Long? = null,
-    val grantPermissions: List<String>? = null,
+    val grantedPermissions: List<String>,
 )

@@ -1,5 +1,7 @@
 package me.rhunk.snapenhance.common.scripting.impl
 
+import me.rhunk.snapenhance.common.scripting.bindings.AbstractBinding
+import me.rhunk.snapenhance.common.scripting.bindings.BindingSide
 import org.mozilla.javascript.annotations.JSFunction
 
 
@@ -18,7 +20,8 @@ enum class ConfigTransactionType(
 }
 
 
-abstract class ConfigInterface {
+@Suppress("unused")
+abstract class ConfigInterface : AbstractBinding("config", BindingSide.COMMON) {
     @JSFunction fun get(key: String): String? = get(key, null)
     @JSFunction abstract fun get(key: String, defaultValue: Any?): String?
 
@@ -70,5 +73,7 @@ abstract class ConfigInterface {
 
     @JSFunction abstract fun save()
     @JSFunction abstract fun load()
-    @JSFunction abstract fun delete()
+    @JSFunction abstract fun deleteConfig()
+
+    override fun getObject() = this
 }

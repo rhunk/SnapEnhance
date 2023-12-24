@@ -118,7 +118,7 @@ class RemoteSideContext(
         }
 
         scriptManager.runtime.eachModule {
-            callFunction("module.onManagerLoad", androidContext)
+            callFunction("module.onSnapEnhanceLoad", androidContext)
         }
     }
 
