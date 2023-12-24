@@ -2,8 +2,8 @@ package me.rhunk.snapenhance.core.features.impl.messaging
 
 import me.rhunk.snapenhance.common.data.NotificationType
 import me.rhunk.snapenhance.common.util.protobuf.ProtoEditor
-import me.rhunk.snapenhance.core.event.events.impl.SendMessageWithContentEvent
 import me.rhunk.snapenhance.core.event.events.impl.NativeUnaryCallEvent
+import me.rhunk.snapenhance.core.event.events.impl.SendMessageWithContentEvent
 import me.rhunk.snapenhance.core.features.Feature
 import me.rhunk.snapenhance.core.features.FeatureLoadParams
 import me.rhunk.snapenhance.core.util.hook.HookStage
