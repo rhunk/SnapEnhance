@@ -64,7 +64,7 @@ class ScriptsSection : Section() {
                         .weight(1f)
                         .padding(end = 8.dp)
                 ) {
-                    Text(text = script.name, fontSize = 20.sp,)
+                    Text(text = script.displayName ?: script.name, fontSize = 20.sp,)
                     Text(text = script.description ?: "No description", fontSize = 14.sp,)
                 }
                 IconButton(onClick = { openSettings = !openSettings }) {

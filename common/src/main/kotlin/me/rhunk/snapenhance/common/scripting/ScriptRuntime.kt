@@ -54,12 +54,17 @@ open class ScriptRuntime(
         }
 
         return ModuleInfo(
-            name = properties["name"] ?: throw Exception("Missing module name"),
+            name = properties["name"]?.also {
+                if (!it.matches(Regex("[a-z_]+"))) {
+                    throw Exception("Invalid module name : Only lowercase letters and underscores are allowed")
+                }
+            } ?: throw Exception("Missing module name"),
             version = properties["version"] ?: throw Exception("Missing module version"),
+            displayName = properties["displayName"],
             description = properties["description"],
             author = properties["author"],
-            minSnapchatVersion = properties["minSnapchatVersion"]?.toLong(),
-            minSEVersion = properties["minSEVersion"]?.toLong(),
+            minSnapchatVersion = properties["minSnapchatVersion"]?.toLongOrNull(),
+            minSEVersion = properties["minSEVersion"]?.toLongOrNull(),
             grantedPermissions = properties["permissions"]?.split(",")?.map { it.trim() } ?: emptyList(),
         )
     }

@@ -7,6 +7,7 @@ import me.rhunk.snapenhance.bridge.scripting.AutoReloadListener
 import me.rhunk.snapenhance.bridge.scripting.IPCListener
 import me.rhunk.snapenhance.bridge.scripting.IScripting
 import me.rhunk.snapenhance.common.scripting.ScriptRuntime
+import me.rhunk.snapenhance.common.scripting.bindings.BindingSide
 import me.rhunk.snapenhance.common.scripting.impl.ConfigInterface
 import me.rhunk.snapenhance.common.scripting.impl.ConfigTransactionType
 import me.rhunk.snapenhance.common.scripting.type.ModuleInfo
@@ -63,6 +64,7 @@ class RemoteScriptManager(
 
     fun init() {
         runtime.buildModuleObject = { module ->
+            putConst("currentSide", this, BindingSide.MANAGER.key)
             module.registerBindings(
                 ManagerIPC(ipcListeners),
                 InterfaceManager(),

@@ -4,6 +4,7 @@ import me.rhunk.snapenhance.bridge.scripting.AutoReloadListener
 import me.rhunk.snapenhance.bridge.scripting.IScripting
 import me.rhunk.snapenhance.common.logger.AbstractLogger
 import me.rhunk.snapenhance.common.scripting.ScriptRuntime
+import me.rhunk.snapenhance.common.scripting.bindings.BindingSide
 import me.rhunk.snapenhance.core.ModContext
 import me.rhunk.snapenhance.core.scripting.impl.CoreIPC
 import me.rhunk.snapenhance.core.scripting.impl.CoreScriptConfig
@@ -17,6 +18,7 @@ class CoreScriptRuntime(
         scripting = scriptingInterface
         scriptingInterface.apply {
             buildModuleObject = { module ->
+                putConst("currentSide", this, BindingSide.CORE.key)
                 module.registerBindings(
                     CoreScriptConfig(),
                     CoreIPC(),

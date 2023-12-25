@@ -3,6 +3,7 @@ package me.rhunk.snapenhance.common.scripting.type
 data class ModuleInfo(
     val name: String,
     val version: String,
+    val displayName: String? = null,
     val description: String? = null,
     val author: String? = null,
     val minSnapchatVersion: Long? = null,

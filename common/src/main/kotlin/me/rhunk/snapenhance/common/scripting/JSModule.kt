@@ -6,6 +6,7 @@ import me.rhunk.snapenhance.common.scripting.bindings.AbstractBinding
 import me.rhunk.snapenhance.common.scripting.bindings.BindingsContext
 import me.rhunk.snapenhance.common.scripting.ktx.contextScope
 import me.rhunk.snapenhance.common.scripting.ktx.putFunction
+import me.rhunk.snapenhance.common.scripting.ktx.scriptable
 import me.rhunk.snapenhance.common.scripting.ktx.scriptableObject
 import me.rhunk.snapenhance.common.scripting.type.ModuleInfo
 import org.mozilla.javascript.Function
@@ -39,6 +40,7 @@ class JSModule(
                 putConst("info", this, scriptableObject {
                     putConst("name", this, moduleInfo.name)
                     putConst("version", this, moduleInfo.version)
+                    putConst("displayName", this, moduleInfo.displayName)
                     putConst("description", this, moduleInfo.description)
                     putConst("author", this, moduleInfo.author)
                     putConst("minSnapchatVersion", this, moduleInfo.minSnapchatVersion)
@@ -145,7 +147,16 @@ class JSModule(
 
             moduleObject.putFunction("require") { args ->
                 val bindingName = args?.get(0).toString()
-                moduleBindings[bindingName]?.getObject()
+                val (namespace, path) = bindingName.takeIf {
+                    it.startsWith("@") && it.contains("/")
+                }?.let {
+                    it.substring(1).substringBefore("/") to it.substringAfter("/")
+                } ?: (null to "")
+
+                when (namespace) {
+                    "modules" -> scriptRuntime.getModuleByName(path)?.moduleObject?.scriptable("module")?.scriptable("exports")
+                    else -> moduleBindings[bindingName]?.getObject()
+                }
             }
 
             evaluateString(moduleObject, content, moduleInfo.name, 1, null)
