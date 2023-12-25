@@ -4,12 +4,17 @@ import org.mozilla.javascript.Context
 import org.mozilla.javascript.Function
 import org.mozilla.javascript.Scriptable
 import org.mozilla.javascript.ScriptableObject
+import org.mozilla.javascript.Wrapper
 
-fun contextScope(f: Context.() -> Unit) {
+fun contextScope(f: Context.() -> Any?): Any? {
     val context = Context.enter()
     context.optimizationLevel = -1
     try {
-        context.f()
+        return context.f().let {
+            if (it is Wrapper) {
+                it.unwrap()
+            } else it
+        }
     } finally {
         Context.exit()
     }

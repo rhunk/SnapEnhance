@@ -4,11 +4,13 @@ import android.os.Handler
 import android.widget.Toast
 import me.rhunk.snapenhance.common.scripting.bindings.AbstractBinding
 import me.rhunk.snapenhance.common.scripting.bindings.BindingsContext
+import me.rhunk.snapenhance.common.scripting.impl.JavaInterfaces
 import me.rhunk.snapenhance.common.scripting.ktx.contextScope
 import me.rhunk.snapenhance.common.scripting.ktx.putFunction
 import me.rhunk.snapenhance.common.scripting.ktx.scriptable
 import me.rhunk.snapenhance.common.scripting.ktx.scriptableObject
 import me.rhunk.snapenhance.common.scripting.type.ModuleInfo
+import me.rhunk.snapenhance.common.scripting.type.Permissions
 import org.mozilla.javascript.Function
 import org.mozilla.javascript.NativeJavaObject
 import org.mozilla.javascript.ScriptableObject
@@ -49,6 +51,10 @@ class JSModule(
                 })
             })
 
+            registerBindings(
+                JavaInterfaces(),
+            )
+
             moduleObject.putFunction("setField") { args ->
                 val obj = args?.get(0) as? NativeJavaObject ?: return@putFunction Undefined.instance
                 val name = args[1].toString()
@@ -74,8 +80,12 @@ class JSModule(
 
             moduleObject.putFunction("findClass") {
                 val className = it?.get(0).toString()
+                val useModClassLoader = it?.getOrNull(1) as? Boolean ?: false
+                if (useModClassLoader) moduleInfo.ensurePermissionGranted(Permissions.UNSAFE_CLASSLOADER)
+
                 runCatching {
-                    classLoader.loadClass(className)
+                    if (useModClassLoader) this::class.java.classLoader?.loadClass(className)
+                    else classLoader.loadClass(className)
                 }.onFailure { throwable ->
                     scriptRuntime.logger.error("Failed to load class $className", throwable)
                 }.getOrNull()
@@ -83,7 +93,12 @@ class JSModule(
 
             moduleObject.putFunction("type") { args ->
                 val className = args?.get(0).toString()
-                val clazz = runCatching { classLoader.loadClass(className) }.getOrNull() ?: return@putFunction Undefined.instance
+                val useModClassLoader = args?.getOrNull(1) as? Boolean ?: false
+                if (useModClassLoader) moduleInfo.ensurePermissionGranted(Permissions.UNSAFE_CLASSLOADER)
+
+                val clazz = runCatching {
+                    if (useModClassLoader) this::class.java.classLoader?.loadClass(className) else classLoader.loadClass(className)
+                }.getOrNull() ?: return@putFunction Undefined.instance
 
                 scriptableObject("JavaClassWrapper") {
                     putFunction("newInstance") newInstance@{ args ->
@@ -116,7 +131,7 @@ class JSModule(
             }
 
             moduleObject.putFunction("logError") { args ->
-                scriptRuntime.logger.error(argsToString(arrayOf(args?.get(0))), args?.get(1) as? Throwable ?: Throwable())
+                scriptRuntime.logger.error(argsToString(arrayOf(args?.get(0))), args?.getOrNull(1) as? Throwable ?: Throwable())
                 Undefined.instance
             }
 
@@ -179,8 +194,8 @@ class JSModule(
         contextScope {
             name.split(".").also { split ->
                 val function = split.dropLast(1).fold(moduleObject) { obj, key ->
-                    obj.get(key, obj) as? ScriptableObject ?: return@contextScope
-                }.get(split.last(), moduleObject) as? Function ?: return@contextScope
+                    obj.get(key, obj) as? ScriptableObject ?: return@contextScope Unit
+                }.get(split.last(), moduleObject) as? Function ?: return@contextScope Unit
 
                 runCatching {
                     function.call(this, moduleObject, moduleObject, args)
