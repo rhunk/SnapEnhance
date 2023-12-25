@@ -14,7 +14,6 @@ import me.rhunk.snapenhance.common.scripting.type.ModuleInfo
 import me.rhunk.snapenhance.scripting.impl.IPCListeners
 import me.rhunk.snapenhance.scripting.impl.ManagerIPC
 import me.rhunk.snapenhance.scripting.impl.ManagerScriptConfig
-import me.rhunk.snapenhance.scripting.impl.ui.InterfaceManager
 import java.io.File
 import java.io.InputStream
 import kotlin.system.exitProcess
@@ -67,7 +66,6 @@ class RemoteScriptManager(
             putConst("currentSide", this, BindingSide.MANAGER.key)
             module.registerBindings(
                 ManagerIPC(ipcListeners),
-                InterfaceManager(),
                 ManagerScriptConfig(this@RemoteScriptManager)
             )
         }

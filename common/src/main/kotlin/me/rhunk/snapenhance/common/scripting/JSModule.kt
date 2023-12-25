@@ -11,6 +11,7 @@ import me.rhunk.snapenhance.common.scripting.ktx.scriptable
 import me.rhunk.snapenhance.common.scripting.ktx.scriptableObject
 import me.rhunk.snapenhance.common.scripting.type.ModuleInfo
 import me.rhunk.snapenhance.common.scripting.type.Permissions
+import me.rhunk.snapenhance.common.scripting.ui.InterfaceManager
 import org.mozilla.javascript.Function
 import org.mozilla.javascript.NativeJavaObject
 import org.mozilla.javascript.ScriptableObject
@@ -53,6 +54,7 @@ class JSModule(
 
             registerBindings(
                 JavaInterfaces(),
+                InterfaceManager(),
             )
 
             moduleObject.putFunction("setField") { args ->

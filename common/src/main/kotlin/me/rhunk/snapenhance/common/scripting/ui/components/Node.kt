@@ -1,4 +1,4 @@
-package me.rhunk.snapenhance.scripting.impl.ui.components
+package me.rhunk.snapenhance.common.scripting.ui.components
 
 open class Node(
     val type: NodeType,

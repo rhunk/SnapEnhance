@@ -25,7 +25,7 @@ import me.rhunk.snapenhance.core.features.impl.tweaks.UnsaveableMessages
 import me.rhunk.snapenhance.core.features.impl.ui.*
 import me.rhunk.snapenhance.core.logger.CoreLogger
 import me.rhunk.snapenhance.core.manager.Manager
-import me.rhunk.snapenhance.core.ui.menu.impl.MenuViewInjector
+import me.rhunk.snapenhance.core.ui.menu.MenuViewInjector
 import kotlin.reflect.KClass
 import kotlin.system.measureTimeMillis
 

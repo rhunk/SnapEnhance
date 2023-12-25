@@ -1,9 +1,9 @@
-package me.rhunk.snapenhance.scripting.impl.ui.components.impl
+package me.rhunk.snapenhance.common.scripting.ui.components.impl
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.ui.Alignment
-import me.rhunk.snapenhance.scripting.impl.ui.components.Node
-import me.rhunk.snapenhance.scripting.impl.ui.components.NodeType
+import me.rhunk.snapenhance.common.scripting.ui.components.Node
+import me.rhunk.snapenhance.common.scripting.ui.components.NodeType
 
 
 class RowColumnNode(

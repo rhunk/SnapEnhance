@@ -1,13 +1,14 @@
-package me.rhunk.snapenhance.scripting.impl.ui
+package me.rhunk.snapenhance.common.scripting.ui
 
 import me.rhunk.snapenhance.common.scripting.bindings.AbstractBinding
 import me.rhunk.snapenhance.common.scripting.bindings.BindingSide
 import me.rhunk.snapenhance.common.scripting.ktx.contextScope
-import me.rhunk.snapenhance.scripting.impl.ui.components.Node
-import me.rhunk.snapenhance.scripting.impl.ui.components.NodeType
-import me.rhunk.snapenhance.scripting.impl.ui.components.impl.ActionNode
-import me.rhunk.snapenhance.scripting.impl.ui.components.impl.ActionType
-import me.rhunk.snapenhance.scripting.impl.ui.components.impl.RowColumnNode
+import me.rhunk.snapenhance.common.scripting.ktx.scriptableObject
+import me.rhunk.snapenhance.common.scripting.ui.components.Node
+import me.rhunk.snapenhance.common.scripting.ui.components.NodeType
+import me.rhunk.snapenhance.common.scripting.ui.components.impl.ActionNode
+import me.rhunk.snapenhance.common.scripting.ui.components.impl.ActionType
+import me.rhunk.snapenhance.common.scripting.ui.components.impl.RowColumnNode
 import org.mozilla.javascript.Function
 import org.mozilla.javascript.annotations.JSFunction
 
@@ -73,24 +74,36 @@ class InterfaceBuilder {
 
 
 
-class InterfaceManager : AbstractBinding("interface-manager", BindingSide.MANAGER) {
-    private val interfaces = mutableMapOf<String, () -> InterfaceBuilder?>()
+class InterfaceManager : AbstractBinding("interface-manager", BindingSide.COMMON) {
+    private val interfaces = mutableMapOf<String, (args: Map<String, Any?>) -> InterfaceBuilder?>()
 
-    fun buildInterface(name: String): InterfaceBuilder? {
-        return interfaces[name]?.invoke()
+    fun buildInterface(scriptInterface: EnumScriptInterface, args: Map<String, Any?> = emptyMap()): InterfaceBuilder? {
+        return runCatching {
+            interfaces[scriptInterface.key]?.invoke(args)
+        }.onFailure {
+            context.runtime.logger.error("Failed to build interface ${scriptInterface.key} for ${context.moduleInfo.name}", it)
+        }.getOrNull()
     }
 
     override fun onDispose() {
         interfaces.clear()
     }
 
+    fun hasInterface(scriptInterfaces: EnumScriptInterface): Boolean {
+        return interfaces.containsKey(scriptInterfaces.key)
+    }
+
     @Suppress("unused")
     @JSFunction fun create(name: String, callback: Function) {
-        interfaces[name] = {
+        interfaces[name] = { args ->
             val interfaceBuilder = InterfaceBuilder()
             runCatching {
                 contextScope {
-                    callback.call(this, callback, callback, arrayOf(interfaceBuilder))
+                    callback.call(this, callback, callback, arrayOf(interfaceBuilder, scriptableObject {
+                        args.forEach { (key, value) ->
+                            putConst(key,this, value)
+                        }
+                    }))
                 }
                 interfaceBuilder
             }.onFailure {

@@ -1,4 +1,5 @@
-package me.rhunk.snapenhance.scripting.impl.ui.components
+package me.rhunk.snapenhance.common.scripting.ui.components
+
 enum class NodeType {
     ROW,
     COLUMN,

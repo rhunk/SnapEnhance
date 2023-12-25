@@ -703,6 +703,10 @@
                         "name": "Auto Reload",
                         "description": "Automatically reloads scripts when they change"
                     },
+                    "integrated_ui": {
+                        "name": "Integrated UI",
+                        "description": "Allows scripts to add custom UI components to Snapchat"
+                    },
                     "disable_log_anonymization": {
                         "name": "Disable Log Anonymization",
                         "description": "Disables the anonymization of logs"

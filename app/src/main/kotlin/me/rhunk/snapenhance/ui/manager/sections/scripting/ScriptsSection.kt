@@ -20,7 +20,9 @@ import androidx.documentfile.provider.DocumentFile
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import me.rhunk.snapenhance.common.scripting.type.ModuleInfo
-import me.rhunk.snapenhance.scripting.impl.ui.InterfaceManager
+import me.rhunk.snapenhance.common.scripting.ui.EnumScriptInterface
+import me.rhunk.snapenhance.common.scripting.ui.InterfaceManager
+import me.rhunk.snapenhance.common.scripting.ui.ScriptInterface
 import me.rhunk.snapenhance.ui.manager.Section
 import me.rhunk.snapenhance.ui.util.ActivityLauncherHelper
 import me.rhunk.snapenhance.ui.util.chooseFolder
@@ -140,22 +142,14 @@ class ScriptsSection : Section() {
 
     @Composable
     fun ScriptSettings(script: ModuleInfo) {
-        var settingsError by remember {
-            mutableStateOf(null as Throwable?)
-        }
-
         val settingsInterface = remember {
             val module = context.scriptManager.runtime.getModuleByName(script.name) ?: return@remember null
-            runCatching {
-                (module.getBinding(InterfaceManager::class))?.buildInterface("settings")
-            }.onFailure {
-                settingsError = it
-            }.getOrNull()
+            (module.getBinding(InterfaceManager::class))?.buildInterface(EnumScriptInterface.SETTINGS)
         }
 
         if (settingsInterface == null) {
             Text(
-                text = settingsError?.message ?: "This module does not have any settings",
+                text = "This module does not have any settings",
                 style = MaterialTheme.typography.bodySmall,
                 modifier = Modifier.padding(8.dp)
             )
