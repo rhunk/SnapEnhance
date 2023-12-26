@@ -22,7 +22,6 @@
     },
     "manager": {
         "routes": {
-            "tasks": "",
             "features": "Ominaisuudet",
             "home": "Etusivu",
             "home_settings": "Asetukset",
@@ -95,14 +94,6 @@
                     "whitelist": "Automaattinen tallennus"
                 }
             },
-            "unsaveable_messages": {
-                "name": "",
-                "description": "",
-                "options": {
-                    "blacklist": "",
-                    "whitelist": ""
-                }
-            },
             "hide_friend_feed": {
                 "name": "Piilota Ystäväsyötteestä"
             },
@@ -120,8 +111,7 @@
         "refresh_mappings": "Päivitä Kartoitukset",
         "open_map": "Valitse sijainti kartalta",
         "check_for_updates": "Tarkista päivitykset",
-        "export_chat_messages": "Vie Chat-viestit",
-        "bulk_messaging_action": ""
+        "export_chat_messages": "Vie Chat-viestit"
     },
     "features": {
         "notices": {
@@ -171,10 +161,6 @@
                         "name": "Lataa profiilikuvat",
                         "description": "Antaa sinun ladata profiilikuvia profiilin sivulta"
                     },
-                    "opera_download_button": {
-                        "name": "",
-                        "description": ""
-                    },
                     "chat_download_context_menu": {
                         "name": "Chat-latauksen kontekstivalikko",
                         "description": "Voit ladata mediaa keskustelusta painamalla niitä pitkään"
@@ -216,10 +202,6 @@
                     "logging": {
                         "name": "Lokiin kirjaus",
                         "description": "Näytä pieni ilmoitus kun lataus on käynnissä"
-                    },
-                    "custom_path_format": {
-                        "name": "",
-                        "description": ""
                     }
                 }
             },
@@ -245,10 +227,6 @@
                             }
                         }
                     },
-                    "snap_preview": {
-                        "name": "",
-                        "description": ""
-                    },
                     "bootstrap_override": {
                         "name": "Bootstrap Ohitus",
                         "description": "Ohittaa käyttöliittymän bootstrap-asetukset",
@@ -267,10 +245,6 @@
                         "name": "Parannetut ystäväkartan nimilaput",
                         "description": "Parantaa ystävien nimilappuja Snapkartassa"
                     },
-                    "prevent_message_list_auto_scroll": {
-                        "name": "",
-                        "description": ""
-                    },
                     "streak_expiration_info": {
                         "name": "Näytä Striikkien Vanhenemistiedot",
                         "description": "Näyttää striikkien loppumisajastin streakkilaskurin vieressä"
@@ -283,10 +257,6 @@
                         "name": "Piilota streakkien palautus",
                         "description": "Piilottaa Palauta-painikkeen ystäväsyötteessä"
                     },
-                    "hide_quick_add_friend_feed": {
-                        "name": "",
-                        "description": ""
-                    },
                     "hide_story_sections": {
                         "name": "Piilota tarinaosio",
                         "description": "Piilota tietyt tarinaosiossa näkyvät käyttöliittymäelementit"
@@ -295,29 +265,13 @@
                         "name": "Piilota käyttöliittymäkomponentit",
                         "description": "Valitse piilotettavat käyttöliittymäkomponentit"
                     },
-                    "opera_media_quick_info": {
-                        "name": "",
-                        "description": ""
-                    },
-                    "old_bitmoji_selfie": {
-                        "name": "",
-                        "description": ""
-                    },
                     "disable_spotlight": {
                         "name": "Poista Valokeila Käytöstä",
                         "description": "Poistaa Valokeila-sivun käytöstä"
                     },
-                    "hide_settings_gear": {
-                        "name": "",
-                        "description": ""
-                    },
                     "friend_feed_menu_buttons": {
                         "name": "Ystävän syötteen valikkopainikkeet",
                         "description": "Valitse, mitkä painikkeet näytetään ystäväsyötteen valikkopalkissa"
-                    },
-                    "vertical_story_viewer": {
-                        "name": "",
-                        "description": ""
                     },
                     "friend_feed_menu_position": {
                         "name": "Ystävän syötteen sijaintiindeksi",
@@ -326,14 +280,6 @@
                     "enable_friend_feed_menu_bar": {
                         "name": "Ystäväsyötteen valikkopalkki",
                         "description": "Ottaa käyttöön uuden ystäväsyötteen valikkopalkin"
-                    },
-                    "fidelius_indicator": {
-                        "name": "",
-                        "description": ""
-                    },
-                    "edit_text_override": {
-                        "name": "",
-                        "description": ""
                     }
                 }
             },
@@ -341,21 +287,9 @@
                 "name": "Viestintä",
                 "description": "Muuta tapaa, jolla olet vuorovaikutuksessa ystävien kanssa",
                 "properties": {
-                    "bypass_screenshot_detection": {
-                        "name": "",
-                        "description": ""
-                    },
                     "anonymous_story_viewing": {
                         "name": "Nimetön tarinan katselu",
                         "description": "Estää ketään tietämästä, että olet nähnyt heidän tarinansa"
-                    },
-                    "prevent_story_rewatch_indicator": {
-                        "name": "",
-                        "description": ""
-                    },
-                    "hide_peek_a_peek": {
-                        "name": "",
-                        "description": ""
                     },
                     "hide_bitmoji_presence": {
                         "name": "Piilota Bitmojin läsnäolo",
@@ -373,35 +307,13 @@
                         "name": "Poista uusinta käytöstä FF: ssä",
                         "description": "Poistaa käytöstä mahdollisuuden toistaa kaverisyötteestä pitkällä painalluksella"
                     },
-                    "half_swipe_notifier": {
-                        "name": "",
-                        "description": "",
-                        "properties": {
-                            "min_duration": {
-                                "name": "",
-                                "description": ""
-                            },
-                            "max_duration": {
-                                "name": "",
-                                "description": ""
-                            }
-                        }
-                    },
                     "message_preview_length": {
                         "name": "Viestin Esikatselun Pituus",
                         "description": "Määritä esikatseltavien viestien määrä"
                     },
-                    "call_start_confirmation": {
-                        "name": "",
-                        "description": ""
-                    },
                     "prevent_message_sending": {
                         "name": "Estä Viestien Lähettäminen",
                         "description": "Estää tietyntyyppisten viestien lähettämisen"
-                    },
-                    "instant_delete": {
-                        "name": "",
-                        "description": ""
                     },
                     "better_notifications": {
                         "name": "Paremmat ilmoitukset",
@@ -413,21 +325,7 @@
                     },
                     "message_logger": {
                         "name": "Viestiloki",
-                        "description": "Estää viestien poistamisen",
-                        "properties": {
-                            "keep_my_own_messages": {
-                                "name": "",
-                                "description": ""
-                            },
-                            "auto_purge": {
-                                "name": "",
-                                "description": ""
-                            },
-                            "message_filter": {
-                                "name": "",
-                                "description": ""
-                            }
-                        }
+                        "description": "Estää viestien poistamisen"
                     },
                     "auto_save_messages_in_conversations": {
                         "name": "Automaattinen Viestien Tallennus",
@@ -436,14 +334,6 @@
                     "gallery_media_send_override": {
                         "name": "Gallerian Medialähetyksen Ohitus",
                         "description": "Väärennä median lähde lähetettäessä galleriasta"
-                    },
-                    "strip_media_metadata": {
-                        "name": "",
-                        "description": ""
-                    },
-                    "bypass_message_retention_policy": {
-                        "name": "",
-                        "description": ""
                     }
                 }
             },
@@ -461,17 +351,9 @@
                             }
                         }
                     },
-                    "suspend_location_updates": {
-                        "name": "",
-                        "description": ""
-                    },
                     "snapchat_plus": {
                         "name": "Snapchat Plus",
                         "description": "Ota käyttöön Snapchat Plus ominaisuudet\nJotkin palvelinpohjaiset ominaisuudet eivät välttämättä toimi"
-                    },
-                    "disable_confirmation_dialogs": {
-                        "name": "",
-                        "description": ""
                     },
                     "auto_updater": {
                         "name": "Automaattiset Päivitykset",
@@ -480,10 +362,6 @@
                     "disable_metrics": {
                         "name": "Poista Analytiikka Käytöstä",
                         "description": "Estä analyyttisten tietojen lähettäminen Snapchatille"
-                    },
-                    "disable_public_stories": {
-                        "name": "",
-                        "description": ""
                     },
                     "block_ads": {
                         "name": "Estä Mainokset",
@@ -496,10 +374,6 @@
                     "disable_google_play_dialogs": {
                         "name": "Poista Google Play -palveluiden valintaikkunat käytöstä",
                         "description": "Estä Google Play -palveluiden saatavuusvalintaikkunoiden näyttäminen"
-                    },
-                    "force_upload_source_quality": {
-                        "name": "",
-                        "description": ""
                     },
                     "disable_snap_splitting": {
                         "name": "Poista Snäppien katkominen käytöstä",
@@ -519,10 +393,6 @@
                         "name": "Estä Kamera",
                         "description": "Estä Snapchattia käyttämästä laitteessasi olevia kameroita"
                     },
-                    "black_photos": {
-                        "name": "",
-                        "description": ""
-                    },
                     "immersive_camera_preview": {
                         "name": "Mukaansatempaava esikatselu",
                         "description": "Estää Snapchatia rajaamasta kameran esikatselua.\nTämä saattaa aiheuttaa kameran välkkymistä joissakin laitteissa"
@@ -535,14 +405,6 @@
                         "name": "Ohita Kuvan Resoluutio",
                         "description": "Ohittaa kuvan resoluution"
                     },
-                    "custom_preview_resolution": {
-                        "name": "",
-                        "description": ""
-                    },
-                    "custom_picture_resolution": {
-                        "name": "",
-                        "description": ""
-                    },
                     "custom_frame_rate": {
                         "name": "Mukautettu Kuvataajuus",
                         "description": "Ohittaa kameran kuvataajuuden"
@@ -550,10 +412,6 @@
                     "force_camera_source_encoding": {
                         "name": "Pakota kameran lähdekoodaus",
                         "description": "Pakottaa kameran lähdekoodauksen"
-                    },
-                    "hevc_recording": {
-                        "name": "",
-                        "description": ""
                     }
                 }
             },
@@ -591,41 +449,7 @@
                     },
                     "spoof": {
                         "name": "Väärennä",
-                        "description": "Väärennä erinäisiä tietoja sinusta",
-                        "properties": {
-                            "play_store_installer_package_name": {
-                                "name": "",
-                                "description": ""
-                            },
-                            "fingerprint": {
-                                "name": "",
-                                "description": ""
-                            },
-                            "android_id": {
-                                "name": "",
-                                "description": ""
-                            },
-                            "remove_vpn_transport_flag": {
-                                "name": "",
-                                "description": ""
-                            },
-                            "remove_mock_location_flag": {
-                                "name": "",
-                                "description": ""
-                            },
-                            "randomize_persistent_device_token": {
-                                "name": "",
-                                "description": ""
-                            }
-                        }
-                    },
-                    "convert_message_locally": {
-                        "name": "",
-                        "description": ""
-                    },
-                    "story_logger": {
-                        "name": "",
-                        "description": ""
+                        "description": "Väärennä erinäisiä tietoja sinusta"
                     },
                     "app_passcode": {
                         "name": "Sovelluksen Pääsykoodi",
@@ -672,14 +496,6 @@
                     "hidden_snapchat_plus_features": {
                         "name": "Piilotetut Snapchat Plus -ominaisuudet",
                         "description": "Ottaa käyttöön julkaisemattomat/beta Snapchat Plus -ominaisuudet\nEi ehkä toimi vanhemmissa Snapchat-versioissa"
-                    },
-                    "disable_composer_modules": {
-                        "name": "",
-                        "description": ""
-                    },
-                    "prevent_forced_logout": {
-                        "name": "",
-                        "description": ""
                     }
                 }
             },
@@ -694,18 +510,6 @@
                     "module_folder": {
                         "name": "Moduulin kansio",
                         "description": "Kansio, jossa komentosarjat sijaitsevat"
-                    },
-                    "auto_reload": {
-                        "name": "",
-                        "description": ""
-                    },
-                    "integrated_ui": {
-                        "name": "",
-                        "description": ""
-                    },
-                    "disable_log_anonymization": {
-                        "name": "",
-                        "description": ""
                     }
                 }
             }
@@ -716,21 +520,14 @@
                 "always_dark": "Aina Tumma"
             },
             "better_notifications": {
-                "chat_preview": "",
-                "media_preview": "",
                 "reply_button": "Lisää \"Vastaa\" -painike",
                 "download_button": "Lisää latauspainike",
-                "mark_as_read_button": "",
-                "mark_as_read_and_save_in_chat": "",
                 "group": "Ryhmäilmoitukset"
             },
             "friend_feed_menu_buttons": {
                 "auto_download": "⬇️ Automaattinen Lataus",
                 "auto_save": "💬 Automaattinen Viestien Tallennus",
-                "unsaveable_messages": "",
                 "stealth": "👻 Haamutila",
-                "mark_snaps_as_seen": "",
-                "mark_stories_as_seen_locally": "",
                 "conversation_info": "👤 Keskustelun Tiedot",
                 "e2e_encryption": "🔒 Käytä E2E-salausta"
             },
@@ -777,24 +574,15 @@
                 "SNAP": "Snap",
                 "SAVABLE_SNAP": "Tallennettava Snap"
             },
-            "strip_media_metadata": {
-                "hide_caption_text": "",
-                "hide_snap_filters": "",
-                "hide_extras": "",
-                "remove_audio_note_duration": "",
-                "remove_audio_note_transcript_capability": ""
-            },
             "hide_ui_components": {
                 "hide_profile_call_buttons": "Poista Profiilin Soittopainikkeet",
                 "hide_chat_call_buttons": "Poista Chatin Puhelupainikkeet",
                 "hide_live_location_share_button": "Poista Sijainnin Jakopainike",
                 "hide_stickers_button": "Poista Tarrat -painike",
-                "hide_voice_record_button": "Poista Äänityspainike",
-                "hide_unread_chat_hint": ""
+                "hide_voice_record_button": "Poista Äänityspainike"
             },
             "hide_story_sections": {
                 "hide_friend_suggestions": "Piilota ystäväehdotukset",
-                "hide_suggested_friend_stories": "",
                 "hide_friends": "Piilota ystävät-osio",
                 "hide_suggested": "Piilota ehdotetut osio",
                 "hide_for_you": "Piilota sinulle -osio"
@@ -807,7 +595,6 @@
                 "spotlight": "Valokeila"
             },
             "add_friend_source_spoof": {
-                "added_by_quick_add": "",
                 "added_by_username": "Käyttäjänimellä",
                 "added_by_mention": "Maininnasta",
                 "added_by_group_chat": "Ryhmäkeskustelusta",
@@ -817,87 +604,22 @@
             "bypass_video_length_restriction": {
                 "single": "Yksittäinen media",
                 "split": "Jaettu media"
-            },
-            "old_bitmoji_selfie": {
-                "2d": "",
-                "3d": ""
-            },
-            "disable_confirmation_dialogs": {
-                "remove_friend": "",
-                "block_friend": "",
-                "ignore_friend": "",
-                "hide_friend": "",
-                "hide_conversation": "",
-                "clear_conversation": ""
-            },
-            "auto_reload": {
-                "snapchat_only": "",
-                "all": ""
-            },
-            "edit_text_override": {
-                "multi_line_chat_input": "",
-                "bypass_text_input_limit": ""
-            },
-            "auto_purge": {
-                "never": "",
-                "1_hour": "",
-                "3_hours": "",
-                "6_hours": "",
-                "12_hours": "",
-                "1_day": "",
-                "3_days": "",
-                "1_week": "",
-                "2_weeks": "",
-                "1_month": "",
-                "3_months": "",
-                "6_months": ""
             }
         }
     },
     "friend_menu_option": {
-        "mark_snaps_as_seen": "",
-        "mark_stories_as_seen_locally": "",
         "preview": "Esikatselu",
         "stealth_mode": "Haamutila",
         "auto_download_blacklist": "Automaattisen latauksen esto lista",
         "anti_auto_save": "Automaattisen tallennuksen esto"
     },
-    "content_type": {
-        "CHAT": "",
-        "SNAP": "",
-        "EXTERNAL_MEDIA": "",
-        "NOTE": "",
-        "STICKER": "",
-        "STATUS": "",
-        "LOCATION": "",
-        "STATUS_SAVE_TO_CAMERA_ROLL": "",
-        "STATUS_CONVERSATION_CAPTURE_SCREENSHOT": "",
-        "STATUS_CONVERSATION_CAPTURE_RECORD": "",
-        "STATUS_CALL_MISSED_VIDEO": "",
-        "STATUS_CALL_MISSED_AUDIO": "",
-        "LIVE_LOCATION_SHARE": "",
-        "CREATIVE_TOOL_ITEM": "",
-        "FAMILY_CENTER_INVITE": "",
-        "FAMILY_CENTER_ACCEPT": "",
-        "FAMILY_CENTER_LEAVE": "",
-        "STATUS_PLUS_GIFT": "",
-        "TINY_SNAP": "",
-        "STATUS_COUNTDOWN": ""
-    },
     "chat_action_menu": {
         "preview_button": "Esikatselu",
         "download_button": "Lataa",
-        "delete_logged_message_button": "Poista kirjattu viesti",
-        "convert_message": ""
+        "delete_logged_message_button": "Poista kirjattu viesti"
     },
     "opera_context_menu": {
-        "download": "Lataa Media",
-        "sent_at": "",
-        "created_at": "",
-        "expires_at": "",
-        "media_size": "",
-        "media_duration": "",
-        "show_debug_info": ""
+        "download": "Lataa Media"
     },
     "modal_option": {
         "profile_info": "Profiilin Tiedot",
@@ -919,7 +641,6 @@
         "display_name": "Näyttönimi",
         "added_date": "Lisätty Päivämäärä",
         "birthday": "Syntymäpäivä: {month} {day}",
-        "hidden_birthday": "",
         "friendship": "Ystävyys",
         "add_source": "Lisää lähde",
         "snapchat_plus": "Snapchat Plus",
@@ -928,39 +649,7 @@
             "not_subscribed": "Ei Tilattu"
         }
     },
-    "friendship_link_type": {
-        "mutual": "",
-        "outgoing": "",
-        "blocked": "",
-        "deleted": "",
-        "following": "",
-        "suggested": "",
-        "incoming": "",
-        "incoming_follower": ""
-    },
-    "bulk_messaging_action": {
-        "choose_action_title": "",
-        "progress_status": "",
-        "selection_dialog_continue_button": "",
-        "confirmation_dialog": {
-            "title": "",
-            "message": ""
-        },
-        "actions": {
-            "remove_friends": "",
-            "clear_conversations": ""
-        }
-    },
     "chat_export": {
-        "exporter_dialog": {
-            "select_conversations_title": "",
-            "text_field_selection": "",
-            "text_field_selection_all": "",
-            "export_file_format_title": "",
-            "message_type_filter_title": "",
-            "amount_of_messages_title": "",
-            "download_medias_title": ""
-        },
         "dialog_negative_button": "Peruuta",
         "dialog_positive_button": "Vie",
         "exported_to": "Viety {path}",
@@ -980,28 +669,11 @@
         "open": "Avaa",
         "download": "Lataa"
     },
-    "better_notifications": {
-        "button": {
-            "reply": "",
-            "download": "",
-            "mark_as_read": ""
-        },
-        "stealth_mode_notice": ""
-    },
     "profile_picture_downloader": {
         "button": "Lataa Profiilikuva",
         "title": "Profiilikuvan Lataaja",
         "avatar_option": "Hahmo",
         "background_option": "Tausta"
-    },
-    "call_start_confirmation": {
-        "dialog_title": "",
-        "dialog_message": ""
-    },
-    "half_swipe_notifier": {
-        "notification_channel_name": "",
-        "notification_content_dm": "",
-        "notification_content_group": ""
     },
     "download_processor": {
         "attachment_type": {
@@ -1029,8 +701,5 @@
     "streaks_reminder": {
         "notification_title": "Striikit",
         "notification_text": "Menetät Striikit {friend}: n kanssa {hoursLeft} tunnin kuluttua"
-    },
-    "suspend_location_updates": {
-        "switch_text": ""
     }
 }
