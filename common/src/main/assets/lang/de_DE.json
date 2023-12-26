@@ -2,7 +2,7 @@
     "setup": {
         "dialogs": {
             "select_language": "Sprache auswählen",
-            "save_folder": "SnapEnhance benötigt Zugriff auf den Gerätespeicher, um Medien von Snapchat herunterzuladen und zu sichern. Bitte wähle einen Ziel-Ordner für die Downloads aus.",
+            "save_folder": "SnapEnhance benötigt Zugriff auf den Gerätespeicher, um Medien von Snapchat herunterzuladen und zu sichern.\nBitte wähle einen Ziel-Ordner für die Downloads aus.",
             "select_save_folder_button": "Ordner wählen"
         },
         "mappings": {
@@ -178,7 +178,7 @@
                                 "description": "Geschwindigkeit der Konvertierung festlegen"
                             },
                             "constant_rate_factor": {
-                                "name": "Constant Rate Factor",
+                                "name": "",
                                 "description": "Setze den Constant Rate Factor für den Video-Encoder\nvon 0 bis 51 für libx264"
                             },
                             "video_bitrate": {
