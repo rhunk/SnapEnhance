@@ -1,12 +1,18 @@
 package me.rhunk.snapenhance.common.ui
 
+import android.app.AlertDialog
 import android.content.Context
 import android.os.Bundle
+import android.view.WindowManager
 import androidx.activity.OnBackPressedDispatcher
 import androidx.activity.OnBackPressedDispatcherOwner
 import androidx.activity.setViewTreeOnBackPressedDispatcherOwner
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Surface
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Recomposer
+import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.AndroidUiDispatcher
 import androidx.compose.ui.platform.ComposeView
 import androidx.compose.ui.platform.ViewCompositionStrategy
@@ -56,6 +62,26 @@ fun createComposeView(context: Context, content: @Composable () -> Unit) = Compo
             content()
         }
     }
+}
+
+fun createComposeAlertDialog(context: Context, builder: AlertDialog.Builder.() -> Unit = {}, content: @Composable (alertDialog: AlertDialog) -> Unit): AlertDialog {
+    lateinit var alertDialog: AlertDialog
+
+    return AlertDialog.Builder(context)
+        .apply(builder)
+        .setView(createComposeView(context) {
+            Surface(
+                modifier = Modifier.fillMaxWidth(),
+                color = MaterialTheme.colorScheme.surface
+            ) {
+                content(alertDialog)
+            }
+        })
+        .create().apply {
+            alertDialog = this
+            window?.clearFlags(WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE or WindowManager.LayoutParams.FLAG_ALT_FOCUSABLE_IM)
+            window?.setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_VISIBLE)
+        }
 }
 
 private class OverlayLifecycleOwner : SavedStateRegistryOwner {

@@ -1,5 +1,8 @@
 package me.rhunk.snapenhance.common.scripting.ui
 
+import android.app.Activity
+import android.app.AlertDialog
+import androidx.compose.runtime.remember
 import me.rhunk.snapenhance.common.scripting.bindings.AbstractBinding
 import me.rhunk.snapenhance.common.scripting.bindings.BindingSide
 import me.rhunk.snapenhance.common.scripting.ktx.contextScope
@@ -9,6 +12,7 @@ import me.rhunk.snapenhance.common.scripting.ui.components.NodeType
 import me.rhunk.snapenhance.common.scripting.ui.components.impl.ActionNode
 import me.rhunk.snapenhance.common.scripting.ui.components.impl.ActionType
 import me.rhunk.snapenhance.common.scripting.ui.components.impl.RowColumnNode
+import me.rhunk.snapenhance.common.ui.createComposeAlertDialog
 import org.mozilla.javascript.Function
 import org.mozilla.javascript.annotations.JSFunction
 
@@ -74,6 +78,7 @@ class InterfaceBuilder {
 
 
 
+@Suppress("unused")
 class InterfaceManager : AbstractBinding("interface-manager", BindingSide.COMMON) {
     private val interfaces = mutableMapOf<String, (args: Map<String, Any?>) -> InterfaceBuilder?>()
 
@@ -93,7 +98,6 @@ class InterfaceManager : AbstractBinding("interface-manager", BindingSide.COMMON
         return interfaces.containsKey(scriptInterfaces.key)
     }
 
-    @Suppress("unused")
     @JSFunction fun create(name: String, callback: Function) {
         interfaces[name] = { args ->
             val interfaceBuilder = InterfaceBuilder()
@@ -110,6 +114,22 @@ class InterfaceManager : AbstractBinding("interface-manager", BindingSide.COMMON
                 context.runtime.logger.error("Failed to create interface $name for ${context.moduleInfo.name}", it)
             }.getOrNull()
         }
+    }
+
+    @JSFunction fun createAlertDialog(activity: Activity, builder: (AlertDialog.Builder) -> Unit, callback: (interfaceBuilder: InterfaceBuilder, alertDialog: AlertDialog) -> Unit): AlertDialog {
+        return createComposeAlertDialog(activity, builder = builder) { alertDialog ->
+            ScriptInterface(interfaceBuilder = remember {
+                InterfaceBuilder().also {
+                    contextScope {
+                        callback(it, alertDialog)
+                    }
+                }
+            })
+        }
+    }
+
+    @JSFunction fun createAlertDialog(activity: Activity, callback: (interfaceBuilder: InterfaceBuilder, alertDialog: AlertDialog) -> Unit): AlertDialog {
+        return createAlertDialog(activity, {}, callback)
     }
 
     override fun getObject() = this
