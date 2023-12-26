@@ -277,7 +277,8 @@
                         "description": "Skjuler en bestemt ven fra venskabsfeed\nBrug fanen social til at håndtere denne funktion"
                     },
                     "hide_streak_restore": {
-                        "description": "Skjuler knappen Gendan i vennefeedet"
+                        "description": "Skjuler knappen Gendan i vennefeedet",
+                        "name": ""
                     },
                     "hide_ui_components": {
                         "name": "Skjul UI Komponenter",
@@ -578,7 +579,8 @@
                 "description": "Periodisk giver dig besked om dine streaks",
                 "properties": {
                     "interval": {
-                        "description": "Intervallet mellem hver påmindelse (timer)"
+                        "description": "Intervallet mellem hver påmindelse (timer)",
+                        "name": ""
                     },
                     "remaining_hours": {
                         "name": "Resterende tid",
@@ -880,7 +882,8 @@
         "stealth_mode": "Stealth Tilstand",
         "anti_auto_save": "Anti Automatisk Gem",
         "mark_stories_as_seen_locally": "",
-        "mark_snaps_as_seen": ""
+        "mark_snaps_as_seen": "",
+        "auto_download_blacklist": ""
     },
     "chat_action_menu": {
         "preview_button": "Forhåndsvisning",
