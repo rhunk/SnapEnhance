@@ -22,7 +22,7 @@
     },
     "manager": {
         "routes": {
-            "tasks": "Tasks",
+            "tasks": "",
             "features": "الخصائص",
             "home": "الصفحة الرئيسية",
             "home_settings": "الإعدادات",
@@ -96,11 +96,11 @@
                 }
             },
             "unsaveable_messages": {
-                "name": "Unsaveable Messages",
-                "description": "Prevents messages from being saved in chat by other people",
+                "name": "",
+                "description": "",
                 "options": {
-                    "blacklist": "Exclude from Unsaveable Messages",
-                    "whitelist": "Unsaveable Messages"
+                    "blacklist": "",
+                    "whitelist": ""
                 }
             },
             "hide_friend_feed": {
@@ -121,7 +121,7 @@
         "open_map": "إختيار الموقع على الخريطة",
         "check_for_updates": "التحقق من توفر تحديثات",
         "export_chat_messages": "تصدير رسائل الدردشة",
-        "bulk_messaging_action": "Bulk Messaging Action"
+        "bulk_messaging_action": ""
     },
     "features": {
         "notices": {
@@ -172,8 +172,8 @@
                         "description": "يسمح لك بتنزيل صور الملف الشخصي من صفحة الملف الشخصي"
                     },
                     "opera_download_button": {
-                        "name": "Opera Download Button",
-                        "description": "Adds a download button on the top right corner when viewing a Snap"
+                        "name": "",
+                        "description": ""
                     },
                     "chat_download_context_menu": {
                         "name": "قائمة سياق التنزيل بالدردشة",
@@ -218,8 +218,8 @@
                         "description": "عرض إشعار عند تنزيل الوسائط"
                     },
                     "custom_path_format": {
-                        "name": "Custom Path Format",
-                        "description": "Specify a custom path format for downloaded media\n\nAvailable variables:\n - %username%\n - %source%\n - %hash%\n - %date_time%"
+                        "name": "",
+                        "description": ""
                     }
                 }
             },
@@ -246,8 +246,8 @@
                         }
                     },
                     "snap_preview": {
-                        "name": "Snap Preview",
-                        "description": "Displays a small preview next to unseen Snaps in chat"
+                        "name": "",
+                        "description": ""
                     },
                     "bootstrap_override": {
                         "name": "تجاوز Bootstrap",
@@ -268,8 +268,8 @@
                         "description": "تحسين علامات أسماء الأصدقاء على خريطة Snapmap"
                     },
                     "prevent_message_list_auto_scroll": {
-                        "name": "Prevent Message List Auto Scroll",
-                        "description": "Prevents the message list from scrolling to the bottom when sending/receiving a message"
+                        "name": "",
+                        "description": ""
                     },
                     "streak_expiration_info": {
                         "name": "عرض معلومات انتهاء صَلاحِيَة سلسلة اللقطات المتتالية",
@@ -284,8 +284,8 @@
                         "description": "إخفاء زر الاستعادة في موجز الأصدقاء"
                     },
                     "hide_quick_add_friend_feed": {
-                        "name": "Hide Quick Add in Friend Feed",
-                        "description": "Hides the Quick Add section in the friend feed"
+                        "name": "",
+                        "description": ""
                     },
                     "hide_story_sections": {
                         "name": "إخفاء قسم القصص",
@@ -296,28 +296,28 @@
                         "description": "حدد مكونات واجهة المستخدم التي تريد إخفاءها"
                     },
                     "opera_media_quick_info": {
-                        "name": "Opera Media Quick Info",
-                        "description": "Shows useful information of media such as creation date in opera viewer context menu"
+                        "name": "",
+                        "description": ""
                     },
                     "old_bitmoji_selfie": {
-                        "name": "Old Bitmoji Selfie",
-                        "description": "Brings back the Bitmoji selfies from older Snapchat versions"
+                        "name": "",
+                        "description": ""
                     },
                     "disable_spotlight": {
                         "name": "تعطيل منصة الأضواء",
                         "description": "يعطّل صفحة منصة الأضواء"
                     },
                     "hide_settings_gear": {
-                        "name": "Hide Settings Gear",
-                        "description": "Hides the SnapEnhance Settings Gear in friend feed"
+                        "name": "",
+                        "description": ""
                     },
                     "friend_feed_menu_buttons": {
                         "name": "أزرار قائمة موجز الأصدقاء",
                         "description": "حدد الأزرار التي تريد عرضها في شريط قائمة موجز الأصدقاء"
                     },
                     "vertical_story_viewer": {
-                        "name": "Vertical Story Viewer",
-                        "description": "Enables the vertical story viewer for all stories"
+                        "name": "",
+                        "description": ""
                     },
                     "friend_feed_menu_position": {
                         "name": "ترتيب موضع موجز الأصدقاء",
@@ -328,12 +328,12 @@
                         "description": "يمكّن شريط قائمة موجز الأصدقاء الجديد"
                     },
                     "fidelius_indicator": {
-                        "name": "Fidelius Indicator",
-                        "description": "Adds a green circle next to messages that have been sent only to you"
+                        "name": "",
+                        "description": ""
                     },
                     "edit_text_override": {
-                        "name": "Edit Text Override",
-                        "description": "Overrides text field behavior"
+                        "name": "",
+                        "description": ""
                     }
                 }
             },
@@ -342,20 +342,20 @@
                 "description": "تغيير كيفية تفاعلك مع الأصدقاء",
                 "properties": {
                     "bypass_screenshot_detection": {
-                        "name": "Bypass Screenshot Detection",
-                        "description": "Prevents Snapchat from detecting when you take a screenshot"
+                        "name": "",
+                        "description": ""
                     },
                     "anonymous_story_viewing": {
                         "name": "مشاهدة القصة كمجهول",
                         "description": "يمنع أي شخص من معرفة أنك رأيت قصته"
                     },
                     "prevent_story_rewatch_indicator": {
-                        "name": "Prevent Story Rewatch Indicator",
-                        "description": "Prevents anyone from knowing you've rewatched their story"
+                        "name": "",
+                        "description": ""
                     },
                     "hide_peek_a_peek": {
-                        "name": "Hide Peek-a-Peek",
-                        "description": "Prevents notification from being sent when you half swipe into a chat"
+                        "name": "",
+                        "description": ""
                     },
                     "hide_bitmoji_presence": {
                         "name": "إخفاء وجود Bitmoji",
@@ -374,16 +374,16 @@
                         "description": "تعطيل القدرة على إعادة التشغيل بالضغط المطول من موجز الأصدقاء"
                     },
                     "half_swipe_notifier": {
-                        "name": "Half Swipe Notifier",
-                        "description": "Notifies you when someone half swipes into a conversation",
+                        "name": "",
+                        "description": "",
                         "properties": {
                             "min_duration": {
-                                "name": "Minimum Duration",
-                                "description": "The minimum duration of the half swipe (in seconds)"
+                                "name": "",
+                                "description": ""
                             },
                             "max_duration": {
-                                "name": "Maximum Duration",
-                                "description": "The maximum duration of the half swipe (in seconds)"
+                                "name": "",
+                                "description": ""
                             }
                         }
                     },
@@ -392,16 +392,16 @@
                         "description": "تحديد كَمّيَّة الرسائل التي سيتم معاينتها"
                     },
                     "call_start_confirmation": {
-                        "name": "Call Start Confirmation",
-                        "description": "Shows a confirmation dialog when starting a call"
+                        "name": "",
+                        "description": ""
                     },
                     "prevent_message_sending": {
                         "name": "منع إرسال الرسالة",
                         "description": "يمنع إرسال أنواع معينة من الرسائل"
                     },
                     "instant_delete": {
-                        "name": "Instant Delete",
-                        "description": "Removes the confirmation dialog when deleting messages"
+                        "name": "",
+                        "description": ""
                     },
                     "better_notifications": {
                         "name": "إشعارات أفضل",
@@ -416,16 +416,16 @@
                         "description": "يمنع حذف الرسائل",
                         "properties": {
                             "keep_my_own_messages": {
-                                "name": "Keep My Own Messages",
-                                "description": "Prevents your own messages from being deleted"
+                                "name": "",
+                                "description": ""
                             },
                             "auto_purge": {
-                                "name": "Auto Purge",
-                                "description": "Automatically deletes cached messages that are older than the specified amount of time"
+                                "name": "",
+                                "description": ""
                             },
                             "message_filter": {
-                                "name": "Message Filter",
-                                "description": "Select which messages should get logged (empty for all messages)"
+                                "name": "",
+                                "description": ""
                             }
                         }
                     },
@@ -438,12 +438,12 @@
                         "description": "ينتحل مصدر الوسائط عند الإرسال من المعرض"
                     },
                     "strip_media_metadata": {
-                        "name": "Strip Media Metadata",
-                        "description": "Removes metadata of media before sending as a message"
+                        "name": "",
+                        "description": ""
                     },
                     "bypass_message_retention_policy": {
-                        "name": "Bypass Message Retention Policy",
-                        "description": "Prevents messages from being deleted after viewing them"
+                        "name": "",
+                        "description": ""
                     }
                 }
             },
@@ -462,16 +462,16 @@
                         }
                     },
                     "suspend_location_updates": {
-                        "name": "Suspend Location Updates",
-                        "description": "Adds a button in map settings to suspend location updates"
+                        "name": "",
+                        "description": ""
                     },
                     "snapchat_plus": {
                         "name": "سناب شات+",
                         "description": "تمكين ميزات Snapchat Plus\nقد لا تعمل بعض الميزات على جانب الخادم"
                     },
                     "disable_confirmation_dialogs": {
-                        "name": "Disable Confirmation Dialogs",
-                        "description": "Automatically confirms selected actions"
+                        "name": "",
+                        "description": ""
                     },
                     "auto_updater": {
                         "name": "التحديث التلقائي",
@@ -482,8 +482,8 @@
                         "description": "يحظر إرسال بيانات تحليلية محددة إلى Snapchat"
                     },
                     "disable_public_stories": {
-                        "name": "Disable Public Stories",
-                        "description": "Removes every public story from the Discover page\nMay require a clean cache to work properly"
+                        "name": "",
+                        "description": ""
                     },
                     "block_ads": {
                         "name": "حجب الإعلانات",
@@ -498,8 +498,8 @@
                         "description": "يمنع ظهور مربعات حوار توفر خدمات Google Play"
                     },
                     "force_upload_source_quality": {
-                        "name": "Force Upload Source Quality",
-                        "description": "Forces Snapchat to upload media in the original quality\nPlease note that this may not remove metadata from media"
+                        "name": "",
+                        "description": ""
                     },
                     "disable_snap_splitting": {
                         "name": "تعطيل تقسيم السنابة",
@@ -520,8 +520,8 @@
                         "description": "يمنع Snapchat من استخدام الكاميرات المتوفرة على جهازك"
                     },
                     "black_photos": {
-                        "name": "Black Photos",
-                        "description": "Replaces captured photos with a black background\nVideos are not affected"
+                        "name": "",
+                        "description": ""
                     },
                     "immersive_camera_preview": {
                         "name": "معاينة غامرة",
@@ -536,12 +536,12 @@
                         "description": "يتجاوز دِقَّة الصورة"
                     },
                     "custom_preview_resolution": {
-                        "name": "Custom Preview Resolution",
-                        "description": "Sets a custom camera preview resolution, width x height (e.g. 1920x1080).\nThe custom resolution must be supported by your device"
+                        "name": "",
+                        "description": ""
                     },
                     "custom_picture_resolution": {
-                        "name": "Custom Picture Resolution",
-                        "description": "Sets a custom picture resolution, width x height (e.g. 1920x1080).\nThe custom resolution must be supported by your device"
+                        "name": "",
+                        "description": ""
                     },
                     "custom_frame_rate": {
                         "name": "معدل الإطار المخصص",
@@ -552,8 +552,8 @@
                         "description": "يفرض ترميز مصدر الكاميرا"
                     },
                     "hevc_recording": {
-                        "name": "HEVC Recording",
-                        "description": "Uses HEVC (H.265) codec for video recording"
+                        "name": "",
+                        "description": ""
                     }
                 }
             },
@@ -594,38 +594,38 @@
                         "description": "محاكاة لمعلومات مختلفة عنك",
                         "properties": {
                             "play_store_installer_package_name": {
-                                "name": "Play Store Installer Package Name",
-                                "description": "Overrides the installer package name to com.android.vending"
+                                "name": "",
+                                "description": ""
                             },
                             "fingerprint": {
-                                "name": "Device Fingerprint",
-                                "description": "Spoofs your device Fingerprint"
+                                "name": "",
+                                "description": ""
                             },
                             "android_id": {
-                                "name": "Android ID",
-                                "description": "Spoofs your Android ID to the specified value"
+                                "name": "",
+                                "description": ""
                             },
                             "remove_vpn_transport_flag": {
-                                "name": "Remove VPN Transport Flag",
-                                "description": "Prevents Snapchat from detecting VPNs"
+                                "name": "",
+                                "description": ""
                             },
                             "remove_mock_location_flag": {
-                                "name": "Remove Mock Location Flag",
-                                "description": "Prevents Snapchat from detecting Mock location"
+                                "name": "",
+                                "description": ""
                             },
                             "randomize_persistent_device_token": {
-                                "name": "Randomize Persistent Device Token",
-                                "description": "Generates a random device token after each login"
+                                "name": "",
+                                "description": ""
                             }
                         }
                     },
                     "convert_message_locally": {
-                        "name": "Convert Message Locally",
-                        "description": "Converts snaps to chat external media locally. This appears in chat download context menu"
+                        "name": "",
+                        "description": ""
                     },
                     "story_logger": {
-                        "name": "Story Logger",
-                        "description": "Provides a history of friends stories"
+                        "name": "",
+                        "description": ""
                     },
                     "app_passcode": {
                         "name": "رمز مرور التطبيق",
@@ -674,12 +674,12 @@
                         "description": "لتمكين ميزات Snapchat Plus التي لم يتم إصدارها/التجريبية\nقد لا يعمل على إصدارات Snapchat الأقدم"
                     },
                     "disable_composer_modules": {
-                        "name": "Disable Composer Modules",
-                        "description": "Prevents selected composer modules from being loaded\nNames must be separated by a comma"
+                        "name": "",
+                        "description": ""
                     },
                     "prevent_forced_logout": {
-                        "name": "Prevent Forced Logout",
-                        "description": "Prevents Snapchat from logging you out when you login on another device"
+                        "name": "",
+                        "description": ""
                     }
                 }
             },
@@ -696,16 +696,16 @@
                         "description": "المجلد الذي توجد فيه البرامج النصية"
                     },
                     "auto_reload": {
-                        "name": "Auto Reload",
-                        "description": "Automatically reloads scripts when they change"
+                        "name": "",
+                        "description": ""
                     },
                     "integrated_ui": {
-                        "name": "Integrated UI",
-                        "description": "Allows scripts to add custom UI components to Snapchat"
+                        "name": "",
+                        "description": ""
                     },
                     "disable_log_anonymization": {
-                        "name": "Disable Log Anonymization",
-                        "description": "Disables the anonymization of logs"
+                        "name": "",
+                        "description": ""
                     }
                 }
             }
@@ -716,21 +716,21 @@
                 "always_dark": "مظلمٌ دائِمًا"
             },
             "better_notifications": {
-                "chat_preview": "Show a preview of chat",
-                "media_preview": "Show a preview of media",
+                "chat_preview": "",
+                "media_preview": "",
                 "reply_button": "إضافة زر الرد",
                 "download_button": "إضافة زر التنزيل",
-                "mark_as_read_button": "Mark as Read button",
-                "mark_as_read_and_save_in_chat": "Save in Chat when marking as read (depends on Auto Save)",
+                "mark_as_read_button": "",
+                "mark_as_read_and_save_in_chat": "",
                 "group": "إشعارات المجموعة"
             },
             "friend_feed_menu_buttons": {
                 "auto_download": "⬇️ تنزيل تلقائي",
                 "auto_save": "💬 حفظ الرسائل تلقائيًا",
-                "unsaveable_messages": "⬇️ Unsaveable Messages",
+                "unsaveable_messages": "",
                 "stealth": "👻 وضع التخفي",
-                "mark_snaps_as_seen": "👀 Mark Snaps as seen",
-                "mark_stories_as_seen_locally": "👀 Mark Stories as seen locally",
+                "mark_snaps_as_seen": "",
+                "mark_stories_as_seen_locally": "",
                 "conversation_info": "👤 معلومات المحادثة",
                 "e2e_encryption": "🔒 استخدام تشفير E2E"
             },
@@ -778,11 +778,11 @@
                 "SAVABLE_SNAP": "سنابة قابلة للحفظ"
             },
             "strip_media_metadata": {
-                "hide_caption_text": "Hide Caption Text",
-                "hide_snap_filters": "Hide Snap Filters",
-                "hide_extras": "Hide Extras (e.g. mentions)",
-                "remove_audio_note_duration": "Remove Audio Note Duration",
-                "remove_audio_note_transcript_capability": "Remove Audio Note Transcript Capability"
+                "hide_caption_text": "",
+                "hide_snap_filters": "",
+                "hide_extras": "",
+                "remove_audio_note_duration": "",
+                "remove_audio_note_transcript_capability": ""
             },
             "hide_ui_components": {
                 "hide_profile_call_buttons": "إزالة أزرار الاتصال بالملف الشخصي",
@@ -790,11 +790,11 @@
                 "hide_live_location_share_button": "إزالة زر مشاركة الموقع المباشر",
                 "hide_stickers_button": "إزالة زر الملصقات",
                 "hide_voice_record_button": "إزالة زر تسجيل الصوت",
-                "hide_unread_chat_hint": "Remove Unread Chat Hint"
+                "hide_unread_chat_hint": ""
             },
             "hide_story_sections": {
                 "hide_friend_suggestions": "إخفاء اقتراحات صديق",
-                "hide_suggested_friend_stories": "Hide suggested friend stories",
+                "hide_suggested_friend_stories": "",
                 "hide_friends": "إخفاء قسم الأصدقاء",
                 "hide_suggested": "إخفاء قسم المقترح",
                 "hide_for_you": "إخفاء قسم اكتشف"
@@ -807,7 +807,7 @@
                 "spotlight": "منصة الأضواء"
             },
             "add_friend_source_spoof": {
-                "added_by_quick_add": "By Quick Add",
+                "added_by_quick_add": "",
                 "added_by_username": "حسب اسم المستخدم",
                 "added_by_mention": "حسب الاشارة",
                 "added_by_group_chat": "حسب دردشة المجموعة",
@@ -819,85 +819,85 @@
                 "split": "تقسيم الوسائط"
             },
             "old_bitmoji_selfie": {
-                "2d": "2D Bitmoji",
-                "3d": "3D Bitmoji"
+                "2d": "",
+                "3d": ""
             },
             "disable_confirmation_dialogs": {
-                "remove_friend": "Remove Friend",
-                "block_friend": "Block Friend",
-                "ignore_friend": "Ignore Friend",
-                "hide_friend": "Hide Friend",
-                "hide_conversation": "Hide Conversation",
-                "clear_conversation": "Clear Conversation from Friend Feed"
+                "remove_friend": "",
+                "block_friend": "",
+                "ignore_friend": "",
+                "hide_friend": "",
+                "hide_conversation": "",
+                "clear_conversation": ""
             },
             "auto_reload": {
-                "snapchat_only": "Snapchat Only",
-                "all": "All (Snapchat + SnapEnhance)"
+                "snapchat_only": "",
+                "all": ""
             },
             "edit_text_override": {
-                "multi_line_chat_input": "Multi Line Chat Input",
-                "bypass_text_input_limit": "Bypass Text Input Limit"
+                "multi_line_chat_input": "",
+                "bypass_text_input_limit": ""
             },
             "auto_purge": {
-                "never": "Never",
-                "1_hour": "1 Hour",
-                "3_hours": "3 Hours",
-                "6_hours": "6 Hours",
-                "12_hours": "12 Hours",
-                "1_day": "1 Day",
-                "3_days": "3 Days",
-                "1_week": "1 Week",
-                "2_weeks": "2 Weeks",
-                "1_month": "1 Month",
-                "3_months": "3 Months",
-                "6_months": "6 Months"
+                "never": "",
+                "1_hour": "",
+                "3_hours": "",
+                "6_hours": "",
+                "12_hours": "",
+                "1_day": "",
+                "3_days": "",
+                "1_week": "",
+                "2_weeks": "",
+                "1_month": "",
+                "3_months": "",
+                "6_months": ""
             }
         }
     },
     "friend_menu_option": {
-        "mark_snaps_as_seen": "Mark Snaps as seen",
-        "mark_stories_as_seen_locally": "Mark Stories as seen locally",
+        "mark_snaps_as_seen": "",
+        "mark_stories_as_seen_locally": "",
         "preview": "معاينة",
         "stealth_mode": "وضع التخفي",
         "auto_download_blacklist": "قائمة التنزيل التلقائي المحظورة",
         "anti_auto_save": "منع الحفظ التلقائي"
     },
     "content_type": {
-        "CHAT": "Chat",
-        "SNAP": "Snap",
-        "EXTERNAL_MEDIA": "External Media",
-        "NOTE": "Audio Note",
-        "STICKER": "Sticker",
-        "STATUS": "Status",
-        "LOCATION": "Location",
-        "STATUS_SAVE_TO_CAMERA_ROLL": "Saved to Camera Roll",
-        "STATUS_CONVERSATION_CAPTURE_SCREENSHOT": "Screenshot",
-        "STATUS_CONVERSATION_CAPTURE_RECORD": "Screen Record",
-        "STATUS_CALL_MISSED_VIDEO": "Missed Video Call",
-        "STATUS_CALL_MISSED_AUDIO": "Missed Audio Call",
-        "LIVE_LOCATION_SHARE": "Live Location Share",
-        "CREATIVE_TOOL_ITEM": "Creative Tool Item",
-        "FAMILY_CENTER_INVITE": "Family Center Invite",
-        "FAMILY_CENTER_ACCEPT": "Family Center Accept",
-        "FAMILY_CENTER_LEAVE": "Family Center Leave",
-        "STATUS_PLUS_GIFT": "Status Plus Gift",
-        "TINY_SNAP": "Tiny Snap",
-        "STATUS_COUNTDOWN": "Countdown"
+        "CHAT": "",
+        "SNAP": "",
+        "EXTERNAL_MEDIA": "",
+        "NOTE": "",
+        "STICKER": "",
+        "STATUS": "",
+        "LOCATION": "",
+        "STATUS_SAVE_TO_CAMERA_ROLL": "",
+        "STATUS_CONVERSATION_CAPTURE_SCREENSHOT": "",
+        "STATUS_CONVERSATION_CAPTURE_RECORD": "",
+        "STATUS_CALL_MISSED_VIDEO": "",
+        "STATUS_CALL_MISSED_AUDIO": "",
+        "LIVE_LOCATION_SHARE": "",
+        "CREATIVE_TOOL_ITEM": "",
+        "FAMILY_CENTER_INVITE": "",
+        "FAMILY_CENTER_ACCEPT": "",
+        "FAMILY_CENTER_LEAVE": "",
+        "STATUS_PLUS_GIFT": "",
+        "TINY_SNAP": "",
+        "STATUS_COUNTDOWN": ""
     },
     "chat_action_menu": {
         "preview_button": "معاينة",
         "download_button": "تنزيل",
         "delete_logged_message_button": "حذف الرسالة المسجلة",
-        "convert_message": "Convert Message"
+        "convert_message": ""
     },
     "opera_context_menu": {
         "download": "تنزيل الوسائط",
-        "sent_at": "Sent at {date}",
-        "created_at": "Created at {date}",
-        "expires_at": "Expires at {date}",
-        "media_size": "Media size: {size}",
-        "media_duration": "Media duration: {duration} ms",
-        "show_debug_info": "Show Debug Info"
+        "sent_at": "",
+        "created_at": "",
+        "expires_at": "",
+        "media_size": "",
+        "media_duration": "",
+        "show_debug_info": ""
     },
     "modal_option": {
         "profile_info": "معلومات الملَفّ الشخصي",
@@ -919,7 +919,7 @@
         "display_name": "اسم العرض",
         "added_date": "تاريخ الإضافة",
         "birthday": "تاريخ الميلاد: {month} {day}",
-        "hidden_birthday": "Birthday : Hidden",
+        "hidden_birthday": "",
         "friendship": "الصداقة",
         "add_source": "إضافة مصدر",
         "snapchat_plus": "سناب شات+",
@@ -929,37 +929,37 @@
         }
     },
     "friendship_link_type": {
-        "mutual": "Mutual",
-        "outgoing": "Outgoing",
-        "blocked": "Blocked",
-        "deleted": "Deleted",
-        "following": "Following",
-        "suggested": "Suggested",
-        "incoming": "Incoming",
-        "incoming_follower": "Incoming Follower"
+        "mutual": "",
+        "outgoing": "",
+        "blocked": "",
+        "deleted": "",
+        "following": "",
+        "suggested": "",
+        "incoming": "",
+        "incoming_follower": ""
     },
     "bulk_messaging_action": {
-        "choose_action_title": "Choose an action",
-        "progress_status": "Processing {index} of {total}",
-        "selection_dialog_continue_button": "Continue",
+        "choose_action_title": "",
+        "progress_status": "",
+        "selection_dialog_continue_button": "",
         "confirmation_dialog": {
-            "title": "Are you sure?",
-            "message": "This will affect all selected friends. This action cannot be undone."
+            "title": "",
+            "message": ""
         },
         "actions": {
-            "remove_friends": "Remove Friends",
-            "clear_conversations": "Clear Conversations"
+            "remove_friends": "",
+            "clear_conversations": ""
         }
     },
     "chat_export": {
         "exporter_dialog": {
-            "select_conversations_title": "Select Conversations",
-            "text_field_selection": "{amount} selected",
-            "text_field_selection_all": "All",
-            "export_file_format_title": "Export File Format",
-            "message_type_filter_title": "Filter Messages by Type",
-            "amount_of_messages_title": "Amount of Messages (leave it blank for all)",
-            "download_medias_title": "Download Medias"
+            "select_conversations_title": "",
+            "text_field_selection": "",
+            "text_field_selection_all": "",
+            "export_file_format_title": "",
+            "message_type_filter_title": "",
+            "amount_of_messages_title": "",
+            "download_medias_title": ""
         },
         "dialog_negative_button": "إلغاء",
         "dialog_positive_button": "تصدير",
@@ -982,11 +982,11 @@
     },
     "better_notifications": {
         "button": {
-            "reply": "Reply",
-            "download": "Download",
-            "mark_as_read": "Mark as Read"
+            "reply": "",
+            "download": "",
+            "mark_as_read": ""
         },
-        "stealth_mode_notice": "Can't mark as read in stealth mode"
+        "stealth_mode_notice": ""
     },
     "profile_picture_downloader": {
         "button": "تنزيل صورة الملف الشخصي",
@@ -995,13 +995,13 @@
         "background_option": "الخلفية"
     },
     "call_start_confirmation": {
-        "dialog_title": "Start Call",
-        "dialog_message": "Are you sure you want to start a call?"
+        "dialog_title": "",
+        "dialog_message": ""
     },
     "half_swipe_notifier": {
-        "notification_channel_name": "Half Swipe",
-        "notification_content_dm": "{friend} just half-swiped into your chat for {duration} seconds",
-        "notification_content_group": "{friend} just half-swiped into {group} for {duration} seconds"
+        "notification_channel_name": "",
+        "notification_content_dm": "",
+        "notification_content_group": ""
     },
     "download_processor": {
         "attachment_type": {
@@ -1031,6 +1031,6 @@
         "notification_text": "ستفقد Streak مع {friend} خلال {hoursLeft} ساعة"
     },
     "suspend_location_updates": {
-        "switch_text": "Suspend Location Updates"
+        "switch_text": ""
     }
 }
