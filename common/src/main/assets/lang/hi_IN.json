@@ -1,8 +1,8 @@
 {
     "setup": {
         "dialogs": {
-            "select_language": "भाषा चुनें:",
-            "save_folder": "स्नैपएन्हांस को भंडारण की अनुमती चाहिए ताकि मीडिया को स्नैपचैट से डाउनलोड व सेव किया जा सके।",
+            "select_language": "भाषा चुनें",
+            "save_folder": "",
             "select_save_folder_button": "फोल्डर चुनें"
         },
         "mappings": {
@@ -12,7 +12,7 @@
             "generate_success": "मैपिंग को सफलतापूर्वक बना लिया गया है।"
         },
         "permissions": {
-            "dialog": "आगे बढ़ने के लिए आपको निम्नलिखित मांगो को पूरा करना पड़ेगा।",
+            "dialog": "आगे बढ़ने के लिए आपको निम्नलिखित मांगो को पूरा करना पड़ेगा।:",
             "notification_access": "नोटिफिकेशन अनुमति",
             "battery_optimization": "बैटरी ऑप्टिमाइजेशन",
             "display_over_other_apps": "दूसरे ऐप्लिकेशन के ऊपर दिखाए जाने का ऐक्सेस",
@@ -99,7 +99,7 @@
         "open": "खोलें"
     },
     "download_processor": {
-        "download_started_toast": "डाउनलोड शुरू...",
+        "download_started_toast": "डाउनलोड शुरू",
         "unsupported_content_type_toast": "असमर्थित फ़ाइल प्रकार!",
         "failed_no_longer_available_toast": "यह मीडिया अब उपलब्ध नहीं है",
         "already_queued_toast": "मीडिया पहले से कतार में है!",
