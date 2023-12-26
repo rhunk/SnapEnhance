@@ -2,7 +2,7 @@
     "setup": {
         "dialogs": {
             "select_language": "Wybierz język",
-            "save_folder": "SnapEnhance wymaga uprawnień do przechowywania danych w celu pobierania i zapisywania mediów z Snapchat. Proszę wybrać lokalizację, do której media powinny być pobierane.",
+            "save_folder": "SnapEnhance wymaga uprawnień do przechowywania danych w celu pobierania i zapisywania mediów z Snapchat.\nProszę wybrać lokalizację, do której media powinny być pobierane.",
             "select_save_folder_button": "Wybierz Folder"
         },
         "mappings": {
