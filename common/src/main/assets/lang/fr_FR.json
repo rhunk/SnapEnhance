@@ -19,16 +19,12 @@
             "request_button": "Autoriser"
         }
     },
-
     "manager": {
         "routes": {
-            "downloads": "Téléchargements",
             "features": "Fonctionnalités",
             "home": "Accueil",
-            "home_debug": "Débug",
             "home_logs": "Logs",
-            "social": "Social",
-            "plugins": "Plugins"
+            "social": "Social"
         },
         "sections": {
             "home": {
@@ -64,7 +60,6 @@
             }
         }
     },
-
     "rules": {
         "modes": {
             "blacklist": "Mode liste noire",
@@ -94,13 +89,9 @@
                     "blacklist": "Exclure de la sauvegarde automatique",
                     "whitelist": "Sauvegarde automatique"
                 }
-            },
-            "hide_chat_feed": {
-                "name": "Masquer du flux de chat"
             }
         }
     },
-
     "actions": {
         "clean_snapchat_cache": "Nettoyer le cache de Snapchat",
         "clear_message_logger": "Effacer le journal des messages",
@@ -108,12 +99,11 @@
         "open_map": "Ouvrir la carte",
         "export_chat_messages": "Exporter les messages de chat"
     },
-
     "features": {
         "notices": {
-            "unstable": "\u26A0 Instable",
-            "ban_risk": "\u26A0 Cette fonctionnalité peut entraîner un bannissement",
-            "internal_behavior": "\u26A0 Cette fonctionnalité peut causer des comportements internes inattendus"
+            "unstable": "⚠ Instable",
+            "ban_risk": "⚠ Cette fonctionnalité peut entraîner un bannissement",
+            "internal_behavior": "⚠ Cette fonctionnalité peut causer des comportements internes inattendus"
         },
         "properties": {
             "downloader": {
@@ -228,21 +218,9 @@
                         "name": "Masquer les composants de l'interface utilisateur",
                         "description": "Sélectionne les composants de l'interface utilisateur à masquer"
                     },
-                    "2d_bitmoji_selfie": {
-                        "name": "Selfie Bitmoji 2D",
-                        "description": "Restaure les selfies Bitmoji 2D des anciennes versions de Snapchat\nVous devrez peut-être nettoyer le cache de Snapchat pour que cela prenne effet"
-                    },
                     "disable_spotlight": {
                         "name": "Désactiver Spotlight",
                         "description": "Désactive la page Spotlight"
-                    },
-                    "startup_tab": {
-                        "name": "Onglet de démarrage",
-                        "description": "Change l'onglet qui s'ouvre au démarrage"
-                    },
-                    "story_viewer_override": {
-                        "name": "Remplacement du visionneur de story",
-                        "description": "Active certaines fonctionnalités que Snapchat a cachées"
                     },
                     "friend_feed_menu_buttons": {
                         "name": "Boutons du menu contextuel des amis",
@@ -324,17 +302,9 @@
                         "name": "Bloquer les publicités",
                         "description": "Empêche l'affichage des publicités"
                     },
-                    "disable_video_length_restrictions": {
-                        "name": "Désactiver les restrictions de durée des vidéos",
-                        "description": "Désactive la restriction de durée maximale des vidéos de Snapchat"
-                    },
                     "disable_google_play_dialogs": {
                         "name": "Désactiver les pop-up Google Play",
                         "description": "Empêche l'affichage des pop-up de disponibilité des services Google Play"
-                    },
-                    "force_media_source_quality": {
-                        "name": "Forcer la qualité originale des médias",
-                        "description": "Force la qualité des médias de Snapchat à la valeur spécifiée"
                     },
                     "disable_snap_splitting": {
                         "name": "Désactiver la division des Snaps",
@@ -405,62 +375,12 @@
                             "disable_bitmoji": {
                                 "name": "Désactiver les Bitmoji",
                                 "description": "Désactive les Bitmoji de profil d'amis"
-                            },
-                            "fix_gallery_media_override": {
-                                "name": "Correction de l'envoi de médias de la galerie",
-                                "description": "Corrige divers problèmes avec la fonctionnalité d'envoi de médias de la galerie (par exemple, enregistrer les Snaps dans le chat)"
                             }
                         }
                     },
                     "spoof": {
                         "name": "Spoof",
-                        "description": "Spoof diverses informations vous concernant",
-                        "properties": {
-                            "location": {
-                                "name": "Localisation",
-                                "description": "Spoof votre localisation",
-                                "properties": {
-                                    "location_latitude": {
-                                        "name": "Latitude",
-                                        "description": "La latitude de la localisation"
-                                    },
-                                    "location_longitude": {
-                                        "name": "Longitude",
-                                        "description": "La longitude de la localisation"
-                                    }
-                                }
-                            },
-                            "device": {
-                                "name": "Appareil",
-                                "description": "Spoof diverses informations sur votre appareil",
-                                "properties": {
-                                    "fingerprint": {
-                                        "name": "Empreinte de l'appareil",
-                                        "description": "Spoof l'empreinte de votre appareil"
-                                    },
-                                    "android_id": {
-                                        "name": "Android ID",
-                                        "description": "Spoof l'ID Android de votre appareil"
-                                    },
-                                    "installer_package_name": {
-                                        "name": "Nom du package de l'installateur",
-                                        "description": "Spoof le nom du package de l'installateur"
-                                    },
-                                    "debug_flag": {
-                                        "name": "Debug Flag",
-                                        "description": "Makes Snapchat debuggable"
-                                    },
-                                    "mock_location": {
-                                        "name": "Mock location",
-                                        "description": "Spoofs the Mock Location device state"
-                                    },
-                                    "split_classloader": {
-                                        "name": "Split Classloader",
-                                        "description": "Spoofs splitClassloader\nRequested by org.chromium.base.JNIUtils"
-                                    }
-                                }
-                            }
-                        }
+                        "description": "Spoof diverses informations vous concernant"
                     },
                     "app_passcode": {
                         "name": "Code d'accès à l'application",
@@ -495,17 +415,15 @@
         },
         "options": {
             "better_notifications": {
-                "chat": "Afficher les messages de chat",
-                "snap": "Afficher les médias de Snap",
                 "reply_button": "Ajouter un bouton de réponse",
                 "download_button": "Ajoouter un bouton de téléchargement",
                 "group": "Grouper les notifications"
             },
             "friend_feed_menu_buttons": {
-                "auto_download": "\u2B07\uFE0F Téléchargement automatique",
-                "auto_save": "\uD83D\uDCAC Sauvegarde automatique",
-                "stealth": "\uD83D\uDC7B Mode furtif",
-                "conversation_info": "\uD83D\uDC64 Informations de la conversation"
+                "auto_download": "⬇️ Téléchargement automatique",
+                "auto_save": "💬 Sauvegarde automatique",
+                "stealth": "👻 Mode furtif",
+                "conversation_info": "👤 Informations de la conversation"
             },
             "path_format": {
                 "create_author_folder": "Créer un dossier pour chaque auteur",
@@ -526,13 +444,6 @@
                 "success": "Succès",
                 "progress": "En cours",
                 "failure": "Échec"
-            },
-            "auto_save_messages_in_conversations": {
-                "NOTE": "Messages vocaux",
-                "CHAT": "Messages de chat",
-                "EXTERNAL_MEDIA": "Médias externes",
-                "SNAP": "Snaps",
-                "STICKER": "Stickers"
             },
             "notifications": {
                 "chat_screenshot": "Capture d'écran de chat",
@@ -555,30 +466,14 @@
                 "SAVABLE_SNAP": "Snap sauvegardable"
             },
             "hide_ui_components": {
-                "hide_call_buttons": "Supprimer les boutons d'appel",
-                "hide_cognac_button": "Supprimer le bouton Cognac",
                 "hide_live_location_share_button": "Supprimer le bouton de partage de la position en direct",
                 "hide_stickers_button": "Supprimer le bouton des stickers",
                 "hide_voice_record_button": "Supprimer le bouton d'enregistrement vocal"
             },
-            "story_viewer_override": {
-                "OFF": "Désactivé",
-                "DISCOVER_PLAYBACK_SEEKBAR": "Activer la barre de lecture dans Discover",
-                "VERTICAL_STORY_VIEWER": "Activer le visionneur de story vertical"
-            },
             "hide_story_sections": {
                 "hide_friend_suggestions": "Masquer la section des suggestions d'amis",
                 "hide_friends": "Masquer la section des amis",
-                "hide_following": "Masquer la section des abonnements",
                 "hide_for_you": "Masquer la section Pour vous"
-            },
-            "startup_tab": {
-                "ngs_map_icon_container": "Snapmap",
-                "ngs_chat_icon_container": "Chat",
-                "ngs_camera_icon_container": "Caméra",
-                "ngs_community_icon_container": "Communauté / Stories",
-                "ngs_spotlight_icon_container": "Spotlight",
-                "ngs_search_icon_container": "Recherche"
             },
             "add_friend_source_spoof": {
                 "added_by_username": "Par nom d'utilisateur",
@@ -589,52 +484,38 @@
             }
         }
     },
-
     "friend_menu_option": {
         "preview": "Aperçu"
     },
-
     "chat_action_menu": {
         "preview_button": "Aperçu",
         "download_button": "Télécharger",
         "delete_logged_message_button": "Supprimer le message enregistré"
     },
-
     "opera_context_menu": {
         "download": "Télécharger"
     },
-
     "modal_option": {
         "profile_info": "Informations du profil",
         "close": "Fermer"
     },
-
     "gallery_media_send_override": {
         "multiple_media_toast": "Vous ne pouvez envoyer qu'un seul média à la fois"
     },
-
     "conversation_preview": {
         "streak_expiration": "Expire dans {day} jours {hour} heures {minute} minutes",
         "total_messages": "Total des messages envoyés/reçus : {count}",
         "title": "Aperçu de la conversation",
         "unknown_user": "Utilisateur inconnu"
     },
-
     "profile_info": {
         "title": "Informations du profil",
-        "username": "Nom d'utilisateur",
         "display_name": "Nom d'affichage",
         "added_date": "Date d'ajout",
         "birthday": "Anniversaire : {day} {month}"
     },
-
     "chat_export": {
-        "select_export_format": "Sélectionnez le format d'exportation",
-        "select_media_type": "Sélectionnez le type de média",
-        "select_amount_of_messages": "Sélectionnez la quantité de messages à exporter (laissez vide pour tout)",
-        "select_conversation": "Sélectionnez la conversation à exporter",
         "dialog_negative_button": "Annuler",
-        "dialog_neutral_button": "Exporter tout",
         "dialog_positive_button": "Exporter",
         "exported_to": "Exporté vers {path}",
         "exporting_chats": "Exportation des conversations...",
@@ -645,7 +526,6 @@
         "no_messages_found": "Aucun message trouvé",
         "exporting_message": "Exportation de {conversation}..."
     },
-
     "button": {
         "ok": "OK",
         "positive": "Oui",
@@ -654,14 +534,12 @@
         "open": "Ouvrir",
         "download": "Télécharger"
     },
-
     "profile_picture_downloader": {
         "button": "Télécharger la photo de profil",
         "title": "Télécharger la photo de profil",
         "avatar_option": "Avatar",
         "background_option": "Arrière-plan"
     },
-
     "download_processor": {
         "download_started_toast": "Téléchargement démarré",
         "unsupported_content_type_toast": "Type de contenu non pris en charge",
@@ -676,7 +554,6 @@
         "failed_processing_toast": "Échec du traitement {error}",
         "failed_gallery_toast": "Échec de l'enregistrement dans la galerie {error}"
     },
-
     "streaks_reminder": {
         "notification_title": "Flammes",
         "notification_text": "Vous allez perdre vos flammes avec {friend} dans {hoursLeft} heures"
