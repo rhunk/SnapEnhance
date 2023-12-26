@@ -2,7 +2,8 @@
     "setup": {
         "dialogs": {
             "select_language": "भाषा चुनें",
-            "select_save_folder_button": "फोल्डर चुनें"
+            "select_save_folder_button": "फोल्डर चुनें",
+            "save_folder": ""
         },
         "mappings": {
             "generate_button": "बनाएं",
