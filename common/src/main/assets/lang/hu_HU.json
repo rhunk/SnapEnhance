@@ -2,7 +2,7 @@
     "setup": {
         "dialogs": {
             "select_language": "Nyelv Kiválasztása",
-            "save_folder": "A SnapEnhance-nek tárhelyhozzáférésre van szüksége média mentéséhez és letöltéséhez. Kérem válassza ki a média mentési helyét.",
+            "save_folder": "A SnapEnhance-nek tárhelyhozzáférésre van szüksége média mentéséhez és letöltéséhez. \nKérem válassza ki a média mentési helyét.",
             "select_save_folder_button": "Mappa Kiválasztása"
         },
         "mappings": {
