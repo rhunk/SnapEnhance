@@ -254,7 +254,7 @@
                         "description": "Skjuler en bestemt ven fra venskabsfeed\nBrug fanen social til at håndtere denne funktion"
                     },
                     "hide_streak_restore": {
-                        "name": "Hide Streak Restore",
+                        "name": "",
                         "description": "Skjuler knappen Gendan i vennefeedet"
                     },
                     "hide_story_sections": {
@@ -420,7 +420,7 @@
                 "description": "Periodisk giver dig besked om dine streaks",
                 "properties": {
                     "interval": {
-                        "name": "Interval",
+                        "name": "",
                         "description": "Intervallet mellem hver påmindelse (timer)"
                     },
                     "remaining_hours": {
@@ -610,7 +610,7 @@
     "friend_menu_option": {
         "preview": "Forhåndsvisning",
         "stealth_mode": "Stealth Tilstand",
-        "auto_download_blacklist": "Auto Download Blacklist",
+        "auto_download_blacklist": "",
         "anti_auto_save": "Anti Automatisk Gem"
     },
     "chat_action_menu": {
