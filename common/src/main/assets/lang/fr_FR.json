@@ -2,7 +2,7 @@
     "setup": {
         "dialogs": {
             "select_language": "Choisir la langue",
-            "save_folder": "SnapEnhance nécessite les permissions du stockage pour télécharger et enregistrer des médias à partir de Snapchat ",
+            "save_folder": "",
             "select_save_folder_button": "Sélectionner un dossier"
         },
         "mappings": {
@@ -229,7 +229,7 @@
                     },
                     "bootstrap_override": {
                         "name": "Remplacement de l'interface d'utilisateur",
-                        "description": "Contourne les paramètres de démarrage de l'interface utilisateur ",
+                        "description": "Contourne les paramètres de démarrage de l'interface utilisateur",
                         "properties": {
                             "app_appearance": {
                                 "name": "Apparance de l'application",
@@ -584,7 +584,7 @@
     },
     "conversation_preview": {
         "streak_expiration": "expire dans {day} jour(s) {hour} heure(s) {minute} minute(s)",
-        "total_messages": "Total des messages envoyés/reçus: {count}",
+        "total_messages": "Total des messages envoyés/reçus : {count}",
         "title": "Aperçu",
         "unknown_user": "Utilisateur inconnu"
     },
@@ -602,8 +602,8 @@
         "processing_chats": "Traitement de {amount} conversations...",
         "export_fail": "Échec de l'export de la conversation {conversation}",
         "writing_output": "Écriture...",
-        "finished": "Terminé! Vous pouvez maintenant fermer cette fenêtre.",
-        "no_messages_found": "Aucun message trouvé!",
+        "finished": "Terminé ! Vous pouvez maintenant fermer cette fenêtre.",
+        "no_messages_found": "Aucun message trouvé !",
         "exporting_message": "Exportation de {conversation}..."
     },
     "button": {
@@ -630,11 +630,11 @@
         },
         "select_attachments_title": "Choisir les pièces jointes à télécharger",
         "download_started_toast": "Téléchargement démarré",
-        "unsupported_content_type_toast": "Type de contenu non supporté!",
+        "unsupported_content_type_toast": "Type de contenu non supporté !",
         "failed_no_longer_available_toast": "Média plus disponible",
         "no_attachments_toast": "Aucune pièce jointe trouvée !",
-        "already_queued_toast": "Média déjà en file d'attente!",
-        "already_downloaded_toast": "Média déjà téléchargé!",
+        "already_queued_toast": "Média déjà en file d'attente !",
+        "already_downloaded_toast": "Média déjà téléchargé !",
         "saved_toast": "Enregistré dans {path}",
         "download_toast": "Téléchargement {path}...",
         "processing_toast": "Traitement de {path}...",
