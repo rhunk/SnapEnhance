@@ -7,6 +7,7 @@ import me.rhunk.snapenhance.common.scripting.ScriptRuntime
 import me.rhunk.snapenhance.common.scripting.bindings.BindingSide
 import me.rhunk.snapenhance.core.ModContext
 import me.rhunk.snapenhance.core.scripting.impl.CoreIPC
+import me.rhunk.snapenhance.core.scripting.impl.CoreMessaging
 import me.rhunk.snapenhance.core.scripting.impl.CoreScriptConfig
 import me.rhunk.snapenhance.core.scripting.impl.CoreScriptHooker
 
@@ -23,6 +24,7 @@ class CoreScriptRuntime(
                     CoreScriptConfig(),
                     CoreIPC(),
                     CoreScriptHooker(),
+                    CoreMessaging(modContext)
                 )
             }
 

@@ -421,7 +421,7 @@ class Notifications : Feature("Notifications", loadParams = FeatureLoadParams.IN
 
             context.coroutineScope.launch(coroutineDispatcher) {
                 suspendCoroutine { continuation ->
-                    conversationManager.fetchMessageByServerId(conversationId, serverMessageId, onSuccess = {
+                    conversationManager.fetchMessageByServerId(conversationId, serverMessageId.toLong(), onSuccess = {
                         if (it.senderId.toString() == context.database.myUserId) {
                             param.invokeOriginal()
                             continuation.resumeWith(Result.success(Unit))

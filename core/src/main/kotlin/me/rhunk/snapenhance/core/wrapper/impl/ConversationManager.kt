@@ -91,10 +91,10 @@ class ConversationManager(
         )
     }
 
-    fun fetchMessageByServerId(conversationId: String, serverMessageId: String, onSuccess: (Message) -> Unit, onError: (error: String) -> Unit) {
+    fun fetchMessageByServerId(conversationId: String, serverMessageId: Long, onSuccess: (Message) -> Unit, onError: (error: String) -> Unit) {
         val serverMessageIdentifier = CallbackBuilder.createEmptyObject(context.classCache.serverMessageIdentifier.constructors.first())?.apply {
             setObjectField("mServerConversationId", conversationId.toSnapUUID().instanceNonNull())
-            setObjectField("mServerMessageId", serverMessageId.toLong())
+            setObjectField("mServerMessageId", serverMessageId)
         }
 
         fetchMessageByServerId.invoke(
