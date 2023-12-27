@@ -27,7 +27,8 @@
             "home_settings": "Einstellungen",
             "home_logs": "Logs",
             "social": "Social",
-            "scripts": "Skripte"
+            "scripts": "Skripte",
+            "tasks": "Aufgaben"
         },
         "sections": {
             "home": {
@@ -61,6 +62,10 @@
                 "fetch_error": "Fehler beim Abrufen der Daten",
                 "category_groups": "Gruppen",
                 "category_friends": "Freunde"
+            },
+            "scripting_warning": {
+                "content": "SnapEnhance enthält ein Skripting-Tool, das die Ausführung von benutzerdefinierten Code auf Ihrem Gerät ermöglicht. Seien Sie äußerst vorsichtig und installieren Sie nur Module aus bekannten, zuverlässigen Quellen. Unautorisierte oder ungeprüfte Module können Sicherheitsrisiken für Ihr System darstellen.",
+                "title": "Warnung"
             }
         }
     },
@@ -102,6 +107,14 @@
             },
             "pin_conversation": {
                 "name": "Unterhaltung anheften"
+            },
+            "unsaveable_messages": {
+                "name": "Nicht speicherbare Nachrichten",
+                "options": {
+                    "blacklist": "Von nicht speicherbaren Nachrichten ausschließen",
+                    "whitelist": "Nicht speicherbare Nachrichten"
+                },
+                "description": "Verhindert, dass Nachrichten im Chat von anderen Personen gespeichert werden können"
             }
         }
     },
@@ -178,7 +191,8 @@
                                 "description": "Geschwindigkeit der Konvertierung festlegen"
                             },
                             "constant_rate_factor": {
-                                "description": "Setze den Constant Rate Factor für den Video-Encoder\nvon 0 bis 51 für libx264"
+                                "description": "Setze den Constant Rate Factor für den Video-Encoder\nvon 0 bis 51 für libx264",
+                                "name": "Konstanter Rate-Faktor"
                             },
                             "video_bitrate": {
                                 "name": "Videobitrate",
@@ -201,6 +215,14 @@
                     "logging": {
                         "name": "Logging",
                         "description": "Zeigt Toasts, wenn Medien heruntergeladen werden"
+                    },
+                    "custom_path_format": {
+                        "description": "Legen Sie ein benutzerdefiniertes Pfadformat für heruntergeladene Medien fest\n\nVerfügbare Variablen:\n - %username%\n - %source%\n - %hash%\n - %date_time%",
+                        "name": "Benutzerdefiniertes Pfadformat"
+                    },
+                    "opera_download_button": {
+                        "description": "Fügt einen Download-Button in der oberen rechten Ecke hinzu, wenn ein Snap angezeigt wird",
+                        "name": "Schwebender Download Button"
                     }
                 }
             },
@@ -279,6 +301,38 @@
                     "enable_friend_feed_menu_bar": {
                         "name": "Freunde Feed Menüleiste",
                         "description": "Aktiviert die neue Freunde Feed Menüleiste"
+                    },
+                    "fidelius_indicator": {
+                        "name": "Indikator für Einzigartigkeit",
+                        "description": "Zeigt einen grünen Kreis neben Nachrichten, die nur an Sie gesendet wurden"
+                    },
+                    "hide_settings_gear": {
+                        "name": "Symbol für Einstellungen ausblenden",
+                        "description": "Blendet das SnapEnhance-Einstellungssymbol im Chat-Tab aus"
+                    },
+                    "opera_media_quick_info": {
+                        "description": "Zeigt nützliche Informationen zu Medien wie das Erstellungsdatum im Kontextmenü der Snap-Ansicht an",
+                        "name": "Medien Schnellinfo"
+                    },
+                    "vertical_story_viewer": {
+                        "name": "Vertikale Story Ansicht",
+                        "description": "Aktiviert die vertikale Story Ansicht für alle Storys"
+                    },
+                    "old_bitmoji_selfie": {
+                        "name": "Altes Bitmoji-Selfie",
+                        "description": "Bringt die Bitmoji-Selfies aus früheren Snapchat-Versionen zurück"
+                    },
+                    "prevent_message_list_auto_scroll": {
+                        "name": "Automatisches Scrollen der Nachrichtenliste verhindern",
+                        "description": "Verhindert, dass die Nachrichtenliste beim Senden/Empfangen einer Nachricht nach unten scrollt"
+                    },
+                    "edit_text_override": {
+                        "name": "Textfeld-Verhalten überschreiben",
+                        "description": "Überschreibt das Verhalten von Textfeldern"
+                    },
+                    "snap_preview": {
+                        "name": "Snap-Vorschau",
+                        "description": "Zeigt eine kleine Vorschau neben ungesehenen Snaps im Chat an"
                     }
                 }
             },
@@ -333,6 +387,22 @@
                     "gallery_media_send_override": {
                         "name": "Galerie-Medien senden Überschreiben",
                         "description": "Fälscht die Medienquelle, wenn etwas von der Galerie gesendet wird"
+                    },
+                    "bypass_screenshot_detection": {
+                        "description": "Verhindert, dass Snapchat erkennt, wenn du einen Screenshot machst",
+                        "name": "Umgehen der Screenshot-Erkennung"
+                    },
+                    "half_swipe_notifier": {
+                        "name": "Über Half-Swipes informieren",
+                        "description": "Benachrichtigt Sie, wenn jemand halb in ihren Chat swiped"
+                    },
+                    "prevent_story_rewatch_indicator": {
+                        "name": "Wiederholungs-Indikator bei Stories verhindern",
+                        "description": "Verhindert, dass andere wissen, dass Sie ihre Story noch einmal angeschaut haben"
+                    },
+                    "hide_peek_a_peek": {
+                        "description": "Verhindert, dass eine Benachrichtigung gesendet wird, wenn Sie halb in einen Chat swipen",
+                        "name": "Vorschau Benachrichtigung verhindern"
                     }
                 }
             },
