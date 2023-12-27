@@ -144,7 +144,7 @@ class ScriptsSection : Section() {
 
     @Composable
     fun ScriptSettings(script: ModuleInfo) {
-        val settingsInterface = remember {
+       val settingsInterface = remember {
             val module = context.scriptManager.runtime.getModuleByName(script.name) ?: return@remember null
             (module.getBinding(InterfaceManager::class))?.buildInterface(EnumScriptInterface.SETTINGS)
         }
@@ -246,6 +246,46 @@ class ScriptsSection : Section() {
                 state = pullRefreshState,
                 modifier = Modifier.align(Alignment.TopCenter)
             )
+        }
+
+        var scriptingWarning by remember {
+            mutableStateOf(context.sharedPreferences.run {
+                getBoolean("scripting_warning", true).also {
+                    edit().putBoolean("scripting_warning", false).apply()
+                }
+            })
+        }
+
+        if (scriptingWarning) {
+            var timeout by remember {
+                mutableIntStateOf(10)
+            }
+
+            LaunchedEffect(Unit) {
+                while (timeout > 0) {
+                    delay(1000)
+                    timeout--
+                }
+            }
+
+            AlertDialog(onDismissRequest = {
+                if (timeout == 0) {
+                    scriptingWarning = false
+                }
+            }, title = {
+                Text(text = context.translation["manager.dialogs.scripting_warning.title"])
+            }, text = {
+                Text(text = context.translation["manager.dialogs.scripting_warning.content"])
+            }, confirmButton = {
+                TextButton(
+                    onClick = {
+                        scriptingWarning = false
+                    },
+                    enabled = timeout == 0
+                ) {
+                    Text(text = "OK " + if (timeout > 0) "($timeout)" else "")
+                }
+            })
         }
     }
 

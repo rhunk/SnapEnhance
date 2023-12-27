@@ -63,6 +63,10 @@
                 "fetch_error": "Failed to fetch data",
                 "category_groups": "Groups",
                 "category_friends": "Friends"
+            },
+            "scripting_warning": {
+                "title": "Warning",
+                "content": "SnapEnhance includes a scripting tool, allowing the execution of user-defined code on your device. Use extreme caution and only install modules from known, reliable sources. Unauthorized or unverified modules may pose security risks to your system."
             }
         }
     },
