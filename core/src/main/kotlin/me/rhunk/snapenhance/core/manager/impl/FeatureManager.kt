@@ -118,6 +118,7 @@ class FeatureManager(
             EditTextOverride::class,
             PreventForcedLogout::class,
             SuspendLocationUpdates::class,
+            ConversationToolbox::class,
         )
 
         initializeFeatures()

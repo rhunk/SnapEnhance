@@ -62,7 +62,7 @@ class E2EEImplementation (
 
     override fun acceptPairingRequest(friendId: String, publicKey: ByteArray): ByteArray? {
         val kemGen = KyberKEMGenerator(secureRandom)
-        val encapsulatedSecret =  runCatching {
+        val encapsulatedSecret = runCatching {
             kemGen.generateEncapsulated(
                 KyberPublicKeyParameters(
                     kyberDefaultParameters,
@@ -164,7 +164,7 @@ class E2EEImplementation (
             cipher.init(Cipher.DECRYPT_MODE, SecretKeySpec(encryptionKey, "AES"), IvParameterSpec(iv))
             cipher.doFinal(message)
         }.onFailure {
-            context.log.error("Failed to decrypt message from $friendId", it)
+            context.log.warn("Failed to decrypt message for $friendId")
             return null
         }.getOrNull()
     }
