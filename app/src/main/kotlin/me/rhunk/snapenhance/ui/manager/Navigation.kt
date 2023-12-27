@@ -39,8 +39,8 @@ class Navigation(
             navHostController,
             startDestination = startDestination.route,
             Modifier.padding(innerPadding),
-            enterTransition = { fadeIn(tween(200)) },
-            exitTransition = { fadeOut(tween(200)) }
+            enterTransition = { fadeIn(tween(100)) },
+            exitTransition = { fadeOut(tween(100)) }
         ) {
             sections.forEach { (_, instance) ->
                 instance.navController = navHostController

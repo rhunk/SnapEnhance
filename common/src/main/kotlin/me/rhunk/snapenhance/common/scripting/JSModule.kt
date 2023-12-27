@@ -80,6 +80,12 @@ class JSModule(
                 field.get(obj.unwrap())
             }
 
+            moduleObject.putFunction("sleep") { args ->
+                val time = args?.get(0) as? Number ?: return@putFunction Undefined.instance
+                Thread.sleep(time.toLong())
+                Undefined.instance
+            }
+
             moduleObject.putFunction("findClass") {
                 val className = it?.get(0).toString()
                 val useModClassLoader = it?.getOrNull(1) as? Boolean ?: false

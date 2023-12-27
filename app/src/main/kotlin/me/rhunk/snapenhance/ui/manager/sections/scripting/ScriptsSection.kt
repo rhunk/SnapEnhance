@@ -17,8 +17,10 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.core.net.toUri
 import androidx.documentfile.provider.DocumentFile
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import me.rhunk.snapenhance.common.scripting.type.ModuleInfo
 import me.rhunk.snapenhance.common.scripting.ui.EnumScriptInterface
 import me.rhunk.snapenhance.common.scripting.ui.InterfaceManager
@@ -49,7 +51,7 @@ class ScriptsSection : Section() {
         Card(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(12.dp),
+                .padding(8.dp),
             elevation = CardDefaults.cardElevation()
         ) {
             Row(
@@ -179,7 +181,11 @@ class ScriptsSection : Section() {
         }
 
         LaunchedEffect(Unit) {
-            syncScripts()
+            refreshing = true
+            withContext(Dispatchers.IO) {
+                syncScripts()
+                refreshing = false
+            }
         }
 
         val pullRefreshState = rememberPullRefreshState(refreshing, onRefresh = {
@@ -229,6 +235,9 @@ class ScriptsSection : Section() {
                 }
                 items(scriptModules.size) { index ->
                     ModuleItem(scriptModules[index])
+                }
+                item {
+                    Spacer(modifier = Modifier.height(200.dp))
                 }
             }
 
