@@ -1,6 +1,7 @@
 package me.rhunk.snapenhance.core.event.events.impl
 
 import android.view.View
+import android.widget.LinearLayout
 import me.rhunk.snapenhance.core.event.Event
 
 class BindViewEvent(
@@ -9,6 +10,7 @@ class BindViewEvent(
     val view: View
 ): Event() {
     inline fun chatMessage(block: (conversationId: String, messageId: String) -> Unit) {
+        if (view !is LinearLayout) return
         val modelToString = prevModel.toString()
         if (!modelToString.startsWith("ChatViewModel")) return
         modelToString.substringAfter("messageId=").substringBefore(",").split(":").apply {
