@@ -378,7 +378,16 @@
                     },
                     "message_logger": {
                         "name": "Nachrichten Logger",
-                        "description": "Verhindert, dass Nachrichten gelöscht werden"
+                        "description": "Verhindert, dass Nachrichten gelöscht werden",
+                        "properties": {
+                            "message_filter": {
+                                "name": "Nachrichtenfilter",
+                                "description": "Wählen Sie aus, welche Nachrichten behalten werden sollen (leer für alle Nachrichten)"
+                            },
+                            "auto_purge": {
+                                "description": "Löscht automatisch zwischengespeicherte Nachrichten, die älter als die angegebene Zeit sind"
+                            }
+                        }
                     },
                     "auto_save_messages_in_conversations": {
                         "name": "Automatisches Speichern von Nachrichten",
@@ -403,6 +412,13 @@
                     "hide_peek_a_peek": {
                         "description": "Verhindert, dass eine Benachrichtigung gesendet wird, wenn Sie halb in einen Chat swipen",
                         "name": "Vorschau Benachrichtigung verhindern"
+                    },
+                    "strip_media_metadata": {
+                        "description": "Entfernt Metadaten von Medien vor dem Versand als Nachricht",
+                        "name": "Medien-Metadaten entfernen"
+                    },
+                    "bypass_message_retention_policy": {
+                        "name": "Umgehung der Richtlinie zur Aufbewahrung von Nachrichten"
                     }
                 }
             },
