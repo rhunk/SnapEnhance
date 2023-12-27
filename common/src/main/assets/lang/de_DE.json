@@ -178,7 +178,6 @@
                                 "description": "Geschwindigkeit der Konvertierung festlegen"
                             },
                             "constant_rate_factor": {
-                                "name": "",
                                 "description": "Setze den Constant Rate Factor für den Video-Encoder\nvon 0 bis 51 für libx264"
                             },
                             "video_bitrate": {

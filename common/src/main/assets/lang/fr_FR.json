@@ -2,7 +2,6 @@
     "setup": {
         "dialogs": {
             "select_language": "Choisir la langue",
-            "save_folder": "",
             "select_save_folder_button": "Sélectionner un dossier"
         },
         "mappings": {

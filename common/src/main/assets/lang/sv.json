@@ -1,7 +1,6 @@
 {
     "setup": {
         "dialogs": {
-            "save_folder": "",
             "select_save_folder_button": "Välj Mapp"
         },
         "mappings": {
