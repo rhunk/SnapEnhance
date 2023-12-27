@@ -14,7 +14,6 @@ import androidx.compose.material.icons.outlined.BugReport
 import androidx.compose.material.icons.outlined.Info
 import androidx.compose.material.icons.outlined.Report
 import androidx.compose.material.icons.outlined.Warning
-import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.FilledIconButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
@@ -30,16 +29,20 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import me.rhunk.snapenhance.LogReader
 import me.rhunk.snapenhance.RemoteSideContext
 import me.rhunk.snapenhance.common.logger.LogChannel
 import me.rhunk.snapenhance.common.logger.LogLevel
+import me.rhunk.snapenhance.ui.util.pullrefresh.PullRefreshIndicator
+import me.rhunk.snapenhance.ui.util.pullrefresh.rememberPullRefreshState
 
 class HomeSubSection(
     private val context: RemoteSideContext
 ) {
-    private lateinit var logListState: LazyListState
+    private val logListState by lazy { LazyListState(0) }
 
     @Composable
     fun LogsSection() {
@@ -47,27 +50,66 @@ class HomeSubSection(
         val clipboardManager = LocalClipboardManager.current
         var lineCount by remember { mutableIntStateOf(0) }
         var logReader by remember { mutableStateOf<LogReader?>(null) }
-        logListState = remember { LazyListState(0) }
+        var isRefreshing by remember { mutableStateOf(false) }
 
-        Column(
+        fun refreshLogs() {
+            coroutineScope.launch(Dispatchers.IO) {
+                runCatching {
+                    logReader = context.log.newReader {
+                        lineCount++
+                    }
+                    lineCount = logReader!!.lineCount
+                }.onFailure {
+                    context.longToast("Failed to read logs!")
+                }
+                delay(300)
+                isRefreshing = false
+                withContext(Dispatchers.Main) {
+                    logListState.scrollToItem((logListState.layoutInfo.totalItemsCount - 1).takeIf { it >= 0 } ?: return@withContext)
+                }
+            }
+        }
+
+        val pullRefreshState = rememberPullRefreshState(isRefreshing, onRefresh = {
+            refreshLogs()
+        })
+
+        LaunchedEffect(Unit) {
+            isRefreshing = true
+            refreshLogs()
+        }
+
+        Box(
             modifier = Modifier
                 .fillMaxSize()
         ) {
             LazyColumn(
-                modifier = Modifier.background(MaterialTheme.colorScheme.surface )
+                modifier = Modifier
+                    .background(MaterialTheme.colorScheme.surface)
                     .horizontalScroll(ScrollState(0)),
                 state = logListState
             ) {
+                item {
+                    if (lineCount == 0 && logReader != null) {
+                        Text(
+                            text = "No logs found!",
+                            modifier = Modifier.padding(16.dp),
+                            fontSize = 12.sp,
+                            fontWeight = FontWeight.Light
+                        )
+                    }
+                }
                 items(lineCount) { index ->
-                    val line = logReader?.getLogLine(index) ?: return@items
+                    val logLine = remember(index) { logReader?.getLogLine(index) } ?: return@items
                     var expand by remember { mutableStateOf(false) }
+
                     Box(modifier = Modifier
                         .fillMaxWidth()
                         .pointerInput(Unit) {
                             detectTapGestures(
                                 onLongPress = {
                                     coroutineScope.launch {
-                                        clipboardManager.setText(AnnotatedString(line.message))
+                                        clipboardManager.setText(AnnotatedString(logLine.message))
                                     }
                                 },
                                 onTap = {
@@ -85,7 +127,7 @@ class HomeSubSection(
                         ) {
                             if (!expand) {
                                 Icon(
-                                    imageVector = when (line.logLevel) {
+                                    imageVector = when (logLine.logLevel) {
                                         LogLevel.DEBUG -> Icons.Outlined.BugReport
                                         LogLevel.ERROR, LogLevel.ASSERT -> Icons.Outlined.Report
                                         LogLevel.INFO, LogLevel.VERBOSE -> Icons.Outlined.Info
@@ -95,21 +137,21 @@ class HomeSubSection(
                                 )
 
                                 Text(
-                                    text = LogChannel.fromChannel(line.tag)?.shortName ?: line.tag,
+                                    text = LogChannel.fromChannel(logLine.tag)?.shortName ?: logLine.tag,
                                     modifier = Modifier.padding(start = 4.dp),
                                     fontWeight = FontWeight.Light,
                                     fontSize = 10.sp,
                                 )
 
                                 Text(
-                                    text = line.dateTime,
+                                    text = logLine.dateTime,
                                     modifier = Modifier.padding(start = 4.dp, end = 4.dp),
                                     fontSize = 10.sp
                                 )
                             }
 
                             Text(
-                                text = line.message.trimIndent(),
+                                text = logLine.message.trimIndent(),
                                 fontSize = 10.sp,
                                 maxLines = if (expand) Int.MAX_VALUE else 6,
                                 overflow = if (expand) TextOverflow.Visible else TextOverflow.Ellipsis,
@@ -120,22 +162,11 @@ class HomeSubSection(
                 }
             }
 
-            if (logReader == null) {
-                CircularProgressIndicator(modifier = Modifier.align(Alignment.CenterHorizontally))
-            }
-
-            LaunchedEffect(Unit) {
-                coroutineScope.launch(Dispatchers.IO) {
-                    runCatching {
-                        logReader = context.log.newReader {
-                            lineCount++
-                        }
-                        lineCount = logReader!!.lineCount
-                    }.onFailure {
-                        context.longToast("Failed to read logs!")
-                    }
-                }
-            }
+            PullRefreshIndicator(
+                refreshing = isRefreshing,
+                state = pullRefreshState,
+                modifier = Modifier.align(Alignment.TopCenter)
+            )
         }
     }
 
@@ -145,19 +176,27 @@ class HomeSubSection(
         Column(
             verticalArrangement = Arrangement.spacedBy(5.dp),
         ) {
-            FilledIconButton(onClick = {
-                coroutineScope.launch {
-                    logListState.scrollToItem(0)
-                }
-            }) {
+            val firstVisibleItem by remember { derivedStateOf { logListState.firstVisibleItemIndex } }
+            val layoutInfo by remember { derivedStateOf { logListState.layoutInfo } }
+            FilledIconButton(
+                onClick = {
+                    coroutineScope.launch {
+                        logListState.scrollToItem(0)
+                    }
+                },
+                enabled = firstVisibleItem != 0
+            ) {
                 Icon(Icons.Filled.KeyboardDoubleArrowUp, contentDescription = null)
             }
 
-            FilledIconButton(onClick = {
-                coroutineScope.launch {
-                    logListState.scrollToItem((logListState.layoutInfo.totalItemsCount - 1).takeIf { it >= 0 } ?: return@launch)
-                }
-            }) {
+            FilledIconButton(
+                onClick = {
+                    coroutineScope.launch {
+                        logListState.scrollToItem((logListState.layoutInfo.totalItemsCount - 1).takeIf { it >= 0 } ?: return@launch)
+                    }
+                },
+                enabled = layoutInfo.visibleItemsInfo.lastOrNull()?.index != layoutInfo.totalItemsCount - 1
+            ) {
                 Icon(Icons.Filled.KeyboardDoubleArrowDown, contentDescription = null)
             }
         }
