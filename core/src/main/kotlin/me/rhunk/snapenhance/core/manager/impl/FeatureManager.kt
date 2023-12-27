@@ -119,6 +119,7 @@ class FeatureManager(
             PreventForcedLogout::class,
             SuspendLocationUpdates::class,
             ConversationToolbox::class,
+            SpotlightCommentsUsername::class,
         )
 
         initializeFeatures()

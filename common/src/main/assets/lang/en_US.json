@@ -497,6 +497,10 @@
                         "name": "Block Ads",
                         "description": "Prevents Advertisements from being displayed"
                     },
+                    "spotlight_comments_username": {
+                        "name": "Spotlight Comments Username",
+                        "description": "Shows author username in Spotlight comments"
+                    },
                     "bypass_video_length_restriction": {
                         "name": "Bypass Video Length Restrictions",
                         "description": "Single: sends a single video\nSplit: split videos after editing"

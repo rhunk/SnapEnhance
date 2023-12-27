@@ -16,12 +16,16 @@ import me.rhunk.snapenhance.core.util.ktx.getObjectFieldOrNull
 import me.rhunk.snapenhance.core.wrapper.impl.ConversationManager
 import me.rhunk.snapenhance.core.wrapper.impl.Message
 import me.rhunk.snapenhance.core.wrapper.impl.SnapUUID
+import me.rhunk.snapenhance.core.wrapper.impl.Snapchatter
 import me.rhunk.snapenhance.core.wrapper.impl.toSnapUUID
+import java.util.concurrent.Future
 
 class Messaging : Feature("Messaging", loadParams = FeatureLoadParams.ACTIVITY_CREATE_SYNC or FeatureLoadParams.INIT_ASYNC or FeatureLoadParams.INIT_SYNC) {
     var conversationManager: ConversationManager? = null
         private set
     private var conversationManagerDelegate: Any? = null
+    private var identityDelegate: Any? = null
+
     var openedConversationUUID: SnapUUID? = null
         private set
     var lastFetchConversationUserUUID: SnapUUID? = null
@@ -55,6 +59,12 @@ class Messaging : Feature("Messaging", loadParams = FeatureLoadParams.ACTIVITY_C
                 ).apply { adapter = param }) {
                     param.setArg(2, messages.map { it.instanceNonNull() }.toCollection(ArrayList()))
                 }
+            }
+        }
+
+        context.mappings.getMappedClass("callbacks", "IdentityDelegate").apply {
+            hookConstructor(HookStage.AFTER) {
+                identityDelegate = it.thisObject()
             }
         }
     }
@@ -168,5 +178,16 @@ class Messaging : Feature("Messaging", loadParams = FeatureLoadParams.ACTIVITY_C
         }) {
             it.setResult(null)
         }
+    }
+
+    fun fetchSnapchatterInfos(userIds: List<String>): List<Snapchatter> {
+        val identity = identityDelegate ?: return emptyList()
+        val future = identity::class.java.methods.first {
+            it.name == "fetchSnapchatterInfos"
+        }.invoke(identity, userIds.map {
+            it.toSnapUUID().instanceNonNull()
+        }) as Future<*>
+
+        return (future.get() as? List<*>)?.map { Snapchatter(it) } ?: return emptyList()
     }
 }

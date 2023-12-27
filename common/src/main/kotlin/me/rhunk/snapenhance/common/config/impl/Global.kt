@@ -14,6 +14,7 @@ class Global : ConfigContainer() {
     val disableMetrics = boolean("disable_metrics")
     val disablePublicStories = boolean("disable_public_stories") { requireRestart(); requireCleanCache() }
     val blockAds = boolean("block_ads")
+    val spotlightCommentsUsername = boolean("spotlight_comments_username") { requireRestart() }
     val bypassVideoLengthRestriction = unique("bypass_video_length_restriction", "split", "single") { addNotices(
         FeatureNotice.BAN_RISK); requireRestart(); nativeHooks() }
     val disableGooglePlayDialogs = boolean("disable_google_play_dialogs") { requireRestart() }
