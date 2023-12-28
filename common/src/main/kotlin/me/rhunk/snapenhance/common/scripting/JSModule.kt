@@ -4,6 +4,7 @@ import android.os.Handler
 import android.widget.Toast
 import me.rhunk.snapenhance.common.scripting.bindings.AbstractBinding
 import me.rhunk.snapenhance.common.scripting.bindings.BindingsContext
+import me.rhunk.snapenhance.common.scripting.impl.Networking
 import me.rhunk.snapenhance.common.scripting.impl.JavaInterfaces
 import me.rhunk.snapenhance.common.scripting.ktx.contextScope
 import me.rhunk.snapenhance.common.scripting.ktx.putFunction
@@ -55,6 +56,7 @@ class JSModule(
             registerBindings(
                 JavaInterfaces(),
                 InterfaceManager(),
+                Networking(),
             )
 
             moduleObject.putFunction("setField") { args ->
