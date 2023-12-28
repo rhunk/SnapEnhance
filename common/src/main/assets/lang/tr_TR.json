@@ -27,7 +27,8 @@
             "home_settings": "Ayarlar",
             "home_logs": "Kayıtlar",
             "social": "Sosyal",
-            "scripts": "Scriptler"
+            "scripts": "Scriptler",
+            "tasks": "Görevler"
         },
         "sections": {
             "home": {
