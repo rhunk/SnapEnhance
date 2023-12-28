@@ -8,6 +8,7 @@ import me.rhunk.snapenhance.core.ModContext
 import me.rhunk.snapenhance.core.features.impl.messaging.Messaging
 import me.rhunk.snapenhance.core.wrapper.impl.Message
 import me.rhunk.snapenhance.core.wrapper.impl.SnapUUID
+import me.rhunk.snapenhance.core.wrapper.impl.Snapchatter
 import org.mozilla.javascript.Scriptable
 import org.mozilla.javascript.annotations.JSFunction
 
@@ -15,7 +16,8 @@ import org.mozilla.javascript.annotations.JSFunction
 class CoreMessaging(
     private val modContext: ModContext
 ) : AbstractBinding("messaging", BindingSide.CORE) {
-    private val conversationManager get() = modContext.feature(Messaging::class).conversationManager
+    private val messaging by lazy { modContext.feature(Messaging::class) }
+    private val conversationManager get() = messaging.conversationManager
 
     @JSFunction
     fun isPresent() = conversationManager != null
@@ -142,6 +144,13 @@ class CoreMessaging(
         result: (error: String?) -> Unit
     ) {
         modContext.messageSender.sendChatMessage(listOf(SnapUUID.fromString(conversationId)), message, onSuccess = { result(null) }, onError = { result(it.toString()) })
+    }
+
+    @JSFunction
+    fun fetchSnapchatterInfos(
+        userIds: List<String>
+    ): List<Snapchatter> {
+        return messaging.fetchSnapchatterInfos(userIds = userIds)
     }
 
     override fun getObject() = this
