@@ -123,7 +123,7 @@
         "properties": {
             "downloader": {
                 "name": "Downloader",
-                "description": "Download Snapchat Media",
+                "description": "",
                 "properties": {
                     "save_folder": {
                         "name": "Opslag locatie",
