@@ -6,6 +6,7 @@ import me.rhunk.snapenhance.core.ModContext
 import me.rhunk.snapenhance.core.action.impl.BulkMessagingAction
 import me.rhunk.snapenhance.core.action.impl.CleanCache
 import me.rhunk.snapenhance.core.action.impl.ExportChatMessages
+import me.rhunk.snapenhance.core.action.impl.ExportMemories
 import me.rhunk.snapenhance.core.manager.Manager
 
 class ActionManager(
@@ -17,6 +18,7 @@ class ActionManager(
             EnumAction.CLEAN_CACHE to CleanCache::class,
             EnumAction.EXPORT_CHAT_MESSAGES to ExportChatMessages::class,
             EnumAction.BULK_MESSAGING_ACTION to BulkMessagingAction::class,
+            EnumAction.EXPORT_MEMORIES to ExportMemories::class,
         ).map {
             it.key to it.value.java.getConstructor().newInstance().apply {
                 this.context = modContext
@@ -29,8 +31,8 @@ class ActionManager(
 
     fun onNewIntent(intent: Intent?) {
         val action = intent?.getStringExtra(EnumAction.ACTION_PARAMETER) ?: return
-        execute(EnumAction.entries.find { it.key == action } ?: return)
         intent.removeExtra(EnumAction.ACTION_PARAMETER)
+        execute(EnumAction.entries.find { it.key == action } ?: return)
     }
 
     fun execute(enumAction: EnumAction) {

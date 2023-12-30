@@ -3,6 +3,7 @@ package me.rhunk.snapenhance.core
 import android.app.Activity
 import android.app.Application
 import android.content.Context
+import android.content.res.Resources
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -20,8 +21,10 @@ import me.rhunk.snapenhance.core.data.SnapClassCache
 import me.rhunk.snapenhance.core.event.events.impl.NativeUnaryCallEvent
 import me.rhunk.snapenhance.core.event.events.impl.SnapWidgetBroadcastReceiveEvent
 import me.rhunk.snapenhance.core.util.LSPatchUpdater
+import me.rhunk.snapenhance.core.util.hook.HookAdapter
 import me.rhunk.snapenhance.core.util.hook.HookStage
 import me.rhunk.snapenhance.core.util.hook.hook
+import java.lang.reflect.Modifier
 import kotlin.system.measureTimeMillis
 
 
@@ -36,11 +39,11 @@ class SnapEnhance {
     private lateinit var appContext: ModContext
     private var isBridgeInitialized = false
 
-    private fun hookMainActivity(methodName: String, stage: HookStage = HookStage.AFTER, block: Activity.() -> Unit) {
+    private fun hookMainActivity(methodName: String, stage: HookStage = HookStage.AFTER, block: Activity.(param: HookAdapter) -> Unit) {
         Activity::class.java.hook(methodName, stage, { isBridgeInitialized }) { param ->
             val activity = param.thisObject() as Activity
             if (!activity.packageName.equals(Constants.SNAPCHAT_PACKAGE_NAME)) return@hook
-            block(activity)
+            block(activity, param)
         }
     }
 
@@ -90,11 +93,17 @@ class SnapEnhance {
             appContext.mainActivity = this
             if (isMainActivityNotNull || !appContext.mappings.isMappingsLoaded()) return@hookMainActivity
             onActivityCreate()
+            jetpackComposeResourceHook()
+            appContext.actionManager.onNewIntent(intent)
         }
 
         hookMainActivity("onPause") {
             appContext.bridgeClient.closeSettingsOverlay()
             appContext.isMainActivityPaused = true
+        }
+
+        hookMainActivity("onNewIntent") { param ->
+            appContext.actionManager.onNewIntent(param.argNullable(0))
         }
 
         var activityWasResumed = false
@@ -107,7 +116,6 @@ class SnapEnhance {
                 return@hookMainActivity
             }
 
-            appContext.actionManager.onNewIntent(this.intent)
             appContext.reloadConfig()
             syncRemote()
         }
@@ -261,6 +269,24 @@ class SnapEnhance {
                     friends.map { it.toJson() }
                 )
             }
+        }
+    }
+
+    private fun jetpackComposeResourceHook() {
+        val material3RString = try {
+            Class.forName("androidx.compose.material3.R\$string")
+        } catch (e: ClassNotFoundException) {
+            return
+        }
+
+        val stringResources = material3RString.fields.filter {
+            Modifier.isStatic(it.modifiers) && it.type == Int::class.javaPrimitiveType
+        }.associate { it.getInt(null) to it.name }
+
+        Resources::class.java.getMethod("getString", Int::class.javaPrimitiveType).hook(HookStage.BEFORE) { param ->
+            val key = param.arg<Int>(0)
+            val name = stringResources[key] ?: return@hook
+            param.setResult(appContext.translation.getOrNull("material3_strings.$name") ?: return@hook)
         }
     }
 }

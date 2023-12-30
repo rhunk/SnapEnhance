@@ -128,6 +128,7 @@
         "open_map": "Choose location on map",
         "check_for_updates": "Check for updates",
         "export_chat_messages": "Export Chat Messages",
+        "export_memories": "Export Memories",
         "bulk_messaging_action": "Bulk Messaging Action"
     },
 
@@ -1075,5 +1076,21 @@
 
     "suspend_location_updates": {
         "switch_text": "Suspend Location Updates"
+    },
+    "material3_strings": {
+        "date_range_input_title": "",
+        "date_range_picker_start_headline": "From",
+        "date_range_picker_end_headline": "To",
+        "date_range_picker_title": "Select date range",
+        "date_picker_switch_to_calendar_mode": "Calendar",
+        "date_picker_switch_to_input_mode": "Input",
+        "date_range_picker_scroll_to_previous_month": "Previous month",
+        "date_range_picker_scroll_to_next_month": "Next month",
+        "date_picker_today_description": "Today",
+        "date_range_picker_day_in_range": "Selected",
+        "date_input_invalid_for_pattern": "Invalid date",
+        "date_input_invalid_year_range": "Invalid year",
+        "date_input_invalid_not_allowed": "Invalid date",
+        "date_range_input_invalid_range_input": "Invalid date range"
     }
 }
