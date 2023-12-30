@@ -1,35 +1,43 @@
 package me.rhunk.snapenhance.download
 
+import android.media.MediaMetadataRetriever
 import com.arthenica.ffmpegkit.FFmpegKit
 import com.arthenica.ffmpegkit.FFmpegSession
 import com.arthenica.ffmpegkit.Level
 import com.arthenica.ffmpegkit.Statistics
 import kotlinx.coroutines.suspendCancellableCoroutine
 import me.rhunk.snapenhance.LogManager
+import me.rhunk.snapenhance.RemoteSideContext
 import me.rhunk.snapenhance.common.config.impl.DownloaderConfig
 import me.rhunk.snapenhance.common.logger.LogLevel
+import me.rhunk.snapenhance.task.PendingTask
 import java.io.File
 import java.util.concurrent.Executors
 
 
-class ArgumentList : LinkedHashMap<String, MutableList<String>>() {
+class ArgumentList  {
+    private val arguments = mutableListOf<Pair<String, String>>()
+
     operator fun plusAssign(stringPair: Pair<String, String>) {
-        val (key, value) = stringPair
-        if (this.containsKey(key)) {
-            this[key]!!.add(value)
-        } else {
-            this[key] = mutableListOf(value)
-        }
+        arguments += stringPair
     }
 
     operator fun plusAssign(key: String) {
-        this[key] = mutableListOf<String>().apply {
-            this += ""
-        }
+        arguments += key to ""
     }
 
     operator fun minusAssign(key: String) {
-        this.remove(key)
+        arguments.removeIf { it.first == key }
+    }
+
+    operator fun get(key: String) = arguments.find { it.first == key }?.second
+
+    fun forEach(action: (Pair<String, String>) -> Unit) {
+        arguments.forEach(action)
+    }
+
+    fun clear() {
+        arguments.clear()
     }
 }
 
@@ -41,16 +49,25 @@ class FFMpegProcessor(
 ) {
     companion object {
         private const val TAG = "ffmpeg-processor"
+
+        fun newFFMpegProcessor(context: RemoteSideContext, pendingTask: PendingTask) = FFMpegProcessor(
+            logManager = context.log,
+            ffmpegOptions = context.config.root.downloader.ffmpegOptions,
+            onStatistics = {
+                pendingTask.updateProgress("Processing (frames=${it.videoFrameNumber}, fps=${it.videoFps}, time=${it.time}, bitrate=${it.bitrate}, speed=${it.speed})")
+            }
+        )
     }
     enum class Action {
         DOWNLOAD_DASH,
         MERGE_OVERLAY,
         AUDIO_CONVERSION,
+        MERGE_MEDIA
     }
 
     data class Request(
         val action: Action,
-        val input: File,
+        val inputs: List<File>,
         val output: File,
         val overlay: File? = null, //only for MERGE_OVERLAY
         val startTime: Long? = null, //only for DOWNLOAD_DASH
@@ -61,14 +78,8 @@ class FFMpegProcessor(
     private suspend fun newFFMpegTask(globalArguments: ArgumentList, inputArguments: ArgumentList, outputArguments: ArgumentList) = suspendCancellableCoroutine<FFmpegSession> {
         val stringBuilder = StringBuilder()
         arrayOf(globalArguments, inputArguments, outputArguments).forEach { argumentList ->
-            argumentList.forEach { (key, values) ->
-                values.forEach valueForEach@{ value ->
-                    if (value.isEmpty()) {
-                        stringBuilder.append("$key ")
-                        return@valueForEach
-                    }
-                    stringBuilder.append("$key $value ")
-                }
+            argumentList.forEach { (key, value) ->
+                stringBuilder.append("$key ${value.takeIf { it.isNotEmpty() }?.plus(" ") ?: ""}")
             }
         }
 
@@ -102,7 +113,9 @@ class FFMpegProcessor(
         }
 
         val inputArguments = ArgumentList().apply {
-            this += "-i" to args.input.absolutePath
+            args.inputs.forEach { file ->
+                this += "-i" to file.absolutePath
+            }
         }
 
         val outputArguments = ArgumentList().apply {
@@ -132,6 +145,54 @@ class FFMpegProcessor(
                 if (ffmpegOptions.customVideoCodec.isEmpty()) {
                     outputArguments -= "-c:v"
                 }
+            }
+            Action.MERGE_MEDIA -> {
+                inputArguments.clear()
+                val filesInfo = args.inputs.mapNotNull { file ->
+                    runCatching {
+                        MediaMetadataRetriever().apply { setDataSource(file.absolutePath) }
+                    }.getOrNull()?.let { file to it }
+                }
+
+                val (maxWidth, maxHeight) = filesInfo.maxByOrNull { (_, r) ->
+                    r.extractMetadata(MediaMetadataRetriever.METADATA_KEY_VIDEO_WIDTH)?.toIntOrNull() ?: 0
+                }?.let { (_, r) ->
+                    r.extractMetadata(MediaMetadataRetriever.METADATA_KEY_VIDEO_WIDTH)?.toIntOrNull() to
+                    r.extractMetadata(MediaMetadataRetriever.METADATA_KEY_VIDEO_HEIGHT)?.toIntOrNull()
+                } ?: throw Exception("Failed to get video size")
+
+                val filterFirstPart = StringBuilder()
+                val filterSecondPart = StringBuilder()
+                var containsNoSound = false
+
+                filesInfo.forEachIndexed { index, (file, retriever) ->
+                    filterFirstPart.append("[$index:v]scale=$maxWidth:$maxHeight,setsar=1[v$index];")
+                    if (retriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_HAS_AUDIO) == "yes") {
+                        filterSecondPart.append("[v$index][$index:a]")
+                    } else {
+                        containsNoSound = true
+                        filterSecondPart.append("[v$index][${filesInfo.size}]")
+                    }
+                    inputArguments += "-i" to file.absolutePath
+                }
+
+                if (containsNoSound) {
+                    inputArguments += "-f" to "lavfi"
+                    inputArguments += "-t" to "0.1"
+                    inputArguments += "-i" to "anullsrc=channel_layout=stereo:sample_rate=44100"
+                }
+
+                if (outputArguments["-c:a"] == "copy") {
+                    outputArguments -= "-c:a"
+                }
+
+                outputArguments += "-fps_mode" to "vfr"
+
+                outputArguments += "-filter_complex" to "\"$filterFirstPart ${filterSecondPart}concat=n=${args.inputs.size}:v=1:a=1[vout][aout]\""
+                outputArguments += "-map" to "\"[aout]\""
+                outputArguments += "-map" to "\"[vout]\""
+
+                filesInfo.forEach { it.second.close() }
             }
         }
         outputArguments += args.output.absolutePath

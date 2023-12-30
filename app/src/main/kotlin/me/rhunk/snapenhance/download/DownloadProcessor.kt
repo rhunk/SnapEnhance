@@ -87,26 +87,14 @@ class DownloadProcessor (
         fallbackToast(it)
     }
 
-    private fun newFFMpegProcessor(pendingTask: PendingTask) = FFMpegProcessor(
-        logManager = remoteSideContext.log,
-        ffmpegOptions = remoteSideContext.config.root.downloader.ffmpegOptions,
-        onStatistics = {
-            pendingTask.updateProgress("Processing (frames=${it.videoFrameNumber}, fps=${it.videoFps}, time=${it.time}, bitrate=${it.bitrate}, speed=${it.speed})")
-        }
-    )
+    private fun newFFMpegProcessor(pendingTask: PendingTask) = FFMpegProcessor.newFFMpegProcessor(remoteSideContext, pendingTask)
 
     @SuppressLint("UnspecifiedRegisterReceiverFlag")
-    private suspend fun saveMediaToGallery(pendingTask: PendingTask, inputFile: File, metadata: DownloadMetadata) {
+    suspend fun saveMediaToGallery(pendingTask: PendingTask, inputFile: File, metadata: DownloadMetadata) {
         if (coroutineContext.job.isCancelled) return
 
         runCatching {
             var fileType = FileType.fromFile(inputFile)
-
-            if (fileType == FileType.UNKNOWN) {
-                callbackOnFailure(translation.format("failed_gallery_toast", "error" to "Unknown media type"), null)
-                pendingTask.fail("Unknown media type")
-                return
-            }
 
             if (fileType.isImage) {
                 remoteSideContext.config.root.downloader.forceImageFormat.getNullable()?.let { format ->
@@ -154,9 +142,9 @@ class DownloadProcessor (
             pendingTask.success()
 
             runCatching {
-                val mediaScanIntent = Intent("android.intent.action.MEDIA_SCANNER_SCAN_FILE")
-                mediaScanIntent.setData(outputFile.uri)
-                remoteSideContext.androidContext.sendBroadcast(mediaScanIntent)
+                remoteSideContext.androidContext.sendBroadcast(Intent("android.intent.action.MEDIA_SCANNER_SCAN_FILE").apply {
+                    data = outputFile.uri
+                })
             }.onFailure {
                 remoteSideContext.log.error("Failed to scan media file", it)
                 callbackOnFailure(translation.format("failed_gallery_toast", "error" to it.toString()), it.message)
@@ -266,7 +254,7 @@ class DownloadProcessor (
                         val outputFile = File.createTempFile("voice_note", ".$format")
                         newFFMpegProcessor(pendingTask).execute(FFMpegProcessor.Request(
                             action = FFMpegProcessor.Action.AUDIO_CONVERSION,
-                            input = media.file,
+                            inputs = listOf(media.file),
                             output = outputFile
                         ))
                         media.file.delete()
@@ -303,7 +291,7 @@ class DownloadProcessor (
             runCatching {
                 newFFMpegProcessor(pendingTask).execute(FFMpegProcessor.Request(
                     action = FFMpegProcessor.Action.DOWNLOAD_DASH,
-                    input = dashPlaylistFile,
+                    inputs = listOf(dashPlaylistFile),
                     output = outputFile,
                     startTime = dashOptions.offsetTime,
                     duration = dashOptions.duration
@@ -356,7 +344,8 @@ class DownloadProcessor (
             val pendingTask = remoteSideContext.taskManager.createPendingTask(
                 Task(
                     type = TaskType.DOWNLOAD,
-                    title = downloadMetadata.downloadSource + " (" + downloadMetadata.mediaAuthor + ")",
+                    title = downloadMetadata.downloadSource,
+                    author = downloadMetadata.mediaAuthor,
                     hash = downloadMetadata.mediaIdentifier
                 )
             ).apply {
@@ -406,7 +395,6 @@ class DownloadProcessor (
 
                 if (shouldMergeOverlay) {
                     assert(downloadedMedias.size == 2)
-                    //TODO: convert "mp4 images" into real images
                     val media = downloadedMedias.entries.first { !it.key.isOverlay }.value
                     val overlayMedia = downloadedMedias.entries.first { it.key.isOverlay }.value
 
@@ -418,7 +406,7 @@ class DownloadProcessor (
 
                         newFFMpegProcessor(pendingTask).execute(FFMpegProcessor.Request(
                             action = FFMpegProcessor.Action.MERGE_OVERLAY,
-                            input = renamedMedia,
+                            inputs = listOf(renamedMedia),
                             output = mergedOverlay,
                             overlay = renamedOverlayMedia
                         ))

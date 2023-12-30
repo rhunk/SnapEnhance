@@ -38,8 +38,8 @@
                     "export_logs_button": "Export Logs"
                 }
             },
-            "downloads": {
-                "empty_download_list": "(empty)"
+            "tasks": {
+                "no_tasks": "No tasks"
             },
             "features": {
                 "disabled": "Disabled"
@@ -897,6 +897,18 @@
         "STATUS_PLUS_GIFT": "Status Plus Gift",
         "TINY_SNAP": "Tiny Snap",
         "STATUS_COUNTDOWN": "Countdown"
+    },
+
+    "media_download_source": {
+        "none": "None",
+        "pending": "Pending",
+        "chat_media": "Chat Media",
+        "story": "Story",
+        "public_story": "Public Story",
+        "spotlight": "Spotlight",
+        "profile_picture": "Profile Picture",
+        "story_logger": "Story Logger",
+        "merged": "Merged"
     },
 
     "chat_action_menu": {

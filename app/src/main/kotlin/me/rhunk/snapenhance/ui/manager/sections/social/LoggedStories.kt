@@ -118,7 +118,7 @@ fun LoggedStories(
 
                         Button(onClick = {
                             val mediaAuthor = friendInfo?.mutableUsername ?: userId
-                            val uniqueHash = selectedStory?.url?.longHashCode()?.absoluteValue?.toString(16) ?: UUID.randomUUID().toString()
+                            val uniqueHash = (selectedStory?.url ?: UUID.randomUUID().toString()).longHashCode().absoluteValue.toString(16)
 
                             DownloadProcessor(
                                 remoteSideContext = context,
@@ -150,7 +150,7 @@ fun LoggedStories(
                                 ),
                                 iconUrl = null,
                                 mediaAuthor = friendInfo?.mutableUsername ?: userId,
-                                downloadSource = MediaDownloadSource.STORY_LOGGER.key
+                                downloadSource = MediaDownloadSource.STORY_LOGGER.translate(context.translation),
                             ))
                         }) {
                             Text(text = "Download")

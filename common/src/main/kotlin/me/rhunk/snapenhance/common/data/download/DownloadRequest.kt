@@ -40,12 +40,12 @@ fun createNewFilePath(
     config: RootConfig,
     hexHash: String,
     downloadSource: MediaDownloadSource,
-    mediaAuthor: String,
+    mediaAuthor: String?,
     creationTimestamp: Long?
 ): String {
     val pathFormat by config.downloader.pathFormat
     val customPathFormat by config.downloader.customPathFormat
-    val sanitizedMediaAuthor = mediaAuthor.sanitizeForPath().ifEmpty { hexHash }
+    val sanitizedMediaAuthor = mediaAuthor?.sanitizeForPath() ?: hexHash
     val currentDateTime = SimpleDateFormat("yyyy-MM-dd_HH-mm-ss", Locale.ENGLISH).format(creationTimestamp ?: System.currentTimeMillis())
 
     val finalPath = StringBuilder()

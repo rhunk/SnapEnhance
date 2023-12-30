@@ -44,6 +44,7 @@ data class PendingTaskListener(
 data class Task(
     val type: TaskType,
     val title: String,
+    val author: String?,
     val hash: String
 ) {
     var changeListener: () -> Unit = {}
@@ -106,7 +107,7 @@ class PendingTask(
         }
 
     fun updateProgress(label: String, progress: Int = -1) {
-        _progress = progress
+        _progress = progress.coerceIn(-1, 100)
         progressLabel = label
     }
 

@@ -102,7 +102,7 @@ class MediaDownloader : MessagingRuleFeature("MediaDownloader", MessagingRuleTyp
             metadata = DownloadMetadata(
                 mediaIdentifier = generatedHash,
                 mediaAuthor = mediaAuthor,
-                downloadSource = downloadSource.key,
+                downloadSource = downloadSource.translate(context.translation),
                 iconUrl = iconUrl,
                 outputPath = outputPath
             ),
