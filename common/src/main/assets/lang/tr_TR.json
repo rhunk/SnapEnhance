@@ -50,6 +50,9 @@
                 "streaks_expiration_short": "{hours} saat",
                 "streaks_expiration_text": "{eta} içerisinde sona eriyor",
                 "reminder_button": "Hatırlatıcıyı Ayarla"
+            },
+            "tasks": {
+                "no_tasks": "Görev yok"
             }
         },
         "dialogs": {
@@ -1037,5 +1040,16 @@
             "message": "Bu, seçilen tüm arkadaşları etkileyecektir. Bu eylem geri alınamaz.",
             "title": "Emin misiniz?"
         }
+    },
+    "media_download_source": {
+        "public_story": "Herkese Açık Hikaye",
+        "spotlight": "Spotlight",
+        "pending": "Beklemede",
+        "merged": "Birleştirilmiş",
+        "story_logger": "Hikaye Kaydedici",
+        "none": "Hiçbiri",
+        "profile_picture": "Profil Fotoğrafı",
+        "story": "Hikaye",
+        "chat_media": "Sohbet Medyası"
     }
 }
