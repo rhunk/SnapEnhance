@@ -36,9 +36,6 @@
                     "export_logs_button": "Eksporter logs"
                 }
             },
-            "downloads": {
-                "empty_download_list": "(tom)"
-            },
             "features": {
                 "disabled": "Slået fra"
             },

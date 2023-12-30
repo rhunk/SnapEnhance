@@ -36,9 +36,6 @@
                     "export_logs_button": "Logs exporteren"
                 }
             },
-            "downloads": {
-                "empty_download_list": "(leeg)"
-            },
             "features": {
                 "disabled": "Uitgeschakeld"
             },

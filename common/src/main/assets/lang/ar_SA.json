@@ -36,9 +36,6 @@
                     "export_logs_button": "تصدير السجلات"
                 }
             },
-            "downloads": {
-                "empty_download_list": "(فارغ)"
-            },
             "features": {
                 "disabled": "معطّل"
             },
