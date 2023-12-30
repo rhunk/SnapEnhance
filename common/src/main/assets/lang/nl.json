@@ -123,7 +123,6 @@
         "properties": {
             "downloader": {
                 "name": "Downloader",
-                "description": "",
                 "properties": {
                     "save_folder": {
                         "name": "Opslag locatie",
