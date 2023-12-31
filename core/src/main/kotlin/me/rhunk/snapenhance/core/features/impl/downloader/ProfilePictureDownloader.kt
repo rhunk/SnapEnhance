@@ -59,15 +59,8 @@ class ProfilePictureDownloader : Feature("ProfilePictureDownloader", loadParams 
 
         context.event.subscribe(NetworkApiRequestEvent::class) { event ->
             if (!event.url.endsWith("/rpc/getPublicProfile")) return@subscribe
-            Hooker.ephemeralHookObjectMethod(event.callback::class.java, event.callback, "onSucceeded", HookStage.BEFORE) { methodParams ->
-                val content = methodParams.arg<ByteBuffer>(2).run {
-                    ByteArray(capacity()).also {
-                        get(it)
-                        position(0)
-                    }
-                }
-
-                ProtoReader(content).followPath(1, 1, 2) {
+            event.onSuccess {  buffer ->
+                ProtoReader(buffer ?: return@onSuccess).followPath(1, 1, 2) {
                     friendUsername = getString(2) ?: return@followPath
                     followPath(4) {
                         backgroundUrl = getString(2)
