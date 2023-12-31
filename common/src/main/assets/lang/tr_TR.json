@@ -125,7 +125,8 @@
         "open_map": "Harita üzerinde konum seçin",
         "check_for_updates": "Güncellemeleri denetle",
         "export_chat_messages": "Sohbet Mesajlarını Dışa Aktar",
-        "bulk_messaging_action": "Toplu Mesajlaşma Eylemi"
+        "bulk_messaging_action": "Toplu Mesajlaşma Eylemi",
+        "export_memories": "Anıları Dışa Aktar"
     },
     "features": {
         "notices": {
@@ -1051,5 +1052,20 @@
         "profile_picture": "Profil Fotoğrafı",
         "story": "Hikaye",
         "chat_media": "Sohbet Medyası"
+    },
+    "material3_strings": {
+        "date_input_invalid_not_allowed": "Geçersiz tarih",
+        "date_range_input_invalid_range_input": "Geçersiz tarih aralığı",
+        "date_range_picker_scroll_to_previous_month": "Önceki ay",
+        "date_picker_switch_to_input_mode": "Giriş",
+        "date_range_picker_day_in_range": "Seçilen",
+        "date_input_invalid_for_pattern": "Geçersiz tarih",
+        "date_picker_today_description": "Bugün",
+        "date_picker_switch_to_calendar_mode": "Takvim",
+        "date_range_picker_start_headline": "Şuradan",
+        "date_range_picker_end_headline": "Şuraya",
+        "date_range_picker_scroll_to_next_month": "Sonraki ay",
+        "date_range_picker_title": "Tarih aralığı seçin",
+        "date_input_invalid_year_range": "Geçersiz yıl"
     }
 }
