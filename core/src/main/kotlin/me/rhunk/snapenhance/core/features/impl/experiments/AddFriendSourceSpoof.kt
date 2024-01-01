@@ -11,7 +11,7 @@ class AddFriendSourceSpoof : Feature("AddFriendSourceSpoof", loadParams = Featur
         private set
 
     override fun onActivityCreate() {
-        val friendRelationshipChangerMapping = context.mappings.getMappedMap("FriendRelationshipChanger")
+        val friendRelationshipChangerMapping = context.mappings.getMappedMap("FriendRelationshipChanger") ?: throw Exception("Failed to get friendRelationshipChangerMapping")
 
         findClass(friendRelationshipChangerMapping["class"].toString()).hookConstructor(HookStage.AFTER) { param ->
             friendRelationshipChangerInstance = param.thisObject()

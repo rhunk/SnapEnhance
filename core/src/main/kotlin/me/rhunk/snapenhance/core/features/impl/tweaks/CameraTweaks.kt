@@ -62,7 +62,7 @@ class CameraTweaks : Feature("Camera Tweaks", loadParams = FeatureLoadParams.ACT
             }
         }
 
-        context.mappings.getMappedClass("ScCameraSettings").hookConstructor(HookStage.BEFORE) { param ->
+        context.mappings.getMappedClass("ScCameraSettings")?.hookConstructor(HookStage.BEFORE) { param ->
             val previewResolution = ScSize(param.argNullable(2))
             val captureResolution = ScSize(param.argNullable(3))
 

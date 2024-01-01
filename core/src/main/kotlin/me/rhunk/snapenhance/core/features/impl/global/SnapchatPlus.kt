@@ -13,7 +13,7 @@ class SnapchatPlus: Feature("SnapchatPlus", loadParams = FeatureLoadParams.INIT_
     override fun init() {
         if (!context.config.global.snapchatPlus.get()) return
 
-        val subscriptionInfoClass = context.mappings.getMappedClass("SubscriptionInfoClass")
+        val subscriptionInfoClass = context.mappings.getMappedClass("SubscriptionInfoClass") ?: throw Exception("Failed to get subscriptionInfoClass")
 
         Hooker.hookConstructor(subscriptionInfoClass, HookStage.BEFORE) { param ->
             if (param.arg<Int>(0) == 2) return@hookConstructor

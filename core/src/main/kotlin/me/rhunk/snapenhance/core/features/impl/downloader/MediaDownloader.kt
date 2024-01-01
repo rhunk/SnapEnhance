@@ -37,7 +37,7 @@ import me.rhunk.snapenhance.core.features.impl.spying.MessageLogger
 import me.rhunk.snapenhance.core.ui.ViewAppearanceHelper
 import me.rhunk.snapenhance.core.util.hook.HookAdapter
 import me.rhunk.snapenhance.core.util.hook.HookStage
-import me.rhunk.snapenhance.core.util.hook.Hooker
+import me.rhunk.snapenhance.core.util.hook.hook
 import me.rhunk.snapenhance.core.util.ktx.getObjectField
 import me.rhunk.snapenhance.core.util.media.PreviewUtils
 import me.rhunk.snapenhance.core.wrapper.impl.SnapUUID
@@ -466,11 +466,11 @@ class MediaDownloader : MessagingRuleFeature("MediaDownloader", MessagingRuleTyp
 
         val onOperaViewStateCallback: (HookAdapter) -> Unit = onOperaViewStateCallback@{ param ->
 
-            val viewState = (param.thisObject() as Any).getObjectField(context.mappings.getMappedValue("OperaPageViewController", "viewStateField")).toString()
+            val viewState = (param.thisObject() as Any).getObjectField(context.mappings.getMappedValue("OperaPageViewController", "viewStateField")!!).toString()
             if (viewState != "FULLY_DISPLAYED") {
                 return@onOperaViewStateCallback
             }
-            val operaLayerList = (param.thisObject() as Any).getObjectField(context.mappings.getMappedValue("OperaPageViewController", "layerListField")) as ArrayList<*>
+            val operaLayerList = (param.thisObject() as Any).getObjectField(context.mappings.getMappedValue("OperaPageViewController", "layerListField")!!) as ArrayList<*>
             val mediaParamMap: ParamMap = operaLayerList.map { Layer(it) }.first().paramMap
 
             if (!mediaParamMap.containsKey("image_media_info") && !mediaParamMap.containsKey("video_media_info_list"))
@@ -503,9 +503,8 @@ class MediaDownloader : MessagingRuleFeature("MediaDownloader", MessagingRuleTyp
         }
 
         arrayOf("onDisplayStateChange", "onDisplayStateChangeGesture").forEach { methodName ->
-            Hooker.hook(
-                operaViewerControllerClass,
-                context.mappings.getMappedValue("OperaPageViewController", methodName),
+            operaViewerControllerClass.hook(
+                context.mappings.getMappedValue("OperaPageViewController", methodName) ?: return@forEach,
                 HookStage.AFTER, onOperaViewStateCallback
             )
         }

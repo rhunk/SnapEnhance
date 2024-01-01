@@ -9,7 +9,7 @@ import java.lang.reflect.Constructor
 class NoFriendScoreDelay : Feature("NoFriendScoreDelay", loadParams = FeatureLoadParams.ACTIVITY_CREATE_SYNC) {
     override fun onActivityCreate() {
         if (!context.config.experimental.noFriendScoreDelay.get()) return
-        val scoreUpdateClass = context.mappings.getMappedClass("ScoreUpdate")
+        val scoreUpdateClass = context.mappings.getMappedClass("ScoreUpdate") ?: throw Exception("Failed to get scoreUpdateClass")
 
         scoreUpdateClass.hookConstructor(HookStage.BEFORE) { param ->
             val constructor = param.method() as Constructor<*>
