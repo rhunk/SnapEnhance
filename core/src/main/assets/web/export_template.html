@@ -207,6 +207,11 @@
 <body>
 <header>
     <div class="title"></div>
+    <div>
+        <label>
+            <input type="checkbox" class="sort_by_date" onchange="makeMain();"> Sort by date
+        </label>
+    </div>
 </header>
 
 <main></main>
@@ -247,8 +252,15 @@
     }
 
     function makeMain() {
+        document.querySelector('main').innerHTML = ""
         const messageTemplate = document.querySelector("#message_template")
-        Object.values(conversationData.messages).forEach(message => {
+        let messageList = Object.values(conversationData.messages)
+
+        if (document.querySelector(".sort_by_date").checked) {
+            messageList = messageList.reverse()
+        }
+
+        messageList.forEach(message => {
             const messageObject = document.createElement("div")
             messageObject.classList.add("message")
 
@@ -276,6 +288,7 @@
                 messageContainer.classList.add("content")
                 messageContainer.innerHTML = message.serializedContent
 
+                const observers = []
                 if (!message.serializedContent) {
                     messageContainer.innerHTML = ""
                     let messageData = ""
@@ -288,19 +301,22 @@
                             messageData = message.type
                     }
                     messageContainer.innerHTML += messageData
+                    messageContainer.onclick = () => {
+                        observers.forEach(f => f())
+                    }
                 }
 
                 if (message.attachments && message.attachments.length > 0) {
-                    let observers = []
-
                     message.attachments.forEach((attachment, index) => {
                         const mediaKey = attachment.key.replace(/(=)/g, "")
 
                         observers.push(() => {
+                            messageContainer.onclick = () => {}
                             const originalMedia = document.querySelector('.media-ORIGINAL_' + mediaKey)
                             if (!originalMedia) {
                                 return
                             }
+                            messageContainer.innerHTML = ""
 
                             const originalMediaUrl = decodeMedia(originalMedia)
 
@@ -340,7 +356,6 @@
                     new IntersectionObserver(entries => {
                         if (!fetched && entries[0].isIntersecting === true) {
                             fetched = true
-                            messageContainer.innerHTML = ""
                             observers.forEach(c => {
                                 try {
                                     c()
