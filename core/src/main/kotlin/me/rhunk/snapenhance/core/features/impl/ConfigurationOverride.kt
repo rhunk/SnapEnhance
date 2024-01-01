@@ -23,7 +23,7 @@ data class ConfigFilter(
 
 class ConfigurationOverride : Feature("Configuration Override", loadParams = FeatureLoadParams.INIT_SYNC) {
     override fun init() {
-        val compositeConfigurationProviderMappings = context.mappings.getMappedMap("CompositeConfigurationProvider")
+        val compositeConfigurationProviderMappings = context.mappings.getMappedMap("CompositeConfigurationProvider") ?: throw Exception("Failed to get compositeConfigurationProviderMappings")
         val enumMappings = compositeConfigurationProviderMappings["enum"] as Map<*, *>
 
         fun getConfigKeyInfo(key: Any?) = runCatching {

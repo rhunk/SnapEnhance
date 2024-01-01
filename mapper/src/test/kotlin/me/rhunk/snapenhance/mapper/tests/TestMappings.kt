@@ -25,6 +25,7 @@ class TestMappings {
             FriendRelationshipChangerMapper::class,
             ViewBinderMapper::class,
             FriendingDataSourcesMapper::class,
+            OperaViewerParamsMapper::class,
         )
 
         val gson = GsonBuilder().setPrettyPrinting().create()

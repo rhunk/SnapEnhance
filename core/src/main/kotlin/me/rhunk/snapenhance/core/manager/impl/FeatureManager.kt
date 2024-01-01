@@ -8,6 +8,7 @@ import me.rhunk.snapenhance.core.features.Feature
 import me.rhunk.snapenhance.core.features.FeatureLoadParams
 import me.rhunk.snapenhance.core.features.MessagingRuleFeature
 import me.rhunk.snapenhance.core.features.impl.ConfigurationOverride
+import me.rhunk.snapenhance.core.features.impl.OperaViewerParamsOverride
 import me.rhunk.snapenhance.core.features.impl.ScopeSync
 import me.rhunk.snapenhance.core.features.impl.Stories
 import me.rhunk.snapenhance.core.features.impl.downloader.MediaDownloader
@@ -120,6 +121,7 @@ class FeatureManager(
             SuspendLocationUpdates::class,
             ConversationToolbox::class,
             SpotlightCommentsUsername::class,
+            OperaViewerParamsOverride::class,
         )
 
         initializeFeatures()

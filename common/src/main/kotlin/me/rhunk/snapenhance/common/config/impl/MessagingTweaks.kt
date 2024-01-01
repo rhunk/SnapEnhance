@@ -55,6 +55,7 @@ class MessagingTweaks : ConfigContainer() {
     val hideBitmojiPresence = boolean("hide_bitmoji_presence")
     val hideTypingNotifications = boolean("hide_typing_notifications")
     val unlimitedSnapViewTime = boolean("unlimited_snap_view_time")
+    val loopMediaPlayback = boolean("loop_media_playback") { requireRestart() }
     val disableReplayInFF = boolean("disable_replay_in_ff")
     val halfSwipeNotifier = container("half_swipe_notifier", HalfSwipeNotifierConfig()) { requireRestart()}
     val messagePreviewLength = integer("message_preview_length", defaultValue = 20)

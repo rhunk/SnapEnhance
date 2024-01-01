@@ -31,6 +31,7 @@ class MappingsWrapper : FileLoaderWrapper(BridgeFileType.MAPPINGS, "{}".toByteAr
             FriendRelationshipChangerMapper::class,
             ViewBinderMapper::class,
             FriendingDataSourcesMapper::class,
+            OperaViewerParamsMapper::class,
         )
     }
 
@@ -115,29 +116,22 @@ class MappingsWrapper : FileLoaderWrapper(BridgeFileType.MAPPINGS, "{}".toByteAr
         return mappings[key]
     }
 
-    fun getMappedClass(className: String): Class<*> {
-        return context.classLoader.loadClass(getMappedObject(className) as String)
+    fun getMappedClass(className: String): Class<*>? {
+        return runCatching {
+            context.classLoader.loadClass(getMappedObject(className) as? String)
+        }.getOrNull()
     }
 
     fun getMappedClass(key: String, subKey: String): Class<*> {
         return context.classLoader.loadClass(getMappedValue(key, subKey))
     }
 
-    fun getMappedValue(key: String): String {
-        return getMappedObject(key) as String
+    fun getMappedValue(key: String, subKey: String): String? {
+        return getMappedMap(key)?.get(subKey) as? String
     }
 
     @Suppress("UNCHECKED_CAST")
-    fun <T : Any> getMappedList(key: String): List<T> {
-        return listOf(getMappedObject(key) as List<T>).flatten()
-    }
-
-    fun getMappedValue(key: String, subKey: String): String {
-        return getMappedMap(key)[subKey] as String
-    }
-
-    @Suppress("UNCHECKED_CAST")
-    fun getMappedMap(key: String): Map<String, *> {
-        return getMappedObject(key) as Map<String, *>
+    fun getMappedMap(key: String): Map<String, *>? {
+        return getMappedObjectNullable(key) as? Map<String, *>
     }
 }

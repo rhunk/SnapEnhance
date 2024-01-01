@@ -378,6 +378,10 @@
                         "name": "Unlimited Snap View Time",
                         "description": "Removes the Time Limit for viewing Snaps"
                     },
+                    "loop_media_playback": {
+                        "name": "Loop Media Playback",
+                        "description": "Loops media playback when viewing Snaps / Stories"
+                    },
                     "disable_replay_in_ff": {
                         "name": "Disable Replay in FF",
                         "description": "Disables the ability to replay with a long press from the Friend Feed"

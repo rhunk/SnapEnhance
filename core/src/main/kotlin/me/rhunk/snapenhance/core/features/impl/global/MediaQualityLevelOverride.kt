@@ -7,8 +7,8 @@ import me.rhunk.snapenhance.core.util.hook.hook
 
 class MediaQualityLevelOverride : Feature("MediaQualityLevelOverride", loadParams = FeatureLoadParams.INIT_SYNC) {
     override fun init() {
-        val enumQualityLevel = context.mappings.getMappedClass("EnumQualityLevel")
-        val mediaQualityLevelProvider = context.mappings.getMappedMap("MediaQualityLevelProvider")
+        val enumQualityLevel = context.mappings.getMappedClass("EnumQualityLevel") ?: throw Exception("Failed to get enumQualityLevelMappings")
+        val mediaQualityLevelProvider = context.mappings.getMappedMap("MediaQualityLevelProvider") ?: throw Exception("Failed to get mediaQualityLevelProviderMappings")
 
         val forceMediaSourceQuality by context.config.global.forceUploadSourceQuality
 

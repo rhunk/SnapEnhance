@@ -10,7 +10,7 @@ class HideQuickAddFriendFeed : Feature("HideQuickAddFriendFeed", loadParams = Fe
     override fun onActivityCreate() {
         if (!context.config.userInterface.hideQuickAddFriendFeed.get()) return
 
-        val friendingDataSource = context.mappings.getMappedMap("FriendingDataSources")
+        val friendingDataSource = context.mappings.getMappedMap("FriendingDataSources") ?: throw Exception("Failed to get friendingDataSourceMappings")
         findClass(friendingDataSource["class"].toString()).hookConstructor(HookStage.AFTER) { param ->
             param.thisObject<Any>().setObjectField(
                 friendingDataSource["quickAddSourceListField"].toString(),

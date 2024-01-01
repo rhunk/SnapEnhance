@@ -145,7 +145,7 @@ class BulkMessagingAction : AbstractAction() {
     }
 
     private fun removeFriend(userId: String) {
-        val friendRelationshipChangerMapping = context.mappings.getMappedMap("FriendRelationshipChanger")
+        val friendRelationshipChangerMapping = context.mappings.getMappedMap("FriendRelationshipChanger") ?: throw Exception("Failed to get FriendRelationshipChanger mapping")
         val friendRelationshipChangerInstance = context.feature(AddFriendSourceSpoof::class).friendRelationshipChangerInstance!!
 
         val removeFriendMethod = friendRelationshipChangerInstance::class.java.methods.first {

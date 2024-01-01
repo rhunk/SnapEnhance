@@ -46,7 +46,7 @@ class BypassVideoLengthRestriction :
             }
 
             context.mappings.getMappedClass("DefaultMediaItem")
-                .hookConstructor(HookStage.BEFORE) { param ->
+                ?.hookConstructor(HookStage.BEFORE) { param ->
                     //set the video length argument
                     param.setArg(5, -1L)
                 }
@@ -54,7 +54,7 @@ class BypassVideoLengthRestriction :
 
         //TODO: allow split from any source
         if (mode == "split") {
-            val cameraRollId = context.mappings.getMappedMap("CameraRollMediaId")
+            val cameraRollId = context.mappings.getMappedMap("CameraRollMediaId") ?: throw Exception("Failed to get cameraRollId mappings")
             // memories grid
             findClass(cameraRollId["class"].toString()).hookConstructor(HookStage.AFTER) { param ->
                 //set the durationMs field
