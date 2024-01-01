@@ -449,6 +449,10 @@
                     "hide_peek_a_peek": {
                         "description": "Bir sohbete yarım kaydırma yaptığınızda bildirim gönderilmesini önler",
                         "name": "Peek-a-Peek'i Gizle"
+                    },
+                    "loop_media_playback": {
+                        "name": "Medya Oynatmayı Döngüye Al",
+                        "description": "Snap'leri / Hikayeleri görüntülerken medya oynatmayı döngüye alır"
                     }
                 }
             },
