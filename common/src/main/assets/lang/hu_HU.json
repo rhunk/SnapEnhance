@@ -99,6 +99,12 @@
             },
             "pin_conversation": {
                 "name": "Beszélgetés kitűzése"
+            },
+            "unsaveable_messages": {
+                "name": "Nem menthető üzenetek",
+                "options": {
+                    "whitelist": "Nem menthető üzenetek"
+                }
             }
         }
     },
@@ -108,7 +114,8 @@
         "refresh_mappings": "Hozzárendelések frissítése",
         "open_map": "Válassz egy helyet a térképen",
         "check_for_updates": "Frissítés keresése",
-        "export_chat_messages": "Chat üzenetek exportálása"
+        "export_chat_messages": "Chat üzenetek exportálása",
+        "export_memories": "Emlékek exportálása"
     },
     "features": {
         "notices": {
@@ -162,7 +169,8 @@
                         "description": "További FFmpeg beállítások meghatározása",
                         "properties": {
                             "preset": {
-                                "name": "Sablon"
+                                "name": "Sablon",
+                                "description": "Beszélgetés gyorsaságának állítása"
                             },
                             "video_bitrate": {
                                 "name": "Videó bitrátája",
@@ -184,6 +192,13 @@
                     },
                     "logging": {
                         "name": "Naplózás"
+                    },
+                    "opera_download_button": {
+                        "description": "Egy letöltés gombot helyez a jobb felső sarokba Snap-ek megtekintése közben",
+                        "name": "Letöltés Operával Gomb"
+                    },
+                    "merge_overlays": {
+                        "description": "Egyesíti egy Snap szövegét és médiáját egy fájlba"
                     }
                 }
             },
@@ -213,9 +228,11 @@
                                 "name": "App Megjelenése"
                             },
                             "home_tab": {
-                                "name": "Kezdőlap"
+                                "name": "Kezdőlap",
+                                "description": "Felülírja a megjelenő ablakot a Snapchat indulásakor"
                             }
-                        }
+                        },
+                        "description": "Felülírja a kezelőfelület Bootstrap beállításait"
                     },
                     "streak_expiration_info": {
                         "name": "Mutassa a streak lejárati adatait"
@@ -251,8 +268,16 @@
                     "enable_friend_feed_menu_bar": {
                         "name": "Barát hírfolyam menüsor",
                         "description": "Engedélyezi az új barát hírfolyam menüsort"
+                    },
+                    "prevent_message_list_auto_scroll": {
+                        "name": "Megakadályozza az üzenet lista automatikus görgetését"
+                    },
+                    "snap_preview": {
+                        "name": "Snap előnézet",
+                        "description": "Megjelenít egy kis előnézetet a chatben a nem látott Snapek mellett"
                     }
-                }
+                },
+                "description": "Módosítsd a Snapchat kinézetét"
             },
             "messaging": {
                 "name": "Üzenetküldés",
@@ -578,5 +603,13 @@
     "streaks_reminder": {
         "notification_title": "Sorozatok",
         "notification_text": "El fogod veszíteni a sorozatodat {friend}-el/al {hoursLeft} múlva"
+    },
+    "material3_strings": {
+        "date_input_invalid_not_allowed": "Helytelen dátum",
+        "date_range_input_invalid_range_input": "Helytelen dátum intervallum",
+        "date_range_picker_day_in_range": "Kiválasztott",
+        "date_input_invalid_for_pattern": "Helytelen dátum",
+        "date_picker_today_description": "Ma",
+        "date_input_invalid_year_range": "Helytelen év"
     }
 }
