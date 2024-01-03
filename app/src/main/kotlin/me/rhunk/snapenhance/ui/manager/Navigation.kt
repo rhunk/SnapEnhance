@@ -65,7 +65,7 @@ class Navigation(
         val currentSection = getCurrentSection(currentDestination)
 
         TopAppBar(title = {
-            Text(text = currentSection.sectionTopBarName())
+            currentSection.Title()
         }, navigationIcon =  {
             val backButtonAnimation by animateFloatAsState(if (currentSection.canGoBack()) 1f else 0f,
                 label = "backButtonAnimation"

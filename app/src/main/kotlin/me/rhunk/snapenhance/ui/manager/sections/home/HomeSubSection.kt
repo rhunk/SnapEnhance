@@ -1,5 +1,6 @@
 package me.rhunk.snapenhance.ui.manager.sections.home
 
+import android.net.Uri
 import androidx.compose.foundation.ScrollState
 import androidx.compose.foundation.background
 import androidx.compose.foundation.gestures.detectTapGestures
@@ -10,14 +11,12 @@ import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.KeyboardDoubleArrowDown
 import androidx.compose.material.icons.filled.KeyboardDoubleArrowUp
+import androidx.compose.material.icons.filled.MoreVert
 import androidx.compose.material.icons.outlined.BugReport
 import androidx.compose.material.icons.outlined.Info
 import androidx.compose.material.icons.outlined.Report
 import androidx.compose.material.icons.outlined.Warning
-import androidx.compose.material3.FilledIconButton
-import androidx.compose.material3.Icon
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Text
+import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -28,6 +27,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.navigation.NavController
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
@@ -36,8 +36,10 @@ import me.rhunk.snapenhance.LogReader
 import me.rhunk.snapenhance.RemoteSideContext
 import me.rhunk.snapenhance.common.logger.LogChannel
 import me.rhunk.snapenhance.common.logger.LogLevel
+import me.rhunk.snapenhance.ui.util.ActivityLauncherHelper
 import me.rhunk.snapenhance.ui.util.pullrefresh.PullRefreshIndicator
 import me.rhunk.snapenhance.ui.util.pullrefresh.rememberPullRefreshState
+import me.rhunk.snapenhance.ui.util.saveFile
 
 class HomeSubSection(
     private val context: RemoteSideContext
@@ -167,6 +169,54 @@ class HomeSubSection(
                 state = pullRefreshState,
                 modifier = Modifier.align(Alignment.TopCenter)
             )
+        }
+    }
+
+    @Composable
+    fun LogsTopBarButtons(activityLauncherHelper: ActivityLauncherHelper, navController: NavController, rowScope: RowScope) {
+        var showDropDown by remember { mutableStateOf(false) }
+
+        IconButton(onClick = {
+            showDropDown = true
+        }) {
+            Icon(Icons.Filled.MoreVert, contentDescription = null)
+        }
+
+        rowScope.apply {
+            DropdownMenu(
+                expanded = showDropDown,
+                onDismissRequest = { showDropDown = false },
+                modifier = Modifier.align(Alignment.CenterVertically)
+            ) {
+                DropdownMenuItem(onClick = {
+                    context.log.clearLogs()
+                    navController.navigate(HomeSection.LOGS_SECTION_ROUTE)
+                    showDropDown = false
+                }, text = {
+                    Text(
+                        text = context.translation["manager.sections.home.logs.clear_logs_button"]
+                    )
+                })
+
+                DropdownMenuItem(onClick = {
+                    activityLauncherHelper.saveFile("snapenhance-logs-${System.currentTimeMillis()}.zip", "application/zip") { uri ->
+                        context.androidContext.contentResolver.openOutputStream(Uri.parse(uri))?.use {
+                            runCatching {
+                                context.log.exportLogsToZip(it)
+                                context.longToast("Saved logs to $uri")
+                            }.onFailure {
+                                context.longToast("Failed to save logs to $uri!")
+                                context.log.error("Failed to save logs to $uri!", it)
+                            }
+                        }
+                    }
+                    showDropDown = false
+                }, text = {
+                    Text(
+                        text = context.translation["manager.sections.home.logs.export_logs_button"]
+                    )
+                })
+            }
         }
     }
 
