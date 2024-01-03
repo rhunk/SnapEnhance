@@ -18,6 +18,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.graphics.asImageBitmap
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.core.content.FileProvider
 import coil.annotation.ExperimentalCoilApi
@@ -161,6 +162,10 @@ fun LoggedStories(
         }
     }
 
+    if (stories.isEmpty()) {
+        Text(text = "No stories found", Modifier.fillMaxWidth(), textAlign = TextAlign.Center)
+    }
+
     LazyVerticalGrid(
         columns = GridCells.Adaptive(100.dp),
         contentPadding = PaddingValues(8.dp),
@@ -203,25 +208,29 @@ fun LoggedStories(
                             return@withTimeout
                         }
 
-                        val response = httpClient.newCall(Request(
-                            url = story.url.toHttpUrl()
-                        )).execute()
-                        response.body.byteStream().use {
-                            val decrypted = story.key?.let { _ ->
-                                val cipher = Cipher.getInstance("AES/CBC/PKCS5Padding")
-                                cipher.init(Cipher.DECRYPT_MODE, SecretKeySpec(story.key, "AES"), IvParameterSpec(story.iv))
-                                CipherInputStream(it, cipher)
-                            } ?: it
+                        runCatching {
+                            val response = httpClient.newCall(Request(
+                                url = story.url.toHttpUrl()
+                            )).execute()
+                            response.body.byteStream().use {
+                                val decrypted = story.key?.let { _ ->
+                                    val cipher = Cipher.getInstance("AES/CBC/PKCS5Padding")
+                                    cipher.init(Cipher.DECRYPT_MODE, SecretKeySpec(story.key, "AES"), IvParameterSpec(story.iv))
+                                    CipherInputStream(it, cipher)
+                                } ?: it
 
-                            context.imageLoader.diskCache?.openEditor(uniqueHash)?.apply {
-                                data.toFile().outputStream().use { fos ->
-                                    decrypted.copyTo(fos)
-                                }
-                                commitAndOpenSnapshot()?.use { snapshot ->
-                                    openDiskCacheSnapshot(snapshot)
-                                    snapshot.close()
+                                context.imageLoader.diskCache?.openEditor(uniqueHash)?.apply {
+                                    data.toFile().outputStream().use { fos ->
+                                        decrypted.copyTo(fos)
+                                    }
+                                    commitAndOpenSnapshot()?.use { snapshot ->
+                                        openDiskCacheSnapshot(snapshot)
+                                        snapshot.close()
+                                    }
                                 }
                             }
+                        }.onFailure {
+                            context.log.error("Failed to load story", it)
                         }
                     }
                 }
