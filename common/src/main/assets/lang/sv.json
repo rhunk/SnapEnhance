@@ -1,0 +1,50 @@
+{
+    "setup": {
+        "dialogs": {
+            "select_save_folder_button": "Välj Mapp"
+        },
+        "mappings": {
+            "dialog": "För att dynamiskt stödja ett brett utbud av Snapchat Versioner, mappningar är nödvändiga för att SnapEnhance ska fungera korrekt, detta bör inte ta mer än 5 sekunder.",
+            "generate_button": "Generera",
+            "generate_failure_no_snapchat": "SnapEnhance kunde inte upptäcka Snapchat, försök att installera om Snapchat.",
+            "generate_failure": "Ett fel inträffade vid försök att generera mappningar, försök igen.",
+            "generate_success": "Mappningar har skapats."
+        },
+        "permissions": {
+            "dialog": "För att fortsätta måste du uppfylla följande krav:",
+            "notification_access": "Åtkomst till aviseringar",
+            "battery_optimization": "Batterioptimering",
+            "display_over_other_apps": "Visa över andra appar",
+            "request_button": "Begäran"
+        }
+    },
+    "manager": {
+        "routes": {
+            "features": "Funktioner",
+            "home": "Hem",
+            "home_settings": "Inställningar",
+            "home_logs": "Loggar",
+            "social": "Socialt",
+            "scripts": "Skript"
+        },
+        "sections": {
+            "home": {
+                "logs": {
+                    "clear_logs_button": "Rensa loggar",
+                    "export_logs_button": "Exportera loggar"
+                }
+            },
+            "features": {
+                "disabled": "Inaktiverad"
+            },
+            "social": {
+                "e2ee_title": "End-to-end-kryptering",
+                "rules_title": "Regler",
+                "participants_text": "{count} deltagare",
+                "not_found": "Hittades inte",
+                "streaks_title": "Streaks",
+                "streaks_length_text": "Längd: {length}"
+            }
+        }
+    }
+}

@@ -1,0 +1,40 @@
+{
+    "setup": {
+        "dialogs": {
+            "select_language": "Pilih bahasa",
+            "save_folder": "SnapEnhance memerlukan izin Penyimpanan untuk mengunduh dan Menyimpan Media dari Snapchat.\nSilakan pilih lokasi di mana media harus diunduh.",
+            "select_save_folder_button": "Pilih folder"
+        },
+        "mappings": {
+            "dialog": "Untuk mendukung berbagai Versi Snapchat secara dinamis, pemetaan diperlukan agar SnapEnhance berfungsi dengan baik, ini tidak akan memakan waktu lebih dari 5 detik.",
+            "generate_button": "Menghasilkan",
+            "generate_failure_no_snapchat": "SnapEnhance tidak dapat mendeteksi Snapchat, coba instal ulang Snapchat.",
+            "generate_failure": "Terjadi kesalahan saat mencoba membuat pemetaan, silakan coba lagi.",
+            "generate_success": "Pemetaan berhasil dibuat."
+        },
+        "permissions": {
+            "dialog": "Untuk melanjutkan, Anda harus memenuhi persyaratan berikut:",
+            "notification_access": "Akses Notifikasi",
+            "battery_optimization": "Optimasi Baterai",
+            "display_over_other_apps": "Tampilkan Di Atas Aplikasi Lain",
+            "request_button": "Meminta"
+        }
+    },
+    "manager": {
+        "routes": {
+            "features": "Fitur",
+            "home": "Rumah",
+            "home_settings": "Pengaturan",
+            "home_logs": "Log",
+            "social": "Sosial",
+            "scripts": "Skrip"
+        },
+        "sections": {
+            "home": {
+                "logs": {
+                    "clear_logs_button": "Hapus Log"
+                }
+            }
+        }
+    }
+}

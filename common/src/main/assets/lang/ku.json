@@ -1,0 +1,76 @@
+{
+    "setup": {
+        "dialogs": {
+            "select_language": "هەڵبژاردنی زمان",
+            "save_folder": "سناپ ئینهانس پێویستی بە ڕێپێدانی بیرگە هەیە بۆ دابەزاندن و سەیڤ کردنی وێنە و ڤیدیۆ لە سناپچات.\n تکایە ئەو شوێنە هەڵبژێرە کە دەتەوێت وێنە و ڤیدیۆکانی بخرێتە ناو.",
+            "select_save_folder_button": "هەڵبژاردنی فۆڵدەر"
+        },
+        "mappings": {
+            "dialog": "بۆ ئەوەی بە شێوەیەکی داینامیکی پشتگیری لە زۆربەی وەشانەکانی سناپچات بکات، Mapping پێویستە بۆ ئەوەی SnapEnhance بە باشی کار بکات، ئەمە نابێت زیاتر لە ٥ چرکە بخایەنێت.",
+            "generate_button": "Hey"
+        }
+    },
+    "manager": {
+        "sections": {
+            "social": {
+                "participants_text": "{count} بەژداربوو"
+            }
+        }
+    },
+    "friend_menu_option": {
+        "preview": "بینینی پێشوەختە",
+        "stealth_mode": "دۆخی شاراوە",
+        "auto_download_blacklist": "لیستی ڕەشی دابەزاندنی ئۆتۆماتیکی",
+        "anti_auto_save": "دژە ئۆتۆ سەیڤ"
+    },
+    "chat_action_menu": {
+        "preview_button": "بینینی پێشوەختە",
+        "download_button": "دابەزاندن",
+        "delete_logged_message_button": "سڕینەوەی پەیامی تۆمارکراو"
+    },
+    "opera_context_menu": {
+        "download": "داگرتنی میدیا"
+    },
+    "modal_option": {
+        "profile_info": "زانیاری پڕۆفایلی",
+        "close": "داخستن"
+    },
+    "gallery_media_send_override": {
+        "multiple_media_toast": "لە یەک کاتدا تەنها دەتوانیت یەک میدیا بنێریت"
+    },
+    "conversation_preview": {
+        "total_messages": "کۆی گشتی پەیامە نێردراوەکان/وەرگیراوەکان: {count}",
+        "title": "بینینی پێشوەختە",
+        "unknown_user": "بەکارهێنەری نەناسراو"
+    },
+    "profile_info": {
+        "title": "زانیاری پڕۆفایلی",
+        "display_name": "ناوی پیشاندراو",
+        "added_date": "بەرواری زیادکراو"
+    },
+    "chat_export": {
+        "dialog_negative_button": "ڕەتکردنەوە",
+        "dialog_positive_button": "هەناردە",
+        "exported_to": "هەناردە کراوە بۆ {path}",
+        "exporting_chats": "هەناردەکردنی چاتەکان...",
+        "writing_output": "نووسینی دەرئەنجام...",
+        "no_messages_found": "هیچ نامەیەک نەدۆزراوەتەوە!"
+    },
+    "button": {
+        "ok": "باشە",
+        "positive": "بەڵێ",
+        "negative": "نەخێر",
+        "cancel": "ڕەتکردنەوە",
+        "open": "کردنه‌وه‌"
+    },
+    "download_processor": {
+        "download_started_toast": "داگرتن دەستی پێکرد",
+        "unsupported_content_type_toast": "جۆری ناوەڕۆکی پشتگیری نەکراو!",
+        "failed_no_longer_available_toast": "ئەو میدیایە چیتر بەردەست نەماوە",
+        "already_queued_toast": "میدیا لە ئێستاوە لە ڕیزدایە!",
+        "already_downloaded_toast": "میدیا پێشتر دابەزێنراوە!",
+        "saved_toast": "پاشەکەوت کراوە بۆ {path}",
+        "failed_generic_toast": "شکستی هێنا لە دابەزاندن",
+        "failed_to_create_preview_toast": "شکستی هێنا لە دروستکردنی بینینی پێشوەختە"
+    }
+}
