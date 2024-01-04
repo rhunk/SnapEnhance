@@ -1037,5 +1037,8 @@
             "message": "Das betrifft alle ausgewählten Freunde. Diese Aktion kann nicht rückgängig gemacht werden.",
             "title": "Sind Sie sicher?"
         }
+    },
+    "media_download_source": {
+        "none": "Keine"
     }
 }
