@@ -6,9 +6,9 @@ import me.rhunk.snapenhance.core.features.FeatureLoadParams
 
 class DisableMetrics : Feature("DisableMetrics", loadParams = FeatureLoadParams.INIT_SYNC) {
     override fun init() {
-        val disableMetrics by context.config.global.disableMetrics
+        if (!context.config.global.disableMetrics.get()) return
 
-        context.event.subscribe(NetworkApiRequestEvent::class, { disableMetrics }) { param ->
+        context.event.subscribe(NetworkApiRequestEvent::class) { param ->
             val url = param.url
             if (url.contains("app-analytics") || url.endsWith("metrics")) {
                 param.canceled = true
