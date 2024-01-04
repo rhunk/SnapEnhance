@@ -363,7 +363,7 @@ class ExportMemories : AbstractAction() {
             val database = runCatching {
                 SQLiteDatabase.openDatabase(
                     context.androidContext.getDatabasePath("memories.db"),
-                    OpenParams.Builder().build(),
+                    OpenParams.Builder().setOpenFlags(SQLiteDatabase.OPEN_READONLY).build()
                 )
             }.getOrNull()
 
