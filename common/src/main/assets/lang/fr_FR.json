@@ -2,7 +2,8 @@
     "setup": {
         "dialogs": {
             "select_language": "Choisir la langue",
-            "select_save_folder_button": "Sélectionner un dossier"
+            "select_save_folder_button": "Sélectionner un dossier",
+            "save_folder": "SnapEnhance requiert des autorisations de stockage pour télécharger et enregistrer des médias depuis Snapchat.\nVeuillez choisir l'emplacement où les médias doivent être téléchargés."
         },
         "mappings": {
             "dialog": "Pour prendre en charge dynamiquement une large étendue de versions de Snapchat, les mappings sont nécessaires pour que SnapEnhance fonctionne correctement, cela ne devrait pas prendre plus de 5 secondes.",
@@ -26,7 +27,8 @@
             "home_settings": "Paramètres",
             "home_logs": "Logs",
             "social": "Réseaux sociaux",
-            "scripts": "Scripts"
+            "scripts": "Scripts",
+            "tasks": "Tâches"
         },
         "sections": {
             "home": {
@@ -48,6 +50,9 @@
                 "streaks_expiration_short": "{hours}h",
                 "streaks_expiration_text": "Expire dans {eta}",
                 "reminder_button": "Définir le rappel"
+            },
+            "tasks": {
+                "no_tasks": "Aucune tâche"
             }
         },
         "dialogs": {
@@ -57,6 +62,10 @@
                 "fetch_error": "Échec de la récupération des données",
                 "category_groups": "Groupes",
                 "category_friends": "Amis"
+            },
+            "scripting_warning": {
+                "content": "SnapEnhance inclut un outil de développement de scripts, permettant l'exécution d'un code défini par l'utilisateur sur votre appareil. Soyez extrêmement prudent et n'installez que des modules provenant de sources connues et fiables. Les modules non autorisés ou non vérifiés peuvent présenter des risques pour la sécurité de votre système.",
+                "title": "Attention"
             }
         }
     },
@@ -94,10 +103,18 @@
                 "name": "Masquer du flux d'amis"
             },
             "e2e_encryption": {
-                "name": "Utilisatrice le chiffrement E2E"
+                "name": "Utiliser le chiffrement de bout en bout"
             },
             "pin_conversation": {
                 "name": "Épingler la conversation"
+            },
+            "unsaveable_messages": {
+                "name": "Messages non enregistrables",
+                "options": {
+                    "blacklist": "Exclure des Messages non enregistrables",
+                    "whitelist": "Messages non enregistrables"
+                },
+                "description": "Empêche les messages d'être enregistrés dans le chat par d'autres personnes"
             }
         }
     },
@@ -107,7 +124,9 @@
         "refresh_mappings": "Actualiser les mappages",
         "open_map": "Choisir un emplacement sur la carte",
         "check_for_updates": "Vérifier les mises à jour",
-        "export_chat_messages": "Exporter les messages du chat"
+        "export_chat_messages": "Exporter les messages du chat",
+        "export_memories": "Exporter les Souvenirs",
+        "bulk_messaging_action": "Action de messagerie en masse"
     },
     "features": {
         "notices": {
@@ -198,6 +217,14 @@
                     "logging": {
                         "name": "Enregistrement",
                         "description": "Afficher une bulle de notification lorsque le média est en téléchargement"
+                    },
+                    "custom_path_format": {
+                        "description": "Spécifier un format de chemin personnalisé pour les médias téléchargés\n\nVariables disponibles :\n - %username%\n - %source%\n - %hash%\n - %date_time%",
+                        "name": "Format de chemin personnalisé"
+                    },
+                    "opera_download_button": {
+                        "description": "Ajoute un bouton de téléchargement dans le coin en haut à droite lors de la visualisation d'un Snap",
+                        "name": "Bouton de téléchargement Opera"
                     }
                 }
             },
@@ -270,7 +297,48 @@
                         "description": "La position des boutons du menu du fil des amis"
                     },
                     "enable_friend_feed_menu_bar": {
-                        "description": "Active la nouvelle barre de menu de flux d'amis"
+                        "description": "Active la nouvelle barre de menu de flux d'amis",
+                        "name": "Barre du menu du fil d'amis"
+                    },
+                    "fidelius_indicator": {
+                        "name": "Indicateur Fidelius",
+                        "description": "Ajoute un cercle vert à côté des messages qui n'ont été envoyés qu'à vous"
+                    },
+                    "hide_settings_gear": {
+                        "name": "Masquer la roue des paramètres",
+                        "description": "Masque la roue des paramètres SnapEnhance dans le fil d'amis"
+                    },
+                    "opera_media_quick_info": {
+                        "description": "Affiche des informations utiles sur les médias, telles que la date de création, dans le menu contextuel de la visionneuse d'Opera",
+                        "name": "Informations rapides des médias Opera"
+                    },
+                    "vertical_story_viewer": {
+                        "name": "Visionneuse verticale de story",
+                        "description": "Active la visualisation verticale pour toutes les Stories"
+                    },
+                    "old_bitmoji_selfie": {
+                        "name": "Ancien Selfie Bitmoji",
+                        "description": "Restaurer les selfies Bitmoji des anciennes versions de Snapchat"
+                    },
+                    "hide_quick_add_friend_feed": {
+                        "description": "Masque la section Ajout rapide dans le fil d'amis",
+                        "name": "Masquer l'ajout rapide dans le fil d'amis"
+                    },
+                    "prevent_message_list_auto_scroll": {
+                        "name": "Empêcher le défilement automatique de la liste des messages",
+                        "description": "Empêche le défilement de la liste des messages vers le bas lors de l'envoi ou de la réception d'un message."
+                    },
+                    "edit_text_override": {
+                        "name": "Modification de l'éditeur de texte",
+                        "description": "Remplace le comportement des champs de texte"
+                    },
+                    "snap_preview": {
+                        "name": "Aperçu des Snaps",
+                        "description": "Affiche un petit aperçu à côté des Snaps non vus dans le chat"
+                    },
+                    "hide_friend_feed_entry": {
+                        "description": "Masque un ami spécifique du fil d'actualité des amis\nUtilisez l'onglet social pour gérer cette fonctionnalité",
+                        "name": "Masquer l'entrée dans le fil d'amis"
                     }
                 }
             },
@@ -316,7 +384,21 @@
                     },
                     "message_logger": {
                         "name": "Journalisation des messages",
-                        "description": "Empêcher l'effacement des messages"
+                        "description": "Empêcher l'effacement des messages",
+                        "properties": {
+                            "message_filter": {
+                                "name": "Filtre de message",
+                                "description": "Sélectionner les messages qui doivent être enregistrés (vide pour l'ensemble des messages)"
+                            },
+                            "auto_purge": {
+                                "description": "Supprime automatiquement les messages mis en cache qui sont plus anciens que la durée spécifiée",
+                                "name": "Purge automatique"
+                            },
+                            "keep_my_own_messages": {
+                                "name": "Conserver mes propres messages",
+                                "description": "Empêche la suppression de vos propres messages"
+                            }
+                        }
                     },
                     "auto_save_messages_in_conversations": {
                         "name": "Enregistrement automatique des messages",
@@ -325,6 +407,43 @@
                     "gallery_media_send_override": {
                         "name": "Remplacement de l'envoi des médias de la galerie",
                         "description": "Falsifie la source du média lors de l'envoi depuis la Galerie"
+                    },
+                    "loop_media_playback": {
+                        "name": "Lecture en boucle des médias",
+                        "description": "Lecture des médias en boucle lors de la visualisation des Snaps / Stories"
+                    },
+                    "call_start_confirmation": {
+                        "name": "Confirmation de début d'appel",
+                        "description": "Affiche une fenêtre de confirmation lors du lancement d'un appel"
+                    },
+                    "half_swipe_notifier": {
+                        "properties": {
+                            "min_duration": {
+                                "name": "Durée minimale",
+                                "description": "Durée minimale du balayage (en secondes)"
+                            },
+                            "max_duration": {
+                                "description": "Durée maximale du balayage (en secondes)",
+                                "name": "Durée maximale"
+                            }
+                        },
+                        "name": "Notifications des entrouverts",
+                        "description": "Vous avertit lorsque quelqu'un entrouvre une conversation"
+                    },
+                    "bypass_screenshot_detection": {
+                        "description": "Empêche Snapchat de détecter les captures d'écran"
+                    },
+                    "prevent_story_rewatch_indicator": {
+                        "name": "Empêcher l'indicateur de relecture des stories",
+                        "description": "Empêche quiconque de savoir que vous avez revu leur Story"
+                    },
+                    "instant_delete": {
+                        "name": "Suppression instantanée",
+                        "description": "Supprime la fenêtre de confirmation lors de la suppression de messages"
+                    },
+                    "hide_peek_a_peek": {
+                        "description": "Empêche l'envoi d'une notification lorsque vous entre ouvrez une conversation",
+                        "name": "Cacher les ouvertures partielles des conversations"
                     }
                 }
             },
