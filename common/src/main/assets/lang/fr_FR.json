@@ -431,7 +431,8 @@
                         "description": "Vous avertit lorsque quelqu'un entrouvre une conversation"
                     },
                     "bypass_screenshot_detection": {
-                        "description": "Empêche Snapchat de détecter les captures d'écran"
+                        "description": "Empêche Snapchat de détecter les captures d'écran",
+                        "name": "Contourner la détection de capture d'écran"
                     },
                     "prevent_story_rewatch_indicator": {
                         "name": "Empêcher l'indicateur de relecture des stories",
