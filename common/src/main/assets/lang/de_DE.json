@@ -1044,7 +1044,11 @@
     "media_download_source": {
         "none": "Keine",
         "profile_picture": "Profilbild",
-        "chat_media": "Chat-Medium"
+        "chat_media": "Chat-Medium",
+        "public_story": "Öffentliche Story",
+        "spotlight": "Spotlight",
+        "pending": "Ausstehend",
+        "story": "Story"
     },
     "material3_strings": {
         "date_input_invalid_not_allowed": "Invalides Datum",
