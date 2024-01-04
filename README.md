@@ -76,6 +76,7 @@ We no longer offer official LSPatch binaries for obvious reasons. However, you'r
   - Hide Bitmoji Presence 
   - Hide Typing Notifications 
   - Unlimited Snap View Time 
+  - Loop Media PlayBack
   - Disable Replay In FF
   - Half Swipe Notifier
   - Call Start Confirmation 
