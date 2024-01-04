@@ -445,6 +445,14 @@
                     "hide_peek_a_peek": {
                         "description": "Empêche l'envoi d'une notification lorsque vous entre ouvrez une conversation",
                         "name": "Cacher les ouvertures partielles des conversations"
+                    },
+                    "strip_media_metadata": {
+                        "description": "Supprime les métadonnées des médias avant de les envoyer sous forme de message",
+                        "name": "Enlever les métadonnées des médias"
+                    },
+                    "bypass_message_retention_policy": {
+                        "name": "Contourner la politique de conservation des messages",
+                        "description": "Empêche la disparition des messages après les avoir consultés"
                     }
                 }
             },
@@ -489,6 +497,26 @@
                     "disable_snap_splitting": {
                         "name": "Désactiver le fractionnement des Snaps",
                         "description": "Empêche les Snaps d'être divisés en plusieurs parties\nLes images que vous envoyez seront transformées en vidéos"
+                    },
+                    "disable_confirmation_dialogs": {
+                        "name": "Désactiver les fenêtres de confirmation",
+                        "description": "Confirme automatiquement les actions sélectionnées"
+                    },
+                    "suspend_location_updates": {
+                        "name": "Suspendre les mises à jour de localisation",
+                        "description": "Ajout d'un bouton dans les paramètres de la Snap Map pour suspendre les mises à jour de la localisation"
+                    },
+                    "spotlight_comments_username": {
+                        "name": "Nom d'utilisateur des commentaires Spotlight",
+                        "description": "Affiche le nom d'utilisateur de l'auteur dans les commentaires Spotlight"
+                    },
+                    "disable_public_stories": {
+                        "name": "Désactiver les Stories publiques",
+                        "description": "Supprime toutes les stories publiques de la page Discover\nPeut nécessiter un nettoyage du cache pour fonctionner correctement"
+                    },
+                    "force_upload_source_quality": {
+                        "name": "Forcer l'upload de la qualité originale",
+                        "description": "Oblige Snapchat à envoyer les médias dans leur qualité d'origine\nVeuillez noter que cette opération ne supprime pas nécessairement les métadonnées des médias"
                     }
                 }
             },
@@ -523,6 +551,10 @@
                     "force_camera_source_encoding": {
                         "name": "Forcer l'encodage source de la caméra",
                         "description": "Forcer l'encodage source de la caméra"
+                    },
+                    "black_photos": {
+                        "description": "Remplace les photos capturées par un arrière-plan noir\nLes vidéos ne sont pas affectées",
+                        "name": "Photos noires"
                     }
                 }
             },
