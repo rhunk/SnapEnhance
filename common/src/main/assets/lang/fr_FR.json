@@ -326,7 +326,7 @@
                     },
                     "prevent_message_list_auto_scroll": {
                         "name": "Empêcher le défilement automatique de la liste des messages",
-                        "description": "Empêche le défilement de la liste des messages vers le bas lors de l'envoi ou de la réception d'un message."
+                        "description": "Empêche le défilement de la liste des messages vers le bas lors de l'envoi ou de la réception d'un message"
                     },
                     "edit_text_override": {
                         "name": "Modification de l'éditeur de texte",
