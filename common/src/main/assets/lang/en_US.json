@@ -1082,7 +1082,6 @@
         "switch_text": "Suspend Location Updates"
     },
     "material3_strings": {
-        "date_range_input_title": "",
         "date_range_picker_start_headline": "From",
         "date_range_picker_end_headline": "To",
         "date_range_picker_title": "Select date range",

@@ -286,6 +286,11 @@ class SnapEnhance {
         Resources::class.java.getMethod("getString", Int::class.javaPrimitiveType).hook(HookStage.BEFORE) { param ->
             val key = param.arg<Int>(0)
             val name = stringResources[key] ?: return@hook
+            // FIXME: prevent blank string in translations
+            if (name == "date_range_input_title") {
+                param.setResult("")
+                return@hook
+            }
             param.setResult(appContext.translation.getOrNull("material3_strings.$name") ?: return@hook)
         }
     }
