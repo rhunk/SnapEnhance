@@ -50,6 +50,9 @@
                 "streaks_expiration_short": "{hours}h",
                 "streaks_expiration_text": "Läuft in {eta} ab",
                 "reminder_button": "Erinnerung festlegen"
+            },
+            "tasks": {
+                "no_tasks": "Keine Aufgaben"
             }
         },
         "dialogs": {
@@ -1039,6 +1042,19 @@
         }
     },
     "media_download_source": {
-        "none": "Keine"
+        "none": "Keine",
+        "profile_picture": "Profilbild",
+        "chat_media": "Chat-Medium"
+    },
+    "material3_strings": {
+        "date_input_invalid_not_allowed": "Invalides Datum",
+        "date_range_picker_scroll_to_previous_month": "Vorheriger Monat",
+        "date_input_invalid_for_pattern": "Invalides Datum",
+        "date_picker_today_description": "Heute",
+        "date_picker_switch_to_calendar_mode": "Kalender",
+        "date_range_picker_start_headline": "Von",
+        "date_range_picker_end_headline": "Bis",
+        "date_range_picker_scroll_to_next_month": "Nächster Monat",
+        "date_input_invalid_year_range": "Invalides Jahr"
     }
 }
