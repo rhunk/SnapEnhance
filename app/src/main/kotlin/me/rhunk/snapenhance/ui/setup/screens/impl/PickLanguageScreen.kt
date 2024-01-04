@@ -40,6 +40,7 @@ class PickLanguageScreen : SetupScreen(){
 
     private fun getLocaleDisplayName(locale: String): String {
         locale.split("_").let {
+            if (it.size != 2) return Locale(locale).getDisplayName(Locale.getDefault())
             return Locale(it[0], it[1]).getDisplayName(Locale.getDefault())
         }
     }
@@ -105,7 +106,7 @@ class PickLanguageScreen : SetupScreen(){
                                 contentAlignment = Alignment.Center
                             ) {
                                 Text(
-                                    text = getLocaleDisplayName(locale),
+                                    text = remember(locale) { getLocaleDisplayName(locale) },
                                     fontSize = 16.sp,
                                     fontWeight = FontWeight.Light,
                                 )
@@ -125,7 +126,7 @@ class PickLanguageScreen : SetupScreen(){
             Button(onClick = {
                 isDialog = true
             }) {
-                Text(text = getLocaleDisplayName(selectedLocale.value), fontSize = 16.sp,
+                Text(text = remember(selectedLocale.value) { getLocaleDisplayName(selectedLocale.value) }, fontSize = 16.sp,
                     fontWeight = FontWeight.Normal)
             }
         }

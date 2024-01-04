@@ -19,7 +19,7 @@ class LocaleWrapper {
 
             if (locale == DEFAULT_LOCALE) return locales
 
-            val compatibleLocale = context.resources.assets.list("lang")?.firstOrNull { it.startsWith(locale) }?.substring(0, 5) ?: return locales
+            val compatibleLocale = context.resources.assets.list("lang")?.firstOrNull { it.startsWith(locale) }?.substringBefore(".") ?: return locales
 
             context.resources.assets.open("lang/$compatibleLocale.json").use { inputStream ->
                 locales.add(LocalePair(compatibleLocale, inputStream.bufferedReader().use { it.readText() }))
@@ -29,7 +29,7 @@ class LocaleWrapper {
         }
 
         fun fetchAvailableLocales(context: Context): List<String> {
-            return context.resources.assets.list("lang")?.map { it.substring(0, 5) } ?: listOf()
+            return context.resources.assets.list("lang")?.map { it.substringBefore(".") }?.sorted() ?: listOf(DEFAULT_LOCALE)
         }
     }
 
@@ -40,7 +40,7 @@ class LocaleWrapper {
     lateinit var loadedLocale: Locale
 
     private fun load(localePair: LocalePair) {
-        loadedLocale = localePair.locale.let { Locale(it.substring(0, 2), it.substring(3, 5)) }
+        loadedLocale = localePair.getLocale()
 
         val translations = JsonParser.parseString(localePair.content).asJsonObject
         if (translations == null || translations.isJsonNull) {

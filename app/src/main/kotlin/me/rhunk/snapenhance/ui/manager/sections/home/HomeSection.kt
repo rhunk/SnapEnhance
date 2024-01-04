@@ -211,7 +211,7 @@ class HomeSection : Section() {
             )
 
             Text(
-                text = arrayOf("\u0020", "\u0065", "\u0063", "\u006e", "\u0061", "\u0068", "\u006e", "\u0045", "\u0070", "\u0061", "\u006e", "\u0053").reversed().joinToString(""),
+                text = remember { intArrayOf(101,99,110,97,104,110,69,112,97,110,83).map { it.toChar() }.joinToString("").reversed() },
                 fontSize = 30.sp,
                 fontFamily = avenirNextFontFamily,
                 modifier = Modifier.align(Alignment.CenterHorizontally),
@@ -225,7 +225,7 @@ class HomeSection : Section() {
             )
 
             Text(
-                text = "An Xposed module made to enhance your Snapchat experience",
+                text = "An xposed module made to enhance your Snapchat experience",
                 modifier = Modifier
                     .padding(16.dp)
                     .fillMaxWidth(),
@@ -245,7 +245,9 @@ class HomeSection : Section() {
                     modifier = Modifier.size(32.dp).clickable {
                         context.activity?.startActivity(
                             Intent(Intent.ACTION_VIEW).apply {
-                                data = Uri.parse("https://github.com/rhunk/SnapEnhance")
+                                data = Uri.parse(
+                                    intArrayOf(101,99,110,97,104,110,69,112,97,110,83,47,107,110,117,104,114,47,109,111,99,46,98,117,104,116,105,103,47,47,58,115,112,116,116,104).map { it.toChar() }.joinToString("").reversed()
+                                )
                                 flags = Intent.FLAG_ACTIVITY_NEW_TASK
                             }
                         )
@@ -258,7 +260,9 @@ class HomeSection : Section() {
                     modifier = Modifier.size(32.dp).clickable {
                         context.activity?.startActivity(
                             Intent(Intent.ACTION_VIEW).apply {
-                                data = Uri.parse("https://t.me/snapenhance")
+                                data = Uri.parse(
+                                    intArrayOf(101,99,110,97,104,110,101,112,97,110,115,47,101,109,46,116,47,47,58,115,112,116,116,104).map { it.toChar() }.joinToString("").reversed()
+                                )
                                 flags = Intent.FLAG_ACTIVITY_NEW_TASK
                             }
                         )
