@@ -1,1 +1,112 @@
-{}
+{
+    "rules": {
+        "properties": {
+            "stealth": {
+                "options": {
+                    "blacklist": "സ്റ്റെൽത്ത് മോഡിൽ നിന്ന് ഒഴിവാക്കുക",
+                    "whitelist": ""
+                },
+                "description": "നിങ്ങൾ അവരുടെ സ്നാപ്പുകൾ/ചാറ്റുകൾ, സംഭാഷണങ്ങൾ എന്നിവ തുറന്നിട്ടുണ്ടെന്ന് അറിയുന്നതിൽ നിന്ന് ആരെയും തടയുന്നു",
+                "name": "സ്റ്റെൽത്ത് മോഡ്"
+            },
+            "auto_download": {
+                "options": {
+                    "whitelist": "സ്വയമേവ ഡൗൺലോഡ് ചെയ്യുന്നു",
+                    "blacklist": "ഓട്ടോ ഡൗൺലോഡിൽ നിന്ന് ഒഴിവാക്കുക"
+                },
+                "description": "സ്നാപ്പുകൾ കാണുമ്പോൾ അവ സ്വയമേവ ഡൗൺലോഡ് ചെയ്യുക",
+                "name": "യാന്ത്രിക ഡൗൺലോഡ്"
+            },
+            "auto_save": {
+                "name": "സ്വയമേവ സംരക്ഷിക്കുക",
+                "description": "ചാറ്റ് സന്ദേശങ്ങൾ കാണുമ്പോൾ അവ സംരക്ഷിക്കുന്നു"
+            }
+        },
+        "modes": {
+            "blacklist": "ബ്ലാക്ക്‌ലിസ്റ്റ് മോഡ്",
+            "whitelist": "വൈറ്റ്‌ലിസ്റ്റ് മോഡ്"
+        }
+    },
+    "manager": {
+        "routes": {
+            "home_logs": "രേഖകൾ",
+            "scripts": "സ്ക്രിപ്റ്റുകൾ",
+            "home_settings": "ക്രമീകരണങ്ങൾ",
+            "features": "ഫീച്ചറുകൾ",
+            "home": "വീട്",
+            "tasks": "ചുമതലകൾ",
+            "social": "സാമൂഹിക"
+        },
+        "sections": {
+            "social": {
+                "rules_title": "നിയമങ്ങൾ",
+                "streaks_length_text": "നീളം: {length}",
+                "not_found": "കണ്ടെത്തിയില്ല",
+                "streaks_expiration_text": "ൽ കാലഹരണപ്പെടുന്നു",
+                "participants_text": "{count} പങ്കെടുക്കുന്നവർ",
+                "streaks_title": "വരകൾ",
+                "reminder_button": "ഓർമ്മപ്പെടുത്തൽ സജ്ജമാക്കുക",
+                "streaks_expiration_short": "{hours}h",
+                "e2ee_title": "എൻഡ്-ടു-എൻഡ് എൻക്രിപ്ഷൻ"
+            },
+            "home": {
+                "logs": {
+                    "clear_logs_button": "ലോഗുകൾ മായ്‌ക്കുക",
+                    "export_logs_button": "ലോഗുകൾ കയറ്റുമതി ചെയ്യുക"
+                }
+            },
+            "features": {
+                "disabled": "അപ്രാപ്തമാക്കി"
+            },
+            "tasks": {
+                "no_tasks": "ജോലികളൊന്നുമില്ല"
+            }
+        },
+        "dialogs": {
+            "scripting_warning": {
+                "content": "SnapEnhance-ൽ ഒരു സ്‌ക്രിപ്റ്റിംഗ് ടൂൾ ഉൾപ്പെടുന്നു, ഇത് നിങ്ങളുടെ ഉപകരണത്തിൽ ഉപയോക്തൃ-നിർവചിച്ച കോഡ് നടപ്പിലാക്കാൻ അനുവദിക്കുന്നു. അതീവ ജാഗ്രത പാലിക്കുക, അറിയപ്പെടുന്നതും വിശ്വസനീയവുമായ ഉറവിടങ്ങളിൽ നിന്നുള്ള മൊഡ്യൂളുകൾ മാത്രം ഇൻസ്റ്റാൾ ചെയ്യുക. അംഗീകൃതമല്ലാത്തതോ സ്ഥിരീകരിക്കാത്തതോ ആയ മൊഡ്യൂളുകൾ നിങ്ങളുടെ സിസ്റ്റത്തിന് സുരക്ഷാ അപകടങ്ങൾ സൃഷ്ടിച്ചേക്കാം.",
+                "title": "മുന്നറിയിപ്പ്"
+            },
+            "add_friend": {
+                "title": "സുഹൃത്തിനെയോ ഗ്രൂപ്പിനെയോ ചേർക്കുക",
+                "search_hint": "തിരയുക",
+                "fetch_error": "ഡാറ്റ ലഭ്യമാക്കുന്നതിൽ പരാജയപ്പെട്ടു",
+                "category_friends": "സുഹൃത്തുക്കൾ",
+                "category_groups": "ഗ്രൂപ്പുകൾ"
+            }
+        }
+    },
+    "setup": {
+        "mappings": {
+            "generate_button": "സൃഷ്ടിക്കുക",
+            "generate_success": "മാപ്പിംഗുകൾ വിജയകരമായി സൃഷ്ടിച്ചു.",
+            "dialog": "വൈവിധ്യമാർന്ന Snapchat പതിപ്പുകളെ ചലനാത്മകമായി പിന്തുണയ്ക്കുന്നതിന്, SnapEnhance ശരിയായി പ്രവർത്തിക്കുന്നതിന് മാപ്പിംഗുകൾ ആവശ്യമാണ്, ഇതിന് 5 സെക്കൻഡിൽ കൂടുതൽ എടുക്കരുത്.",
+            "generate_failure_no_snapchat": "SnapEnhance-ന് Snapchat കണ്ടെത്താനായില്ല, Snapchat വീണ്ടും ഇൻസ്റ്റാൾ ചെയ്യാൻ ശ്രമിക്കുക.",
+            "generate_failure": "മാപ്പിംഗുകൾ സൃഷ്ടിക്കാൻ ശ്രമിക്കുമ്പോൾ ഒരു പിശക് സംഭവിച്ചു, ദയവായി വീണ്ടും ശ്രമിക്കുക."
+        },
+        "dialogs": {
+            "select_save_folder_button": "ഫോൾഡർ തിരഞ്ഞെടുക്കുക",
+            "save_folder": "സ്നാപ്ചാറ്റിൽ നിന്ന് മീഡിയ ഡൗൺലോഡ് ചെയ്യാനും സംരക്ഷിക്കാനും SnapEnhance-ന് സ്റ്റോറേജ് അനുമതികൾ ആവശ്യമാണ്\nമീഡിയ ഡൗൺലോഡ് ചെയ്യേണ്ട സ്ഥലം തിരഞ്ഞെടുക്കുക.",
+            "select_language": "ഭാഷ തിരഞ്ഞെടുക്കുക"
+        },
+        "permissions": {
+            "battery_optimization": "ബാറ്ററി ഒപ്റ്റിമൈസേഷൻ",
+            "display_over_other_apps": "മറ്റ് ആപ്പുകളിൽ പ്രദർശിപ്പിക്കുക",
+            "notification_access": "അറിയിപ്പ് ആക്സസ്",
+            "dialog": "തുടരുന്നതിന് നിങ്ങൾ ഇനിപ്പറയുന്ന ആവശ്യകതകൾ പാലിക്കേണ്ടതുണ്ട്:",
+            "request_button": "അഭ്യർത്ഥിക്കുക"
+        }
+    },
+    "material3_strings": {
+        "date_range_input_invalid_range_input": "അസാധുവായ തീയതി ശ്രേണി",
+        "date_range_picker_scroll_to_previous_month": "കഴിഞ്ഞ മാസം",
+        "date_picker_switch_to_input_mode": "ഇൻപുട്ട്",
+        "date_range_picker_day_in_range": "തിരഞ്ഞെടുത്തു",
+        "date_input_invalid_for_pattern": "അസാധുവായ തീയതി",
+        "date_picker_today_description": "ഇന്ന്",
+        "date_picker_switch_to_calendar_mode": "കലണ്ടർ",
+        "date_range_picker_end_headline": "ലേക്ക്",
+        "date_range_picker_scroll_to_next_month": "അടുത്ത മാസം",
+        "date_input_invalid_year_range": "അസാധുവായ വർഷം"
+    }
+}
