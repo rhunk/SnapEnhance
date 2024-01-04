@@ -295,8 +295,8 @@ class DatabaseAccess(
         }
     }
 
-    fun getConversationParticipants(conversationId: String): List<String>? {
-        if (dmOtherParticipantCache[conversationId] != null) return dmOtherParticipantCache[conversationId]?.let { listOf(myUserId, it) }
+    fun getConversationParticipants(conversationId: String, useCache: Boolean = true): List<String>? {
+        if (dmOtherParticipantCache[conversationId] != null && useCache) return dmOtherParticipantCache[conversationId]?.let { listOf(myUserId, it) }
         return useDatabase(DatabaseType.ARROYO)?.performOperation {
             safeRawQuery(
                 "SELECT user_id, conversation_type FROM user_conversation WHERE client_conversation_id = ?",

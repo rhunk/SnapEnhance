@@ -333,7 +333,7 @@ class ExportChatMessages : AbstractAction() {
         //first fetch the first message
         val conversationId = feedEntry.key!!
         val conversationName = feedEntry.feedDisplayName ?: feedEntry.friendDisplayName!!.split("|").lastOrNull() ?: "unknown"
-        val conversationParticipants = context.database.getConversationParticipants(feedEntry.key!!)
+        val conversationParticipants = context.database.getConversationParticipants(feedEntry.key!!, useCache = false)
             ?.mapNotNull {
                 context.database.getFriendInfo(it)
             }?.associateBy { it.userId!! } ?: emptyMap()
