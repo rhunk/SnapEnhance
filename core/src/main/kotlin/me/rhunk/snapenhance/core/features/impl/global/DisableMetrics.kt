@@ -1,14 +1,21 @@
 package me.rhunk.snapenhance.core.features.impl.global
 
+import me.rhunk.snapenhance.core.event.events.impl.NativeUnaryCallEvent
 import me.rhunk.snapenhance.core.event.events.impl.NetworkApiRequestEvent
 import me.rhunk.snapenhance.core.features.Feature
 import me.rhunk.snapenhance.core.features.FeatureLoadParams
 
 class DisableMetrics : Feature("DisableMetrics", loadParams = FeatureLoadParams.INIT_SYNC) {
     override fun init() {
-        val disableMetrics by context.config.global.disableMetrics
+        if (!context.config.global.disableMetrics.get()) return
 
-        context.event.subscribe(NetworkApiRequestEvent::class, { disableMetrics }) { param ->
+        context.event.subscribe(NativeUnaryCallEvent::class) { event ->
+            if (event.uri == "/snapchat.cdp.cof.CircumstancesService/targetingQuery") {
+                event.canceled = true
+            }
+        }
+
+        context.event.subscribe(NetworkApiRequestEvent::class) { param ->
             val url = param.url
             if (url.contains("app-analytics") || url.endsWith("metrics")) {
                 param.canceled = true
