@@ -979,7 +979,7 @@
     },
     "streaks_reminder": {
         "notification_title": "Rappels des flammes",
-        "notification_text": "Vous perdrez flammes avec {friend} dans {hoursLeft} heure(s)"
+        "notification_text": "Vous perdrez vos flammes avec {friend} dans {hoursLeft} heure(s)"
     },
     "content_type": {
         "FAMILY_CENTER_INVITE": "Invitation Family Center",
