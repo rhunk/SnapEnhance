@@ -452,7 +452,7 @@
                     },
                     "loop_media_playback": {
                         "name": "Medien Wiedergabe Wiederholen",
-                        "description": "Wiederholt Medien Wiedergabe"
+                        "description": "Wiederholt Snaps & Stories beim ansehen in einer Schleife"
                     }
                 }
             },
@@ -1054,7 +1054,8 @@
         "spotlight": "Spotlight",
         "pending": "Ausstehend",
         "story": "Story",
-        "story_logger": "Story Logger"
+        "story_logger": "Story Logger",
+        "merged": "Zusammengeführt"
     },
     "material3_strings": {
         "date_input_invalid_not_allowed": "Invalides Datum",
@@ -1065,6 +1066,10 @@
         "date_range_picker_start_headline": "Von",
         "date_range_picker_end_headline": "Bis",
         "date_range_picker_scroll_to_next_month": "Nächster Monat",
-        "date_input_invalid_year_range": "Invalides Jahr"
+        "date_input_invalid_year_range": "Invalides Jahr",
+        "date_range_input_invalid_range_input": "Ungültiger Zeitraum",
+        "date_picker_switch_to_input_mode": "Eingabe",
+        "date_range_picker_day_in_range": "Gewählt",
+        "date_range_picker_title": "Wähle einen Zeitraum"
     }
 }
