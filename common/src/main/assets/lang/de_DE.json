@@ -125,7 +125,8 @@
         "open_map": "Standort auf der Karte wählen",
         "check_for_updates": "Auf Updates überprüfen",
         "export_chat_messages": "Chat Nachrichten Exportieren",
-        "bulk_messaging_action": "Massen Aktion"
+        "bulk_messaging_action": "Massen Aktion",
+        "export_memories": "Memories exportieren"
     },
     "features": {
         "notices": {
@@ -448,6 +449,10 @@
                     "instant_delete": {
                         "name": "Sofortiges Löschen",
                         "description": "Entfernt den Bestätigungsdialog beim Löschen von Nachrichten"
+                    },
+                    "loop_media_playback": {
+                        "name": "Medien Wiedergabe Wiederholen",
+                        "description": "Wiederholt Medien Wiedergabe"
                     }
                 }
             },
@@ -1048,7 +1053,8 @@
         "public_story": "Öffentliche Story",
         "spotlight": "Spotlight",
         "pending": "Ausstehend",
-        "story": "Story"
+        "story": "Story",
+        "story_logger": "Story Logger"
     },
     "material3_strings": {
         "date_input_invalid_not_allowed": "Invalides Datum",
