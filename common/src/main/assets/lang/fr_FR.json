@@ -571,8 +571,8 @@
                 }
             },
             "streaks_reminder": {
-                "name": "Rappels de série",
-                "description": "Vous notifie périodiquement de vos séries",
+                "name": "Rappels des Flammes",
+                "description": "Vous informe périodiquement concernant vos flammes",
                 "properties": {
                     "interval": {
                         "name": "Fréquence",
@@ -979,7 +979,7 @@
     },
     "streaks_reminder": {
         "notification_title": "Rappels des flammes",
-        "notification_text": "Vous perdrez votre série avec {friend} dans {hoursLeft} heures"
+        "notification_text": "Vous perdrez flammes avec {friend} dans {hoursLeft} heure(s)"
     },
     "content_type": {
         "FAMILY_CENTER_INVITE": "Invitation Family Center",
