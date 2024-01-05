@@ -88,8 +88,7 @@ class ScopeContent(
                             text = if (ruleType.listMode && ruleState != null) {
                                 context.translation["rules.properties.${ruleType.key}.options.${ruleState.key}"]
                             } else context.translation["rules.properties.${ruleType.key}.name"],
-                            maxLines = 1,
-                            modifier = Modifier.weight(1f)
+                            modifier = Modifier.weight(1f).padding(start = 5.dp, end = 5.dp)
                         )
                         Switch(checked = ruleEnabled,
                             enabled = if (ruleType.listMode) ruleState != null else true,
