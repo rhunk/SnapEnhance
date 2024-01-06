@@ -27,7 +27,8 @@
             "home_settings": "Beállítások",
             "home_logs": "Naplók",
             "social": "Közösség",
-            "scripts": "Szkriptek"
+            "scripts": "Szkriptek",
+            "tasks": "Feladatok"
         },
         "sections": {
             "home": {
@@ -49,6 +50,9 @@
                 "streaks_expiration_short": "{hours} óra",
                 "streaks_expiration_text": "{eta} múlva jár le",
                 "reminder_button": "Emlékeztető beállítása"
+            },
+            "tasks": {
+                "no_tasks": "Nincsenek feladatok"
             }
         },
         "dialogs": {
