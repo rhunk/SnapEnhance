@@ -3,7 +3,8 @@
         "properties": {
             "stealth": {
                 "options": {
-                    "blacklist": "സ്റ്റെൽത്ത് മോഡിൽ നിന്ന് ഒഴിവാക്കുക"
+                    "blacklist": "സ്റ്റെൽത്ത് മോഡിൽ നിന്ന് ഒഴിവാക്കുക",
+                    "whitelist": ""
                 },
                 "description": "നിങ്ങൾ അവരുടെ സ്നാപ്പുകൾ/ചാറ്റുകൾ, സംഭാഷണങ്ങൾ എന്നിവ തുറന്നിട്ടുണ്ടെന്ന് അറിയുന്നതിൽ നിന്ന് ആരെയും തടയുന്നു",
                 "name": "സ്റ്റെൽത്ത് മോഡ്"
@@ -126,7 +127,10 @@
         "date_picker_switch_to_calendar_mode": "കലണ്ടർ",
         "date_range_picker_end_headline": "ലേക്ക്",
         "date_range_picker_scroll_to_next_month": "അടുത്ത മാസം",
-        "date_input_invalid_year_range": "അസാധുവായ വർഷം"
+        "date_input_invalid_year_range": "അസാധുവായ വർഷം",
+        "date_range_picker_start_headline": "നിന്ന്",
+        "date_range_picker_title": "തീയതി ശ്രേണി തിരഞ്ഞെടുക്കുക",
+        "date_input_invalid_not_allowed": "അസാധുവായ തീയതി"
     },
     "features": {
         "properties": {
@@ -652,5 +656,178 @@
         "refresh_mappings": "മാപ്പിംഗുകൾ പുതുക്കുക",
         "clear_message_logger": "സന്ദേശ ലോഗർ മായ്‌ക്കുക",
         "open_map": "മാപ്പിൽ ലൊക്കേഷൻ തിരഞ്ഞെടുക്കുക"
+    },
+    "content_type": {
+        "NOTE": "ഓഡിയോ കുറിപ്പ്",
+        "STATUS": "പദവി",
+        "STATUS_SAVE_TO_CAMERA_ROLL": "ക്യാമറ റോളിൽ സംരക്ഷിച്ചു",
+        "STATUS_CONVERSATION_CAPTURE_SCREENSHOT": "സ്ക്രീൻഷോട്ട്",
+        "STATUS_CONVERSATION_CAPTURE_RECORD": "സ്ക്രീൻ റെക്കോർഡ്",
+        "STATUS_CALL_MISSED_VIDEO": "മിസ്‌ഡ് വീഡിയോ കോൾ",
+        "SNAP": "സ്നാപ്പ്",
+        "STATUS_COUNTDOWN": "കൗണ്ട്ഡൗൺ",
+        "STICKER": "സ്റ്റിക്കർ",
+        "LOCATION": "സ്ഥാനം",
+        "STATUS_CALL_MISSED_AUDIO": "മിസ്‌ഡ് ഓഡിയോ കോൾ"
+    },
+    "profile_info": {
+        "snapchat_plus_state": {
+            "not_subscribed": "സബ്സ്ക്രൈബ് ചെയ്തിട്ടില്ല",
+            "subscribed": "സബ്സ്ക്രൈബ് ചെയ്തു"
+        },
+        "title": "പ്രൊഫൈൽ വിവരം",
+        "snapchat_plus": "സ്നാപ്ചാറ്റ് പ്ലസ്",
+        "friendship": "സൗഹൃദം",
+        "add_source": "ഉറവിടം ചേർക്കുക",
+        "birthday": "ജന്മദിനം : {മാസം} {ദിവസം}",
+        "display_name": "പ്രദർശന നാമം",
+        "added_date": "ചേർത്ത തീയതി",
+        "first_created_username": "ആദ്യം സൃഷ്ടിച്ച ഉപയോക്തൃനാമം",
+        "hidden_birthday": "ജന്മദിനം: മറഞ്ഞിരിക്കുന്നു",
+        "mutable_username": "മാറ്റാവുന്ന ഉപയോക്തൃനാമം"
+    },
+    "friendship_link_type": {
+        "mutual": "പരസ്പരമുള്ള",
+        "blocked": "തടഞ്ഞു",
+        "deleted": "ഇല്ലാതാക്കി",
+        "following": "പിന്തുടരുന്നു",
+        "suggested": "നിർദ്ദേശിച്ചു",
+        "incoming_follower": "ഇൻകമിംഗ് ഫോളോവർ",
+        "outgoing": "ഔട്ട്ഗോയിംഗ്",
+        "incoming": "ഇൻകമിംഗ്"
+    },
+    "media_download_source": {
+        "public_story": "പൊതു കഥ",
+        "spotlight": "സ്പോട്ട്ലൈറ്റ്",
+        "profile_picture": "പ്രൊഫൈൽ ചിത്രം",
+        "chat_media": "ചാറ്റ് മീഡിയ",
+        "story": "കഥ",
+        "merged": "ലയിപ്പിച്ചു",
+        "none": "ഒന്നുമില്ല",
+        "pending": "തീർപ്പാക്കാത്തത്",
+        "story_logger": "സ്റ്റോറി ലോഗർ"
+    },
+    "chat_action_menu": {
+        "download_button": "ഡൗൺലോഡ്",
+        "delete_logged_message_button": "ലോഗിൻ ചെയ്ത സന്ദേശം ഇല്ലാതാക്കുക",
+        "preview_button": "പ്രിവ്യൂ",
+        "convert_message": "സന്ദേശം പരിവർത്തനം ചെയ്യുക"
+    },
+    "modal_option": {
+        "close": "അടയ്ക്കുക",
+        "profile_info": "പ്രൊഫൈൽ വിവരം"
+    },
+    "conversation_preview": {
+        "streak_expiration": "{day} ദിവസം {hour} മണിക്കൂർ {minute} മിനിറ്റിനുള്ളിൽ കാലഹരണപ്പെടുന്നു",
+        "total_messages": "ആകെ അയച്ച/ലഭിച്ച സന്ദേശങ്ങൾ: {count}",
+        "title": "പ്രിവ്യൂ",
+        "unknown_user": "അജ്ഞാത ഉപയോക്താവ്"
+    },
+    "opera_context_menu": {
+        "created_at": "{date}-ന് സൃഷ്‌ടിച്ചത്",
+        "expires_at": "{date}-ന് കാലഹരണപ്പെടുന്നു",
+        "media_duration": "മീഡിയ ദൈർഘ്യം: {duration} ms",
+        "show_debug_info": "ഡീബഗ് വിവരം കാണിക്കുക",
+        "sent_at": "{date}-ന് അയച്ചു",
+        "media_size": "മീഡിയ വലുപ്പം: {size}",
+        "download": "മീഡിയ ഡൗൺലോഡ് ചെയ്യുക"
+    },
+    "bulk_messaging_action": {
+        "progress_status": "{total}-ന്റെ {index} പ്രോസസ്സ് ചെയ്യുന്നു",
+        "selection_dialog_continue_button": "തുടരുക",
+        "actions": {
+            "remove_friends": "സുഹൃത്തുക്കളെ നീക്കം ചെയ്യുക",
+            "clear_conversations": "വ്യക്തമായ സംഭാഷണങ്ങൾ"
+        },
+        "confirmation_dialog": {
+            "message": "ഇത് തിരഞ്ഞെടുത്ത എല്ലാ സുഹൃത്തുക്കളെയും ബാധിക്കും. ഈ പ്രവർത്തനം പഴയപടിയാക്കാനാകില്ല.",
+            "title": "നിങ്ങൾക്ക് ഉറപ്പാണോ?"
+        },
+        "choose_action_title": "ഒരു പ്രവർത്തനം തിരഞ്ഞെടുക്കുക"
+    },
+    "chat_export": {
+        "exporter_dialog": {
+            "select_conversations_title": "സംഭാഷണങ്ങൾ തിരഞ്ഞെടുക്കുക",
+            "text_field_selection": "{തുക} തിരഞ്ഞെടുത്തു",
+            "text_field_selection_all": "എല്ലാം",
+            "export_file_format_title": "ഫയൽ ഫോർമാറ്റ് കയറ്റുമതി ചെയ്യുക",
+            "download_medias_title": "Medias ഡൗൺലോഡ് ചെയ്യുക",
+            "message_type_filter_title": "തരം അനുസരിച്ച് സന്ദേശങ്ങൾ ഫിൽട്ടർ ചെയ്യുക",
+            "amount_of_messages_title": "സന്ദേശങ്ങളുടെ അളവ് (എല്ലാവർക്കും ശൂന്യമായി വിടുക)"
+        },
+        "dialog_negative_button": "റദ്ദാക്കുക",
+        "dialog_positive_button": "കയറ്റുമതി",
+        "exported_to": "{path}-ലേക്ക് കയറ്റുമതി ചെയ്തു",
+        "exporting_chats": "ചാറ്റുകൾ കയറ്റുമതി ചെയ്യുന്നു...",
+        "export_fail": "സംഭാഷണം {conversation} കയറ്റുമതി ചെയ്യാനായില്ല",
+        "writing_output": "ഔട്ട്പുട്ട് എഴുതുന്നു...",
+        "finished": "ചെയ്തു! നിങ്ങൾക്ക് ഇപ്പോൾ ഈ ഡയലോഗ് അടയ്ക്കാം.",
+        "no_messages_found": "സന്ദേശങ്ങളൊന്നും കണ്ടെത്തിയില്ല!",
+        "exporting_message": "{conversation} എക്‌സ്‌പോർട്ട് ചെയ്യുന്നു...",
+        "processing_chats": "{amount} സംഭാഷണങ്ങൾ പ്രോസസ്സ് ചെയ്യുന്നു..."
+    },
+    "button": {
+        "ok": "ശരി",
+        "positive": "അതെ",
+        "negative": "ഇല്ല",
+        "cancel": "റദ്ദാക്കുക",
+        "download": "ഡൗൺലോഡ്",
+        "open": "തുറക്കുക"
+    },
+    "better_notifications": {
+        "button": {
+            "reply": "മറുപടി",
+            "download": "ഡൗൺലോഡ്",
+            "mark_as_read": "വായിച്ചതായി അടയാളപ്പെടുത്തുക"
+        },
+        "stealth_mode_notice": "സ്റ്റെൽത്ത് മോഡിൽ വായിച്ചതായി അടയാളപ്പെടുത്താൻ കഴിയില്ല"
+    },
+    "profile_picture_downloader": {
+        "button": "പ്രൊഫൈൽ ചിത്രം ഡൗൺലോഡ് ചെയ്യുക",
+        "avatar_option": "അവതാർ",
+        "background_option": "പശ്ചാത്തലം",
+        "title": "പ്രൊഫൈൽ ചിത്രം ഡൗൺലോഡർ"
+    },
+    "call_start_confirmation": {
+        "dialog_title": "കോൾ ആരംഭിക്കുക",
+        "dialog_message": "നിങ്ങൾക്ക് ഒരു കോൾ ആരംഭിക്കണമെന്ന് തീർച്ചയാണോ?"
+    },
+    "half_swipe_notifier": {
+        "notification_channel_name": "പകുതി സ്വൈപ്പ് ചെയ്യുക",
+        "notification_content_group": "{friend} {group}-ലേക്ക് {duration} സെക്കൻഡ് പകുതി സ്വൈപ്പ് ചെയ്തു",
+        "notification_content_dm": "{സുഹൃത്ത്} നിങ്ങളുടെ ചാറ്റിലേക്ക് {duration} സെക്കൻഡ് പകുതി സ്വൈപ്പ് ചെയ്തു"
+    },
+    "download_processor": {
+        "attachment_type": {
+            "snap": "സ്നാപ്പ്",
+            "sticker": "സ്റ്റിക്കർ",
+            "external_media": "ബാഹ്യ മാധ്യമങ്ങൾ",
+            "note": "കുറിപ്പ്",
+            "original_story": "ഒറിജിനൽ സ്റ്റോറി"
+        },
+        "download_started_toast": "ഡൗൺലോഡ് ആരംഭിച്ചു",
+        "unsupported_content_type_toast": "പിന്തുണയ്‌ക്കാത്ത ഉള്ളടക്ക തരം!",
+        "failed_no_longer_available_toast": "മീഡിയ ഇനി ലഭ്യമല്ല",
+        "no_attachments_toast": "അറ്റാച്ചുമെന്റുകളൊന്നും കണ്ടെത്തിയില്ല!",
+        "already_queued_toast": "മാധ്യമങ്ങൾ ഇതിനകം ക്യൂവിലാണ്!",
+        "already_downloaded_toast": "മീഡിയ ഇതിനകം ഡൗൺലോഡ് ചെയ്‌തു!",
+        "saved_toast": "{path}-ലേക്ക് സംരക്ഷിച്ചു",
+        "download_toast": "{path} ഡൗൺലോഡ് ചെയ്യുന്നു...",
+        "failed_generic_toast": "ഡൗൺലോഡ് ചെയ്യാനായില്ല",
+        "failed_to_create_preview_toast": "പ്രിവ്യൂ സൃഷ്ടിക്കുന്നതിൽ പരാജയപ്പെട്ടു",
+        "failed_gallery_toast": "ഗാലറിയിൽ സംരക്ഷിക്കുന്നതിൽ പരാജയപ്പെട്ടു {പിശക്}",
+        "select_attachments_title": "ഡൗൺലോഡ് ചെയ്യാൻ അറ്റാച്ച്‌മെന്റുകൾ തിരഞ്ഞെടുക്കുക",
+        "processing_toast": "{path} പ്രോസസ്സ് ചെയ്യുന്നു...",
+        "failed_processing_toast": "പ്രോസസ്സിംഗ് പരാജയപ്പെട്ടു {പിശക്}"
+    },
+    "streaks_reminder": {
+        "notification_title": "വരകൾ",
+        "notification_text": "{hoursLeft} മണിക്കൂറിനുള്ളിൽ {സുഹൃത്തുമായുള്ള നിങ്ങളുടെ സ്ട്രീക്ക് നിങ്ങൾക്ക് നഷ്ടപ്പെടും"
+    },
+    "suspend_location_updates": {
+        "switch_text": "ലൊക്കേഷൻ അപ്‌ഡേറ്റുകൾ താൽക്കാലികമായി നിർത്തുക"
+    },
+    "gallery_media_send_override": {
+        "multiple_media_toast": "നിങ്ങൾക്ക് ഒരു സമയം ഒരു മീഡിയ മാത്രമേ അയയ്ക്കാൻ കഴിയൂ"
     }
 }
