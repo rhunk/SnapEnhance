@@ -38,7 +38,6 @@ enum class FileType(
             "ffd8ff" to JPG,
             "47494638" to GIF,
             "1a45dfa3" to MKV,
-            "52494646" to AVI,
         )
 
         fun fromString(string: String?): FileType {
