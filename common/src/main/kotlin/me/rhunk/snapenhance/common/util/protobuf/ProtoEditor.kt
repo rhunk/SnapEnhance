@@ -88,4 +88,6 @@ class ProtoEditor(
     }
 
     fun toByteArray() = buffer
+
+    override fun toString() = ProtoReader(buffer).toString()
 }

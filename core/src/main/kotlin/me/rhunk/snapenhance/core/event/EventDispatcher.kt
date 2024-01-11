@@ -9,6 +9,7 @@ import me.rhunk.snapenhance.core.ModContext
 import me.rhunk.snapenhance.core.event.events.impl.*
 import me.rhunk.snapenhance.core.manager.Manager
 import me.rhunk.snapenhance.core.util.hook.HookStage
+import me.rhunk.snapenhance.core.util.hook.Hooker
 import me.rhunk.snapenhance.core.util.hook.hook
 import me.rhunk.snapenhance.core.util.hook.hookConstructor
 import me.rhunk.snapenhance.core.util.ktx.getObjectField
@@ -17,6 +18,7 @@ import me.rhunk.snapenhance.core.wrapper.impl.Message
 import me.rhunk.snapenhance.core.wrapper.impl.MessageContent
 import me.rhunk.snapenhance.core.wrapper.impl.MessageDestinations
 import me.rhunk.snapenhance.core.wrapper.impl.SnapUUID
+import java.nio.ByteBuffer
 
 class EventDispatcher(
     private val context: ModContext
@@ -154,6 +156,67 @@ class EventDispatcher(
                     message = Message(param.thisObject())
                 )
             )
+        }
+
+        context.classCache.unifiedGrpcService.hook("unaryCall", HookStage.BEFORE) { param ->
+            val uri = param.arg<String>(0)
+            val buffer = param.argNullable<ByteBuffer>(1)?.run {
+                val array = ByteArray(limit())
+                position(0)
+                get(array)
+                rewind()
+                array
+            } ?: return@hook
+            val unaryEventHandler = param.argNullable<Any>(3) ?: return@hook
+
+            val event = context.event.post(
+                UnaryCallEvent(
+                    uri = uri,
+                    buffer = buffer
+                ).apply {
+                    adapter = param
+                }
+            ) ?: return@hook
+
+            if (event.canceled) {
+                param.setResult(null)
+                return@hook
+            }
+
+            if (!event.buffer.contentEquals(buffer)) {
+                param.setArg(1, ByteBuffer.wrap(event.buffer))
+            }
+
+            if (event.callbacks.size == 0) {
+                return@hook
+            }
+
+            Hooker.ephemeralHookObjectMethod(unaryEventHandler::class.java, unaryEventHandler, "onEvent", HookStage.BEFORE) { methodParam ->
+                val byteBuffer = methodParam.argNullable<ByteBuffer>(0) ?: return@ephemeralHookObjectMethod
+                val array = byteBuffer.run {
+                    val array = ByteArray(limit())
+                    position(0)
+                    get(array)
+                    rewind()
+                    array
+                }
+
+                val responseUnaryCallEvent = UnaryCallEvent(
+                    uri = uri,
+                    buffer = array
+                )
+
+                event.callbacks.forEach { callback ->
+                    callback(responseUnaryCallEvent)
+                }
+
+                if (responseUnaryCallEvent.canceled) {
+                    param.setResult(null)
+                    return@ephemeralHookObjectMethod
+                }
+
+                methodParam.setArg(0, ByteBuffer.wrap(event.buffer))
+            }
         }
 
         hookViewBinder()

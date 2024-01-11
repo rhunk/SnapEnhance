@@ -23,10 +23,10 @@ class OperaPageViewControllerMapper : AbstractClassMapper() {
 
                 val layerListField = clazz.fields.first { it.type == "Ljava/util/ArrayList;" }
 
-                val onDisplayStateChange = clazz.methods.first {
-                    if (it.returnType != "V" || it.parameterTypes.size != 1) return@first false
-                    val firstParameterType = getClass(it.parameterTypes[0]) ?: return@first false
-                    if (firstParameterType.type == clazz.type || !firstParameterType.isAbstract()) return@first false
+                val onDisplayStateChange = clazz.methods.firstOrNull {
+                    if (it.returnType != "V" || it.parameterTypes.size != 1) return@firstOrNull false
+                    val firstParameterType = getClass(it.parameterTypes[0]) ?: return@firstOrNull false
+                    if (firstParameterType.type == clazz.type || !firstParameterType.isAbstract()) return@firstOrNull false
                     //check if the class contains a field with the enumViewStateClass type
                     firstParameterType.fields.any { field ->
                         field.type == viewStateField.type
@@ -44,7 +44,7 @@ class OperaPageViewControllerMapper : AbstractClassMapper() {
                     "class" to clazz.getClassName(),
                     "viewStateField" to viewStateField.name,
                     "layerListField" to layerListField.name,
-                    "onDisplayStateChange" to onDisplayStateChange.name,
+                    "onDisplayStateChange" to onDisplayStateChange?.name,
                     "onDisplayStateChangeGesture" to onDisplayStateChangeGesture.name
                 )
 

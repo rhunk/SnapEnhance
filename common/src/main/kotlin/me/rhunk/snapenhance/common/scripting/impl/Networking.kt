@@ -5,6 +5,7 @@ import me.rhunk.snapenhance.common.scripting.bindings.BindingSide
 import me.rhunk.snapenhance.common.scripting.ktx.contextScope
 import okhttp3.OkHttpClient
 import okhttp3.Request
+import okhttp3.RequestBody.Companion.toRequestBody
 import okhttp3.Response
 import okhttp3.WebSocket
 import okhttp3.WebSocketListener
@@ -32,13 +33,13 @@ class Networking : AbstractBinding("networking", BindingSide.COMMON) {
         fun removeHeader(name: String) = requestBuilder.removeHeader(name).let { this }
 
         @JSFunction
-        fun method(method: String, body: String) = requestBuilder.method(method, okhttp3.RequestBody.create(null, body)).let { this }
+        fun method(method: String, body: String) = requestBuilder.method(method, body.toRequestBody(null)).let { this }
 
         @JSFunction
-        fun method(method: String, body: java.io.InputStream) = requestBuilder.method(method, okhttp3.RequestBody.create(null, body.readBytes())).let { this }
+        fun method(method: String, body: java.io.InputStream) = requestBuilder.method(method, body.readBytes().toRequestBody(null)).let { this }
 
         @JSFunction
-        fun method(method: String, body: ByteArray) = requestBuilder.method(method, okhttp3.RequestBody.create(null, body)).let { this }
+        fun method(method: String, body: ByteArray) = requestBuilder.method(method, body.toRequestBody(null)).let { this }
     }
 
     inner class ResponseWrapper(
