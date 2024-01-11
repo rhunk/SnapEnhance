@@ -5,9 +5,9 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import me.rhunk.snapenhance.mapper.impl.*
-import org.jf.dexlib2.Opcodes
-import org.jf.dexlib2.dexbacked.DexBackedDexFile
-import org.jf.dexlib2.iface.ClassDef
+import com.android.tools.smali.dexlib2.Opcodes
+import com.android.tools.smali.dexlib2.dexbacked.DexBackedDexFile
+import com.android.tools.smali.dexlib2.iface.ClassDef
 import java.io.BufferedInputStream
 import java.io.InputStream
 import java.util.zip.ZipFile
