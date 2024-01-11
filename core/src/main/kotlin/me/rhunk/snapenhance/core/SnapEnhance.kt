@@ -91,7 +91,7 @@ class SnapEnhance {
         hookMainActivity("onCreate") {
             val isMainActivityNotNull = appContext.mainActivity != null
             appContext.mainActivity = this
-            if (isMainActivityNotNull || !appContext.mappings.isMappingsLoaded()) return@hookMainActivity
+            if (isMainActivityNotNull || !appContext.mappings.isMappingsLoaded) return@hookMainActivity
             onActivityCreate()
             jetpackComposeResourceHook()
             appContext.actionManager.onNewIntent(intent)
@@ -146,7 +146,7 @@ class SnapEnhance {
             database.init()
             eventDispatcher.init()
             //if mappings aren't loaded, we can't initialize features
-            if (!mappings.isMappingsLoaded()) return
+            if (!mappings.isMappingsLoaded) return
             bridgeClient.registerMessagingBridge(messagingBridge)
             features.init()
             scriptRuntime.connect(bridgeClient.getScriptingInterface())

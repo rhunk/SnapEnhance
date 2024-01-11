@@ -17,6 +17,7 @@ import me.rhunk.snapenhance.core.util.hook.hook
 import me.rhunk.snapenhance.core.util.hook.hookConstructor
 import me.rhunk.snapenhance.core.util.ktx.setObjectField
 import me.rhunk.snapenhance.core.wrapper.impl.ScSize
+import me.rhunk.snapenhance.mapper.impl.ScCameraSettingsMapper
 import java.io.ByteArrayOutputStream
 import java.nio.ByteBuffer
 
@@ -62,19 +63,21 @@ class CameraTweaks : Feature("Camera Tweaks", loadParams = FeatureLoadParams.ACT
             }
         }
 
-        context.mappings.getMappedClass("ScCameraSettings")?.hookConstructor(HookStage.BEFORE) { param ->
-            val previewResolution = ScSize(param.argNullable(2))
-            val captureResolution = ScSize(param.argNullable(3))
+        context.mappings.useMapper(ScCameraSettingsMapper::class) {
+            classReference.get()?.hookConstructor(HookStage.BEFORE) { param ->
+                val previewResolution = ScSize(param.argNullable(2))
+                val captureResolution = ScSize(param.argNullable(3))
 
-            if (previewResolution.isPresent() && captureResolution.isPresent()) {
-                previewResolutionConfig?.let {
-                    previewResolution.first = it[0]
-                    previewResolution.second = it[1]
-                }
+                if (previewResolution.isPresent() && captureResolution.isPresent()) {
+                    previewResolutionConfig?.let {
+                        previewResolution.first = it[0]
+                        previewResolution.second = it[1]
+                    }
 
-                captureResolutionConfig?.let {
-                    captureResolution.first = it[0]
-                    captureResolution.second = it[1]
+                    captureResolutionConfig?.let {
+                        captureResolution.first = it[0]
+                        captureResolution.second = it[1]
+                    }
                 }
             }
         }

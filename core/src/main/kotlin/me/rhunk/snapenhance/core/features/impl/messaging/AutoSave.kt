@@ -13,6 +13,7 @@ import me.rhunk.snapenhance.core.util.hook.hook
 import me.rhunk.snapenhance.core.util.ktx.getObjectField
 import me.rhunk.snapenhance.core.wrapper.impl.Message
 import me.rhunk.snapenhance.core.wrapper.impl.SnapUUID
+import me.rhunk.snapenhance.mapper.impl.CallbackMapper
 import java.util.concurrent.Executors
 
 class AutoSave : MessagingRuleFeature("Auto Save", MessagingRuleType.AUTO_SAVE, loadParams = FeatureLoadParams.ACTIVITY_CREATE_ASYNC) {
@@ -70,19 +71,21 @@ class AutoSave : MessagingRuleFeature("Auto Save", MessagingRuleType.AUTO_SAVE, 
 
     override fun asyncOnActivityCreate() {
         // called when enter in a conversation
-        context.mappings.getMappedClass("callbacks", "FetchConversationWithMessagesCallback").hook(
-            "onFetchConversationWithMessagesComplete",
-            HookStage.BEFORE,
-            { autoSaveFilter.isNotEmpty() }
-        ) { param ->
-            val conversationId = SnapUUID(param.arg<Any>(0).getObjectField("mConversationId")!!)
-            if (!canSaveInConversation(conversationId.toString())) return@hook
+        context.mappings.useMapper(CallbackMapper::class) {
+            callbacks.getClass("FetchConversationWithMessagesCallback")?.hook(
+                "onFetchConversationWithMessagesComplete",
+                HookStage.BEFORE,
+                { autoSaveFilter.isNotEmpty() }
+            ) { param ->
+                val conversationId = SnapUUID(param.arg<Any>(0).getObjectField("mConversationId")!!)
+                if (!canSaveInConversation(conversationId.toString())) return@hook
 
-            val messages = param.arg<List<Any>>(1).map { Message(it) }
-            messages.forEach {
-                if (!canSaveMessage(it)) return@forEach
-                asyncSaveExecutorService.submit {
-                    saveMessage(conversationId.toString(), it)
+                val messages = param.arg<List<Any>>(1).map { Message(it) }
+                messages.forEach {
+                    if (!canSaveMessage(it)) return@forEach
+                    asyncSaveExecutorService.submit {
+                        saveMessage(conversationId.toString(), it)
+                    }
                 }
             }
         }

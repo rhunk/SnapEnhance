@@ -47,6 +47,7 @@ import me.rhunk.snapenhance.core.wrapper.impl.media.dash.SnapPlaylistItem
 import me.rhunk.snapenhance.core.wrapper.impl.media.opera.Layer
 import me.rhunk.snapenhance.core.wrapper.impl.media.opera.ParamMap
 import me.rhunk.snapenhance.core.wrapper.impl.media.toKeyPair
+import me.rhunk.snapenhance.mapper.impl.OperaPageViewControllerMapper
 import java.io.ByteArrayInputStream
 import java.nio.file.Paths
 import java.util.UUID
@@ -462,51 +463,50 @@ class MediaDownloader : MessagingRuleFeature("MediaDownloader", MessagingRuleTyp
     }
 
     override fun asyncOnActivityCreate() {
-        val operaViewerControllerClass: Class<*> = context.mappings.getMappedClass("OperaPageViewController", "class")
+        context.mappings.useMapper(OperaPageViewControllerMapper::class) {
+            val onOperaViewStateCallback: (HookAdapter) -> Unit = onOperaViewStateCallback@{ param ->
+                val viewState = (param.thisObject() as Any).getObjectField(viewStateField.get()!!).toString()
+                if (viewState != "FULLY_DISPLAYED") {
+                    return@onOperaViewStateCallback
+                }
+                val operaLayerList = (param.thisObject() as Any).getObjectField(layerListField.get()!!) as ArrayList<*>
+                val mediaParamMap: ParamMap = operaLayerList.map { Layer(it) }.first().paramMap
 
-        val onOperaViewStateCallback: (HookAdapter) -> Unit = onOperaViewStateCallback@{ param ->
+                if (!mediaParamMap.containsKey("image_media_info") && !mediaParamMap.containsKey("video_media_info_list"))
+                    return@onOperaViewStateCallback
 
-            val viewState = (param.thisObject() as Any).getObjectField(context.mappings.getMappedValue("OperaPageViewController", "viewStateField")!!).toString()
-            if (viewState != "FULLY_DISPLAYED") {
-                return@onOperaViewStateCallback
-            }
-            val operaLayerList = (param.thisObject() as Any).getObjectField(context.mappings.getMappedValue("OperaPageViewController", "layerListField")!!) as ArrayList<*>
-            val mediaParamMap: ParamMap = operaLayerList.map { Layer(it) }.first().paramMap
+                val mediaInfoMap = mutableMapOf<SplitMediaAssetType, MediaInfo>()
+                val isVideo = mediaParamMap.containsKey("video_media_info_list")
 
-            if (!mediaParamMap.containsKey("image_media_info") && !mediaParamMap.containsKey("video_media_info_list"))
-                return@onOperaViewStateCallback
+                mediaInfoMap[SplitMediaAssetType.ORIGINAL] = MediaInfo(
+                    (if (isVideo) mediaParamMap["video_media_info_list"] else mediaParamMap["image_media_info"])!!
+                )
 
-            val mediaInfoMap = mutableMapOf<SplitMediaAssetType, MediaInfo>()
-            val isVideo = mediaParamMap.containsKey("video_media_info_list")
+                if (context.config.downloader.mergeOverlays.get() && mediaParamMap.containsKey("overlay_image_media_info")) {
+                    mediaInfoMap[SplitMediaAssetType.OVERLAY] =
+                        MediaInfo(mediaParamMap["overlay_image_media_info"]!!)
+                }
+                lastSeenMapParams = mediaParamMap
+                lastSeenMediaInfoMap = mediaInfoMap
 
-            mediaInfoMap[SplitMediaAssetType.ORIGINAL] = MediaInfo(
-                (if (isVideo) mediaParamMap["video_media_info_list"] else mediaParamMap["image_media_info"])!!
-            )
+                if (!canAutoDownload()) return@onOperaViewStateCallback
 
-            if (context.config.downloader.mergeOverlays.get() && mediaParamMap.containsKey("overlay_image_media_info")) {
-                mediaInfoMap[SplitMediaAssetType.OVERLAY] =
-                    MediaInfo(mediaParamMap["overlay_image_media_info"]!!)
-            }
-            lastSeenMapParams = mediaParamMap
-            lastSeenMediaInfoMap = mediaInfoMap
-
-            if (!canAutoDownload()) return@onOperaViewStateCallback
-
-            context.executeAsync {
-                runCatching {
-                    handleOperaMedia(mediaParamMap, mediaInfoMap, false)
-                }.onFailure {
-                    context.log.error("Failed to handle opera media", it)
-                    context.longToast(it.message)
+                context.executeAsync {
+                    runCatching {
+                        handleOperaMedia(mediaParamMap, mediaInfoMap, false)
+                    }.onFailure {
+                        context.log.error("Failed to handle opera media", it)
+                        context.longToast(it.message)
+                    }
                 }
             }
-        }
 
-        arrayOf("onDisplayStateChange", "onDisplayStateChangeGesture").forEach { methodName ->
-            operaViewerControllerClass.hook(
-                context.mappings.getMappedValue("OperaPageViewController", methodName) ?: return@forEach,
-                HookStage.AFTER, onOperaViewStateCallback
-            )
+            arrayOf(onDisplayStateChange, onDisplayStateChangeGesture).forEach { methodName ->
+                classReference.get()?.hook(
+                    methodName.get() ?: return@forEach,
+                    HookStage.AFTER, onOperaViewStateCallback
+                )
+            }
         }
     }
 

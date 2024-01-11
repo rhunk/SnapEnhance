@@ -110,7 +110,7 @@ class HomeSection : Section() {
     }
 
     override fun onResumed() {
-        if (!context.mappings.isMappingsLoaded()) {
+        if (!context.mappings.isMappingsLoaded) {
             context.mappings.init(context.androidContext)
         }
         context.coroutineScope.launch {

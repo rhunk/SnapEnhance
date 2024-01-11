@@ -195,7 +195,7 @@ class RemoteSideContext(
             }
         }
 
-        if (mappings.isMappingsOutdated() || !mappings.isMappingsLoaded()) {
+        if (mappings.isMappingsOutdated() || !mappings.isMappingsLoaded) {
             requirements = requirements or Requirements.MAPPINGS
         }
 

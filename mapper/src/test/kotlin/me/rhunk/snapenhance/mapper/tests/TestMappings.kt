@@ -1,7 +1,8 @@
 package me.rhunk.snapenhance.mapper.tests
 
 import com.google.gson.GsonBuilder
-import me.rhunk.snapenhance.mapper.Mapper
+import kotlinx.coroutines.runBlocking
+import me.rhunk.snapenhance.mapper.ClassMapper
 import me.rhunk.snapenhance.mapper.impl.*
 import org.junit.Test
 import java.io.File
@@ -10,28 +11,14 @@ import java.io.File
 class TestMappings {
     @Test
     fun testMappings() {
-        val mapper = Mapper(
-            BCryptClassMapper::class,
-            CallbackMapper::class,
-            DefaultMediaItemMapper::class,
-            MediaQualityLevelProviderMapper::class,
-            OperaPageViewControllerMapper::class,
-            PlusSubscriptionMapper::class,
-            ScCameraSettingsMapper::class,
-            StoryBoostStateMapper::class,
-            FriendsFeedEventDispatcherMapper::class,
-            CompositeConfigurationProviderMapper::class,
-            ScoreUpdateMapper::class,
-            FriendRelationshipChangerMapper::class,
-            ViewBinderMapper::class,
-            FriendingDataSourcesMapper::class,
-            OperaViewerParamsMapper::class,
-        )
+        val classMapper = ClassMapper()
 
         val gson = GsonBuilder().setPrettyPrinting().create()
         val apkFile = File(System.getenv("SNAPCHAT_APK")!!)
-        mapper.loadApk(apkFile.absolutePath)
-        val result = mapper.start()
-        println("Mappings: ${gson.toJson(result)}")
+        classMapper.loadApk(apkFile.absolutePath)
+        runBlocking {
+            val result = classMapper.run()
+            println("Mappings: ${gson.toJson(result)}")
+        }
     }
 }

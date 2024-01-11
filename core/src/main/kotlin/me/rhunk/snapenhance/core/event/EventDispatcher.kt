@@ -18,44 +18,44 @@ import me.rhunk.snapenhance.core.wrapper.impl.Message
 import me.rhunk.snapenhance.core.wrapper.impl.MessageContent
 import me.rhunk.snapenhance.core.wrapper.impl.MessageDestinations
 import me.rhunk.snapenhance.core.wrapper.impl.SnapUUID
+import me.rhunk.snapenhance.mapper.impl.ViewBinderMapper
 import java.nio.ByteBuffer
 
 class EventDispatcher(
     private val context: ModContext
 ) : Manager {
-    private fun findClass(name: String) = context.androidContext.classLoader.loadClass(name)
-
     private fun hookViewBinder() {
-        val cachedHooks = mutableListOf<String>()
-        val viewBinderMappings = runCatching { context.mappings.getMappedMap("ViewBinder") }.getOrNull() ?: return
-
-        fun cacheHook(clazz: Class<*>, block: Class<*>.() -> Unit) {
-            if (!cachedHooks.contains(clazz.name)) {
-                clazz.block()
-                cachedHooks.add(clazz.name)
+        context.mappings.useMapper(ViewBinderMapper::class) {
+            val cachedHooks = mutableListOf<String>()
+            fun cacheHook(clazz: Class<*>, block: Class<*>.() -> Unit) {
+                if (!cachedHooks.contains(clazz.name)) {
+                    clazz.block()
+                    cachedHooks.add(clazz.name)
+                }
             }
-        }
 
-        findClass(viewBinderMappings["class"].toString()).hookConstructor(HookStage.AFTER) { methodParam ->
-            cacheHook(
-                methodParam.thisObject<Any>()::class.java
-            ) {
-                hook(viewBinderMappings["bindMethod"].toString(), HookStage.AFTER) bindViewMethod@{ param ->
-                    val instance = param.thisObject<Any>()
-                    val view = instance::class.java.methods.first {
-                        it.name == viewBinderMappings["getViewMethod"].toString()
-                    }.invoke(instance) as? View ?: return@bindViewMethod
+            classReference.get()?.hookConstructor(HookStage.AFTER) { methodParam ->
+                cacheHook(
+                    methodParam.thisObject<Any>()::class.java
+                ) {
+                    hook(bindMethod.get().toString(), HookStage.AFTER) bindViewMethod@{ param ->
+                        val instance = param.thisObject<Any>()
+                        val view = instance::class.java.methods.firstOrNull {
+                            it.name == getViewMethod.get().toString()
+                        }?.invoke(instance) as? View ?: return@bindViewMethod
 
-                    context.event.post(
-                        BindViewEvent(
-                            prevModel = param.arg(0),
-                            nextModel = param.argNullable(1),
-                            view = view
+                        context.event.post(
+                            BindViewEvent(
+                                prevModel = param.arg(0),
+                                nextModel = param.argNullable(1),
+                                view = view
+                            )
                         )
-                    )
+                    }
                 }
             }
         }
+
     }
 
 

@@ -4,7 +4,9 @@ import me.rhunk.snapenhance.mapper.AbstractClassMapper
 import me.rhunk.snapenhance.mapper.ext.findConstString
 import me.rhunk.snapenhance.mapper.ext.getClassName
 
-class ScoreUpdateMapper : AbstractClassMapper() {
+class ScoreUpdateMapper : AbstractClassMapper("ScoreUpdate") {
+    val classReference = classReference("class")
+
     init {
         mapper {
             for (classDef in classes) {
@@ -18,7 +20,7 @@ class ScoreUpdateMapper : AbstractClassMapper() {
                         it.name == "toString"
                     }?.implementation?.findConstString("Friend.sq:selectFriendUserScoresNeedToUpdate") != true) continue
 
-                addMapping("ScoreUpdate", classDef.getClassName())
+                classReference.set(classDef.getClassName())
                 return@mapper
             }
         }

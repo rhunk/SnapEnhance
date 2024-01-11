@@ -5,12 +5,16 @@ import me.rhunk.snapenhance.mapper.ext.findConstString
 import me.rhunk.snapenhance.mapper.ext.getClassName
 import me.rhunk.snapenhance.mapper.ext.isEnum
 
-class FriendRelationshipChangerMapper : AbstractClassMapper() {
+class FriendRelationshipChangerMapper : AbstractClassMapper("FriendRelationshipChanger") {
+    val classReference = classReference("class")
+    val addFriendMethod = string("addFriendMethod")
+    val removeFriendMethod = string("removeFriendMethod")
+
     init {
         mapper {
             for (classDef in classes) {
                 classDef.methods.firstOrNull { it.name == "<init>" }?.implementation?.findConstString("FriendRelationshipChangerImpl")?.takeIf { it } ?: continue
-                val addFriendMethod = classDef.methods.first {
+                val addFriendDexMethod = classDef.methods.first {
                     it.parameterTypes.size > 4 &&
                             getClass(it.parameterTypes[1])?.isEnum() == true &&
                             getClass(it.parameterTypes[2])?.isEnum() == true &&
@@ -18,7 +22,7 @@ class FriendRelationshipChangerMapper : AbstractClassMapper() {
                             it.parameters[4].type == "Ljava/lang/String;"
                 }
 
-                val removeFriendMethod = classDef.methods.first {
+                val removeFriendDexMethod = classDef.methods.firstOrNull {
                     it.parameterTypes.size == 5 &&
                     it.parameterTypes[0] == "Ljava/lang/String;" &&
                     getClass(it.parameterTypes[1])?.isEnum() == true &&
@@ -26,11 +30,12 @@ class FriendRelationshipChangerMapper : AbstractClassMapper() {
                     it.parameterTypes[3] == "Ljava/lang/String;"
                 }
 
-                addMapping("FriendRelationshipChanger",
-                    "class" to classDef.getClassName(),
-                    "addFriendMethod" to addFriendMethod.name,
-                    "removeFriendMethod" to removeFriendMethod.name
-                )
+                this@FriendRelationshipChangerMapper.apply {
+                    classReference.set(classDef.getClassName())
+                    addFriendMethod.set(addFriendDexMethod.name)
+                    removeFriendMethod.set(removeFriendDexMethod?.name)
+                }
+
                 return@mapper
             }
         }

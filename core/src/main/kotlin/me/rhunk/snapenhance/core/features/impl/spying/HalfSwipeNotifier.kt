@@ -12,6 +12,7 @@ import me.rhunk.snapenhance.core.util.hook.hook
 import me.rhunk.snapenhance.core.util.hook.hookConstructor
 import me.rhunk.snapenhance.core.util.ktx.getIdentifier
 import me.rhunk.snapenhance.core.util.ktx.getObjectField
+import me.rhunk.snapenhance.mapper.impl.CallbackMapper
 import java.util.concurrent.ConcurrentHashMap
 import kotlin.time.Duration.Companion.milliseconds
 
@@ -43,8 +44,8 @@ class HalfSwipeNotifier : Feature("Half Swipe Notifier", loadParams = FeatureLoa
             presenceService = it.thisObject()
         }
 
-        context.mappings.getMappedClass("callbacks", "PresenceServiceDelegate")
-            .hook("notifyActiveConversationsChanged", HookStage.BEFORE) {
+        context.mappings.useMapper(CallbackMapper::class) {
+            callbacks.getClass("PresenceServiceDelegate")?.hook("notifyActiveConversationsChanged", HookStage.BEFORE) {
                 val activeConversations = presenceService::class.java.methods.find { it.name == "getActiveConversations" }?.invoke(presenceService) as? Map<*, *> ?: return@hook // conversationId, conversationInfo (this.mPeekingParticipants)
 
                 if (activeConversations.isEmpty()) {
@@ -75,6 +76,7 @@ class HalfSwipeNotifier : Feature("Half Swipe Notifier", loadParams = FeatureLoa
                     }
                     peekingConversations[conversationId.toString()] = peekingParticipantsIds
                 }
+            }
         }
     }
 

@@ -3,8 +3,8 @@ package me.rhunk.snapenhance.mapper
 import com.google.gson.JsonObject
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.withContext
+import me.rhunk.snapenhance.mapper.impl.*
 import org.jf.dexlib2.Opcodes
 import org.jf.dexlib2.dexbacked.DexBackedDexFile
 import org.jf.dexlib2.iface.ClassDef
@@ -12,12 +12,33 @@ import java.io.BufferedInputStream
 import java.io.InputStream
 import java.util.zip.ZipFile
 import java.util.zip.ZipInputStream
-import kotlin.reflect.KClass
 
-class Mapper(
-    private vararg val mappers: KClass<out AbstractClassMapper> = arrayOf()
+class ClassMapper(
+    private vararg val mappers: AbstractClassMapper = DEFAULT_MAPPERS,
 ) {
     private val classes = mutableListOf<ClassDef>()
+
+    companion object {
+        val DEFAULT_MAPPERS get() = arrayOf(
+            BCryptClassMapper(),
+            CallbackMapper(),
+            DefaultMediaItemMapper(),
+            MediaQualityLevelProviderMapper(),
+            OperaPageViewControllerMapper(),
+            PlusSubscriptionMapper(),
+            ScCameraSettingsMapper(),
+            StoryBoostStateMapper(),
+            FriendsFeedEventDispatcherMapper(),
+            CompositeConfigurationProviderMapper(),
+            ScoreUpdateMapper(),
+            FriendRelationshipChangerMapper(),
+            ViewBinderMapper(),
+            FriendingDataSourcesMapper(),
+            OperaViewerParamsMapper(),
+        )
+    }
+
+
     fun loadApk(path: String) {
         val apkFile = ZipFile(path)
         val apkEntries = apkFile.entries().toList()
@@ -50,20 +71,23 @@ class Mapper(
         }
     }
 
-    fun start(): JsonObject {
-        val mappers = mappers.map { it.java.constructors.first().newInstance() as AbstractClassMapper }
+    suspend fun run(): JsonObject {
         val context = MapperContext(classes.associateBy { it.type })
 
-        runBlocking {
-            withContext(Dispatchers.IO) {
-                mappers.forEach { mapper ->
-                    launch {
-                        mapper.run(context)
-                    }
+        withContext(Dispatchers.IO) {
+            mappers.forEach { mapper ->
+                launch {
+                    mapper.run(context)
                 }
             }
         }
 
-        return context.exportToJson()
+        val outputJson = JsonObject()
+        mappers.forEach { mapper ->
+            outputJson.add(mapper.mapperName, JsonObject().apply {
+                mapper.writeFromJson(this)
+            })
+        }
+        return outputJson
     }
 }

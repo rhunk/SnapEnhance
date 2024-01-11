@@ -4,7 +4,9 @@ import me.rhunk.snapenhance.mapper.AbstractClassMapper
 import me.rhunk.snapenhance.mapper.ext.findConstString
 import me.rhunk.snapenhance.mapper.ext.getClassName
 
-class StoryBoostStateMapper : AbstractClassMapper() {
+class StoryBoostStateMapper : AbstractClassMapper("StoryBoostState") {
+    val classReference = classReference("class")
+
     init {
         mapper {
             for (clazz in classes) {
@@ -14,7 +16,7 @@ class StoryBoostStateMapper : AbstractClassMapper() {
 
                 if (clazz.methods.firstOrNull { it.name == "toString" }?.implementation?.findConstString("StoryBoostState", contains = true) != true) continue
 
-                addMapping("StoryBoostStateClass", clazz.getClassName())
+                classReference.set(clazz.getClassName())
                 return@mapper
             }
         }

@@ -6,14 +6,17 @@ import me.rhunk.snapenhance.mapper.ext.getClassName
 import org.jf.dexlib2.iface.instruction.formats.Instruction35c
 import org.jf.dexlib2.iface.reference.MethodReference
 
-class OperaViewerParamsMapper : AbstractClassMapper() {
+class OperaViewerParamsMapper : AbstractClassMapper("OperaViewerParams") {
+    val classReference = classReference("class")
+    val putMethod = string("putMethod")
+
     init {
         mapper {
             for (classDef in classes) {
                 classDef.fields.firstOrNull { it.type == "Ljava/util/concurrent/ConcurrentHashMap;" } ?: continue
                 if (classDef.methods.firstOrNull { it.name == "toString" }?.implementation?.findConstString("Params") != true) continue
 
-                val putMethod = classDef.methods.firstOrNull { method ->
+                val putDexMethod = classDef.methods.firstOrNull { method ->
                     method.implementation?.instructions?.any {
                         val instruction = it as? Instruction35c ?: return@any false
                         val reference = instruction.reference as? MethodReference ?: return@any false
@@ -21,10 +24,9 @@ class OperaViewerParamsMapper : AbstractClassMapper() {
                     } == true
                 } ?: return@mapper
 
-                addMapping("OperaViewerParams",
-                    "class" to classDef.getClassName(),
-                    "putMethod" to putMethod.name
-                )
+                classReference.set(classDef.getClassName())
+                putMethod.set(putDexMethod.name)
+
                 return@mapper
             }
         }
