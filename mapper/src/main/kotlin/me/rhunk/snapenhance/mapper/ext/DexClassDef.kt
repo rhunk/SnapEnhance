@@ -1,7 +1,7 @@
 package me.rhunk.snapenhance.mapper.ext
 
-import org.jf.dexlib2.AccessFlags
-import org.jf.dexlib2.iface.ClassDef
+import com.android.tools.smali.dexlib2.AccessFlags
+import com.android.tools.smali.dexlib2.iface.ClassDef
 
 fun ClassDef.isEnum(): Boolean = accessFlags and AccessFlags.ENUM.value != 0
 fun ClassDef.isAbstract(): Boolean = accessFlags and AccessFlags.ABSTRACT.value != 0
