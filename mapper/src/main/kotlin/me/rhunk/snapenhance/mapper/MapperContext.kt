@@ -1,6 +1,6 @@
 package me.rhunk.snapenhance.mapper
 
-import org.jf.dexlib2.iface.ClassDef
+import com.android.tools.smali.dexlib2.iface.ClassDef
 
 class MapperContext(
     private val classMap: Map<String, ClassDef>
