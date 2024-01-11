@@ -1,10 +1,10 @@
 package me.rhunk.snapenhance.mapper.ext
 
-import org.jf.dexlib2.iface.MethodImplementation
-import org.jf.dexlib2.iface.instruction.formats.Instruction21c
-import org.jf.dexlib2.iface.instruction.formats.Instruction22c
-import org.jf.dexlib2.iface.reference.FieldReference
-import org.jf.dexlib2.iface.reference.StringReference
+import com.android.tools.smali.dexlib2.iface.MethodImplementation
+import com.android.tools.smali.dexlib2.iface.instruction.formats.Instruction21c
+import com.android.tools.smali.dexlib2.iface.instruction.formats.Instruction22c
+import com.android.tools.smali.dexlib2.iface.reference.FieldReference
+import com.android.tools.smali.dexlib2.iface.reference.StringReference
 
 fun MethodImplementation.findConstString(string: String, contains: Boolean = false): Boolean = instructions.filterIsInstance(Instruction21c::class.java).any {
      (it.reference as? StringReference)?.string?.let { str ->
