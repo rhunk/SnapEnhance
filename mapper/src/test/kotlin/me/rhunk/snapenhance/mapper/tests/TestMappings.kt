@@ -4,7 +4,7 @@ import com.google.gson.GsonBuilder
 import kotlinx.coroutines.runBlocking
 import me.rhunk.snapenhance.mapper.ClassMapper
 import me.rhunk.snapenhance.mapper.impl.*
-import org.junit.Test
+import org.junit.jupiter.api.Test
 import java.io.File
 
 
