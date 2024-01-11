@@ -5,10 +5,10 @@ import me.rhunk.snapenhance.mapper.ext.findConstString
 import me.rhunk.snapenhance.mapper.ext.getClassName
 import me.rhunk.snapenhance.mapper.ext.hasStaticConstructorString
 import me.rhunk.snapenhance.mapper.ext.isEnum
-import org.jf.dexlib2.iface.instruction.formats.Instruction21c
-import org.jf.dexlib2.iface.instruction.formats.Instruction35c
-import org.jf.dexlib2.iface.reference.FieldReference
-import org.jf.dexlib2.iface.reference.MethodReference
+import com.android.tools.smali.dexlib2.iface.instruction.formats.Instruction21c
+import com.android.tools.smali.dexlib2.iface.instruction.formats.Instruction35c
+import com.android.tools.smali.dexlib2.iface.reference.FieldReference
+import com.android.tools.smali.dexlib2.iface.reference.MethodReference
 import java.lang.reflect.Modifier
 
 class CompositeConfigurationProviderMapper : AbstractClassMapper("CompositeConfigurationProvider") {
