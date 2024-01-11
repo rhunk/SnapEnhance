@@ -1,12 +1,12 @@
 package me.rhunk.snapenhance.manager.patch.util
 
-import org.jf.dexlib2.Opcodes
-import org.jf.dexlib2.dexbacked.DexBackedDexFile
-import org.jf.dexlib2.iface.DexFile
-import org.jf.dexlib2.iface.reference.StringReference
-import org.jf.dexlib2.writer.io.FileDataStore
-import org.jf.dexlib2.writer.pool.DexPool
-import org.jf.dexlib2.writer.pool.StringPool
+import com.android.tools.smali.dexlib2.Opcodes
+import com.android.tools.smali.dexlib2.dexbacked.DexBackedDexFile
+import com.android.tools.smali.dexlib2.iface.DexFile
+import com.android.tools.smali.dexlib2.iface.reference.StringReference
+import com.android.tools.smali.dexlib2.writer.io.FileDataStore
+import com.android.tools.smali.dexlib2.writer.pool.DexPool
+import com.android.tools.smali.dexlib2.writer.pool.StringPool
 import java.io.BufferedInputStream
 import java.io.File
 import java.io.InputStream
