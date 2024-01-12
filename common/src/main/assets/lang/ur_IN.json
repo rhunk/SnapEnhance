@@ -27,7 +27,8 @@
             "home_settings": "ترتیبات",
             "home_logs": "لاگز",
             "social": "سوشل",
-            "scripts": "اسکرپٹس"
+            "scripts": "اسکرپٹس",
+            "tasks": "کام"
         },
         "sections": {
             "home": {
@@ -49,6 +50,9 @@
                 "streaks_expiration_short": "{hours}گنٹے",
                 "streaks_expiration_text": "میں ختم ہو جائے گا {eta}",
                 "reminder_button": "یاد دلانے کی ترتیب دیں"
+            },
+            "tasks": {
+                "no_tasks": "کوئی کام نہیں"
             }
         },
         "dialogs": {
@@ -58,6 +62,10 @@
                 "fetch_error": "ڈیٹا حاصل کرنے میں ناکامی",
                 "category_groups": "گروپس",
                 "category_friends": "دوست"
+            },
+            "scripting_warning": {
+                "title": "وارننگ",
+                "content": "SnapEnhance میں ایک اسکرپٹنگ ٹول شامل ہے، جو آپ کے آلے پر صارف کے متعین کوڈ کے نفاذ کی اجازت دیتا ہے۔ انتہائی احتیاط برتیں اور صرف معروف، قابل اعتماد ذرائع سے ماڈیول انسٹال کریں۔ غیر مجاز یا غیر تصدیق شدہ ماڈیولز آپ کے سسٹم کے لیے حفاظتی خطرات پیدا کر سکتے ہیں۔"
             }
         }
     },
@@ -99,6 +107,9 @@
             },
             "pin_conversation": {
                 "name": "بات چیت کو پن کریں"
+            },
+            "unsaveable_messages": {
+                "name": "ناقابل محفوظ پیغامات"
             }
         }
     },
