@@ -5,7 +5,7 @@ import me.rhunk.snapenhance.mapper.ext.getClassName
 import me.rhunk.snapenhance.mapper.ext.hasStaticConstructorString
 import me.rhunk.snapenhance.mapper.ext.isAbstract
 import me.rhunk.snapenhance.mapper.ext.isEnum
-import org.jf.dexlib2.AccessFlags
+import com.android.tools.smali.dexlib2.AccessFlags
 
 class MediaQualityLevelProviderMapper : AbstractClassMapper("MediaQualityLevelProvider") {
     val mediaQualityLevelProvider = classReference("mediaQualityLevelProvider")

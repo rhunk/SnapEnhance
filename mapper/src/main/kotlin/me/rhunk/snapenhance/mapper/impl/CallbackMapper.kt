@@ -4,8 +4,8 @@ import me.rhunk.snapenhance.mapper.AbstractClassMapper
 import me.rhunk.snapenhance.mapper.ext.getClassName
 import me.rhunk.snapenhance.mapper.ext.getSuperClassName
 import me.rhunk.snapenhance.mapper.ext.isFinal
-import org.jf.dexlib2.iface.instruction.formats.Instruction21t
-import org.jf.dexlib2.iface.instruction.formats.Instruction22t
+import com.android.tools.smali.dexlib2.iface.instruction.formats.Instruction21t
+import com.android.tools.smali.dexlib2.iface.instruction.formats.Instruction22t
 
 class CallbackMapper : AbstractClassMapper("Callbacks") {
     val callbacks = map("callbacks")
