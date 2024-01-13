@@ -104,7 +104,6 @@ class MixerStories : Feature("MixerStories", loadParams = FeatureLoadParams.INIT
                             }
 
                             if (canRemoveDiscoverSection(sectionType)) {
-                                context.log.debug("Removing story section $sectionType")
                                 remove(3)
                                 addBuffer(3, byteArrayOf())
                             }
