@@ -379,12 +379,7 @@
                 "name": "Szabályok"
             },
             "camera": {
-                "name": "Kamera",
-                "properties": {
-                    "disable_camera": {
-                        "name": "Kamera letiltása"
-                    }
-                }
+                "name": "Kamera"
             },
             "streaks_reminder": {
                 "properties": {

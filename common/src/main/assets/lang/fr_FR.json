@@ -520,17 +520,9 @@
                 "name": "Caméra",
                 "description": "Ajuster les bons réglages pour le Snap parfait",
                 "properties": {
-                    "disable_camera": {
-                        "name": "Désactiver la caméra",
-                        "description": "Empêche Snapchat d'utiliser les caméras disponibles sur votre appareil"
-                    },
                     "immersive_camera_preview": {
                         "name": "Aperçu de la caméra immersif",
                         "description": "Empêche Snapchat de recadrer l'aperçu de la caméra\nCela peut faire clignoter la caméra sur certains appareils"
-                    },
-                    "custom_frame_rate": {
-                        "name": "Fréquence d'images personnalisée",
-                        "description": "Outrepasse la fréquence d’images de la caméra"
                     },
                     "force_camera_source_encoding": {
                         "name": "Forcer l'encodage source de la caméra",

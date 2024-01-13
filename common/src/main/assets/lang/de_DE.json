@@ -520,17 +520,9 @@
                 "name": "Kamera",
                 "description": "Pass die richtigen Einstellungen für den perfekten Snap an",
                 "properties": {
-                    "disable_camera": {
-                        "name": "Kamera deaktivieren",
-                        "description": "Verhindert die Nutzung der Kameras durch Snapchat"
-                    },
                     "immersive_camera_preview": {
                         "name": "Immersive Vorschau",
                         "description": "Verhindert das Beschneiden der Kameravorschau\nDas kann dazu führen, dass die Kamera auf einigen Geräten flickert"
-                    },
-                    "custom_frame_rate": {
-                        "name": "Benutzerdefinierte Frame Rate",
-                        "description": "Überschreibt die Frame Rate der Kamera"
                     },
                     "force_camera_source_encoding": {
                         "name": "Kodierung der Kameraquelle erzwingen",

@@ -528,17 +528,9 @@
                 "name": "Kamera",
                 "description": "Mükemmel çekim için doğru ayarları yapın",
                 "properties": {
-                    "disable_camera": {
-                        "name": "Kamerayı Devre Dışı Bırak",
-                        "description": "Snapchat'in cihazınızda bulunan kameraları kullanmasını engeller"
-                    },
                     "immersive_camera_preview": {
                         "name": "Sürükleyici Önizleme",
                         "description": "Snapchat'in Kamera önizlemesini Kırpmasını Önler\nBu, kameranın bazı cihazlarda titremesine neden olabilir"
-                    },
-                    "custom_frame_rate": {
-                        "name": "Özel Kare Hızı",
-                        "description": "Kamera kare hızını geçersiz kılar"
                     },
                     "force_camera_source_encoding": {
                         "name": "Kamera Kaynağı Kodlamasını Zorla",
