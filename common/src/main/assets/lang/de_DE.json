@@ -528,14 +528,6 @@
                         "name": "Immersive Vorschau",
                         "description": "Verhindert das Beschneiden der Kameravorschau\nDas kann dazu führen, dass die Kamera auf einigen Geräten flickert"
                     },
-                    "override_preview_resolution": {
-                        "name": "Vorschauauflösung überschreiben",
-                        "description": "Überschreibt die Auflösung der Kameravorschau"
-                    },
-                    "override_picture_resolution": {
-                        "name": "Überschreiben der Bildauflösung",
-                        "description": "Überschreibt die Bildauflösung"
-                    },
                     "custom_frame_rate": {
                         "name": "Benutzerdefinierte Frame Rate",
                         "description": "Überschreibt die Frame Rate der Kamera"
@@ -544,17 +536,9 @@
                         "name": "Kodierung der Kameraquelle erzwingen",
                         "description": "Erzwingt die Kodierung der Kameraquelle"
                     },
-                    "custom_preview_resolution": {
-                        "description": "Legt eine benutzerdefinierte Auflösung für die Kameravorschau fest, Breite x Höhe (z. B. 1920x1080).\nDie benutzerdefinierte Auflösung muss von Ihrem Gerät unterstützt werden",
-                        "name": "Benutzerdefinierte Auflösung der Vorschau"
-                    },
                     "hevc_recording": {
                         "name": "HEVC Aufnahme",
                         "description": "Verwendet HEVC (H.265) Codec für die Videoaufzeichnung"
-                    },
-                    "custom_picture_resolution": {
-                        "description": "Legt eine benutzerdefinierte Bildauflösung fest, Breite x Höhe (z. B. 1920x1080).\nDie benutzerdefinierte Auflösung muss von Ihrem Gerät unterstützt werden",
-                        "name": "Benutzerdefinierte Bildauflösung"
                     },
                     "black_photos": {
                         "description": "Ersetzt die aufgenommenen Fotos durch einen schwarzen Hintergrund\nVideos sind davon nicht betroffen",

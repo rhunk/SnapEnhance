@@ -528,14 +528,6 @@
                         "name": "Sürükleyici Önizleme",
                         "description": "Snapchat'in Kamera önizlemesini Kırpmasını Önler\nBu, kameranın bazı cihazlarda titremesine neden olabilir"
                     },
-                    "override_preview_resolution": {
-                        "name": "Önizleme Çözünürlüğünü Geçersiz Kıl",
-                        "description": "Kamera Önizleme Çözünürlüğünü geçersiz kılar"
-                    },
-                    "override_picture_resolution": {
-                        "name": "Resim Çözünürlüğünü Geçersiz Kıl",
-                        "description": "Resim çözünürlüğünü geçersiz kılar"
-                    },
                     "custom_frame_rate": {
                         "name": "Özel Kare Hızı",
                         "description": "Kamera kare hızını geçersiz kılar"
@@ -544,17 +536,9 @@
                         "name": "Kamera Kaynağı Kodlamasını Zorla",
                         "description": "Kamera kaynak kodlamasını zorlar"
                     },
-                    "custom_preview_resolution": {
-                        "description": "Özel bir kamera önizleme çözünürlüğü, genişlik x yükseklik (örn. 1920x1080) ayarlar.\nÖzel çözünürlük cihazınız tarafından desteklenmelidir",
-                        "name": "Özel Önizleme Çözünürlüğü"
-                    },
                     "hevc_recording": {
                         "name": "HEVC Kaydı",
                         "description": "Video kaydı için HEVC (H.265) codec bileşenini kullanır"
-                    },
-                    "custom_picture_resolution": {
-                        "description": "Genişlik x yükseklik olmak üzere özel bir resim çözünürlüğü ayarlar (örn. 1920x1080).\nÖzel çözünürlük cihazınız tarafından desteklenmelidir",
-                        "name": "Özel Resim Çözünürlüğü"
                     },
                     "black_photos": {
                         "description": "Çekilen fotoğrafları siyah bir arka planla değiştirir\nVideolar etkilenmez",

@@ -383,14 +383,6 @@
                 "properties": {
                     "disable_camera": {
                         "name": "Kamera letiltása"
-                    },
-                    "override_preview_resolution": {
-                        "name": "Előnézeti képfelbontás felülírása",
-                        "description": "Felülírja a kamera előnézeti felbontását"
-                    },
-                    "override_picture_resolution": {
-                        "name": "Képfelbontás felülírása",
-                        "description": "Felülírja a képfelbontást"
                     }
                 }
             },

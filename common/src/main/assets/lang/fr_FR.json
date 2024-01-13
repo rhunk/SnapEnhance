@@ -528,14 +528,6 @@
                         "name": "Aperçu de la caméra immersif",
                         "description": "Empêche Snapchat de recadrer l'aperçu de la caméra\nCela peut faire clignoter la caméra sur certains appareils"
                     },
-                    "override_preview_resolution": {
-                        "name": "Remplacer la résolution de prévisualisation",
-                        "description": "Remplace la résolution de l'aperçu de la caméra"
-                    },
-                    "override_picture_resolution": {
-                        "name": "Remplace la résolution de la photo",
-                        "description": "Remplace la résolution de la photo"
-                    },
                     "custom_frame_rate": {
                         "name": "Fréquence d'images personnalisée",
                         "description": "Outrepasse la fréquence d’images de la caméra"
@@ -548,17 +540,9 @@
                         "description": "Remplace les photos capturées par un arrière-plan noir\nLes vidéos ne sont pas affectées",
                         "name": "Photos noires"
                     },
-                    "custom_preview_resolution": {
-                        "description": "Définit une résolution personnalisée pour l'aperçu de la caméra, largeur x hauteur (ex : 1920x1080).\nLa résolution personnalisée doit être prise en charge par votre appareil",
-                        "name": "Résolution de prévisualisation personnalisée"
-                    },
                     "hevc_recording": {
                         "name": "Enregistrement HEVC",
                         "description": "Utilise le codec HEVC (H.265) pour l'enregistrement vidéo"
-                    },
-                    "custom_picture_resolution": {
-                        "description": "Définit une résolution d'image personnalisée, largeur x hauteur (ex : 1920x1080).\nLa résolution personnalisée doit être prise en charge par votre appareil",
-                        "name": "Résolution d'image personnalisée"
                     }
                 }
             },
