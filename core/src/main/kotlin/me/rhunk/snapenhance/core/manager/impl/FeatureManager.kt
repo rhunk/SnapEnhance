@@ -10,7 +10,7 @@ import me.rhunk.snapenhance.core.features.MessagingRuleFeature
 import me.rhunk.snapenhance.core.features.impl.ConfigurationOverride
 import me.rhunk.snapenhance.core.features.impl.OperaViewerParamsOverride
 import me.rhunk.snapenhance.core.features.impl.ScopeSync
-import me.rhunk.snapenhance.core.features.impl.Stories
+import me.rhunk.snapenhance.core.features.impl.MixerStories
 import me.rhunk.snapenhance.core.features.impl.downloader.MediaDownloader
 import me.rhunk.snapenhance.core.features.impl.downloader.ProfilePictureDownloader
 import me.rhunk.snapenhance.core.features.impl.experiments.*
@@ -113,7 +113,7 @@ class FeatureManager(
             BypassScreenshotDetection::class,
             HalfSwipeNotifier::class,
             DisableConfirmationDialogs::class,
-            Stories::class,
+            MixerStories::class,
             DisableComposerModules::class,
             FideliusIndicator::class,
             EditTextOverride::class,
