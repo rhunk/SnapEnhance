@@ -335,6 +335,10 @@
                     "snap_preview": {
                         "name": "Snap Önizleme",
                         "description": "Sohbette açılmayan Snap'lerin yanında küçük bir önizleme görüntüler"
+                    },
+                    "hide_story_suggestions": {
+                        "name": "Hikaye Önerilerini Gizle",
+                        "description": "Hikayeler sayfasından önerileri kaldırır"
                     }
                 }
             },
@@ -509,6 +513,10 @@
                     "force_upload_source_quality": {
                         "name": "Kaynak Kalitesini Yüklemeye Zorla",
                         "description": "Snapchat'i medyayı orijinal kalitesinde yüklemeye zorlar\nLütfen bunun medyadan meta verileri kaldırmayabileceğini unutmayın"
+                    },
+                    "disable_story_sections": {
+                        "name": "Hikaye Bölümlerini Devre Dışı Bırak",
+                        "description": "Hikayeler sayfasından bölümleri kaldırır\nDüzgün çalışması için yenileme gerekebilir"
                     }
                 }
             },
@@ -543,6 +551,18 @@
                     "black_photos": {
                         "description": "Çekilen fotoğrafları siyah bir arka planla değiştirir\nVideolar etkilenmez",
                         "name": "Siyah Fotoğraflar"
+                    },
+                    "override_front_resolution": {
+                        "name": "Ön Çözünürlüğü Geçersiz Kılma",
+                        "description": "Ön kamera için kamera çözünürlüğünü geçersiz kılar"
+                    },
+                    "override_back_resolution": {
+                        "name": "Arka Çözünürlüğü Geçersiz Kılma",
+                        "description": "Arka kamera için kamera çözünürlüğünü geçersiz kılar"
+                    },
+                    "custom_resolution": {
+                        "name": "Özel Çözünürlük",
+                        "description": "Özel bir kamera çözünürlüğü, genişlik x yükseklik (örn. 1920x1080) ayarlar.\nÖzel çözünürlük cihazınız tarafından desteklenmelidir"
                     }
                 }
             },
@@ -833,6 +853,15 @@
             "old_bitmoji_selfie": {
                 "2d": "2D Bitmoji",
                 "3d": "3D Bitmoji"
+            },
+            "hide_story_suggestions": {
+                "hide_friend_suggestions": "Arkadaş önerilerini gizle",
+                "hide_suggested_friend_stories": "Önerilen arkadaş hikayelerini gizle"
+            },
+            "disable_story_sections": {
+                "friends": "Arkadaşlar",
+                "discover": "Keşfet",
+                "following": "Takip Edilen"
             }
         }
     },
