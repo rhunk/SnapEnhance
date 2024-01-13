@@ -555,6 +555,18 @@
                     "custom_resolution": {
                         "name": "Özel Çözünürlük",
                         "description": "Özel bir kamera çözünürlüğü, genişlik x yükseklik (örn. 1920x1080) ayarlar.\nÖzel çözünürlük cihazınız tarafından desteklenmelidir"
+                    },
+                    "disable_cameras": {
+                        "name": "Kameraları Devre Dışı Bırak",
+                        "description": "Snapchat'in seçilen kameraları kullanmasını engeller"
+                    },
+                    "front_custom_frame_rate": {
+                        "name": "Ön Kamera Özel Kare Hızı",
+                        "description": "Ön kamera kare hızını geçersiz kılar"
+                    },
+                    "back_custom_frame_rate": {
+                        "name": "Arka Kamera Özel Kare Hızı",
+                        "description": "Arka kamera kare hızını geçersiz kılar"
                     }
                 }
             },
@@ -854,6 +866,10 @@
                 "friends": "Arkadaşlar",
                 "discover": "Keşfet",
                 "following": "Takip Edilen"
+            },
+            "disable_cameras": {
+                "front": "Ön Kamera",
+                "back": "Arka Kamera"
             }
         }
     },
