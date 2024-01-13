@@ -28,25 +28,41 @@ class CameraTweaks : Feature("Camera Tweaks", loadParams = FeatureLoadParams.ACT
     @SuppressLint("MissingPermission", "DiscouragedApi")
     override fun onActivityCreate() {
         val config = context.config.camera
-        if (config.disable.get()) {
+
+        val frontCameraId = runCatching { context.androidContext.getSystemService(CameraManager::class.java).run {
+            cameraIdList.firstOrNull { getCameraCharacteristics(it).get(CameraCharacteristics.LENS_FACING) == CameraCharacteristics.LENS_FACING_FRONT }
+        } }.getOrNull()
+
+        if (config.disableCameras.get().isNotEmpty() && frontCameraId != null) {
             ContextWrapper::class.java.hook("checkPermission", HookStage.BEFORE) { param ->
                 val permission = param.arg<String>(0)
                 if (permission == Manifest.permission.CAMERA) {
                     param.setResult(PackageManager.PERMISSION_GRANTED)
                 }
             }
-
         }
 
         var isLastCameraFront = false
 
         CameraManager::class.java.hook("openCamera", HookStage.BEFORE) { param ->
-            if (config.disable.get()) {
+            val cameraManager = param.thisObject() as? CameraManager ?: return@hook
+            val cameraId = param.arg<String>(0)
+            val disabledCameras = config.disableCameras.get()
+
+            if (disabledCameras.size >= 2) {
                 param.setResult(null)
                 return@hook
             }
-            val cameraManager = param.thisObject() as? CameraManager ?: return@hook
-            isLastCameraFront = cameraManager.getCameraCharacteristics(param.arg(0)).get(CameraCharacteristics.LENS_FACING) == CameraCharacteristics.LENS_FACING_FRONT
+
+            isLastCameraFront = cameraId == frontCameraId
+
+            if (disabledCameras.size != 1) return@hook
+
+            // trick to replace unwanted camera with another one
+            if ((disabledCameras.contains("front") && isLastCameraFront) || (disabledCameras.contains("back") && !isLastCameraFront)) {
+                param.setArg(0, cameraManager.cameraIdList.filterNot { it == cameraId }.firstOrNull() ?: return@hook)
+                isLastCameraFront = !isLastCameraFront
+            }
         }
 
         ImageReader::class.java.hook("newInstance", HookStage.BEFORE) { param ->
@@ -56,17 +72,31 @@ class CameraTweaks : Feature("Camera Tweaks", loadParams = FeatureLoadParams.ACT
             param.setArg(1, captureResolutionConfig[1])
         }
 
-        config.customFrameRate.getNullable()?.also { value ->
-            val customFrameRate = value.toInt()
-            CameraCharacteristics::class.java.hook("get", HookStage.AFTER)  { param ->
-                val key = param.arg<Key<*>>(0)
-                if (key == CameraCharacteristics.CONTROL_AE_AVAILABLE_TARGET_FPS_RANGES) {
-                    val fpsRanges = param.getResult() as? Array<*> ?: return@hook
-                    fpsRanges.forEach {
-                        val range = it as? Range<*> ?: return@forEach
-                        range.setObjectField("mUpper", customFrameRate)
-                        range.setObjectField("mLower", customFrameRate)
+        CameraCharacteristics::class.java.hook("get", HookStage.AFTER)  { param ->
+            val key = param.argNullable<Key<*>>(0) ?: return@hook
+
+            if (key == CameraCharacteristics.LENS_FACING) {
+                val disabledCameras = config.disableCameras.get()
+                //FIXME: unexpected behavior when app is resumed
+                if (disabledCameras.size == 1) {
+                    val isFrontCamera = param.getResult() as? Int == CameraCharacteristics.LENS_FACING_FRONT
+                    if ((disabledCameras.contains("front") && isFrontCamera) || (disabledCameras.contains("back") && !isFrontCamera)) {
+                        param.setResult(if (isFrontCamera) CameraCharacteristics.LENS_FACING_BACK else CameraCharacteristics.LENS_FACING_FRONT)
                     }
+                }
+            }
+
+            if (key == CameraCharacteristics.CONTROL_AE_AVAILABLE_TARGET_FPS_RANGES) {
+                val isFrontCamera = param.invokeOriginal(
+                    arrayOf(CameraCharacteristics.LENS_FACING)
+                ) == CameraCharacteristics.LENS_FACING_FRONT
+                val customFrameRate = (if (isFrontCamera) config.frontCustomFrameRate.getNullable() else config.backCustomFrameRate.getNullable())?.toIntOrNull() ?: return@hook
+                val fpsRanges = param.getResult() as? Array<*> ?: return@hook
+
+                fpsRanges.forEach {
+                    val range = it as? Range<*> ?: return@forEach
+                    range.setObjectField("mUpper", customFrameRate)
+                    range.setObjectField("mLower", customFrameRate)
                 }
             }
         }
