@@ -296,9 +296,9 @@
                         "name": "Hide Quick Add in Friend Feed",
                         "description": "Hides the Quick Add section in the friend feed"
                     },
-                    "hide_story_sections": {
-                        "name": "Hide Story Section",
-                        "description": "Hide certain UI Elements shown in the story section"
+                    "hide_story_suggestions": {
+                        "name": "Hide Story Suggestions",
+                        "description": "Removes suggestions from the Stories page"
                     },
                     "hide_ui_components": {
                         "name": "Hide UI Components",
@@ -494,9 +494,9 @@
                         "name": "Disable Metrics",
                         "description": "Blocks sending specific analytic data to Snapchat"
                     },
-                    "disable_public_stories": {
-                        "name": "Disable Public Stories",
-                        "description": "Removes every public story from the Discover page\nMay require a clean cache to work properly"
+                    "disable_story_sections": {
+                        "name": "Disable Story Sections",
+                        "description": "Removes sections from the Stories page\nMay require a refresh to work properly"
                     },
                     "block_ads": {
                         "name": "Block Ads",
@@ -809,12 +809,9 @@
                 "hide_voice_record_button": "Remove Voice Record Button",
                 "hide_unread_chat_hint": "Remove Unread Chat Hint"
             },
-            "hide_story_sections": {
+            "hide_story_suggestions": {
                 "hide_friend_suggestions": "Hide friend suggestions",
-                "hide_suggested_friend_stories": "Hide suggested friend stories",
-                "hide_friends": "Hide friends section",
-                "hide_suggested": "Hide suggested section",
-                "hide_for_you": "Hide For You section"
+                "hide_suggested_friend_stories": "Hide suggested friend stories"
             },
             "home_tab": {
                 "map": "Map",
@@ -868,6 +865,11 @@
                 "1_month": "1 Month",
                 "3_months": "3 Months",
                 "6_months": "6 Months"
+            },
+            "disable_story_sections": {
+                "friends": "Friends",
+                "following": "Following",
+                "discover": "Discover"
             }
         }
     },

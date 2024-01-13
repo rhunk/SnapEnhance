@@ -143,3 +143,19 @@ enum class FriendLinkType(val value: Int, val shortName: String) {
         }
     }
 }
+
+enum class MixerStoryType(
+    val index: Int,
+) {
+    UNKNOWN(-1),
+    SUBSCRIPTIONS(2),
+    DISCOVER(3),
+    FRIENDS(5),
+    MY_STORIES(6);
+
+    companion object {
+        fun fromIndex(index: Int): MixerStoryType {
+            return entries.firstOrNull { it.index == index } ?: UNKNOWN
+        }
+    }
+}

@@ -12,7 +12,7 @@ class Global : ConfigContainer() {
     val snapchatPlus = boolean("snapchat_plus") { requireRestart() }
     val disableConfirmationDialogs = multiple("disable_confirmation_dialogs", "remove_friend", "block_friend", "ignore_friend", "hide_friend", "hide_conversation", "clear_conversation") { requireRestart() }
     val disableMetrics = boolean("disable_metrics") { requireRestart() }
-    val disablePublicStories = boolean("disable_public_stories") { requireRestart(); requireCleanCache() }
+    val disableStorySections = multiple("disable_story_sections", "friends", "following", "discover") { requireRestart(); requireCleanCache() }
     val blockAds = boolean("block_ads")
     val spotlightCommentsUsername = boolean("spotlight_comments_username") { requireRestart() }
     val bypassVideoLengthRestriction = unique("bypass_video_length_restriction", "split", "single") { addNotices(
