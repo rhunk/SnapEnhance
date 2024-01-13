@@ -5,9 +5,12 @@ import me.rhunk.snapenhance.mapper.ext.getClassName
 import me.rhunk.snapenhance.mapper.ext.hasStaticConstructorString
 import me.rhunk.snapenhance.mapper.ext.isAbstract
 import me.rhunk.snapenhance.mapper.ext.isEnum
-import org.jf.dexlib2.AccessFlags
+import com.android.tools.smali.dexlib2.AccessFlags
 
-class MediaQualityLevelProviderMapper : AbstractClassMapper() {
+class MediaQualityLevelProviderMapper : AbstractClassMapper("MediaQualityLevelProvider") {
+    val mediaQualityLevelProvider = classReference("mediaQualityLevelProvider")
+    val mediaQualityLevelProviderMethod = string("mediaQualityLevelProviderMethod")
+
     init {
         var enumQualityLevel : String? = null
 
@@ -20,7 +23,6 @@ class MediaQualityLevelProviderMapper : AbstractClassMapper() {
                     break;
                 }
             }
-            addMapping("EnumQualityLevel", enumQualityLevel ?: return@mapper)
         }
 
         mapper {
@@ -31,10 +33,8 @@ class MediaQualityLevelProviderMapper : AbstractClassMapper() {
                 if (clazz.fields.none { it.accessFlags and AccessFlags.TRANSIENT.value != 0 }) continue
 
                 clazz.methods.firstOrNull { it.returnType == "L$enumQualityLevel;" }?.let {
-                    addMapping("MediaQualityLevelProvider",
-                        "class" to clazz.getClassName(),
-                        "method" to it.name
-                    )
+                    mediaQualityLevelProvider.set(clazz.getClassName())
+                    mediaQualityLevelProviderMethod.set(it.name)
                     return@mapper
                 }
             }

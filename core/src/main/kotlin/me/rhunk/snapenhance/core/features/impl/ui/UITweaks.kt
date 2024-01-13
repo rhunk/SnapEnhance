@@ -42,7 +42,7 @@ class UITweaks : Feature("UITweaks", loadParams = FeatureLoadParams.ACTIVITY_CRE
     override fun onActivityCreate() {
         val blockAds by context.config.global.blockAds
         val hiddenElements by context.config.userInterface.hideUiComponents
-        val hideStorySections by context.config.userInterface.hideStorySections
+        val hideStorySuggestions by context.config.userInterface.hideStorySuggestions
         val isImmersiveCamera by context.config.camera.immersiveCameraPreview
 
         val displayMetrics = context.resources.displayMetrics
@@ -77,7 +77,7 @@ class UITweaks : Feature("UITweaks", loadParams = FeatureLoadParams.ACTIVITY_CRE
 
         var friendCardFrameSize: Size? = null
 
-        context.event.subscribe(BindViewEvent::class, { hideStorySections.contains("hide_suggested_friend_stories") }) { event ->
+        context.event.subscribe(BindViewEvent::class, { hideStorySuggestions.contains("hide_suggested_friend_stories") }) { event ->
             if (event.view.id != friendCardFrame) return@subscribe
 
             val friendStoryData = event.prevModel::class.java.findFieldsToString(event.prevModel, once = true) { _, value ->
@@ -105,23 +105,8 @@ class UITweaks : Feature("UITweaks", loadParams = FeatureLoadParams.ACTIVITY_CRE
             val viewId = event.view.id
             val view = event.view
 
-            if (hideStorySections.contains("hide_for_you")) {
-                if (viewId == getId("df_large_story", "id") ||
-                            viewId == getId("df_promoted_story", "id")) {
-                    hideStorySection(event)
-                    return@subscribe
-                }
-                if (viewId == getId("stories_load_progress_layout", "id")) {
-                    event.canceled = true
-                }
-            }
-
-            if (hideStorySections.contains("hide_friends") && viewId == getId("friend_card_frame", "id")) {
-                hideStorySection(event)
-            }
-
             //mappings?
-            if (hideStorySections.contains("hide_friend_suggestions") && view.javaClass.superclass?.name?.endsWith("StackDrawLayout") == true) {
+            if (hideStorySuggestions.contains("hide_friend_suggestions") && view.javaClass.superclass?.name?.endsWith("StackDrawLayout") == true) {
                 val layoutParams = view.layoutParams as? FrameLayout.LayoutParams ?: return@subscribe
                 if (layoutParams.width == -1 &&
                     layoutParams.height == -2 &&
@@ -132,11 +117,6 @@ class UITweaks : Feature("UITweaks", loadParams = FeatureLoadParams.ACTIVITY_CRE
                 ) {
                     hideStorySection(event)
                 }
-            }
-
-            if (hideStorySections.contains("hide_suggested") && (viewId == getId("df_small_story", "id"))
-            ) {
-                hideStorySection(event)
             }
 
             if (blockAds && viewId == getId("df_promoted_story", "id")) {

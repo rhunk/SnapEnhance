@@ -6,7 +6,9 @@ import me.rhunk.snapenhance.mapper.ext.getClassName
 import me.rhunk.snapenhance.mapper.ext.getStaticConstructor
 import me.rhunk.snapenhance.mapper.ext.isEnum
 
-class ScCameraSettingsMapper : AbstractClassMapper() {
+class ScCameraSettingsMapper : AbstractClassMapper("ScCameraSettings") {
+    val classReference = classReference("class")
+
     init {
         mapper {
             for (clazz in classes) {
@@ -15,7 +17,7 @@ class ScCameraSettingsMapper : AbstractClassMapper() {
                 val firstParameter = getClass(firstConstructor.parameterTypes[0]) ?: continue
                 if (!firstParameter.isEnum() || firstParameter.getStaticConstructor()?.implementation?.findConstString("CONTINUOUS_PICTURE") != true) continue
 
-                addMapping("ScCameraSettings", clazz.getClassName())
+                classReference.set(clazz.getClassName())
                 return@mapper
             }
         }

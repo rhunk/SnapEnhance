@@ -118,7 +118,7 @@ class RemoteSideContext(
         }
 
         scriptManager.runtime.eachModule {
-            callFunction("module.onManagerLoad", androidContext)
+            callFunction("module.onSnapEnhanceLoad", androidContext)
         }
     }
 
@@ -195,7 +195,7 @@ class RemoteSideContext(
             }
         }
 
-        if (mappings.isMappingsOutdated() || !mappings.isMappingsLoaded()) {
+        if (mappings.isMappingsOutdated() || !mappings.isMappingsLoaded) {
             requirements = requirements or Requirements.MAPPINGS
         }
 

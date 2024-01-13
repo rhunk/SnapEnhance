@@ -19,6 +19,7 @@ import me.rhunk.snapenhance.core.util.hook.hook
 import me.rhunk.snapenhance.core.util.ktx.getDimens
 import me.rhunk.snapenhance.core.util.ktx.getObjectField
 import me.rhunk.snapenhance.core.util.media.PreviewUtils
+import me.rhunk.snapenhance.mapper.impl.CallbackMapper
 import java.io.File
 
 class SnapPreview : Feature("SnapPreview", loadParams = FeatureLoadParams.INIT_SYNC or FeatureLoadParams.ACTIVITY_CREATE_SYNC) {
@@ -29,17 +30,19 @@ class SnapPreview : Feature("SnapPreview", loadParams = FeatureLoadParams.INIT_S
 
     override fun init() {
         if (!isEnabled) return
-        context.mappings.getMappedClass("callbacks", "ContentCallback").hook("handleContentResult", HookStage.BEFORE) { param ->
-            val contentResult = param.arg<Any>(0)
-            val classMethods = contentResult::class.java.methods
+        context.mappings.useMapper(CallbackMapper::class) {
+            callbacks.getClass("ContentCallback")?.hook("handleContentResult", HookStage.BEFORE) { param ->
+                val contentResult = param.arg<Any>(0)
+                val classMethods = contentResult::class.java.methods
 
-            val contentKey = classMethods.find { it.name == "getContentKey" }?.invoke(contentResult) ?: return@hook
-            if (contentKey.getObjectField("mMediaContextType").toString() != "CHAT") return@hook
+                val contentKey = classMethods.find { it.name == "getContentKey" }?.invoke(contentResult) ?: return@hook
+                if (contentKey.getObjectField("mMediaContextType").toString() != "CHAT") return@hook
 
-            val filePath = classMethods.find { it.name == "getFilePath" }?.invoke(contentResult) ?: return@hook
-            val mediaId = contentKey.getObjectField("mMediaId").toString()
+                val filePath = classMethods.find { it.name == "getFilePath" }?.invoke(contentResult) ?: return@hook
+                val mediaId = contentKey.getObjectField("mMediaId").toString()
 
-            mediaFileCache[mediaId.substringAfter("-")] = File(filePath.toString())
+                mediaFileCache[mediaId.substringAfter("-")] = File(filePath.toString())
+            }
         }
     }
 

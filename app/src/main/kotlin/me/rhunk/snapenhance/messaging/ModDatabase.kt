@@ -64,6 +64,7 @@ class ModDatabase(
             "scripts" to listOf(
                 "name VARCHAR PRIMARY KEY",
                 "version VARCHAR NOT NULL",
+                "displayName VARCHAR",
                 "description VARCHAR",
                 "author VARCHAR NOT NULL",
                 "enabled BOOLEAN"
@@ -266,9 +267,10 @@ class ModDatabase(
                     ModuleInfo(
                         name = cursor.getStringOrNull("name")!!,
                         version = cursor.getStringOrNull("version")!!,
+                        displayName = cursor.getStringOrNull("displayName"),
                         description = cursor.getStringOrNull("description"),
                         author = cursor.getStringOrNull("author"),
-                        grantPermissions = null
+                        grantedPermissions = emptyList()
                     )
                 )
             }
@@ -305,14 +307,18 @@ class ModDatabase(
             }
 
             availableScripts.forEach { script ->
-                if (!enabledScriptPaths.contains(script.name)) {
-                    database.execSQL("INSERT OR REPLACE INTO scripts (name, version, description, author, enabled) VALUES (?, ?, ?, ?, ?)", arrayOf(
-                        script.name,
-                        script.version,
-                        script.description,
-                        script.author,
-                        0
-                    ))
+                if (!enabledScriptPaths.contains(script.name) || script != enabledScripts.find { it.name == script.name }) {
+                    database.execSQL(
+                        "INSERT OR REPLACE INTO scripts (name, version, displayName, description, author, enabled) VALUES (?, ?, ?, ?, ?, ?)",
+                        arrayOf(
+                            script.name,
+                            script.version,
+                            script.displayName,
+                            script.description,
+                            script.author,
+                            0
+                        )
+                    )
                 }
             }
         }

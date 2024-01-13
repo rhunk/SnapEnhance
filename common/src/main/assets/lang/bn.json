@@ -1,0 +1,42 @@
+{
+    "conversation_preview": {
+        "unknown_user": "অজানা ব্যবহাকারী"
+    },
+    "profile_info": {
+        "title": "প্রোফাইল তথ্য",
+        "display_name": "প্রদর্শন নাম",
+        "added_date": "যুক্ত হওয়ার তারিখ",
+        "birthday": "জন্মদিন : {month}{day}"
+    },
+    "chat_export": {
+        "dialog_negative_button": "বাতিল করুন",
+        "dialog_positive_button": "রপ্তানি করুন",
+        "exported_to": "রপ্তানি করা হয়েছে {path}",
+        "exporting_chats": "চ্যাট রপ্তানি করা হচ্ছে...",
+        "processing_chats": "{amount} গুলো আলাপ প্রসেসিং করা হচ্ছে...",
+        "export_fail": "{conversation} আলাপ রপ্তানি করতে সক্ষম হয়নি",
+        "writing_output": "আউটপুট লিখা হচ্ছে...",
+        "finished": "সম্পন্ন! আপনি এখন ডায়ালগটি বন্ধ করে দিতে পারেন।.",
+        "no_messages_found": "কোন বার্তা পাওয়া যায়নি!",
+        "exporting_message": "{conversation} রপ্তানি করা হচ্ছে..."
+    },
+    "button": {
+        "ok": "ঠিক আছে",
+        "positive": "হ্যাঁ",
+        "negative": "না",
+        "cancel": "বাতিল করুন",
+        "open": "খুলুন"
+    },
+    "download_processor": {
+        "download_started_toast": "ডাউনলোড শুরু হয়েছে",
+        "unsupported_content_type_toast": "অসমর্থিত কনটেন্ট ধরণ!",
+        "failed_no_longer_available_toast": "মিডিয়া আর পাওয়া যাচ্ছে না",
+        "already_queued_toast": "মিডিয়া ইতিমধ্যে কিউতে আছে!",
+        "already_downloaded_toast": "মিডিয়া ইতোমধ্যে ডাউনলোড হয়েছে!",
+        "saved_toast": "সংরক্ষিত হয়েছে {path}",
+        "download_toast": "ডাউনলোড হচ্ছে {path}...",
+        "processing_toast": "প্রসেসিং হচ্ছে {path}...",
+        "failed_generic_toast": "ডাউনলোড করতে সক্ষম হয়নি",
+        "failed_to_create_preview_toast": "পুর্বরূপ তৈরি করতে সক্ষম হয়নি"
+    }
+}

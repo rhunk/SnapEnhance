@@ -4,17 +4,15 @@ import android.content.Intent
 import android.net.Uri
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.ScrollState
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.OpenInNew
-import androidx.compose.material.icons.filled.*
+import androidx.compose.material.icons.filled.BugReport
+import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.scale
@@ -22,7 +20,11 @@ import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.vectorResource
+import androidx.compose.ui.text.font.Font
+import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -31,12 +33,11 @@ import androidx.navigation.compose.composable
 import androidx.navigation.navigation
 import kotlinx.coroutines.launch
 import me.rhunk.snapenhance.R
+import me.rhunk.snapenhance.common.BuildConfig
 import me.rhunk.snapenhance.ui.manager.Section
 import me.rhunk.snapenhance.ui.manager.data.InstallationSummary
 import me.rhunk.snapenhance.ui.manager.data.Updater
-import me.rhunk.snapenhance.ui.setup.Requirements
 import me.rhunk.snapenhance.ui.util.ActivityLauncherHelper
-import me.rhunk.snapenhance.ui.util.saveFile
 import java.util.Locale
 
 class HomeSection : Section() {
@@ -55,31 +56,6 @@ class HomeSection : Section() {
 
     override fun init() {
         activityLauncherHelper = ActivityLauncherHelper(context.activity!!)
-    }
-
-    @Composable
-    private fun SummaryCardRow(icon: ImageVector? = null, title: String, action: @Composable () -> Unit) {
-        Row(
-            modifier = Modifier.padding(all = 16.dp),
-            horizontalArrangement = Arrangement.SpaceBetween
-        ) {
-            icon?.let {
-                Icon(
-                    imageVector = it,
-                    contentDescription = null,
-                    modifier = Modifier
-                        .padding(end = 10.dp)
-                        .align(Alignment.CenterVertically)
-                )
-            }
-            Text(text = title, modifier = Modifier
-                .weight(1f)
-                .align(Alignment.CenterVertically)
-            )
-            Column {
-                action()
-            }
-        }
     }
 
     @Composable
@@ -131,39 +107,10 @@ class HomeSection : Section() {
                 }
             }
         }
-
-        OutlinedCard(
-            modifier = Modifier
-                .padding(all = cardMargin)
-                .fillMaxWidth()
-        ) {
-            SummaryCardRow(
-                icon = Icons.Filled.Map,
-                title = if (installationSummary.modInfo == null || installationSummary.modInfo.mappingsOutdated == true) {
-                    "Mappings ${if (installationSummary.modInfo == null) "not generated" else "outdated"}"
-                } else {
-                    "Mappings are up-to-date"
-                }
-            ) {
-                Button(onClick = {
-                    context.checkForRequirements(Requirements.MAPPINGS)
-                }, modifier = Modifier.height(40.dp)) {
-                    Icon(Icons.Filled.Refresh, contentDescription = null)
-                }
-            }
-
-            SummaryCardRow(icon = Icons.Filled.Language, title = userLocale ?: "Unknown") {
-                Button(onClick = {
-                    context.checkForRequirements(Requirements.LANGUAGE)
-                }, modifier = Modifier.height(40.dp)) {
-                    Icon(Icons.Filled.OpenInNew, contentDescription = null)
-                }
-            }
-        }
     }
 
     override fun onResumed() {
-        if (!context.mappings.isMappingsLoaded()) {
+        if (!context.mappings.isMappingsLoaded) {
             context.mappings.init(context.androidContext)
         }
         context.coroutineScope.launch {
@@ -174,7 +121,9 @@ class HomeSection : Section() {
                 context.longToast("SnapEnhance failed to load installation summary: ${it.message}")
             }
             runCatching {
-                latestUpdate = Updater.checkForLatestRelease()
+                if (!BuildConfig.DEBUG) {
+                    latestUpdate = Updater.checkForLatestRelease()
+                }
             }.onFailure {
                 context.longToast("SnapEnhance failed to check for updates: ${it.message}")
             }
@@ -212,48 +161,7 @@ class HomeSection : Section() {
                     }
                 }
                 LOGS_SECTION_ROUTE -> {
-                    var showDropDown by remember { mutableStateOf(false) }
-
-                    IconButton(onClick = {
-                        showDropDown = true
-                    }) {
-                        Icon(Icons.Filled.MoreVert, contentDescription = null)
-                    }
-
-                    DropdownMenu(
-                        expanded = showDropDown,
-                        onDismissRequest = { showDropDown = false },
-                        modifier = Modifier.align(Alignment.CenterVertically)
-                    ) {
-                        DropdownMenuItem(onClick = {
-                            context.log.clearLogs()
-                            navController.navigate(LOGS_SECTION_ROUTE)
-                            showDropDown = false
-                        }, text = {
-                            Text(
-                                text = context.translation["manager.sections.home.logs.clear_logs_button"]
-                            )
-                        })
-
-                        DropdownMenuItem(onClick = {
-                            activityLauncherHelper.saveFile("snapenhance-logs-${System.currentTimeMillis()}.zip", "application/zip") { uri ->
-                                context.androidContext.contentResolver.openOutputStream(Uri.parse(uri))?.use {
-                                    runCatching {
-                                        context.log.exportLogsToZip(it)
-                                        context.longToast("Saved logs to $uri")
-                                    }.onFailure {
-                                        context.longToast("Failed to save logs to $uri!")
-                                        context.log.error("Failed to save logs to $uri!", it)
-                                    }
-                                }
-                            }
-                            showDropDown = false
-                        }, text = {
-                            Text(
-                                text = context.translation["manager.sections.home.logs.export_logs_button"]
-                            )
-                        })
-                    }
+                    homeSubSection.LogsTopBarButtons(activityLauncherHelper, navController, this)
                 }
             }
         }
@@ -280,30 +188,88 @@ class HomeSection : Section() {
     @Composable
     @Preview
     override fun Content() {
+        val avenirNextFontFamily = remember {
+            FontFamily(
+                Font(R.font.avenir_next_medium, FontWeight.Medium)
+            )
+        }
+
         Column(
             modifier = Modifier
                 .verticalScroll(ScrollState(0))
         ) {
-            Column(
+
+            Image(
+                painter = painterResource(id = R.drawable.launcher_icon_monochrome),
+                contentDescription = null,
+                colorFilter = ColorFilter.tint(MaterialTheme.colorScheme.primary),
+                contentScale = ContentScale.FillHeight,
                 modifier = Modifier
+                    .fillMaxWidth()
+                    .scale(1.8f)
+                    .height(90.dp)
+            )
+
+            Text(
+                text = remember { intArrayOf(101,99,110,97,104,110,69,112,97,110,83).map { it.toChar() }.joinToString("").reversed() },
+                fontSize = 30.sp,
+                fontFamily = avenirNextFontFamily,
+                modifier = Modifier.align(Alignment.CenterHorizontally),
+            )
+
+            Text(
+                text = "v" + BuildConfig.VERSION_NAME + " \u00b7 by rhunk",
+                fontSize = 12.sp,
+                fontFamily = avenirNextFontFamily,
+                modifier = Modifier.align(Alignment.CenterHorizontally),
+            )
+
+            Text(
+                text = "An xposed module made to enhance your Snapchat experience",
+                modifier = Modifier
+                    .padding(16.dp)
                     .fillMaxWidth(),
-                horizontalAlignment = Alignment.CenterHorizontally
+                textAlign = TextAlign.Center,
+            )
+
+            Row(
+                horizontalArrangement = Arrangement.spacedBy(15.dp, Alignment.CenterHorizontally),
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(all = 10.dp)
             ) {
-                Image(
-                    painter = painterResource(id = R.drawable.launcher_icon_monochrome),
+                Icon(
+                    imageVector = ImageVector.vectorResource(id = R.drawable.ic_github),
                     contentDescription = null,
-                    colorFilter = ColorFilter.tint(MaterialTheme.colorScheme.primary),
-                    contentScale = ContentScale.FillHeight,
-                    modifier = Modifier
-                        .height(120.dp)
-                        .scale(1.75f)
+                    tint = MaterialTheme.colorScheme.onSurfaceVariant,
+                    modifier = Modifier.size(32.dp).clickable {
+                        context.activity?.startActivity(
+                            Intent(Intent.ACTION_VIEW).apply {
+                                data = Uri.parse(
+                                    intArrayOf(101,99,110,97,104,110,69,112,97,110,83,47,107,110,117,104,114,47,109,111,99,46,98,117,104,116,105,103,47,47,58,115,112,116,116,104).map { it.toChar() }.joinToString("").reversed()
+                                )
+                                flags = Intent.FLAG_ACTIVITY_NEW_TASK
+                            }
+                        )
+                    }
                 )
-                Text(
-                    text = ("\u0065" + "\u0063" + "\u006e" + "\u0061" + "\u0068" + "\u006e" + "\u0045" + "\u0070" + "\u0061" + "\u006e" + "\u0053").reversed(),
-                    fontSize = 30.sp,
-                    modifier = Modifier.padding(16.dp),
+                Icon(
+                    imageVector = ImageVector.vectorResource(id = R.drawable.ic_telegram),
+                    contentDescription = null,
+                    tint = MaterialTheme.colorScheme.onSurfaceVariant,
+                    modifier = Modifier.size(32.dp).clickable {
+                        context.activity?.startActivity(
+                            Intent(Intent.ACTION_VIEW).apply {
+                                data = Uri.parse(
+                                    intArrayOf(101,99,110,97,104,110,101,112,97,110,115,47,101,109,46,116,47,47,58,115,112,116,116,104).map { it.toChar() }.joinToString("").reversed()
+                                )
+                                flags = Intent.FLAG_ACTIVITY_NEW_TASK
+                            }
+                        )
+                    }
                 )
             }
+            Spacer(modifier = Modifier.height(20.dp))
 
             if (latestUpdate != null) {
                 OutlinedCard(
@@ -345,11 +311,6 @@ class HomeSection : Section() {
                     }
                 }
             }
-
-            Text(
-                text = "An Xposed module made to enhance your Snapchat experience",
-                modifier = Modifier.padding(16.dp)
-            )
 
             SummaryCards(installationSummary = installationSummary ?: return)
         }

@@ -5,4 +5,10 @@ import me.rhunk.snapenhance.core.event.events.AbstractHookEvent
 class UnaryCallEvent(
     val uri: String,
     var buffer: ByteArray
-) : AbstractHookEvent()
+): AbstractHookEvent() {
+    val callbacks = mutableListOf<(UnaryCallEvent) -> Unit>()
+
+    fun addResponseCallback(responseCallback: UnaryCallEvent.() -> Unit) {
+        callbacks.add(responseCallback)
+    }
+}

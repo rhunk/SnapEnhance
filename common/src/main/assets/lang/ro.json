@@ -1,0 +1,53 @@
+{
+    "friend_menu_option": {
+        "preview": "Previzualizare",
+        "stealth_mode": "Modul Mascare",
+        "anti_auto_save": "Anti Salvare Automată"
+    },
+    "modal_option": {
+        "profile_info": "Informații Profil",
+        "close": "Închide"
+    },
+    "gallery_media_send_override": {
+        "multiple_media_toast": "Puteți trimite un singur fișier media la un moment dat"
+    },
+    "conversation_preview": {
+        "streak_expiration": "expiră în {day} zile {hour} ore {minute} minute",
+        "total_messages": "Total mesaje trimise/primite: {count}",
+        "title": "Previzualizare",
+        "unknown_user": "Utilizator Necunoscut"
+    },
+    "profile_info": {
+        "display_name": "Nume afișat"
+    },
+    "chat_export": {
+        "dialog_negative_button": "Anulare",
+        "exported_to": "Exportat către {path}",
+        "exporting_chats": "Se exportă conversațiile...",
+        "processing_chats": "Se procesează {amount} de conversații...",
+        "export_fail": "Nu s-a putut exporta conversația {conversation}",
+        "writing_output": "Se scrie rezultatul...",
+        "finished": "Gata! Acum puteți să închideți acest dialog.",
+        "no_messages_found": "Niciun mesaj găsit!",
+        "exporting_message": "Se exportă {conversation}..."
+    },
+    "button": {
+        "ok": "OK",
+        "positive": "Da",
+        "negative": "Nu",
+        "cancel": "Anulare",
+        "open": "Deschide"
+    },
+    "download_processor": {
+        "download_started_toast": "Descărcarea a început",
+        "unsupported_content_type_toast": "Tip de conținut nesuportat!",
+        "failed_no_longer_available_toast": "Media nu mai e valabilă",
+        "already_queued_toast": "Media este deja în așteptare!",
+        "already_downloaded_toast": "Media deja descărcată!",
+        "saved_toast": "Salvat în {path}",
+        "download_toast": "Se descarcă {path}...",
+        "processing_toast": "Se procesează {path}...",
+        "failed_generic_toast": "Descărcarea a eșuat",
+        "failed_to_create_preview_toast": "Nu a reușit să se creeze previzualizarea"
+    }
+}

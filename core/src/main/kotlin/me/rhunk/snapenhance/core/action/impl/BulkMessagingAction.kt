@@ -12,6 +12,7 @@ import me.rhunk.snapenhance.core.features.impl.experiments.AddFriendSourceSpoof
 import me.rhunk.snapenhance.core.features.impl.messaging.Messaging
 import me.rhunk.snapenhance.core.messaging.EnumBulkAction
 import me.rhunk.snapenhance.core.ui.ViewAppearanceHelper
+import me.rhunk.snapenhance.mapper.impl.FriendRelationshipChangerMapper
 
 class BulkMessagingAction : AbstractAction() {
     private val translation by lazy { context.translation.getCategory("bulk_messaging_action") }
@@ -145,22 +146,23 @@ class BulkMessagingAction : AbstractAction() {
     }
 
     private fun removeFriend(userId: String) {
-        val friendRelationshipChangerMapping = context.mappings.getMappedMap("FriendRelationshipChanger")
-        val friendRelationshipChangerInstance = context.feature(AddFriendSourceSpoof::class).friendRelationshipChangerInstance!!
+        context.mappings.useMapper(FriendRelationshipChangerMapper::class) {
+            val friendRelationshipChangerInstance = context.feature(AddFriendSourceSpoof::class).friendRelationshipChangerInstance!!
+            val removeFriendMethod = friendRelationshipChangerInstance::class.java.methods.first {
+                it.name == this.removeFriendMethod.get()
+            }
 
-        val removeFriendMethod = friendRelationshipChangerInstance::class.java.methods.first {
-            it.name == friendRelationshipChangerMapping["removeFriendMethod"].toString()
+            val completable = removeFriendMethod.invoke(friendRelationshipChangerInstance,
+                userId, // userId
+                removeFriendMethod.parameterTypes[1].enumConstants.first { it.toString() == "DELETED_BY_MY_FRIENDS" }, // source
+                null, // unknown
+                null, // unknown
+                null // InteractionPlacementInfo
+            )!!
+            completable::class.java.methods.first {
+                it.name == "subscribe" && it.parameterTypes.isEmpty()
+            }.invoke(completable)
         }
 
-        val completable = removeFriendMethod.invoke(friendRelationshipChangerInstance,
-            userId, // userId
-            removeFriendMethod.parameterTypes[1].enumConstants.first { it.toString() == "DELETED_BY_MY_FRIENDS" }, // source
-            null, // unknown
-            null, // unknown
-            null // InteractionPlacementInfo
-        )!!
-        completable::class.java.methods.first {
-            it.name == "subscribe" && it.parameterTypes.isEmpty()
-        }.invoke(completable)
     }
 }

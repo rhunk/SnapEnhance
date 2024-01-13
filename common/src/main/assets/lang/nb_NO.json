@@ -1,0 +1,106 @@
+{
+    "manager": {
+        "routes": {
+            "home_logs": "Loggføring",
+            "scripts": "Skript",
+            "home_settings": "Innstillinger",
+            "features": "Funksjoner",
+            "home": "Hjem",
+            "tasks": "Gjøremål"
+        },
+        "sections": {
+            "social": {
+                "rules_title": "Regler",
+                "streaks_length_text": "Lengde: {length}",
+                "not_found": "Ikke funnet",
+                "participants_text": "{count} deltagere",
+                "reminder_button": "Sett påminnelse"
+            },
+            "home": {
+                "logs": {
+                    "clear_logs_button": "Tøm loggføring",
+                    "export_logs_button": "Eksporter loggføring"
+                }
+            },
+            "features": {
+                "disabled": "Avskrudd"
+            }
+        },
+        "dialogs": {
+            "add_friend": {
+                "search_hint": "Søk",
+                "category_friends": "Venner",
+                "category_groups": "Grupper"
+            },
+            "scripting_warning": {
+                "title": "Advarsel"
+            }
+        }
+    },
+    "setup": {
+        "mappings": {
+            "generate_button": "Generer"
+        },
+        "dialogs": {
+            "select_save_folder_button": "Velg mappe",
+            "select_language": "Velg språk"
+        },
+        "permissions": {
+            "battery_optimization": "Batterioptimalisering",
+            "display_over_other_apps": "Vis over andre programmer",
+            "notification_access": "Merknadstilgang",
+            "request_button": "Forespør"
+        }
+    },
+    "rules": {
+        "modes": {
+            "blacklist": "Svartelistingsmodus",
+            "whitelist": "Hvitlistingsmodus"
+        },
+        "properties": {
+            "auto_save": {
+                "options": {
+                    "whitelist": "Automatisk lagring"
+                },
+                "name": "Automatisk lagring"
+            }
+        }
+    },
+    "features": {
+        "properties": {
+            "downloader": {
+                "properties": {
+                    "ffmpeg_options": {
+                        "properties": {
+                            "video_bitrate": {
+                                "name": "Videobitrate",
+                                "description": "Sett videobitraten (kbps)"
+                            },
+                            "threads": {
+                                "name": "Tråder"
+                            },
+                            "audio_bitrate": {
+                                "name": "Lydbitrate",
+                                "description": "Sett lydbitraten (kbps)"
+                            },
+                            "custom_video_codec": {
+                                "name": "Egendefinert videokodek"
+                            }
+                        }
+                    }
+                }
+            },
+            "user_interface": {
+                "properties": {
+                    "bootstrap_override": {
+                        "properties": {
+                            "home_tab": {
+                                "name": "Hjemmefane"
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+}

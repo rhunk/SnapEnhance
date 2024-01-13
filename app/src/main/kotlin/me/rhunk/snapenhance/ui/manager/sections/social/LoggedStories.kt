@@ -18,6 +18,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.graphics.asImageBitmap
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.core.content.FileProvider
 import coil.annotation.ExperimentalCoilApi
@@ -118,7 +119,7 @@ fun LoggedStories(
 
                         Button(onClick = {
                             val mediaAuthor = friendInfo?.mutableUsername ?: userId
-                            val uniqueHash = selectedStory?.url?.longHashCode()?.absoluteValue?.toString(16) ?: UUID.randomUUID().toString()
+                            val uniqueHash = (selectedStory?.url ?: UUID.randomUUID().toString()).longHashCode().absoluteValue.toString(16)
 
                             DownloadProcessor(
                                 remoteSideContext = context,
@@ -150,7 +151,7 @@ fun LoggedStories(
                                 ),
                                 iconUrl = null,
                                 mediaAuthor = friendInfo?.mutableUsername ?: userId,
-                                downloadSource = MediaDownloadSource.STORY_LOGGER.key
+                                downloadSource = MediaDownloadSource.STORY_LOGGER.translate(context.translation),
                             ))
                         }) {
                             Text(text = "Download")
@@ -159,6 +160,10 @@ fun LoggedStories(
                 }
             }
         }
+    }
+
+    if (stories.isEmpty()) {
+        Text(text = "No stories found", Modifier.fillMaxWidth(), textAlign = TextAlign.Center)
     }
 
     LazyVerticalGrid(
@@ -203,25 +208,29 @@ fun LoggedStories(
                             return@withTimeout
                         }
 
-                        val response = httpClient.newCall(Request(
-                            url = story.url.toHttpUrl()
-                        )).execute()
-                        response.body.byteStream().use {
-                            val decrypted = story.key?.let { _ ->
-                                val cipher = Cipher.getInstance("AES/CBC/PKCS5Padding")
-                                cipher.init(Cipher.DECRYPT_MODE, SecretKeySpec(story.key, "AES"), IvParameterSpec(story.iv))
-                                CipherInputStream(it, cipher)
-                            } ?: it
+                        runCatching {
+                            val response = httpClient.newCall(Request(
+                                url = story.url.toHttpUrl()
+                            )).execute()
+                            response.body.byteStream().use {
+                                val decrypted = story.key?.let { _ ->
+                                    val cipher = Cipher.getInstance("AES/CBC/PKCS5Padding")
+                                    cipher.init(Cipher.DECRYPT_MODE, SecretKeySpec(story.key, "AES"), IvParameterSpec(story.iv))
+                                    CipherInputStream(it, cipher)
+                                } ?: it
 
-                            context.imageLoader.diskCache?.openEditor(uniqueHash)?.apply {
-                                data.toFile().outputStream().use { fos ->
-                                    decrypted.copyTo(fos)
-                                }
-                                commitAndOpenSnapshot()?.use { snapshot ->
-                                    openDiskCacheSnapshot(snapshot)
-                                    snapshot.close()
+                                context.imageLoader.diskCache?.openEditor(uniqueHash)?.apply {
+                                    data.toFile().outputStream().use { fos ->
+                                        decrypted.copyTo(fos)
+                                    }
+                                    commitAndOpenSnapshot()?.use { snapshot ->
+                                        openDiskCacheSnapshot(snapshot)
+                                        snapshot.close()
+                                    }
                                 }
                             }
+                        }.onFailure {
+                            context.log.error("Failed to load story", it)
                         }
                     }
                 }

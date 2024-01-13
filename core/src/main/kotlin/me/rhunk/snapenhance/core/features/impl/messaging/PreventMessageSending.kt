@@ -2,8 +2,8 @@ package me.rhunk.snapenhance.core.features.impl.messaging
 
 import me.rhunk.snapenhance.common.data.NotificationType
 import me.rhunk.snapenhance.common.util.protobuf.ProtoEditor
+import me.rhunk.snapenhance.core.event.events.impl.NativeUnaryCallEvent
 import me.rhunk.snapenhance.core.event.events.impl.SendMessageWithContentEvent
-import me.rhunk.snapenhance.core.event.events.impl.UnaryCallEvent
 import me.rhunk.snapenhance.core.features.Feature
 import me.rhunk.snapenhance.core.features.FeatureLoadParams
 import me.rhunk.snapenhance.core.util.hook.HookStage
@@ -13,7 +13,7 @@ class PreventMessageSending : Feature("Prevent message sending", loadParams = Fe
     override fun asyncOnActivityCreate() {
         val preventMessageSending by context.config.messaging.preventMessageSending
 
-        context.event.subscribe(UnaryCallEvent::class, { preventMessageSending.contains("snap_replay") }) { event ->
+        context.event.subscribe(NativeUnaryCallEvent::class, { preventMessageSending.contains("snap_replay") }) { event ->
             if (event.uri != "/messagingcoreservice.MessagingCoreService/UpdateContentMessage") return@subscribe
             event.buffer = ProtoEditor(event.buffer).apply {
                 edit(3) {

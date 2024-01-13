@@ -143,10 +143,10 @@ class MessageLogger : Feature("MessageLogger",
                 messageJsonObject["mMetadata"].asJsonObject.addProperty("mPlayableSnapState", "PLAYABLE")
             }
 
-            //serialize all properties of messageJsonObject and put in the message object
+            //serialize all properties of messageJsonObject and put mMessageContent & mMetadata in the message object
             messageInstance.javaClass.declaredFields.forEach { field ->
+                if (field.name != "mMessageContent" && field.name != "mMetadata") return@forEach
                 field.isAccessible = true
-                if (field.name == "mDescriptor") return@forEach // prevent the client message id from being overwritten
                 messageJsonObject[field.name]?.let { fieldValue ->
                     field.set(messageInstance, context.gson.fromJson(fieldValue, field.type))
                 }

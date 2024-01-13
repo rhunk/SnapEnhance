@@ -88,8 +88,7 @@ class ScopeContent(
                             text = if (ruleType.listMode && ruleState != null) {
                                 context.translation["rules.properties.${ruleType.key}.options.${ruleState.key}"]
                             } else context.translation["rules.properties.${ruleType.key}.name"],
-                            maxLines = 1,
-                            modifier = Modifier.weight(1f)
+                            modifier = Modifier.weight(1f).padding(start = 5.dp, end = 5.dp)
                         )
                         Switch(checked = ruleEnabled,
                             enabled = if (ruleType.listMode) ruleState != null else true,
@@ -261,68 +260,70 @@ class ScopeContent(
             Spacer(modifier = Modifier.height(16.dp))
             // e2ee section
 
-            SectionTitle(translation["e2ee_title"])
-            var hasSecretKey by remember { mutableStateOf(context.e2eeImplementation.friendKeyExists(friend.userId))}
-            var importDialog by remember { mutableStateOf(false) }
+            if (context.config.root.experimental.e2eEncryption.globalState == true) {
+                SectionTitle(translation["e2ee_title"])
+                var hasSecretKey by remember { mutableStateOf(context.e2eeImplementation.friendKeyExists(friend.userId))}
+                var importDialog by remember { mutableStateOf(false) }
 
-            if (importDialog) {
-                Dialog(
-                    onDismissRequest = { importDialog = false }
-                ) {
-                    dialogs.RawInputDialog(onDismiss = { importDialog = false  }, onConfirm = { newKey ->
-                        importDialog = false
-                        runCatching {
-                            val key = Base64.decode(newKey)
-                            if (key.size != 32) {
-                                context.longToast("Invalid key size (must be 32 bytes)")
-                                return@runCatching
+                if (importDialog) {
+                    Dialog(
+                        onDismissRequest = { importDialog = false }
+                    ) {
+                        dialogs.RawInputDialog(onDismiss = { importDialog = false  }, onConfirm = { newKey ->
+                            importDialog = false
+                            runCatching {
+                                val key = Base64.decode(newKey)
+                                if (key.size != 32) {
+                                    context.longToast("Invalid key size (must be 32 bytes)")
+                                    return@runCatching
+                                }
+
+                                context.e2eeImplementation.storeSharedSecretKey(friend.userId, key)
+                                context.longToast("Successfully imported key")
+                                hasSecretKey = true
+                            }.onFailure {
+                                context.longToast("Failed to import key: ${it.message}")
+                                context.log.error("Failed to import key", it)
                             }
-
-                            context.e2eeImplementation.storeSharedSecretKey(friend.userId, key)
-                            context.longToast("Successfully imported key")
-                            hasSecretKey = true
-                        }.onFailure {
-                            context.longToast("Failed to import key: ${it.message}")
-                            context.log.error("Failed to import key", it)
-                        }
-                    })
+                        })
+                    }
                 }
-            }
 
-            ContentCard {
-                Row(
-                    verticalAlignment = Alignment.CenterVertically,
-                    horizontalArrangement = Arrangement.spacedBy(10.dp)
-                ) {
-                    if (hasSecretKey) {
-                        OutlinedButton(onClick = {
-                            val secretKey = Base64.encode(context.e2eeImplementation.getSharedSecretKey(friend.userId) ?: return@OutlinedButton)
-                            //TODO: fingerprint auth
-                            context.activity!!.startActivity(Intent.createChooser(Intent().apply {
-                                action = Intent.ACTION_SEND
-                                putExtra(Intent.EXTRA_TEXT, secretKey)
-                                type = "text/plain"
-                            }, "").apply {
-                                putExtra(Intent.EXTRA_INITIAL_INTENTS, arrayOf(
-                                    Intent().apply {
-                                        putExtra(Intent.EXTRA_TEXT, secretKey)
-                                        putExtra(Intent.EXTRA_SUBJECT, secretKey)
-                                    })
+                ContentCard {
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.spacedBy(10.dp)
+                    ) {
+                        if (hasSecretKey) {
+                            OutlinedButton(onClick = {
+                                val secretKey = Base64.encode(context.e2eeImplementation.getSharedSecretKey(friend.userId) ?: return@OutlinedButton)
+                                //TODO: fingerprint auth
+                                context.activity!!.startActivity(Intent.createChooser(Intent().apply {
+                                    action = Intent.ACTION_SEND
+                                    putExtra(Intent.EXTRA_TEXT, secretKey)
+                                    type = "text/plain"
+                                }, "").apply {
+                                    putExtra(Intent.EXTRA_INITIAL_INTENTS, arrayOf(
+                                        Intent().apply {
+                                            putExtra(Intent.EXTRA_TEXT, secretKey)
+                                            putExtra(Intent.EXTRA_SUBJECT, secretKey)
+                                        })
+                                    )
+                                })
+                            }) {
+                                Text(
+                                    text = "Export Base64",
+                                    maxLines = 1
                                 )
-                            })
-                        }) {
+                            }
+                        }
+
+                        OutlinedButton(onClick = { importDialog = true }) {
                             Text(
-                                text = "Export Base64",
+                                text = "Import Base64",
                                 maxLines = 1
                             )
                         }
-                    }
-
-                    OutlinedButton(onClick = { importDialog = true }) {
-                        Text(
-                            text = "Import Base64",
-                            maxLines = 1
-                        )
                     }
                 }
             }

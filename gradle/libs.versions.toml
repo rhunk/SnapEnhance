@@ -1,28 +1,28 @@
 [versions]
-agp = "8.2.0"
-apksig = "8.2.0"
+agp = "8.2.1"
+apksig = "8.2.1"
 libsu = "5.2.2"
-guava = "32.1.3-jre"
-jsoup = "1.17.1"
-kotlin = "1.9.21"
+guava = "33.0.0-jre"
+jsoup = "1.17.2"
+kotlin = "1.9.22"
 kotlinx-coroutines-android = "1.7.3"
-compose-compiler = "1.5.6"
+compose-compiler = "1.5.8"
 
 activity-ktx = "1.8.2"
 androidx-documentfile = "1.1.0-alpha01"
 coil-compose = "2.5.0"
 navigation-compose = "2.7.6"
-osmdroid-android = "6.1.17"
+osmdroid-android = "6.1.18"
 recyclerview = "1.3.2"
 
 compose-bom = "2023.10.01"
 bcprov-jdk18on = "1.77"
-dexlib2 = "2.5.2"
+dexlib2 = "3.0.3"
 ffmpeg-kit = "5.1.LTS" # DO NOT UPDATE FFMPEG-KIT TO "5.1" it breaks stuff :3
 gson = "2.10.1"
-junit = "4.13.2"
+junit = "5.10.1"
 material3 = "1.1.2"
-okhttp = "5.0.0-alpha.11"
+okhttp = "5.0.0-alpha.12"
 rhino = "1.7.14"
 
 
@@ -43,12 +43,12 @@ coil-compose = { module = "io.coil-kt:coil-compose", version.ref = "coil-compose
 coil-video = { module = "io.coil-kt:coil-video", version.ref = "coil-compose" }
 libsu = { module = "com.github.topjohnwu.libsu:core", version.ref = "libsu" }
 coroutines = { group = "org.jetbrains.kotlinx", name = "kotlinx-coroutines-android", version.ref = "kotlinx-coroutines-android" }
-dexlib2 = { group = "org.smali", name = "dexlib2", version.ref = "dexlib2" }
+dexlib2 = { group = "com.android.tools.smali", name = "smali-dexlib2", version.ref = "dexlib2" }
 ffmpeg-kit = { group = "com.arthenica", name = "ffmpeg-kit-full-gpl", version.ref = "ffmpeg-kit" }
 gson = { group = "com.google.code.gson", name = "gson", version.ref = "gson" }
 guava = { module = "com.google.guava:guava", version.ref = "guava" }
 jsoup = { module = "org.jsoup:jsoup", version.ref = "jsoup" }
-junit = { module = "junit:junit", version.ref = "junit" }
+junit = { group = "org.junit.jupiter", name = "junit-jupiter-api", version.ref = "junit" }
 okhttp = { group = "com.squareup.okhttp3", name = "okhttp", version.ref = "okhttp" }
 osmdroid-android = { group = "org.osmdroid", name = "osmdroid-android", version.ref = "osmdroid-android" }
 recyclerview = { group = "androidx.recyclerview", name = "recyclerview", version.ref = "recyclerview" }

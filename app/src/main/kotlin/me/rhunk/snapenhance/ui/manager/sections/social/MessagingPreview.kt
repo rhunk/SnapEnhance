@@ -423,29 +423,34 @@ class MessagingPreview(
     }
 
     private fun onMessagingBridgeReady() {
-        messagingBridge = context.bridgeService!!.messagingBridge!!
-        conversationId = if (scope == SocialScope.FRIEND) messagingBridge.getOneToOneConversationId(scopeId) else scopeId
-        if (conversationId == null) {
-            context.longToast("Failed to fetch conversation id")
-            return
-        }
-        if (!messagingBridge.isSessionStarted) {
-            context.androidContext.packageManager.getLaunchIntentForPackage(
-                Constants.SNAPCHAT_PACKAGE_NAME
-            )?.let {
-                val mainIntent = Intent.makeRestartActivityTask(it.component).apply {
-                    putExtra(ReceiversConfig.MESSAGING_PREVIEW_EXTRA, true)
-                }
-                context.androidContext.startActivity(mainIntent)
+        runCatching {
+            messagingBridge = context.bridgeService!!.messagingBridge!!
+            conversationId = if (scope == SocialScope.FRIEND) messagingBridge.getOneToOneConversationId(scopeId) else scopeId
+            if (conversationId == null) {
+                context.longToast("Failed to fetch conversation id")
+                return
             }
-            messagingBridge.registerSessionStartListener(object: SessionStartListener.Stub() {
-                override fun onConnected() {
-                    fetchNewMessages()
+            if (!messagingBridge.isSessionStarted) {
+                context.androidContext.packageManager.getLaunchIntentForPackage(
+                    Constants.SNAPCHAT_PACKAGE_NAME
+                )?.let {
+                    val mainIntent = Intent.makeRestartActivityTask(it.component).apply {
+                        putExtra(ReceiversConfig.MESSAGING_PREVIEW_EXTRA, true)
+                    }
+                    context.androidContext.startActivity(mainIntent)
                 }
-            })
-            return
+                messagingBridge.registerSessionStartListener(object: SessionStartListener.Stub() {
+                    override fun onConnected() {
+                        fetchNewMessages()
+                    }
+                })
+                return
+            }
+            fetchNewMessages()
+        }.onFailure {
+            context.longToast("Failed to initialize messaging bridge")
+            context.log.error("Failed to initialize messaging bridge", it)
         }
-        fetchNewMessages()
     }
 
     @Composable

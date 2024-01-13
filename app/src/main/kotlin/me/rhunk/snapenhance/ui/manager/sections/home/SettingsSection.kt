@@ -21,6 +21,7 @@ import me.rhunk.snapenhance.common.Constants
 import me.rhunk.snapenhance.common.action.EnumAction
 import me.rhunk.snapenhance.common.bridge.types.BridgeFileType
 import me.rhunk.snapenhance.ui.manager.Section
+import me.rhunk.snapenhance.ui.setup.Requirements
 import me.rhunk.snapenhance.ui.util.ActivityLauncherHelper
 import me.rhunk.snapenhance.ui.util.AlertDialogs
 import me.rhunk.snapenhance.ui.util.saveFile
@@ -63,7 +64,7 @@ class SettingsSection(
         ShiftedRow(
             modifier = Modifier
                 .fillMaxWidth()
-                .height(65.dp)
+                .height(55.dp)
                 .clickable {
                     takeAction()
                 },
@@ -115,6 +116,12 @@ class SettingsSection(
                 RowAction(title = context.translation["actions.${enumAction.key}"]) {
                     launchActionIntent(enumAction)
                 }
+            }
+            RowAction(title = "Regenerate Mappings") {
+                context.checkForRequirements(Requirements.MAPPINGS)
+            }
+            RowAction(title = "Change Language") {
+                context.checkForRequirements(Requirements.LANGUAGE)
             }
             RowTitle(title = "Message Logger")
             ShiftedRow {
@@ -227,6 +234,7 @@ class SettingsSection(
                     Text(text = "Clear")
                 }
             }
+            Spacer(modifier = Modifier.height(50.dp))
         }
     }
 }

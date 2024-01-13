@@ -8,8 +8,9 @@ import me.rhunk.snapenhance.core.features.Feature
 import me.rhunk.snapenhance.core.features.FeatureLoadParams
 import me.rhunk.snapenhance.core.features.MessagingRuleFeature
 import me.rhunk.snapenhance.core.features.impl.ConfigurationOverride
+import me.rhunk.snapenhance.core.features.impl.OperaViewerParamsOverride
 import me.rhunk.snapenhance.core.features.impl.ScopeSync
-import me.rhunk.snapenhance.core.features.impl.Stories
+import me.rhunk.snapenhance.core.features.impl.MixerStories
 import me.rhunk.snapenhance.core.features.impl.downloader.MediaDownloader
 import me.rhunk.snapenhance.core.features.impl.downloader.ProfilePictureDownloader
 import me.rhunk.snapenhance.core.features.impl.experiments.*
@@ -21,10 +22,11 @@ import me.rhunk.snapenhance.core.features.impl.spying.StealthMode
 import me.rhunk.snapenhance.core.features.impl.tweaks.BypassScreenshotDetection
 import me.rhunk.snapenhance.core.features.impl.tweaks.CameraTweaks
 import me.rhunk.snapenhance.core.features.impl.tweaks.PreventMessageListAutoScroll
+import me.rhunk.snapenhance.core.features.impl.tweaks.UnsaveableMessages
 import me.rhunk.snapenhance.core.features.impl.ui.*
 import me.rhunk.snapenhance.core.logger.CoreLogger
 import me.rhunk.snapenhance.core.manager.Manager
-import me.rhunk.snapenhance.core.ui.menu.impl.MenuViewInjector
+import me.rhunk.snapenhance.core.ui.menu.MenuViewInjector
 import kotlin.reflect.KClass
 import kotlin.system.measureTimeMillis
 
@@ -80,6 +82,7 @@ class FeatureManager(
             AutoSave::class,
             UITweaks::class,
             ConfigurationOverride::class,
+            UnsaveableMessages::class,
             SendOverride::class,
             UnlimitedSnapViewTime::class,
             BypassVideoLengthRestriction::class,
@@ -110,11 +113,15 @@ class FeatureManager(
             BypassScreenshotDetection::class,
             HalfSwipeNotifier::class,
             DisableConfirmationDialogs::class,
-            Stories::class,
+            MixerStories::class,
             DisableComposerModules::class,
             FideliusIndicator::class,
             EditTextOverride::class,
             PreventForcedLogout::class,
+            SuspendLocationUpdates::class,
+            ConversationToolbox::class,
+            SpotlightCommentsUsername::class,
+            OperaViewerParamsOverride::class,
         )
 
         initializeFeatures()

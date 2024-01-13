@@ -4,20 +4,20 @@ import me.rhunk.snapenhance.core.features.Feature
 import me.rhunk.snapenhance.core.features.FeatureLoadParams
 import me.rhunk.snapenhance.core.util.hook.HookStage
 import me.rhunk.snapenhance.core.util.hook.hook
+import me.rhunk.snapenhance.mapper.impl.MediaQualityLevelProviderMapper
+import java.lang.reflect.Method
 
 class MediaQualityLevelOverride : Feature("MediaQualityLevelOverride", loadParams = FeatureLoadParams.INIT_SYNC) {
     override fun init() {
-        val enumQualityLevel = context.mappings.getMappedClass("EnumQualityLevel")
-        val mediaQualityLevelProvider = context.mappings.getMappedMap("MediaQualityLevelProvider")
+        if (!context.config.global.forceUploadSourceQuality.get()) return
 
-        val forceMediaSourceQuality by context.config.global.forceUploadSourceQuality
-
-        context.androidContext.classLoader.loadClass(mediaQualityLevelProvider["class"].toString()).hook(
-            mediaQualityLevelProvider["method"].toString(),
-            HookStage.BEFORE,
-            { forceMediaSourceQuality }
-        ) { param ->
-            param.setResult(enumQualityLevel.enumConstants.firstOrNull { it.toString() == "LEVEL_MAX" } )
+        context.mappings.useMapper(MediaQualityLevelProviderMapper::class) {
+            mediaQualityLevelProvider.getAsClass()?.hook(
+                mediaQualityLevelProviderMethod.getAsString()!!,
+                HookStage.BEFORE
+            ) { param ->
+                param.setResult((param.method() as Method).returnType.enumConstants.firstOrNull { it.toString() == "LEVEL_MAX" } )
+            }
         }
     }
 }

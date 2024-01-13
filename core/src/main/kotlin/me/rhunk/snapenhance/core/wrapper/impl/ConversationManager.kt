@@ -6,6 +6,7 @@ import me.rhunk.snapenhance.core.util.CallbackBuilder
 import me.rhunk.snapenhance.core.util.ktx.getObjectField
 import me.rhunk.snapenhance.core.util.ktx.setObjectField
 import me.rhunk.snapenhance.core.wrapper.AbstractWrapper
+import me.rhunk.snapenhance.mapper.impl.CallbackMapper
 
 typealias CallbackResult = (error: String?) -> Unit
 
@@ -26,20 +27,29 @@ class ConversationManager(
     private val getOneOnOneConversationIds by lazy { findMethodByName("getOneOnOneConversationIds") }
 
 
+    private fun getCallbackClass(name: String): Class<*> {
+        lateinit var result: Class<*>
+        context.mappings.useMapper(CallbackMapper::class) {
+            result = context.androidContext.classLoader.loadClass(callbacks.get()!![name])
+        }
+        return result
+    }
+
+
     fun updateMessage(conversationId: String, messageId: Long, action: MessageUpdate, onResult: CallbackResult = {}) {
         updateMessageMethod.invoke(
             instanceNonNull(),
             SnapUUID.fromString(conversationId).instanceNonNull(),
             messageId,
             context.classCache.messageUpdateEnum.enumConstants.first { it.toString() == action.toString() },
-            CallbackBuilder(context.mappings.getMappedClass("callbacks", "Callback"))
+            CallbackBuilder(getCallbackClass("Callback"))
                 .override("onSuccess") { onResult(null) }
                 .override("onError") { onResult(it.arg<Any>(0).toString()) }.build()
         )
     }
 
     fun fetchConversationWithMessagesPaginated(conversationId: String, lastMessageId: Long, amount: Int, onSuccess: (message: List<Message>) -> Unit, onError: (error: String) -> Unit) {
-        val callback = CallbackBuilder(context.mappings.getMappedClass("callbacks", "FetchConversationWithMessagesCallback"))
+        val callback = CallbackBuilder(getCallbackClass("FetchConversationWithMessagesCallback"))
             .override("onFetchConversationWithMessagesComplete") { param ->
                 onSuccess(param.arg<List<*>>(1).map { Message(it) })
             }
@@ -54,7 +64,7 @@ class ConversationManager(
         fetchConversationWithMessagesMethod.invoke(
             instanceNonNull(),
             conversationId.toSnapUUID().instanceNonNull(),
-            CallbackBuilder(context.mappings.getMappedClass("callbacks", "FetchConversationWithMessagesCallback"))
+            CallbackBuilder(getCallbackClass("FetchConversationWithMessagesCallback"))
                 .override("onFetchConversationWithMessagesComplete") { param ->
                     onSuccess(param.arg<List<*>>(1).map { Message(it) })
                 }
@@ -70,7 +80,7 @@ class ConversationManager(
             instanceNonNull(),
             conversationId.toSnapUUID().instanceNonNull(),
             messageId,
-            CallbackBuilder(context.mappings.getMappedClass("callbacks", "Callback"))
+            CallbackBuilder(getCallbackClass("Callback"))
                 .override("onSuccess") { onResult(null) }
                 .override("onError") { onResult(it.arg<Any>(0).toString()) }.build()
         )
@@ -81,7 +91,7 @@ class ConversationManager(
             instanceNonNull(),
             conversationId.toSnapUUID().instanceNonNull(),
             messageId,
-            CallbackBuilder(context.mappings.getMappedClass("callbacks", "FetchMessageCallback"))
+            CallbackBuilder(getCallbackClass("FetchMessageCallback"))
                 .override("onFetchMessageComplete") { param ->
                     onSuccess(Message(param.arg(0)))
                 }
@@ -91,16 +101,16 @@ class ConversationManager(
         )
     }
 
-    fun fetchMessageByServerId(conversationId: String, serverMessageId: String, onSuccess: (Message) -> Unit, onError: (error: String) -> Unit) {
+    fun fetchMessageByServerId(conversationId: String, serverMessageId: Long, onSuccess: (Message) -> Unit, onError: (error: String) -> Unit) {
         val serverMessageIdentifier = CallbackBuilder.createEmptyObject(context.classCache.serverMessageIdentifier.constructors.first())?.apply {
             setObjectField("mServerConversationId", conversationId.toSnapUUID().instanceNonNull())
-            setObjectField("mServerMessageId", serverMessageId.toLong())
+            setObjectField("mServerMessageId", serverMessageId)
         }
 
         fetchMessageByServerId.invoke(
             instanceNonNull(),
             serverMessageIdentifier,
-            CallbackBuilder(context.mappings.getMappedClass("callbacks", "FetchMessageCallback"))
+            CallbackBuilder(getCallbackClass("FetchMessageCallback"))
                 .override("onFetchMessageComplete") { param ->
                     onSuccess(Message(param.arg(0)))
                 }
@@ -119,7 +129,7 @@ class ConversationManager(
                     setObjectField("mServerMessageId", it)
                 }
             },
-            CallbackBuilder(context.mappings.getMappedClass("callbacks", "FetchMessagesByServerIdsCallback"))
+            CallbackBuilder(getCallbackClass("FetchMessagesByServerIdsCallback"))
                 .override("onSuccess") { param ->
                     onSuccess(param.arg<List<*>>(0).mapNotNull {
                         Message(it?.getObjectField("mMessage") ?: return@mapNotNull null)
@@ -132,14 +142,14 @@ class ConversationManager(
     }
 
     fun clearConversation(conversationId: String, onSuccess: () -> Unit, onError: (error: String) -> Unit) {
-        val callback = CallbackBuilder(context.mappings.getMappedClass("callbacks", "Callback"))
+        val callback = CallbackBuilder(getCallbackClass("Callback"))
             .override("onSuccess") { onSuccess() }
             .override("onError") { onError(it.arg<Any>(0).toString()) }.build()
         clearConversation.invoke(instanceNonNull(), conversationId.toSnapUUID().instanceNonNull(), callback)
     }
 
     fun getOneOnOneConversationIds(userIds: List<String>, onSuccess: (List<Pair<String, String>>) -> Unit, onError: (error: String) -> Unit) {
-        val callback = CallbackBuilder(context.mappings.getMappedClass("callbacks", "GetOneOnOneConversationIdsCallback"))
+        val callback = CallbackBuilder(getCallbackClass("GetOneOnOneConversationIdsCallback"))
             .override("onSuccess") { param ->
                 onSuccess(param.arg<ArrayList<*>>(0).map {
                     SnapUUID(it.getObjectField("mUserId")).toString() to SnapUUID(it.getObjectField("mConversationId")).toString()

@@ -1,0 +1,692 @@
+{
+    "setup": {
+        "dialogs": {
+            "select_language": "Valitse Kieli",
+            "save_folder": "SnapEnhance vaatii tallennus oikeudet ladatakseen mediaa Snapchatista.\nValitse sijainti mihin media tallennetaan.",
+            "select_save_folder_button": "Valitse kansio"
+        },
+        "mappings": {
+            "dialog": "Useiden Snapchat -versioiden dynaaminen tuki edellyttää kartoituksia. Kartoitukset vaaditaan että SnapEnhance toimisi oikein. Tämän ei pitäisi kestää yli 5 sekuntia.",
+            "generate_button": "Luo",
+            "generate_failure_no_snapchat": "SnapEnhance ei havainnut Snapchattia, yritä asentaa Snapchat uudelleen.",
+            "generate_failure": "Kartoituksien luomisessa tapahtui virhe. Yritä uudelleen.",
+            "generate_success": "Kartoitukset luotu onnistuneesti."
+        },
+        "permissions": {
+            "dialog": "Jatkaaksesi sinun on täytettävä seuraavat vaatimukset:",
+            "notification_access": "Ilmoitusten Käyttöoikeus",
+            "battery_optimization": "Akun Optimointi",
+            "display_over_other_apps": "Näytä Muiden Sovellusten Päällä",
+            "request_button": "Pyyntö"
+        }
+    },
+    "manager": {
+        "routes": {
+            "features": "Ominaisuudet",
+            "home": "Etusivu",
+            "home_settings": "Asetukset",
+            "home_logs": "Lokit",
+            "social": "Sosiaalinen",
+            "scripts": "Komentosarjat"
+        },
+        "sections": {
+            "home": {
+                "logs": {
+                    "clear_logs_button": "Tyhjennä lokit",
+                    "export_logs_button": "Vie lokit"
+                }
+            },
+            "features": {
+                "disabled": "Pois päältä"
+            },
+            "social": {
+                "e2ee_title": "End-to-End Salaus",
+                "rules_title": "Säännöt",
+                "participants_text": "{count} osallistujaa",
+                "not_found": "Ei löytynyt",
+                "streaks_title": "Streakit",
+                "streaks_length_text": "Pituus: {length}",
+                "streaks_expiration_short": "{hours}h",
+                "streaks_expiration_text": "Vanhenee {eta} kuluttua",
+                "reminder_button": "Aseta muistutus"
+            }
+        },
+        "dialogs": {
+            "add_friend": {
+                "title": "Lisää Kaveri tai Ryhmä",
+                "search_hint": "Etsi",
+                "fetch_error": "Tietojen noutaminen epäonnistui",
+                "category_groups": "Ryhmät",
+                "category_friends": "Kaverit"
+            }
+        }
+    },
+    "rules": {
+        "modes": {
+            "blacklist": "Blacklist tila",
+            "whitelist": "Whitelist tila"
+        },
+        "properties": {
+            "auto_download": {
+                "name": "Automaattinen Lataus",
+                "description": "Lataa automaattisesti vastaanotetun snäpin avauksen yhteydessä",
+                "options": {
+                    "blacklist": "Sulje pois automaattisesta latauksesta",
+                    "whitelist": "Automaattinen Lataus"
+                }
+            },
+            "stealth": {
+                "name": "Haamutila",
+                "description": "Estää ketään tietämästä, että olet avannut heidän snäpin tai chatin",
+                "options": {
+                    "blacklist": "Sulje pois haamutilasta",
+                    "whitelist": "Haamutila"
+                }
+            },
+            "auto_save": {
+                "name": "Automaattinen Tallennus",
+                "description": "Tallentaa chat-viestit katselun yhteydessä",
+                "options": {
+                    "blacklist": "Sulje pois automaattinen tallentaminen",
+                    "whitelist": "Automaattinen tallennus"
+                }
+            },
+            "hide_friend_feed": {
+                "name": "Piilota Ystäväsyötteestä"
+            },
+            "e2e_encryption": {
+                "name": "Käytä E2E-salausta"
+            },
+            "pin_conversation": {
+                "name": "Kiinnitä Keskustelu"
+            }
+        }
+    },
+    "actions": {
+        "clean_snapchat_cache": "Tyhjennä Snapchatin Välimuisti",
+        "clear_message_logger": "Tyhjennä Viestiloki",
+        "refresh_mappings": "Päivitä Kartoitukset",
+        "open_map": "Valitse sijainti kartalta",
+        "check_for_updates": "Tarkista päivitykset",
+        "export_chat_messages": "Vie Chat-viestit"
+    },
+    "features": {
+        "notices": {
+            "unstable": "⚠ Epävakaa",
+            "ban_risk": "⚠ Voi aiheuttaa eston tilillesi",
+            "internal_behavior": "⚠ Voi rikkoa Snapchatin sisäisiä toiminnallisuuksia",
+            "require_native_hooks": "⚠ Tämä vaatii kokeellisen \"Native Hooks\" ominaisuuden toimiakseen"
+        },
+        "properties": {
+            "downloader": {
+                "name": "Lataaja",
+                "description": "Lataa Snapchat Mediaa",
+                "properties": {
+                    "save_folder": {
+                        "name": "Tallennus Kansio",
+                        "description": "Valitse kansio, johon kaikki media ladataan"
+                    },
+                    "auto_download_sources": {
+                        "name": "Automaattiset Latauslähteet",
+                        "description": "Valitse lähteet, joista ladataan automaattisesti"
+                    },
+                    "prevent_self_auto_download": {
+                        "name": "Estä Automaattiset Lataukset Itseltä",
+                        "description": "Estää omia Snappejasi latautumasta automaattisesti"
+                    },
+                    "path_format": {
+                        "name": "Polun Muoto",
+                        "description": "Määritä tiedostopolun muoto"
+                    },
+                    "allow_duplicate": {
+                        "name": "Salli Kaksoiskappaleet",
+                        "description": "Salli saman median lataamisen useita kertoja"
+                    },
+                    "merge_overlays": {
+                        "name": "Yhdistä Päälitasot",
+                        "description": "Yhdistää snäpin tekstin ja median yhdeksi tiedostoksi"
+                    },
+                    "force_image_format": {
+                        "name": "Pakota Kuvan Formaatti",
+                        "description": "Pakottaa tallentamaan kuvat valitussa formaatissa"
+                    },
+                    "force_voice_note_format": {
+                        "name": "Pakota äänimuistiinpanomuoto",
+                        "description": "Pakottaa äänimuistiinpanot tallentamaan tietyssä muodossa"
+                    },
+                    "download_profile_pictures": {
+                        "name": "Lataa profiilikuvat",
+                        "description": "Antaa sinun ladata profiilikuvia profiilin sivulta"
+                    },
+                    "chat_download_context_menu": {
+                        "name": "Chat-latauksen kontekstivalikko",
+                        "description": "Voit ladata mediaa keskustelusta painamalla niitä pitkään"
+                    },
+                    "ffmpeg_options": {
+                        "name": "FFmpeg Asetukset",
+                        "description": "Määritä FFmpeg-lisäasetukset",
+                        "properties": {
+                            "threads": {
+                                "name": "Säikeet",
+                                "description": "Määritä rinnakkaisten säikeiden määrä"
+                            },
+                            "preset": {
+                                "name": "Esiasetus",
+                                "description": "Aseta muunnoksen nopeus"
+                            },
+                            "constant_rate_factor": {
+                                "name": "Vakionopeustekijä",
+                                "description": "Aseta videoenkooderin vakionopeuskerroin\n 0-51 libx264: lle"
+                            },
+                            "video_bitrate": {
+                                "name": "Videon bittinopeus",
+                                "description": "Aseta videon bittinopeus (kbps)"
+                            },
+                            "audio_bitrate": {
+                                "name": "Äänen bittinopeus",
+                                "description": "Aseta äänen bittinopeus (kbps)"
+                            },
+                            "custom_video_codec": {
+                                "name": "Mukautettu Videokoodekki",
+                                "description": "Aseta mukautettu videokoodekki (esim. libx264)"
+                            },
+                            "custom_audio_codec": {
+                                "name": "Mukautettu Äänikoodekki",
+                                "description": "Aseta mukautettu äänikoodekki (esim. AAC)"
+                            }
+                        }
+                    },
+                    "logging": {
+                        "name": "Lokiin kirjaus",
+                        "description": "Näytä pieni ilmoitus kun lataus on käynnissä"
+                    }
+                }
+            },
+            "user_interface": {
+                "name": "Ulkoasu",
+                "description": "Muuta Snapchatin ulkoasua ja tuntumaa",
+                "properties": {
+                    "enable_app_appearance": {
+                        "name": "Ota käyttöön sovelluksen ulkoasuasetukset",
+                        "description": "Ottaa käyttöön piilotetun sovelluksen ulkoasuasetuksen\nEi välttämättä vaadita uudemmissa Snapchat-versioissa"
+                    },
+                    "amoled_dark_mode": {
+                        "name": "AMOLED Tumma Tila",
+                        "description": "Ottaa käyttöön AMOLED tumman tilan\nVarmista että Snapchatin tumma tila on päällä"
+                    },
+                    "friend_feed_message_preview": {
+                        "name": "Ystäväsyötteen Viestien Esikatselu",
+                        "description": "Näyttää esikatselun ystäväsyötteen viimeisimmistä viesteistä",
+                        "properties": {
+                            "amount": {
+                                "name": "Määrä",
+                                "description": "Esikatseltavien viestien määrä"
+                            }
+                        }
+                    },
+                    "bootstrap_override": {
+                        "name": "Bootstrap Ohitus",
+                        "description": "Ohittaa käyttöliittymän bootstrap-asetukset",
+                        "properties": {
+                            "app_appearance": {
+                                "name": "Sovelluksen Ulkoasu",
+                                "description": "Asettaa pysyvän sovelluksen ulkoasun"
+                            },
+                            "home_tab": {
+                                "name": "Koti-välilehti",
+                                "description": "Valitse välilehti mikä aukeaa Snapchatin käynnistyessä"
+                            }
+                        }
+                    },
+                    "map_friend_nametags": {
+                        "name": "Parannetut ystäväkartan nimilaput",
+                        "description": "Parantaa ystävien nimilappuja Snapkartassa"
+                    },
+                    "streak_expiration_info": {
+                        "name": "Näytä Striikkien Vanhenemistiedot",
+                        "description": "Näyttää striikkien loppumisajastin streakkilaskurin vieressä"
+                    },
+                    "hide_friend_feed_entry": {
+                        "name": "Piilota ystäväsyöte",
+                        "description": "Piilottaa tietyn ystävän ystäväsyötteestä\n Käytä sosiaalisen median välilehteä hallitaksesi tätä ominaisuutta"
+                    },
+                    "hide_streak_restore": {
+                        "name": "Piilota streakkien palautus",
+                        "description": "Piilottaa Palauta-painikkeen ystäväsyötteessä"
+                    },
+                    "hide_ui_components": {
+                        "name": "Piilota käyttöliittymäkomponentit",
+                        "description": "Valitse piilotettavat käyttöliittymäkomponentit"
+                    },
+                    "disable_spotlight": {
+                        "name": "Poista Valokeila Käytöstä",
+                        "description": "Poistaa Valokeila-sivun käytöstä"
+                    },
+                    "friend_feed_menu_buttons": {
+                        "name": "Ystävän syötteen valikkopainikkeet",
+                        "description": "Valitse, mitkä painikkeet näytetään ystäväsyötteen valikkopalkissa"
+                    },
+                    "friend_feed_menu_position": {
+                        "name": "Ystävän syötteen sijaintiindeksi",
+                        "description": "Ystäväsyöte-valikkokomponentin sijainti"
+                    },
+                    "enable_friend_feed_menu_bar": {
+                        "name": "Ystäväsyötteen valikkopalkki",
+                        "description": "Ottaa käyttöön uuden ystäväsyötteen valikkopalkin"
+                    }
+                }
+            },
+            "messaging": {
+                "name": "Viestintä",
+                "description": "Muuta tapaa, jolla olet vuorovaikutuksessa ystävien kanssa",
+                "properties": {
+                    "anonymous_story_viewing": {
+                        "name": "Nimetön tarinan katselu",
+                        "description": "Estää ketään tietämästä, että olet nähnyt heidän tarinansa"
+                    },
+                    "hide_bitmoji_presence": {
+                        "name": "Piilota Bitmojin läsnäolo",
+                        "description": "Estää Bitmojia ponnahtamasta esiin chatissa"
+                    },
+                    "hide_typing_notifications": {
+                        "name": "Piilota Kirjoitusilmoitukset",
+                        "description": "Estää ketään huomaamasta, että kirjoitat viestiä"
+                    },
+                    "unlimited_snap_view_time": {
+                        "name": "Rajatot Snapin Katseluaika",
+                        "description": "Poistaa snäppien katselun aikarajan käytöstä"
+                    },
+                    "disable_replay_in_ff": {
+                        "name": "Poista uusinta käytöstä FF: ssä",
+                        "description": "Poistaa käytöstä mahdollisuuden toistaa kaverisyötteestä pitkällä painalluksella"
+                    },
+                    "message_preview_length": {
+                        "name": "Viestin Esikatselun Pituus",
+                        "description": "Määritä esikatseltavien viestien määrä"
+                    },
+                    "prevent_message_sending": {
+                        "name": "Estä Viestien Lähettäminen",
+                        "description": "Estää tietyntyyppisten viestien lähettämisen"
+                    },
+                    "better_notifications": {
+                        "name": "Paremmat ilmoitukset",
+                        "description": "Antaa enemmän tietoja vastaanotetuissa ilmoituksissa"
+                    },
+                    "notification_blacklist": {
+                        "name": "Ilmoitusten Esto Lista",
+                        "description": "Valitse ilmoitukset joita et halua nähdä"
+                    },
+                    "message_logger": {
+                        "name": "Viestiloki",
+                        "description": "Estää viestien poistamisen"
+                    },
+                    "auto_save_messages_in_conversations": {
+                        "name": "Automaattinen Viestien Tallennus",
+                        "description": "Tallentaa automaattisesti jokaisen keskustelun viestin"
+                    },
+                    "gallery_media_send_override": {
+                        "name": "Gallerian Medialähetyksen Ohitus",
+                        "description": "Väärennä median lähde lähetettäessä galleriasta"
+                    }
+                }
+            },
+            "global": {
+                "name": "Globaali",
+                "description": "Säädä Globaaleja Snapchatin Asetuksia",
+                "properties": {
+                    "spoofLocation": {
+                        "name": "Sijainti",
+                        "description": "Väärennä sijaintisi",
+                        "properties": {
+                            "coordinates": {
+                                "name": "Koordinaatit",
+                                "description": "Aseta koordinaatit"
+                            }
+                        }
+                    },
+                    "snapchat_plus": {
+                        "name": "Snapchat Plus",
+                        "description": "Ota käyttöön Snapchat Plus ominaisuudet\nJotkin palvelinpohjaiset ominaisuudet eivät välttämättä toimi"
+                    },
+                    "auto_updater": {
+                        "name": "Automaattiset Päivitykset",
+                        "description": "Tarkistaa automaattisesti uudet päivitykset"
+                    },
+                    "disable_metrics": {
+                        "name": "Poista Analytiikka Käytöstä",
+                        "description": "Estä analyyttisten tietojen lähettäminen Snapchatille"
+                    },
+                    "block_ads": {
+                        "name": "Estä Mainokset",
+                        "description": "Estää mainoksia näkymästä"
+                    },
+                    "bypass_video_length_restriction": {
+                        "name": "Ohita videon pituus rajoitukset",
+                        "description": "Yksittäinen: lähettää yhden videon\nKatkottu: katkaise videot muokkauksen jälkeen"
+                    },
+                    "disable_google_play_dialogs": {
+                        "name": "Poista Google Play -palveluiden valintaikkunat käytöstä",
+                        "description": "Estä Google Play -palveluiden saatavuusvalintaikkunoiden näyttäminen"
+                    },
+                    "disable_snap_splitting": {
+                        "name": "Poista Snäppien katkominen käytöstä",
+                        "description": "Estää Snäppejä jakautumasta useisiin osiin\nLähettämäsi kuvat muuttuvat videoiksi"
+                    }
+                }
+            },
+            "rules": {
+                "name": "Säännöt",
+                "description": "Hallitse yksittäisten henkilöiden automaattisia ominaisuuksia"
+            },
+            "camera": {
+                "name": "Kamera",
+                "description": "Säädä oikeat asetukset täydellisen kuvan saamiseksi",
+                "properties": {
+                    "disable_camera": {
+                        "name": "Estä Kamera",
+                        "description": "Estä Snapchattia käyttämästä laitteessasi olevia kameroita"
+                    },
+                    "immersive_camera_preview": {
+                        "name": "Mukaansatempaava esikatselu",
+                        "description": "Estää Snapchatia rajaamasta kameran esikatselua.\nTämä saattaa aiheuttaa kameran välkkymistä joissakin laitteissa"
+                    },
+                    "override_preview_resolution": {
+                        "name": "Ohita Esikatselun Resoluutio",
+                        "description": "Ohittaa kameran esikatselun resoluution"
+                    },
+                    "override_picture_resolution": {
+                        "name": "Ohita Kuvan Resoluutio",
+                        "description": "Ohittaa kuvan resoluution"
+                    },
+                    "custom_frame_rate": {
+                        "name": "Mukautettu Kuvataajuus",
+                        "description": "Ohittaa kameran kuvataajuuden"
+                    },
+                    "force_camera_source_encoding": {
+                        "name": "Pakota kameran lähdekoodaus",
+                        "description": "Pakottaa kameran lähdekoodauksen"
+                    }
+                }
+            },
+            "streaks_reminder": {
+                "name": "Striikkien muistutukset",
+                "description": "Muistuttaa sinua loppuvista striikeistä",
+                "properties": {
+                    "interval": {
+                        "name": "Aikaväli",
+                        "description": "Kuinka usein sinua muistutetaan (tunneissa)"
+                    },
+                    "remaining_hours": {
+                        "name": "Jäljellä Oleva Aika",
+                        "description": "Jäljellä oleva aika ennen kuin muistutus näytetään"
+                    },
+                    "group_notifications": {
+                        "name": "Ryhmä ilmoitukset",
+                        "description": "Näytä ilmoitukset yhdessä ryhmässä"
+                    }
+                }
+            },
+            "experimental": {
+                "name": "Kokeelliset",
+                "description": "Kokeelliset ominaisuudet",
+                "properties": {
+                    "native_hooks": {
+                        "name": "Native Hooks",
+                        "description": "Vaarallinen ominaisuus joka kytkeytyy Snapchatin alkuperäiseen koodiin",
+                        "properties": {
+                            "disable_bitmoji": {
+                                "name": "Poista Bitmoji Käytöstä",
+                                "description": "Poista kavereiden profiili Bitmojit käytöstä"
+                            }
+                        }
+                    },
+                    "spoof": {
+                        "name": "Väärennä",
+                        "description": "Väärennä erinäisiä tietoja sinusta"
+                    },
+                    "app_passcode": {
+                        "name": "Sovelluksen Pääsykoodi",
+                        "description": "Aseta pääsykoodi sovelluksen lukitsemiseksi"
+                    },
+                    "app_lock_on_resume": {
+                        "name": "Sovelluksen Lukitus Jatkossa",
+                        "description": "Lukitsee sovelluksen, kun se avataan uudelleen"
+                    },
+                    "infinite_story_boost": {
+                        "name": "Loputon Tarinan Tehostus",
+                        "description": "Ohita Story Boost Limit -viive"
+                    },
+                    "meo_passcode_bypass": {
+                        "name": "Vain Omille Silmille- Tunnuskoodin Ohitus",
+                        "description": "Ohittaa salasanan \"Vain omille silmille\" osioon\nTämä toimii vain, jos salasana on syötetty oikein aiemmin"
+                    },
+                    "unlimited_multi_snap": {
+                        "name": "Rajaton Multi Snap",
+                        "description": "Voit ottaa ja lähettää Multi Snapilla rajattoman määrän mediaa"
+                    },
+                    "no_friend_score_delay": {
+                        "name": "Ei Snäppi-Score Viivettä",
+                        "description": "Poistaa viiveen katsottaessa Snäppi-scorea"
+                    },
+                    "e2ee": {
+                        "name": "End-To-End Salaus",
+                        "description": "Salaa viestisi AES: llä jaetun salaisen avaimen avulla\n Muista tallentaa avaimesi turvalliseen paikkaan!",
+                        "properties": {
+                            "encrypted_message_indicator": {
+                                "name": "Salatun viestin ilmaisin",
+                                "description": "Lisää 🔒 emoji salattujen viestien viereen"
+                            },
+                            "force_message_encryption": {
+                                "name": "Pakota Viestien Salaus",
+                                "description": "Estää salattujen viestien lähettämisen ihmisille, joilla ei ole E2E-salausta käytössä vain kun useita keskusteluja on valittu"
+                            }
+                        }
+                    },
+                    "add_friend_source_spoof": {
+                        "name": "Lisää ystävälähteen huijaus",
+                        "description": "Väärentää mistä kaveripyyntö on peräisin"
+                    },
+                    "hidden_snapchat_plus_features": {
+                        "name": "Piilotetut Snapchat Plus -ominaisuudet",
+                        "description": "Ottaa käyttöön julkaisemattomat/beta Snapchat Plus -ominaisuudet\nEi ehkä toimi vanhemmissa Snapchat-versioissa"
+                    }
+                }
+            },
+            "scripting": {
+                "name": "Komentojono",
+                "description": "Suorita mukautettuja komentosarjoja laajentaaksesi SnapEnhancea",
+                "properties": {
+                    "developer_mode": {
+                        "name": "Kehittäjätila",
+                        "description": "Näyttää virheenkorjaustiedot Snapchatin käyttöliittymässä"
+                    },
+                    "module_folder": {
+                        "name": "Moduulin kansio",
+                        "description": "Kansio, jossa komentosarjat sijaitsevat"
+                    }
+                }
+            }
+        },
+        "options": {
+            "app_appearance": {
+                "always_light": "Aina Vaalea",
+                "always_dark": "Aina Tumma"
+            },
+            "better_notifications": {
+                "reply_button": "Lisää \"Vastaa\" -painike",
+                "download_button": "Lisää latauspainike",
+                "group": "Ryhmäilmoitukset"
+            },
+            "friend_feed_menu_buttons": {
+                "auto_download": "⬇️ Automaattinen Lataus",
+                "auto_save": "💬 Automaattinen Viestien Tallennus",
+                "stealth": "👻 Haamutila",
+                "conversation_info": "👤 Keskustelun Tiedot",
+                "e2e_encryption": "🔒 Käytä E2E-salausta"
+            },
+            "path_format": {
+                "create_author_folder": "Luo kansio jokaiselle kirjoittajalle",
+                "create_source_folder": "Luo oma kansio jokaiselle median lähdetyypille",
+                "append_hash": "Lisää tiedoston nimeen yksilöllinen tiiviste",
+                "append_source": "Lisää median lähde tiedoston nimeen",
+                "append_username": "Lisää käyttäjänimi tiedoston nimeen",
+                "append_date_time": "Lisää päivämäärä ja aika tiedoston nimeen"
+            },
+            "auto_download_sources": {
+                "friend_snaps": "Kaverien Snäpit",
+                "friend_stories": "Kaverien Tarinat",
+                "public_stories": "Julkiset Tarinat",
+                "spotlight": "Valokeila"
+            },
+            "logging": {
+                "started": "Aloitettu",
+                "success": "Suoritettu",
+                "progress": "Edistyminen",
+                "failure": "Epäonnistui"
+            },
+            "notifications": {
+                "chat_screenshot": "Kuvakaappaus",
+                "chat_screen_record": "Näytön Tallennus",
+                "snap_replay": "Snapin Uudelleenkatselu",
+                "camera_roll_save": "Tallennettu kameranrullaan",
+                "chat": "Chatti",
+                "chat_reply": "Chatin Vastaus",
+                "snap": "Snap",
+                "typing": "Kirjoittaa",
+                "stories": "Tarinat",
+                "chat_reaction": "DM Reaktio",
+                "group_chat_reaction": "Ryhmän Reaktio",
+                "initiate_audio": "Saapuva Äänipuhelu",
+                "abandon_audio": "Vastaamaton Äänipuhelu",
+                "initiate_video": "Saapuva Videopuhelu",
+                "abandon_video": "Vastaamaton Videopuhelu"
+            },
+            "gallery_media_send_override": {
+                "ORIGINAL": "Alkuperäinen",
+                "NOTE": "Ääniviesti",
+                "SNAP": "Snap",
+                "SAVABLE_SNAP": "Tallennettava Snap"
+            },
+            "hide_ui_components": {
+                "hide_profile_call_buttons": "Poista Profiilin Soittopainikkeet",
+                "hide_chat_call_buttons": "Poista Chatin Puhelupainikkeet",
+                "hide_live_location_share_button": "Poista Sijainnin Jakopainike",
+                "hide_stickers_button": "Poista Tarrat -painike",
+                "hide_voice_record_button": "Poista Äänityspainike"
+            },
+            "home_tab": {
+                "map": "Kartta",
+                "chat": "Chatti",
+                "camera": "Kamera",
+                "discover": "Tutustu",
+                "spotlight": "Valokeila"
+            },
+            "add_friend_source_spoof": {
+                "added_by_username": "Käyttäjänimellä",
+                "added_by_mention": "Maininnasta",
+                "added_by_group_chat": "Ryhmäkeskustelusta",
+                "added_by_qr_code": "QR-koodilla",
+                "added_by_community": "Yhteisöstä"
+            },
+            "bypass_video_length_restriction": {
+                "single": "Yksittäinen media",
+                "split": "Jaettu media"
+            }
+        }
+    },
+    "friend_menu_option": {
+        "preview": "Esikatselu",
+        "stealth_mode": "Haamutila",
+        "auto_download_blacklist": "Automaattisen latauksen esto lista",
+        "anti_auto_save": "Automaattisen tallennuksen esto"
+    },
+    "chat_action_menu": {
+        "preview_button": "Esikatselu",
+        "download_button": "Lataa",
+        "delete_logged_message_button": "Poista kirjattu viesti"
+    },
+    "opera_context_menu": {
+        "download": "Lataa Media"
+    },
+    "modal_option": {
+        "profile_info": "Profiilin Tiedot",
+        "close": "Sulje"
+    },
+    "gallery_media_send_override": {
+        "multiple_media_toast": "Voit lähettää vain yhden median kerrallaan"
+    },
+    "conversation_preview": {
+        "streak_expiration": "loppuu {day} päivän {hour} tunnin {minute} minuutin kuluttua",
+        "total_messages": "Lähetetyt/vastaanotetut viestit yhteensä: {count}",
+        "title": "Esikatselu",
+        "unknown_user": "Tuntematon käyttäjä"
+    },
+    "profile_info": {
+        "title": "Profiilin tiedot",
+        "first_created_username": "Ensimmäinen Käyttäjätunnus",
+        "mutable_username": "Muutettava Käyttäjätunnus",
+        "display_name": "Näyttönimi",
+        "added_date": "Lisätty Päivämäärä",
+        "birthday": "Syntymäpäivä: {month} {day}",
+        "friendship": "Ystävyys",
+        "add_source": "Lisää lähde",
+        "snapchat_plus": "Snapchat Plus",
+        "snapchat_plus_state": {
+            "subscribed": "Tilattu",
+            "not_subscribed": "Ei Tilattu"
+        }
+    },
+    "chat_export": {
+        "dialog_negative_button": "Peruuta",
+        "dialog_positive_button": "Vie",
+        "exported_to": "Viety {path}",
+        "exporting_chats": "Viedään Keskusteluja...",
+        "processing_chats": "Käsitellään {amount} keskustelu(a)...",
+        "export_fail": "Ei voitu viedä keskustelua {conversation}",
+        "writing_output": "Tulostetta kirjoitetaan...",
+        "finished": "Valmis! Voit nyt sulkea tämän ikkunan.",
+        "no_messages_found": "Viestejä ei löytynyt!",
+        "exporting_message": "Viedään {conversation}..."
+    },
+    "button": {
+        "ok": "OK",
+        "positive": "Kyllä",
+        "negative": "Ei",
+        "cancel": "Peruuta",
+        "open": "Avaa",
+        "download": "Lataa"
+    },
+    "profile_picture_downloader": {
+        "button": "Lataa Profiilikuva",
+        "title": "Profiilikuvan Lataaja",
+        "avatar_option": "Hahmo",
+        "background_option": "Tausta"
+    },
+    "download_processor": {
+        "attachment_type": {
+            "snap": "Snap",
+            "sticker": "Tarra",
+            "external_media": "Ulkoinen Media",
+            "note": "Merkintä",
+            "original_story": "Alkuperäinen Tarina"
+        },
+        "select_attachments_title": "Valitse ladattavat liitteet",
+        "download_started_toast": "Lataus aloitettu",
+        "unsupported_content_type_toast": "Sisältötyyppiä ei tueta!",
+        "failed_no_longer_available_toast": "Media ei ole enää saatavilla",
+        "no_attachments_toast": "Liitteitä ei löytynyt!",
+        "already_queued_toast": "Media on jo jonossa!",
+        "already_downloaded_toast": "Media on jo ladattu!",
+        "saved_toast": "Tallennettu sijaintiin {path}",
+        "download_toast": "Ladataan {path}...",
+        "processing_toast": "Käsitellään {path}...",
+        "failed_generic_toast": "Lataus epäonnistui",
+        "failed_to_create_preview_toast": "Esikatselun luominen epäonnistui",
+        "failed_processing_toast": "Käsittely epäonnistui {error}",
+        "failed_gallery_toast": "Tallennus galleriaan epäonnistui {error}"
+    },
+    "streaks_reminder": {
+        "notification_title": "Striikit",
+        "notification_text": "Menetät Striikit {friend}: n kanssa {hoursLeft} tunnin kuluttua"
+    }
+}

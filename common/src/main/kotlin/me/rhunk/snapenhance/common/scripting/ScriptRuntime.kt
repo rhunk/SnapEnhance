@@ -1,6 +1,7 @@
 package me.rhunk.snapenhance.common.scripting
 
 import android.content.Context
+import me.rhunk.snapenhance.bridge.scripting.IScripting
 import me.rhunk.snapenhance.common.logger.AbstractLogger
 import me.rhunk.snapenhance.common.scripting.type.ModuleInfo
 import org.mozilla.javascript.ScriptableObject
@@ -10,9 +11,13 @@ import java.io.InputStream
 
 open class ScriptRuntime(
     val androidContext: Context,
-    val logger: AbstractLogger,
+    logger: AbstractLogger,
 ) {
+    val logger = ScriptingLogger(logger)
+
+    lateinit var scripting: IScripting
     var buildModuleObject: ScriptableObject.(JSModule) -> Unit = {}
+
     private val modules = mutableMapOf<String, JSModule>()
 
     fun eachModule(f: JSModule.() -> Unit) {
@@ -49,13 +54,18 @@ open class ScriptRuntime(
         }
 
         return ModuleInfo(
-            name = properties["name"] ?: throw Exception("Missing module name"),
+            name = properties["name"]?.also {
+                if (!it.matches(Regex("[a-z_]+"))) {
+                    throw Exception("Invalid module name : Only lowercase letters and underscores are allowed")
+                }
+            } ?: throw Exception("Missing module name"),
             version = properties["version"] ?: throw Exception("Missing module version"),
+            displayName = properties["displayName"],
             description = properties["description"],
             author = properties["author"],
-            minSnapchatVersion = properties["minSnapchatVersion"]?.toLong(),
-            minSEVersion = properties["minSEVersion"]?.toLong(),
-            grantPermissions = properties["permissions"]?.split(",")?.map { it.trim() },
+            minSnapchatVersion = properties["minSnapchatVersion"]?.toLongOrNull(),
+            minSEVersion = properties["minSEVersion"]?.toLongOrNull(),
+            grantedPermissions = properties["permissions"]?.split(",")?.map { it.trim() } ?: emptyList(),
         )
     }
 
@@ -63,19 +73,15 @@ open class ScriptRuntime(
         return readModuleInfo(inputStream.bufferedReader())
     }
 
-    fun reload(path: String, content: String) {
-        unload(path)
-        load(path, content)
-    }
-
-    private fun unload(path: String) {
-        val module = modules[path] ?: return
+    fun unload(scriptPath: String) {
+        val module = modules[scriptPath] ?: return
+        logger.info("Unloading module $scriptPath")
         module.unload()
-        modules.remove(path)
+        modules.remove(scriptPath)
     }
 
-    fun load(path: String, content: String): JSModule? {
-        logger.info("Loading module $path")
+    fun load(scriptPath: String, content: String): JSModule? {
+        logger.info("Loading module $scriptPath")
         return runCatching {
             JSModule(
                 scriptRuntime = this,
@@ -85,10 +91,10 @@ open class ScriptRuntime(
                 load {
                     buildModuleObject(this, this@apply)
                 }
-                modules[path] = this
+                modules[scriptPath] = this
             }
         }.onFailure {
-            logger.error("Failed to load module $path", it)
+            logger.error("Failed to load module $scriptPath", it)
         }.getOrNull()
     }
 }

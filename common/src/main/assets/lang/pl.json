@@ -1,0 +1,112 @@
+{
+    "setup": {
+        "dialogs": {
+            "select_language": "Wybierz język",
+            "save_folder": "SnapEnhance wymaga uprawnień do przechowywania danych w celu pobierania i zapisywania mediów z Snapchat.\nProszę wybrać lokalizację, do której media powinny być pobierane.",
+            "select_save_folder_button": "Wybierz Folder"
+        },
+        "mappings": {
+            "dialog": "Aby dynamicznie obsługiwać szeroki zakres wersji Snapchat, konieczne są mapowania, aby SnapEnhance działał poprawnie. To nie powinno zająć więcej niż 5 sekund.",
+            "generate_button": "Wygeneruj",
+            "generate_failure_no_snapchat": "SnapEnhance nie było w stanie wykryć Snapchata, spróbuj ponownie zainstalować Snapchat.",
+            "generate_failure": "Wystąpił błąd podczas próby generowania mapowań, spróbuj ponownie.",
+            "generate_success": "Mapowania zostały pomyślnie wygenerowane."
+        },
+        "permissions": {
+            "dialog": "Aby kontynuować, musisz spełnić poniższe wymagania:",
+            "notification_access": "Dostęp do powiadomień",
+            "battery_optimization": "Optymalizacja baterii",
+            "display_over_other_apps": "Wyświetlanie nad innymi aplikacjami",
+            "request_button": "Wymagania"
+        }
+    },
+    "manager": {
+        "routes": {
+            "features": "Cechy",
+            "home": "Strona główna",
+            "home_settings": "Ustawienia",
+            "home_logs": "Logi",
+            "social": "Społeczność",
+            "scripts": "Skrypty"
+        },
+        "sections": {
+            "home": {
+                "logs": {
+                    "clear_logs_button": "Wyczyść logi",
+                    "export_logs_button": "Eksportuj logi"
+                }
+            },
+            "features": {
+                "disabled": "Wyłączony"
+            },
+            "social": {
+                "e2ee_title": "Szyfrowanie end-to-end",
+                "rules_title": "Reguły"
+            }
+        }
+    },
+    "friend_menu_option": {
+        "preview": "Podgląd",
+        "stealth_mode": "Tryb Stealth",
+        "auto_download_blacklist": "Automatyczne pobieranie czarnej listy",
+        "anti_auto_save": "Anty-automatyczne zapisywanie"
+    },
+    "chat_action_menu": {
+        "preview_button": "Podgląd",
+        "download_button": "Pobierz",
+        "delete_logged_message_button": "Usuń zarejestrowaną wiadomość"
+    },
+    "opera_context_menu": {
+        "download": "Pobierz media"
+    },
+    "modal_option": {
+        "profile_info": "Info o profilu",
+        "close": "Zamknij"
+    },
+    "gallery_media_send_override": {
+        "multiple_media_toast": "Możesz wysłać tylko jeden nośnik na raz"
+    },
+    "conversation_preview": {
+        "streak_expiration": "wygasa za {day} dni {hour} godziny {minute} minuty",
+        "total_messages": "Łączna liczba wysłanych/odebranych wiadomości: {count}",
+        "title": "Podgląd",
+        "unknown_user": "Nieznany użytkownik"
+    },
+    "profile_info": {
+        "title": "Info o profilu",
+        "display_name": "Wyświetl nazwę",
+        "added_date": "Dodaj datę",
+        "birthday": "Urodziny : {month} {day}"
+    },
+    "chat_export": {
+        "dialog_negative_button": "Anuluj",
+        "dialog_positive_button": "Eksportuj",
+        "exported_to": "Wyeksportowano do {path}",
+        "exporting_chats": "Eksportowanie czatów...",
+        "processing_chats": "Przetwarzanie rozmów {amount}...",
+        "export_fail": "Nie udało się wyeksportować rozmowy {conversation}",
+        "writing_output": "Zapisywanie danych...",
+        "finished": "Gotowe! Teraz możesz zamknąć to okno.",
+        "no_messages_found": "Nie znaleziono wiadomości!",
+        "exporting_message": "Eksportowanie {conversation}..."
+    },
+    "button": {
+        "ok": "Ok",
+        "positive": "Tak",
+        "negative": "Nie",
+        "cancel": "Anuluj",
+        "open": "Otwórz"
+    },
+    "download_processor": {
+        "download_started_toast": "Rozpoczęto pobieranie",
+        "unsupported_content_type_toast": "Nieobsługiwany typ treści!",
+        "failed_no_longer_available_toast": "Media już niedostępne",
+        "already_queued_toast": "Media są już w kolejce!",
+        "already_downloaded_toast": "Media już pobrane!",
+        "saved_toast": "Zapisano w {path}",
+        "download_toast": "Pobieranie {path}...",
+        "processing_toast": "Przetwarzanie {path}...",
+        "failed_generic_toast": "Pobieranie nie powiodło się",
+        "failed_to_create_preview_toast": "Nie można wczytać podglądu"
+    }
+}

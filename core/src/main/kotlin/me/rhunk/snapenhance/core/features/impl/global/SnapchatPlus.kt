@@ -3,8 +3,9 @@ package me.rhunk.snapenhance.core.features.impl.global
 import me.rhunk.snapenhance.core.features.Feature
 import me.rhunk.snapenhance.core.features.FeatureLoadParams
 import me.rhunk.snapenhance.core.util.hook.HookStage
-import me.rhunk.snapenhance.core.util.hook.Hooker
 import me.rhunk.snapenhance.core.util.hook.hook
+import me.rhunk.snapenhance.core.util.hook.hookConstructor
+import me.rhunk.snapenhance.mapper.impl.PlusSubscriptionMapper
 
 class SnapchatPlus: Feature("SnapchatPlus", loadParams = FeatureLoadParams.INIT_SYNC) {
     private val originalSubscriptionTime = (System.currentTimeMillis() - 7776000000L)
@@ -13,17 +14,17 @@ class SnapchatPlus: Feature("SnapchatPlus", loadParams = FeatureLoadParams.INIT_
     override fun init() {
         if (!context.config.global.snapchatPlus.get()) return
 
-        val subscriptionInfoClass = context.mappings.getMappedClass("SubscriptionInfoClass")
+        context.mappings.useMapper(PlusSubscriptionMapper::class) {
+            classReference.get()?.hookConstructor(HookStage.BEFORE) { param ->
+                if (param.arg<Int>(0) == 2) return@hookConstructor
+                //subscription tier
+                param.setArg(0, 2)
+                //subscription status
+                param.setArg(1, 2)
 
-        Hooker.hookConstructor(subscriptionInfoClass, HookStage.BEFORE) { param ->
-            if (param.arg<Int>(0) == 2) return@hookConstructor
-            //subscription tier
-            param.setArg(0, 2)
-            //subscription status
-            param.setArg(1, 2)
-
-            param.setArg(2, originalSubscriptionTime)
-            param.setArg(3, expirationTimeMillis)
+                param.setArg(2, originalSubscriptionTime)
+                param.setArg(3, expirationTimeMillis)
+            }
         }
 
         // optional as ConfigurationOverride does this too

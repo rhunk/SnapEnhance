@@ -1,4 +1,4 @@
-package me.rhunk.snapenhance.core.ui.menu.impl
+package me.rhunk.snapenhance.core.ui.menu
 
 import android.annotation.SuppressLint
 import android.view.Gravity
@@ -6,12 +6,13 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.FrameLayout
 import android.widget.LinearLayout
+import android.widget.ScrollView
 import me.rhunk.snapenhance.core.event.events.impl.AddViewEvent
 import me.rhunk.snapenhance.core.features.Feature
 import me.rhunk.snapenhance.core.features.FeatureLoadParams
 import me.rhunk.snapenhance.core.features.impl.messaging.Messaging
 import me.rhunk.snapenhance.core.ui.ViewTagState
-import me.rhunk.snapenhance.core.ui.menu.AbstractMenu
+import me.rhunk.snapenhance.core.ui.menu.impl.*
 import me.rhunk.snapenhance.core.util.ktx.getIdentifier
 import java.lang.reflect.Modifier
 import kotlin.reflect.KClass
@@ -27,14 +28,18 @@ class MenuViewInjector : Feature("MenuViewInjector", loadParams = FeatureLoadPar
 
     @SuppressLint("ResourceType")
     override fun asyncOnActivityCreate() {
-        menuMap[OperaContextActionMenu::class] = OperaContextActionMenu()
-        menuMap[OperaDownloadIconMenu::class] = OperaDownloadIconMenu()
-        menuMap[SettingsGearInjector::class] = SettingsGearInjector()
-        menuMap[FriendFeedInfoMenu::class] = FriendFeedInfoMenu()
-        menuMap[ChatActionMenu::class] = ChatActionMenu()
-        menuMap[SettingsMenu::class] = SettingsMenu()
-
-        menuMap.values.forEach { it.context = context; it.init() }
+        arrayOf(
+            OperaContextActionMenu(),
+            OperaDownloadIconMenu(),
+            SettingsGearInjector(),
+            FriendFeedInfoMenu(),
+            ChatActionMenu(),
+            SettingsMenu()
+        ).forEach {
+            menuMap[it::class] = it.also {
+                it.context = context; it.init()
+            }
+        }
 
         val messaging = context.feature(Messaging::class)
 
@@ -90,26 +95,29 @@ class MenuViewInjector : Feature("MenuViewInjector", loadParams = FeatureLoadPar
                     })
                 }
 
-                val viewList = mutableListOf<View>()
                 context.runOnUiThread {
-                    menuMap[FriendFeedInfoMenu::class]?.inject(event.parent, injectedLayout) { view ->
-                        view.layoutParams = LinearLayout.LayoutParams(
+                    injectedLayout.addView(ScrollView(injectedLayout.context).apply {
+                        layoutParams = LinearLayout.LayoutParams(
                             ViewGroup.LayoutParams.MATCH_PARENT,
                             ViewGroup.LayoutParams.WRAP_CONTENT
                         ).apply {
-                            setMargins(0, 5, 0, 5)
+                            weight = 1f;
+                            setMargins(0, 100, 0, 0)
                         }
-                        viewList.add(view)
-                    }
 
-                    viewList.add(View(injectedLayout.context).apply {
-                        layoutParams = LinearLayout.LayoutParams(
-                            ViewGroup.LayoutParams.MATCH_PARENT,
-                            30
-                        )
-                    })
-
-                    viewList.reversed().forEach { injectedLayout.addView(it, 0) }
+                        addView(LinearLayout(context).apply {
+                            orientation = LinearLayout.VERTICAL
+                            menuMap[FriendFeedInfoMenu::class]?.inject(event.parent, injectedLayout) { view ->
+                                view.layoutParams = LinearLayout.LayoutParams(
+                                    ViewGroup.LayoutParams.MATCH_PARENT,
+                                    ViewGroup.LayoutParams.WRAP_CONTENT
+                                ).apply {
+                                    setMargins(0, 5, 0, 5)
+                                }
+                                addView(view)
+                            }
+                        })
+                    }, 0)
                 }
 
                 event.view = injectedLayout

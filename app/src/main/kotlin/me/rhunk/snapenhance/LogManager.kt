@@ -70,21 +70,26 @@ class LogReader(
 
     fun incrementLineCount() {
         randomAccessFile.seek(randomAccessFile.length())
-        startLineIndexes.add(randomAccessFile.filePointer)
+        startLineIndexes.add(randomAccessFile.filePointer + 1)
         lineCount++
     }
 
     private fun queryLineCount(): Int {
         randomAccessFile.seek(0)
-        var lines = 0
-        var lastIndex: Long
-        while (true) {
-            lastIndex = randomAccessFile.filePointer
-            readLogLine() ?: break
-            startLineIndexes.add(lastIndex)
-            lines++
+        var lineCount = 0
+        var lastPointer: Long
+        var line: String?
+
+        while (randomAccessFile.also {
+            lastPointer = it.filePointer
+        }.readLine().also { line = it } != null) {
+            if (line?.startsWith('|') == true) {
+                lineCount++
+                startLineIndexes.add(lastPointer + 1)
+            }
         }
-        return lines
+
+        return lineCount
     }
 
     private fun getLine(index: Int): String? {

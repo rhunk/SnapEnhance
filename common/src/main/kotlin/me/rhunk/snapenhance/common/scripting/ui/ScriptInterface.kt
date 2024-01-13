@@ -1,4 +1,4 @@
-package me.rhunk.snapenhance.ui.manager.sections.scripting
+package me.rhunk.snapenhance.common.scripting.ui
 
 import androidx.compose.foundation.layout.*
 import androidx.compose.material3.OutlinedButton
@@ -13,11 +13,10 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import kotlinx.coroutines.launch
 import me.rhunk.snapenhance.common.logger.AbstractLogger
-import me.rhunk.snapenhance.scripting.impl.ui.InterfaceBuilder
-import me.rhunk.snapenhance.scripting.impl.ui.components.Node
-import me.rhunk.snapenhance.scripting.impl.ui.components.NodeType
-import me.rhunk.snapenhance.scripting.impl.ui.components.impl.ActionNode
-import me.rhunk.snapenhance.scripting.impl.ui.components.impl.ActionType
+import me.rhunk.snapenhance.common.scripting.ui.components.Node
+import me.rhunk.snapenhance.common.scripting.ui.components.NodeType
+import me.rhunk.snapenhance.common.scripting.ui.components.impl.ActionNode
+import me.rhunk.snapenhance.common.scripting.ui.components.impl.ActionType
 import kotlin.math.abs
 
 

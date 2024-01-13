@@ -23,4 +23,6 @@ class MessageMetadata(obj: Any?) : AbstractWrapper(obj){
     var reactions by field("mReactions") {
         (it as ArrayList<*>).map { i -> UserIdToReaction(i) }.toMutableList()
     }
+    @get:JSGetter @set:JSSetter
+    var isSaveable by field<Boolean>("mIsSaveable")
 }

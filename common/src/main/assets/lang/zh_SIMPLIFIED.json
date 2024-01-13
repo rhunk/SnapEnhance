@@ -1,0 +1,55 @@
+{
+    "setup": {
+        "dialogs": {
+            "select_language": "选择语言"
+        }
+    },
+    "friend_menu_option": {
+        "preview": "预览",
+        "stealth_mode": "隐身模式",
+        "auto_download_blacklist": "自动下载黑名单",
+        "anti_auto_save": "自动保存"
+    },
+    "chat_action_menu": {
+        "preview_button": "预览",
+        "download_button": "下载",
+        "delete_logged_message_button": "删除已记录的消息"
+    },
+    "opera_context_menu": {
+        "download": "下载媒体"
+    },
+    "modal_option": {
+        "profile_info": "配置信息",
+        "close": "关闭"
+    },
+    "conversation_preview": {
+        "streak_expiration": "在 {day} 天 {hour} 小时 {minute} 分钟",
+        "title": "预览",
+        "unknown_user": "未知用户"
+    },
+    "profile_info": {
+        "title": "配置信息",
+        "display_name": "显示姓名 ",
+        "added_date": "添加日期",
+        "birthday": "生日: {month} {day}"
+    },
+    "chat_export": {
+        "dialog_negative_button": "取消",
+        "dialog_positive_button": "导出",
+        "exported_to": "导出到 {path}",
+        "exporting_chats": "正在导出聊天...",
+        "processing_chats": "正在处理 {amount} 个对话...",
+        "export_fail": "导出对话 {conversation} 失败",
+        "writing_output": "正在写入输出...",
+        "finished": "完成了！您现在可以关闭此对话框。",
+        "no_messages_found": "未找到消息！",
+        "exporting_message": "正在导出 {conversation}..."
+    },
+    "button": {
+        "ok": "确定",
+        "positive": "是",
+        "negative": "否",
+        "cancel": "取消",
+        "open": "打开"
+    }
+}

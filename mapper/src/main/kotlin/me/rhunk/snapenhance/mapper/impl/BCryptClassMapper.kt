@@ -4,9 +4,12 @@ import me.rhunk.snapenhance.mapper.AbstractClassMapper
 import me.rhunk.snapenhance.mapper.ext.getClassName
 import me.rhunk.snapenhance.mapper.ext.getStaticConstructor
 import me.rhunk.snapenhance.mapper.ext.isFinal
-import org.jf.dexlib2.iface.instruction.formats.ArrayPayload
+import com.android.tools.smali.dexlib2.iface.instruction.formats.ArrayPayload
 
-class BCryptClassMapper : AbstractClassMapper() {
+class BCryptClassMapper : AbstractClassMapper("BCryptClass") {
+    val classReference = classReference("class")
+    val hashMethod = string("hashMethod")
+
     init {
         mapper {
             for (clazz in classes) {
@@ -17,17 +20,15 @@ class BCryptClassMapper : AbstractClassMapper() {
                 }
 
                 if (isBcryptClass == true) {
-                    val hashMethod = clazz.methods.first {
+                    val hashDexMethod = clazz.methods.first {
                         it.parameterTypes.size == 2 &&
                                 it.parameterTypes[0] == "Ljava/lang/String;" &&
                                 it.parameterTypes[1] == "Ljava/lang/String;" &&
                                 it.returnType == "Ljava/lang/String;"
                     }
 
-                    addMapping("BCrypt",
-                        "class" to clazz.getClassName(),
-                        "hashMethod" to hashMethod.name
-                    )
+                    hashMethod.set(hashDexMethod.name)
+                    classReference.set(clazz.getClassName())
                     return@mapper
                 }
             }

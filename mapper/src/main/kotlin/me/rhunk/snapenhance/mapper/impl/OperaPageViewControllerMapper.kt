@@ -7,7 +7,13 @@ import me.rhunk.snapenhance.mapper.ext.hasStaticConstructorString
 import me.rhunk.snapenhance.mapper.ext.isAbstract
 import me.rhunk.snapenhance.mapper.ext.isEnum
 
-class OperaPageViewControllerMapper : AbstractClassMapper() {
+class OperaPageViewControllerMapper : AbstractClassMapper("OperaPageViewController") {
+    val classReference = classReference("class")
+    val viewStateField = string("viewStateField")
+    val layerListField = string("layerListField")
+    val onDisplayStateChange = string("onDisplayStateChange")
+    val onDisplayStateChangeGesture = string("onDisplayStateChangeGesture")
+
     init {
         mapper {
             for (clazz in classes) {
@@ -16,37 +22,35 @@ class OperaPageViewControllerMapper : AbstractClassMapper() {
                     continue
                 }
 
-                val viewStateField = clazz.fields.first { field ->
+                val viewStateDexField = clazz.fields.first { field ->
                     val fieldClass = getClass(field.type) ?: return@first false
                     fieldClass.isEnum() && fieldClass.hasStaticConstructorString("FULLY_DISPLAYED")
                 }
 
-                val layerListField = clazz.fields.first { it.type == "Ljava/util/ArrayList;" }
+                val layerListDexField = clazz.fields.first { it.type == "Ljava/util/ArrayList;" }
 
-                val onDisplayStateChange = clazz.methods.first {
-                    if (it.returnType != "V" || it.parameterTypes.size != 1) return@first false
-                    val firstParameterType = getClass(it.parameterTypes[0]) ?: return@first false
-                    if (firstParameterType.type == clazz.type || !firstParameterType.isAbstract()) return@first false
+                val onDisplayStateChangeDexMethod = clazz.methods.firstOrNull {
+                    if (it.returnType != "V" || it.parameterTypes.size != 1) return@firstOrNull false
+                    val firstParameterType = getClass(it.parameterTypes[0]) ?: return@firstOrNull false
+                    if (firstParameterType.type == clazz.type || !firstParameterType.isAbstract()) return@firstOrNull false
                     //check if the class contains a field with the enumViewStateClass type
                     firstParameterType.fields.any { field ->
-                        field.type == viewStateField.type
+                        field.type == viewStateDexField.type
                     }
                 }
 
-                val onDisplayStateChangeGesture = clazz.methods.first {
+                val onDisplayStateChangeGestureDexMethod = clazz.methods.first {
                     if (it.returnType != "V" || it.parameterTypes.size != 2) return@first false
                     val firstParameterType = getClass(it.parameterTypes[0]) ?: return@first false
                     val secondParameterType = getClass(it.parameterTypes[1]) ?: return@first false
                     firstParameterType.isEnum() && secondParameterType.isEnum()
                 }
 
-                addMapping("OperaPageViewController",
-                    "class" to clazz.getClassName(),
-                    "viewStateField" to viewStateField.name,
-                    "layerListField" to layerListField.name,
-                    "onDisplayStateChange" to onDisplayStateChange.name,
-                    "onDisplayStateChangeGesture" to onDisplayStateChangeGesture.name
-                )
+                classReference.set(clazz.getClassName())
+                viewStateField.set(viewStateDexField.name)
+                layerListField.set(layerListDexField.name)
+                onDisplayStateChange.set(onDisplayStateChangeDexMethod?.name)
+                onDisplayStateChangeGesture.set(onDisplayStateChangeGestureDexMethod.name)
 
                 return@mapper
             }

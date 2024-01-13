@@ -10,24 +10,54 @@ import me.rhunk.snapenhance.common.database.impl.FriendFeedEntry
 import me.rhunk.snapenhance.common.database.impl.FriendInfo
 import me.rhunk.snapenhance.common.database.impl.StoryEntry
 import me.rhunk.snapenhance.common.database.impl.UserConversationLink
+import me.rhunk.snapenhance.common.util.ktx.getBlobOrNull
 import me.rhunk.snapenhance.common.util.ktx.getIntOrNull
 import me.rhunk.snapenhance.common.util.ktx.getInteger
 import me.rhunk.snapenhance.common.util.ktx.getStringOrNull
+import me.rhunk.snapenhance.common.util.protobuf.ProtoReader
 import me.rhunk.snapenhance.core.ModContext
 import me.rhunk.snapenhance.core.manager.Manager
 
 
+enum class DatabaseType(
+    val fileName: String
+) {
+    MAIN("main.db"),
+    ARROYO("arroyo.db")
+}
+
 class DatabaseAccess(
     private val context: ModContext
 ) : Manager {
-    companion object {
-        val DATABASES = mapOf(
-            "main" to "main.db",
-            "arroyo" to "arroyo.db"
-        )
+    private val openedDatabases = mutableMapOf<DatabaseType, SQLiteDatabase>()
+
+    private fun useDatabase(database: DatabaseType, writeMode: Boolean = false): SQLiteDatabase? {
+        if (openedDatabases.containsKey(database) && openedDatabases[database]?.isOpen == true) {
+            return openedDatabases[database]
+        }
+
+        val dbPath = context.androidContext.getDatabasePath(database.fileName)
+        if (!dbPath.exists()) return null
+        return runCatching {
+            SQLiteDatabase.openDatabase(
+                dbPath,
+                OpenParams.Builder()
+                    .setOpenFlags(
+                        if (writeMode) SQLiteDatabase.OPEN_READWRITE or SQLiteDatabase.ENABLE_WRITE_AHEAD_LOGGING
+                        else SQLiteDatabase.OPEN_READONLY
+                    )
+                    .setErrorHandler {
+                        context.androidContext.deleteDatabase(dbPath.absolutePath)
+                        context.softRestartApp()
+                    }.build()
+            )
+        }.onFailure {
+            context.log.error("Failed to open database ${database.fileName}!", it)
+        }.getOrNull()?.also {
+            openedDatabases[database] = it
+        }
     }
-    private val mainDb by lazy { openLocalDatabase("main") }
-    private val arroyoDb by lazy { openLocalDatabase("arroyo") }
+
 
     private inline fun <T> SQLiteDatabase.performOperation(crossinline query: SQLiteDatabase.() -> T?): T? {
         return runCatching {
@@ -54,7 +84,7 @@ class DatabaseAccess(
     }
 
     private val dmOtherParticipantCache by lazy {
-        (arroyoDb?.performOperation {
+        (useDatabase(DatabaseType.ARROYO)?.performOperation {
             safeRawQuery(
                 "SELECT client_conversation_id, conversation_type, user_id FROM user_conversation WHERE user_id != ?",
                 arrayOf(myUserId)
@@ -77,49 +107,27 @@ class DatabaseAccess(
         } ?: emptyMap()).toMutableMap()
     }
 
-    private fun openLocalDatabase(databaseName: String, writeMode: Boolean = false): SQLiteDatabase? {
-        val dbPath = context.androidContext.getDatabasePath(DATABASES[databaseName]!!)
-        if (!dbPath.exists()) return null
-        return runCatching {
-            SQLiteDatabase.openDatabase(
-                dbPath,
-                OpenParams.Builder()
-                    .setOpenFlags(
-                        if (writeMode) SQLiteDatabase.OPEN_READWRITE or SQLiteDatabase.ENABLE_WRITE_AHEAD_LOGGING
-                        else SQLiteDatabase.OPEN_READONLY
-                    )
-                    .setErrorHandler {
-                        context.androidContext.deleteDatabase(dbPath.absolutePath)
-                        context.softRestartApp()
-                    }.build()
-            )
-        }.onFailure {
-            context.log.error("Failed to open database $databaseName!", it)
-        }.getOrNull()
-    }
-
-    fun hasMain(): Boolean = mainDb?.isOpen == true
-    fun hasArroyo(): Boolean = arroyoDb?.isOpen == true
+    fun hasMain(): Boolean = useDatabase(DatabaseType.MAIN)?.isOpen == true
+    fun hasArroyo(): Boolean = useDatabase(DatabaseType.ARROYO)?.isOpen == true
 
     override fun init() {
         // perform integrity check on databases
-        DATABASES.forEach { (name, fileName) ->
-            openLocalDatabase(name, writeMode = true)?.apply {
+        DatabaseType.entries.forEach { type ->
+            useDatabase(type, writeMode = true)?.apply {
                 rawQuery("PRAGMA integrity_check", null).use { query ->
                     if (!query.moveToFirst() || query.getString(0).lowercase() != "ok") {
-                        context.log.error("Failed to perform integrity check on $fileName")
-                        context.androidContext.deleteDatabase(fileName)
+                        context.log.error("Failed to perform integrity check on ${type.fileName}")
+                        context.androidContext.deleteDatabase(type.fileName)
                         return@apply
                     }
-                    context.log.verbose("database $fileName integrity check passed")
+                    context.log.verbose("database ${type.fileName} integrity check passed")
                 }
             }?.close()
         }
     }
 
     fun finalize() {
-        mainDb?.close()
-        arroyoDb?.close()
+        openedDatabases.values.forEach { it.close() }
         context.log.verbose("Database closed")
     }
 
@@ -141,7 +149,7 @@ class DatabaseAccess(
     }
 
     fun getFeedEntryByUserId(userId: String): FriendFeedEntry? {
-        return mainDb?.performOperation {
+        return useDatabase(DatabaseType.MAIN)?.performOperation {
             readDatabaseObject(
                 FriendFeedEntry(),
                 "FriendsFeedView",
@@ -153,7 +161,7 @@ class DatabaseAccess(
 
     val myUserId by lazy {
         context.androidContext.getSharedPreferences("user_session_shared_pref", 0).getString("key_user_id", null) ?:
-        arroyoDb?.performOperation {
+        useDatabase(DatabaseType.ARROYO)?.performOperation {
             safeRawQuery(buildString {
                 append("SELECT value FROM required_values WHERE key = 'USERID'")
             }, null)?.use { query ->
@@ -166,7 +174,7 @@ class DatabaseAccess(
     }
 
     fun getFeedEntryByConversationId(conversationId: String): FriendFeedEntry? {
-        return mainDb?.performOperation {
+        return useDatabase(DatabaseType.MAIN)?.performOperation {
             readDatabaseObject(
                 FriendFeedEntry(),
                 "FriendsFeedView",
@@ -177,7 +185,7 @@ class DatabaseAccess(
     }
 
     fun getFriendInfo(userId: String): FriendInfo? {
-        return mainDb?.performOperation {
+        return useDatabase(DatabaseType.MAIN)?.performOperation {
             readDatabaseObject(
                 FriendInfo(),
                 "FriendWithUsername",
@@ -188,7 +196,7 @@ class DatabaseAccess(
     }
 
     fun getAllFriends(): List<FriendInfo> {
-        return mainDb?.performOperation {
+        return useDatabase(DatabaseType.MAIN)?.performOperation {
             safeRawQuery(
                 "SELECT * FROM FriendWithUsername",
                 null
@@ -207,7 +215,7 @@ class DatabaseAccess(
     }
 
     fun getFeedEntries(limit: Int): List<FriendFeedEntry> {
-        return mainDb?.performOperation {
+        return useDatabase(DatabaseType.MAIN)?.performOperation {
             safeRawQuery(
                 "SELECT * FROM FriendsFeedView ORDER BY _id LIMIT ?",
                 arrayOf(limit.toString())
@@ -226,7 +234,7 @@ class DatabaseAccess(
     }
 
     fun getConversationMessageFromId(clientMessageId: Long): ConversationMessage? {
-        return arroyoDb?.performOperation {
+        return useDatabase(DatabaseType.ARROYO)?.performOperation {
             readDatabaseObject(
                 ConversationMessage(),
                 "conversation_message",
@@ -237,7 +245,7 @@ class DatabaseAccess(
     }
 
     fun getConversationType(conversationId: String): Int? {
-        return arroyoDb?.performOperation {
+        return useDatabase(DatabaseType.ARROYO)?.performOperation {
             safeRawQuery(
                 "SELECT conversation_type FROM user_conversation WHERE client_conversation_id = ?",
                 arrayOf(conversationId)
@@ -251,7 +259,7 @@ class DatabaseAccess(
     }
 
     fun getConversationLinkFromUserId(userId: String): UserConversationLink? {
-        return arroyoDb?.performOperation {
+        return useDatabase(DatabaseType.ARROYO)?.performOperation {
             readDatabaseObject(
                 UserConversationLink(),
                 "user_conversation",
@@ -263,7 +271,7 @@ class DatabaseAccess(
 
     fun getDMOtherParticipant(conversationId: String): String? {
         if (dmOtherParticipantCache.containsKey(conversationId)) return dmOtherParticipantCache[conversationId]
-        return arroyoDb?.performOperation {
+        return useDatabase(DatabaseType.ARROYO)?.performOperation {
             safeRawQuery(
                 "SELECT user_id FROM user_conversation WHERE client_conversation_id = ? AND conversation_type = 0",
                 arrayOf(conversationId)
@@ -282,14 +290,14 @@ class DatabaseAccess(
 
 
     fun getStoryEntryFromId(storyId: String): StoryEntry? {
-        return mainDb?.performOperation  {
+        return useDatabase(DatabaseType.MAIN)?.performOperation  {
             readDatabaseObject(StoryEntry(), "Story", "storyId = ?", arrayOf(storyId))
         }
     }
 
-    fun getConversationParticipants(conversationId: String): List<String>? {
-        if (dmOtherParticipantCache[conversationId] != null) return dmOtherParticipantCache[conversationId]?.let { listOf(myUserId, it) }
-        return arroyoDb?.performOperation {
+    fun getConversationParticipants(conversationId: String, useCache: Boolean = true): List<String>? {
+        if (dmOtherParticipantCache[conversationId] != null && useCache) return dmOtherParticipantCache[conversationId]?.let { listOf(myUserId, it) }
+        return useDatabase(DatabaseType.ARROYO)?.performOperation {
             safeRawQuery(
                 "SELECT user_id, conversation_type FROM user_conversation WHERE client_conversation_id = ?",
                 arrayOf(conversationId)
@@ -319,7 +327,7 @@ class DatabaseAccess(
         conversationId: String,
         limit: Int
     ): List<ConversationMessage>? {
-        return arroyoDb?.performOperation {
+        return useDatabase(DatabaseType.ARROYO)?.performOperation {
             safeRawQuery(
                 "SELECT * FROM conversation_message WHERE client_conversation_id = ? ORDER BY creation_timestamp DESC LIMIT ?",
                 arrayOf(conversationId, limit.toString())
@@ -339,7 +347,7 @@ class DatabaseAccess(
     }
 
     fun getAddSource(userId: String): String? {
-        return mainDb?.performOperation  {
+        return useDatabase(DatabaseType.MAIN)?.performOperation  {
             rawQuery(
                 "SELECT addSource FROM FriendWhoAddedMe WHERE userId = ?",
                 arrayOf(userId)
@@ -353,11 +361,34 @@ class DatabaseAccess(
     }
 
     fun markFriendStoriesAsSeen(userId: String) {
-        openLocalDatabase("main", writeMode = true)?.apply {
+        useDatabase(DatabaseType.MAIN, writeMode = true)?.apply {
             performOperation {
                 execSQL("UPDATE StorySnap SET viewed = 1 WHERE userId = ?", arrayOf(userId))
             }
             close()
+        }
+    }
+
+    fun getAccessTokens(userId: String): Map<String, String>? {
+        return useDatabase(DatabaseType.MAIN)?.performOperation {
+            rawQuery(
+                "SELECT accessTokensPb FROM SnapToken WHERE userId = ?",
+                arrayOf(userId)
+            ).use {
+                if (!it.moveToFirst()) {
+                    return@performOperation null
+                }
+                val reader = ProtoReader(it.getBlobOrNull("accessTokensPb") ?: return@performOperation null)
+                val services = mutableMapOf<String, String>()
+
+                reader.eachBuffer(1) {
+                    val token = getString(1) ?: return@eachBuffer
+                    val service = getString(2)?.substringAfterLast("/") ?: return@eachBuffer
+                    services[service] = token
+                }
+
+                services
+            }
         }
     }
 }

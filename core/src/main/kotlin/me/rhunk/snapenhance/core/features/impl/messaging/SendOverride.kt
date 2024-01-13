@@ -3,8 +3,8 @@ package me.rhunk.snapenhance.core.features.impl.messaging
 import me.rhunk.snapenhance.common.data.ContentType
 import me.rhunk.snapenhance.common.util.protobuf.ProtoEditor
 import me.rhunk.snapenhance.common.util.protobuf.ProtoReader
+import me.rhunk.snapenhance.core.event.events.impl.NativeUnaryCallEvent
 import me.rhunk.snapenhance.core.event.events.impl.SendMessageWithContentEvent
-import me.rhunk.snapenhance.core.event.events.impl.UnaryCallEvent
 import me.rhunk.snapenhance.core.features.Feature
 import me.rhunk.snapenhance.core.features.FeatureLoadParams
 import me.rhunk.snapenhance.core.messaging.MessageSender
@@ -29,7 +29,7 @@ class SendOverride : Feature("Send Override", loadParams = FeatureLoadParams.INI
     }
 
     override fun init() {
-        context.event.subscribe(UnaryCallEvent::class) { event ->
+        context.event.subscribe(NativeUnaryCallEvent::class) { event ->
             if (event.uri != "/messagingcoreservice.MessagingCoreService/CreateContentMessage") return@subscribe
             val protoEditor = ProtoEditor(event.buffer)
 
@@ -40,11 +40,8 @@ class SendOverride : Feature("Send Override", loadParams = FeatureLoadParams.INI
                 }
                 //make snaps savable in chat
                 protoEditor.edit(4) {
-                    val savableState = firstOrNull(7)?.value ?: return@edit
-                    if (savableState == 2L) {
-                        remove(7)
-                        addVarInt(7, 3)
-                    }
+                    remove(7)
+                    addVarInt(7, 3)
                 }
             }
             event.buffer = protoEditor.toByteArray()

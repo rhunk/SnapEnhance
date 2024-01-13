@@ -1,6 +1,6 @@
 name: "Bug report"
 description: "Report an issue to help the project improve."
-title: "bug: TITLE"
+title: "TITLE"
 labels:
   - "bug"
 body:
@@ -40,13 +40,20 @@ body:
       placeholder: "ex. 12.35.0.45"
     validations:
       required: true
+  - type: input
+    id: snapenhance-version
+    attributes:
+      label: "SnapEnhance Version"
+      description: "On which SnapEnhance version is this happening?"
+      placeholder: "ex. 1.2.5"
+    validations:
+      required: true
   - type: checkboxes
     id: terms
     attributes:
       label: "Agreement"
-      description: "By creating this issue, I agree to the following terms:"
+      description: "**By creating this issue, I agree to the following terms:**"
       options:
-        - label: "I am using the latest stable SnapEnhance version."
         - label: "This is not a bug regarding Snapchat+."
         - label: "I have provided a detailed description of the issue."
         - label: "I have attached a log if deemed neccessary."

@@ -5,7 +5,10 @@ import me.rhunk.snapenhance.mapper.ext.findConstString
 import me.rhunk.snapenhance.mapper.ext.getClassName
 import me.rhunk.snapenhance.mapper.ext.searchNextFieldReference
 
-class FriendingDataSourcesMapper: AbstractClassMapper() {
+class FriendingDataSourcesMapper: AbstractClassMapper("FriendingDataSources") {
+    val classReference = classReference("class")
+    val quickAddSourceListField = string("quickAddSourceListField")
+
     init {
         mapper {
             for (classDef in classes) {
@@ -15,13 +18,11 @@ class FriendingDataSourcesMapper: AbstractClassMapper() {
                 val toStringMethod = classDef.methods.firstOrNull { it.name == "toString" } ?: continue
                 if (toStringMethod.implementation?.findConstString("quickaddSource", contains = true) != true) continue
 
-                val quickAddSourceListField = toStringMethod.implementation?.searchNextFieldReference("quickaddSource", contains = true)
+                val quickAddSourceListDexField = toStringMethod.implementation?.searchNextFieldReference("quickaddSource", contains = true)
                     ?: continue
 
-                addMapping("FriendingDataSources",
-                    "class" to classDef.getClassName(),
-                    "quickAddSourceListField" to quickAddSourceListField.name
-                )
+                classReference.set(classDef.getClassName())
+                quickAddSourceListField.set(quickAddSourceListDexField.name)
                 return@mapper
             }
         }

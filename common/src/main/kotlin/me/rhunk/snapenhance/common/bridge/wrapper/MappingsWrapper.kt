@@ -1,43 +1,24 @@
 package me.rhunk.snapenhance.common.bridge.wrapper
 
 import android.content.Context
-import com.google.gson.GsonBuilder
-import com.google.gson.JsonElement
 import com.google.gson.JsonParser
+import kotlinx.coroutines.runBlocking
 import me.rhunk.snapenhance.common.BuildConfig
 import me.rhunk.snapenhance.common.Constants
 import me.rhunk.snapenhance.common.bridge.FileLoaderWrapper
 import me.rhunk.snapenhance.common.bridge.types.BridgeFileType
-import me.rhunk.snapenhance.mapper.Mapper
-import me.rhunk.snapenhance.mapper.impl.*
-import java.util.concurrent.ConcurrentHashMap
-import kotlin.system.measureTimeMillis
+import me.rhunk.snapenhance.common.logger.AbstractLogger
+import me.rhunk.snapenhance.mapper.AbstractClassMapper
+import me.rhunk.snapenhance.mapper.ClassMapper
+import kotlin.reflect.KClass
 
 class MappingsWrapper : FileLoaderWrapper(BridgeFileType.MAPPINGS, "{}".toByteArray(Charsets.UTF_8)) {
-    companion object {
-        private val gson = GsonBuilder().setPrettyPrinting().create()
-        private val mappers = arrayOf(
-            BCryptClassMapper::class,
-            CallbackMapper::class,
-            DefaultMediaItemMapper::class,
-            MediaQualityLevelProviderMapper::class,
-            OperaPageViewControllerMapper::class,
-            PlusSubscriptionMapper::class,
-            ScCameraSettingsMapper::class,
-            StoryBoostStateMapper::class,
-            FriendsFeedEventDispatcherMapper::class,
-            CompositeConfigurationProviderMapper::class,
-            ScoreUpdateMapper::class,
-            FriendRelationshipChangerMapper::class,
-            ViewBinderMapper::class,
-            FriendingDataSourcesMapper::class,
-        )
-    }
-
     private lateinit var context: Context
-
-    private val mappings = ConcurrentHashMap<String, Any>()
     private var mappingUniqueHash: Long = 0
+    var isMappingsLoaded = false
+        private set
+
+    private val mappers = ClassMapper.DEFAULT_MAPPERS.associateBy { it::class }
 
     private fun getUniqueBuildId() = (getSnapchatPackageInfo()?.longVersionCode ?: -1) xor BuildConfig.BUILD_HASH.hashCode().toLong()
 
@@ -62,8 +43,7 @@ class MappingsWrapper : FileLoaderWrapper(BridgeFileType.MAPPINGS, "{}".toByteAr
     }.getOrNull()
 
     fun getGeneratedBuildNumber() = mappingUniqueHash
-    fun isMappingsOutdated() = mappingUniqueHash != getUniqueBuildId() || isMappingsLoaded().not()
-    fun isMappingsLoaded() = mappings.isNotEmpty()
+    fun isMappingsOutdated() = mappingUniqueHash != getUniqueBuildId() || isMappingsLoaded.not()
 
     private fun loadCached() {
         if (!isFileExists()) {
@@ -73,71 +53,39 @@ class MappingsWrapper : FileLoaderWrapper(BridgeFileType.MAPPINGS, "{}".toByteAr
             mappingUniqueHash = it["unique_hash"].asLong
         }
 
-        mappingsObject.entrySet().forEach { (key, value): Map.Entry<String, JsonElement> ->
-            if (value.isJsonArray) {
-                mappings[key] = gson.fromJson(value, ArrayList::class.java)
-                return@forEach
+        mappingsObject.entrySet().forEach { (key, value) ->
+            mappers.values.firstOrNull { it.mapperName == key }?.let { mapper ->
+                mapper.readFromJson(value.asJsonObject)
+                mapper.classLoader = context.classLoader
             }
-            if (value.isJsonObject) {
-                mappings[key] = gson.fromJson(value, ConcurrentHashMap::class.java)
-                return@forEach
-            }
-            mappings[key] = value.asString
         }
+        isMappingsLoaded = true
     }
 
     fun refresh() {
         mappingUniqueHash = getUniqueBuildId()
-        val mapper = Mapper(*mappers)
+        val classMapper = ClassMapper(*mappers.values.toTypedArray())
 
         runCatching {
-            mapper.loadApk(getSnapchatPackageInfo()?.applicationInfo?.sourceDir ?: throw Exception("Failed to get APK"))
+            classMapper.loadApk(getSnapchatPackageInfo()?.applicationInfo?.sourceDir ?: throw Exception("Failed to get APK"))
         }.onFailure {
             throw Exception("Failed to load APK", it)
         }
 
-        measureTimeMillis {
-            val result = mapper.start().apply {
+        runBlocking {
+            val result = classMapper.run().apply {
                 addProperty("unique_hash", mappingUniqueHash)
             }
             write(result.toString().toByteArray())
         }
     }
 
-    fun getMappedObject(key: String): Any {
-        if (mappings.containsKey(key)) {
-            return mappings[key]!!
+    @Suppress("UNCHECKED_CAST")
+    fun <T : AbstractClassMapper> useMapper(type: KClass<T>, callback: T.() -> Unit) {
+        mappers[type]?.let {
+            callback(it as? T ?: return)
+        } ?: run {
+            AbstractLogger.directError("Mapper ${type.simpleName} is not registered", Throwable())
         }
-        throw Exception("No mapping found for $key")
-    }
-
-    fun getMappedObjectNullable(key: String): Any? {
-        return mappings[key]
-    }
-
-    fun getMappedClass(className: String): Class<*> {
-        return context.classLoader.loadClass(getMappedObject(className) as String)
-    }
-
-    fun getMappedClass(key: String, subKey: String): Class<*> {
-        return context.classLoader.loadClass(getMappedValue(key, subKey))
-    }
-
-    fun getMappedValue(key: String): String {
-        return getMappedObject(key) as String
-    }
-
-    @Suppress("UNCHECKED_CAST")
-    fun <T : Any> getMappedList(key: String): List<T> {
-        return listOf(getMappedObject(key) as List<T>).flatten()
-    }
-
-    fun getMappedValue(key: String, subKey: String): String {
-        return getMappedMap(key)[subKey] as String
-    }
-
-    @Suppress("UNCHECKED_CAST")
-    fun getMappedMap(key: String): Map<String, *> {
-        return getMappedObject(key) as Map<String, *>
     }
 }

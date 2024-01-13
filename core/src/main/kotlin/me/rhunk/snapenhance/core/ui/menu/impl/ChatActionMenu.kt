@@ -11,9 +11,9 @@ import android.widget.TextView
 import me.rhunk.snapenhance.common.data.ContentType
 import me.rhunk.snapenhance.common.util.protobuf.ProtoReader
 import me.rhunk.snapenhance.core.features.impl.downloader.MediaDownloader
+import me.rhunk.snapenhance.core.features.impl.experiments.ConvertMessageLocally
 import me.rhunk.snapenhance.core.features.impl.messaging.Messaging
 import me.rhunk.snapenhance.core.features.impl.spying.MessageLogger
-import me.rhunk.snapenhance.core.features.impl.experiments.ConvertMessageLocally
 import me.rhunk.snapenhance.core.ui.ViewAppearanceHelper
 import me.rhunk.snapenhance.core.ui.ViewTagState
 import me.rhunk.snapenhance.core.ui.applyTheme

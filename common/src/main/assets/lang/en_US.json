@@ -38,8 +38,8 @@
                     "export_logs_button": "Export Logs"
                 }
             },
-            "downloads": {
-                "empty_download_list": "(empty)"
+            "tasks": {
+                "no_tasks": "No tasks"
             },
             "features": {
                 "disabled": "Disabled"
@@ -63,6 +63,10 @@
                 "fetch_error": "Failed to fetch data",
                 "category_groups": "Groups",
                 "category_friends": "Friends"
+            },
+            "scripting_warning": {
+                "title": "Warning",
+                "content": "SnapEnhance includes a scripting tool, allowing the execution of user-defined code on your device. Use extreme caution and only install modules from known, reliable sources. Unauthorized or unverified modules may pose security risks to your system."
             }
         }
     },
@@ -97,6 +101,14 @@
                     "whitelist": "Auto save"
                 }
             },
+            "unsaveable_messages": {
+                "name": "Unsaveable Messages",
+                "description": "Prevents messages from being saved in chat by other people",
+                "options": {
+                    "blacklist": "Exclude from Unsaveable Messages",
+                    "whitelist": "Unsaveable Messages"
+                }
+            },
             "hide_friend_feed": {
                 "name": "Hide from Friend Feed"
             },
@@ -116,6 +128,7 @@
         "open_map": "Choose location on map",
         "check_for_updates": "Check for updates",
         "export_chat_messages": "Export Chat Messages",
+        "export_memories": "Export Memories",
         "bulk_messaging_action": "Bulk Messaging Action"
     },
 
@@ -212,6 +225,10 @@
                     "logging": {
                         "name": "Logging",
                         "description": "Shows toasts when media is downloading"
+                    },
+                    "custom_path_format": {
+                        "name": "Custom Path Format",
+                        "description": "Specify a custom path format for downloaded media\n\nAvailable variables:\n - %username%\n - %source%\n - %hash%\n - %date_time%"
                     }
                 }
             },
@@ -279,9 +296,9 @@
                         "name": "Hide Quick Add in Friend Feed",
                         "description": "Hides the Quick Add section in the friend feed"
                     },
-                    "hide_story_sections": {
-                        "name": "Hide Story Section",
-                        "description": "Hide certain UI Elements shown in the story section"
+                    "hide_story_suggestions": {
+                        "name": "Hide Story Suggestions",
+                        "description": "Removes suggestions from the Stories page"
                     },
                     "hide_ui_components": {
                         "name": "Hide UI Components",
@@ -360,6 +377,10 @@
                     "unlimited_snap_view_time": {
                         "name": "Unlimited Snap View Time",
                         "description": "Removes the Time Limit for viewing Snaps"
+                    },
+                    "loop_media_playback": {
+                        "name": "Loop Media Playback",
+                        "description": "Loops media playback when viewing Snaps / Stories"
                     },
                     "disable_replay_in_ff": {
                         "name": "Disable Replay in FF",
@@ -453,6 +474,10 @@
                             }
                         }
                     },
+                    "suspend_location_updates": {
+                        "name": "Suspend Location Updates",
+                        "description": "Adds a button in map settings to suspend location updates"
+                    },
                     "snapchat_plus": {
                         "name": "Snapchat Plus",
                         "description": "Enables Snapchat Plus features\nSome Server-sided features may not work"
@@ -469,13 +494,17 @@
                         "name": "Disable Metrics",
                         "description": "Blocks sending specific analytic data to Snapchat"
                     },
-                    "disable_public_stories": {
-                        "name": "Disable Public Stories",
-                        "description": "Removes every public story from the Discover page\nMay require a clean cache to work properly"
+                    "disable_story_sections": {
+                        "name": "Disable Story Sections",
+                        "description": "Removes sections from the Stories page\nMay require a refresh to work properly"
                     },
                     "block_ads": {
                         "name": "Block Ads",
                         "description": "Prevents Advertisements from being displayed"
+                    },
+                    "spotlight_comments_username": {
+                        "name": "Spotlight Comments Username",
+                        "description": "Shows author username in Spotlight comments"
                     },
                     "bypass_video_length_restriction": {
                         "name": "Bypass Video Length Restrictions",
@@ -687,6 +716,10 @@
                         "name": "Auto Reload",
                         "description": "Automatically reloads scripts when they change"
                     },
+                    "integrated_ui": {
+                        "name": "Integrated UI",
+                        "description": "Allows scripts to add custom UI components to Snapchat"
+                    },
                     "disable_log_anonymization": {
                         "name": "Disable Log Anonymization",
                         "description": "Disables the anonymization of logs"
@@ -711,6 +744,7 @@
             "friend_feed_menu_buttons": {
                 "auto_download": "\u2B07\uFE0F Auto Download",
                 "auto_save": "\uD83D\uDCAC Auto Save Messages",
+                "unsaveable_messages": "\u2B07\uFE0F Unsaveable Messages",
                 "stealth": "\uD83D\uDC7B Stealth Mode",
                 "mark_snaps_as_seen": "\uD83D\uDC40 Mark Snaps as seen",
                 "mark_stories_as_seen_locally": "\uD83D\uDC40 Mark Stories as seen locally",
@@ -775,12 +809,9 @@
                 "hide_voice_record_button": "Remove Voice Record Button",
                 "hide_unread_chat_hint": "Remove Unread Chat Hint"
             },
-            "hide_story_sections": {
+            "hide_story_suggestions": {
                 "hide_friend_suggestions": "Hide friend suggestions",
-                "hide_suggested_friend_stories": "Hide suggested friend stories",
-                "hide_friends": "Hide friends section",
-                "hide_suggested": "Hide suggested section",
-                "hide_for_you": "Hide For You section"
+                "hide_suggested_friend_stories": "Hide suggested friend stories"
             },
             "home_tab": {
                 "map": "Map",
@@ -834,6 +865,11 @@
                 "1_month": "1 Month",
                 "3_months": "3 Months",
                 "6_months": "6 Months"
+            },
+            "disable_story_sections": {
+                "friends": "Friends",
+                "following": "Following",
+                "discover": "Discover"
             }
         }
     },
@@ -868,6 +904,18 @@
         "STATUS_PLUS_GIFT": "Status Plus Gift",
         "TINY_SNAP": "Tiny Snap",
         "STATUS_COUNTDOWN": "Countdown"
+    },
+
+    "media_download_source": {
+        "none": "None",
+        "pending": "Pending",
+        "chat_media": "Chat Media",
+        "story": "Story",
+        "public_story": "Public Story",
+        "spotlight": "Spotlight",
+        "profile_picture": "Profile Picture",
+        "story_logger": "Story Logger",
+        "merged": "Merged"
     },
 
     "chat_action_menu": {
@@ -1030,5 +1078,24 @@
     "streaks_reminder": {
         "notification_title": "Streaks",
         "notification_text": "You will lose your Streak with {friend} in {hoursLeft} hours"
+    },
+
+    "suspend_location_updates": {
+        "switch_text": "Suspend Location Updates"
+    },
+    "material3_strings": {
+        "date_range_picker_start_headline": "From",
+        "date_range_picker_end_headline": "To",
+        "date_range_picker_title": "Select date range",
+        "date_picker_switch_to_calendar_mode": "Calendar",
+        "date_picker_switch_to_input_mode": "Input",
+        "date_range_picker_scroll_to_previous_month": "Previous month",
+        "date_range_picker_scroll_to_next_month": "Next month",
+        "date_picker_today_description": "Today",
+        "date_range_picker_day_in_range": "Selected",
+        "date_input_invalid_for_pattern": "Invalid date",
+        "date_input_invalid_year_range": "Invalid year",
+        "date_input_invalid_not_allowed": "Invalid date",
+        "date_range_input_invalid_range_input": "Invalid date range"
     }
 }

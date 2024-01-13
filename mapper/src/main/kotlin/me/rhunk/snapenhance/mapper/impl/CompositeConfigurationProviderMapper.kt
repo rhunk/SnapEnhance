@@ -1,14 +1,32 @@
 package me.rhunk.snapenhance.mapper.impl
 
 import me.rhunk.snapenhance.mapper.AbstractClassMapper
-import me.rhunk.snapenhance.mapper.ext.*
-import org.jf.dexlib2.iface.instruction.formats.Instruction21c
-import org.jf.dexlib2.iface.instruction.formats.Instruction35c
-import org.jf.dexlib2.iface.reference.FieldReference
-import org.jf.dexlib2.iface.reference.MethodReference
+import me.rhunk.snapenhance.mapper.ext.findConstString
+import me.rhunk.snapenhance.mapper.ext.getClassName
+import me.rhunk.snapenhance.mapper.ext.hasStaticConstructorString
+import me.rhunk.snapenhance.mapper.ext.isEnum
+import com.android.tools.smali.dexlib2.iface.instruction.formats.Instruction21c
+import com.android.tools.smali.dexlib2.iface.instruction.formats.Instruction35c
+import com.android.tools.smali.dexlib2.iface.reference.FieldReference
+import com.android.tools.smali.dexlib2.iface.reference.MethodReference
 import java.lang.reflect.Modifier
 
-class CompositeConfigurationProviderMapper : AbstractClassMapper() {
+class CompositeConfigurationProviderMapper : AbstractClassMapper("CompositeConfigurationProvider") {
+    val classReference = classReference("class")
+    val observeProperty = string("observeProperty")
+    val getProperty = string("getProperty")
+    val configEnumMapping = mapOf(
+        "class" to classReference("enumClass"),
+        "getValue" to string("enumGetValue"),
+        "getCategory" to string("enumGetCategory"),
+        "defaultValueField" to string("enumDefaultValueField")
+    )
+    val appExperimentProvider = mapOf(
+        "class" to classReference("appExperimentProviderClass"),
+        "getBooleanAppExperimentClass" to classReference("getBooleanAppExperimentClass"),
+        "hasExperimentMethod" to string("hasExperimentMethod")
+    )
+
     init {
         mapper {
             for (classDef in classes) {
@@ -68,24 +86,21 @@ class CompositeConfigurationProviderMapper : AbstractClassMapper() {
                             it.type == "Ljava/lang/Object;"
                 }
 
-                addMapping("CompositeConfigurationProvider",
-                    "class" to classDef.getClassName(),
-                    "observeProperty" to observePropertyMethod.name,
-                    "getProperty" to getPropertyMethod.name,
-                    "enum" to mapOf(
-                        "class" to configEnumInterface.getClassName(),
-                        "getValue" to enumGetDefaultValueMethod.name,
-                        "getCategory" to enumGetCategoryMethod.name,
-                        "defaultValueField" to defaultValueField.name
-                    ),
-                    "appExperimentProvider" to (hasExperimentMethodReference?.let {
-                        mapOf(
-                            "class" to getClass(it.definingClass)?.getClassName(),
-                            "GetBooleanAppExperimentClass" to getBooleanAppExperimentClass,
-                            "hasExperimentMethod" to hasExperimentMethodReference.name
-                        )
-                    })
-                )
+                classReference.set(classDef.getClassName())
+                observeProperty.set(observePropertyMethod.name)
+                getProperty.set(getPropertyMethod.name)
+
+                configEnumMapping["class"]?.set(configEnumInterface.getClassName())
+                configEnumMapping["getValue"]?.set(enumGetDefaultValueMethod.name)
+                configEnumMapping["getCategory"]?.set(enumGetCategoryMethod.name)
+                configEnumMapping["defaultValueField"]?.set(defaultValueField.name)
+
+                hasExperimentMethodReference?.let {
+                    appExperimentProvider["class"]?.set(getClass(it.definingClass)?.getClassName())
+                    appExperimentProvider["getBooleanAppExperimentClass"]?.set(getBooleanAppExperimentClass)
+                    appExperimentProvider["hasExperimentMethod"]?.set(hasExperimentMethodReference.name)
+                }
+
                 return@mapper
             }
         }

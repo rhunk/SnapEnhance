@@ -16,12 +16,18 @@ import me.rhunk.snapenhance.core.util.ktx.getObjectFieldOrNull
 import me.rhunk.snapenhance.core.wrapper.impl.ConversationManager
 import me.rhunk.snapenhance.core.wrapper.impl.Message
 import me.rhunk.snapenhance.core.wrapper.impl.SnapUUID
+import me.rhunk.snapenhance.core.wrapper.impl.Snapchatter
 import me.rhunk.snapenhance.core.wrapper.impl.toSnapUUID
+import me.rhunk.snapenhance.mapper.impl.CallbackMapper
+import me.rhunk.snapenhance.mapper.impl.FriendsFeedEventDispatcherMapper
+import java.util.concurrent.Future
 
 class Messaging : Feature("Messaging", loadParams = FeatureLoadParams.ACTIVITY_CREATE_SYNC or FeatureLoadParams.INIT_ASYNC or FeatureLoadParams.INIT_SYNC) {
     var conversationManager: ConversationManager? = null
         private set
     private var conversationManagerDelegate: Any? = null
+    private var identityDelegate: Any? = null
+
     var openedConversationUUID: SnapUUID? = null
         private set
     var lastFetchConversationUserUUID: SnapUUID? = null
@@ -43,17 +49,27 @@ class Messaging : Feature("Messaging", loadParams = FeatureLoadParams.ACTIVITY_C
             }
         }
 
-        context.mappings.getMappedClass("callbacks", "ConversationManagerDelegate").apply {
-            hookConstructor(HookStage.AFTER) { param ->
-                conversationManagerDelegate = param.thisObject()
+        context.mappings.useMapper(CallbackMapper::class) {
+            callbacks.getClass("ConversationManagerDelegate")?.apply {
+                hookConstructor(HookStage.AFTER) { param ->
+                    conversationManagerDelegate = param.thisObject()
+                }
+                hook("onConversationUpdated", HookStage.BEFORE) { param ->
+                    context.event.post(ConversationUpdateEvent(
+                        conversationId = SnapUUID(param.arg(0)).toString(),
+                        conversation = param.argNullable(1),
+                        messages = param.arg<ArrayList<*>>(2).map { Message(it) },
+                    ).apply { adapter = param }) {
+                        param.setArg(
+                            2,
+                            messages.map { it.instanceNonNull() }.toCollection(ArrayList())
+                        )
+                    }
+                }
             }
-            hook("onConversationUpdated", HookStage.BEFORE) { param ->
-                context.event.post(ConversationUpdateEvent(
-                    conversationId = SnapUUID(param.arg(0)).toString(),
-                    conversation = param.argNullable(1),
-                    messages = param.arg<ArrayList<*>>(2).map { Message(it) },
-                ).apply { adapter = param }) {
-                    param.setArg(2, messages.map { it.instanceNonNull() }.toCollection(ArrayList()))
+            callbacks.getClass("IdentityDelegate")?.apply {
+                hookConstructor(HookStage.AFTER) {
+                    identityDelegate = it.thisObject()
                 }
             }
         }
@@ -86,10 +102,10 @@ class Messaging : Feature("Messaging", loadParams = FeatureLoadParams.ACTIVITY_C
     }
 
     override fun onActivityCreate() {
-        context.mappings.getMappedObjectNullable("FriendsFeedEventDispatcher").let { it as? Map<*, *> }?.let { mappings ->
-            findClass(mappings["class"].toString()).hook("onItemLongPress", HookStage.BEFORE) { param ->
+        context.mappings.useMapper(FriendsFeedEventDispatcherMapper::class) {
+            classReference.getAsClass()?.hook("onItemLongPress", HookStage.BEFORE) { param ->
                 val viewItemContainer = param.arg<Any>(0)
-                val viewItem = viewItemContainer.getObjectField(mappings["viewModelField"].toString()).toString()
+                val viewItem = viewItemContainer.getObjectField(viewModelField.get()!!).toString()
                 val conversationId = viewItem.substringAfter("conversationId: ").substring(0, 36).also {
                     if (it.startsWith("null")) return@hook
                 }
@@ -98,7 +114,6 @@ class Messaging : Feature("Messaging", loadParams = FeatureLoadParams.ACTIVITY_C
                 }
             }
         }
-
 
         context.classCache.feedEntry.hookConstructor(HookStage.AFTER) { param ->
             val instance = param.thisObject<Any>()
@@ -112,17 +127,21 @@ class Messaging : Feature("Messaging", loadParams = FeatureLoadParams.ACTIVITY_C
             }.sortedBy { it.orderKey }.mapNotNull { it.messageDescriptor?.messageId }
         }
 
-        context.mappings.getMappedClass("callbacks", "GetOneOnOneConversationIdsCallback").hook("onSuccess", HookStage.BEFORE) { param ->
-            val userIdToConversation = (param.arg<ArrayList<*>>(0))
-                .takeIf { it.isNotEmpty() }
-                ?.get(0) ?: return@hook
+        context.mappings.useMapper(CallbackMapper::class) {
+            callbacks.getClass("GetOneOnOneConversationIdsCallback")?.hook("onSuccess", HookStage.BEFORE) { param ->
+                val userIdToConversation = (param.arg<ArrayList<*>>(0))
+                    .takeIf { it.isNotEmpty() }
+                    ?.get(0) ?: return@hook
 
-            lastFetchConversationUUID = SnapUUID(userIdToConversation.getObjectField("mConversationId"))
-            lastFetchConversationUserUUID = SnapUUID(userIdToConversation.getObjectField("mUserId"))
+                lastFetchConversationUUID =
+                    SnapUUID(userIdToConversation.getObjectField("mConversationId"))
+                lastFetchConversationUserUUID =
+                    SnapUUID(userIdToConversation.getObjectField("mUserId"))
+            }
         }
 
-        with(context.classCache.conversationManager) {
-            Hooker.hook(this, "enterConversation", HookStage.BEFORE) { param ->
+        context.classCache.conversationManager.apply {
+            hook("enterConversation", HookStage.BEFORE) { param ->
                 openedConversationUUID = SnapUUID(param.arg(0))
                 if (context.config.messaging.bypassMessageRetentionPolicy.get()) {
                     val callback = param.argNullable<Any>(2) ?: return@hook
@@ -131,7 +150,7 @@ class Messaging : Feature("Messaging", loadParams = FeatureLoadParams.ACTIVITY_C
                 }
             }
 
-            Hooker.hook(this, "exitConversation", HookStage.BEFORE) {
+            hook("exitConversation", HookStage.BEFORE) {
                 openedConversationUUID = null
             }
         }
@@ -168,5 +187,16 @@ class Messaging : Feature("Messaging", loadParams = FeatureLoadParams.ACTIVITY_C
         }) {
             it.setResult(null)
         }
+    }
+
+    fun fetchSnapchatterInfos(userIds: List<String>): List<Snapchatter> {
+        val identity = identityDelegate ?: return emptyList()
+        val future = identity::class.java.methods.first {
+            it.name == "fetchSnapchatterInfos"
+        }.invoke(identity, userIds.map {
+            it.toSnapUUID().instanceNonNull()
+        }) as Future<*>
+
+        return (future.get() as? List<*>)?.map { Snapchatter(it) } ?: return emptyList()
     }
 }

@@ -1,18 +1,14 @@
 package me.rhunk.snapenhance.scripting.impl
 
 import com.google.gson.JsonObject
-import me.rhunk.snapenhance.common.logger.AbstractLogger
 import me.rhunk.snapenhance.common.scripting.impl.ConfigInterface
-import me.rhunk.snapenhance.common.scripting.type.ModuleInfo
 import me.rhunk.snapenhance.scripting.RemoteScriptManager
 import java.io.File
 
-class RemoteScriptConfig(
-    private val remoteScriptManager: RemoteScriptManager,
-    moduleInfo: ModuleInfo,
-    private val logger: AbstractLogger,
+class ManagerScriptConfig(
+    private val remoteScriptManager: RemoteScriptManager
 ) : ConfigInterface() {
-    private val configFile = File(remoteScriptManager.getModuleDataFolder(moduleInfo.name), "config.json")
+    private val configFile by lazy { File(remoteScriptManager.getModuleDataFolder(context.moduleInfo.name), "config.json") }
     private var config = JsonObject()
 
     override fun get(key: String, defaultValue: Any?): String? {
@@ -46,12 +42,16 @@ class RemoteScriptConfig(
             }
             config = remoteScriptManager.context.gson.fromJson(configFile.readText(), JsonObject::class.java)
         }.onFailure {
-            logger.error("Failed to load config file", it)
+            context.runtime.logger.error("Failed to load config file", it)
             save()
         }
     }
 
-    override fun delete() {
+    override fun deleteConfig() {
         configFile.delete()
+    }
+
+    override fun onInit() {
+        load()
     }
 }

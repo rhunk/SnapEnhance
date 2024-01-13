@@ -40,12 +40,12 @@ fun createNewFilePath(
     config: RootConfig,
     hexHash: String,
     downloadSource: MediaDownloadSource,
-    mediaAuthor: String,
+    mediaAuthor: String?,
     creationTimestamp: Long?
 ): String {
     val pathFormat by config.downloader.pathFormat
-    val sanitizedMediaAuthor = mediaAuthor.sanitizeForPath().ifEmpty { hexHash }
-
+    val customPathFormat by config.downloader.customPathFormat
+    val sanitizedMediaAuthor = mediaAuthor?.sanitizeForPath() ?: hexHash
     val currentDateTime = SimpleDateFormat("yyyy-MM-dd_HH-mm-ss", Locale.ENGLISH).format(creationTimestamp ?: System.currentTimeMillis())
 
     val finalPath = StringBuilder()
@@ -58,26 +58,35 @@ fun createNewFilePath(
         }
     }
 
-    if (pathFormat.contains("create_author_folder")) {
-        finalPath.append(sanitizedMediaAuthor).append("/")
-    }
-    if (pathFormat.contains("create_source_folder")) {
-        finalPath.append(downloadSource.pathName).append("/")
-    }
-    if (pathFormat.contains("append_hash")) {
-        appendFileName(hexHash)
-    }
-    if (pathFormat.contains("append_source")) {
-        appendFileName(downloadSource.pathName)
-    }
-    if (pathFormat.contains("append_username")) {
-        appendFileName(sanitizedMediaAuthor)
-    }
-    if (pathFormat.contains("append_date_time")) {
-        appendFileName(currentDateTime)
+    if (customPathFormat.isNotEmpty()) {
+        finalPath.append(customPathFormat
+            .replace("%username%", sanitizedMediaAuthor)
+            .replace("%source%", downloadSource.pathName)
+            .replace("%hash%", hexHash)
+            .replace("%date_time%", currentDateTime)
+        )
+    } else {
+        if (pathFormat.contains("create_author_folder")) {
+            finalPath.append(sanitizedMediaAuthor).append("/")
+        }
+        if (pathFormat.contains("create_source_folder")) {
+            finalPath.append(downloadSource.pathName).append("/")
+        }
+        if (pathFormat.contains("append_hash")) {
+            appendFileName(hexHash)
+        }
+        if (pathFormat.contains("append_source")) {
+            appendFileName(downloadSource.pathName)
+        }
+        if (pathFormat.contains("append_username")) {
+            appendFileName(sanitizedMediaAuthor)
+        }
+        if (pathFormat.contains("append_date_time")) {
+            appendFileName(currentDateTime)
+        }
     }
 
-    if (finalPath.isEmpty()) finalPath.append(hexHash)
+    if (finalPath.isEmpty() || finalPath.isBlank()) finalPath.append(hexHash)
 
     return finalPath.toString()
 }

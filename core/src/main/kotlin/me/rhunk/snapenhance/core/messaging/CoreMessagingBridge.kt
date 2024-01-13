@@ -65,7 +65,7 @@ class CoreMessagingBridge(
             suspendCancellableCoroutine { continuation ->
                 conversationManager?.fetchMessageByServerId(
                     conversationId,
-                    serverMessageId,
+                    serverMessageId.toLong(),
                     onSuccess = {
                         continuation.resumeWith(Result.success(it.toBridge()))
                     },

@@ -26,6 +26,7 @@ class TaskManager(
                     "id INTEGER PRIMARY KEY AUTOINCREMENT",
                     "hash VARCHAR UNIQUE",
                     "title VARCHAR(255) NOT NULL",
+                    "author VARCHAR(255)",
                     "type VARCHAR(255) NOT NULL",
                     "status VARCHAR(255) NOT NULL",
                     "extra TEXT"
@@ -37,7 +38,12 @@ class TaskManager(
     private val activeTasks = mutableMapOf<Long, PendingTask>()
 
     private fun readTaskFromCursor(cursor: android.database.Cursor): Task {
-        val task = Task(TaskType.fromKey(cursor.getStringOrNull("type")!!), cursor.getStringOrNull("title")!!, cursor.getStringOrNull("hash")!!)
+        val task = Task(
+            type = TaskType.fromKey(cursor.getStringOrNull("type")!!),
+            title = cursor.getStringOrNull("title")!!,
+            author = cursor.getStringOrNull("author"),
+            hash = cursor.getStringOrNull("hash")!!
+        )
         task.status = TaskStatus.fromKey(cursor.getStringOrNull("status")!!)
         task.extra = cursor.getStringOrNull("extra")
         task.changeListener = {
@@ -60,6 +66,7 @@ class TaskManager(
                     val result = taskDatabase.insert("tasks", null, ContentValues().apply {
                         put("type", task.type.key)
                         put("hash", task.hash)
+                        put("author", task.author)
                         put("title", task.title)
                         put("status", task.status.key)
                         put("extra", task.extra)
@@ -87,6 +94,22 @@ class TaskManager(
         runBlocking {
             launch(queueExecutor.asCoroutineDispatcher()) {
                 taskDatabase.execSQL("DELETE FROM tasks")
+            }
+        }
+    }
+
+    fun removeTask(task: Task) {
+        runBlocking {
+            activeTasks.entries.find { it.value.task == task }?.let {
+                activeTasks.remove(it.key)
+                runCatching {
+                    it.value.cancel()
+                }.onFailure {
+                    remoteSideContext.log.warn("Failed to cancel task ${task.hash}")
+                }
+            }
+            launch(queueExecutor.asCoroutineDispatcher()) {
+                taskDatabase.execSQL("DELETE FROM tasks WHERE hash = ?", arrayOf(task.hash))
             }
         }
     }

@@ -1,0 +1,243 @@
+{
+    "setup": {
+        "dialogs": {
+            "select_language": "Kies taal",
+            "save_folder": "SnapEnhance heeft toegang voor opslag nodig om media van Snapchat te downloaden.\nKies de downloadlocatie.",
+            "select_save_folder_button": "Selecteer map"
+        },
+        "mappings": {
+            "dialog": "Om een breed bereik aan Snapchat-versies te ondersteunen, zijn er toewijzingen nodig om SnapEnhance goed te laten werken. Dit zou niet meer dan 5 seconden mogen duren.",
+            "generate_button": "Genereren",
+            "generate_failure_no_snapchat": "SnapEnhance kon de Snapchat niet detecteren, probeer alstublieft Snapchat opnieuw te installeren.",
+            "generate_failure": "Er is een fout opgetreden tijdens het genereren van mappings, probeer het opnieuw.",
+            "generate_success": "Mappings succesvol gegenereerd."
+        },
+        "permissions": {
+            "dialog": "Om door te gaan moet je voldoen aan de volgende vereisten:",
+            "notification_access": "Toegang tot meldingen",
+            "battery_optimization": "Batterijoptimalisatie",
+            "display_over_other_apps": "Weergeven vóór andere apps",
+            "request_button": "Verzoek"
+        }
+    },
+    "manager": {
+        "routes": {
+            "features": "Functies",
+            "home": "Startscherm",
+            "home_settings": "Instellingen",
+            "home_logs": "Logs",
+            "social": "Sociaal",
+            "scripts": "Scripts"
+        },
+        "sections": {
+            "home": {
+                "logs": {
+                    "clear_logs_button": "Wis logs",
+                    "export_logs_button": "Logs exporteren"
+                }
+            },
+            "features": {
+                "disabled": "Uitgeschakeld"
+            },
+            "social": {
+                "e2ee_title": "End-to-End encryptie",
+                "rules_title": "Regels",
+                "participants_text": "{count} deelnemers",
+                "not_found": "Niet gevonden",
+                "streaks_title": "Snapreeks",
+                "streaks_length_text": "Lengte: {length}",
+                "streaks_expiration_short": "{hours}u",
+                "streaks_expiration_text": "Verloopt in {eta}",
+                "reminder_button": "Stel herinnering in"
+            }
+        },
+        "dialogs": {
+            "add_friend": {
+                "title": "Vriend of groep toevoegen",
+                "search_hint": "Zoeken",
+                "fetch_error": "Kan gegevens niet ophalen",
+                "category_groups": "Groepen",
+                "category_friends": "Vrienden"
+            }
+        }
+    },
+    "rules": {
+        "modes": {
+            "blacklist": "Zwarte lijst modus",
+            "whitelist": "Witte lijst modus"
+        },
+        "properties": {
+            "auto_download": {
+                "name": "Automatisch downloaden",
+                "description": "Download Snaps automatisch tijdens het bekijken",
+                "options": {
+                    "blacklist": "Uitsluiten van automatisch downloaden",
+                    "whitelist": "Automatische download"
+                }
+            },
+            "stealth": {
+                "name": "Verberg Modus",
+                "description": "Voorkomt dat iedereen weet dat je hun snaps/chats en gesprekken hebt geopend",
+                "options": {
+                    "blacklist": "Uitsluiten van Verberg Modus",
+                    "whitelist": "Verberg modus"
+                }
+            },
+            "auto_save": {
+                "name": "Automatisch opslaan",
+                "description": "Slaat chatberichten op wanneer je ze bekijkt",
+                "options": {
+                    "blacklist": "Uitsluiten van automatisch opslaan",
+                    "whitelist": "Automatisch opslaan"
+                }
+            },
+            "hide_friend_feed": {
+                "name": "Verbergen in Vrienden Feed"
+            },
+            "e2e_encryption": {
+                "name": "Gebruik E2E Encryptie"
+            },
+            "pin_conversation": {
+                "name": "Gesprek vastzetten"
+            }
+        }
+    },
+    "actions": {
+        "clean_snapchat_cache": "Snapchat cache opschonen",
+        "clear_message_logger": "Wis Berichten Logger",
+        "refresh_mappings": "Vernieuw Mappings",
+        "open_map": "Kies locatie op de kaart",
+        "check_for_updates": "Controleer op updates",
+        "export_chat_messages": "Exporteer chatberichten"
+    },
+    "features": {
+        "notices": {
+            "unstable": "⚠️ Onstabiel",
+            "ban_risk": "⚠️ Deze functie kan bans veroorzaken",
+            "internal_behavior": "⚠️ Dit kan het interne gedrag van Snapchat breken",
+            "require_native_hooks": "⚠️ Deze functie vereist experimentele Native Hooks om correct te werken"
+        },
+        "properties": {
+            "downloader": {
+                "name": "Downloader",
+                "properties": {
+                    "save_folder": {
+                        "name": "Opslag locatie",
+                        "description": "Selecteer de map waar alle media naar moeten worden gedownload"
+                    },
+                    "auto_download_sources": {
+                        "name": "Automatisch Bronnen downloaden",
+                        "description": "Selecteer de bronnen waaruit je automatisch wilt downloaden"
+                    },
+                    "prevent_self_auto_download": {
+                        "name": "Eigen automatische download voorkomen",
+                        "description": "Voorkomt dat je eigen snaps automatisch worden gedownload"
+                    },
+                    "path_format": {
+                        "name": "Pad Formaat",
+                        "description": "Geef het bestandspad formaat op"
+                    },
+                    "allow_duplicate": {
+                        "name": "Duplicaten toestaan",
+                        "description": "Staat toe om meerdere keren hetzelfde media te downloaden"
+                    },
+                    "merge_overlays": {
+                        "name": "Overlays Samenvoegen",
+                        "description": "Combineert de tekst en de media van een Snap in een enkel bestand"
+                    },
+                    "force_image_format": {
+                        "name": "Forceer Afbeeldingsformaat",
+                        "description": "Forceert dat afbeeldingen opgeslagen moeten worden in een gespecificeerd formaat"
+                    },
+                    "force_voice_note_format": {
+                        "name": "Forceer spraaknotitie formaat",
+                        "description": "Forceert dat spraaknotities opgeslagen moeten worden in een opgegeven formaat"
+                    },
+                    "download_profile_pictures": {
+                        "name": "Download profielfoto's",
+                        "description": "Maakt het mogelijk om profielfoto's van de profielpagina te downloaden"
+                    },
+                    "chat_download_context_menu": {
+                        "name": "Chat Download Context Menu",
+                        "description": "Maakt het mogelijk om media van een gesprek te downloaden door deze lang ingedrukt te houden"
+                    },
+                    "ffmpeg_options": {
+                        "name": "FFmpeg Opties",
+                        "description": "Specificeer extra FFmpeg opties",
+                        "properties": {
+                            "threads": {
+                                "name": "Threads",
+                                "description": "Het aantal threads dat moet worden gebruikt"
+                            },
+                            "preset": {
+                                "name": "Voorinstelling",
+                                "description": "Stel de snelheid van de conversie in"
+                            }
+                        }
+                    }
+                }
+            },
+            "user_interface": {
+                "description": "Verander het uiterlijk en gevoel van Snapchat",
+                "properties": {
+                    "enable_app_appearance": {
+                        "name": "Activeer App Uiterlijk Instellingen",
+                        "description": "Schakelt de verborgen App Uiterlijk Instelling in\nMogelijk niet nodig in nieuwere Snapchat versies"
+                    },
+                    "amoled_dark_mode": {
+                        "name": "AMOLED Donkere Modus",
+                        "description": "Schakelt AMOLED donkere modus in\nZorg ervoor dat Snapchats Donkere modus is ingeschakeld"
+                    },
+                    "friend_feed_message_preview": {
+                        "name": "Voorbeeld Vrienden Feed Bericht",
+                        "description": "Toont een voorbeeld van de laatste berichten in de Vrienden Feed",
+                        "properties": {
+                            "amount": {
+                                "name": "Hoeveelheid",
+                                "description": "Het aantal berichten om een voorbeeld te krijgen"
+                            }
+                        }
+                    },
+                    "bootstrap_override": {
+                        "name": "Bootstrap overschrijven",
+                        "description": "Overschrijft de gebruikersinterface bootstrap instellingen",
+                        "properties": {
+                            "app_appearance": {
+                                "name": "App Uiterlijk",
+                                "description": "Stelt een persistent App uiterlijk in"
+                            },
+                            "home_tab": {
+                                "name": "Startpagina tabblad",
+                                "description": "Overschrijft het starttabblad bij het openen van Snapchat"
+                            }
+                        }
+                    },
+                    "map_friend_nametags": {
+                        "name": "Verbeterde Kaart Naamtags Van Vrienden",
+                        "description": "Verbetert de naamtags van vrienden op de Snapmap"
+                    },
+                    "streak_expiration_info": {
+                        "name": "Toon Snapreeks vervaldatum info",
+                        "description": "Toont een Snapreeks Verlooptimer naast de Snapreeks teller"
+                    },
+                    "hide_friend_feed_entry": {
+                        "name": "Verberg Vrienden Feed",
+                        "description": "Verbergt een specifieke vriend uit de Vrienden Feed\nGebruik het sociale tabblad om deze functie te beheren"
+                    },
+                    "hide_streak_restore": {
+                        "name": "Snapreeksherstel verbergen",
+                        "description": "Verbergt de Herstel knop in de vrienden feed"
+                    },
+                    "hide_ui_components": {
+                        "name": "Verberg UI Componenten",
+                        "description": "Selecteer welke UI componenten te verbergen"
+                    },
+                    "disable_spotlight": {
+                        "name": "Spotlight uitschakelen",
+                        "description": "Schakelt de Spotlight pagina uit"
+                    }
+                }
+            }
+        }
+    }
+}

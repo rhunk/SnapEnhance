@@ -44,14 +44,14 @@ class StreaksReminder(
 
         if (streaksReminderConfig.globalState != true) return
 
-        val interval = streaksReminderConfig.interval.get()
+        val interval = streaksReminderConfig.interval.get().hours
         val remainingHours = streaksReminderConfig.remainingHours.get()
 
-        if (sharedPreferences.getLong("lastStreaksReminder", 0).milliseconds + interval.hours - 10.minutes > System.currentTimeMillis().milliseconds) return
+        if (sharedPreferences.getLong("lastStreaksReminder", 0).milliseconds + interval - 10.minutes > System.currentTimeMillis().milliseconds) return
         sharedPreferences.edit().putLong("lastStreaksReminder", System.currentTimeMillis()).apply()
 
         remoteSideContext.androidContext.getSystemService(AlarmManager::class.java).setRepeating(
-            AlarmManager.RTC_WAKEUP, 5000, interval.toLong() * 60 * 60 * 1000,
+            AlarmManager.RTC_WAKEUP, 5000, interval.inWholeMilliseconds,
             PendingIntent.getBroadcast(remoteSideContext.androidContext, 0, Intent(remoteSideContext.androidContext, StreaksReminder::class.java),
                 PendingIntent.FLAG_IMMUTABLE)
         )

@@ -9,8 +9,10 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.Button
 import android.widget.CompoundButton
+import android.widget.LinearLayout
 import android.widget.ProgressBar
 import android.widget.Switch
+import androidx.compose.runtime.remember
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
@@ -21,6 +23,10 @@ import me.rhunk.snapenhance.common.data.MessageUpdate
 import me.rhunk.snapenhance.common.database.impl.ConversationMessage
 import me.rhunk.snapenhance.common.database.impl.FriendInfo
 import me.rhunk.snapenhance.common.database.impl.UserConversationLink
+import me.rhunk.snapenhance.common.scripting.ui.EnumScriptInterface
+import me.rhunk.snapenhance.common.scripting.ui.InterfaceManager
+import me.rhunk.snapenhance.common.scripting.ui.ScriptInterface
+import me.rhunk.snapenhance.common.ui.createComposeView
 import me.rhunk.snapenhance.common.util.protobuf.ProtoReader
 import me.rhunk.snapenhance.common.util.snap.BitmojiSelfie
 import me.rhunk.snapenhance.core.features.impl.messaging.Messaging
@@ -325,6 +331,34 @@ class FriendFeedInfoMenu : AbstractMenu() {
                     }
                 }
             })
+        }
+
+        if (context.config.scripting.integratedUI.get()) {
+            context.scriptRuntime.eachModule {
+                val interfaceManager = getBinding(InterfaceManager::class)
+                    ?.takeIf {
+                        it.hasInterface(EnumScriptInterface.FRIEND_FEED_CONTEXT_MENU)
+                    } ?: return@eachModule
+
+                viewConsumer(LinearLayout(view.context).apply {
+                    layoutParams = ViewGroup.LayoutParams(
+                        ViewGroup.LayoutParams.MATCH_PARENT,
+                        ViewGroup.LayoutParams.WRAP_CONTENT
+                    )
+
+                    applyTheme(view.width, hasRadius = true)
+
+                    orientation = LinearLayout.VERTICAL
+                    addView(createComposeView(view.context) {
+                        ScriptInterface(interfaceBuilder = remember {
+                            interfaceManager.buildInterface(EnumScriptInterface.FRIEND_FEED_CONTEXT_MENU, mapOf(
+                                "conversationId" to conversationId,
+                                "userId" to targetUser
+                            ))
+                        } ?: return@createComposeView)
+                    })
+                })
+            }
         }
     }
 }

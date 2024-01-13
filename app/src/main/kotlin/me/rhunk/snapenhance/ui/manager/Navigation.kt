@@ -39,8 +39,8 @@ class Navigation(
             navHostController,
             startDestination = startDestination.route,
             Modifier.padding(innerPadding),
-            enterTransition = { fadeIn(tween(200)) },
-            exitTransition = { fadeOut(tween(200)) }
+            enterTransition = { fadeIn(tween(100)) },
+            exitTransition = { fadeOut(tween(100)) }
         ) {
             sections.forEach { (_, instance) ->
                 instance.navController = navHostController
@@ -65,7 +65,7 @@ class Navigation(
         val currentSection = getCurrentSection(currentDestination)
 
         TopAppBar(title = {
-            Text(text = currentSection.sectionTopBarName())
+            currentSection.Title()
         }, navigationIcon =  {
             val backButtonAnimation by animateFloatAsState(if (currentSection.canGoBack()) 1f else 0f,
                 label = "backButtonAnimation"

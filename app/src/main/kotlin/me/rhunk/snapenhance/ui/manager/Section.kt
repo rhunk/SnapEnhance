@@ -3,6 +3,7 @@ package me.rhunk.snapenhance.ui.manager
 import androidx.compose.foundation.layout.RowScope
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.*
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.navigation.NavController
@@ -69,6 +70,9 @@ open class Section {
 
     open fun sectionTopBarName(): String = context.translation["manager.routes.${enumSection.route}"]
     open fun canGoBack(): Boolean = false
+
+    @Composable
+    open fun Title() { Text(text = sectionTopBarName()) }
 
     @Composable
     open fun Content() { NotImplemented() }

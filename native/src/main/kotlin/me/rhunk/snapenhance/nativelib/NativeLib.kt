@@ -31,7 +31,7 @@ class NativeLib {
         }.onFailure {
             Log.e("SnapEnhance", "nativeUnaryCallCallback failed", it)
         }
-        if (!nativeRequestData.buffer.contentEquals(buffer) || nativeRequestData.canceled) return nativeRequestData
+        if (nativeRequestData.canceled || !nativeRequestData.buffer.contentEquals(buffer)) return nativeRequestData
         return null
     }
 

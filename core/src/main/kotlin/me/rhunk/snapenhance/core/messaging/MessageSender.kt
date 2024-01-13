@@ -8,6 +8,7 @@ import me.rhunk.snapenhance.core.util.CallbackBuilder
 import me.rhunk.snapenhance.core.wrapper.AbstractWrapper
 import me.rhunk.snapenhance.core.wrapper.impl.MessageDestinations
 import me.rhunk.snapenhance.core.wrapper.impl.SnapUUID
+import me.rhunk.snapenhance.mapper.impl.CallbackMapper
 
 class MessageSender(
     private val context: ModContext,
@@ -55,7 +56,13 @@ class MessageSender(
 
     }
 
-    private val sendMessageCallback by lazy { context.mappings.getMappedClass("callbacks", "SendMessageCallback") }
+    private val sendMessageCallback by lazy {
+        lateinit var result: Class<*>
+        context.mappings.useMapper(CallbackMapper::class) {
+            result = callbacks.getClass("SendMessageCallback") ?: return@useMapper
+        }
+        result
+    }
 
     private fun createLocalMessageContentTemplate(
         contentType: ContentType,

@@ -1,0 +1,38 @@
+{
+    "chat_action_menu": {
+        "preview_button": "Pré-visualização",
+        "download_button": "Descarregar"
+    },
+    "modal_option": {
+        "profile_info": "Informações do Perfil",
+        "close": "Fechar"
+    },
+    "conversation_preview": {
+        "streak_expiration": "expira em {day} dias {hour} horas {minute} minutos",
+        "title": "Pré-visualização",
+        "unknown_user": "Usuário Desconhecido"
+    },
+    "profile_info": {
+        "title": "Informações do Perfil",
+        "display_name": "Nome de Exibição",
+        "birthday": "Aniversário: {month} {day}"
+    },
+    "chat_export": {
+        "dialog_negative_button": "Cancelar",
+        "dialog_positive_button": "Exportar",
+        "exported_to": "Exportado para {path}",
+        "exporting_chats": "A Exportar Conversas...",
+        "processing_chats": "A Processar {amount} conversas...",
+        "export_fail": "Falha ao exportar a conversa {conversation}",
+        "finished": "Pronto! Já pode fechar este diálogo.",
+        "no_messages_found": "Nenhuma mensagem foi encontrada!",
+        "exporting_message": "A Exportar {conversation}..."
+    },
+    "button": {
+        "ok": "Aceitar",
+        "positive": "Sim",
+        "negative": "Não",
+        "cancel": "Cancelar",
+        "open": "Abrir"
+    }
+}

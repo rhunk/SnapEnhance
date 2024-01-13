@@ -9,6 +9,7 @@ import me.rhunk.snapenhance.core.features.FeatureLoadParams
 import me.rhunk.snapenhance.core.util.hook.HookStage
 import me.rhunk.snapenhance.core.util.hook.hookConstructor
 import me.rhunk.snapenhance.core.util.ktx.setObjectField
+import me.rhunk.snapenhance.mapper.impl.DefaultMediaItemMapper
 import java.io.File
 
 class BypassVideoLengthRestriction :
@@ -45,21 +46,23 @@ class BypassVideoLengthRestriction :
                 }
             }
 
-            context.mappings.getMappedClass("DefaultMediaItem")
-                .hookConstructor(HookStage.BEFORE) { param ->
+            context.mappings.useMapper(DefaultMediaItemMapper::class) {
+                defaultMediaItem.getAsClass()?.hookConstructor(HookStage.BEFORE) { param ->
                     //set the video length argument
                     param.setArg(5, -1L)
                 }
+            }
         }
 
         //TODO: allow split from any source
         if (mode == "split") {
-            val cameraRollId = context.mappings.getMappedMap("CameraRollMediaId")
             // memories grid
-            findClass(cameraRollId["class"].toString()).hookConstructor(HookStage.AFTER) { param ->
-                //set the durationMs field
-                param.thisObject<Any>()
-                    .setObjectField(cameraRollId["durationMsField"].toString(), -1L)
+            context.mappings.useMapper(DefaultMediaItemMapper::class) {
+                cameraRollMediaId.getAsClass()?.hookConstructor(HookStage.AFTER) { param ->
+                    //set the durationMs field
+                    param.thisObject<Any>()
+                        .setObjectField(durationMsField.get()!!, -1L)
+                }
             }
 
             // chat camera roll grid

@@ -7,13 +7,13 @@ import me.rhunk.snapenhance.bridge.scripting.AutoReloadListener
 import me.rhunk.snapenhance.bridge.scripting.IPCListener
 import me.rhunk.snapenhance.bridge.scripting.IScripting
 import me.rhunk.snapenhance.common.scripting.ScriptRuntime
+import me.rhunk.snapenhance.common.scripting.bindings.BindingSide
 import me.rhunk.snapenhance.common.scripting.impl.ConfigInterface
 import me.rhunk.snapenhance.common.scripting.impl.ConfigTransactionType
 import me.rhunk.snapenhance.common.scripting.type.ModuleInfo
 import me.rhunk.snapenhance.scripting.impl.IPCListeners
-import me.rhunk.snapenhance.scripting.impl.RemoteManagerIPC
-import me.rhunk.snapenhance.scripting.impl.RemoteScriptConfig
-import me.rhunk.snapenhance.scripting.impl.ui.InterfaceManager
+import me.rhunk.snapenhance.scripting.impl.ManagerIPC
+import me.rhunk.snapenhance.scripting.impl.ManagerScriptConfig
 import java.io.File
 import java.io.InputStream
 import kotlin.system.exitProcess
@@ -21,7 +21,9 @@ import kotlin.system.exitProcess
 class RemoteScriptManager(
     val context: RemoteSideContext,
 ) : IScripting.Stub() {
-    val runtime = ScriptRuntime(context.androidContext, context.log)
+    val runtime = ScriptRuntime(context.androidContext, context.log).apply {
+        scripting = this@RemoteScriptManager
+    }
 
     private var autoReloadListener: AutoReloadListener? = null
     private val autoReloadHandler by lazy {
@@ -61,11 +63,11 @@ class RemoteScriptManager(
 
     fun init() {
         runtime.buildModuleObject = { module ->
-            module.extras["ipc"] = RemoteManagerIPC(module.moduleInfo, context.log, ipcListeners)
-            module.extras["im"] = InterfaceManager(module.moduleInfo, context.log)
-            module.extras["config"] = RemoteScriptConfig(this@RemoteScriptManager, module.moduleInfo, context.log).also {
-                it.load()
-            }
+            putConst("currentSide", this, BindingSide.MANAGER.key)
+            module.registerBindings(
+                ManagerIPC(ipcListeners),
+                ManagerScriptConfig(this@RemoteScriptManager)
+            )
         }
 
         sync()
@@ -74,12 +76,20 @@ class RemoteScriptManager(
         }
     }
 
-    fun loadScript(name: String) {
-        val content = getScriptContent(name) ?: return
+    fun getModulePath(name: String): String? {
+        return cachedModuleInfo.entries.find { it.value.name == name }?.key
+    }
+
+    fun loadScript(path: String) {
+        val content = getScriptContent(path) ?: return
         if (context.config.root.scripting.autoReload.getNullable() != null) {
-            autoReloadHandler.addFile(getScriptsFolder()?.findFile(name) ?: return)
+            autoReloadHandler.addFile(getScriptsFolder()?.findFile(path) ?: return)
         }
-        runtime.load(name, content)
+        runtime.load(path, content)
+    }
+
+    fun unloadScript(scriptPath: String) {
+        runtime.unload(scriptPath)
     }
 
     private fun <R> getScriptInputStream(name: String, callback: (InputStream?) -> R): R {
@@ -140,7 +150,7 @@ class RemoteScriptManager(
         value: String?,
         save: Boolean
     ): String? {
-        val scriptConfig = runtime.getModuleByName(module ?: return null)?.extras?.get("config") as? ConfigInterface ?: return null.also {
+        val scriptConfig = runtime.getModuleByName(module ?: return null)?.getBinding(ConfigInterface::class) ?: return null.also {
             context.log.warn("Failed to get config interface for $module")
         }
         val transactionType = ConfigTransactionType.fromKey(action)
@@ -154,7 +164,7 @@ class RemoteScriptManager(
                     ConfigTransactionType.SET -> set(key ?: return@runCatching null, value, save)
                     ConfigTransactionType.SAVE -> save()
                     ConfigTransactionType.LOAD -> load()
-                    ConfigTransactionType.DELETE -> delete()
+                    ConfigTransactionType.DELETE -> deleteConfig()
                     else -> {}
                 }
                 null

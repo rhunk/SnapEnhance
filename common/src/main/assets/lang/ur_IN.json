@@ -1,0 +1,703 @@
+{
+    "setup": {
+        "dialogs": {
+            "select_language": "زبان منتخب کریں",
+            "save_folder": "SnapEnhance کو سنیپ چیٹ سے میڈیا ڡن لینے اور بچانے کی اجازت دینے کے لئے اسٹوریج کی اجازت کی ضرورت ہوتی ہے۔\nبراہ کرم میڈیا ڈاؤن لوڈ کرنے کے لئے جگہ منتخب کریں۔",
+            "select_save_folder_button": "فولڈر منتخب کریں"
+        },
+        "mappings": {
+            "dialog": "SnapEnhance کے صحیح طریقے سے کام کرنے کے لئے سنیپ چیٹ کے وسائط کی وسعت کو دعم دینے کے لئے ڈائنامک طریقے کی ضرورت ہوتی ہے، یہ زیادہ سے زیادہ 5 سیکنڈ نہیں لیگے گا۔",
+            "generate_button": "پیدا کریں",
+            "generate_failure_no_snapchat": "SnapEnhance نے سنیپ چیٹ کو پہچاننے میں ناکامی کا سامنا کیا، براہ کرم سنیپ چیٹ کو دوبارہ انسٹال کریں۔",
+            "generate_failure": "میپنگز تخلیق کرنے کی کوشش کرتے وقت ایک خرابی آئی، براہ کرم دوبارہ کوشش کریں۔",
+            "generate_success": "میپنگز کامیابی سے تخلیق کی گئی ہیں۔"
+        },
+        "permissions": {
+            "dialog": "آپ جاری رہنے کے لئے مندرجہ ذیل ضروریات کو پورا کرنے کی ضرورت ہوتی ہے:",
+            "notification_access": "اطلاع کی رسائی",
+            "battery_optimization": "بیٹری کی بہترین استفادہ",
+            "display_over_other_apps": "دوسری ایپلیکیشنوں پر نمائش دینا",
+            "request_button": "درخواست دیں"
+        }
+    },
+    "manager": {
+        "routes": {
+            "features": "خصوصیات",
+            "home": "ہوم",
+            "home_settings": "ترتیبات",
+            "home_logs": "لاگز",
+            "social": "سوشل",
+            "scripts": "اسکرپٹس",
+            "tasks": "کام"
+        },
+        "sections": {
+            "home": {
+                "logs": {
+                    "clear_logs_button": "لاگز صاف کریں",
+                    "export_logs_button": "لاگز ایکسپورٹ کریں"
+                }
+            },
+            "features": {
+                "disabled": "غیر فعال"
+            },
+            "social": {
+                "e2ee_title": "آخر تک آخر اینڈ انکرپشن",
+                "rules_title": "قوانین",
+                "participants_text": "{count} مشترکین",
+                "not_found": "نہیں ملی",
+                "streaks_title": "استریکس",
+                "streaks_length_text": "لمبائی: {length}",
+                "streaks_expiration_short": "{hours}گنٹے",
+                "streaks_expiration_text": "میں ختم ہو جائے گا {eta}",
+                "reminder_button": "یاد دلانے کی ترتیب دیں"
+            },
+            "tasks": {
+                "no_tasks": "کوئی کام نہیں"
+            }
+        },
+        "dialogs": {
+            "add_friend": {
+                "title": "دوست یا گروپ شامل کریں",
+                "search_hint": "تلاش کریں",
+                "fetch_error": "ڈیٹا حاصل کرنے میں ناکامی",
+                "category_groups": "گروپس",
+                "category_friends": "دوست"
+            },
+            "scripting_warning": {
+                "title": "وارننگ",
+                "content": "SnapEnhance میں ایک اسکرپٹنگ ٹول شامل ہے، جو آپ کے آلے پر صارف کے متعین کوڈ کے نفاذ کی اجازت دیتا ہے۔ انتہائی احتیاط برتیں اور صرف معروف، قابل اعتماد ذرائع سے ماڈیول انسٹال کریں۔ غیر مجاز یا غیر تصدیق شدہ ماڈیولز آپ کے سسٹم کے لیے حفاظتی خطرات پیدا کر سکتے ہیں۔"
+            }
+        }
+    },
+    "rules": {
+        "modes": {
+            "blacklist": "بلیک لسٹ موڈ",
+            "whitelist": "وائٹ لسٹ موڈ"
+        },
+        "properties": {
+            "auto_download": {
+                "name": "آٹو ڈاؤن لوڈ",
+                "description": "سنیپس کو دیکھتے وقت خود بخود ڈاؤن لوڈ کریں",
+                "options": {
+                    "blacklist": "آٹو ڈاؤن لوڈ سے خارج کریں",
+                    "whitelist": "آٹو ڈاؤن لوڈ کریں"
+                }
+            },
+            "stealth": {
+                "name": "چپ کرنے والا موڈ",
+                "description": "کسی کو بھی نے آپ کی سنیپس/چیٹس اور گفتگو کھولی ہو یا نہیں جاننے سے بچائیں",
+                "options": {
+                    "blacklist": "چپ کرنے والا موڈ سے خارج کریں",
+                    "whitelist": "چپ کرنے والا موڈ"
+                }
+            },
+            "auto_save": {
+                "name": "آٹو بچانا",
+                "description": "میڈیا کی چیک کرتے وقت چیٹ میسیجز کو خود بخود بچائیں",
+                "options": {
+                    "blacklist": "آٹو بچانا سے خارج کریں",
+                    "whitelist": "آٹو بچانا"
+                }
+            },
+            "hide_friend_feed": {
+                "name": "دوستوں کی فیڈ سے چھپائیں"
+            },
+            "e2e_encryption": {
+                "name": "آخر تک آخر اینڈ انکرپشن استعمال کریں"
+            },
+            "pin_conversation": {
+                "name": "بات چیت کو پن کریں"
+            },
+            "unsaveable_messages": {
+                "name": "ناقابل محفوظ پیغامات"
+            }
+        }
+    },
+    "actions": {
+        "clean_snapchat_cache": "سنیپ‌چیٹ کیش صاف کریں",
+        "clear_message_logger": "پیغام لاگر صاف کریں",
+        "refresh_mappings": "تصاویر کو تازہ کریں",
+        "open_map": "نقشہ پر مقام منتخب کریں",
+        "check_for_updates": "اپ ڈیٹس کی جانچ کاری کریں",
+        "export_chat_messages": "چیٹ میسیجز ایکسپورٹ کریں"
+    },
+    "features": {
+        "notices": {
+            "unstable": "⚠ غیر مستحکم",
+            "ban_risk": "⚠ یہ خصوصیت پابن کا خدشہ ہوتا ہے",
+            "internal_behavior": "⚠ یہ سنیپ چیٹ کی اندرونی عمل کو توڑ سکتا ہے",
+            "require_native_hooks": "⚠ اس خصوصیت کے صحیح کام کے لئے تجرباتی نیٹوک ہکس کی ضرورت ہے"
+        },
+        "properties": {
+            "downloader": {
+                "name": "ڈاؤن لوڈر",
+                "description": "اسنیپ چیٹ میڈیا ڈاؤن لوڈ کریں",
+                "properties": {
+                    "save_folder": {
+                        "name": "محفوظ کریں فولڈر",
+                        "description": "وہ ڈائریکٹری منتخب کریں جہاں تمام میڈیا ڈاؤن لوڈ ہونا چاہئے"
+                    },
+                    "auto_download_sources": {
+                        "name": "آٹو ڈاؤن لوڈ ماخذات",
+                        "description": "آٹومیٹک طریقے سے ڈاؤن لوڈ کرنے کے لئے ماخذات منتخب کریں"
+                    },
+                    "prevent_self_auto_download": {
+                        "name": "خود سے آٹو ڈاؤن لوڈ کو روکیں",
+                        "description": "خود کے اپنے سنیپس کو خود بخود ڈاؤن لوڈ ہونے سے روکیں"
+                    },
+                    "path_format": {
+                        "name": "راستے کی شکل میں مخصوص کریں",
+                        "description": "فائل راستے کی شکل مخصوص کریں"
+                    },
+                    "allow_duplicate": {
+                        "name": "میڈیا کی دوبارہ اجازت دیں",
+                        "description": "ایک ہی میڈیا کو متعدد بار ڈاؤن لوڈ کرنے کی اجازت دیں"
+                    },
+                    "merge_overlays": {
+                        "name": "آورلے کو مرج کریں",
+                        "description": "ایک سنیپ کے مواد اور مواد کو ایک فائل میں ملائیں"
+                    },
+                    "force_image_format": {
+                        "name": "تصویر کی شکل میں مجبور کریں",
+                        "description": "تصویر کو مخصوص شکل میں محفوظ کرنے کی اجازت دیں"
+                    },
+                    "force_voice_note_format": {
+                        "name": "آوازی نوٹ کی شکل میں مجبور کریں",
+                        "description": "آوازی نوٹس کو مخصوص شکل میں محفوظ کرنے کی اجازت دیں"
+                    },
+                    "download_profile_pictures": {
+                        "name": "پروفائل تصویریں ڈاؤن لوڈ کریں",
+                        "description": "پروفائل صفحے سے پروفائل تصویریں ڈاؤن لوڈ کرنے کی اجازت دیں"
+                    },
+                    "chat_download_context_menu": {
+                        "name": "چیٹ ڈاؤن لوڈ مواقع مینو",
+                        "description": "لانگ پریس کرکے بات چیت سے میڈیا ڈاؤن لوڈ کرنے کی اجازت دیں"
+                    },
+                    "ffmpeg_options": {
+                        "name": "ایف ایم پیگ اختیارات",
+                        "description": "اضافی ایف ایم پیگ اختیارات مخصوص کریں",
+                        "properties": {
+                            "threads": {
+                                "name": "تھریڈز",
+                                "description": "استعمال کرنے والے تھریڈز کی مقدار"
+                            },
+                            "preset": {
+                                "name": "پریسٹ",
+                                "description": "تبدیلی کی رفتار مخصوص کریں"
+                            },
+                            "constant_rate_factor": {
+                                "name": "مستقل شرح کا عامل",
+                                "description": "ویڈیو اینکوڈر کے لئے مستقل شرح کا عامل مخصوص کریں\nلبیکس 264 کے لئے 0 سے 51 تک"
+                            },
+                            "video_bitrate": {
+                                "name": "ویڈیو بٹ ریٹ",
+                                "description": "ویڈیو بٹ ریٹ (کلو بٹ فی سیکنڈ) مخصوص کریں"
+                            },
+                            "audio_bitrate": {
+                                "name": "آڈیو بٹ ریٹ",
+                                "description": "آڈیو بٹ ریٹ (کلو بٹ فی سیکنڈ) مخصوص کریں"
+                            },
+                            "custom_video_codec": {
+                                "name": "کسٹم ویڈیو کوڈیک",
+                                "description": "کسٹم ویڈیو کوڈیک مخصوص کریں (مثلاً لبیکس 264)"
+                            },
+                            "custom_audio_codec": {
+                                "name": "کسٹم آڈیو کوڈیک",
+                                "description": "کسٹم آڈیو کوڈیک مخصوص کریں (مثلاً اے سی)"
+                            }
+                        }
+                    },
+                    "logging": {
+                        "name": "لاگنگ",
+                        "description": "جب میڈیا ڈاؤن لوڈ ہوتا ہے تو توسٹ دکھائیں"
+                    }
+                }
+            },
+            "user_interface": {
+                "name": "صارف کا انٹرفیس",
+                "description": "سنیپ چیٹ کی لک اور محسوس تبدیل کریں",
+                "properties": {
+                    "enable_app_appearance": {
+                        "name": "ایپ کی ظاہریت کی سیٹنگز کو فعال کریں",
+                        "description": "چھپی ہوئی ایپ کی ظاہریت کی سیٹنگ کو فعال کریں\nنئی ترین سنیپ چیٹ ورژنز پر شاید ضروری نہ ہو"
+                    },
+                    "amoled_dark_mode": {
+                        "name": "AMOLED ڈارک موڈ",
+                        "description": "AMOLED ڈارک موڈ کو فعال کریں\nیقینی بنائیں کہ سنیپ چیٹ کا ڈارک موڈ فعال ہو"
+                    },
+                    "friend_feed_message_preview": {
+                        "name": "دوست فیڈ پیغام پیش نظر کریں",
+                        "description": "دوست فیڈ میں پچھلے پیغاموں کی ایک مثال دیکھائیں",
+                        "properties": {
+                            "amount": {
+                                "name": "مقدار",
+                                "description": "پیش نظر کرنے والے پیغاموں کی مقدار"
+                            }
+                        }
+                    },
+                    "bootstrap_override": {
+                        "name": "بوٹسٹریپ کی بدلنے کی سیٹنگ",
+                        "description": "صارف کا انٹرفیس بوٹسٹریپ کی سیٹنگ کو بدल دیتا ہے",
+                        "properties": {
+                            "app_appearance": {
+                                "name": "ایپ کی ظاہریت",
+                                "description": "مستقل ایپ کی ظاہریت تعین کرتا ہے"
+                            },
+                            "home_tab": {
+                                "name": "ہوم ٹیب",
+                                "description": "سنیپ چیٹ کھولنے پر ابتدائی ٹیب کو بدلتا ہے"
+                            }
+                        }
+                    },
+                    "map_friend_nametags": {
+                        "name": "دوستوں کی سنیپ میپ نیم ٹیگز کو بہتر بنائیں",
+                        "description": "سنیپ میپ پر دوستوں کی نیم ٹیگز کو بہتر بناتا ہے"
+                    },
+                    "streak_expiration_info": {
+                        "name": "استیک ختم ہونے کی معلومات دکھائیں",
+                        "description": "استیک کاؤنٹر کے پاس ایک استیک ختم ہونے کا ٹائمر دکھاتا ہے"
+                    },
+                    "hide_friend_feed_entry": {
+                        "name": "دوست فیڈ انٹری چھپائیں",
+                        "description": "دوست فیڈ میں ایک مخصوص دوست کو چھپائیں\nاس فیچر کو منظربند کرنے کے لئے سوشل ٹیب کا استعمال کریں"
+                    },
+                    "hide_streak_restore": {
+                        "name": "استیک کو بحال کرنے کا بٹن چھپائیں",
+                        "description": "دوست فیڈ میں بحال کرنے کا بٹن چھپائیں"
+                    },
+                    "hide_ui_components": {
+                        "name": "یو آئی کے حصے چھپائیں",
+                        "description": "چھپانے کے لئے یو آئی کمپوننٹس منتخب کریں"
+                    },
+                    "disable_spotlight": {
+                        "name": "اسپاٹ لائٹ کو غیر فعال کریں",
+                        "description": "اسپاٹ لائٹ پیج کو غیر فعال کرتا ہے"
+                    },
+                    "friend_feed_menu_buttons": {
+                        "name": "دوست فیڈ مینو بٹنز",
+                        "description": "دوست فیڈ مینو بار میں دکھائی جانے والے بٹنز منتخب کریں"
+                    },
+                    "friend_feed_menu_position": {
+                        "name": "دوست فیڈ مقام انڈیکس",
+                        "description": "دوست فیڈ مینو کمپوننٹ کی مقام"
+                    },
+                    "enable_friend_feed_menu_bar": {
+                        "name": "نئے دوست فیڈ مینو بار کو فعال کریں",
+                        "description": "نئے دوست فیڈ مینو بار کو فعال کرتا ہے"
+                    }
+                }
+            },
+            "messaging": {
+                "name": "میسیجنگ",
+                "description": "دوستوں کے ساتھ بات چیت کرنے کے طریقے تبدیل کریں",
+                "properties": {
+                    "anonymous_story_viewing": {
+                        "name": "غیر شناختہ کہانی دیکھنا",
+                        "description": "کسی کو بھی آپ کی کہانی دیکھی ہونے کا علم نہیں ہونے دیتا"
+                    },
+                    "hide_bitmoji_presence": {
+                        "name": "بٹ موجی موجودگی چھپائیں",
+                        "description": "آپ کے بٹ موجی کو چیٹ کے دوران دکھنے سے روکتا ہے"
+                    },
+                    "hide_typing_notifications": {
+                        "name": "ٹائپنگ اطلاعات چھپائیں",
+                        "description": "کسی کو بھی آپ کی پیغام ٹائپ کرنے کا علم نہیں ہونے دیتا"
+                    },
+                    "unlimited_snap_view_time": {
+                        "name": "غیر محدود اسنیپ دیکھنے کا وقت",
+                        "description": "سنیپس دیکھنے کیلئے وقت کی پابندی کو دور کرتا ہے"
+                    },
+                    "disable_replay_in_ff": {
+                        "name": "دوستوں کی فیڈ فرمیں دوبارہ چلانے کی غیر فعالیت",
+                        "description": "دوستوں کی فیڈ سے لمبی دباؤ کے ساتھ دوبارہ چلانے کی صلاحیت کو منسوخ کرتا ہے"
+                    },
+                    "message_preview_length": {
+                        "name": "پیغام کی پیش نظر لمبائی",
+                        "description": "پیغامات کی پیش نظر کرنے والی پیغامات کی مقدار معین کریں"
+                    },
+                    "prevent_message_sending": {
+                        "name": "پیغام بھیجنے سے روکنا",
+                        "description": "مخصوص اقسام کے پیغامات بھیجنے سے روکتا ہے"
+                    },
+                    "better_notifications": {
+                        "name": "بہترین اطلاعات",
+                        "description": "موصول ہونے والی اطلاعات میں مزید معلومات شامل کرتا ہے"
+                    },
+                    "notification_blacklist": {
+                        "name": "اطلاعات کی سیاہ فہرست",
+                        "description": "روکنے چاہیں والی اطلاعات منتخب کریں"
+                    },
+                    "message_logger": {
+                        "name": "پیغام لاگر",
+                        "description": "پیغامات کو مٹانے سے روکتا ہے"
+                    },
+                    "auto_save_messages_in_conversations": {
+                        "name": "پیغامات خود بخود محفوظ کریں",
+                        "description": "بات چیتوں میں ہر پیغام خود بخود محفوظ کرتا ہے"
+                    },
+                    "gallery_media_send_override": {
+                        "name": "گیلری کے میڈیا بھیجنے کی بدلنے کی سیٹنگ",
+                        "description": "گیلری سے بھیجنے کے وقت میڈیا کی ماخذ کو بدل دیتا ہے"
+                    }
+                }
+            },
+            "global": {
+                "name": "عالمی",
+                "description": "عالمی سنیپ چیٹ کی ترتیبات تبدیل کریں",
+                "properties": {
+                    "spoofLocation": {
+                        "name": "مقام",
+                        "description": "آپ کا مقام فریب کریں",
+                        "properties": {
+                            "coordinates": {
+                                "name": "کوآرڈینیٹس",
+                                "description": "کوآرڈینیٹس تعین کریں"
+                            }
+                        }
+                    },
+                    "snapchat_plus": {
+                        "name": "سنیپ چیٹ پلس",
+                        "description": "سنیپ چیٹ پلس فیچرز کو فعال کرتا ہے\nکچھ سرور-سائیڈ فیچرز ممکن ہے کام نہ کریں"
+                    },
+                    "auto_updater": {
+                        "name": "آٹو اپ ڈیٹر",
+                        "description": "نئی اپ ڈیٹس کے لئے خود بخود چیک کرتا ہے"
+                    },
+                    "disable_metrics": {
+                        "name": "میٹرکس کو منسوخ کریں",
+                        "description": "خصوصی تجزیاتی معلومات کو سنیپ چیٹ کو ارسال کرنے سے روکتا ہے"
+                    },
+                    "block_ads": {
+                        "name": "اشتہارات کو روکیں",
+                        "description": "اشتہارات کو نمائش کرنے سے روکتا ہے"
+                    },
+                    "bypass_video_length_restriction": {
+                        "name": "ویڈیو کی لمبائی کی پابندی کو اندر کریں",
+                        "description": "اکیلا: ایک ویڈیو بھیجتا ہے\nسپلٹ: ترتیب دینے کے بعد ویڈیو کو تقسیم کرتا ہے"
+                    },
+                    "disable_google_play_dialogs": {
+                        "name": "گوگل پلے سروسز ڈائیلاگ کو منسوخ کریں",
+                        "description": "گوگل پلے سروسز کی دستیابی ڈائیلاگ کو نمائش کرنے سے روکتا ہے"
+                    },
+                    "disable_snap_splitting": {
+                        "name": "اسنیپ کو تقسیم کرنے سے روکیں",
+                        "description": "سنیپس کو مختلف حصوں میں تقسیم ہونے سے روکتا ہے\nآپ کی بھیجی گئی تصاویر ویڈیوز میں تبدیل ہوجائیں گی"
+                    }
+                }
+            },
+            "rules": {
+                "name": "قواعد",
+                "description": "انفرادی لوگوں کے لئے خود کار فیچرز کو منظم کریں"
+            },
+            "camera": {
+                "name": "کیمرا",
+                "description": "مکمل اسنیپ کیلئے درست ترتیبات کو ترتیب دیں",
+                "properties": {
+                    "disable_camera": {
+                        "name": "کیمرا کو منسوخ کریں",
+                        "description": "سنیپ چیٹ کو آپ کی ڈوائس پر موجود کیمروں کا استعمال نہیں کرنے دیتا"
+                    },
+                    "immersive_camera_preview": {
+                        "name": "محیط پیش نظر",
+                        "description": "سنیپ چیٹ کو کیمرے کی پیش نظر کو کاٹنے سے روکتا ہے\nیہ کچھ ڈیوائسز پر کیمرا کو بلبلی کرنے کی بنیاد پر ہو سکتا ہے"
+                    },
+                    "override_preview_resolution": {
+                        "name": "پیش نظر کی قرار داد کو بدلیں",
+                        "description": "کیمرا پیش نظر کی قرار داد کو بدل دیتا ہے"
+                    },
+                    "override_picture_resolution": {
+                        "name": "تصویر کی قرار داد کو بدلیں",
+                        "description": "تصویر کی قرار داد کو بدل دیتا ہے"
+                    },
+                    "custom_frame_rate": {
+                        "name": "خود مخصوص فریم ریٹ",
+                        "description": "کیمرا فریم ریٹ کو بدل دیتا ہے"
+                    },
+                    "force_camera_source_encoding": {
+                        "name": "کیمرا کی ماخذ کو کواشن کریں",
+                        "description": "کیمرا کی ماخذ کو کواشن کرتا ہے"
+                    }
+                }
+            },
+            "streaks_reminder": {
+                "name": "پکڑو میٹھا معلومات",
+                "description": "آپ کو دورانیہ بھر میں آپ کے پکڑو میٹھے کے بارے میں معلوم کرتا ہے",
+                "properties": {
+                    "interval": {
+                        "name": "دوری",
+                        "description": "ہر معلومات کے درمیان وقفہ (گھنٹے)"
+                    },
+                    "remaining_hours": {
+                        "name": "باقی وقت",
+                        "description": "معلومات کے دکھائی جانے سے پہلے باقی معمول کا وقت"
+                    },
+                    "group_notifications": {
+                        "name": "گروپ معلومات",
+                        "description": "معلومات کو ایک میں گروپ کرتا ہے"
+                    }
+                }
+            },
+            "experimental": {
+                "name": "تجرباتی",
+                "description": "تجرباتی فیچرز",
+                "properties": {
+                    "native_hooks": {
+                        "name": "نیٹو ہکس",
+                        "description": "سنیپ چیٹ کے نیٹو کوڈ میں چھپتے بے حسن فیچرز",
+                        "properties": {
+                            "disable_bitmoji": {
+                                "name": "غیرفعال بٹ موجی",
+                                "description": "دوست کی پروفائل بٹ موجی غیرفعال کریں"
+                            }
+                        }
+                    },
+                    "spoof": {
+                        "name": "فریب",
+                        "description": "آپ کے بارے میں مختلف معلومات کو فریب دیتا ہے"
+                    },
+                    "app_passcode": {
+                        "name": "ایپ پاس کوڈ",
+                        "description": "ایپ کو منظم کرنے کے لئے ایک پاس کوڈ تعین کرتا ہے"
+                    },
+                    "app_lock_on_resume": {
+                        "name": "ریزوم پر ایپ لاک",
+                        "description": "ایپ کو دوبارہ کھولنے پر ایپ کو لاک کرتا ہے"
+                    },
+                    "infinite_story_boost": {
+                        "name": "بے انتہا کہانی کی بوسٹ",
+                        "description": "کہانی کی بوسٹ لمبائی کی پابندی کو چھوڑ دیتا ہے"
+                    },
+                    "meo_passcode_bypass": {
+                        "name": "مائی آئز اونلی پاس کوڈ کو چھوڑ دیں",
+                        "description": "مائی آئز اونلی پاس کوڈ کو چھوڑتا ہے\nیہ صرف اس صورت کام کرتا ہے اگر پاس کوڈ کو درست طریقے سے داخل کیا گیا ہو"
+                    },
+                    "unlimited_multi_snap": {
+                        "name": "بے انتہا ملٹی سنیپ",
+                        "description": "آپ کو بے انتہا تعداد میں ملٹی سنیپس لینے کی اجازت دیتا ہے"
+                    },
+                    "no_friend_score_delay": {
+                        "name": "دوست کے امتیاز کی دیری کو روکیں",
+                        "description": "ایک دوست کے امتیاز کو دیکھنے کے دوران کی تاخیر کو ہٹاتا ہے"
+                    },
+                    "e2ee": {
+                        "name": "اینڈ-ٹو-اینڈ انکرپشن",
+                        "description": "AES کا استعمال کرتے ہوئے آپ کے پیغامات کو انکرپٹ کرتا ہے ایک مشترک رازی کلید کا استعمال کرتے ہوئے\nیقینی بنائیں کہ آپ اپنے کلید کو کہیں محفوظ رکھتے ہیں!",
+                        "properties": {
+                            "encrypted_message_indicator": {
+                                "name": "انکرپٹ پیغام کی نمائش",
+                                "description": "انکرپٹ پیغام کے ساتھ ایک 🔒 ایموجی شامل کرتا ہے"
+                            },
+                            "force_message_encryption": {
+                                "name": "پیغام انکرپشن کو زبردستی کریں",
+                                "description": "انکرپٹ پیغامات کو انکرپشن فعال کرنے والے لوگوں کو بھیجنے سے روکتا ہے، صرف جب کئی مواد منتخب کرے"
+                            }
+                        }
+                    },
+                    "add_friend_source_spoof": {
+                        "name": "دوست کی درخواست کا سورس فریب",
+                        "description": "دوست کی درخواست کا ماخذ فریب دیتا ہے"
+                    },
+                    "hidden_snapchat_plus_features": {
+                        "name": "مخفی سنیپ چیٹ پلس فیچرز",
+                        "description": "غیر جاری/بیٹا سنیپ چیٹ پلس فیچرز کو فعال کرتا ہے\nپرانے سنیپ چیٹ ورژنز پر کام نہیں کر سکتا"
+                    }
+                }
+            },
+            "scripting": {
+                "name": "سکرپٹنگ",
+                "description": "کسٹم اسکرپٹس کو انسٹال کرنے کے لئے سنیپ اینہانس کو توسیع دینے کے لئے چلائیں",
+                "properties": {
+                    "developer_mode": {
+                        "name": "ڈویلپر موڈ",
+                        "description": "سنیپ چیٹ کی یو آئی پر ڈیبگ انفو دکھاتا ہے"
+                    },
+                    "module_folder": {
+                        "name": "ماڈیول فولڈر",
+                        "description": "اسکرپٹس کی جگہ کا فولڈر"
+                    }
+                }
+            }
+        },
+        "options": {
+            "app_appearance": {
+                "always_light": "ہمیشہ روشن",
+                "always_dark": "ہمیشہ اندھیرا"
+            },
+            "better_notifications": {
+                "reply_button": "رد کا بٹن شامل کریں",
+                "download_button": "ڈاؤن لوڈ بٹن شامل کریں",
+                "group": "گروپ اطلاعات"
+            },
+            "friend_feed_menu_buttons": {
+                "auto_download": "⬇️ خود بخود ڈاؤن لوڈ",
+                "auto_save": "💬 خود بخود پیغام محفوظ کریں",
+                "stealth": "👻 چھپنے والا موڈ",
+                "conversation_info": "👤 مکالمہ کی معلومات",
+                "e2e_encryption": "🔒 اینڈ-ٹو-اینڈ انکرپشن کا استعمال کریں"
+            },
+            "path_format": {
+                "create_author_folder": "ہر مصنف کے لئے فولڈر بنائیں",
+                "create_source_folder": "ہر میڈیا سورس کیلئے فولڈر بنائیں",
+                "append_hash": "فائل کے نام میں ایک یونیک ہیش شامل کریں",
+                "append_source": "فائل کے نام میں میڈیا سورس شامل کریں",
+                "append_username": "فائل کے نام میں صارف کا نام شامل کریں",
+                "append_date_time": "فائل کے نام میں تاریخ اور وقت شامل کریں"
+            },
+            "auto_download_sources": {
+                "friend_snaps": "دوست کی سنیپس",
+                "friend_stories": "دوست کی کہانیاں",
+                "public_stories": "عوامی کہانیاں",
+                "spotlight": "سپاٹ لائٹ"
+            },
+            "logging": {
+                "started": "شروع ہوگیا",
+                "success": "کامیابی",
+                "progress": "پیش رفت",
+                "failure": "ناکامی"
+            },
+            "notifications": {
+                "chat_screenshot": "اسکرین شاٹ",
+                "chat_screen_record": "سکرین ریکارڈ",
+                "snap_replay": "سنیپ دوبارہ دیکھیں",
+                "camera_roll_save": "کیمرہ رول میں محفوظ کریں",
+                "chat": "چیٹ",
+                "chat_reply": "چیٹ جواب",
+                "snap": "سنیپ",
+                "typing": "ٹائپنگ",
+                "stories": "کہانیاں",
+                "chat_reaction": "ڈی ایم ری ایکشن",
+                "group_chat_reaction": "گروپ ری ایکشن",
+                "initiate_audio": "آنے والی آڈیو کال",
+                "abandon_audio": "چھوڑی گئی آڈیو کال",
+                "initiate_video": "آنے والی ویڈیو کال",
+                "abandon_video": "چھوڑی گئی ویڈیو کال"
+            },
+            "gallery_media_send_override": {
+                "ORIGINAL": "اصل",
+                "NOTE": "آڈیو نوٹ",
+                "SNAP": "سنیپ",
+                "SAVABLE_SNAP": "محفوظ سنیپ"
+            },
+            "hide_ui_components": {
+                "hide_profile_call_buttons": "پروفائل کال بٹنز ہٹائیں",
+                "hide_chat_call_buttons": "چیٹ کال بٹنز ہٹائیں",
+                "hide_live_location_share_button": "لاکھوں لوگوں کا سراغ لگانے کا بٹن ہٹائیں",
+                "hide_stickers_button": "اسٹکر بٹن ہٹائیں",
+                "hide_voice_record_button": "آواز ریکارڈ بٹن ہٹائیں"
+            },
+            "home_tab": {
+                "map": "نقشہ",
+                "chat": "چیٹ",
+                "camera": "کیمرا",
+                "discover": "ڈسکور",
+                "spotlight": "سپاٹ لائٹ"
+            },
+            "add_friend_source_spoof": {
+                "added_by_username": "صارف کے ذریعے",
+                "added_by_mention": "ذکر کے ذریعے",
+                "added_by_group_chat": "گروپ چیٹ کے ذریعے",
+                "added_by_qr_code": "کیو آر کوڈ کے ذریعے",
+                "added_by_community": "کمیونٹی کے ذریعے"
+            },
+            "bypass_video_length_restriction": {
+                "single": "ایکل میڈیا",
+                "split": "میڈیا کو تقسیم کریں"
+            }
+        }
+    },
+    "friend_menu_option": {
+        "preview": "پیش نظارہ",
+        "stealth_mode": "چھپائیں وضع",
+        "auto_download_blacklist": "خود بخود ڈاؤن لوڈ بلیک لسٹ",
+        "anti_auto_save": "ضد خود بخود محفوظ کریں"
+    },
+    "chat_action_menu": {
+        "preview_button": "پیش نظارہ",
+        "download_button": "ڈاؤن لوڈ",
+        "delete_logged_message_button": "لاگ کردہ پیغام کو حذف کریں"
+    },
+    "opera_context_menu": {
+        "download": "میڈیا ڈاؤن لوڈ کریں"
+    },
+    "modal_option": {
+        "profile_info": "پروفائل کی معلومات",
+        "close": "بند کریں"
+    },
+    "gallery_media_send_override": {
+        "multiple_media_toast": "آپ صرف ایک میڈیا ایک وقت پر بھیج سکتے ہیں"
+    },
+    "conversation_preview": {
+        "streak_expiration": "{day} دن {hour} گھنٹے {minute} منٹ میں ختم ہوگا",
+        "total_messages": "جمع پیغامات: {count}",
+        "title": "پیش نظارہ",
+        "unknown_user": "نامعلوم صارف"
+    },
+    "profile_info": {
+        "title": "پروفائل کی معلومات",
+        "first_created_username": "پہلا تخلیق شدہ صارف نام",
+        "mutable_username": "قابل تبدیل صارف نام",
+        "display_name": "نمائشی نام",
+        "added_date": "شامل کرنے کی تاریخ",
+        "birthday": "تاریخ پیدائش: {month} {day}",
+        "friendship": "دوستی",
+        "add_source": "شامل کرنے کی سرسراہی",
+        "snapchat_plus": "سنیپ چیٹ پلس",
+        "snapchat_plus_state": {
+            "subscribed": "مشترک",
+            "not_subscribed": "غیر مشترک"
+        }
+    },
+    "chat_export": {
+        "dialog_negative_button": "منسوخ کریں",
+        "dialog_positive_button": "برآمد کریں",
+        "exported_to": "{path} کو برآمد کیا گیا",
+        "exporting_chats": "مکالمات کو برآمد کر رہا ہے...",
+        "processing_chats": "{amount} مکالمات کو پروسیس کر رہا ہے...",
+        "export_fail": "مکالمہ برآمد کرنے میں ناکامی {conversation}",
+        "writing_output": "آؤٹپٹ لکھ رہا ہے...",
+        "finished": "ہوگیا! آپ اب اس ڈائیلاگ کو بند کر سکتے ہیں۔",
+        "no_messages_found": "کوئی پیغام نہیں ملا!",
+        "exporting_message": "{conversation} کو برآمد کر رہا ہے..."
+    },
+    "button": {
+        "ok": "ٹھیک ہے",
+        "positive": "ہاں",
+        "negative": "نہیں",
+        "cancel": "منسوخ کریں",
+        "open": "کھولیں",
+        "download": "ڈاؤن لوڈ کریں"
+    },
+    "profile_picture_downloader": {
+        "button": "پروفائل تصویر ڈاؤن لوڈ کریں",
+        "title": "پروفائل تصویر ڈاؤن لوڈ کرنے والا",
+        "avatar_option": "آوازار",
+        "background_option": "پس منظر"
+    },
+    "download_processor": {
+        "attachment_type": {
+            "snap": "اسٹینگ",
+            "sticker": "اسٹکر",
+            "external_media": "بیرونی میڈیا",
+            "note": "نوٹ",
+            "original_story": "اصل کہانی"
+        },
+        "select_attachments_title": "ڈاؤن لوڈ کرنے کے لئے منسلکمنٹ منتخب کریں",
+        "download_started_toast": "ڈاؤن لوڈ شروع ہوگیا",
+        "unsupported_content_type_toast": "غیر معاون مواد کی قسم!",
+        "failed_no_longer_available_toast": "میڈیا دستیاب نہیں ہے",
+        "no_attachments_toast": "کوئی منسلک منسلکمنٹ نہیں ملا!",
+        "already_queued_toast": "میڈیا پہلے ہی قیو ہے!",
+        "already_downloaded_toast": "میڈیا پہلے ہی ڈاؤن لوڈ ہوگیا ہے!",
+        "saved_toast": "{path} میں محفوظ ہوگیا",
+        "download_toast": "{path} ڈاؤن لوڈ ہورہا ہے...",
+        "processing_toast": "{path} پروسیس ہورہا ہے...",
+        "failed_generic_toast": "ڈاؤن لوڈ کرنے میں ناکامی",
+        "failed_to_create_preview_toast": "پیش نظارہ تخلیق کرنے میں ناکامی",
+        "failed_processing_toast": "پروسیس کرنے میں ناکامی {error}",
+        "failed_gallery_toast": "گیلری میں محفوظ کرنے میں ناکامی {error}"
+    },
+    "streaks_reminder": {
+        "notification_title": "مسلسلی",
+        "notification_text": "آپ {hoursLeft} گھنٹوں میں اپنے دوست {friend} کے ساتھ اپنے مسلسلی کو خوو دیں گے"
+    }
+}

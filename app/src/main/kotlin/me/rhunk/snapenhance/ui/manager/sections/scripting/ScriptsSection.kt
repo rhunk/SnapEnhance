@@ -6,6 +6,7 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.FolderOpen
+import androidx.compose.material.icons.filled.LibraryBooks
 import androidx.compose.material.icons.filled.Link
 import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material3.*
@@ -14,11 +15,16 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.core.net.toUri
 import androidx.documentfile.provider.DocumentFile
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import me.rhunk.snapenhance.common.scripting.type.ModuleInfo
-import me.rhunk.snapenhance.scripting.impl.ui.InterfaceManager
+import me.rhunk.snapenhance.common.scripting.ui.EnumScriptInterface
+import me.rhunk.snapenhance.common.scripting.ui.InterfaceManager
+import me.rhunk.snapenhance.common.scripting.ui.ScriptInterface
 import me.rhunk.snapenhance.ui.manager.Section
 import me.rhunk.snapenhance.ui.util.ActivityLauncherHelper
 import me.rhunk.snapenhance.ui.util.chooseFolder
@@ -45,7 +51,7 @@ class ScriptsSection : Section() {
         Card(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(12.dp),
+                .padding(8.dp),
             elevation = CardDefaults.cardElevation()
         ) {
             Row(
@@ -62,7 +68,7 @@ class ScriptsSection : Section() {
                         .weight(1f)
                         .padding(end = 8.dp)
                 ) {
-                    Text(text = script.name, fontSize = 20.sp,)
+                    Text(text = script.displayName ?: script.name, fontSize = 20.sp,)
                     Text(text = script.description ?: "No description", fontSize = 14.sp,)
                 }
                 IconButton(onClick = { openSettings = !openSettings }) {
@@ -70,12 +76,27 @@ class ScriptsSection : Section() {
                 }
                 Switch(
                     checked = enabled,
-                    onCheckedChange = {
-                        context.modDatabase.setScriptEnabled(script.name, it)
-                        if (it) {
-                            context.scriptManager.loadScript(script.name)
+                    onCheckedChange = { isChecked ->
+                        context.modDatabase.setScriptEnabled(script.name, isChecked)
+                        enabled = isChecked
+                        runCatching {
+                            val modulePath = context.scriptManager.getModulePath(script.name)!!
+                            context.scriptManager.unloadScript(modulePath)
+                            if (isChecked) {
+                                context.scriptManager.loadScript(modulePath)
+                                context.scriptManager.runtime.getModuleByName(script.name)
+                                    ?.callFunction("module.onSnapEnhanceLoad")
+                                context.shortToast("Loaded script ${script.name}")
+                            } else {
+                                context.shortToast("Unloaded script ${script.name}")
+                            }
+                        }.onFailure { throwable ->
+                            enabled = !isChecked
+                            ("Failed to ${if (isChecked) "enable" else "disable"} script").let {
+                                context.log.error(it, throwable)
+                                context.shortToast(it)
+                            }
                         }
-                        enabled = it
                     }
                 )
             }
@@ -123,22 +144,14 @@ class ScriptsSection : Section() {
 
     @Composable
     fun ScriptSettings(script: ModuleInfo) {
-        var settingsError by remember {
-            mutableStateOf(null as Throwable?)
-        }
-
-        val settingsInterface = remember {
+       val settingsInterface = remember {
             val module = context.scriptManager.runtime.getModuleByName(script.name) ?: return@remember null
-            runCatching {
-                (module.extras["im"] as? InterfaceManager)?.buildInterface("settings")
-            }.onFailure {
-                settingsError = it
-            }.getOrNull()
+            (module.getBinding(InterfaceManager::class))?.buildInterface(EnumScriptInterface.SETTINGS)
         }
 
         if (settingsInterface == null) {
             Text(
-                text = settingsError?.message ?: "This module does not have any settings",
+                text = "This module does not have any settings",
                 style = MaterialTheme.typography.bodySmall,
                 modifier = Modifier.padding(8.dp)
             )
@@ -168,7 +181,11 @@ class ScriptsSection : Section() {
         }
 
         LaunchedEffect(Unit) {
-            syncScripts()
+            refreshing = true
+            withContext(Dispatchers.IO) {
+                syncScripts()
+                refreshing = false
+            }
         }
 
         val pullRefreshState = rememberPullRefreshState(refreshing, onRefresh = {
@@ -219,6 +236,9 @@ class ScriptsSection : Section() {
                 items(scriptModules.size) { index ->
                     ModuleItem(scriptModules[index])
                 }
+                item {
+                    Spacer(modifier = Modifier.height(200.dp))
+                }
             }
 
             PullRefreshIndicator(
@@ -226,6 +246,60 @@ class ScriptsSection : Section() {
                 state = pullRefreshState,
                 modifier = Modifier.align(Alignment.TopCenter)
             )
+        }
+
+        var scriptingWarning by remember {
+            mutableStateOf(context.sharedPreferences.run {
+                getBoolean("scripting_warning", true).also {
+                    edit().putBoolean("scripting_warning", false).apply()
+                }
+            })
+        }
+
+        if (scriptingWarning) {
+            var timeout by remember {
+                mutableIntStateOf(10)
+            }
+
+            LaunchedEffect(Unit) {
+                while (timeout > 0) {
+                    delay(1000)
+                    timeout--
+                }
+            }
+
+            AlertDialog(onDismissRequest = {
+                if (timeout == 0) {
+                    scriptingWarning = false
+                }
+            }, title = {
+                Text(text = context.translation["manager.dialogs.scripting_warning.title"])
+            }, text = {
+                Text(text = context.translation["manager.dialogs.scripting_warning.content"])
+            }, confirmButton = {
+                TextButton(
+                    onClick = {
+                        scriptingWarning = false
+                    },
+                    enabled = timeout == 0
+                ) {
+                    Text(text = "OK " + if (timeout > 0) "($timeout)" else "")
+                }
+            })
+        }
+    }
+
+    @Composable
+    override fun TopBarActions(rowScope: RowScope) {
+        rowScope.apply {
+            IconButton(onClick = {
+                context.androidContext.startActivity(Intent(Intent.ACTION_VIEW).apply {
+                    data = "https://github.com/SnapEnhance/docs".toUri()
+                    flags = Intent.FLAG_ACTIVITY_NEW_TASK
+                })
+            }) {
+                Icon(imageVector = Icons.Default.LibraryBooks, contentDescription = "Documentation")
+            }
         }
     }
 }

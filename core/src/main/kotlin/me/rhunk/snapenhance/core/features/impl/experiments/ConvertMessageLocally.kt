@@ -28,9 +28,16 @@ class ConvertMessageLocally : Feature("Convert Message Edit", loadParams = Featu
 
     fun convertMessageInterface(messageInstance: Message) {
         val actions = mutableMapOf<String, (Message) -> Unit>()
-        actions["restore_original"] = {
-            messageCache.remove(it.messageDescriptor!!.messageId!!)
-            dispatchMessageEdit(it, restore = true)
+        actions["restore_original"] = actions@{ message ->
+            val descriptor = message.messageDescriptor ?: return@actions
+            messageCache.remove(descriptor.messageId!!)
+            context.feature(Messaging::class).conversationManager?.fetchMessage(
+                descriptor.conversationId!!.toString(),
+                descriptor.messageId!!,
+                onSuccess = { msg ->
+                    dispatchMessageEdit(msg, true)
+                }
+            )
         }
 
         val contentType = messageInstance.messageContent?.contentType

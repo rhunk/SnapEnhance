@@ -13,6 +13,8 @@ enum class FileType(
     GIF("gif", "image/gif", false, false, false),
     PNG("png", "image/png", false, true, false),
     MP4("mp4", "video/mp4", true, false, false),
+    MKV("mkv", "video/mkv", true, false, false),
+    AVI("avi", "video/avi", true, false, false),
     MP3("mp3", "audio/mp3",false, false, true),
     OPUS("opus", "audio/opus", false, false, true),
     AAC("aac", "audio/aac", false, false, true),
@@ -34,6 +36,8 @@ enum class FileType(
             "4f676753" to OPUS,
             "fff15" to AAC,
             "ffd8ff" to JPG,
+            "47494638" to GIF,
+            "1a45dfa3" to MKV,
         )
 
         fun fromString(string: String?): FileType {

@@ -3,7 +3,6 @@ package me.rhunk.snapenhance.core.action.impl
 import android.app.AlertDialog
 import android.content.DialogInterface
 import android.os.Environment
-import android.view.WindowManager
 import androidx.compose.foundation.ScrollState
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
@@ -26,7 +25,7 @@ import androidx.compose.ui.unit.dp
 import kotlinx.coroutines.*
 import me.rhunk.snapenhance.common.data.ContentType
 import me.rhunk.snapenhance.common.database.impl.FriendFeedEntry
-import me.rhunk.snapenhance.common.ui.createComposeView
+import me.rhunk.snapenhance.common.ui.createComposeAlertDialog
 import me.rhunk.snapenhance.core.action.AbstractAction
 import me.rhunk.snapenhance.core.features.impl.messaging.Messaging
 import me.rhunk.snapenhance.core.logger.CoreLogger
@@ -255,24 +254,12 @@ class ExportChatMessages : AbstractAction() {
 
     override fun run() {
         context.coroutineScope.launch(Dispatchers.Main) {
-            lateinit var exporterDialog: AlertDialog
-            ViewAppearanceHelper.newAlertDialogBuilder(context.mainActivity)
-                .setTitle(translation["select_conversation"])
-                .setView(createComposeView(context.mainActivity!!) {
-                    Surface(
-                        modifier = Modifier.fillMaxWidth(),
-                        color = MaterialTheme.colorScheme.surface
-                    ) {
-                        ExporterDialog { exporterDialog }
-                    }
-                })
-                .create().apply {
-                    exporterDialog = this
-                    setCanceledOnTouchOutside(false)
-                    show()
-                    window?.clearFlags(WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE or WindowManager.LayoutParams.FLAG_ALT_FOCUSABLE_IM)
-                    window?.setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_VISIBLE)
-                }
+            createComposeAlertDialog(context.mainActivity!!) { alertDialog ->
+                ExporterDialog { alertDialog }
+            }.apply {
+                setCanceledOnTouchOutside(false)
+                show()
+            }
         }
     }
 
@@ -346,7 +333,7 @@ class ExportChatMessages : AbstractAction() {
         //first fetch the first message
         val conversationId = feedEntry.key!!
         val conversationName = feedEntry.feedDisplayName ?: feedEntry.friendDisplayName!!.split("|").lastOrNull() ?: "unknown"
-        val conversationParticipants = context.database.getConversationParticipants(feedEntry.key!!)
+        val conversationParticipants = context.database.getConversationParticipants(feedEntry.key!!, useCache = false)
             ?.mapNotNull {
                 context.database.getFriendInfo(it)
             }?.associateBy { it.userId!! } ?: emptyMap()

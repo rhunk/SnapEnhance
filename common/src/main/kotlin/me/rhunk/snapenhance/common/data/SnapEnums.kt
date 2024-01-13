@@ -108,8 +108,23 @@ enum class MediaReferenceType {
 }
 
 
-enum class MessageUpdate {
-    UNKNOWN, READ, RELEASE, SAVE, UNSAVE, ERASE, SCREENSHOT, SCREEN_RECORD, REPLAY, REACTION, REMOVEREACTION, REVOKETRANSCRIPTION, ALLOWTRANSCRIPTION, ERASESAVEDSTORYMEDIA
+enum class MessageUpdate(
+    val key: String,
+) {
+    UNKNOWN("unknown"),
+    READ("read"),
+    RELEASE("release"),
+    SAVE("save"),
+    UNSAVE("unsave"),
+    ERASE("erase"),
+    SCREENSHOT("screenshot"),
+    SCREEN_RECORD("screen_record"),
+    REPLAY("replay"),
+    REACTION("reaction"),
+    REMOVEREACTION("remove_reaction"),
+    REVOKETRANSCRIPTION("revoke_transcription"),
+    ALLOWTRANSCRIPTION("allow_transcription"),
+    ERASESAVEDSTORYMEDIA("erase_saved_story_media"),
 }
 
 enum class FriendLinkType(val value: Int, val shortName: String) {
@@ -125,6 +140,22 @@ enum class FriendLinkType(val value: Int, val shortName: String) {
     companion object {
         fun fromValue(value: Int): FriendLinkType {
             return entries.firstOrNull { it.value == value } ?: MUTUAL
+        }
+    }
+}
+
+enum class MixerStoryType(
+    val index: Int,
+) {
+    UNKNOWN(-1),
+    SUBSCRIPTIONS(2),
+    DISCOVER(3),
+    FRIENDS(5),
+    MY_STORIES(6);
+
+    companion object {
+        fun fromIndex(index: Int): MixerStoryType {
+            return entries.firstOrNull { it.index == index } ?: UNKNOWN
         }
     }
 }

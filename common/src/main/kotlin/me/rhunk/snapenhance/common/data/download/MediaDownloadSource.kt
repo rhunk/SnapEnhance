@@ -1,23 +1,29 @@
 package me.rhunk.snapenhance.common.data.download
 
+import me.rhunk.snapenhance.common.bridge.wrapper.LocaleWrapper
+
 enum class MediaDownloadSource(
     val key: String,
-    val displayName: String = key,
     val pathName: String = key,
     val ignoreFilter: Boolean = false
 ) {
-    NONE("none", "None", ignoreFilter = true),
-    PENDING("pending", "Pending", ignoreFilter = true),
-    CHAT_MEDIA("chat_media", "Chat Media", "chat_media"),
-    STORY("story", "Story", "story"),
-    PUBLIC_STORY("public_story", "Public Story", "public_story"),
-    SPOTLIGHT("spotlight", "Spotlight", "spotlight"),
-    PROFILE_PICTURE("profile_picture", "Profile Picture", "profile_picture"),
-    STORY_LOGGER("story_logger", "Story Logger", "story_logger");
+    NONE("none", ignoreFilter = true),
+    PENDING("pending", ignoreFilter = true),
+    CHAT_MEDIA("chat_media", "chat_media"),
+    STORY("story",  "story"),
+    PUBLIC_STORY("public_story", "public_story"),
+    SPOTLIGHT("spotlight",  "spotlight"),
+    PROFILE_PICTURE("profile_picture", "profile_picture"),
+    STORY_LOGGER("story_logger", "story_logger"),
+    MERGED("merged", "merged");
 
     fun matches(source: String?): Boolean {
         if (source == null) return false
         return source.contains(key, ignoreCase = true)
+    }
+
+    fun translate(translation: LocaleWrapper): String {
+        return translation["media_download_source.$key"]
     }
 
     companion object {

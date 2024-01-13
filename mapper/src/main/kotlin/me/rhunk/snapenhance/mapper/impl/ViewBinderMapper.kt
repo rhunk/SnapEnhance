@@ -6,13 +6,17 @@ import me.rhunk.snapenhance.mapper.ext.isAbstract
 import me.rhunk.snapenhance.mapper.ext.isInterface
 import java.lang.reflect.Modifier
 
-class ViewBinderMapper  : AbstractClassMapper() {
+class ViewBinderMapper  : AbstractClassMapper("ViewBinder") {
+    val classReference = classReference("class")
+    val bindMethod = string("bindMethod")
+    val getViewMethod = string("getViewMethod")
+
     init {
         mapper {
             for (clazz in classes) {
                 if (!clazz.isAbstract() || clazz.isInterface()) continue
 
-                val getViewMethod = clazz.methods.firstOrNull { it.returnType == "Landroid/view/View;" && it.parameterTypes.size == 0 } ?: continue
+                val getViewDexMethod = clazz.methods.firstOrNull { it.returnType == "Landroid/view/View;" && it.parameterTypes.size == 0 } ?: continue
 
                 // update view
                 clazz.methods.filter {
@@ -21,17 +25,15 @@ class ViewBinderMapper  : AbstractClassMapper() {
                     if (it.size != 1) return@also
                 }.firstOrNull() ?: continue
 
-                val bindMethod = clazz.methods.filter {
+                val bindDexMethod = clazz.methods.filter {
                     Modifier.isAbstract(it.accessFlags) && it.parameterTypes.size == 2 && it.parameterTypes[0] == it.parameterTypes[1] && it.returnType == "V"
                 }.also {
                     if (it.size != 1) return@also
                 }.firstOrNull() ?: continue
 
-                addMapping("ViewBinder",
-                    "class" to clazz.getClassName(),
-                    "bindMethod" to bindMethod.name,
-                    "getViewMethod" to getViewMethod.name
-                )
+                classReference.set(clazz.getClassName())
+                bindMethod.set(bindDexMethod.name)
+                getViewMethod.set(getViewDexMethod.name)
                 return@mapper
             }
         }
