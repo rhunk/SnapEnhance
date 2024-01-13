@@ -1,0 +1,158 @@
+{
+    "rules": {
+        "properties": {
+            "auto_download": {
+                "description": "تنزيل اللقطات تلقائيًا عند مشاهدتها",
+                "name": "التحميل التلقائي",
+                "options": {
+                    "blacklist": "استبعاد من التحميل التلقائي",
+                    "whitelist": "التحميل التلقائي"
+                }
+            },
+            "stealth": {
+                "description": "يمنع أي شخص من معرفة أنك فتحت اللقطات / الدردشات والمحادثات",
+                "name": "وضع الشبح",
+                "options": {
+                    "blacklist": "استبعاد من وضع الشبح",
+                    "whitelist": "وضع التخفي"
+                }
+            },
+            "auto_save": {
+                "name": "حفظ تلقائي",
+                "description": "حفظ رسائل الدردشة عند عرضها",
+                "options": {
+                    "blacklist": "استبعاد من الحفظ التلقائي",
+                    "whitelist": "حفظ تلقائي"
+                }
+            },
+            "unsaveable_messages": {
+                "options": {
+                    "blacklist": "استبعاد من الرسائل غير القابلة للحفظ",
+                    "whitelist": "رسائل غير قابلة للحفظ"
+                },
+                "name": "رسائل غير قابلة للحفظ",
+                "description": "يمنع حفظ الرسائل في الدردشة من قبل أشخاص آخرين"
+            },
+            "pin_conversation": {
+                "name": "دبوس المحادثة"
+            },
+            "hide_friend_feed": {
+                "name": "إخفاء من موجز الأصدقاء"
+            },
+            "e2e_encryption": {
+                "name": "استخدم تشفير E2E"
+            }
+        },
+        "modes": {
+            "blacklist": "وضع القائمة السوداء",
+            "whitelist": "وضع القائمة البيضاء"
+        }
+    },
+    "actions": {
+        "open_map": "اختر الموقع على الخريطة",
+        "refresh_mappings": "تحديث التعيينات",
+        "check_for_updates": "التحقق من وجود تحديثات",
+        "bulk_messaging_action": "عمل الرسائل الجماعية",
+        "clean_snapchat_cache": "تنظيف ذاكرة التخزين المؤقت سناب شات",
+        "clear_message_logger": "مسح سجل الرسائل",
+        "export_chat_messages": "تصدير رسائل الدردشة",
+        "export_memories": "تصدير الذكريات"
+    },
+    "features": {
+        "notices": {
+            "ban_risk": "⚠ هذه الميزة قد تسبب الحظر او الباند على حسابك",
+            "internal_behavior": "⚠ قد يؤدي هذا إلى كسر السلوك الداخلي في Snapchat",
+            "unstable": "⚠ غير مستقر",
+            "require_native_hooks": "⚠ تتطلب هذه الميزة استخدام خطافات أصلية تجريبية لتعمل بشكل صحيح"
+        },
+        "properties": {
+            "downloader": {
+                "description": "تحميل سناب شات ميديا او مقاطع الفيديو",
+                "properties": {
+                    "save_folder": {
+                        "description": "حدد الدليل الذي سيتم تنزيل جميع الوسائط إليه",
+                        "name": "حفظ المجلد"
+                    },
+                    "auto_download_sources": {
+                        "description": "‍حدد المصادر للتنزيل منها تلقائيًا",
+                        "name": "مصادر التنزيل التلقائي"
+                    },
+                    "prevent_self_auto_download": {
+                        "name": "منع التنزيل التلقائي الذاتي"
+                    }
+                },
+                "name": "التحميلات"
+            }
+        }
+    },
+    "setup": {
+        "dialogs": {
+            "select_language": "اختر اللغة",
+            "select_save_folder_button": "حدد مجلد",
+            "save_folder": "يتطلب سناب انهانس أذونات التخزين لتحميل وحفظ وسائل الإعلام من سناب شات\nيرجى اختيار المسار الذي يجب تنزيل الوسائط إليه"
+        },
+        "mappings": {
+            "generate_button": "بدا التوليد",
+            "generate_failure": "حدث خطأ أثناء محاولة إنشاء تعيينات ، يرجى المحاولة مرة أخرى.",
+            "dialog": "لدعم حيوي مجموعة واسعة من الإصدارات سناب شات, و تعيينات ضرورية لسناب انهانس لتعمل بشكل صحيح, هذا لا ينبغي أن يستغرق أكثر من 5 ثواني. انتظر...",
+            "generate_failure_no_snapchat": "لم يتمكن سنابنهانس من اكتشاف سناب شات ، يرجى محاولة إعادة تثبيت سناب شات او التأكد انك قمت بتثبيته",
+            "generate_success": "التعيينات ولدت بنجاح (تجربة ممتعه)"
+        },
+        "permissions": {
+            "dialog": "للمتابعة تحتاج إلى احتواء المتطلبات التالية:",
+            "notification_access": "وصول الإخطار",
+            "battery_optimization": "تحسين البطارية",
+            "request_button": "الطلب",
+            "display_over_other_apps": "الظهور فوق التطبيقات"
+        }
+    },
+    "manager": {
+        "routes": {
+            "tasks": "المهام",
+            "social": "الاجتماعية",
+            "scripts": "المخطوطات",
+            "home": "المنزل",
+            "features": "الميزات",
+            "home_settings": "الإعدادات",
+            "home_logs": "السجل"
+        },
+        "sections": {
+            "home": {
+                "logs": {
+                    "clear_logs_button": "مسح السجل",
+                    "export_logs_button": "تصدير السجلات"
+                }
+            },
+            "tasks": {
+                "no_tasks": "لا توجد مهام"
+            },
+            "features": {
+                "disabled": "عاجز"
+            },
+            "social": {
+                "rules_title": "القواعد",
+                "not_found": "غير موجود",
+                "streaks_title": "الستريكات",
+                "streaks_length_text": "الطول: {الطول}",
+                "streaks_expiration_short": "{ساعات}",
+                "streaks_expiration_text": "تنتهي في {eta}",
+                "participants_text": "{عدد} المشاركين",
+                "e2ee_title": "التشفير من طرف إلى طرف",
+                "reminder_button": "تعيين تذكير"
+            }
+        },
+        "dialogs": {
+            "add_friend": {
+                "title": "إضافة أصدقاء او مجموعه (قروب)",
+                "search_hint": "بحث",
+                "category_groups": "مجموعات (قروبات)",
+                "category_friends": "اصدقاء",
+                "fetch_error": "فشل في جلب البيانات"
+            },
+            "scripting_warning": {
+                "title": "تحذير!",
+                "content": "يتضمن سنابنهانس أداة البرمجة النصية ، مما يسمح بتنفيذ التعليمات البرمجية المعرفة من قبل المستخدم على جهازك. توخي الحذر الشديد وتثبيت وحدات فقط من مصادر معروفة وموثوق بها. قد تشكل الوحدات غير المصرح بها أو التي لم يتم التحقق منها مخاطر أمنية على نظامك   (انتبه)"
+            }
+        }
+    }
+}

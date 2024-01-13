@@ -228,10 +228,6 @@
                         "name": "Snapreeksherstel verbergen",
                         "description": "Verbergt de Herstel knop in de vrienden feed"
                     },
-                    "hide_story_sections": {
-                        "name": "Verhalen Sectie verbergen",
-                        "description": "Verberg bepaalde UI-elementen die worden weergegeven in het verhaalgedeelte"
-                    },
                     "hide_ui_components": {
                         "name": "Verberg UI Componenten",
                         "description": "Selecteer welke UI componenten te verbergen"

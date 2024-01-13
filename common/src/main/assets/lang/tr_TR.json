@@ -280,10 +280,6 @@
                         "name": "Seri Geri Yüklemeyi Gizle",
                         "description": "Arkadaş akışındaki Seri Geri Yükle düğmesini gizler"
                     },
-                    "hide_story_sections": {
-                        "name": "Hikaye Bölümünü Gizle",
-                        "description": "Hikaye bölümünde gösterilen belirli arayüz öğelerini gizle"
-                    },
                     "hide_ui_components": {
                         "name": "Kullanıcı Arayüzü Bileşenlerini Gizle",
                         "description": "Hangi kullanıcı arayüzü bileşenlerinin gizleneceğini seçin"
@@ -509,10 +505,6 @@
                     "spotlight_comments_username": {
                         "name": "Spotlight Yorumlar Kullanıcı Adı",
                         "description": "Spotlight yorumlarında yazar kullanıcı adını gösterir"
-                    },
-                    "disable_public_stories": {
-                        "name": "Halka Açık Hikayeleri Devre Dışı Bırak",
-                        "description": "Herkese açık tüm hikayeleri Keşfet sayfasından kaldırır\nDüzgün çalışması için önbelleğin temizlenmesi gerekebilir"
                     },
                     "force_upload_source_quality": {
                         "name": "Kaynak Kalitesini Yüklemeye Zorla",
@@ -797,13 +789,6 @@
                 "hide_stickers_button": "Çıkartmalar Butonunu Kaldır",
                 "hide_voice_record_button": "Ses Kayıt Butonunu Kaldır",
                 "hide_unread_chat_hint": "Okunmamış Sohbet İpucunu Kaldır"
-            },
-            "hide_story_sections": {
-                "hide_friend_suggestions": "Arkadaş önerilerini gizle",
-                "hide_friends": "Arkadaşlar bölümünü gizle",
-                "hide_suggested": "Önerilen bölümünü gizle",
-                "hide_for_you": "Sizin İçin Bölümünü Gizle",
-                "hide_suggested_friend_stories": "Önerilen arkadaş hikayelerini gizle"
             },
             "home_tab": {
                 "map": "Harita",

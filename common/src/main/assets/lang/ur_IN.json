@@ -27,7 +27,8 @@
             "home_settings": "ترتیبات",
             "home_logs": "لاگز",
             "social": "سوشل",
-            "scripts": "اسکرپٹس"
+            "scripts": "اسکرپٹس",
+            "tasks": "کام"
         },
         "sections": {
             "home": {
@@ -49,6 +50,9 @@
                 "streaks_expiration_short": "{hours}گنٹے",
                 "streaks_expiration_text": "میں ختم ہو جائے گا {eta}",
                 "reminder_button": "یاد دلانے کی ترتیب دیں"
+            },
+            "tasks": {
+                "no_tasks": "کوئی کام نہیں"
             }
         },
         "dialogs": {
@@ -58,6 +62,10 @@
                 "fetch_error": "ڈیٹا حاصل کرنے میں ناکامی",
                 "category_groups": "گروپس",
                 "category_friends": "دوست"
+            },
+            "scripting_warning": {
+                "title": "وارننگ",
+                "content": "SnapEnhance میں ایک اسکرپٹنگ ٹول شامل ہے، جو آپ کے آلے پر صارف کے متعین کوڈ کے نفاذ کی اجازت دیتا ہے۔ انتہائی احتیاط برتیں اور صرف معروف، قابل اعتماد ذرائع سے ماڈیول انسٹال کریں۔ غیر مجاز یا غیر تصدیق شدہ ماڈیولز آپ کے سسٹم کے لیے حفاظتی خطرات پیدا کر سکتے ہیں۔"
             }
         }
     },
@@ -99,6 +107,9 @@
             },
             "pin_conversation": {
                 "name": "بات چیت کو پن کریں"
+            },
+            "unsaveable_messages": {
+                "name": "ناقابل محفوظ پیغامات"
             }
         }
     },
@@ -253,10 +264,6 @@
                     "hide_streak_restore": {
                         "name": "استیک کو بحال کرنے کا بٹن چھپائیں",
                         "description": "دوست فیڈ میں بحال کرنے کا بٹن چھپائیں"
-                    },
-                    "hide_story_sections": {
-                        "name": "کہانی کے حصے چھپائیں",
-                        "description": "کہانی کے حصوں میں دکھائی جانے والی کچھ یو آئی عناصر چھپائیں"
                     },
                     "hide_ui_components": {
                         "name": "یو آئی کے حصے چھپائیں",
@@ -577,12 +584,6 @@
                 "hide_live_location_share_button": "لاکھوں لوگوں کا سراغ لگانے کا بٹن ہٹائیں",
                 "hide_stickers_button": "اسٹکر بٹن ہٹائیں",
                 "hide_voice_record_button": "آواز ریکارڈ بٹن ہٹائیں"
-            },
-            "hide_story_sections": {
-                "hide_friend_suggestions": "دوست کی تجاویز چھپائیں",
-                "hide_friends": "دوستوں کو چھپائیں",
-                "hide_suggested": "مشورے شدہ حصے کو چھپائیں",
-                "hide_for_you": "آپ کے لئے حصے کو چھپائیں"
             },
             "home_tab": {
                 "map": "نقشہ",

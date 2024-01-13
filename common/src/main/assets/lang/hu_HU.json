@@ -27,7 +27,8 @@
             "home_settings": "Beállítások",
             "home_logs": "Naplók",
             "social": "Közösség",
-            "scripts": "Szkriptek"
+            "scripts": "Szkriptek",
+            "tasks": "Feladatok"
         },
         "sections": {
             "home": {
@@ -49,6 +50,9 @@
                 "streaks_expiration_short": "{hours} óra",
                 "streaks_expiration_text": "{eta} múlva jár le",
                 "reminder_button": "Emlékeztető beállítása"
+            },
+            "tasks": {
+                "no_tasks": "Nincsenek feladatok"
             }
         },
         "dialogs": {
@@ -58,6 +62,10 @@
                 "fetch_error": "Sikertelen adatlekérdezés",
                 "category_groups": "Csoportok",
                 "category_friends": "Barátok"
+            },
+            "scripting_warning": {
+                "content": "A SnapEnhance egy script-író eszközt, amely lehetővé teszi a felhasználó által meghatározott kódok végrehajtását az eszközön. Használja fokozott óvatossággal és csak megbízható forrásból származó modulokat telepítsen. A nem engedélyezett vagy nem ellenőrzött modulok biztonsági kockázatokat jelenthetnek a rendszerének.",
+                "title": "Figyelmeztetés"
             }
         }
     },
@@ -104,7 +112,8 @@
                 "name": "Nem menthető üzenetek",
                 "options": {
                     "whitelist": "Nem menthető üzenetek"
-                }
+                },
+                "description": "Megakadályozza, hogy az üzeneteket elmenthessék mások a chatben"
             }
         }
     },
@@ -121,7 +130,8 @@
         "notices": {
             "unstable": "⚠ Instabil",
             "ban_risk": "⚠ Ez a funkció tiltást eredményezhet",
-            "internal_behavior": "⚠ Ez a funkció hibát okozhat a Snapchat működésében"
+            "internal_behavior": "⚠ Ez a funkció hibát okozhat a Snapchat működésében",
+            "require_native_hooks": "⚠ Ez egy kísérleti beállítás, amelyhely Native Hook-ok használata szükséges"
         },
         "properties": {
             "downloader": {
@@ -187,6 +197,10 @@
                             "custom_audio_codec": {
                                 "name": "Egyéni audió codec",
                                 "description": "Egyéni audió codec beállítása (pl.: AAC)"
+                            },
+                            "threads": {
+                                "name": "Szálak",
+                                "description": "A felhasznált szálak mennyisége"
                             }
                         }
                     },
@@ -198,7 +212,8 @@
                         "name": "Letöltés Operával Gomb"
                     },
                     "merge_overlays": {
-                        "description": "Egyesíti egy Snap szövegét és médiáját egy fájlba"
+                        "description": "Egyesíti egy Snap szövegét és médiáját egy fájlba",
+                        "name": "Overlay-ek összefűzése"
                     }
                 }
             },
@@ -244,10 +259,6 @@
                     "hide_streak_restore": {
                         "name": "Sorozat pontszám elrejtése",
                         "description": "Elrejti a visszaállítás gombot a barát hírfolyamról"
-                    },
-                    "hide_story_sections": {
-                        "name": "Történetek elrejtése",
-                        "description": "A felhasználói felület egyes elemeinek elrejtése a történet szekcióban"
                     },
                     "hide_ui_components": {
                         "name": "Felhasználói felület elemeinek elrejtése",
@@ -494,12 +505,6 @@
             "hide_ui_components": {
                 "hide_chat_call_buttons": "Hívás gombok eltávolítása",
                 "hide_voice_record_button": "Hangfelvétel gomb eltávolítása"
-            },
-            "hide_story_sections": {
-                "hide_friend_suggestions": "Barátjavaslatok elrejtése",
-                "hide_friends": "Barátok szekció elrejtése",
-                "hide_suggested": "Javasolt szekció elrejtése",
-                "hide_for_you": "Neked szakasz elrejtése"
             },
             "home_tab": {
                 "map": "Térkép",
