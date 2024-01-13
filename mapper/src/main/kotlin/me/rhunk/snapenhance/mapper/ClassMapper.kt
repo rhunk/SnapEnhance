@@ -1,13 +1,13 @@
 package me.rhunk.snapenhance.mapper
 
+import com.android.tools.smali.dexlib2.Opcodes
+import com.android.tools.smali.dexlib2.dexbacked.DexBackedDexFile
+import com.android.tools.smali.dexlib2.iface.ClassDef
 import com.google.gson.JsonObject
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import me.rhunk.snapenhance.mapper.impl.*
-import com.android.tools.smali.dexlib2.Opcodes
-import com.android.tools.smali.dexlib2.dexbacked.DexBackedDexFile
-import com.android.tools.smali.dexlib2.iface.ClassDef
 import java.io.BufferedInputStream
 import java.io.InputStream
 import java.util.zip.ZipFile
@@ -26,7 +26,6 @@ class ClassMapper(
             MediaQualityLevelProviderMapper(),
             OperaPageViewControllerMapper(),
             PlusSubscriptionMapper(),
-            ScCameraSettingsMapper(),
             StoryBoostStateMapper(),
             FriendsFeedEventDispatcherMapper(),
             CompositeConfigurationProviderMapper(),

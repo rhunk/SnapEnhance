@@ -544,21 +544,17 @@
                         "name": "Immersive Preview",
                         "description": "Prevents Snapchat from Cropping the Camera preview\nThis might cause the camera to flicker on some devices"
                     },
-                    "override_preview_resolution": {
-                        "name": "Override Preview Resolution",
-                        "description": "Overrides the Camera Preview Resolution"
+                    "override_front_resolution": {
+                        "name": "Override Front Resolution",
+                        "description": "Overrides the camera resolution for the front camera"
                     },
-                    "override_picture_resolution": {
-                        "name": "Override Picture Resolution",
-                        "description": "Overrides the picture resolution"
+                    "override_back_resolution": {
+                        "name": "Override Back Resolution",
+                        "description": "Overrides the camera resolution for the back camera"
                     },
-                    "custom_preview_resolution": {
-                        "name": "Custom Preview Resolution",
-                        "description": "Sets a custom camera preview resolution, width x height (e.g. 1920x1080).\nThe custom resolution must be supported by your device"
-                    },
-                    "custom_picture_resolution": {
-                        "name": "Custom Picture Resolution",
-                        "description": "Sets a custom picture resolution, width x height (e.g. 1920x1080).\nThe custom resolution must be supported by your device"
+                    "custom_resolution": {
+                        "name": "Custom Resolution",
+                        "description": "Sets a custom camera resolution, width x height (e.g. 1920x1080).\nThe custom resolution must be supported by your device"
                     },
                     "custom_frame_rate": {
                         "name": "Custom Frame Rate",
