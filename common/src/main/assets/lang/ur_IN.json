@@ -265,10 +265,6 @@
                         "name": "استیک کو بحال کرنے کا بٹن چھپائیں",
                         "description": "دوست فیڈ میں بحال کرنے کا بٹن چھپائیں"
                     },
-                    "hide_story_sections": {
-                        "name": "کہانی کے حصے چھپائیں",
-                        "description": "کہانی کے حصوں میں دکھائی جانے والی کچھ یو آئی عناصر چھپائیں"
-                    },
                     "hide_ui_components": {
                         "name": "یو آئی کے حصے چھپائیں",
                         "description": "چھپانے کے لئے یو آئی کمپوننٹس منتخب کریں"
@@ -588,12 +584,6 @@
                 "hide_live_location_share_button": "لاکھوں لوگوں کا سراغ لگانے کا بٹن ہٹائیں",
                 "hide_stickers_button": "اسٹکر بٹن ہٹائیں",
                 "hide_voice_record_button": "آواز ریکارڈ بٹن ہٹائیں"
-            },
-            "hide_story_sections": {
-                "hide_friend_suggestions": "دوست کی تجاویز چھپائیں",
-                "hide_friends": "دوستوں کو چھپائیں",
-                "hide_suggested": "مشورے شدہ حصے کو چھپائیں",
-                "hide_for_you": "آپ کے لئے حصے کو چھپائیں"
             },
             "home_tab": {
                 "map": "نقشہ",

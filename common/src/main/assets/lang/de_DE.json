@@ -280,10 +280,6 @@
                         "name": "Flammen-Wiederherstellung verstecken",
                         "description": "Versteckt den Wiederherstellen-Button im Freundesfeed"
                     },
-                    "hide_story_sections": {
-                        "name": "Story Abschnitt ausblenden",
-                        "description": "Blendet bestimmte, im Story Bereich angezeigte, UI-Elemente aus"
-                    },
                     "hide_ui_components": {
                         "name": "UI-Komponenten ausblenden",
                         "description": "Wähle aus welche UI-Elemente ausgeblendet werden sollen"
@@ -509,10 +505,6 @@
                     "spotlight_comments_username": {
                         "name": "Spotlight Kommentare Benutzername",
                         "description": "Zeigt den Benutzernamen des Autors in Spotlight-Kommentaren an"
-                    },
-                    "disable_public_stories": {
-                        "name": "Öffentliche Stories deaktivieren",
-                        "description": "Entfernt jede öffentliche Story von der Discover-Seite\nErfordert möglicherweise einen leeren Cache, um richtig zu funktionieren"
                     },
                     "force_upload_source_quality": {
                         "name": "Upload-Qualität erzwingen",
@@ -797,13 +789,6 @@
                 "hide_stickers_button": "Entferne Stickers Taste",
                 "hide_voice_record_button": "Knopf für Sprachaufzeichnung entfernen",
                 "hide_unread_chat_hint": "Hinweis auf ungelesene Chats entfernen"
-            },
-            "hide_story_sections": {
-                "hide_friend_suggestions": "Freundschaftsvorschläge verstecken",
-                "hide_friends": "Freundesbereich ausblenden",
-                "hide_suggested": "Verstecke empfohlen Sektion",
-                "hide_for_you": "For You Abschnitt ausblenden",
-                "hide_suggested_friend_stories": "Stories von empfohlenen Freunden ausblenden"
             },
             "home_tab": {
                 "map": "Karte",

@@ -253,10 +253,6 @@
                     "hide_streak_restore": {
                         "description": "Skjuler knappen Gendan i vennefeedet"
                     },
-                    "hide_story_sections": {
-                        "name": "Skjul Afsnittet Historie",
-                        "description": "Skjul visse brugergrænsefladeelementer, der vises i afsnittet historie"
-                    },
                     "hide_ui_components": {
                         "name": "Skjul UI Komponenter",
                         "description": "Vælg hvilke brugergrænsefladekomponenter der skal skjules"
@@ -575,12 +571,6 @@
                 "hide_live_location_share_button": "Fjern Knappen Live Placeringsdeling",
                 "hide_stickers_button": "Fjern Klistermærker Knap",
                 "hide_voice_record_button": "Fjern Stemmeoptagelsesknap"
-            },
-            "hide_story_sections": {
-                "hide_friend_suggestions": "Skjul venneforslag",
-                "hide_friends": "Skjul vennesektion",
-                "hide_suggested": "Skjul foreslået sektion",
-                "hide_for_you": "Skjul sektion for dig"
             },
             "home_tab": {
                 "map": "Kort",

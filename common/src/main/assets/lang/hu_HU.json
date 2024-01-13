@@ -260,10 +260,6 @@
                         "name": "Sorozat pontszám elrejtése",
                         "description": "Elrejti a visszaállítás gombot a barát hírfolyamról"
                     },
-                    "hide_story_sections": {
-                        "name": "Történetek elrejtése",
-                        "description": "A felhasználói felület egyes elemeinek elrejtése a történet szekcióban"
-                    },
                     "hide_ui_components": {
                         "name": "Felhasználói felület elemeinek elrejtése",
                         "description": "Válaszd ki hogy a felhasználói felület mely részeit szeretnéd elrejteni"
@@ -509,12 +505,6 @@
             "hide_ui_components": {
                 "hide_chat_call_buttons": "Hívás gombok eltávolítása",
                 "hide_voice_record_button": "Hangfelvétel gomb eltávolítása"
-            },
-            "hide_story_sections": {
-                "hide_friend_suggestions": "Barátjavaslatok elrejtése",
-                "hide_friends": "Barátok szekció elrejtése",
-                "hide_suggested": "Javasolt szekció elrejtése",
-                "hide_for_you": "Neked szakasz elrejtése"
             },
             "home_tab": {
                 "map": "Térkép",

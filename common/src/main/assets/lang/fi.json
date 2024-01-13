@@ -254,10 +254,6 @@
                         "name": "Piilota streakkien palautus",
                         "description": "Piilottaa Palauta-painikkeen ystäväsyötteessä"
                     },
-                    "hide_story_sections": {
-                        "name": "Piilota tarinaosio",
-                        "description": "Piilota tietyt tarinaosiossa näkyvät käyttöliittymäelementit"
-                    },
                     "hide_ui_components": {
                         "name": "Piilota käyttöliittymäkomponentit",
                         "description": "Valitse piilotettavat käyttöliittymäkomponentit"
@@ -577,12 +573,6 @@
                 "hide_live_location_share_button": "Poista Sijainnin Jakopainike",
                 "hide_stickers_button": "Poista Tarrat -painike",
                 "hide_voice_record_button": "Poista Äänityspainike"
-            },
-            "hide_story_sections": {
-                "hide_friend_suggestions": "Piilota ystäväehdotukset",
-                "hide_friends": "Piilota ystävät-osio",
-                "hide_suggested": "Piilota ehdotetut osio",
-                "hide_for_you": "Piilota sinulle -osio"
             },
             "home_tab": {
                 "map": "Kartta",

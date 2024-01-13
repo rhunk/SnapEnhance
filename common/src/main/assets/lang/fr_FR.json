@@ -276,10 +276,6 @@
                         "name": "Masque la restauration de Snapflamme",
                         "description": "Masque le bouton de restauration"
                     },
-                    "hide_story_sections": {
-                        "name": "Masque la section Stories",
-                        "description": "Masquer certains éléments visuels affichés dans la section des stories"
-                    },
                     "hide_ui_components": {
                         "name": "Masque les composants de l'interface utilisateur",
                         "description": "Sélectionner quels éléments de l'interface est à masqué"
@@ -509,10 +505,6 @@
                     "spotlight_comments_username": {
                         "name": "Nom d'utilisateur des commentaires Spotlight",
                         "description": "Affiche le nom d'utilisateur de l'auteur dans les commentaires Spotlight"
-                    },
-                    "disable_public_stories": {
-                        "name": "Désactiver les Stories publiques",
-                        "description": "Supprime toutes les stories publiques de la page Discover\nPeut nécessiter un nettoyage du cache pour fonctionner correctement"
                     },
                     "force_upload_source_quality": {
                         "name": "Forcer l'upload de la qualité originale",
@@ -800,13 +792,6 @@
                 "hide_extras": "Cacher les autres informations (ex : les mentions)",
                 "hide_caption_text": "Cacher le texte des légendes",
                 "hide_snap_filters": "Cacher les filtres des Snaps"
-            },
-            "hide_story_sections": {
-                "hide_friends": "Cacher la section des amis",
-                "hide_friend_suggestions": "Cacher les suggestions d'amis",
-                "hide_for_you": "Masquer la section Pour Vous",
-                "hide_suggested_friend_stories": "Cacher les Stories d'amis suggérées",
-                "hide_suggested": "Masquer la section suggérée"
             },
             "bypass_video_length_restriction": {
                 "single": "Un seul média",
