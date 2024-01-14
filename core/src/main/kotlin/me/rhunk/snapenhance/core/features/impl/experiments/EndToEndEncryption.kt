@@ -16,7 +16,6 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import me.rhunk.snapenhance.common.data.ContentType
-import me.rhunk.snapenhance.common.data.MessageState
 import me.rhunk.snapenhance.common.data.MessagingRuleType
 import me.rhunk.snapenhance.common.data.RuleState
 import me.rhunk.snapenhance.common.util.protobuf.ProtoEditor
@@ -33,9 +32,14 @@ import me.rhunk.snapenhance.core.ui.ViewAppearanceHelper
 import me.rhunk.snapenhance.core.ui.addForegroundDrawable
 import me.rhunk.snapenhance.core.ui.removeForegroundDrawable
 import me.rhunk.snapenhance.core.util.EvictingMap
+import me.rhunk.snapenhance.core.util.hook.HookStage
+import me.rhunk.snapenhance.core.util.hook.hook
 import me.rhunk.snapenhance.core.util.ktx.getObjectField
+import me.rhunk.snapenhance.core.util.ktx.getObjectFieldOrNull
 import me.rhunk.snapenhance.core.wrapper.impl.MessageContent
+import me.rhunk.snapenhance.core.wrapper.impl.MessageDestinations
 import me.rhunk.snapenhance.core.wrapper.impl.SnapUUID
+import me.rhunk.snapenhance.mapper.impl.CallbackMapper
 import me.rhunk.snapenhance.nativelib.NativeLib
 import java.security.MessageDigest
 import kotlin.random.Random
@@ -282,6 +286,16 @@ class EndToEndEncryption : MessagingRuleFeature(
             encryptedMessages.add(clientMessageId)
         }
 
+        fun setWarningMessage() {
+            encryptedMessages.add(clientMessageId)
+            outputContentType = ContentType.CHAT
+            outputBuffer = ProtoWriter().apply {
+                from(2) {
+                    addString(1, "Failed to decrypt message, id=$clientMessageId. Check logs for more details.")
+                }
+            }.toByteArray()
+        }
+
         fun replaceMessageText(text: String) {
             outputBuffer = ProtoWriter().apply {
                 from(2) {
@@ -309,6 +323,7 @@ class EndToEndEncryption : MessagingRuleFeature(
                             val participantId = conversationParticipants.firstOrNull { participantIdHash.contentEquals(hashParticipantId(it, iv)) } ?: return@eachBuffer
                             setDecryptedMessage(e2eeInterface.decryptMessage(participantId, ciphertext, iv) ?: run {
                                 context.log.warn("Failed to decrypt message for participant $participantId")
+                                setWarningMessage()
                                 return@eachBuffer
                             })
                             return@eachBuffer
@@ -317,18 +332,13 @@ class EndToEndEncryption : MessagingRuleFeature(
                         if (!participantIdHash.contentEquals(hashParticipantId(context.database.myUserId, iv))) return@eachBuffer
 
                         setDecryptedMessage(e2eeInterface.decryptMessage(senderId, ciphertext, iv)?: run {
-                            context.log.warn("Failed to decrypt message")
+                            setWarningMessage()
                             return@eachBuffer
                         })
                     }
                 }.onFailure {
                     context.log.error("Failed to decrypt message id: $clientMessageId", it)
-                    outputContentType = ContentType.CHAT
-                    outputBuffer = ProtoWriter().apply {
-                        from(2) {
-                            addString(1, "Failed to decrypt message, id=$clientMessageId. Check logcat for more details.")
-                        }
-                    }.toByteArray()
+                    setWarningMessage()
                 }
 
                 return@followPath
@@ -492,9 +502,23 @@ class EndToEndEncryption : MessagingRuleFeature(
     override fun init() {
         if (!isEnabled) return
 
+        context.mappings.useMapper(CallbackMapper::class) {
+            callbacks.getClass("ConversationManagerDelegate")?.hook("onSendComplete", HookStage.BEFORE) { param ->
+                val sendMessageResult = param.arg<Any>(0)
+                val messageDestinations = MessageDestinations(sendMessageResult.getObjectField("mCompletedDestinations") ?: return@hook)
+                if (messageDestinations.mPhoneNumbers?.isNotEmpty() == true || messageDestinations.stories?.isNotEmpty() == true) return@hook
+
+                val completedConversationDestinations = sendMessageResult.getObjectField("mCompletedConversationDestinations") as? ArrayList<*> ?: return@hook
+                val messageIds = completedConversationDestinations.filter { getState(SnapUUID(it.getObjectField("mConversationId")).toString()) }.mapNotNull {
+                    it.getObjectFieldOrNull("mMessageId") as? Long
+                }
+
+                encryptedMessages.addAll(messageIds)
+            }
+        }
+
         context.event.subscribe(BuildMessageEvent::class, priority = 0) { event ->
             val message = event.message
-            if (message.messageState != MessageState.COMMITTED) return@subscribe
             val conversationId = message.messageDescriptor!!.conversationId.toString()
             messageHook(
                 conversationId = conversationId,
