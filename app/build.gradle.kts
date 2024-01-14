@@ -1,5 +1,9 @@
 import com.android.build.gradle.internal.api.BaseVariantOutputImpl
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.runBlocking
 import org.gradle.configurationcache.extensions.capitalized
+import java.io.ByteArrayOutputStream
 
 plugins {
     alias(libs.plugins.androidApplication)
@@ -153,12 +157,27 @@ dependencies {
 afterEvaluate {
     properties["debug_flavor"]?.toString()?.let { tasks.findByName("install${it.capitalized()}Debug") }?.doLast {
         runCatching {
-            exec {
-                commandLine("adb", "shell", "am", "force-stop", properties["debug_package_name"])
+            val devices = ByteArrayOutputStream().also {
+                exec {
+                    commandLine("adb", "devices")
+                    standardOutput = it
+                }
+            }.toString().lines().drop(1).mapNotNull {
+                line -> line.split("\t").firstOrNull()?.takeIf { it.isNotEmpty() }
             }
-            Thread.sleep(1000L)
-            exec {
-                commandLine("adb", "shell", "am", "start", properties["debug_package_name"])
+
+            runBlocking {
+                devices.forEach { device ->
+                    launch {
+                        exec {
+                            commandLine("adb", "-s", device, "shell", "am", "force-stop", properties["debug_package_name"])
+                        }
+                        delay(500)
+                        exec {
+                            commandLine("adb", "-s", device, "shell", "am", "start", properties["debug_package_name"])
+                        }
+                    }
+                }
             }
         }
     }
