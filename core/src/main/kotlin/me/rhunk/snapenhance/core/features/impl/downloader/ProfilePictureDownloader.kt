@@ -36,8 +36,8 @@ class ProfilePictureDownloader : Feature("ProfilePictureDownloader", loadParams 
                     ).apply {
                         setTitle(this@ProfilePictureDownloader.context.translation["profile_picture_downloader.title"])
                         val choices = mutableMapOf<String, String>()
-                        backgroundUrl?.let { choices["avatar_option"] = it }
-                        avatarUrl?.let { choices["background_option"] = it }
+                        backgroundUrl?.let { choices["background_option"] = it }
+                        avatarUrl?.let { choices["avatar_option"] = it }
 
                         setItems(choices.keys.map {
                             this@ProfilePictureDownloader.context.translation["profile_picture_downloader.$it"]
