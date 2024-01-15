@@ -8,6 +8,7 @@ import java.io.ByteArrayOutputStream
 plugins {
     alias(libs.plugins.androidApplication)
     alias(libs.plugins.kotlinAndroid)
+    id("kotlin-parcelize")
 }
 
 android {

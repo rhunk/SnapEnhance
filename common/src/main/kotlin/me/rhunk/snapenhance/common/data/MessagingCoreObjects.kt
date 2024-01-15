@@ -1,7 +1,8 @@
 package me.rhunk.snapenhance.common.data
 
+import android.os.Parcelable
+import kotlinx.parcelize.Parcelize
 import me.rhunk.snapenhance.common.config.FeatureNotice
-import me.rhunk.snapenhance.common.util.SerializableDataObject
 import kotlin.time.Duration.Companion.hours
 
 
@@ -52,12 +53,12 @@ enum class MessagingRuleType(
     }
 }
 
+@Parcelize
 data class FriendStreaks(
-    val userId: String,
-    val notify: Boolean,
+    val notify: Boolean = true,
     val expirationTimestamp: Long,
     val length: Int
-) : SerializableDataObject() {
+): Parcelable {
     fun hoursLeft() = (expirationTimestamp - System.currentTimeMillis()) / 1000 / 60 / 60
 
     fun isAboutToExpire(expireHours: Int) = (expirationTimestamp - System.currentTimeMillis()).let {
@@ -65,20 +66,22 @@ data class FriendStreaks(
     }
 }
 
+@Parcelize
 data class MessagingGroupInfo(
     val conversationId: String,
     val name: String,
     val participantsCount: Int
-) : SerializableDataObject()
+): Parcelable
 
+@Parcelize
 data class MessagingFriendInfo(
     val userId: String,
     val displayName: String?,
     val mutableUsername: String,
     val bitmojiId: String?,
-    val selfieId: String?
-) : SerializableDataObject()
-
+    val selfieId: String?,
+    var streaks: FriendStreaks?,
+): Parcelable
 
 class StoryData(
     val url: String,
@@ -86,4 +89,4 @@ class StoryData(
     val createdAt: Long,
     val key: ByteArray?,
     val iv: ByteArray?
-) : SerializableDataObject()
+)

@@ -12,9 +12,8 @@ import me.rhunk.snapenhance.common.bridge.wrapper.LocaleWrapper
 import me.rhunk.snapenhance.common.data.MessagingFriendInfo
 import me.rhunk.snapenhance.common.data.MessagingGroupInfo
 import me.rhunk.snapenhance.common.data.SocialScope
-import me.rhunk.snapenhance.common.database.impl.FriendInfo
 import me.rhunk.snapenhance.common.logger.LogLevel
-import me.rhunk.snapenhance.common.util.SerializableDataObject
+import me.rhunk.snapenhance.common.util.toParcelable
 import me.rhunk.snapenhance.download.DownloadProcessor
 import kotlin.system.measureTimeMillis
 
@@ -61,12 +60,12 @@ class BridgeService : Service() {
 
             when (scope) {
                 SocialScope.FRIEND -> {
-                    SerializableDataObject.fromJson<FriendInfo>(syncedObject).let {
+                    toParcelable<MessagingFriendInfo>(syncedObject)?.let {
                         modDatabase.syncFriend(it)
                     }
                 }
                 SocialScope.GROUP -> {
-                    SerializableDataObject.fromJson<MessagingGroupInfo>(syncedObject).let {
+                    toParcelable<MessagingGroupInfo>(syncedObject)?.let {
                         modDatabase.syncGroupInfo(it)
                     }
                 }
@@ -169,8 +168,8 @@ class BridgeService : Service() {
         ) {
             remoteSideContext.log.verbose("Received ${groups.size} groups and ${friends.size} friends")
             remoteSideContext.modDatabase.receiveMessagingDataCallback(
-                friends.map { SerializableDataObject.fromJson<MessagingFriendInfo>(it) },
-                groups.map { SerializableDataObject.fromJson<MessagingGroupInfo>(it) }
+                friends.mapNotNull { toParcelable<MessagingFriendInfo>(it) },
+                groups.mapNotNull { toParcelable<MessagingGroupInfo>(it) }
             )
         }
 

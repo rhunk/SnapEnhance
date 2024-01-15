@@ -33,7 +33,7 @@ class ModConfig(
     private fun load() {
         root = createRootConfig()
         wasPresent = file.isFileExists()
-        if (!file.isFileExists()) {
+        if (!wasPresent) {
             writeConfig()
             return
         }

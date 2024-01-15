@@ -15,12 +15,12 @@ class ActionManager(
 
     private val actions by lazy {
         mapOf(
-            EnumAction.CLEAN_CACHE to CleanCache::class,
-            EnumAction.EXPORT_CHAT_MESSAGES to ExportChatMessages::class,
-            EnumAction.BULK_MESSAGING_ACTION to BulkMessagingAction::class,
-            EnumAction.EXPORT_MEMORIES to ExportMemories::class,
+            EnumAction.CLEAN_CACHE to CleanCache(),
+            EnumAction.EXPORT_CHAT_MESSAGES to ExportChatMessages(),
+            EnumAction.BULK_MESSAGING_ACTION to BulkMessagingAction(),
+            EnumAction.EXPORT_MEMORIES to ExportMemories(),
         ).map {
-            it.key to it.value.java.getConstructor().newInstance().apply {
+            it.key to it.value.apply {
                 this.context = modContext
             }
         }.toMap().toMutableMap()

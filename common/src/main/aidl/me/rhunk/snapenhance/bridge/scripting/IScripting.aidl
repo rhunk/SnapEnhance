@@ -8,11 +8,11 @@ interface IScripting {
 
     @nullable String getScriptContent(String path);
 
-    void registerIPCListener(String channel, String eventName, IPCListener listener);
+    oneway void registerIPCListener(String channel, String eventName, IPCListener listener);
 
-    void sendIPCMessage(String channel, String eventName, in String[] args);
+    oneway void sendIPCMessage(String channel, String eventName, in String[] args);
 
     @nullable String configTransaction(String module, String action, @nullable String key, @nullable String value, boolean save);
 
-    void registerAutoReloadListener(in AutoReloadListener listener);
+    oneway void registerAutoReloadListener(in AutoReloadListener listener);
 }

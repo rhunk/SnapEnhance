@@ -6,7 +6,6 @@ import me.rhunk.snapenhance.common.data.FriendStreaks
 import me.rhunk.snapenhance.common.data.MessagingFriendInfo
 import me.rhunk.snapenhance.common.data.MessagingGroupInfo
 import me.rhunk.snapenhance.common.data.MessagingRuleType
-import me.rhunk.snapenhance.common.database.impl.FriendInfo
 import me.rhunk.snapenhance.common.scripting.type.ModuleInfo
 import me.rhunk.snapenhance.common.util.SQLiteDatabaseHelper
 import me.rhunk.snapenhance.common.util.ktx.getInteger
@@ -56,7 +55,7 @@ class ModDatabase(
                 "targetUuid VARCHAR"
             ),
             "streaks" to listOf(
-                "userId VARCHAR PRIMARY KEY",
+                "id VARCHAR PRIMARY KEY",
                 "notify BOOLEAN",
                 "expirationTimestamp BIGINT",
                 "length INTEGER"
@@ -78,10 +77,10 @@ class ModDatabase(
             while (cursor.moveToNext()) {
                 groups.add(
                     MessagingGroupInfo(
-                    conversationId = cursor.getStringOrNull("conversationId")!!,
-                    name = cursor.getStringOrNull("name")!!,
-                    participantsCount = cursor.getInteger("participantsCount")
-                )
+                        conversationId = cursor.getStringOrNull("conversationId")!!,
+                        name = cursor.getStringOrNull("name")!!,
+                        participantsCount = cursor.getInteger("participantsCount")
+                    )
                 )
             }
             groups
@@ -89,18 +88,25 @@ class ModDatabase(
     }
 
     fun getFriends(descOrder: Boolean = false): List<MessagingFriendInfo> {
-        return database.rawQuery("SELECT * FROM friends ORDER BY id ${if (descOrder) "DESC" else "ASC"}", null).use { cursor ->
+        return database.rawQuery("SELECT * FROM friends LEFT OUTER JOIN streaks ON friends.userId = streaks.id ORDER BY id ${if (descOrder) "DESC" else "ASC"}", null).use { cursor ->
             val friends = mutableListOf<MessagingFriendInfo>()
             while (cursor.moveToNext()) {
                 runCatching {
                     friends.add(
                         MessagingFriendInfo(
-                        userId = cursor.getStringOrNull("userId")!!,
-                        displayName = cursor.getStringOrNull("displayName"),
-                        mutableUsername = cursor.getStringOrNull("mutableUsername")!!,
-                        bitmojiId = cursor.getStringOrNull("bitmojiId"),
-                        selfieId = cursor.getStringOrNull("selfieId")
-                    )
+                            userId = cursor.getStringOrNull("userId")!!,
+                            displayName = cursor.getStringOrNull("displayName"),
+                            mutableUsername = cursor.getStringOrNull("mutableUsername")!!,
+                            bitmojiId = cursor.getStringOrNull("bitmojiId"),
+                            selfieId = cursor.getStringOrNull("selfieId"),
+                            streaks = cursor.getLongOrNull("expirationTimestamp")?.let {
+                                FriendStreaks(
+                                    notify = cursor.getInteger("notify") == 1,
+                                    expirationTimestamp = it,
+                                    length = cursor.getInteger("length")
+                                )
+                            }
+                        )
                     )
                 }.onFailure {
                     context.log.error("Failed to parse friend", it)
@@ -125,7 +131,7 @@ class ModDatabase(
         }
     }
 
-    fun syncFriend(friend: FriendInfo) {
+    fun syncFriend(friend: MessagingFriendInfo) {
         executeAsync {
             try {
                 database.execSQL(
@@ -133,24 +139,22 @@ class ModDatabase(
                     arrayOf(
                         friend.userId,
                         friend.displayName,
-                        friend.usernameForSorting!!,
-                        friend.bitmojiAvatarId,
-                        friend.bitmojiSelfieId
+                        friend.mutableUsername,
+                        friend.bitmojiId,
+                        friend.selfieId
                     )
                 )
                 //sync streaks
-                if (friend.streakLength > 0) {
-                    val streaks = getFriendStreaks(friend.userId!!)
+                friend.streaks?.takeIf { it.length > 0 }?.let {
+                    val streaks = getFriendStreaks(friend.userId)
 
-                    database.execSQL("INSERT OR REPLACE INTO streaks (userId, notify, expirationTimestamp, length) VALUES (?, ?, ?, ?)", arrayOf(
+                    database.execSQL("INSERT OR REPLACE INTO streaks (id, notify, expirationTimestamp, length) VALUES (?, ?, ?, ?)", arrayOf(
                         friend.userId,
                         streaks?.notify ?: true,
-                        friend.streakExpirationTimestamp,
-                        friend.streakLength
+                        it.expirationTimestamp,
+                        it.length
                     ))
-                } else {
-                    database.execSQL("DELETE FROM streaks WHERE userId = ?", arrayOf(friend.userId))
-                }
+                } ?: database.execSQL("DELETE FROM streaks WHERE id = ?", arrayOf(friend.userId))
             } catch (e: Exception) {
                 throw e
             }
@@ -190,14 +194,21 @@ class ModDatabase(
     }
 
     fun getFriendInfo(userId: String): MessagingFriendInfo? {
-        return database.rawQuery("SELECT * FROM friends WHERE userId = ?", arrayOf(userId)).use { cursor ->
+        return database.rawQuery("SELECT * FROM friends LEFT OUTER JOIN streaks ON friends.userId = streaks.id WHERE userId = ?", arrayOf(userId)).use { cursor ->
             if (!cursor.moveToFirst()) return@use null
             MessagingFriendInfo(
                 userId = cursor.getStringOrNull("userId")!!,
                 displayName = cursor.getStringOrNull("displayName"),
                 mutableUsername = cursor.getStringOrNull("mutableUsername")!!,
                 bitmojiId = cursor.getStringOrNull("bitmojiId"),
-                selfieId = cursor.getStringOrNull("selfieId")
+                selfieId = cursor.getStringOrNull("selfieId"),
+                streaks = cursor.getLongOrNull("expirationTimestamp")?.let {
+                    FriendStreaks(
+                        notify = cursor.getInteger("notify") == 1,
+                        expirationTimestamp = it,
+                        length = cursor.getInteger("length")
+                    )
+                }
             )
         }
     }
@@ -205,7 +216,7 @@ class ModDatabase(
     fun deleteFriend(userId: String) {
         executeAsync {
             database.execSQL("DELETE FROM friends WHERE userId = ?", arrayOf(userId))
-            database.execSQL("DELETE FROM streaks WHERE userId = ?", arrayOf(userId))
+            database.execSQL("DELETE FROM streaks WHERE id = ?", arrayOf(userId))
             database.execSQL("DELETE FROM rules WHERE targetUuid = ?", arrayOf(userId))
         }
     }
@@ -229,10 +240,9 @@ class ModDatabase(
     }
 
     fun getFriendStreaks(userId: String): FriendStreaks? {
-        return database.rawQuery("SELECT * FROM streaks WHERE userId = ?", arrayOf(userId)).use { cursor ->
+        return database.rawQuery("SELECT * FROM streaks WHERE id = ?", arrayOf(userId)).use { cursor ->
             if (!cursor.moveToFirst()) return@use null
             FriendStreaks(
-                userId = cursor.getStringOrNull("userId")!!,
                 notify = cursor.getInteger("notify") == 1,
                 expirationTimestamp = cursor.getLongOrNull("expirationTimestamp") ?: 0L,
                 length = cursor.getInteger("length")
@@ -242,7 +252,7 @@ class ModDatabase(
 
     fun setFriendStreaksNotify(userId: String, notify: Boolean) {
         executeAsync {
-            database.execSQL("UPDATE streaks SET notify = ? WHERE userId = ?", arrayOf(
+            database.execSQL("UPDATE streaks SET notify = ? WHERE id = ?", arrayOf(
                 if (notify) 1 else 0,
                 userId
             ))

@@ -13,7 +13,7 @@ interface BridgeInterface {
     /**
     * broadcast a log message
     */
-    void broadcastLog(String tag, String level, String message);
+    oneway void broadcastLog(String tag, String level, String message);
 
     /**
     * Execute a file operation
@@ -36,7 +36,7 @@ interface BridgeInterface {
     /**
      * Enqueue a download
      */
-    void enqueueDownload(in Intent intent, DownloadCallback callback);
+    oneway void enqueueDownload(in Intent intent, DownloadCallback callback);
 
     /**
     * Get rules for a given user or conversation
@@ -56,7 +56,7 @@ interface BridgeInterface {
     *
     * @param type rule type (MessagingRuleType)
     */
-    void setRule(String uuid, String type, boolean state);
+    oneway void setRule(String uuid, String type, boolean state);
 
     /**
     * Sync groups and friends
@@ -66,12 +66,12 @@ interface BridgeInterface {
     /**
     * Trigger sync for an id
     */
-    void triggerSync(String scope, String id);
+    oneway void triggerSync(String scope, String id);
 
     /**
     * Pass all groups and friends to be able to add them to the database
-    * @param groups list of groups (MessagingGroupInfo as json string)
-    * @param friends list of friends (MessagingFriendInfo as json string)
+    * @param groups list of groups (MessagingGroupInfo as parcelable)
+    * @param friends list of friends (MessagingFriendInfo as parcelable)
     */
     oneway void passGroupsAndFriends(in List<String> groups, in List<String> friends);
 
@@ -81,11 +81,11 @@ interface BridgeInterface {
 
     MessageLoggerInterface getMessageLogger();
 
-    void registerMessagingBridge(MessagingBridge bridge);
+    oneway void registerMessagingBridge(MessagingBridge bridge);
 
-    void openSettingsOverlay();
+    oneway void openSettingsOverlay();
 
-    void closeSettingsOverlay();
+    oneway void closeSettingsOverlay();
 
-    void registerConfigStateListener(in ConfigStateListener listener);
+    oneway void registerConfigStateListener(in ConfigStateListener listener);
 }

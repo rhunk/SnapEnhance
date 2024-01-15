@@ -13,8 +13,10 @@ import me.rhunk.snapenhance.bridge.SyncCallback
 import me.rhunk.snapenhance.common.Constants
 import me.rhunk.snapenhance.common.ReceiversConfig
 import me.rhunk.snapenhance.common.action.EnumAction
+import me.rhunk.snapenhance.common.data.FriendStreaks
 import me.rhunk.snapenhance.common.data.MessagingFriendInfo
 import me.rhunk.snapenhance.common.data.MessagingGroupInfo
+import me.rhunk.snapenhance.common.util.toSerialized
 import me.rhunk.snapenhance.core.bridge.BridgeClient
 import me.rhunk.snapenhance.core.bridge.loadFromBridge
 import me.rhunk.snapenhance.core.data.SnapClassCache
@@ -151,7 +153,6 @@ class SnapEnhance {
             features.init()
             scriptRuntime.connect(bridgeClient.getScriptingInterface())
             scriptRuntime.eachModule { callFunction("module.onSnapApplicationLoad", androidContext) }
-            syncRemote()
         }
     }
 
@@ -195,7 +196,7 @@ class SnapEnhance {
             }
         }
 
-        appContext.apply {
+        appContext.executeAsync {
             bridgeClient.registerConfigStateListener(object: ConfigStateListener.Stub() {
                 override fun onConfigChanged() {
                     log.verbose("onConfigChanged")
@@ -227,7 +228,21 @@ class SnapEnhance {
         appContext.executeAsync {
             bridgeClient.sync(object : SyncCallback.Stub() {
                 override fun syncFriend(uuid: String): String? {
-                    return database.getFriendInfo(uuid)?.toJson()
+                    return database.getFriendInfo(uuid)?.let {
+                        MessagingFriendInfo(
+                            userId = it.userId!!,
+                            displayName = it.displayName,
+                            mutableUsername = it.mutableUsername!!,
+                            bitmojiId = it.bitmojiAvatarId,
+                            selfieId = it.bitmojiSelfieId,
+                            streaks = if (it.streakLength > 0) {
+                                FriendStreaks(
+                                    expirationTimestamp = it.streakExpirationTimestamp,
+                                    length = it.streakLength
+                                )
+                            } else null
+                        ).toSerialized()
+                    }
                 }
 
                 override fun syncGroup(uuid: String): String? {
@@ -236,7 +251,7 @@ class SnapEnhance {
                             it.key!!,
                             it.feedDisplayName!!,
                             it.participantsSize
-                        ).toJson()
+                        ).toSerialized()
                     }
                 }
             })
@@ -260,14 +275,12 @@ class SnapEnhance {
                         it.friendDisplayName,
                         it.friendDisplayUsername!!.split("|")[1],
                         it.bitmojiAvatarId,
-                        it.bitmojiSelfieId
+                        it.bitmojiSelfieId,
+                        streaks = null
                     )
                 }
 
-                bridgeClient.passGroupsAndFriends(
-                    groups.map { it.toJson() },
-                    friends.map { it.toJson() }
-                )
+                bridgeClient.passGroupsAndFriends(groups, friends)
             }
         }
     }

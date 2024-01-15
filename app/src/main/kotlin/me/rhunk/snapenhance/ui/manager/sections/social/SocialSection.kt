@@ -26,7 +26,9 @@ import androidx.compose.ui.window.Dialog
 import androidx.navigation.NavGraphBuilder
 import androidx.navigation.compose.composable
 import androidx.navigation.navigation
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import me.rhunk.snapenhance.R
 import me.rhunk.snapenhance.common.data.MessagingFriendInfo
 import me.rhunk.snapenhance.common.data.MessagingGroupInfo
@@ -214,8 +216,13 @@ class SocialSection : Section() {
 
                             SocialScope.FRIEND -> {
                                 val friend = friendList[index]
-                                val streaks =
-                                    remember { context.modDatabase.getFriendStreaks(friend.userId) }
+                                var streaks by remember { mutableStateOf(friend.streaks) }
+
+                                LaunchedEffect(friend.userId) {
+                                    withContext(Dispatchers.IO) {
+                                        streaks = context.modDatabase.getFriendStreaks(friend.userId)
+                                    }
+                                }
 
                                 BitmojiImage(
                                     context = context,
@@ -244,7 +251,7 @@ class SocialSection : Section() {
                                     )
                                 }
                                 Row(verticalAlignment = Alignment.CenterVertically) {
-                                    if (streaks != null && streaks.notify) {
+                                    streaks?.takeIf { it.notify }?.let { streaks ->
                                         Icon(
                                             imageVector = ImageVector.vectorResource(id = R.drawable.streak_icon),
                                             contentDescription = null,
@@ -256,7 +263,7 @@ class SocialSection : Section() {
                                         Text(
                                             text = context.translation.format(
                                                 "manager.sections.social.streaks_expiration_short",
-                                                "hours" to ((streaks.expirationTimestamp - System.currentTimeMillis()) / 3600000).toInt()
+                                                "hours" to (((streaks.expirationTimestamp - System.currentTimeMillis()) / 3600000).toInt().takeIf { it > 0 } ?: 0)
                                                     .toString()
                                             ),
                                             maxLines = 1,

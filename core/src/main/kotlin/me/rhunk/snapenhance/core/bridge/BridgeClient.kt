@@ -23,8 +23,11 @@ import me.rhunk.snapenhance.common.bridge.FileLoaderWrapper
 import me.rhunk.snapenhance.common.bridge.types.BridgeFileType
 import me.rhunk.snapenhance.common.bridge.types.FileActionType
 import me.rhunk.snapenhance.common.bridge.types.LocalePair
+import me.rhunk.snapenhance.common.data.MessagingFriendInfo
+import me.rhunk.snapenhance.common.data.MessagingGroupInfo
 import me.rhunk.snapenhance.common.data.MessagingRuleType
 import me.rhunk.snapenhance.common.data.SocialScope
+import me.rhunk.snapenhance.common.util.toSerialized
 import me.rhunk.snapenhance.core.ModContext
 import java.util.concurrent.CompletableFuture
 import java.util.concurrent.Executors
@@ -136,7 +139,10 @@ class BridgeClient(
 
     fun triggerSync(scope: SocialScope, id: String) = service.triggerSync(scope.key, id)
 
-    fun passGroupsAndFriends(groups: List<String>, friends: List<String>) = service.passGroupsAndFriends(groups, friends)
+    fun passGroupsAndFriends(groups: List<MessagingGroupInfo>, friends: List<MessagingFriendInfo>) = service.passGroupsAndFriends(
+        groups.mapNotNull { it.toSerialized() },
+        friends.mapNotNull { it.toSerialized() }
+    )
 
     fun getRules(targetUuid: String): List<MessagingRuleType> {
         return service.getRules(targetUuid).mapNotNull { MessagingRuleType.getByName(it) }
