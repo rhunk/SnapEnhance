@@ -4,10 +4,8 @@ import android.annotation.SuppressLint
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import android.net.Uri
-import android.text.InputType
 import android.view.Gravity
 import android.view.ViewGroup.MarginLayoutParams
-import android.widget.EditText
 import android.widget.ImageView
 import android.widget.LinearLayout
 import android.widget.ProgressBar
@@ -35,6 +33,7 @@ import me.rhunk.snapenhance.core.features.impl.downloader.decoder.MessageDecoder
 import me.rhunk.snapenhance.core.features.impl.messaging.Messaging
 import me.rhunk.snapenhance.core.features.impl.spying.MessageLogger
 import me.rhunk.snapenhance.core.ui.ViewAppearanceHelper
+import me.rhunk.snapenhance.core.ui.debugEditText
 import me.rhunk.snapenhance.core.util.hook.HookAdapter
 import me.rhunk.snapenhance.core.util.hook.HookStage
 import me.rhunk.snapenhance.core.util.hook.hook
@@ -159,15 +158,7 @@ class MediaDownloader : MessagingRuleFeature("MediaDownloader", MessagingRuleTyp
 
             ViewAppearanceHelper.newAlertDialogBuilder(context.mainActivity!!).apply {
                 setTitle("Debug Media Info")
-                setView(EditText(context).apply {
-                    inputType = InputType.TYPE_NULL
-                    setTextIsSelectable(true)
-                    isSingleLine = false
-                    textSize = 12f
-                    setPadding(20, 20, 20, 20)
-                    setText(mediaInfoText)
-                    setTextColor(context.resources.getColor(android.R.color.white, context.theme))
-                })
+                setView(debugEditText(context, mediaInfoText))
                 setNeutralButton("Copy") { _, _ ->
                     this@MediaDownloader.context.copyToClipboard(mediaInfoText)
                 }

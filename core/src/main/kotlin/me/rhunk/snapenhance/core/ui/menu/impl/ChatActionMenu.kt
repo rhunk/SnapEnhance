@@ -7,22 +7,34 @@ import android.view.ViewGroup
 import android.view.ViewGroup.MarginLayoutParams
 import android.widget.Button
 import android.widget.LinearLayout
-import android.widget.TextView
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.ExperimentalLayoutApi
+import androidx.compose.foundation.layout.FlowRow
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.padding
+import androidx.compose.material3.Button
+import androidx.compose.material3.Text
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.unit.dp
 import me.rhunk.snapenhance.common.data.ContentType
+import me.rhunk.snapenhance.common.ui.createComposeView
 import me.rhunk.snapenhance.common.util.protobuf.ProtoReader
 import me.rhunk.snapenhance.core.features.impl.downloader.MediaDownloader
+import me.rhunk.snapenhance.core.features.impl.downloader.decoder.MessageDecoder
 import me.rhunk.snapenhance.core.features.impl.experiments.ConvertMessageLocally
 import me.rhunk.snapenhance.core.features.impl.messaging.Messaging
 import me.rhunk.snapenhance.core.features.impl.spying.MessageLogger
 import me.rhunk.snapenhance.core.ui.ViewAppearanceHelper
 import me.rhunk.snapenhance.core.ui.ViewTagState
 import me.rhunk.snapenhance.core.ui.applyTheme
+import me.rhunk.snapenhance.core.ui.debugEditText
 import me.rhunk.snapenhance.core.ui.menu.AbstractMenu
 import me.rhunk.snapenhance.core.ui.triggerCloseTouchEvent
 import me.rhunk.snapenhance.core.util.hook.HookStage
 import me.rhunk.snapenhance.core.util.hook.hook
 import me.rhunk.snapenhance.core.util.ktx.getDimens
-import java.time.Instant
+import java.text.SimpleDateFormat
+import java.util.Date
 
 
 @SuppressLint("DiscouragedApi")
@@ -50,15 +62,17 @@ class ChatActionMenu : AbstractMenu() {
         }
     }
 
-    private fun copyAlertDialog(context: Context, title: String, text: String) {
-        ViewAppearanceHelper.newAlertDialogBuilder(context).apply {
-            setTitle(title)
-            setMessage(text)
-            setPositiveButton("OK") { dialog, _ -> dialog.dismiss() }
-            setNegativeButton("Copy") { _, _ ->
-                this@ChatActionMenu.context.copyToClipboard(text, title)
-            }
-        }.show()
+    private fun debugAlertDialog(context: Context, title: String, text: String) {
+        this@ChatActionMenu.context.runOnUiThread {
+            ViewAppearanceHelper.newAlertDialogBuilder(context).apply {
+                setTitle(title)
+                setView(debugEditText(context, text))
+                setPositiveButton("OK") { dialog, _ -> dialog.dismiss() }
+                setNegativeButton("Copy") { _, _ ->
+                    this@ChatActionMenu.context.copyToClipboard(text, title)
+                }
+            }.show()
+        }
     }
 
     private val lastFocusedMessage
@@ -78,6 +92,7 @@ class ChatActionMenu : AbstractMenu() {
         }
     }
 
+    @OptIn(ExperimentalLayoutApi::class)
     @SuppressLint("SetTextI18n", "DiscouragedApi", "ClickableViewAccessibility")
     override fun inject(parent: ViewGroup, view: View, viewConsumer: (View) -> Unit) {
         val viewGroup = parent.parent.parent as? ViewGroup ?: return
@@ -176,56 +191,99 @@ class ChatActionMenu : AbstractMenu() {
         }
 
         if (context.isDeveloper) {
-            viewGroup.addView(createContainer(viewGroup).apply {
-                val debugText = StringBuilder()
-
-                setOnClickListener {
-                    this@ChatActionMenu.context.copyToClipboard(debugText.toString(), "debug")
-                }
-
-                addView(TextView(viewGroup.context).apply {
-                    setPadding(20, 20, 20, 20)
-                    textSize = 10f
-                    addOnLayoutChangeListener { _, _, _, _, _, _, _, _, _ ->
-                        val arroyoMessage = lastFocusedMessage ?: return@addOnLayoutChangeListener
-                        text = debugText.apply {
-                            runCatching {
-                                clear()
-                                append("sender_id: ${arroyoMessage.senderId}\n")
-                                append("client_id: ${arroyoMessage.clientMessageId}, server_id: ${arroyoMessage.serverMessageId}\n")
-                                append("conversation_id: ${arroyoMessage.clientConversationId}\n")
-                                append("arroyo_content_type: ${ContentType.fromId(arroyoMessage.contentType)} (${arroyoMessage.contentType})\n")
-                                append("parsed_content_type: ${
-                                    ContentType.fromMessageContainer(
-                                    ProtoReader(arroyoMessage.messageContent!!).followPath(4, 4)
-                                ).let { "$it (${it?.id})" }}\n")
-                                append("creation_timestamp: ${arroyoMessage.creationTimestamp} (${Instant.ofEpochMilli(arroyoMessage.creationTimestamp)})\n")
-                                append("read_timestamp: ${arroyoMessage.readTimestamp} (${Instant.ofEpochMilli(arroyoMessage.readTimestamp)})\n")
-                                append("is_messagelogger_deleted: ${messageLogger.isMessageDeleted(arroyoMessage.clientConversationId!!, arroyoMessage.clientMessageId.toLong())}\n")
-                                append("is_messagelogger_stored: ${messageLogger.getMessageObject(arroyoMessage.clientConversationId!!, arroyoMessage.clientMessageId.toLong()) != null}\n")
-                            }.onFailure {
-                                debugText.append("Error: $it\n")
-                            }
-                        }.toString().trimEnd()
+            val composeDebugView = createComposeView(viewGroup.context) {
+                FlowRow(
+                    modifier = Modifier.fillMaxWidth().padding(5.dp),
+                    horizontalArrangement = Arrangement.spacedBy(3.dp)
+                ) {
+                    Button(onClick = {
+                        val arroyoMessage = lastFocusedMessage ?: return@Button
+                        debugAlertDialog(viewGroup.context,
+                            "Message Info",
+                            StringBuilder().apply {
+                                runCatching {
+                                    append("conversation_id: ${arroyoMessage.clientConversationId}\n")
+                                    append("sender_id: ${arroyoMessage.senderId}\n")
+                                    append("client_id: ${arroyoMessage.clientMessageId}, server_id: ${arroyoMessage.serverMessageId}\n")
+                                    append("content_type: ${ContentType.fromId(arroyoMessage.contentType)} (${arroyoMessage.contentType})\n")
+                                    append("parsed_content_type: ${
+                                        ContentType.fromMessageContainer(
+                                            ProtoReader(arroyoMessage.messageContent!!).followPath(4, 4)
+                                        ).let { "$it (${it?.id})" }}\n")
+                                    append("creation_timestamp: ${
+                                        SimpleDateFormat.getDateTimeInstance().format(
+                                            Date(arroyoMessage.creationTimestamp)
+                                        )} (${arroyoMessage.creationTimestamp})\n")
+                                    append("read_timestamp: ${SimpleDateFormat.getDateTimeInstance().format(
+                                        Date(arroyoMessage.readTimestamp)
+                                    )} (${arroyoMessage.readTimestamp})\n")
+                                    append("ml_deleted: ${messageLogger.isMessageDeleted(arroyoMessage.clientConversationId!!, arroyoMessage.clientMessageId.toLong())}, ")
+                                    append("ml_stored: ${messageLogger.getMessageObject(arroyoMessage.clientConversationId!!, arroyoMessage.clientMessageId.toLong()) != null}\n")
+                                }
+                            }.toString()
+                        )
+                    }) {
+                        Text("Info")
                     }
-                })
+                    Button(onClick = {
+                        val arroyoMessage = lastFocusedMessage ?: return@Button
+                        messaging.conversationManager?.fetchMessage(arroyoMessage.clientConversationId!!, arroyoMessage.clientMessageId.toLong(), onSuccess = { message ->
+                            val decodedAttachments = MessageDecoder.decode(message.messageContent!!)
 
-                // action buttons
-                addView(LinearLayout(viewGroup.context).apply {
-                    orientation = LinearLayout.HORIZONTAL
-                    addView(Button(viewGroup.context).apply {
-                        text = "Show Deleted Message Object"
-                        setOnClickListener {
-                            val message = lastFocusedMessage ?: return@setOnClickListener
-                            copyAlertDialog(
+                            debugAlertDialog(
                                 viewGroup.context,
-                                "Deleted Message Object",
-                                messageLogger.getMessageObject(message.clientConversationId!!, message.clientMessageId.toLong())?.toString()
-                                    ?: "null"
+                                "Media References",
+                                decodedAttachments.mapIndexed { index, attachment ->
+                                    StringBuilder().apply {
+                                        append("---- media $index ----\n")
+                                        append("resolveProto: ${attachment.mediaUrlKey}\n")
+                                        append("type: ${attachment.type}\n")
+                                        attachment.attachmentInfo?.apply {
+                                            encryption?.let {
+                                                append("encryption:\n  - key: ${it.key}\n  - iv: ${it.iv}\n")
+                                            }
+                                            resolution?.let {
+                                                append("resolution: ${it.first}x${it.second}\n")
+                                            }
+                                            duration?.let {
+                                                append("duration: $it\n")
+                                            }
+                                        }
+                                    }.toString()
+                                }.joinToString("\n\n")
                             )
-                        }
-                    })
-                })
+                        })
+                    }) {
+                        Text("Refs")
+                    }
+                    Button(onClick = {
+                        val message = lastFocusedMessage ?: return@Button
+                        debugAlertDialog(
+                            viewGroup.context,
+                            "Arroyo proto",
+                            message.messageContent?.let { ProtoReader(it) }?.toString() ?: "empty"
+                        )
+                    }) {
+                        Text("Arroyo proto")
+                    }
+                    Button(onClick = {
+                        val arroyoMessage = lastFocusedMessage ?: return@Button
+                        messaging.conversationManager?.fetchMessage(arroyoMessage.clientConversationId!!, arroyoMessage.clientMessageId.toLong(), onSuccess = { message ->
+                            debugAlertDialog(
+                                viewGroup.context,
+                                "Message proto",
+                                message.messageContent?.content?.let { ProtoReader(it) }?.toString() ?: "empty"
+                            )
+                        }, onError = {
+                            this@ChatActionMenu.context.shortToast("Failed to fetch message: $it")
+                        })
+                    }) {
+                        Text("Message proto")
+                    }
+                }
+            }
+            viewGroup.addView(createContainer(viewGroup).apply {
+                addView(composeDebugView)
             })
         }
 
