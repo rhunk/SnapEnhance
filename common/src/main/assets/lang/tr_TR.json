@@ -339,6 +339,10 @@
                     "hide_story_suggestions": {
                         "name": "Hikaye Önerilerini Gizle",
                         "description": "Hikayeler sayfasından önerileri kaldırır"
+                    },
+                    "stealth_mode_indicator": {
+                        "name": "Gizli Mod Göstergesi",
+                        "description": "Gizli modundaki konuşmaların yanına bir 👻 emojisi ekler"
                     }
                 }
             },
