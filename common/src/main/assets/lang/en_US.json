@@ -340,6 +340,10 @@
                         "name": "Fidelius Indicator",
                         "description": "Adds a green circle next to messages that have been sent only to you"
                     },
+                    "stealth_mode_indicator": {
+                        "name": "Stealth Mode Indicator",
+                        "description": "Adds a \uD83D\uDC7B emoji next to conversations in stealth mode"
+                    },
                     "edit_text_override": {
                         "name": "Edit Text Override",
                         "description": "Overrides text field behavior"

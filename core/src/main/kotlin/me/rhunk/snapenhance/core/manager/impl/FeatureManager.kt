@@ -116,6 +116,7 @@ class FeatureManager(
             ConversationToolbox(),
             SpotlightCommentsUsername(),
             OperaViewerParamsOverride(),
+            StealthModeIndicator(),
         )
 
         initializeFeatures()

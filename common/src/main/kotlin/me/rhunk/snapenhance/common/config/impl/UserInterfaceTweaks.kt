@@ -49,6 +49,7 @@ class UserInterfaceTweaks : ConfigContainer() {
     val hideSettingsGear = boolean("hide_settings_gear") { requireRestart() }
     val verticalStoryViewer = boolean("vertical_story_viewer") { requireRestart() }
     val fideliusIndicator = boolean("fidelius_indicator") { requireRestart() }
+    val stealthModeIndicator = boolean("stealth_mode_indicator") { requireRestart() }
     val editTextOverride = multiple("edit_text_override", "multi_line_chat_input", "bypass_text_input_limit") {
         requireRestart(); addNotices(FeatureNotice.BAN_RISK, FeatureNotice.INTERNAL_BEHAVIOR)
     }

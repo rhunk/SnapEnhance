@@ -4,6 +4,11 @@ import me.rhunk.snapenhance.common.data.MessagingRuleType
 import me.rhunk.snapenhance.common.data.RuleState
 
 abstract class MessagingRuleFeature(name: String, val ruleType: MessagingRuleType, loadParams: Int = 0) : Feature(name, loadParams) {
+    private val listeners = mutableListOf<(String, Boolean) -> Unit>()
+
+    fun addStateListener(listener: (conversationId: String, newState: Boolean) -> Unit) {
+        listeners.add(listener)
+    }
 
     open fun getRuleState() = context.config.rules.getRuleState(ruleType)
 
@@ -13,6 +18,7 @@ abstract class MessagingRuleFeature(name: String, val ruleType: MessagingRuleTyp
             ruleType,
             state
         )
+        listeners.forEach { it(conversationId, state) }
     }
 
     fun getState(conversationId: String) =
