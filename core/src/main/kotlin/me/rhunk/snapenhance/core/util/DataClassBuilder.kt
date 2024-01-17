@@ -1,7 +1,7 @@
 package me.rhunk.snapenhance.core.util
 
 
-fun Any?.dataBuilder(dataClassBuilder: DataClassBuilder.() -> Unit): Any? {
+inline fun Any?.dataBuilder(dataClassBuilder: DataClassBuilder.() -> Unit): Any? {
     return DataClassBuilder(
         when (this) {
             is Class<*> -> CallbackBuilder.createEmptyObject(
@@ -43,6 +43,13 @@ class DataClassBuilder(
     }
 
     fun set(vararg fields: Pair<String, Any?>) = fields.forEach { set(it.first, it.second) }
+
+    @Suppress("UNCHECKED_CAST")
+    fun <T> get(fieldName: String): T? {
+        val field = instance::class.java.declaredFields.firstOrNull { it.name == fieldName } ?: return null
+        field.isAccessible = true
+        return field.get(instance) as? T
+    }
 
     fun from(fieldName: String, new: Boolean = false, callback: DataClassBuilder.() -> Unit) {
         val field = instance::class.java.declaredFields.firstOrNull { it.name == fieldName } ?: return
