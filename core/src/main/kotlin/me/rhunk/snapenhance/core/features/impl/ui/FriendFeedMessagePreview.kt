@@ -50,16 +50,8 @@ class FriendFeedMessagePreview : Feature("FriendFeedMessagePreview", loadParams 
             val messageContainer =
                 message.messageContent
                     ?.let { ProtoReader(it) }
-                    ?.followPath(4, 4)?.let { messageReader ->
-                        takeIf { hasE2EE }?.let takeIf@{
-                            endToEndEncryption.tryDecryptMessage(
-                                senderId = message.senderId ?: return@takeIf null,
-                                clientMessageId = message.clientMessageId.toLong(),
-                                conversationId =  message.clientConversationId ?: return@takeIf null,
-                                contentType = ContentType.fromId(message.contentType),
-                                messageBuffer = messageReader.getBuffer()
-                            ).second
-                        }?.let { ProtoReader(it) } ?: messageReader
+                    ?.followPath(4, 4)?.let {
+                        if (hasE2EE) endToEndEncryption.decryptDatabaseMessage(message) else it
                     }
                     ?: return@mapNotNull null
 

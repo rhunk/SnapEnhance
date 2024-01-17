@@ -29,6 +29,7 @@ import me.rhunk.snapenhance.common.scripting.ui.ScriptInterface
 import me.rhunk.snapenhance.common.ui.createComposeView
 import me.rhunk.snapenhance.common.util.protobuf.ProtoReader
 import me.rhunk.snapenhance.common.util.snap.BitmojiSelfie
+import me.rhunk.snapenhance.core.features.impl.experiments.EndToEndEncryption
 import me.rhunk.snapenhance.core.features.impl.messaging.Messaging
 import me.rhunk.snapenhance.core.features.impl.spying.MessageLogger
 import me.rhunk.snapenhance.core.ui.ViewAppearanceHelper
@@ -159,6 +160,7 @@ class FriendFeedInfoMenu : AbstractMenu() {
     private fun showPreview(userId: String?, conversationId: String) {
         //query message
         val messageLogger = context.feature(MessageLogger::class)
+        val endToEndEncryption = context.feature(EndToEndEncryption::class)
         val messages: List<ConversationMessage> = context.database.getMessagesFromConversationId(
             conversationId,
             context.config.messaging.messagePreviewLength.get()
@@ -174,11 +176,12 @@ class FriendFeedInfoMenu : AbstractMenu() {
         messages.forEach { message ->
             val sender = participants[message.senderId]
             val messageProtoReader =
-                messageLogger.takeIf {
-                    it.isEnabled && message.contentType == ContentType.STATUS.id // only process deleted messages
-                }?.getMessageProto(conversationId, message.clientMessageId.toLong())
-                 ?: ProtoReader(message.messageContent ?: return@forEach).followPath(4, 4)
-                 ?: return@forEach
+                (
+                    messageLogger.takeIf { it.isEnabled && message.contentType == ContentType.STATUS.id }?.getMessageProto(conversationId, message.clientMessageId.toLong()) // process deleted messages if message logger is enabled
+                    ?: ProtoReader(message.messageContent!!).followPath(4, 4) // database message
+                )?.let {
+                    if (endToEndEncryption.isEnabled) endToEndEncryption.decryptDatabaseMessage(message) else it // try to decrypt message if e2ee is enabled
+                } ?: return@forEach
 
             val contentType = ContentType.fromMessageContainer(messageProtoReader) ?: ContentType.fromId(message.contentType)
             var messageString = if (contentType == ContentType.CHAT) {

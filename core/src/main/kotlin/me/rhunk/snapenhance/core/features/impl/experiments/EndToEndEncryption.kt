@@ -19,6 +19,7 @@ import me.rhunk.snapenhance.common.data.ContentType
 import me.rhunk.snapenhance.common.data.MessageState
 import me.rhunk.snapenhance.common.data.MessagingRuleType
 import me.rhunk.snapenhance.common.data.RuleState
+import me.rhunk.snapenhance.common.database.impl.ConversationMessage
 import me.rhunk.snapenhance.common.util.protobuf.ProtoEditor
 import me.rhunk.snapenhance.common.util.protobuf.ProtoReader
 import me.rhunk.snapenhance.common.util.protobuf.ProtoWriter
@@ -50,7 +51,7 @@ class EndToEndEncryption : MessagingRuleFeature(
     MessagingRuleType.E2E_ENCRYPTION,
     loadParams = FeatureLoadParams.ACTIVITY_CREATE_SYNC or FeatureLoadParams.INIT_SYNC or FeatureLoadParams.INIT_ASYNC
 ) {
-    private val isEnabled get() = context.config.experimental.e2eEncryption.globalState == true
+    val isEnabled get() = context.config.experimental.e2eEncryption.globalState == true
     private val e2eeInterface by lazy { context.bridgeClient.getE2eeInterface() }
 
     companion object {
@@ -268,7 +269,19 @@ class EndToEndEncryption : MessagingRuleFeature(
         }.digest()
     }
 
-    fun tryDecryptMessage(senderId: String, clientMessageId: Long, conversationId: String, contentType: ContentType, messageBuffer: ByteArray): Pair<ContentType, ByteArray> {
+    fun decryptDatabaseMessage(conversationMessage: ConversationMessage): ProtoReader {
+        return tryDecryptMessage(
+            senderId = conversationMessage.senderId!!,
+            clientMessageId = conversationMessage.clientMessageId.toLong(),
+            conversationId = conversationMessage.clientConversationId!!,
+            contentType = ContentType.fromId(conversationMessage.contentType),
+            messageBuffer = ProtoReader(conversationMessage.messageContent!!).getByteArray(4, 4)!!
+        ).let { (_, buffer) ->
+            ProtoReader(buffer)
+        }
+    }
+
+    private fun tryDecryptMessage(senderId: String, clientMessageId: Long, conversationId: String, contentType: ContentType, messageBuffer: ByteArray): Pair<ContentType, ByteArray> {
         if (contentType != ContentType.STATUS && decryptedMessageCache.containsKey(clientMessageId)) {
             return decryptedMessageCache[clientMessageId]!!
         }
