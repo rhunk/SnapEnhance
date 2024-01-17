@@ -57,7 +57,7 @@ abstract class AbstractWrapper(
     protected fun <T> field(fieldName: String, mapper: ((Any?) -> T?)? = null) = FieldAccessor(fieldName, mapper)
 
     fun <T : Enum<*>> getEnumValue(fieldName: String, defaultValue: T?): T? {
-        if (defaultValue == null) return null
+        if (defaultValue == null || instance == null) return null
         val mContentType = XposedHelpers.getObjectField(instance, fieldName) as? Enum<*> ?: return null
         return java.lang.Enum.valueOf(defaultValue::class.java, mContentType.name)
     }

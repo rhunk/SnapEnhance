@@ -159,3 +159,12 @@ enum class MixerStoryType(
         }
     }
 }
+
+enum class QuotedMessageContentStatus {
+    UNKNOWN,
+    AVAILABLE,
+    DELETED,
+    JOINEDAFTERORIGINALMESSAGESENT,
+    UNAVAILABLE,
+    STORYMEDIADELETEDBYPOSTER
+}

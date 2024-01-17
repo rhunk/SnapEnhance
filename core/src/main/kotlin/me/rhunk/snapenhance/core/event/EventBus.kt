@@ -27,9 +27,9 @@ class EventBus(
         }
     }
 
-    inline fun <T : Event> subscribe(event: KClass<T>, priority: Int? = null, crossinline listener: (T) -> Unit) = subscribe(event, { true }, priority, listener)
+    fun <T : Event> subscribe(event: KClass<T>, priority: Int? = null, listener: (T) -> Unit) = subscribe(event, { true }, priority, listener)
 
-    inline fun <T : Event> subscribe(event: KClass<T>,  crossinline filter: (T) -> Boolean, priority: Int? = null, crossinline listener: (T) -> Unit): () -> Unit {
+    fun <T : Event> subscribe(event: KClass<T>,  filter: (T) -> Boolean, priority: Int? = null, listener: (T) -> Unit): () -> Unit {
         val obj = object : IListener<T> {
             override fun handle(event: T) {
                 if (!filter(event)) return

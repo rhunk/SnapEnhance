@@ -9,6 +9,7 @@ import com.google.gson.JsonObject
 import com.google.gson.JsonParser
 import me.rhunk.snapenhance.common.data.ContentType
 import me.rhunk.snapenhance.common.data.MessageState
+import me.rhunk.snapenhance.common.data.QuotedMessageContentStatus
 import me.rhunk.snapenhance.common.util.ktx.longHashCode
 import me.rhunk.snapenhance.common.util.protobuf.ProtoReader
 import me.rhunk.snapenhance.core.event.events.impl.BindViewEvent
@@ -38,7 +39,7 @@ class MessageLogger : Feature("MessageLogger",
 
     private val threadPool = Executors.newFixedThreadPool(10)
 
-    private val cachedIdLinks = mutableMapOf<Long, Long>() // client id -> server id
+    private val cachedIdLinks = EvictingMap<Long, Long>(500) // client id -> server id
     private val fetchedMessages = mutableListOf<Long>() // list of unique message ids
     private val deletedMessageCache = EvictingMap<Long, JsonObject>(200) // unique message id -> message json object
 
@@ -112,8 +113,11 @@ class MessageLogger : Feature("MessageLogger",
 
             val uniqueMessageIdentifier = computeMessageIdentifier(conversationId, event.message.orderKey!!)
             val messageContentType = event.message.messageContent!!.contentType
+            val isMessageDeleted = messageContentType == ContentType.STATUS || event.message.messageContent!!.quotedMessage?.status?.let {
+                it == QuotedMessageContentStatus.DELETED || it == QuotedMessageContentStatus.STORYMEDIADELETEDBYPOSTER
+            } == true
 
-            if (messageContentType != ContentType.STATUS) {
+            if (!isMessageDeleted) {
                 if (messageFilter.isNotEmpty() && !messageFilter.contains(messageContentType?.name)) return@subscribe
                 if (fetchedMessages.contains(uniqueMessageIdentifier)) return@subscribe
                 fetchedMessages.add(uniqueMessageIdentifier)
@@ -136,18 +140,16 @@ class MessageLogger : Feature("MessageLogger",
                 }
             } ?: return@subscribe
 
-            val messageJsonObject = deletedMessageObject.asJsonObject
-
             //if the message is a snap make it playable
-            if (messageJsonObject["mMessageContent"]?.asJsonObject?.get("mContentType")?.asString == "SNAP") {
-                messageJsonObject["mMetadata"].asJsonObject.addProperty("mPlayableSnapState", "PLAYABLE")
+            if (deletedMessageObject["mMessageContent"]?.asJsonObject?.get("mContentType")?.asString == "SNAP") {
+                deletedMessageObject["mMetadata"].asJsonObject.addProperty("mPlayableSnapState", "PLAYABLE")
             }
 
             //serialize all properties of messageJsonObject and put mMessageContent & mMetadata in the message object
-            messageInstance.javaClass.declaredFields.forEach { field ->
+            messageInstance::class.java.declaredFields.forEach { field ->
                 if (field.name != "mMessageContent" && field.name != "mMetadata") return@forEach
                 field.isAccessible = true
-                messageJsonObject[field.name]?.let { fieldValue ->
+                deletedMessageObject[field.name]?.let { fieldValue ->
                     field.set(messageInstance, context.gson.fromJson(fieldValue, field.type))
                 }
             }
