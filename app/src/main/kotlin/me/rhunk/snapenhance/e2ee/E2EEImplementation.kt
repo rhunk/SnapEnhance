@@ -3,6 +3,7 @@ package me.rhunk.snapenhance.e2ee
 import me.rhunk.snapenhance.RemoteSideContext
 import me.rhunk.snapenhance.bridge.e2ee.E2eeInterface
 import me.rhunk.snapenhance.bridge.e2ee.EncryptionResult
+import me.rhunk.snapenhance.core.util.EvictingMap
 import org.bouncycastle.pqc.crypto.crystals.kyber.*
 import java.io.File
 import java.security.MessageDigest
@@ -23,24 +24,32 @@ class E2EEImplementation (
     }}
     private val pairingFolder by lazy { File(context.androidContext.cacheDir, "e2ee-pairing").also {
         if (!it.exists()) it.mkdirs()
+        else {
+            it.deleteRecursively()
+            it.mkdirs()
+        }
     } }
+
+    private val sharedSecretKeyCache = EvictingMap<String, ByteArray?>(100)
 
     fun storeSharedSecretKey(friendId: String, key: ByteArray) {
         File(e2eeFolder, "$friendId.key").writeBytes(key)
+        sharedSecretKeyCache[friendId] = key
     }
 
     fun getSharedSecretKey(friendId: String): ByteArray? {
-        return runCatching {
-            File(e2eeFolder, "$friendId.key").readBytes()
-        }.onFailure {
-            context.log.error("Failed to read shared secret key", it)
-        }.getOrNull()
+        return sharedSecretKeyCache.getOrPut(friendId) {
+            runCatching {
+                File(e2eeFolder, "$friendId.key").readBytes()
+            }.onFailure {
+                context.log.error("Failed to read shared secret key", it)
+            }.getOrNull()
+        }
     }
 
     fun deleteSharedSecretKey(friendId: String) {
         File(e2eeFolder, "$friendId.key").delete()
     }
-
 
     override fun createKeyExchange(friendId: String): ByteArray? {
         val keyPairGenerator = KyberKeyPairGenerator()
@@ -117,12 +126,7 @@ class E2EEImplementation (
     }
 
     override fun getSecretFingerprint(friendId: String): String? {
-        val sharedSecretKey = runCatching {
-            File(e2eeFolder, "$friendId.key").readBytes()
-        }.onFailure {
-            context.log.error("Failed to read shared secret key", it)
-            return null
-        }.getOrThrow()
+        val sharedSecretKey = getSharedSecretKey(friendId) ?: return null
 
         return MessageDigest.getInstance("SHA-256")
             .digest(sharedSecretKey)
@@ -132,11 +136,7 @@ class E2EEImplementation (
     }
 
     override fun encryptMessage(friendId: String, message: ByteArray): EncryptionResult? {
-        val encryptionKey = runCatching {
-            File(e2eeFolder, "$friendId.key").readBytes()
-        }.onFailure {
-            context.log.error("Failed to read shared secret key", it)
-        }.getOrNull()
+        val encryptionKey = getSharedSecretKey(friendId) ?: return null
 
         return runCatching {
             val iv = ByteArray(16).apply { secureRandom.nextBytes(this) }
@@ -152,12 +152,7 @@ class E2EEImplementation (
     }
 
     override fun decryptMessage(friendId: String, message: ByteArray, iv: ByteArray): ByteArray? {
-        val encryptionKey = runCatching {
-            File(e2eeFolder, "$friendId.key").readBytes()
-        }.onFailure {
-            context.log.error("Failed to read shared secret key", it)
-            return null
-        }.getOrNull()
+        val encryptionKey = getSharedSecretKey(friendId) ?: return null
 
         return runCatching {
             val cipher = Cipher.getInstance("AES/CBC/PKCS5Padding")
