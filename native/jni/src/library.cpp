@@ -71,11 +71,10 @@ static void *unaryCall_hook(void *unk1, const char *uri, grpc::grpc_byte_buffer 
             return nullptr;
         }
 
-        auto new_buffer = env->GetObjectField(native_request_data_object, env->GetFieldID(native_request_data_class, "buffer", "[B"));
-        auto new_buffer_length = env->GetArrayLength((jbyteArray)new_buffer);
-        auto new_buffer_data = env->GetByteArrayElements((jbyteArray)new_buffer, nullptr);
+        auto new_buffer = (jbyteArray)env->GetObjectField(native_request_data_object, env->GetFieldID(native_request_data_class, "buffer", "[B"));
+        auto new_buffer_length = env->GetArrayLength(new_buffer);
+        auto new_buffer_data = env->GetByteArrayElements(new_buffer, nullptr);
 
-        LOGD("rewrote request for %s (length: %d)", uri, new_buffer_length);
         //we need to allocate a new ref_counter struct and copy the old ref_counter and the new_buffer to it
         const static auto ref_counter_struct_size = (uintptr_t)slice_buffer->data - (uintptr_t)slice_buffer->ref_counter;
 
@@ -119,17 +118,13 @@ void JNICALL init(JNIEnv *env, jobject clazz, jobject classloader) {
     native_lib_on_unary_call_method = env->GetMethodID(env->GetObjectClass(clazz), "onNativeUnaryCall", "(Ljava/lang/String;[B)L" BUILD_NAMESPACE "/NativeRequestData;");
     native_lib_on_asset_load = env->GetMethodID(env->GetObjectClass(clazz), "shouldLoadAsset", "(Ljava/lang/String;)Z");
 
-    // load libclient.so
-    util::load_library(env, classloader, "client");
     auto client_module = util::get_module("libclient.so");
 
     if (client_module.base == 0) {
-        LOGE("libclient not found");
+        LOGE("libclient not loaded!");
         return;
     }
 
-    // client_module.base -= 0x1000;
-    // debugging purposes
     LOGD("libclient.so base=0x%0lx, size=0x%0lx", client_module.base, client_module.size);
 
     // hooks
@@ -142,6 +137,7 @@ void JNICALL init(JNIEnv *env, jobject clazz, jobject classloader) {
     );
 
     if (unaryCall_func != 0) {
+        LOGD("found unaryCall at 0x%0lx", unaryCall_func);
         DobbyHook((void *)unaryCall_func, (void *)unaryCall_hook, (void **)&unaryCall_original);
     } else {
         LOGE("can't find unaryCall signature");

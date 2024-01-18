@@ -8,25 +8,11 @@ namespace util {
         size_t size;
     } module_info_t;
 
-    static void hexDump(void *ptr, uint8_t line_length, uint32_t lines) {
-        auto *p = (unsigned char *) ptr;
-        for (uint8_t i = 0; i < lines; i++) {
-            std::string line;
-            for (uint8_t j = 0; j < line_length; j++) {
-                char buf[3];
-                sprintf(buf, "%02x", p[i * line_length + j]);
-                line += buf;
-                line += " ";
-            }
-            LOGI("%s", line.c_str());
-        }
-    }
-
     static module_info_t get_module(const char *libname) {
         char buff[256];
         int len_libname = strlen(libname);
-        uintptr_t addr = 0;
-        size_t size = 0;
+        uintptr_t start_offset = 0;
+        uintptr_t end_offset = 0;
 
         auto file = fopen("/proc/self/smaps", "rt");
         if (file == NULL)
@@ -47,25 +33,20 @@ namespace util {
                 continue;
             }
 
-            if (addr == 0 && flags[0] == 'r' && flags[2] == 'x') {
-                addr = start - offset;
+            if (flags[0] != 'r' || flags[2] != 'x') {
+                continue;
             }
-            if (addr != 0) {
-                size += end - start;
+
+            if (start_offset == 0) {
+                start_offset = start;
             }
+            end_offset = end;
         }
         fclose(file);
-        return {addr, size};
-    }
-
-    void load_library(JNIEnv *env, jobject classLoader, const char *libName) {
-        auto runtimeClass = env->FindClass("java/lang/Runtime");
-        auto getRuntimeMethod = env->GetStaticMethodID(runtimeClass, "getRuntime",
-                                                       "()Ljava/lang/Runtime;");
-        auto runtime = env->CallStaticObjectMethod(runtimeClass, getRuntimeMethod);
-        auto loadLibraryMethod = env->GetMethodID(runtimeClass, "loadLibrary0",
-                                                  "(Ljava/lang/ClassLoader;Ljava/lang/String;)V");
-        env->CallVoidMethod(runtime, loadLibraryMethod, classLoader, env->NewStringUTF(libName));
+        if (start_offset == 0) {
+            return {0, 0};
+        }
+        return { start_offset, end_offset - start_offset };
     }
 
     uintptr_t find_signature(uintptr_t module_base, uintptr_t size, const std::string &pattern, int offset = 0) {
@@ -95,36 +76,5 @@ namespace util {
             }
         }
         return 0;
-    }
-
-    std::vector<uintptr_t> find_signatures(uintptr_t module_base, uintptr_t size, const std::string &pattern, int offset = 0) {
-        std::vector<uintptr_t> results;
-        std::vector<char> bytes;
-        std::vector<char> mask;
-
-        for (size_t i = 0; i < pattern.size(); i += 3) {
-            if (pattern[i] == '?') {
-                bytes.push_back(0);
-                mask.push_back('?');
-            } else {
-                bytes.push_back(std::stoi(pattern.substr(i, 2), nullptr, 16));
-                mask.push_back('x');
-            }
-        }
-
-        for (size_t i = 0; i < size; i++) {
-            bool found = true;
-            for (size_t j = 0; j < bytes.size(); j++) {
-                if (mask[j] == '?' || bytes[j] == *(char *) (module_base + i + j)) {
-                    continue;
-                }
-                found = false;
-                break;
-            }
-            if (found) {
-                results.push_back(module_base + i + offset);
-            }
-        }
-        return results;
     }
 }

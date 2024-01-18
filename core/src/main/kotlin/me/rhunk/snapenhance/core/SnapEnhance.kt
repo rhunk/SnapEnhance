@@ -135,8 +135,8 @@ class SnapEnhance {
             reloadConfig()
             actionManager.init()
             initConfigListener()
+            initNative()
             scope.launch(Dispatchers.IO) {
-                initNative()
                 translation.userLocale = getConfigLocale()
                 translation.loadFromCallback { locale ->
                     bridgeClient.fetchLocales(locale)
@@ -170,16 +170,23 @@ class SnapEnhance {
     private fun initNative() {
         // don't initialize native when not logged in
         if (!appContext.database.hasArroyo()) return
-        appContext.native.apply {
-            if (appContext.config.experimental.nativeHooks.globalState != true) return@apply
-            initOnce(appContext.androidContext.classLoader)
-            nativeUnaryCallCallback = { request ->
+        if (appContext.config.experimental.nativeHooks.globalState != true) return
+
+        lateinit var unhook: () -> Unit
+        Runtime::class.java.declaredMethods.first {
+            it.name == "loadLibrary0" && it.parameterTypes.contentEquals(arrayOf(ClassLoader::class.java, Class::class.java, String::class.java))
+        }.hook(HookStage.AFTER) { param ->
+            val libName = param.arg<String>(2)
+            if (libName != "client") return@hook
+            unhook()
+            appContext.native.initOnce(appContext.androidContext.classLoader)
+            appContext.native.nativeUnaryCallCallback = { request ->
                 appContext.event.post(NativeUnaryCallEvent(request.uri, request.buffer)) {
                     request.buffer = buffer
                     request.canceled = canceled
                 }
             }
-        }
+        }.also { unhook = { it.unhook() } }
     }
 
     private fun initConfigListener() {
