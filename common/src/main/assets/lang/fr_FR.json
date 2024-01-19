@@ -335,6 +335,10 @@
                     "hide_friend_feed_entry": {
                         "description": "Masque un ami spécifique du fil d'actualité des amis\nUtilisez l'onglet social pour gérer cette fonctionnalité",
                         "name": "Masquer l'entrée dans le fil d'amis"
+                    },
+                    "hide_story_suggestions": {
+                        "name": "Cacher les suggestions de story",
+                        "description": "Supprimer les suggestions de la section des stories"
                     }
                 }
             },
@@ -509,6 +513,10 @@
                     "force_upload_source_quality": {
                         "name": "Forcer l'upload de la qualité originale",
                         "description": "Oblige Snapchat à envoyer les médias dans leur qualité d'origine\nVeuillez noter que cette opération ne supprime pas nécessairement les métadonnées des médias"
+                    },
+                    "disable_story_sections": {
+                        "name": "Désactiver les sections de story",
+                        "description": "Supprime les sections de la page des stories\nUne actualisation peut être nécessaire pour fonctionner correctement"
                     }
                 }
             },
@@ -520,25 +528,9 @@
                 "name": "Caméra",
                 "description": "Ajuster les bons réglages pour le Snap parfait",
                 "properties": {
-                    "disable_camera": {
-                        "name": "Désactiver la caméra",
-                        "description": "Empêche Snapchat d'utiliser les caméras disponibles sur votre appareil"
-                    },
                     "immersive_camera_preview": {
                         "name": "Aperçu de la caméra immersif",
                         "description": "Empêche Snapchat de recadrer l'aperçu de la caméra\nCela peut faire clignoter la caméra sur certains appareils"
-                    },
-                    "override_preview_resolution": {
-                        "name": "Remplacer la résolution de prévisualisation",
-                        "description": "Remplace la résolution de l'aperçu de la caméra"
-                    },
-                    "override_picture_resolution": {
-                        "name": "Remplace la résolution de la photo",
-                        "description": "Remplace la résolution de la photo"
-                    },
-                    "custom_frame_rate": {
-                        "name": "Fréquence d'images personnalisée",
-                        "description": "Outrepasse la fréquence d’images de la caméra"
                     },
                     "force_camera_source_encoding": {
                         "name": "Forcer l'encodage source de la caméra",
@@ -548,17 +540,33 @@
                         "description": "Remplace les photos capturées par un arrière-plan noir\nLes vidéos ne sont pas affectées",
                         "name": "Photos noires"
                     },
-                    "custom_preview_resolution": {
-                        "description": "Définit une résolution personnalisée pour l'aperçu de la caméra, largeur x hauteur (ex : 1920x1080).\nLa résolution personnalisée doit être prise en charge par votre appareil",
-                        "name": "Résolution de prévisualisation personnalisée"
-                    },
                     "hevc_recording": {
                         "name": "Enregistrement HEVC",
                         "description": "Utilise le codec HEVC (H.265) pour l'enregistrement vidéo"
                     },
-                    "custom_picture_resolution": {
-                        "description": "Définit une résolution d'image personnalisée, largeur x hauteur (ex : 1920x1080).\nLa résolution personnalisée doit être prise en charge par votre appareil",
-                        "name": "Résolution d'image personnalisée"
+                    "back_custom_frame_rate": {
+                        "name": "Fréquence d'images personnalisée à l'arrière",
+                        "description": "Remplace la fréquence d'images de la caméra arrière"
+                    },
+                    "override_front_resolution": {
+                        "description": "Remplace la résolution de la caméra frontale",
+                        "name": "Changer résolution frontale"
+                    },
+                    "override_back_resolution": {
+                        "description": "Remplace la résolution de la caméra arrière",
+                        "name": "Changer résolution arrière"
+                    },
+                    "custom_resolution": {
+                        "name": "Résolution personnalisée",
+                        "description": "Définit une résolution de caméra personnalisée, largeur x hauteur (par exemple 1920x1080).\nLa résolution personnalisée doit être prise en charge par votre appareil"
+                    },
+                    "disable_cameras": {
+                        "name": "Désactiver les caméras",
+                        "description": "Empêche Snapchat d'utiliser les caméras sélectionnées"
+                    },
+                    "front_custom_frame_rate": {
+                        "name": "Fréquence d'images personnalisée à l'avant",
+                        "description": "Remplace la fréquence d'images de la caméra frontale"
                     }
                 }
             },
@@ -849,6 +857,19 @@
             "old_bitmoji_selfie": {
                 "2d": "Bitmoji 2D",
                 "3d": "Bitmoji 3D"
+            },
+            "disable_story_sections": {
+                "discover": "Découverte",
+                "friends": "Amis",
+                "following": "Suivis"
+            },
+            "hide_story_suggestions": {
+                "hide_suggested_friend_stories": "Cacher les stories d'amis suggérées",
+                "hide_friend_suggestions": "Cacher les suggestions d'ami"
+            },
+            "disable_cameras": {
+                "front": "Caméra Frontale",
+                "back": "Caméra arrière"
             }
         }
     },

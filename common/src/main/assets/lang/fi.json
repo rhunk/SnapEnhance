@@ -382,25 +382,9 @@
                 "name": "Kamera",
                 "description": "Säädä oikeat asetukset täydellisen kuvan saamiseksi",
                 "properties": {
-                    "disable_camera": {
-                        "name": "Estä Kamera",
-                        "description": "Estä Snapchattia käyttämästä laitteessasi olevia kameroita"
-                    },
                     "immersive_camera_preview": {
                         "name": "Mukaansatempaava esikatselu",
                         "description": "Estää Snapchatia rajaamasta kameran esikatselua.\nTämä saattaa aiheuttaa kameran välkkymistä joissakin laitteissa"
-                    },
-                    "override_preview_resolution": {
-                        "name": "Ohita Esikatselun Resoluutio",
-                        "description": "Ohittaa kameran esikatselun resoluution"
-                    },
-                    "override_picture_resolution": {
-                        "name": "Ohita Kuvan Resoluutio",
-                        "description": "Ohittaa kuvan resoluution"
-                    },
-                    "custom_frame_rate": {
-                        "name": "Mukautettu Kuvataajuus",
-                        "description": "Ohittaa kameran kuvataajuuden"
                     },
                     "force_camera_source_encoding": {
                         "name": "Pakota kameran lähdekoodaus",

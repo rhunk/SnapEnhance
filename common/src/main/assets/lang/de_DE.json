@@ -335,6 +335,10 @@
                     "hide_quick_add_friend_feed": {
                         "description": "Blendet den Abschnitt Schnelles Hinzufügen im Freundes-Feed aus",
                         "name": "Schnelles Hinzufügen im Friend Feed ausblenden"
+                    },
+                    "hide_story_suggestions": {
+                        "name": "Story Vorschläge ausblenden",
+                        "description": "Entfernt Empfehlungen von der Story‐Seite"
                     }
                 }
             },
@@ -509,6 +513,10 @@
                     "force_upload_source_quality": {
                         "name": "Upload-Qualität erzwingen",
                         "description": "Zwingt Snapchat dazu, Medien in der Originalqualität hochzuladen\nBitte beachten Sie, dass dadurch möglicherweise keine Metadaten aus den Medien entfernt werden"
+                    },
+                    "disable_story_sections": {
+                        "name": "Story Sektion deaktivieren",
+                        "description": "Entfernt Sektionen von der Story-Seite\nErfordert möglicherweise eine Aktualisierung, um richtig zu funktionieren"
                     }
                 }
             },
@@ -520,45 +528,45 @@
                 "name": "Kamera",
                 "description": "Pass die richtigen Einstellungen für den perfekten Snap an",
                 "properties": {
-                    "disable_camera": {
-                        "name": "Kamera deaktivieren",
-                        "description": "Verhindert die Nutzung der Kameras durch Snapchat"
-                    },
                     "immersive_camera_preview": {
                         "name": "Immersive Vorschau",
                         "description": "Verhindert das Beschneiden der Kameravorschau\nDas kann dazu führen, dass die Kamera auf einigen Geräten flickert"
-                    },
-                    "override_preview_resolution": {
-                        "name": "Vorschauauflösung überschreiben",
-                        "description": "Überschreibt die Auflösung der Kameravorschau"
-                    },
-                    "override_picture_resolution": {
-                        "name": "Überschreiben der Bildauflösung",
-                        "description": "Überschreibt die Bildauflösung"
-                    },
-                    "custom_frame_rate": {
-                        "name": "Benutzerdefinierte Frame Rate",
-                        "description": "Überschreibt die Frame Rate der Kamera"
                     },
                     "force_camera_source_encoding": {
                         "name": "Kodierung der Kameraquelle erzwingen",
                         "description": "Erzwingt die Kodierung der Kameraquelle"
                     },
-                    "custom_preview_resolution": {
-                        "description": "Legt eine benutzerdefinierte Auflösung für die Kameravorschau fest, Breite x Höhe (z. B. 1920x1080).\nDie benutzerdefinierte Auflösung muss von Ihrem Gerät unterstützt werden",
-                        "name": "Benutzerdefinierte Auflösung der Vorschau"
-                    },
                     "hevc_recording": {
                         "name": "HEVC Aufnahme",
                         "description": "Verwendet HEVC (H.265) Codec für die Videoaufzeichnung"
                     },
-                    "custom_picture_resolution": {
-                        "description": "Legt eine benutzerdefinierte Bildauflösung fest, Breite x Höhe (z. B. 1920x1080).\nDie benutzerdefinierte Auflösung muss von Ihrem Gerät unterstützt werden",
-                        "name": "Benutzerdefinierte Bildauflösung"
-                    },
                     "black_photos": {
                         "description": "Ersetzt die aufgenommenen Fotos durch einen schwarzen Hintergrund\nVideos sind davon nicht betroffen",
                         "name": "Schwarze Fotos"
+                    },
+                    "override_front_resolution": {
+                        "name": "Überschreiben der Frontauflösung",
+                        "description": "Überschreibt die Kameraauflösung für die Selfie-Kamera"
+                    },
+                    "override_back_resolution": {
+                        "name": "Hauptkamera Auflösung überschreiben",
+                        "description": "Überschreibt die Kameraauflösung der Hauptkamera"
+                    },
+                    "custom_resolution": {
+                        "name": "Benutzerdefinierte Auflösung",
+                        "description": "Legt eine benutzerdefinierte Kameraauflösung (Breite x Höhe) fest (z. B. 1920x1080).\nDie benutzerdefinierte Auflösung muss von Ihrem Gerät unterstützt werden"
+                    },
+                    "disable_cameras": {
+                        "name": "Kameras deaktivieren",
+                        "description": "Verhindert, dass Snapchat die gewählten Kameras nutzt"
+                    },
+                    "front_custom_frame_rate": {
+                        "name": "Benutzerdefinierte Frame-Rate Selfie-Kamera",
+                        "description": "Überschreibt die Frame-Rate der Selfie-Kamera"
+                    },
+                    "back_custom_frame_rate": {
+                        "description": "Überschreibt die Frame-Rate der Haupt-Kamera",
+                        "name": "Benutzerdefinierte Frame-Rate Haupt-Kamera"
                     }
                 }
             },
@@ -849,6 +857,19 @@
             "old_bitmoji_selfie": {
                 "2d": "2D Bitmoji",
                 "3d": "3D Bitmoji"
+            },
+            "hide_story_suggestions": {
+                "hide_friend_suggestions": "Freundschaftsvorschläge ausblenden",
+                "hide_suggested_friend_stories": "Empfohlene Stories von Freunden ausblenden"
+            },
+            "disable_story_sections": {
+                "friends": "Freunde",
+                "following": "Folge Ich",
+                "discover": "Entdecken"
+            },
+            "disable_cameras": {
+                "front": "Selfie Kamera",
+                "back": "Hauptkamera"
             }
         }
     },

@@ -381,25 +381,9 @@
                 "name": "Kamera",
                 "description": "Juster de rigtige indstillinger for den perfekte snap",
                 "properties": {
-                    "disable_camera": {
-                        "name": "Deaktivér Kamera",
-                        "description": "Forhindrer Snapchat i at bruge de kameraer, der er tilgængelige på din enhed"
-                    },
                     "immersive_camera_preview": {
                         "name": "Omfattende Forhåndsvisning",
                         "description": "Forhindrer Snapchat i at beskære kamera forhåndsvisning\nDette kan få kameraet til at flimre på nogle enheder"
-                    },
-                    "override_preview_resolution": {
-                        "name": "Tilsidesæt Forhåndsvisning Opløsning",
-                        "description": "Tilsidesætter kameraets forhåndsvisningsopløsning"
-                    },
-                    "override_picture_resolution": {
-                        "name": "Tilsidesæt Forhåndsvisning Opløsning",
-                        "description": "Tilsidesæt Forhåndsvisning Opløsning"
-                    },
-                    "custom_frame_rate": {
-                        "name": "Tilpasset Rammehastighed",
-                        "description": "Tilsidesætter kameraets billedfrekvens"
                     },
                     "force_camera_source_encoding": {
                         "name": "Tving Kameraets Kildekodning",

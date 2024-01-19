@@ -393,25 +393,9 @@
                 "name": "کیمرا",
                 "description": "مکمل اسنیپ کیلئے درست ترتیبات کو ترتیب دیں",
                 "properties": {
-                    "disable_camera": {
-                        "name": "کیمرا کو منسوخ کریں",
-                        "description": "سنیپ چیٹ کو آپ کی ڈوائس پر موجود کیمروں کا استعمال نہیں کرنے دیتا"
-                    },
                     "immersive_camera_preview": {
                         "name": "محیط پیش نظر",
                         "description": "سنیپ چیٹ کو کیمرے کی پیش نظر کو کاٹنے سے روکتا ہے\nیہ کچھ ڈیوائسز پر کیمرا کو بلبلی کرنے کی بنیاد پر ہو سکتا ہے"
-                    },
-                    "override_preview_resolution": {
-                        "name": "پیش نظر کی قرار داد کو بدلیں",
-                        "description": "کیمرا پیش نظر کی قرار داد کو بدل دیتا ہے"
-                    },
-                    "override_picture_resolution": {
-                        "name": "تصویر کی قرار داد کو بدلیں",
-                        "description": "تصویر کی قرار داد کو بدل دیتا ہے"
-                    },
-                    "custom_frame_rate": {
-                        "name": "خود مخصوص فریم ریٹ",
-                        "description": "کیمرا فریم ریٹ کو بدل دیتا ہے"
                     },
                     "force_camera_source_encoding": {
                         "name": "کیمرا کی ماخذ کو کواشن کریں",

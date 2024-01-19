@@ -335,6 +335,14 @@
                     "snap_preview": {
                         "name": "Snap Önizleme",
                         "description": "Sohbette açılmayan Snap'lerin yanında küçük bir önizleme görüntüler"
+                    },
+                    "hide_story_suggestions": {
+                        "name": "Hikaye Önerilerini Gizle",
+                        "description": "Hikayeler sayfasından önerileri kaldırır"
+                    },
+                    "stealth_mode_indicator": {
+                        "name": "Gizli Mod Göstergesi",
+                        "description": "Gizli modundaki konuşmaların yanına bir 👻 emojisi ekler"
                     }
                 }
             },
@@ -509,6 +517,10 @@
                     "force_upload_source_quality": {
                         "name": "Kaynak Kalitesini Yüklemeye Zorla",
                         "description": "Snapchat'i medyayı orijinal kalitesinde yüklemeye zorlar\nLütfen bunun medyadan meta verileri kaldırmayabileceğini unutmayın"
+                    },
+                    "disable_story_sections": {
+                        "name": "Hikaye Bölümlerini Devre Dışı Bırak",
+                        "description": "Hikayeler sayfasından bölümleri kaldırır\nDüzgün çalışması için yenileme gerekebilir"
                     }
                 }
             },
@@ -520,45 +532,45 @@
                 "name": "Kamera",
                 "description": "Mükemmel çekim için doğru ayarları yapın",
                 "properties": {
-                    "disable_camera": {
-                        "name": "Kamerayı Devre Dışı Bırak",
-                        "description": "Snapchat'in cihazınızda bulunan kameraları kullanmasını engeller"
-                    },
                     "immersive_camera_preview": {
                         "name": "Sürükleyici Önizleme",
                         "description": "Snapchat'in Kamera önizlemesini Kırpmasını Önler\nBu, kameranın bazı cihazlarda titremesine neden olabilir"
-                    },
-                    "override_preview_resolution": {
-                        "name": "Önizleme Çözünürlüğünü Geçersiz Kıl",
-                        "description": "Kamera Önizleme Çözünürlüğünü geçersiz kılar"
-                    },
-                    "override_picture_resolution": {
-                        "name": "Resim Çözünürlüğünü Geçersiz Kıl",
-                        "description": "Resim çözünürlüğünü geçersiz kılar"
-                    },
-                    "custom_frame_rate": {
-                        "name": "Özel Kare Hızı",
-                        "description": "Kamera kare hızını geçersiz kılar"
                     },
                     "force_camera_source_encoding": {
                         "name": "Kamera Kaynağı Kodlamasını Zorla",
                         "description": "Kamera kaynak kodlamasını zorlar"
                     },
-                    "custom_preview_resolution": {
-                        "description": "Özel bir kamera önizleme çözünürlüğü, genişlik x yükseklik (örn. 1920x1080) ayarlar.\nÖzel çözünürlük cihazınız tarafından desteklenmelidir",
-                        "name": "Özel Önizleme Çözünürlüğü"
-                    },
                     "hevc_recording": {
                         "name": "HEVC Kaydı",
                         "description": "Video kaydı için HEVC (H.265) codec bileşenini kullanır"
                     },
-                    "custom_picture_resolution": {
-                        "description": "Genişlik x yükseklik olmak üzere özel bir resim çözünürlüğü ayarlar (örn. 1920x1080).\nÖzel çözünürlük cihazınız tarafından desteklenmelidir",
-                        "name": "Özel Resim Çözünürlüğü"
-                    },
                     "black_photos": {
                         "description": "Çekilen fotoğrafları siyah bir arka planla değiştirir\nVideolar etkilenmez",
                         "name": "Siyah Fotoğraflar"
+                    },
+                    "override_front_resolution": {
+                        "name": "Ön Çözünürlüğü Geçersiz Kılma",
+                        "description": "Ön kamera için kamera çözünürlüğünü geçersiz kılar"
+                    },
+                    "override_back_resolution": {
+                        "name": "Arka Çözünürlüğü Geçersiz Kılma",
+                        "description": "Arka kamera için kamera çözünürlüğünü geçersiz kılar"
+                    },
+                    "custom_resolution": {
+                        "name": "Özel Çözünürlük",
+                        "description": "Özel bir kamera çözünürlüğü, genişlik x yükseklik (örn. 1920x1080) ayarlar.\nÖzel çözünürlük cihazınız tarafından desteklenmelidir"
+                    },
+                    "disable_cameras": {
+                        "name": "Kameraları Devre Dışı Bırak",
+                        "description": "Snapchat'in seçilen kameraları kullanmasını engeller"
+                    },
+                    "front_custom_frame_rate": {
+                        "name": "Ön Kamera Özel Kare Hızı",
+                        "description": "Ön kamera kare hızını geçersiz kılar"
+                    },
+                    "back_custom_frame_rate": {
+                        "name": "Arka Kamera Özel Kare Hızı",
+                        "description": "Arka kamera kare hızını geçersiz kılar"
                     }
                 }
             },
@@ -849,6 +861,19 @@
             "old_bitmoji_selfie": {
                 "2d": "2D Bitmoji",
                 "3d": "3D Bitmoji"
+            },
+            "hide_story_suggestions": {
+                "hide_friend_suggestions": "Arkadaş önerilerini gizle",
+                "hide_suggested_friend_stories": "Önerilen arkadaş hikayelerini gizle"
+            },
+            "disable_story_sections": {
+                "friends": "Arkadaşlar",
+                "discover": "Keşfet",
+                "following": "Takip Edilen"
+            },
+            "disable_cameras": {
+                "front": "Ön Kamera",
+                "back": "Arka Kamera"
             }
         }
     },
