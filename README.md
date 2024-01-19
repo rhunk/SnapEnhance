@@ -62,7 +62,8 @@ We no longer offer official LSPatch binaries for obvious reasons. However, you'r
   - Disable Spotlight 
   - Hide Settings Gear
   - Vertical Story Viewer 
-  - Fidelius Indicator 
+  - Fidelius Indicator
+  - Stealth Mode Indicator 
   - Edit Text Override
 </details>  
 
@@ -114,10 +115,10 @@ We no longer offer official LSPatch binaries for obvious reasons. However, you'r
   - Disable Camera 
   - Immersive Preview
   - Black Photos 
-  - Custom Frame Rate
+  - Custom Frame Rate (Front & Back)
   - HEVC Recording
   - Force Camera Source Encoding
-  - Override Preview/Picture Resolution 
+  - Override Resolution (Front & Back) 
 </details> 
 
 <details closed>
@@ -180,7 +181,7 @@ We no longer offer official LSPatch binaries for obvious reasons. However, you'r
 <details>
   <summary>My phone isn't rooted; how do I use this?</summary>
   
-  - You can use LSPatch in combination with SnapEnhance to run this on an unrooted device, however this is unrecommended and not considered safe.
+  - Check The Wiki Page For Guides 
 </details>
 
 <details>
