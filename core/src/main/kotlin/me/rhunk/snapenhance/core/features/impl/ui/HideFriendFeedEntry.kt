@@ -4,34 +4,26 @@ import me.rhunk.snapenhance.common.data.MessagingRuleType
 import me.rhunk.snapenhance.common.data.RuleState
 import me.rhunk.snapenhance.core.features.FeatureLoadParams
 import me.rhunk.snapenhance.core.features.MessagingRuleFeature
+import me.rhunk.snapenhance.core.util.dataBuilder
 import me.rhunk.snapenhance.core.util.hook.HookStage
 import me.rhunk.snapenhance.core.util.hook.hook
 import me.rhunk.snapenhance.core.util.ktx.getObjectField
-import me.rhunk.snapenhance.core.util.ktx.setObjectField
 import me.rhunk.snapenhance.core.wrapper.impl.SnapUUID
 import me.rhunk.snapenhance.mapper.impl.CallbackMapper
 
 class HideFriendFeedEntry : MessagingRuleFeature("HideFriendFeedEntry", ruleType = MessagingRuleType.HIDE_FRIEND_FEED, loadParams = FeatureLoadParams.INIT_SYNC) {
-    private fun createDeletedFeedEntry(conversationId: String) = context.gson.fromJson(
-        """
-            {
-                "mFeedEntryIdentifier": {
-                    "mConversationId": null
-                },
-                "mReason": "CLEAR_CONVERSATION"
-            }
-        """.trimIndent(),
-        findClass("com.snapchat.client.messaging.DeletedFeedEntry")
-    ).also {
-        it.getObjectField("mFeedEntryIdentifier")?.setObjectField("mConversationId", SnapUUID.fromString(conversationId).instanceNonNull())
+    private fun createDeletedFeedEntry(conversationIdInstance: Any) = findClass("com.snapchat.client.messaging.DeletedFeedEntry").dataBuilder {
+        from("mFeedEntryIdentifier") {
+            set("mConversationId", conversationIdInstance)
+        }
+        set("mReason", "CLEAR_CONVERSATION")
     }
 
     private fun filterFriendFeed(entries: ArrayList<Any>, deletedEntries: ArrayList<Any>? = null) {
         entries.removeIf { feedEntry ->
-            val conversationId = SnapUUID(feedEntry.getObjectField("mConversationId")).toString()
-
-            if (canUseRule(conversationId)) {
-                deletedEntries?.add(createDeletedFeedEntry(conversationId))
+            val conversationIdInstance = feedEntry.getObjectField("mConversationId") ?: return@removeIf false
+            if (canUseRule(SnapUUID(conversationIdInstance).toString())) {
+                deletedEntries?.add(createDeletedFeedEntry(conversationIdInstance)!!)
                 true
             } else {
                 false
@@ -44,10 +36,12 @@ class HideFriendFeedEntry : MessagingRuleFeature("HideFriendFeedEntry", ruleType
 
         context.mappings.useMapper(CallbackMapper::class) {
             arrayOf(
+                "FetchAndSyncFeedWithConversationIdsCallback" to "onFetchAndSyncFeedComplete",
+                "FetchFeedCallback" to "onFetchFeedComplete",
+                "FetchFeedEntriesCallback" to "onFetchFeedEntriesComplete",
                 "QueryFeedCallback" to "onQueryFeedComplete",
                 "FeedManagerDelegate" to "onFeedEntriesUpdated",
                 "FeedManagerDelegate" to "onInternalSyncFeed",
-                "SyncFeedCallback" to "onSyncFeedComplete",
             ).forEach { (callbackName, methodName) ->
                 findClass(callbacks.get()!![callbackName] ?: return@forEach).hook(methodName, HookStage.BEFORE) { param ->
                     filterFriendFeed(param.arg(0))
@@ -65,6 +59,10 @@ class HideFriendFeedEntry : MessagingRuleFeature("HideFriendFeedEntry", ruleType
                         }) {
                         param.setArg(4, true)
                     }
+                }
+            callbacks.getClass("SyncFeedCallback")
+                ?.hook("onSyncFeedComplete", HookStage.BEFORE) { param ->
+                    filterFriendFeed(param.arg(0), param.arg(2))
                 }
         }
     }
