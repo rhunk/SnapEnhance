@@ -3,9 +3,11 @@ package me.rhunk.snapenhance.core.features.impl.messaging
 import android.annotation.SuppressLint
 import android.view.MotionEvent
 import android.view.View
+import android.view.ViewGroup
 import me.rhunk.snapenhance.core.features.Feature
 import me.rhunk.snapenhance.core.features.FeatureLoadParams
 import me.rhunk.snapenhance.core.ui.ViewAppearanceHelper
+import me.rhunk.snapenhance.core.ui.children
 import me.rhunk.snapenhance.core.util.hook.HookAdapter
 import me.rhunk.snapenhance.core.util.hook.HookStage
 import me.rhunk.snapenhance.core.util.hook.hook
@@ -27,8 +29,16 @@ class CallStartConfirmation : Feature("CallStartConfirmation", loadParams = Feat
     override fun onActivityCreate() {
         if (!context.config.messaging.callStartConfirmation.get()) return
 
+        val callButtonsStub = context.resources.getId("call_buttons_stub")
+
         findClass("com.snap.composer.views.ComposerRootView").hook("dispatchTouchEvent", HookStage.BEFORE) { param ->
-            if (param.thisObject<Any>()::class.java.name != "com.snap.talk.CallButtonsView") return@hook
+            val view = param.thisObject() as? ViewGroup ?: return@hook
+            if (view.id != callButtonsStub) return@hook
+            val childComposerView = view.getChildAt(0) as? ViewGroup ?: return@hook
+            // check if the child composer view contains 2 call buttons
+            if (childComposerView.children().count {
+                it::class.java == childComposerView::class.java
+            } != 2) return@hook
             hookTouchEvent(param, param.arg(0)) {
                 param.invokeOriginal()
             }
