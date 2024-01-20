@@ -588,7 +588,7 @@
                     },
                     "remaining_hours": {
                         "name": "Remaining Time",
-                        "description": "The remaining amount of time before the notification is shown"
+                        "description": "The remaining amount of time before the notification is shown (hours)"
                     },
                     "group_notifications": {
                         "name": "Group Notifications",
