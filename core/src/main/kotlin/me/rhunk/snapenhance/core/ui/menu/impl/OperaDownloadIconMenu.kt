@@ -11,6 +11,7 @@ import me.rhunk.snapenhance.core.ui.children
 import me.rhunk.snapenhance.core.ui.menu.AbstractMenu
 import me.rhunk.snapenhance.core.util.ktx.getDimens
 import me.rhunk.snapenhance.core.util.ktx.getDrawable
+import me.rhunk.snapenhance.core.util.ktx.vibrateLongPress
 
 class OperaDownloadIconMenu : AbstractMenu() {
     private val downloadSvgDrawable by lazy { context.resources.getDrawable("svg_download", context.androidContext.theme) }
@@ -20,6 +21,8 @@ class OperaDownloadIconMenu : AbstractMenu() {
 
     override fun inject(parent: ViewGroup, view: View, viewConsumer: (View) -> Unit) {
         if (!context.config.downloader.operaDownloadButton.get()) return
+
+        val mediaDownloader = context.feature(MediaDownloader::class)
 
         parent.addView(ImageView(view.context).apply {
             setImageDrawable(downloadSvgDrawable)
@@ -33,7 +36,12 @@ class OperaDownloadIconMenu : AbstractMenu() {
                 gravity = Gravity.TOP or Gravity.END
             }
             setOnClickListener {
-                this@OperaDownloadIconMenu.context.feature(MediaDownloader::class).downloadLastOperaMediaAsync()
+                mediaDownloader.downloadLastOperaMediaAsync(allowDuplicate = false)
+            }
+            setOnLongClickListener {
+                context.vibrateLongPress()
+                mediaDownloader.downloadLastOperaMediaAsync(allowDuplicate = true)
+                true
             }
             addOnAttachStateChangeListener(object: View.OnAttachStateChangeListener {
                 override fun onViewAttachedToWindow(v: View) {

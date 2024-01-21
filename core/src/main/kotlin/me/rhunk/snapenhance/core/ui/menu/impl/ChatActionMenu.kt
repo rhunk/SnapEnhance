@@ -33,6 +33,7 @@ import me.rhunk.snapenhance.core.ui.triggerCloseTouchEvent
 import me.rhunk.snapenhance.core.util.hook.HookStage
 import me.rhunk.snapenhance.core.util.hook.hook
 import me.rhunk.snapenhance.core.util.ktx.getDimens
+import me.rhunk.snapenhance.core.util.ktx.vibrateLongPress
 import java.text.SimpleDateFormat
 import java.util.Date
 
@@ -80,7 +81,7 @@ class ChatActionMenu : AbstractMenu() {
 
     override fun init() {
         runCatching {
-            if (!context.config.downloader.chatDownloadContextMenu.get() && context.config.messaging.messageLogger.globalState != true && !context.isDeveloper) return
+            if (!context.config.downloader.downloadContextMenu.get() && context.config.messaging.messageLogger.globalState != true && !context.isDeveloper) return
             context.androidContext.classLoader.loadClass("com.snap.messaging.chat.features.actionmenu.ActionMenuChatItemContainer")
                 .hook("onMeasure", HookStage.BEFORE) { param ->
                     param.setArg(1,
@@ -130,12 +131,14 @@ class ChatActionMenu : AbstractMenu() {
             }
         }
 
-        if (context.config.downloader.chatDownloadContextMenu.get()) {
+        if (context.config.downloader.downloadContextMenu.get()) {
+            val mediaDownloader = context.feature(MediaDownloader::class)
+
             injectButton(Button(viewGroup.context).apply {
                 text = this@ChatActionMenu.context.translation["chat_action_menu.preview_button"]
                 setOnClickListener {
                     closeActionMenu()
-                    this@ChatActionMenu.context.executeAsync { feature(MediaDownloader::class).onMessageActionMenu(true) }
+                    mediaDownloader.onMessageActionMenu(true)
                 }
             })
 
@@ -143,9 +146,13 @@ class ChatActionMenu : AbstractMenu() {
                 text = this@ChatActionMenu.context.translation["chat_action_menu.download_button"]
                 setOnClickListener {
                     closeActionMenu()
-                    this@ChatActionMenu.context.executeAsync {
-                        feature(MediaDownloader::class).onMessageActionMenu(false)
-                    }
+                    mediaDownloader.onMessageActionMenu(false)
+                }
+                setOnLongClickListener {
+                    closeActionMenu()
+                    context.vibrateLongPress()
+                    mediaDownloader.onMessageActionMenu(isPreviewMode = false, forceAllowDuplicate = true)
+                    true
                 }
             })
         }

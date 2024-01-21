@@ -1,10 +1,13 @@
 package me.rhunk.snapenhance.core.util.ktx
 
 import android.annotation.SuppressLint
+import android.content.Context
 import android.content.res.Resources
 import android.content.res.Resources.Theme
 import android.content.res.TypedArray
 import android.graphics.drawable.Drawable
+import android.os.VibrationEffect
+import android.os.Vibrator
 import me.rhunk.snapenhance.common.Constants
 
 
@@ -30,4 +33,8 @@ fun Resources.getStyledAttributes(name: String, theme: Theme): TypedArray {
 
 fun Resources.getDrawable(name: String, theme: Theme): Drawable {
     return getDrawable(getIdentifier(name, "drawable"), theme)
+}
+
+fun Context.vibrateLongPress() {
+    getSystemService(Vibrator::class.java).vibrate(VibrationEffect.createOneShot(50, VibrationEffect.DEFAULT_AMPLITUDE))
 }

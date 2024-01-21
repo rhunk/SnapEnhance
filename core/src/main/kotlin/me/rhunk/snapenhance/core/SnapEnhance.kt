@@ -94,6 +94,7 @@ class SnapEnhance {
             val isMainActivityNotNull = appContext.mainActivity != null
             appContext.mainActivity = this
             if (isMainActivityNotNull || !appContext.mappings.isMappingsLoaded) return@hookMainActivity
+            appContext.isMainActivityPaused = false
             onActivityCreate()
             jetpackComposeResourceHook()
             appContext.actionManager.onNewIntent(intent)
@@ -108,18 +109,13 @@ class SnapEnhance {
             appContext.actionManager.onNewIntent(param.argNullable(0))
         }
 
-        var activityWasResumed = false
-        //we need to reload the config when the app is resumed
-        //FIXME: called twice at first launch
         hookMainActivity("onResume") {
-            appContext.isMainActivityPaused = false
-            if (!activityWasResumed) {
-                activityWasResumed = true
-                return@hookMainActivity
+            if (appContext.isMainActivityPaused.also {
+                appContext.isMainActivityPaused = false
+            }) {
+                appContext.reloadConfig()
+                syncRemote()
             }
-
-            appContext.reloadConfig()
-            syncRemote()
         }
     }
 
