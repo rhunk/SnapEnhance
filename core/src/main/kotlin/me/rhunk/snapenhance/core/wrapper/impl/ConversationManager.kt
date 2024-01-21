@@ -3,6 +3,7 @@ package me.rhunk.snapenhance.core.wrapper.impl
 import me.rhunk.snapenhance.common.data.MessageUpdate
 import me.rhunk.snapenhance.core.ModContext
 import me.rhunk.snapenhance.core.util.CallbackBuilder
+import me.rhunk.snapenhance.core.util.dataBuilder
 import me.rhunk.snapenhance.core.util.ktx.getObjectField
 import me.rhunk.snapenhance.core.util.ktx.setObjectField
 import me.rhunk.snapenhance.core.wrapper.AbstractWrapper
@@ -102,9 +103,9 @@ class ConversationManager(
     }
 
     fun fetchMessageByServerId(conversationId: String, serverMessageId: Long, onSuccess: (Message) -> Unit, onError: (error: String) -> Unit) {
-        val serverMessageIdentifier = CallbackBuilder.createEmptyObject(context.classCache.serverMessageIdentifier.constructors.first())?.apply {
-            setObjectField("mServerConversationId", conversationId.toSnapUUID().instanceNonNull())
-            setObjectField("mServerMessageId", serverMessageId)
+        val serverMessageIdentifier = context.classCache.serverMessageIdentifier.dataBuilder {
+            set("mServerConversationId",  conversationId.toSnapUUID().instanceNonNull())
+            set("mServerMessageId", serverMessageId)
         }
 
         fetchMessageByServerId.invoke(
