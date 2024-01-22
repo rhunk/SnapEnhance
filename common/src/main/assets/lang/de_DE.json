@@ -219,8 +219,11 @@
                         "name": "Benutzerdefiniertes Pfadformat"
                     },
                     "opera_download_button": {
-                        "description": "Fügt einen Download-Button in der oberen rechten Ecke hinzu, wenn ein Snap angezeigt wird",
+                        "description": "Fügt einen Download-Button in der oberen rechten Ecke hinzu, wenn ein Snap angezeigt wird.\nGedrückt halten um einen Download zu starten",
                         "name": "Schwebender Download Button"
+                    },
+                    "download_context_menu": {
+                        "name": "Download Kontext Menü"
                     }
                 }
             },
