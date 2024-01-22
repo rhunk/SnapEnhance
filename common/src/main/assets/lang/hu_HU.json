@@ -111,7 +111,8 @@
             "unsaveable_messages": {
                 "name": "Nem menthető üzenetek",
                 "options": {
-                    "whitelist": "Nem menthető üzenetek"
+                    "whitelist": "Nem menthető üzenetek",
+                    "blacklist": "Kizárás a nem menthető üzenetekből"
                 },
                 "description": "Megakadályozza, hogy az üzeneteket elmenthessék mások a chatben"
             }
@@ -124,7 +125,8 @@
         "open_map": "Válassz egy helyet a térképen",
         "check_for_updates": "Frissítés keresése",
         "export_chat_messages": "Chat üzenetek exportálása",
-        "export_memories": "Emlékek exportálása"
+        "export_memories": "Emlékek exportálása",
+        "bulk_messaging_action": "Tömeges üzenetküldési művelet"
     },
     "features": {
         "notices": {
@@ -197,19 +199,32 @@
                             "threads": {
                                 "name": "Szálak",
                                 "description": "A felhasznált szálak mennyisége"
+                            },
+                            "constant_rate_factor": {
+                                "name": "Állandó ráta tényező",
+                                "description": "Állandó sebességtényező beállítása a videokódolóhoz\n0 és 51 között libx264 esetén"
                             }
                         }
                     },
                     "logging": {
-                        "name": "Naplózás"
+                        "name": "Naplózás",
+                        "description": "Üzenet megjelenítése média letöltésekor"
                     },
                     "opera_download_button": {
-                        "description": "Egy letöltés gombot helyez a jobb felső sarokba Snap-ek megtekintése közben",
+                        "description": "Hozzáad egy letöltés gombot a jobb felső sarokban, amikor egy Snapet nézel.\nA gombok hosszú megnyomása kikényszeríti a letöltést",
                         "name": "Letöltés Operával Gomb"
                     },
                     "merge_overlays": {
                         "description": "Egyesíti egy Snap szövegét és médiáját egy fájlba",
                         "name": "Overlay-ek összefűzése"
+                    },
+                    "custom_path_format": {
+                        "name": "Egyéni elérési útvonal formátum",
+                        "description": "Egyéni elérési útvonal-formátum megadása a letöltött média számára\n\nElérhető változók:\n - %username%\n - %source%\n - %hash%\n - %date_time%"
+                    },
+                    "download_context_menu": {
+                        "name": "Letöltés kontextusmenü",
+                        "description": "Lehetővé teszi az üzenetek letöltését/előnézetét egy beszélgetésből vagy egy történetből a kontextusmenü segítségével.\nA gombok hosszú megnyomása kikényszeríti a letöltést"
                     }
                 }
             },
@@ -217,7 +232,8 @@
                 "name": "Felhasználói felület",
                 "properties": {
                     "enable_app_appearance": {
-                        "name": "Az alkalmazás megjelenési beállításainak engedélyezése"
+                        "name": "Az alkalmazás megjelenési beállításainak engedélyezése",
+                        "description": "Engedélyezi a rejtett Megjelenés beállítást az alkalmazásban\nLehet, hogy az újabb Snapchat verziókban nincs szükség rá"
                     },
                     "amoled_dark_mode": {
                         "name": "AMOLED Sötét mód",
@@ -236,17 +252,20 @@
                     "bootstrap_override": {
                         "properties": {
                             "app_appearance": {
-                                "name": "App Megjelenése"
+                                "name": "App Megjelenése",
+                                "description": "Állandó alkalmazásmegjelenítés beállítása"
                             },
                             "home_tab": {
                                 "name": "Kezdőlap",
                                 "description": "Felülírja a megjelenő ablakot a Snapchat indulásakor"
                             }
                         },
-                        "description": "Felülírja a kezelőfelület Bootstrap beállításait"
+                        "description": "Felülírja a kezelőfelület Bootstrap beállításait",
+                        "name": "Bootstrap felülírása"
                     },
                     "streak_expiration_info": {
-                        "name": "Mutassa a streak lejárati adatait"
+                        "name": "Mutassa a streak lejárati adatait",
+                        "description": "A Streak számláló mellett megjelenik a Streak lejárati időzítője"
                     },
                     "hide_friend_feed_entry": {
                         "name": "Barát hírfolyam elrejtése",
@@ -277,11 +296,52 @@
                         "description": "Engedélyezi az új barát hírfolyam menüsort"
                     },
                     "prevent_message_list_auto_scroll": {
-                        "name": "Megakadályozza az üzenet lista automatikus görgetését"
+                        "name": "Megakadályozza az üzenet lista automatikus görgetését",
+                        "description": "Megakadályozza, hogy az üzenetlista üzenetek küldésekor/fogadásakor a lista aljára gördüljön"
                     },
                     "snap_preview": {
                         "name": "Snap előnézet",
-                        "description": "Megjelenít egy kis előnézetet a chatben a nem látott Snapek mellett"
+                        "description": "Megjelenít egy kis előnézetet a nem látott pillanatok mellett a csevegésben"
+                    },
+                    "map_friend_nametags": {
+                        "name": "Továbbfejlesztett baráti térkép névtáblák",
+                        "description": "Javítja a barátok névtábláit a Snapmap-en"
+                    },
+                    "stealth_mode_indicator": {
+                        "description": "Hozzáad egy 👻 emojit a rejtett módban lévő beszélgetések mellé",
+                        "name": "Rejtőzködő üzemmód jelzője"
+                    },
+                    "hide_quick_add_friend_feed": {
+                        "description": "Elrejti a Gyors hozzáadás szekciót a Friend feedben",
+                        "name": "Gyors hozzáadás elrejtése a Friend Feedben"
+                    },
+                    "edit_text_override": {
+                        "name": "Szöveg szerkesztése felülírása",
+                        "description": "Felülírja a szövegmező viselkedését"
+                    },
+                    "opera_media_quick_info": {
+                        "name": "Opera Media gyors információ",
+                        "description": "Megjeleníti a média hasznos információit, például a létrehozás dátumát az Opera Viewer kontextusmenüjében"
+                    },
+                    "hide_settings_gear": {
+                        "name": "Beállítások fogaskerék elrejtése",
+                        "description": "Elrejti a SnapEnhance beállítások fogaskerékét a Friend feedben"
+                    },
+                    "vertical_story_viewer": {
+                        "description": "Engedélyezi a függőleges történetnézegetőt az összes történethez",
+                        "name": "Függőleges történetnéző"
+                    },
+                    "old_bitmoji_selfie": {
+                        "description": "Visszahozza a Bitmoji szelfiket a régebbi Snapchat verziókból",
+                        "name": "Régi Bitmoji szelfi"
+                    },
+                    "fidelius_indicator": {
+                        "name": "Fidelius jelző",
+                        "description": "Zöld kört ad hozzá a csak Önnek küldött üzenetek mellé"
+                    },
+                    "hide_story_suggestions": {
+                        "name": "Történet javaslatok elrejtése",
+                        "description": "Eltávolítja a javaslatokat a Történetek oldalról"
                     }
                 },
                 "description": "Módosítsd a Snapchat kinézetét"
@@ -306,7 +366,8 @@
                         "description": "Eltávolítja a Snap-ek megtekintési időkorlátját"
                     },
                     "disable_replay_in_ff": {
-                        "description": "Letiltja a lehetőséget hogy újrajátsz a barát hírfolyamból hosszú nyomással"
+                        "description": "Letiltja a lehetőséget hogy újrajátsz a barát hírfolyamból hosszú nyomással",
+                        "name": "A visszajátszás kikapcsolása FF-ben"
                     },
                     "better_notifications": {
                         "name": "Jobb Értesítések",
@@ -326,8 +387,25 @@
                     "gallery_media_send_override": {
                         "name": "Galéria Média küldés felülbírálása",
                         "description": "Meghamisítja a média forrását amikor a gallériából küldöd"
+                    },
+                    "prevent_story_rewatch_indicator": {
+                        "name": "Megakadályozza a történet újranézésének jelzését",
+                        "description": "Megakadályozza, hogy bárki megtudja, hogy újra megnézted a történetüket"
+                    },
+                    "bypass_screenshot_detection": {
+                        "name": "Képernyőkép-érzékelés megkerülése",
+                        "description": "Megakadályozza, hogy a Snapchat érzékelje, ha képernyőképet készítesz"
+                    },
+                    "hide_peek_a_peek": {
+                        "name": "Peek-a-Peek elrejtése",
+                        "description": "Megakadályozza az értesítés elküldését, amikor félig belelapozol egy csevegésbe"
+                    },
+                    "loop_media_playback": {
+                        "name": "Média lejátszás hurokban",
+                        "description": "Média lejátszási hurok a Snaps / Stories megtekintésekor"
                     }
-                }
+                },
+                "description": "Változtasd meg a barátaiddal való kapcsolattartásodat"
             },
             "global": {
                 "name": "Globális",
