@@ -176,10 +176,6 @@
                         "name": "Télécharger les photos de profil",
                         "description": "Vous permet de télécharger les photos du profil depuis la page de profil"
                     },
-                    "chat_download_context_menu": {
-                        "name": "Menu contextuel de téléchargement du chat",
-                        "description": "Vous permet de télécharger des médias d'une conversation en appuyant longuement sur eux"
-                    },
                     "ffmpeg_options": {
                         "name": "Options FFmpeg",
                         "description": "Spécifier des options supplémentaires pour FFmpeg",

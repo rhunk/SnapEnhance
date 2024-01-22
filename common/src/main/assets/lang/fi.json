@@ -158,10 +158,6 @@
                         "name": "Lataa profiilikuvat",
                         "description": "Antaa sinun ladata profiilikuvia profiilin sivulta"
                     },
-                    "chat_download_context_menu": {
-                        "name": "Chat-latauksen kontekstivalikko",
-                        "description": "Voit ladata mediaa keskustelusta painamalla niitä pitkään"
-                    },
                     "ffmpeg_options": {
                         "name": "FFmpeg Asetukset",
                         "description": "Määritä FFmpeg-lisäasetukset",

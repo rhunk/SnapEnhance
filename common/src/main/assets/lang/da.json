@@ -158,10 +158,6 @@
                         "name": "Download Profilbilleder",
                         "description": "Tillader dig at downloade profilbilleder fra profilsiden"
                     },
-                    "chat_download_context_menu": {
-                        "name": "Chat Download Kontekstmenu",
-                        "description": "Tillader dig at downloade medier fra en samtale ved at trykke længe på dem"
-                    },
                     "ffmpeg_options": {
                         "name": "FFmpeg-indstillinger",
                         "description": "Angiv yderligere FFmpeg indstillinger",

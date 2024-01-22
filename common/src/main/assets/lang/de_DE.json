@@ -176,10 +176,6 @@
                         "name": "Profilbilder herunterladen",
                         "description": "Ermöglicht das Herunterladen von Profilbildern von einer Profilseite"
                     },
-                    "chat_download_context_menu": {
-                        "name": "Chat Download Context Menü",
-                        "description": "Ermöglicht das Herunterladen von Medien aus einer Unterhaltung durch langes Drücken"
-                    },
                     "ffmpeg_options": {
                         "name": "FFmpeg-Optionen",
                         "description": "Zusätzliche FFmpeg-Optionen angeben",

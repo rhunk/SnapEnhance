@@ -157,10 +157,6 @@
                         "name": "Download profielfoto's",
                         "description": "Maakt het mogelijk om profielfoto's van de profielpagina te downloaden"
                     },
-                    "chat_download_context_menu": {
-                        "name": "Chat Download Context Menu",
-                        "description": "Maakt het mogelijk om media van een gesprek te downloaden door deze lang ingedrukt te houden"
-                    },
                     "ffmpeg_options": {
                         "name": "FFmpeg Opties",
                         "description": "Specificeer extra FFmpeg opties",
