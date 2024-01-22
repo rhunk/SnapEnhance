@@ -182,11 +182,11 @@
                     },
                     "opera_download_button": {
                         "name": "Opera Download Button",
-                        "description": "Adds a download button on the top right corner when viewing a Snap"
+                        "description": "Adds a download button on the top right corner when viewing a Snap.\nLong press on buttons will force download"
                     },
-                    "chat_download_context_menu": {
-                        "name": "Chat Download Context Menu",
-                        "description": "Allows you to download media from a conversation by long-pressing them"
+                    "download_context_menu": {
+                        "name": "Download Context Menu",
+                        "description": "Allows you to download/preview messages from a conversation or a story using the context menu.\nLong press on buttons will force download"
                     },
                     "ffmpeg_options": {
                         "name": "FFmpeg Options",
@@ -588,7 +588,7 @@
                     },
                     "remaining_hours": {
                         "name": "Remaining Time",
-                        "description": "The remaining amount of time before the notification is shown"
+                        "description": "The remaining amount of time before the notification is shown (hours)"
                     },
                     "group_notifications": {
                         "name": "Group Notifications",

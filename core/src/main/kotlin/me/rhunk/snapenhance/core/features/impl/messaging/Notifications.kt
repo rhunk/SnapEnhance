@@ -415,7 +415,7 @@ class Notifications : Feature("Notifications", loadParams = FeatureLoadParams.IN
             val serverMessageId = extras.getString("message_id") ?: return@hook
             val notificationType = extras.getString("notification_type")?.lowercase() ?: return@hook
             if (!betterNotificationFilter.contains("chat_preview") && !betterNotificationFilter.contains("media_preview")) return@hook
-
+            if (notificationType == "typing") return@hook
             param.setResult(null)
             val conversationManager = context.feature(Messaging::class).conversationManager ?: return@hook
 

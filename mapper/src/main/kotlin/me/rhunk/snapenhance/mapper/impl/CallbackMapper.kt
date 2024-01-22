@@ -1,11 +1,11 @@
 package me.rhunk.snapenhance.mapper.impl
 
+import com.android.tools.smali.dexlib2.iface.instruction.formats.Instruction35c
+import com.android.tools.smali.dexlib2.iface.reference.MethodReference
 import me.rhunk.snapenhance.mapper.AbstractClassMapper
 import me.rhunk.snapenhance.mapper.ext.getClassName
 import me.rhunk.snapenhance.mapper.ext.getSuperClassName
 import me.rhunk.snapenhance.mapper.ext.isFinal
-import com.android.tools.smali.dexlib2.iface.instruction.formats.Instruction21t
-import com.android.tools.smali.dexlib2.iface.instruction.formats.Instruction22t
 
 class CallbackMapper : AbstractClassMapper("Callbacks") {
     val callbacks = map("callbacks")
@@ -21,11 +21,13 @@ class CallbackMapper : AbstractClassMapper("Callbacks") {
 
                 if (clazz.getClassName().endsWith("\$CppProxy")) return@filter false
 
-                // ignore dummy ContentCallback class
-                if (superclassName.endsWith("ContentCallback") && clazz.methods.none { it.name == "handleContentResult" && it.implementation?.instructions?.firstOrNull { instruction ->
-                    instruction is Instruction22t || instruction is Instruction21t
-                } != null})
-                    return@filter false
+                // ignore dummy ContentCallback classes
+                if (superclassName.endsWith("ContentCallback") && clazz.methods.none { method ->
+                    method.name == "handleContentResult" &&
+                    method.implementation?.instructions?.firstOrNull { instruction ->
+                        instruction is Instruction35c && (instruction.reference as? MethodReference)?.name == "getBoltContentId"
+                    } != null
+                }) return@filter false
 
                 val superClass = getClass(clazz.superclass) ?: return@filter false
                 !superClass.isFinal()

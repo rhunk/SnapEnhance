@@ -75,10 +75,11 @@ class MediaDownloader : MessagingRuleFeature("MediaDownloader", MessagingRuleTyp
         mediaAuthor: String,
         creationTimestamp: Long? = null,
         downloadSource: MediaDownloadSource,
-        friendInfo: FriendInfo? = null
+        friendInfo: FriendInfo? = null,
+        forceAllowDuplicate: Boolean = false
     ): DownloadManagerClient {
         val generatedHash = (
-            if (!context.config.downloader.allowDuplicate.get()) mediaIdentifier
+            if (!context.config.downloader.allowDuplicate.get() && !forceAllowDuplicate) mediaIdentifier
             else UUID.randomUUID().toString()
         ).longHashCode().absoluteValue.toString(16)
 
@@ -135,10 +136,10 @@ class MediaDownloader : MessagingRuleFeature("MediaDownloader", MessagingRuleTyp
     /*
      * Download the last seen media
      */
-    fun downloadLastOperaMediaAsync() {
+    fun downloadLastOperaMediaAsync(allowDuplicate: Boolean) {
         if (lastSeenMapParams == null || lastSeenMediaInfoMap == null) return
         context.executeAsync {
-            handleOperaMedia(lastSeenMapParams!!, lastSeenMediaInfoMap!!, true)
+            handleOperaMedia(lastSeenMapParams!!, lastSeenMediaInfoMap!!, true, allowDuplicate)
         }
     }
 
@@ -161,9 +162,6 @@ class MediaDownloader : MessagingRuleFeature("MediaDownloader", MessagingRuleTyp
                 setView(debugEditText(context, mediaInfoText))
                 setNeutralButton("Copy") { _, _ ->
                     this@MediaDownloader.context.copyToClipboard(mediaInfoText)
-                }
-                setPositiveButton("Download") { _, _ ->
-                    downloadLastOperaMediaAsync()
                 }
                 setNegativeButton("Cancel") { dialog, _ -> dialog.dismiss() }
             }.show()
@@ -229,7 +227,8 @@ class MediaDownloader : MessagingRuleFeature("MediaDownloader", MessagingRuleTyp
     private fun handleOperaMedia(
         paramMap: ParamMap,
         mediaInfoMap: Map<SplitMediaAssetType, MediaInfo>,
-        forceDownload: Boolean
+        forceDownload: Boolean,
+        forceAllowDuplicate: Boolean = false
     ) {
         //messages
         paramMap["MESSAGE_ID"]?.toString()?.takeIf { forceDownload || canAutoDownload("friend_snaps") }?.let { id ->
@@ -257,7 +256,8 @@ class MediaDownloader : MessagingRuleFeature("MediaDownloader", MessagingRuleTyp
                 mediaAuthor = authorUsername,
                 creationTimestamp = conversationMessage.creationTimestamp,
                 downloadSource = MediaDownloadSource.CHAT_MEDIA,
-                friendInfo = author
+                friendInfo = author,
+                forceAllowDuplicate = forceAllowDuplicate
             ), mediaInfoMap)
 
             return
@@ -301,7 +301,8 @@ class MediaDownloader : MessagingRuleFeature("MediaDownloader", MessagingRuleTyp
                 creationTimestamp = paramMap["PLAYABLE_STORY_SNAP_RECORD"]?.toString()?.substringAfter("timestamp=")
                     ?.substringBefore(",")?.toLongOrNull(),
                 downloadSource = MediaDownloadSource.STORY,
-                friendInfo = author
+                friendInfo = author,
+                forceAllowDuplicate = forceAllowDuplicate,
             ), mediaInfoMap)
             return
         }
@@ -331,6 +332,7 @@ class MediaDownloader : MessagingRuleFeature("MediaDownloader", MessagingRuleTyp
                 mediaAuthor = author,
                 downloadSource = MediaDownloadSource.PUBLIC_STORY,
                 creationTimestamp = paramMap["SNAP_TIMESTAMP"]?.toString()?.toLongOrNull(),
+                forceAllowDuplicate = forceAllowDuplicate,
             ), mediaInfoMap)
             return
         }
@@ -342,6 +344,7 @@ class MediaDownloader : MessagingRuleFeature("MediaDownloader", MessagingRuleTyp
                 downloadSource = MediaDownloadSource.SPOTLIGHT,
                 mediaAuthor = paramMap["CREATOR_DISPLAY_NAME"].toString(),
                 creationTimestamp = paramMap["SNAP_TIMESTAMP"]?.toString()?.toLongOrNull(),
+                forceAllowDuplicate = forceAllowDuplicate,
             ), mediaInfoMap)
             return
         }
@@ -435,7 +438,8 @@ class MediaDownloader : MessagingRuleFeature("MediaDownloader", MessagingRuleTyp
                             provideDownloadManagerClient(
                                 mediaIdentifier = "${paramMap["STORY_ID"]}-${firstChapter.offset}-${lastChapter.offset}",
                                 downloadSource = MediaDownloadSource.PUBLIC_STORY,
-                                mediaAuthor = storyName
+                                mediaAuthor = storyName,
+                                forceAllowDuplicate = forceAllowDuplicate,
                             ).downloadDashMedia(
                                 playlistUrl,
                                 firstChapter.offset.plus(100),
@@ -505,7 +509,8 @@ class MediaDownloader : MessagingRuleFeature("MediaDownloader", MessagingRuleTyp
         friendInfo: FriendInfo,
         message: ConversationMessage,
         authorName: String,
-        attachments: List<DecodedAttachment>
+        attachments: List<DecodedAttachment>,
+        forceAllowDuplicate: Boolean = false
     ) {
         //TODO: stickers
         attachments.forEach { attachment ->
@@ -514,7 +519,8 @@ class MediaDownloader : MessagingRuleFeature("MediaDownloader", MessagingRuleTyp
                     mediaIdentifier = "${message.clientConversationId}${message.senderId}${message.serverMessageId}${attachment.mediaUniqueId}",
                     downloadSource = MediaDownloadSource.CHAT_MEDIA,
                     mediaAuthor = authorName,
-                    friendInfo = friendInfo
+                    friendInfo = friendInfo,
+                    forceAllowDuplicate = forceAllowDuplicate,
                 ).downloadSingleMedia(
                     mediaData = attachment.mediaUrlKey!!,
                     mediaType = DownloadMediaType.PROTO_MEDIA,
@@ -531,7 +537,7 @@ class MediaDownloader : MessagingRuleFeature("MediaDownloader", MessagingRuleTyp
 
     @SuppressLint("SetTextI18n")
     @OptIn(ExperimentalCoroutinesApi::class)
-    fun downloadMessageId(messageId: Long, isPreview: Boolean = false) {
+    fun downloadMessageId(messageId: Long, forceAllowDuplicate: Boolean = false, isPreview: Boolean = false) {
         val messageLogger = context.feature(MessageLogger::class)
         val message = context.database.getConversationMessageFromId(messageId) ?: throw Exception("Message not found in database")
 
@@ -570,7 +576,8 @@ class MediaDownloader : MessagingRuleFeature("MediaDownloader", MessagingRuleTyp
                 context.mainActivity == null // we can't show alert dialogs when it downloads from a notification, so it downloads the first one
             ) {
                 downloadMessageAttachments(friendInfo, message, authorName,
-                    listOf(decodedAttachments.first())
+                    listOf(decodedAttachments.first()),
+                    forceAllowDuplicate = forceAllowDuplicate
                 )
                 return
             }
@@ -595,7 +602,9 @@ class MediaDownloader : MessagingRuleFeature("MediaDownloader", MessagingRuleTyp
                     setTitle(translations["select_attachments_title"])
                     setNegativeButton(this@MediaDownloader.context.translation["button.cancel"]) { dialog, _ -> dialog.dismiss() }
                     setPositiveButton(this@MediaDownloader.context.translation["button.download"]) { _, _ ->
-                        downloadMessageAttachments(friendInfo, message, authorName, selectedAttachments.map { decodedAttachments[it] })
+                        downloadMessageAttachments(friendInfo, message, authorName, selectedAttachments.map { decodedAttachments[it] },
+                            forceAllowDuplicate = forceAllowDuplicate
+                        )
                     }
                 }.show()
             }
@@ -698,9 +707,12 @@ class MediaDownloader : MessagingRuleFeature("MediaDownloader", MessagingRuleTyp
     /**
      * Called when a message is focused in chat
      */
-    fun onMessageActionMenu(isPreviewMode: Boolean) {
+    fun onMessageActionMenu(isPreviewMode: Boolean, forceAllowDuplicate: Boolean = false) {
         val messaging = context.feature(Messaging::class)
         if (messaging.openedConversationUUID == null) return
-        downloadMessageId(messaging.lastFocusedMessageId, isPreviewMode)
+
+        context.executeAsync {
+            downloadMessageId(messaging.lastFocusedMessageId, forceAllowDuplicate, isPreviewMode)
+        }
     }
 }

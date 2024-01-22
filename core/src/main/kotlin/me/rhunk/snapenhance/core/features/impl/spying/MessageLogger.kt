@@ -30,7 +30,7 @@ class MessageLogger : Feature("MessageLogger",
     companion object {
         const val PREFETCH_MESSAGE_COUNT = 20
         const val PREFETCH_FEED_COUNT = 20
-        const val DELETED_MESSAGE_COLOR = 0x2Eb71c1c
+        const val DELETED_MESSAGE_COLOR = 0x6Eb71c1c
     }
 
     private val messageLoggerInterface by lazy { context.bridgeClient.getMessageLogger() }

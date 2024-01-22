@@ -13,6 +13,7 @@ import me.rhunk.snapenhance.core.ui.applyTheme
 import me.rhunk.snapenhance.core.ui.menu.AbstractMenu
 import me.rhunk.snapenhance.core.ui.triggerCloseTouchEvent
 import me.rhunk.snapenhance.core.util.ktx.getId
+import me.rhunk.snapenhance.core.util.ktx.vibrateLongPress
 import me.rhunk.snapenhance.core.wrapper.impl.ScSize
 import java.text.DateFormat
 import java.util.Date
@@ -128,14 +129,22 @@ class OperaContextActionMenu : AbstractMenu() {
                 }
             }
 
-            linearLayout.addView(Button(view.context).apply {
-                text = translation["download"]
-                setOnClickListener {
-                    mediaDownloader.downloadLastOperaMediaAsync()
-                    parentView.triggerCloseTouchEvent()
-                }
-                applyTheme(isAmoled = false)
-            })
+            if (context.config.downloader.downloadContextMenu.get()) {
+                linearLayout.addView(Button(view.context).apply {
+                    text = translation["download"]
+                    setOnClickListener {
+                        mediaDownloader.downloadLastOperaMediaAsync(allowDuplicate = false)
+                        parentView.triggerCloseTouchEvent()
+                    }
+                    setOnLongClickListener {
+                        context.vibrateLongPress()
+                        mediaDownloader.downloadLastOperaMediaAsync(allowDuplicate = true)
+                        parentView.triggerCloseTouchEvent()
+                        true
+                    }
+                    applyTheme(isAmoled = false)
+                })
+            }
 
             if (context.isDeveloper) {
                 linearLayout.addView(Button(view.context).apply {
