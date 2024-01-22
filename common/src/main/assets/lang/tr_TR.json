@@ -176,10 +176,6 @@
                         "name": "Profil Resimlerini İndir",
                         "description": "Profil Resimlerini profil sayfasından indirmenize olanak sağlar"
                     },
-                    "chat_download_context_menu": {
-                        "name": "Sohbet İndirme İçerik Menüsü",
-                        "description": "Bir konuşmadaki medyayı uzun basarak indirmenize olanak sağlar"
-                    },
                     "ffmpeg_options": {
                         "name": "FFmpeg Ayarları",
                         "description": "Ek FFmpeg seçeneklerini belirleyin",

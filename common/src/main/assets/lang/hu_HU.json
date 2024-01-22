@@ -170,10 +170,6 @@
                         "name": "Profilképek letöltése",
                         "description": "Lehetővé teszi hogy letölts profilképeket a profil oldaláról"
                     },
-                    "chat_download_context_menu": {
-                        "name": "Chat letöltés kontextusmenü",
-                        "description": "Lehetővé teszi a média letöltését hosszú nyomással"
-                    },
                     "ffmpeg_options": {
                         "name": "FFmpeg beállítások",
                         "description": "További FFmpeg beállítások meghatározása",
