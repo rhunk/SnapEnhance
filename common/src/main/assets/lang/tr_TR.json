@@ -221,10 +221,6 @@
                     "opera_download_button": {
                         "description": "Bir Snap görüntülerken sağ üst köşeye bir indirme düğmesi ekler",
                         "name": "Opera İndirme Düğmesi"
-                    },
-                    "download_context_menu": {
-                        "description": "",
-                        "name": ""
                     }
                 }
             },

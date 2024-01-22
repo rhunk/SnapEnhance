@@ -240,14 +240,6 @@
                     "hide_streak_restore": {
                         "description": "ഫ്രണ്ട് ഫീഡിലെ Restore ബട്ടൺ മറയ്ക്കുന്നു",
                         "name": "സ്ട്രീക്ക് വീണ്ടെടുക്കൽ മറയ്ക്കുക"
-                    },
-                    "hide_story_suggestions": {
-                        "name": "",
-                        "description": ""
-                    },
-                    "stealth_mode_indicator": {
-                        "name": "",
-                        "description": ""
                     }
                 },
                 "name": "ഉപയോക്തൃ ഇന്റർഫേസ്",
@@ -270,30 +262,6 @@
                     "force_camera_source_encoding": {
                         "description": "ക്യാമറ ഉറവിട എൻകോഡിംഗിനെ നിർബന്ധിക്കുന്നു",
                         "name": "നിർബന്ധിത ക്യാമറ ഉറവിട എൻകോഡിംഗ്"
-                    },
-                    "front_custom_frame_rate": {
-                        "description": "",
-                        "name": ""
-                    },
-                    "override_front_resolution": {
-                        "description": "",
-                        "name": ""
-                    },
-                    "custom_resolution": {
-                        "name": "",
-                        "description": ""
-                    },
-                    "override_back_resolution": {
-                        "description": "",
-                        "name": ""
-                    },
-                    "back_custom_frame_rate": {
-                        "name": "",
-                        "description": ""
-                    },
-                    "disable_cameras": {
-                        "name": "",
-                        "description": ""
                     }
                 },
                 "description": "മികച്ച സ്നാപ്പിനായി ശരിയായ ക്രമീകരണങ്ങൾ ക്രമീകരിക്കുക",
@@ -354,10 +322,6 @@
                     "force_upload_source_quality": {
                         "name": "നിർബന്ധിത അപ്‌ലോഡ് ഉറവിട നിലവാരം",
                         "description": "യഥാർത്ഥ നിലവാരത്തിൽ മീഡിയ അപ്‌ലോഡ് ചെയ്യാൻ Snapchat നിർബന്ധിക്കുന്നു\nഇത് മീഡിയയിൽ നിന്ന് മെറ്റാഡാറ്റ നീക്കം ചെയ്തേക്കില്ല എന്നത് ശ്രദ്ധിക്കുക"
-                    },
-                    "disable_story_sections": {
-                        "name": "",
-                        "description": ""
                     }
                 },
                 "name": "ആഗോള",
@@ -446,10 +410,6 @@
                     "path_format": {
                         "name": "പാത്ത് ഫോർമാറ്റ്",
                         "description": "ഫയൽ പാത്ത് ഫോർമാറ്റ് വ്യക്തമാക്കുക"
-                    },
-                    "download_context_menu": {
-                        "description": "",
-                        "name": ""
                     }
                 },
                 "description": "Snapchat മീഡിയ ഡൗൺലോഡ് ചെയ്യുക",
@@ -866,19 +826,6 @@
             "app_appearance": {
                 "always_light": "എപ്പോഴും വെളിച്ചം",
                 "always_dark": "എപ്പോഴും ഇരുട്ട്"
-            },
-            "hide_story_suggestions": {
-                "hide_friend_suggestions": "",
-                "hide_suggested_friend_stories": ""
-            },
-            "disable_story_sections": {
-                "friends": "",
-                "following": "",
-                "discover": ""
-            },
-            "disable_cameras": {
-                "back": "",
-                "front": ""
             }
         }
     },

@@ -221,10 +221,6 @@
                     "opera_download_button": {
                         "description": "Fügt einen Download-Button in der oberen rechten Ecke hinzu, wenn ein Snap angezeigt wird",
                         "name": "Schwebender Download Button"
-                    },
-                    "download_context_menu": {
-                        "name": "",
-                        "description": ""
                     }
                 }
             },
@@ -339,10 +335,6 @@
                     "hide_story_suggestions": {
                         "name": "Story Vorschläge ausblenden",
                         "description": "Entfernt Empfehlungen von der Story‐Seite"
-                    },
-                    "stealth_mode_indicator": {
-                        "name": "",
-                        "description": ""
                     }
                 }
             },

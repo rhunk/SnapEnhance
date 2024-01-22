@@ -109,12 +109,7 @@
                 "name": "بات چیت کو پن کریں"
             },
             "unsaveable_messages": {
-                "name": "ناقابل محفوظ پیغامات",
-                "description": "",
-                "options": {
-                    "whitelist": "",
-                    "blacklist": ""
-                }
+                "name": "ناقابل محفوظ پیغامات"
             }
         }
     },
@@ -124,9 +119,7 @@
         "refresh_mappings": "تصاویر کو تازہ کریں",
         "open_map": "نقشہ پر مقام منتخب کریں",
         "check_for_updates": "اپ ڈیٹس کی جانچ کاری کریں",
-        "export_chat_messages": "چیٹ میسیجز ایکسپورٹ کریں",
-        "export_memories": "",
-        "bulk_messaging_action": ""
+        "export_chat_messages": "چیٹ میسیجز ایکسپورٹ کریں"
     },
     "features": {
         "notices": {
@@ -213,18 +206,6 @@
                     "logging": {
                         "name": "لاگنگ",
                         "description": "جب میڈیا ڈاؤن لوڈ ہوتا ہے تو توسٹ دکھائیں"
-                    },
-                    "opera_download_button": {
-                        "name": "",
-                        "description": ""
-                    },
-                    "download_context_menu": {
-                        "name": "",
-                        "description": ""
-                    },
-                    "custom_path_format": {
-                        "name": "",
-                        "description": ""
                     }
                 }
             },
@@ -299,50 +280,6 @@
                     "enable_friend_feed_menu_bar": {
                         "name": "نئے دوست فیڈ مینو بار کو فعال کریں",
                         "description": "نئے دوست فیڈ مینو بار کو فعال کرتا ہے"
-                    },
-                    "old_bitmoji_selfie": {
-                        "description": "",
-                        "name": ""
-                    },
-                    "stealth_mode_indicator": {
-                        "description": "",
-                        "name": ""
-                    },
-                    "opera_media_quick_info": {
-                        "description": "",
-                        "name": ""
-                    },
-                    "fidelius_indicator": {
-                        "description": "",
-                        "name": ""
-                    },
-                    "edit_text_override": {
-                        "name": "",
-                        "description": ""
-                    },
-                    "hide_settings_gear": {
-                        "name": "",
-                        "description": ""
-                    },
-                    "vertical_story_viewer": {
-                        "name": "",
-                        "description": ""
-                    },
-                    "hide_story_suggestions": {
-                        "description": "",
-                        "name": ""
-                    },
-                    "snap_preview": {
-                        "name": "",
-                        "description": ""
-                    },
-                    "prevent_message_list_auto_scroll": {
-                        "name": "",
-                        "description": ""
-                    },
-                    "hide_quick_add_friend_feed": {
-                        "description": "",
-                        "name": ""
                     }
                 }
             },
@@ -388,21 +325,7 @@
                     },
                     "message_logger": {
                         "name": "پیغام لاگر",
-                        "description": "پیغامات کو مٹانے سے روکتا ہے",
-                        "properties": {
-                            "keep_my_own_messages": {
-                                "name": "",
-                                "description": ""
-                            },
-                            "auto_purge": {
-                                "description": "",
-                                "name": ""
-                            },
-                            "message_filter": {
-                                "name": "",
-                                "description": ""
-                            }
-                        }
+                        "description": "پیغامات کو مٹانے سے روکتا ہے"
                     },
                     "auto_save_messages_in_conversations": {
                         "name": "پیغامات خود بخود محفوظ کریں",
@@ -411,52 +334,6 @@
                     "gallery_media_send_override": {
                         "name": "گیلری کے میڈیا بھیجنے کی بدلنے کی سیٹنگ",
                         "description": "گیلری سے بھیجنے کے وقت میڈیا کی ماخذ کو بدل دیتا ہے"
-                    },
-                    "hide_peek_a_peek": {
-                        "description": "",
-                        "name": ""
-                    },
-                    "call_start_confirmation": {
-                        "name": "",
-                        "description": ""
-                    },
-                    "half_swipe_notifier": {
-                        "description": "",
-                        "properties": {
-                            "min_duration": {
-                                "description": "",
-                                "name": ""
-                            },
-                            "max_duration": {
-                                "name": "",
-                                "description": ""
-                            }
-                        },
-                        "name": ""
-                    },
-                    "bypass_screenshot_detection": {
-                        "name": "",
-                        "description": ""
-                    },
-                    "prevent_story_rewatch_indicator": {
-                        "name": "",
-                        "description": ""
-                    },
-                    "instant_delete": {
-                        "name": "",
-                        "description": ""
-                    },
-                    "loop_media_playback": {
-                        "name": "",
-                        "description": ""
-                    },
-                    "strip_media_metadata": {
-                        "description": "",
-                        "name": ""
-                    },
-                    "bypass_message_retention_policy": {
-                        "description": "",
-                        "name": ""
                     }
                 }
             },
@@ -501,26 +378,6 @@
                     "disable_snap_splitting": {
                         "name": "اسنیپ کو تقسیم کرنے سے روکیں",
                         "description": "سنیپس کو مختلف حصوں میں تقسیم ہونے سے روکتا ہے\nآپ کی بھیجی گئی تصاویر ویڈیوز میں تبدیل ہوجائیں گی"
-                    },
-                    "force_upload_source_quality": {
-                        "description": "",
-                        "name": ""
-                    },
-                    "suspend_location_updates": {
-                        "name": "",
-                        "description": ""
-                    },
-                    "disable_confirmation_dialogs": {
-                        "name": "",
-                        "description": ""
-                    },
-                    "spotlight_comments_username": {
-                        "name": "",
-                        "description": ""
-                    },
-                    "disable_story_sections": {
-                        "name": "",
-                        "description": ""
                     }
                 }
             },
@@ -539,38 +396,6 @@
                     "force_camera_source_encoding": {
                         "name": "کیمرا کی ماخذ کو کواشن کریں",
                         "description": "کیمرا کی ماخذ کو کواشن کرتا ہے"
-                    },
-                    "black_photos": {
-                        "description": "",
-                        "name": ""
-                    },
-                    "disable_cameras": {
-                        "name": "",
-                        "description": ""
-                    },
-                    "hevc_recording": {
-                        "description": "",
-                        "name": ""
-                    },
-                    "custom_resolution": {
-                        "name": "",
-                        "description": ""
-                    },
-                    "override_front_resolution": {
-                        "name": "",
-                        "description": ""
-                    },
-                    "override_back_resolution": {
-                        "name": "",
-                        "description": ""
-                    },
-                    "front_custom_frame_rate": {
-                        "name": "",
-                        "description": ""
-                    },
-                    "back_custom_frame_rate": {
-                        "name": "",
-                        "description": ""
                     }
                 }
             },
@@ -608,33 +433,7 @@
                     },
                     "spoof": {
                         "name": "فریب",
-                        "description": "آپ کے بارے میں مختلف معلومات کو فریب دیتا ہے",
-                        "properties": {
-                            "play_store_installer_package_name": {
-                                "description": "",
-                                "name": ""
-                            },
-                            "remove_vpn_transport_flag": {
-                                "description": "",
-                                "name": ""
-                            },
-                            "remove_mock_location_flag": {
-                                "name": "",
-                                "description": ""
-                            },
-                            "android_id": {
-                                "name": "",
-                                "description": ""
-                            },
-                            "randomize_persistent_device_token": {
-                                "description": "",
-                                "name": ""
-                            },
-                            "fingerprint": {
-                                "name": "",
-                                "description": ""
-                            }
-                        }
+                        "description": "آپ کے بارے میں مختلف معلومات کو فریب دیتا ہے"
                     },
                     "app_passcode": {
                         "name": "ایپ پاس کوڈ",
@@ -681,22 +480,6 @@
                     "hidden_snapchat_plus_features": {
                         "name": "مخفی سنیپ چیٹ پلس فیچرز",
                         "description": "غیر جاری/بیٹا سنیپ چیٹ پلس فیچرز کو فعال کرتا ہے\nپرانے سنیپ چیٹ ورژنز پر کام نہیں کر سکتا"
-                    },
-                    "story_logger": {
-                        "name": "",
-                        "description": ""
-                    },
-                    "convert_message_locally": {
-                        "name": "",
-                        "description": ""
-                    },
-                    "disable_composer_modules": {
-                        "description": "",
-                        "name": ""
-                    },
-                    "prevent_forced_logout": {
-                        "description": "",
-                        "name": ""
                     }
                 }
             },
@@ -711,18 +494,6 @@
                     "module_folder": {
                         "name": "ماڈیول فولڈر",
                         "description": "اسکرپٹس کی جگہ کا فولڈر"
-                    },
-                    "disable_log_anonymization": {
-                        "description": "",
-                        "name": ""
-                    },
-                    "integrated_ui": {
-                        "description": "",
-                        "name": ""
-                    },
-                    "auto_reload": {
-                        "description": "",
-                        "name": ""
                     }
                 }
             }
@@ -735,21 +506,14 @@
             "better_notifications": {
                 "reply_button": "رد کا بٹن شامل کریں",
                 "download_button": "ڈاؤن لوڈ بٹن شامل کریں",
-                "group": "گروپ اطلاعات",
-                "mark_as_read_button": "",
-                "media_preview": "",
-                "mark_as_read_and_save_in_chat": "",
-                "chat_preview": ""
+                "group": "گروپ اطلاعات"
             },
             "friend_feed_menu_buttons": {
                 "auto_download": "⬇️ خود بخود ڈاؤن لوڈ",
                 "auto_save": "💬 خود بخود پیغام محفوظ کریں",
                 "stealth": "👻 چھپنے والا موڈ",
                 "conversation_info": "👤 مکالمہ کی معلومات",
-                "e2e_encryption": "🔒 اینڈ-ٹو-اینڈ انکرپشن کا استعمال کریں",
-                "unsaveable_messages": "",
-                "mark_stories_as_seen_locally": "",
-                "mark_snaps_as_seen": ""
+                "e2e_encryption": "🔒 اینڈ-ٹو-اینڈ انکرپشن کا استعمال کریں"
             },
             "path_format": {
                 "create_author_folder": "ہر مصنف کے لئے فولڈر بنائیں",
@@ -799,8 +563,7 @@
                 "hide_chat_call_buttons": "چیٹ کال بٹنز ہٹائیں",
                 "hide_live_location_share_button": "لاکھوں لوگوں کا سراغ لگانے کا بٹن ہٹائیں",
                 "hide_stickers_button": "اسٹکر بٹن ہٹائیں",
-                "hide_voice_record_button": "آواز ریکارڈ بٹن ہٹائیں",
-                "hide_unread_chat_hint": ""
+                "hide_voice_record_button": "آواز ریکارڈ بٹن ہٹائیں"
             },
             "home_tab": {
                 "map": "نقشہ",
@@ -814,66 +577,11 @@
                 "added_by_mention": "ذکر کے ذریعے",
                 "added_by_group_chat": "گروپ چیٹ کے ذریعے",
                 "added_by_qr_code": "کیو آر کوڈ کے ذریعے",
-                "added_by_community": "کمیونٹی کے ذریعے",
-                "added_by_quick_add": ""
+                "added_by_community": "کمیونٹی کے ذریعے"
             },
             "bypass_video_length_restriction": {
                 "single": "ایکل میڈیا",
                 "split": "میڈیا کو تقسیم کریں"
-            },
-            "edit_text_override": {
-                "bypass_text_input_limit": "",
-                "multi_line_chat_input": ""
-            },
-            "auto_purge": {
-                "1_hour": "",
-                "never": "",
-                "6_hours": "",
-                "12_hours": "",
-                "3_days": "",
-                "2_weeks": "",
-                "1_day": "",
-                "1_month": "",
-                "3_months": "",
-                "6_months": "",
-                "1_week": "",
-                "3_hours": ""
-            },
-            "disable_confirmation_dialogs": {
-                "hide_conversation": "",
-                "remove_friend": "",
-                "ignore_friend": "",
-                "block_friend": "",
-                "hide_friend": "",
-                "clear_conversation": ""
-            },
-            "disable_cameras": {
-                "front": "",
-                "back": ""
-            },
-            "old_bitmoji_selfie": {
-                "3d": "",
-                "2d": ""
-            },
-            "strip_media_metadata": {
-                "remove_audio_note_transcript_capability": "",
-                "hide_snap_filters": "",
-                "hide_caption_text": "",
-                "hide_extras": "",
-                "remove_audio_note_duration": ""
-            },
-            "auto_reload": {
-                "snapchat_only": "",
-                "all": ""
-            },
-            "hide_story_suggestions": {
-                "hide_suggested_friend_stories": "",
-                "hide_friend_suggestions": ""
-            },
-            "disable_story_sections": {
-                "friends": "",
-                "discover": "",
-                "following": ""
             }
         }
     },
@@ -881,24 +589,15 @@
         "preview": "پیش نظارہ",
         "stealth_mode": "چھپائیں وضع",
         "auto_download_blacklist": "خود بخود ڈاؤن لوڈ بلیک لسٹ",
-        "anti_auto_save": "ضد خود بخود محفوظ کریں",
-        "mark_stories_as_seen_locally": "",
-        "mark_snaps_as_seen": ""
+        "anti_auto_save": "ضد خود بخود محفوظ کریں"
     },
     "chat_action_menu": {
         "preview_button": "پیش نظارہ",
         "download_button": "ڈاؤن لوڈ",
-        "delete_logged_message_button": "لاگ کردہ پیغام کو حذف کریں",
-        "convert_message": ""
+        "delete_logged_message_button": "لاگ کردہ پیغام کو حذف کریں"
     },
     "opera_context_menu": {
-        "download": "میڈیا ڈاؤن لوڈ کریں",
-        "sent_at": "",
-        "show_debug_info": "",
-        "media_size": "",
-        "expires_at": "",
-        "created_at": "",
-        "media_duration": ""
+        "download": "میڈیا ڈاؤن لوڈ کریں"
     },
     "modal_option": {
         "profile_info": "پروفائل کی معلومات",
@@ -926,8 +625,7 @@
         "snapchat_plus_state": {
             "subscribed": "مشترک",
             "not_subscribed": "غیر مشترک"
-        },
-        "hidden_birthday": ""
+        }
     },
     "chat_export": {
         "dialog_negative_button": "منسوخ کریں",
@@ -939,16 +637,7 @@
         "writing_output": "آؤٹپٹ لکھ رہا ہے...",
         "finished": "ہوگیا! آپ اب اس ڈائیلاگ کو بند کر سکتے ہیں۔",
         "no_messages_found": "کوئی پیغام نہیں ملا!",
-        "exporting_message": "{conversation} کو برآمد کر رہا ہے...",
-        "exporter_dialog": {
-            "message_type_filter_title": "",
-            "text_field_selection_all": "",
-            "export_file_format_title": "",
-            "download_medias_title": "",
-            "select_conversations_title": "",
-            "text_field_selection": "",
-            "amount_of_messages_title": ""
-        }
+        "exporting_message": "{conversation} کو برآمد کر رہا ہے..."
     },
     "button": {
         "ok": "ٹھیک ہے",
@@ -990,96 +679,5 @@
     "streaks_reminder": {
         "notification_title": "مسلسلی",
         "notification_text": "آپ {hoursLeft} گھنٹوں میں اپنے دوست {friend} کے ساتھ اپنے مسلسلی کو خوو دیں گے"
-    },
-    "content_type": {
-        "STICKER": "",
-        "STATUS": "",
-        "CREATIVE_TOOL_ITEM": "",
-        "STATUS_CALL_MISSED_AUDIO": "",
-        "LIVE_LOCATION_SHARE": "",
-        "STATUS_CALL_MISSED_VIDEO": "",
-        "TINY_SNAP": "",
-        "STATUS_COUNTDOWN": "",
-        "FAMILY_CENTER_INVITE": "",
-        "FAMILY_CENTER_ACCEPT": "",
-        "STATUS_CONVERSATION_CAPTURE_RECORD": "",
-        "FAMILY_CENTER_LEAVE": "",
-        "STATUS_PLUS_GIFT": "",
-        "NOTE": "",
-        "STATUS_CONVERSATION_CAPTURE_SCREENSHOT": "",
-        "STATUS_SAVE_TO_CAMERA_ROLL": "",
-        "LOCATION": "",
-        "CHAT": "",
-        "SNAP": "",
-        "EXTERNAL_MEDIA": ""
-    },
-    "media_download_source": {
-        "none": "",
-        "pending": "",
-        "merged": "",
-        "story": "",
-        "chat_media": "",
-        "spotlight": "",
-        "public_story": "",
-        "profile_picture": "",
-        "story_logger": ""
-    },
-    "material3_strings": {
-        "date_range_picker_start_headline": "",
-        "date_range_picker_end_headline": "",
-        "date_range_picker_title": "",
-        "date_range_input_invalid_range_input": "",
-        "date_input_invalid_not_allowed": "",
-        "date_input_invalid_year_range": "",
-        "date_picker_switch_to_input_mode": "",
-        "date_input_invalid_for_pattern": "",
-        "date_picker_today_description": "",
-        "date_range_picker_scroll_to_previous_month": "",
-        "date_picker_switch_to_calendar_mode": "",
-        "date_range_picker_scroll_to_next_month": "",
-        "date_range_picker_day_in_range": ""
-    },
-    "bulk_messaging_action": {
-        "progress_status": "",
-        "selection_dialog_continue_button": "",
-        "choose_action_title": "",
-        "confirmation_dialog": {
-            "title": "",
-            "message": ""
-        },
-        "actions": {
-            "clear_conversations": "",
-            "remove_friends": ""
-        }
-    },
-    "friendship_link_type": {
-        "following": "",
-        "deleted": "",
-        "suggested": "",
-        "incoming_follower": "",
-        "incoming": "",
-        "blocked": "",
-        "outgoing": "",
-        "mutual": ""
-    },
-    "call_start_confirmation": {
-        "dialog_title": "",
-        "dialog_message": ""
-    },
-    "better_notifications": {
-        "button": {
-            "download": "",
-            "reply": "",
-            "mark_as_read": ""
-        },
-        "stealth_mode_notice": ""
-    },
-    "suspend_location_updates": {
-        "switch_text": ""
-    },
-    "half_swipe_notifier": {
-        "notification_channel_name": "",
-        "notification_content_group": "",
-        "notification_content_dm": ""
     }
 }

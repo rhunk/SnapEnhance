@@ -111,8 +111,7 @@
             "unsaveable_messages": {
                 "name": "Nem menthető üzenetek",
                 "options": {
-                    "whitelist": "Nem menthető üzenetek",
-                    "blacklist": ""
+                    "whitelist": "Nem menthető üzenetek"
                 },
                 "description": "Megakadályozza, hogy az üzeneteket elmenthessék mások a chatben"
             }
@@ -125,8 +124,7 @@
         "open_map": "Válassz egy helyet a térképen",
         "check_for_updates": "Frissítés keresése",
         "export_chat_messages": "Chat üzenetek exportálása",
-        "export_memories": "Emlékek exportálása",
-        "bulk_messaging_action": ""
+        "export_memories": "Emlékek exportálása"
     },
     "features": {
         "notices": {
@@ -199,16 +197,11 @@
                             "threads": {
                                 "name": "Szálak",
                                 "description": "A felhasznált szálak mennyisége"
-                            },
-                            "constant_rate_factor": {
-                                "name": "",
-                                "description": ""
                             }
                         }
                     },
                     "logging": {
-                        "name": "Naplózás",
-                        "description": ""
+                        "name": "Naplózás"
                     },
                     "opera_download_button": {
                         "description": "Egy letöltés gombot helyez a jobb felső sarokba Snap-ek megtekintése közben",
@@ -217,14 +210,6 @@
                     "merge_overlays": {
                         "description": "Egyesíti egy Snap szövegét és médiáját egy fájlba",
                         "name": "Overlay-ek összefűzése"
-                    },
-                    "download_context_menu": {
-                        "description": "",
-                        "name": ""
-                    },
-                    "custom_path_format": {
-                        "description": "",
-                        "name": ""
                     }
                 }
             },
@@ -232,8 +217,7 @@
                 "name": "Felhasználói felület",
                 "properties": {
                     "enable_app_appearance": {
-                        "name": "Az alkalmazás megjelenési beállításainak engedélyezése",
-                        "description": ""
+                        "name": "Az alkalmazás megjelenési beállításainak engedélyezése"
                     },
                     "amoled_dark_mode": {
                         "name": "AMOLED Sötét mód",
@@ -252,20 +236,17 @@
                     "bootstrap_override": {
                         "properties": {
                             "app_appearance": {
-                                "name": "App Megjelenése",
-                                "description": ""
+                                "name": "App Megjelenése"
                             },
                             "home_tab": {
                                 "name": "Kezdőlap",
                                 "description": "Felülírja a megjelenő ablakot a Snapchat indulásakor"
                             }
                         },
-                        "description": "Felülírja a kezelőfelület Bootstrap beállításait",
-                        "name": ""
+                        "description": "Felülírja a kezelőfelület Bootstrap beállításait"
                     },
                     "streak_expiration_info": {
-                        "name": "Mutassa a streak lejárati adatait",
-                        "description": ""
+                        "name": "Mutassa a streak lejárati adatait"
                     },
                     "hide_friend_feed_entry": {
                         "name": "Barát hírfolyam elrejtése",
@@ -296,52 +277,11 @@
                         "description": "Engedélyezi az új barát hírfolyam menüsort"
                     },
                     "prevent_message_list_auto_scroll": {
-                        "name": "Megakadályozza az üzenet lista automatikus görgetését",
-                        "description": ""
+                        "name": "Megakadályozza az üzenet lista automatikus görgetését"
                     },
                     "snap_preview": {
                         "name": "Snap előnézet",
                         "description": "Megjelenít egy kis előnézetet a chatben a nem látott Snapek mellett"
-                    },
-                    "edit_text_override": {
-                        "name": "",
-                        "description": ""
-                    },
-                    "fidelius_indicator": {
-                        "description": "",
-                        "name": ""
-                    },
-                    "map_friend_nametags": {
-                        "name": "",
-                        "description": ""
-                    },
-                    "old_bitmoji_selfie": {
-                        "description": "",
-                        "name": ""
-                    },
-                    "hide_quick_add_friend_feed": {
-                        "name": "",
-                        "description": ""
-                    },
-                    "opera_media_quick_info": {
-                        "name": "",
-                        "description": ""
-                    },
-                    "stealth_mode_indicator": {
-                        "name": "",
-                        "description": ""
-                    },
-                    "vertical_story_viewer": {
-                        "description": "",
-                        "name": ""
-                    },
-                    "hide_settings_gear": {
-                        "description": "",
-                        "name": ""
-                    },
-                    "hide_story_suggestions": {
-                        "name": "",
-                        "description": ""
                     }
                 },
                 "description": "Módosítsd a Snapchat kinézetét"
@@ -366,34 +306,18 @@
                         "description": "Eltávolítja a Snap-ek megtekintési időkorlátját"
                     },
                     "disable_replay_in_ff": {
-                        "description": "Letiltja a lehetőséget hogy újrajátsz a barát hírfolyamból hosszú nyomással",
-                        "name": ""
+                        "description": "Letiltja a lehetőséget hogy újrajátsz a barát hírfolyamból hosszú nyomással"
                     },
                     "better_notifications": {
                         "name": "Jobb Értesítések",
                         "description": "Több információt mutat az értesítésekben"
                     },
                     "notification_blacklist": {
-                        "name": "Értesítési Tiltólista",
-                        "description": ""
+                        "name": "Értesítési Tiltólista"
                     },
                     "message_logger": {
                         "name": "Üzenetnapló",
-                        "description": "Megakadályozza az üzenetek törlését",
-                        "properties": {
-                            "auto_purge": {
-                                "name": "",
-                                "description": ""
-                            },
-                            "message_filter": {
-                                "name": "",
-                                "description": ""
-                            },
-                            "keep_my_own_messages": {
-                                "name": "",
-                                "description": ""
-                            }
-                        }
+                        "description": "Megakadályozza az üzenetek törlését"
                     },
                     "auto_save_messages_in_conversations": {
                         "name": "Üzenetek automatikus mentése",
@@ -402,63 +326,8 @@
                     "gallery_media_send_override": {
                         "name": "Galéria Média küldés felülbírálása",
                         "description": "Meghamisítja a média forrását amikor a gallériából küldöd"
-                    },
-                    "strip_media_metadata": {
-                        "name": "",
-                        "description": ""
-                    },
-                    "bypass_screenshot_detection": {
-                        "name": "",
-                        "description": ""
-                    },
-                    "prevent_story_rewatch_indicator": {
-                        "name": "",
-                        "description": ""
-                    },
-                    "prevent_message_sending": {
-                        "name": "",
-                        "description": ""
-                    },
-                    "call_start_confirmation": {
-                        "description": "",
-                        "name": ""
-                    },
-                    "loop_media_playback": {
-                        "name": "",
-                        "description": ""
-                    },
-                    "instant_delete": {
-                        "name": "",
-                        "description": ""
-                    },
-                    "hide_peek_a_peek": {
-                        "name": "",
-                        "description": ""
-                    },
-                    "half_swipe_notifier": {
-                        "properties": {
-                            "min_duration": {
-                                "description": "",
-                                "name": ""
-                            },
-                            "max_duration": {
-                                "name": "",
-                                "description": ""
-                            }
-                        },
-                        "description": "",
-                        "name": ""
-                    },
-                    "message_preview_length": {
-                        "description": "",
-                        "name": ""
-                    },
-                    "bypass_message_retention_policy": {
-                        "description": "",
-                        "name": ""
                     }
-                },
-                "description": ""
+                }
             },
             "global": {
                 "name": "Globális",
@@ -490,8 +359,7 @@
                         "description": "Megakadályozza a reklámok megjelenítését"
                     },
                     "bypass_video_length_restriction": {
-                        "name": "Videóhossz-korlátozás megkerülése",
-                        "description": ""
+                        "name": "Videóhossz-korlátozás megkerülése"
                     },
                     "disable_google_play_dialogs": {
                         "name": "A Google Play Szolgáltatások Párbeszédablakainak Letiltása",
@@ -500,97 +368,21 @@
                     "disable_snap_splitting": {
                         "name": "Snap szétválasztás kikapcsolása",
                         "description": "Megakadályozza a Snap-ek több részre történő szétválasztását\nA képek amiket küldesz videók lesznek"
-                    },
-                    "suspend_location_updates": {
-                        "description": "",
-                        "name": ""
-                    },
-                    "disable_confirmation_dialogs": {
-                        "name": "",
-                        "description": ""
-                    },
-                    "spotlight_comments_username": {
-                        "name": "",
-                        "description": ""
-                    },
-                    "force_upload_source_quality": {
-                        "name": "",
-                        "description": ""
-                    },
-                    "disable_story_sections": {
-                        "name": "",
-                        "description": ""
                     }
-                },
-                "description": ""
+                }
             },
             "rules": {
-                "name": "Szabályok",
-                "description": ""
+                "name": "Szabályok"
             },
             "camera": {
-                "name": "Kamera",
-                "properties": {
-                    "front_custom_frame_rate": {
-                        "description": "",
-                        "name": ""
-                    },
-                    "disable_cameras": {
-                        "description": "",
-                        "name": ""
-                    },
-                    "hevc_recording": {
-                        "name": "",
-                        "description": ""
-                    },
-                    "black_photos": {
-                        "name": "",
-                        "description": ""
-                    },
-                    "force_camera_source_encoding": {
-                        "name": "",
-                        "description": ""
-                    },
-                    "override_back_resolution": {
-                        "description": "",
-                        "name": ""
-                    },
-                    "custom_resolution": {
-                        "name": "",
-                        "description": ""
-                    },
-                    "override_front_resolution": {
-                        "description": "",
-                        "name": ""
-                    },
-                    "back_custom_frame_rate": {
-                        "description": "",
-                        "name": ""
-                    },
-                    "immersive_camera_preview": {
-                        "name": "",
-                        "description": ""
-                    }
-                },
-                "description": ""
+                "name": "Kamera"
             },
             "streaks_reminder": {
                 "properties": {
                     "remaining_hours": {
-                        "name": "Hátralévő idő",
-                        "description": ""
-                    },
-                    "group_notifications": {
-                        "name": "",
-                        "description": ""
-                    },
-                    "interval": {
-                        "description": "",
-                        "name": ""
+                        "name": "Hátralévő idő"
                     }
-                },
-                "name": "",
-                "description": ""
+                }
             },
             "experimental": {
                 "name": "Kísérleti",
@@ -602,39 +394,11 @@
                                 "name": "Bitmoji kikapcsolása",
                                 "description": "Barátok Bitmoji-jának kikapcsolása"
                             }
-                        },
-                        "name": "",
-                        "description": ""
+                        }
                     },
                     "spoof": {
                         "name": "Hamisítás",
-                        "description": "Meghamisít számos információt rólad",
-                        "properties": {
-                            "play_store_installer_package_name": {
-                                "description": "",
-                                "name": ""
-                            },
-                            "fingerprint": {
-                                "name": "",
-                                "description": ""
-                            },
-                            "remove_mock_location_flag": {
-                                "name": "",
-                                "description": ""
-                            },
-                            "android_id": {
-                                "description": "",
-                                "name": ""
-                            },
-                            "remove_vpn_transport_flag": {
-                                "name": "",
-                                "description": ""
-                            },
-                            "randomize_persistent_device_token": {
-                                "name": "",
-                                "description": ""
-                            }
-                        }
+                        "description": "Meghamisít számos információt rólad"
                     },
                     "app_passcode": {
                         "name": "Alkalmazás jelszó",
@@ -657,74 +421,22 @@
                                 "description": "Hozzáad egy 🔒 emoji-t a titkosított üzenetek mellé"
                             },
                             "force_message_encryption": {
-                                "name": "Üzenet titkosítás kényszerítése",
-                                "description": ""
+                                "name": "Üzenet titkosítás kényszerítése"
                             }
                         }
                     },
                     "hidden_snapchat_plus_features": {
                         "name": "Engedélyezi a rejtett Snapchat Plusz funkciókat",
                         "description": "Engedélyezi a még nem megjelent/béta Snapchat Plusz funkciókat\nRégebbi Snapchat verziókon lehetséges hogy nem működik"
-                    },
-                    "meo_passcode_bypass": {
-                        "name": "",
-                        "description": ""
-                    },
-                    "convert_message_locally": {
-                        "name": "",
-                        "description": ""
-                    },
-                    "add_friend_source_spoof": {
-                        "description": "",
-                        "name": ""
-                    },
-                    "story_logger": {
-                        "name": "",
-                        "description": ""
-                    },
-                    "no_friend_score_delay": {
-                        "description": "",
-                        "name": ""
-                    },
-                    "unlimited_multi_snap": {
-                        "name": "",
-                        "description": ""
-                    },
-                    "disable_composer_modules": {
-                        "description": "",
-                        "name": ""
-                    },
-                    "prevent_forced_logout": {
-                        "name": "",
-                        "description": ""
                     }
                 }
             },
             "scripting": {
                 "properties": {
                     "developer_mode": {
-                        "name": "Fejlesztői mód",
-                        "description": ""
-                    },
-                    "integrated_ui": {
-                        "description": "",
-                        "name": ""
-                    },
-                    "disable_log_anonymization": {
-                        "name": "",
-                        "description": ""
-                    },
-                    "auto_reload": {
-                        "description": "",
-                        "name": ""
-                    },
-                    "module_folder": {
-                        "name": "",
-                        "description": ""
+                        "name": "Fejlesztői mód"
                     }
-                },
-                "description": "",
-                "name": ""
+                }
             }
         },
         "options": {
@@ -734,22 +446,14 @@
             },
             "better_notifications": {
                 "reply_button": "Válasz gomb hozzáadása",
-                "download_button": "Letöltés gomb hozzáadása",
-                "chat_preview": "",
-                "media_preview": "",
-                "mark_as_read_and_save_in_chat": "",
-                "group": "",
-                "mark_as_read_button": ""
+                "download_button": "Letöltés gomb hozzáadása"
             },
             "friend_feed_menu_buttons": {
                 "auto_download": "⬇️ Automatikus letöltés",
                 "auto_save": "💬 Üzenetek automatikus mentése",
                 "stealth": "👻 Lopakodó üzemmód",
                 "conversation_info": "👤 Beszélgetés információk",
-                "e2e_encryption": "🔒 Végpontok közötti titkosítás használata",
-                "mark_snaps_as_seen": "",
-                "unsaveable_messages": "",
-                "mark_stories_as_seen_locally": ""
+                "e2e_encryption": "🔒 Végpontok közötti titkosítás használata"
             },
             "auto_download_sources": {
                 "friend_snaps": "Barát Snap-ek",
@@ -775,24 +479,15 @@
                 "initiate_audio": "Bejövő hívás",
                 "abandon_audio": "Nem fogadott hívás",
                 "initiate_video": "Bejövő videóhívás",
-                "abandon_video": "Nem fogadott videóhívás",
-                "chat_reaction": "",
-                "group_chat_reaction": "",
-                "camera_roll_save": ""
+                "abandon_video": "Nem fogadott videóhívás"
             },
             "gallery_media_send_override": {
                 "ORIGINAL": "Eredeti",
-                "SNAP": "Snap",
-                "SAVABLE_SNAP": "",
-                "NOTE": ""
+                "SNAP": "Snap"
             },
             "hide_ui_components": {
                 "hide_chat_call_buttons": "Hívás gombok eltávolítása",
-                "hide_voice_record_button": "Hangfelvétel gomb eltávolítása",
-                "hide_profile_call_buttons": "",
-                "hide_unread_chat_hint": "",
-                "hide_stickers_button": "",
-                "hide_live_location_share_button": ""
+                "hide_voice_record_button": "Hangfelvétel gomb eltávolítása"
             },
             "home_tab": {
                 "map": "Térkép",
@@ -800,80 +495,6 @@
                 "camera": "Kamera",
                 "discover": "Felfedezés",
                 "spotlight": "Spotlight"
-            },
-            "bypass_video_length_restriction": {
-                "split": "",
-                "single": ""
-            },
-            "disable_confirmation_dialogs": {
-                "ignore_friend": "",
-                "block_friend": "",
-                "remove_friend": "",
-                "hide_friend": "",
-                "hide_conversation": "",
-                "clear_conversation": ""
-            },
-            "strip_media_metadata": {
-                "remove_audio_note_duration": "",
-                "remove_audio_note_transcript_capability": "",
-                "hide_extras": "",
-                "hide_caption_text": "",
-                "hide_snap_filters": ""
-            },
-            "old_bitmoji_selfie": {
-                "2d": "",
-                "3d": ""
-            },
-            "edit_text_override": {
-                "bypass_text_input_limit": "",
-                "multi_line_chat_input": ""
-            },
-            "hide_story_suggestions": {
-                "hide_suggested_friend_stories": "",
-                "hide_friend_suggestions": ""
-            },
-            "auto_purge": {
-                "1_month": "",
-                "6_months": "",
-                "never": "",
-                "1_hour": "",
-                "1_week": "",
-                "3_months": "",
-                "2_weeks": "",
-                "3_days": "",
-                "1_day": "",
-                "6_hours": "",
-                "12_hours": "",
-                "3_hours": ""
-            },
-            "path_format": {
-                "create_author_folder": "",
-                "create_source_folder": "",
-                "append_hash": "",
-                "append_source": "",
-                "append_username": "",
-                "append_date_time": ""
-            },
-            "auto_reload": {
-                "snapchat_only": "",
-                "all": ""
-            },
-            "disable_story_sections": {
-                "friends": "",
-                "following": "",
-                "discover": ""
-            },
-            "disable_cameras": {
-                "back": "",
-                "front": ""
-            },
-            "add_friend_source_spoof": {
-                "added_by_community": "",
-                "added_by_group_chat": "",
-                "added_by_qr_code": "",
-                "added_by_quick_add": "",
-                "added_by_username": "",
-                "added_by_mention": ""
             }
         }
     },
@@ -881,24 +502,15 @@
         "preview": "Előnézet",
         "stealth_mode": "Lopakodó Üzemmód",
         "auto_download_blacklist": "Automatikus Letöltési Kivételek",
-        "anti_auto_save": "Automatikus Mentés Megakadályozása",
-        "mark_stories_as_seen_locally": "",
-        "mark_snaps_as_seen": ""
+        "anti_auto_save": "Automatikus Mentés Megakadályozása"
     },
     "chat_action_menu": {
         "preview_button": "Előnézet",
         "download_button": "Letöltés",
-        "delete_logged_message_button": "Naplózott üzenet törlése",
-        "convert_message": ""
+        "delete_logged_message_button": "Naplózott üzenet törlése"
     },
     "opera_context_menu": {
-        "download": "Média letöltése",
-        "expires_at": "",
-        "created_at": "",
-        "show_debug_info": "",
-        "media_size": "",
-        "media_duration": "",
-        "sent_at": ""
+        "download": "Média letöltése"
     },
     "modal_option": {
         "profile_info": "Profil Infó",
@@ -925,9 +537,7 @@
         "snapchat_plus_state": {
             "subscribed": "Feliratkozva",
             "not_subscribed": "Nincs feliratkozás"
-        },
-        "first_created_username": "",
-        "hidden_birthday": ""
+        }
     },
     "chat_export": {
         "dialog_negative_button": "Mégsem",
@@ -939,16 +549,7 @@
         "writing_output": "Kimenet írása...",
         "finished": "Kész! Most már ezt bezárhatod.",
         "no_messages_found": "Nincsenek üzenetek!",
-        "exporting_message": "Expotálás {conversation}...",
-        "exporter_dialog": {
-            "export_file_format_title": "",
-            "amount_of_messages_title": "",
-            "message_type_filter_title": "",
-            "text_field_selection_all": "",
-            "select_conversations_title": "",
-            "download_medias_title": "",
-            "text_field_selection": ""
-        }
+        "exporting_message": "Expotálás {conversation}..."
     },
     "button": {
         "ok": "OK",
@@ -997,89 +598,6 @@
         "date_range_picker_day_in_range": "Kiválasztott",
         "date_input_invalid_for_pattern": "Helytelen dátum",
         "date_picker_today_description": "Ma",
-        "date_input_invalid_year_range": "Helytelen év",
-        "date_range_picker_scroll_to_next_month": "",
-        "date_range_picker_title": "",
-        "date_range_picker_end_headline": "",
-        "date_picker_switch_to_calendar_mode": "",
-        "date_picker_switch_to_input_mode": "",
-        "date_range_picker_start_headline": "",
-        "date_range_picker_scroll_to_previous_month": ""
-    },
-    "media_download_source": {
-        "merged": "",
-        "chat_media": "",
-        "pending": "",
-        "spotlight": "",
-        "profile_picture": "",
-        "none": "",
-        "story": "",
-        "public_story": "",
-        "story_logger": ""
-    },
-    "content_type": {
-        "STATUS": "",
-        "STICKER": "",
-        "TINY_SNAP": "",
-        "STATUS_COUNTDOWN": "",
-        "STATUS_CONVERSATION_CAPTURE_RECORD": "",
-        "STATUS_SAVE_TO_CAMERA_ROLL": "",
-        "STATUS_CONVERSATION_CAPTURE_SCREENSHOT": "",
-        "STATUS_CALL_MISSED_VIDEO": "",
-        "LOCATION": "",
-        "STATUS_PLUS_GIFT": "",
-        "STATUS_CALL_MISSED_AUDIO": "",
-        "CHAT": "",
-        "SNAP": "",
-        "NOTE": "",
-        "EXTERNAL_MEDIA": "",
-        "FAMILY_CENTER_ACCEPT": "",
-        "FAMILY_CENTER_INVITE": "",
-        "LIVE_LOCATION_SHARE": "",
-        "FAMILY_CENTER_LEAVE": "",
-        "CREATIVE_TOOL_ITEM": ""
-    },
-    "bulk_messaging_action": {
-        "selection_dialog_continue_button": "",
-        "choose_action_title": "",
-        "progress_status": "",
-        "actions": {
-            "remove_friends": "",
-            "clear_conversations": ""
-        },
-        "confirmation_dialog": {
-            "title": "",
-            "message": ""
-        }
-    },
-    "better_notifications": {
-        "button": {
-            "download": "",
-            "reply": "",
-            "mark_as_read": ""
-        },
-        "stealth_mode_notice": ""
-    },
-    "friendship_link_type": {
-        "outgoing": "",
-        "incoming_follower": "",
-        "mutual": "",
-        "blocked": "",
-        "suggested": "",
-        "deleted": "",
-        "incoming": "",
-        "following": ""
-    },
-    "suspend_location_updates": {
-        "switch_text": ""
-    },
-    "call_start_confirmation": {
-        "dialog_message": "",
-        "dialog_title": ""
-    },
-    "half_swipe_notifier": {
-        "notification_channel_name": "",
-        "notification_content_dm": "",
-        "notification_content_group": ""
+        "date_input_invalid_year_range": "Helytelen év"
     }
 }
