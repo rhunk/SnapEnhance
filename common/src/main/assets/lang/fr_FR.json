@@ -221,6 +221,10 @@
                     "opera_download_button": {
                         "description": "Ajoute un bouton de téléchargement dans le coin en haut à droite lors de la visualisation d'un Snap",
                         "name": "Bouton de téléchargement Opera"
+                    },
+                    "download_context_menu": {
+                        "name": "",
+                        "description": ""
                     }
                 }
             },
@@ -335,6 +339,10 @@
                     "hide_story_suggestions": {
                         "name": "Cacher les suggestions de story",
                         "description": "Supprimer les suggestions de la section des stories"
+                    },
+                    "stealth_mode_indicator": {
+                        "name": "",
+                        "description": ""
                     }
                 }
             },
