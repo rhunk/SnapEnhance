@@ -114,7 +114,9 @@ class SnapEnhance {
                 appContext.isMainActivityPaused = false
             }) {
                 appContext.reloadConfig()
-                syncRemote()
+                appContext.executeAsync {
+                    syncRemote()
+                }
             }
         }
     }
@@ -134,6 +136,11 @@ class SnapEnhance {
             initWidgetListener()
             initNative()
             scope.launch(Dispatchers.IO) {
+                runCatching {
+                    syncRemote()
+                }.onFailure {
+                    log.error("Failed to sync remote", it)
+                }
                 translation.userLocale = getConfigLocale()
                 translation.loadFromCallback { locale ->
                     bridgeClient.fetchLocales(locale)
@@ -257,37 +264,35 @@ class SnapEnhance {
     }
 
     private fun syncRemote() {
-        appContext.executeAsync {
-            bridgeClient.sync(object : SyncCallback.Stub() {
-                override fun syncFriend(uuid: String): String? {
-                    return database.getFriendInfo(uuid)?.let {
-                        MessagingFriendInfo(
-                            userId = it.userId!!,
-                            displayName = it.displayName,
-                            mutableUsername = it.mutableUsername!!,
-                            bitmojiId = it.bitmojiAvatarId,
-                            selfieId = it.bitmojiSelfieId,
-                            streaks = if (it.streakLength > 0) {
-                                FriendStreaks(
-                                    expirationTimestamp = it.streakExpirationTimestamp,
-                                    length = it.streakLength
-                                )
-                            } else null
-                        ).toSerialized()
-                    }
+        appContext.bridgeClient.sync(object : SyncCallback.Stub() {
+            override fun syncFriend(uuid: String): String? {
+                return appContext.database.getFriendInfo(uuid)?.let {
+                    MessagingFriendInfo(
+                        userId = it.userId!!,
+                        displayName = it.displayName,
+                        mutableUsername = it.mutableUsername!!,
+                        bitmojiId = it.bitmojiAvatarId,
+                        selfieId = it.bitmojiSelfieId,
+                        streaks = if (it.streakLength > 0) {
+                            FriendStreaks(
+                                expirationTimestamp = it.streakExpirationTimestamp,
+                                length = it.streakLength
+                            )
+                        } else null
+                    ).toSerialized()
                 }
+            }
 
-                override fun syncGroup(uuid: String): String? {
-                    return database.getFeedEntryByConversationId(uuid)?.let {
-                        MessagingGroupInfo(
-                            it.key!!,
-                            it.feedDisplayName!!,
-                            it.participantsSize
-                        ).toSerialized()
-                    }
+            override fun syncGroup(uuid: String): String? {
+                return appContext.database.getFeedEntryByConversationId(uuid)?.let {
+                    MessagingGroupInfo(
+                        it.key!!,
+                        it.feedDisplayName!!,
+                        it.participantsSize
+                    ).toSerialized()
                 }
-            })
-        }
+            }
+        })
     }
 
     private fun jetpackComposeResourceHook() {
