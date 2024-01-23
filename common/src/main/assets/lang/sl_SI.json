@@ -1,1 +1,57 @@
-{}
+{
+    "setup": {
+        "mappings": {
+            "generate_button": "Generiraj",
+            "generate_success": "Preslikave uspešno generirane.",
+            "generate_failure": "Pri generiranju preslikav je prišlo do napake, prosimo poskusite znova.",
+            "generate_failure_no_snapchat": "SnapEnhance ne zaznava Snapchata. Poizkusite ga znova naložiti."
+        },
+        "permissions": {
+            "dialog": "Za nadaljevanje morate izpolnjevati naslednje zahteve:",
+            "notification_access": "Dostop do potisnih obvestil",
+            "display_over_other_apps": "Prikaz čez druge aplikacije",
+            "request_button": "Zahtevaj",
+            "battery_optimization": "Optimizacija baterije"
+        },
+        "dialogs": {
+            "select_language": "Izberi jezik",
+            "select_save_folder_button": "Izberite mapo",
+            "save_folder": "SnapEnhance potrebuje dovoljenje za Dostop do datotek, da lahko nalaga in shranjuje datoteke iz Snapchata.\nIzberite mapo, v katero se bodo nalagale datoteke."
+        }
+    },
+    "manager": {
+        "routes": {
+            "tasks": "Naloge",
+            "features": "Lastnosti",
+            "home": "Domov",
+            "home_logs": "Dnevniki",
+            "social": "Družbena omrežja",
+            "scripts": "Skripte",
+            "home_settings": "Nastavitve"
+        },
+        "sections": {
+            "home": {
+                "logs": {
+                    "clear_logs_button": "Briši dnevnike",
+                    "export_logs_button": "Izvoz dnevnikov"
+                }
+            },
+            "tasks": {
+                "no_tasks": "Ni nalog"
+            },
+            "features": {
+                "disabled": "Onemogočeno"
+            },
+            "social": {
+                "e2ee_title": "End-to-End Šifriranje",
+                "rules_title": "Pravila",
+                "participants_text": "{count} udeležencev",
+                "not_found": "Ni najdeno",
+                "streaks_expiration_short": "{hours} ur",
+                "streaks_length_text": "Dolžina: {length}",
+                "streaks_expiration_text": "Poteče čez {eta}",
+                "streaks_title": "Streaks"
+            }
+        }
+    }
+}
