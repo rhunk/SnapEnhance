@@ -204,7 +204,7 @@ class EventDispatcher(
                 val responseUnaryCallEvent = UnaryCallEvent(
                     uri = uri,
                     buffer = array
-                )
+                ).also { it.context = context}
 
                 event.callbacks.forEach { callback ->
                     callback(responseUnaryCallEvent)
@@ -215,7 +215,7 @@ class EventDispatcher(
                     return@ephemeralHookObjectMethod
                 }
 
-                methodParam.setArg(0, ByteBuffer.wrap(event.buffer))
+                methodParam.setArg(0, ByteBuffer.wrap(responseUnaryCallEvent.buffer))
             }
         }
 
