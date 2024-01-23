@@ -90,7 +90,7 @@ class FriendFeedInfoMenu : AbstractMenu() {
                 translation["first_created_username"] to profile.firstCreatedUsername,
                 translation["mutable_username"] to profile.mutableUsername,
                 translation["display_name"] to profile.displayName,
-                translation["added_date"] to formatDate(addedTimestamp),
+                translation["added_date"] to formatDate(addedTimestamp).takeIf { addedTimestamp > 0 },
                 null to birthday.getDisplayName(
                     Calendar.MONTH,
                     Calendar.LONG,
@@ -103,6 +103,8 @@ class FriendFeedInfoMenu : AbstractMenu() {
                 },
                 translation["friendship"] to run {
                     context.translation["friendship_link_type.${FriendLinkType.fromValue(profile.friendLinkType).shortName}"]
+                }.takeIf {
+                    if (profile.friendLinkType == FriendLinkType.MUTUAL.value) addedTimestamp.toInt() > 0 else true
                 },
                 translation["add_source"] to context.database.getAddSource(profile.userId!!)?.takeIf { it.isNotEmpty() },
                 translation["snapchat_plus"] to run {
