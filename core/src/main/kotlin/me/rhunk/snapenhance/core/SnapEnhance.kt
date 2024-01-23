@@ -131,6 +131,7 @@ class SnapEnhance {
             reloadConfig()
             actionManager.init()
             initConfigListener()
+            initWidgetListener()
             initNative()
             scope.launch(Dispatchers.IO) {
                 translation.userLocale = getConfigLocale()
@@ -224,7 +225,35 @@ class SnapEnhance {
                 }
             })
         }
+    }
 
+    private fun initWidgetListener() {
+        appContext.event.subscribe(SnapWidgetBroadcastReceiveEvent::class) { event ->
+            if (event.action != ReceiversConfig.BRIDGE_SYNC_ACTION) return@subscribe
+            event.canceled = true
+            val feedEntries = appContext.database.getFeedEntries(Int.MAX_VALUE)
+
+            val groups = feedEntries.filter { it.friendUserId == null }.map {
+                MessagingGroupInfo(
+                    it.key!!,
+                    it.feedDisplayName!!,
+                    it.participantsSize
+                )
+            }
+
+            val friends = feedEntries.filter { it.friendUserId != null }.map {
+                MessagingFriendInfo(
+                    it.friendUserId!!,
+                    it.friendDisplayName,
+                    it.friendDisplayUsername!!.split("|")[1],
+                    it.bitmojiAvatarId,
+                    it.bitmojiSelfieId,
+                    streaks = null
+                )
+            }
+
+            appContext.bridgeClient.passGroupsAndFriends(groups, friends)
+        }
     }
 
     private fun syncRemote() {
@@ -258,33 +287,6 @@ class SnapEnhance {
                     }
                 }
             })
-
-            event.subscribe(SnapWidgetBroadcastReceiveEvent::class) { event ->
-                if (event.action != ReceiversConfig.BRIDGE_SYNC_ACTION) return@subscribe
-                event.canceled = true
-                val feedEntries = appContext.database.getFeedEntries(Int.MAX_VALUE)
-
-                val groups = feedEntries.filter { it.friendUserId == null }.map {
-                    MessagingGroupInfo(
-                        it.key!!,
-                        it.feedDisplayName!!,
-                        it.participantsSize
-                    )
-                }
-
-                val friends = feedEntries.filter { it.friendUserId != null }.map {
-                    MessagingFriendInfo(
-                        it.friendUserId!!,
-                        it.friendDisplayName,
-                        it.friendDisplayUsername!!.split("|")[1],
-                        it.bitmojiAvatarId,
-                        it.bitmojiSelfieId,
-                        streaks = null
-                    )
-                }
-
-                bridgeClient.passGroupsAndFriends(groups, friends)
-            }
         }
     }
 

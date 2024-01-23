@@ -148,21 +148,20 @@ class BulkMessagingAction : AbstractAction() {
     private fun removeFriend(userId: String) {
         context.mappings.useMapper(FriendRelationshipChangerMapper::class) {
             val friendRelationshipChangerInstance = context.feature(AddFriendSourceSpoof::class).friendRelationshipChangerInstance!!
-            val removeFriendMethod = friendRelationshipChangerInstance::class.java.methods.first {
-                it.name == this.removeFriendMethod.get()
-            }
+            val removeMethod = removeFriendClass.getAsClass()?.methods?.first {
+                it.name == removeFriendMethod.getAsString()
+            } ?: throw Exception("Failed to find removeFriend method")
 
-            val completable = removeFriendMethod.invoke(friendRelationshipChangerInstance,
+            val completable = removeMethod.invoke(null,
+                friendRelationshipChangerInstance,
                 userId, // userId
-                removeFriendMethod.parameterTypes[1].enumConstants.first { it.toString() == "DELETED_BY_MY_FRIENDS" }, // source
-                null, // unknown
-                null, // unknown
-                null // InteractionPlacementInfo
+                removeMethod.parameterTypes[2].enumConstants.first { it.toString() == "DELETED_BY_MY_FRIENDS" }, // source
+                null, // InteractionPlacementInfo
+                0
             )!!
             completable::class.java.methods.first {
                 it.name == "subscribe" && it.parameterTypes.isEmpty()
             }.invoke(completable)
         }
-
     }
 }
