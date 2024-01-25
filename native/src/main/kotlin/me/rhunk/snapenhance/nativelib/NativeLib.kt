@@ -11,11 +11,11 @@ class NativeLib {
             private set
     }
 
-    fun initOnce(classloader: ClassLoader) {
+    fun initOnce() {
         if (initialized) throw IllegalStateException("NativeLib already initialized")
         runCatching {
             System.loadLibrary(BuildConfig.NATIVE_NAME)
-            init(classloader)
+            init()
             initialized = true
         }.onFailure {
             Log.e("SnapEnhance", "NativeLib init failed")
@@ -24,7 +24,6 @@ class NativeLib {
 
     @Suppress("unused")
     private fun onNativeUnaryCall(uri: String, buffer: ByteArray): NativeRequestData? {
-        // Log.d("SnapEnhance", "onNativeUnaryCall: uri=$uri, bufferSize=${buffer.size}, buffer=${buffer.contentToString()}")
         val nativeRequestData = NativeRequestData(uri, buffer)
         runCatching {
             nativeUnaryCallCallback(nativeRequestData)
@@ -45,6 +44,18 @@ class NativeLib {
         loadConfig(config)
     }
 
-    private external fun init(classLoader: ClassLoader)
+    fun lockNativeDatabase(name: String, callback: () -> Unit) {
+        if (!initialized) return
+        lockDatabase(name) {
+            runCatching {
+                callback()
+            }.onFailure {
+                Log.e("SnapEnhance", "lockNativeDatabase callback failed", it)
+            }
+        }
+    }
+
+    private external fun init()
     private external fun loadConfig(config: NativeConfig)
+    private external fun lockDatabase(name: String, callback: Runnable)
 }
