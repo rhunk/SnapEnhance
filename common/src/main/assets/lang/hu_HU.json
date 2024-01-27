@@ -374,11 +374,26 @@
                         "description": "Több információt mutat az értesítésekben"
                     },
                     "notification_blacklist": {
-                        "name": "Értesítési Tiltólista"
+                        "name": "Értesítési Tiltólista",
+                        "description": "Jelöld ki azokat az értesítéseket, amelyeket tiltani szeretnél"
                     },
                     "message_logger": {
                         "name": "Üzenetnapló",
-                        "description": "Megakadályozza az üzenetek törlését"
+                        "description": "Megakadályozza az üzenetek törlését",
+                        "properties": {
+                            "message_filter": {
+                                "name": "Üzenet szűrő",
+                                "description": "Jelöld ki, hogy mely üzenetek kerüljenek naplózásra (üres az összes üzenet esetén)"
+                            },
+                            "keep_my_own_messages": {
+                                "description": "Megakadályozza a saját üzenetek törlését",
+                                "name": "Saját üzeneteim megtartása"
+                            },
+                            "auto_purge": {
+                                "name": "Automatikus tisztítás",
+                                "description": "Automatikusan törli a megadott időnél régebbi gyorsítótárazott üzeneteket"
+                            }
+                        }
                     },
                     "auto_save_messages_in_conversations": {
                         "name": "Üzenetek automatikus mentése",
@@ -403,6 +418,39 @@
                     "loop_media_playback": {
                         "name": "Média lejátszás hurokban",
                         "description": "Média lejátszási hurok a Snaps / Stories megtekintésekor"
+                    },
+                    "strip_media_metadata": {
+                        "name": "Média metaadatok eltávolítása"
+                    },
+                    "call_start_confirmation": {
+                        "name": "Hívásindítás megerősítése",
+                        "description": "Megerősítő párbeszédpanel megjelenítése hívás indításakor"
+                    },
+                    "prevent_message_sending": {
+                        "name": "Üzenetküldés megakadályozása",
+                        "description": "Megakadályozza bizonyos típusú üzenetek küldését"
+                    },
+                    "instant_delete": {
+                        "name": "Azonnali törlés",
+                        "description": "Eltávolítja a megerősítő párbeszédpanelt az üzenetek törlésekor"
+                    },
+                    "half_swipe_notifier": {
+                        "name": "Fél húzás értesítő",
+                        "description": "Értesít, ha valaki félig belecsapódik egy beszélgetésbe",
+                        "properties": {
+                            "min_duration": {
+                                "name": "Minimális időtartam",
+                                "description": "A fél áthúzás minimális időtartama (másodpercben)"
+                            },
+                            "max_duration": {
+                                "name": "Maximális időtartam",
+                                "description": "A félbehúzás maximális időtartama (másodpercben)"
+                            }
+                        }
+                    },
+                    "message_preview_length": {
+                        "name": "Üzenet előnézet hossza",
+                        "description": "Az előnézetben megjelenítendő üzenetek mennyiségének megadása"
                     }
                 },
                 "description": "Változtasd meg a barátaiddal való kapcsolattartásodat"
@@ -573,6 +621,9 @@
                 "camera": "Kamera",
                 "discover": "Felfedezés",
                 "spotlight": "Spotlight"
+            },
+            "disable_story_sections": {
+                "friends": "Barátok"
             }
         }
     },
@@ -677,5 +728,8 @@
         "date_input_invalid_for_pattern": "Helytelen dátum",
         "date_picker_today_description": "Ma",
         "date_input_invalid_year_range": "Helytelen év"
+    },
+    "media_download_source": {
+        "chat_media": "Beszélgetés média"
     }
 }
