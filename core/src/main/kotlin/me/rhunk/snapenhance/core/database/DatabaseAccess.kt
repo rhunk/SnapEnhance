@@ -17,6 +17,7 @@ import me.rhunk.snapenhance.common.util.ktx.getStringOrNull
 import me.rhunk.snapenhance.common.util.protobuf.ProtoReader
 import me.rhunk.snapenhance.core.ModContext
 import me.rhunk.snapenhance.core.manager.Manager
+import me.rhunk.snapenhance.nativelib.NativeLib
 
 
 enum class DatabaseType(
@@ -59,9 +60,15 @@ class DatabaseAccess(
     }
 
 
-    private inline fun <T> SQLiteDatabase.performOperation(crossinline query: SQLiteDatabase.() -> T?): T? {
+    private fun <T> SQLiteDatabase.performOperation(query: SQLiteDatabase.() -> T?): T? {
         return runCatching {
-            synchronized(this) {
+            if (NativeLib.initialized && openedDatabases[DatabaseType.ARROYO] == this) {
+                var result: T? = null
+                context.native.lockNativeDatabase(DatabaseType.ARROYO.fileName) {
+                    result = query()
+                }
+                result
+            } else synchronized(this) {
                 query()
             }
         }.onFailure {

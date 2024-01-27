@@ -21,7 +21,6 @@ import me.rhunk.snapenhance.core.util.ktx.getIdentifier
 class UITweaks : Feature("UITweaks", loadParams = FeatureLoadParams.ACTIVITY_CREATE_SYNC) {
     private val identifierCache = mutableMapOf<String, Int>()
 
-    @SuppressLint("DiscouragedApi")
     fun getId(name: String, defType: String): Int {
         return identifierCache.getOrPut("$name:$defType") {
             context.resources.getIdentifier(name, defType)
@@ -36,9 +35,6 @@ class UITweaks : Feature("UITweaks", loadParams = FeatureLoadParams.ACTIVITY_CRE
         event.canceled = true
     }
 
-    private var surfaceViewAspectRatio: Float = 0f
-
-    @SuppressLint("DiscouragedApi", "InternalInsetResource")
     override fun onActivityCreate() {
         val blockAds by context.config.global.blockAds
         val hiddenElements by context.config.userInterface.hideUiComponents
@@ -77,25 +73,33 @@ class UITweaks : Feature("UITweaks", loadParams = FeatureLoadParams.ACTIVITY_CRE
 
         var friendCardFrameSize: Size? = null
 
-        context.event.subscribe(BindViewEvent::class, { hideStorySuggestions.contains("hide_suggested_friend_stories") }) { event ->
-            if (event.view.id != friendCardFrame) return@subscribe
+        context.event.subscribe(BindViewEvent::class, { hideStorySuggestions.isNotEmpty() }) { event ->
+            if (event.view is FrameLayout &&
+                hideStorySuggestions.contains("hide_friend_suggestions") &&
+                event.prevModel.toString().startsWith("DFFriendSuggestionCardViewModel")
+            ) {
+                event.view.layoutParams.apply { width = 0; height = 0 }
+                return@subscribe
+            }
 
-            val friendStoryData = event.prevModel::class.java.findFieldsToString(event.prevModel, once = true) { _, value ->
-                value.contains("FriendStoryData")
-            }.firstOrNull()?.get(event.prevModel) ?: return@subscribe
+            if (event.view.id == friendCardFrame && hideStorySuggestions.contains("hide_suggested_friend_stories")) {
+                val friendStoryData = event.prevModel::class.java.findFieldsToString(event.prevModel, once = true) { _, value ->
+                    value.contains("FriendStoryData")
+                }.firstOrNull()?.get(event.prevModel) ?: return@subscribe
 
-            event.view.layoutParams.apply {
-                if (friendCardFrameSize == null && width > 0 && height > 0) {
-                    friendCardFrameSize = Size(width, height)
-                }
+                event.view.layoutParams.apply {
+                    if (friendCardFrameSize == null && width > 0 && height > 0) {
+                        friendCardFrameSize = Size(width, height)
+                    }
 
-                if (friendStoryData.toString().contains("isFriendOfFriend=true")) {
-                    width = 0
-                    height = 0
-                } else {
-                    friendCardFrameSize?.let {
-                        width = it.width
-                        height = it.height
+                    if (friendStoryData.toString().contains("isFriendOfFriend=true")) {
+                        width = 0
+                        height = 0
+                    } else {
+                        friendCardFrameSize?.let {
+                            width = it.width
+                            height = it.height
+                        }
                     }
                 }
             }
@@ -104,20 +108,6 @@ class UITweaks : Feature("UITweaks", loadParams = FeatureLoadParams.ACTIVITY_CRE
         context.event.subscribe(AddViewEvent::class) { event ->
             val viewId = event.view.id
             val view = event.view
-
-            //mappings?
-            if (hideStorySuggestions.contains("hide_friend_suggestions") && view.javaClass.superclass?.name?.endsWith("StackDrawLayout") == true) {
-                val layoutParams = view.layoutParams as? FrameLayout.LayoutParams ?: return@subscribe
-                if (layoutParams.width == -1 &&
-                    layoutParams.height == -2 &&
-                    view.javaClass.let { clazz ->
-                        clazz.methods.any { it.returnType == SpannableString::class.java} &&
-                        clazz.constructors.any { it.parameterCount == 1 && it.parameterTypes[0] == Context::class.java }
-                    }
-                ) {
-                    hideStorySection(event)
-                }
-            }
 
             if (blockAds && viewId == getId("df_promoted_story", "id")) {
                 hideStorySection(event)

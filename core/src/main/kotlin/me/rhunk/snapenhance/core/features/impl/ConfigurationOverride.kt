@@ -67,6 +67,7 @@ class ConfigurationOverride : Feature("Configuration Override", loadParams = Fea
             arrayOf("CUSTOM_AD_TRACKER_URL", "CUSTOM_AD_INIT_SERVER_URL", "CUSTOM_AD_SERVER_URL", "INIT_PRIMARY_URL", "INIT_SHADOW_URL").forEach {
                 overrideProperty(it, { context.config.global.blockAds.get() }, { "http://127.0.0.1" })
             }
+            overrideProperty("ENABLE_SNAP_FEED", { context.config.global.disableMemoriesSnapFeed.get() }, { false })
 
             classReference.getAsClass()?.hook(
                 getProperty.getAsString()!!,

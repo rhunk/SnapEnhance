@@ -14,6 +14,7 @@ class Global : ConfigContainer() {
     val disableMetrics = boolean("disable_metrics") { requireRestart() }
     val disableStorySections = multiple("disable_story_sections", "friends", "following", "discover") { requireRestart(); requireCleanCache() }
     val blockAds = boolean("block_ads")
+    val disableMemoriesSnapFeed = boolean("disable_memories_snap_feed")
     val spotlightCommentsUsername = boolean("spotlight_comments_username") { requireRestart() }
     val bypassVideoLengthRestriction = unique("bypass_video_length_restriction", "split", "single") { addNotices(
         FeatureNotice.BAN_RISK); requireRestart(); nativeHooks() }
