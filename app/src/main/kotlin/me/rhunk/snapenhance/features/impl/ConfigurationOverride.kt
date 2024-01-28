@@ -24,10 +24,7 @@ class ConfigurationOverride : Feature("Configuration Override", loadParams = Fea
         overrideProperty("ENABLE_LONG_SNAP_SENDING", { context.config.bool(ConfigProperty.DISABLE_SNAP_SPLITTING) }, true)
         overrideProperty("BYPASS_AD_FEATURE_GATE", { context.config.bool(ConfigProperty.BLOCK_ADS) }, true)
 
-        context.config.state(ConfigProperty.STORY_VIEWER_OVERRIDE).let { state ->
-            overrideProperty("DF_ENABLE_SHOWS_PAGE_CONTROLS", { state == "DISCOVER_PLAYBACK_SEEKBAR" }, true)
-            overrideProperty("DF_VOPERA_FOR_STORIES", { state == "VERTICAL_STORY_VIEWER" }, true)
-        }
+        overrideProperty("DF_VOPERA_FOR_STORIES", { context.config.bool(ConfigProperty.STORY_VIEWER_OVERRIDE) }, true)
 
         overrideProperty("SIG_APP_APPEARANCE_SETTING", { context.config.bool(ConfigProperty.ENABLE_APP_APPEARANCE) }, true)
         overrideProperty("SPOTLIGHT_5TH_TAB_ENABLED", { context.config.bool(ConfigProperty.DISABLE_SPOTLIGHT) }, false)

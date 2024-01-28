@@ -218,10 +218,7 @@ enum class ConfigProperty(
     ),
     STORY_VIEWER_OVERRIDE("story_viewer_override",
         ConfigCategory.UI_TWEAKS,
-        ConfigStateSelection(
-            listOf("OFF", "DISCOVER_PLAYBACK_SEEKBAR", "VERTICAL_STORY_VIEWER"),
-            "OFF"
-        )
+        ConfigStateValue(false)
     ),
     STREAK_EXPIRATION_INFO(
         "streak_expiration_info",

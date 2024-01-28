@@ -116,7 +116,7 @@
         },
         "story_viewer_override": {
             "name": "Story Viewer Override",
-            "description": "Turns on certain features which Snapchat hid"
+            "description": "Enables the vertical story viewer for all stories"
         },
         "streak_expiration_info": {
             "name": "Show Streak Expiration Info",
