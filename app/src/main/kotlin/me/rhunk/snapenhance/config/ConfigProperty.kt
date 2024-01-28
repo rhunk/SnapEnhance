@@ -192,11 +192,10 @@ enum class ConfigProperty(
         "hide_ui_elements",
         ConfigCategory.UI_TWEAKS,
         ConfigStateListValue(
-            listOf("remove_voice_record_button", "remove_stickers_button", "remove_cognac_button", "remove_live_location_share_button", "remove_call_buttons", "remove_camera_borders"),
+            listOf("remove_voice_record_button", "remove_stickers_button", "remove_live_location_share_button", "remove_call_buttons", "remove_camera_borders"),
             mutableMapOf(
                 "remove_voice_record_button" to false,
                 "remove_stickers_button" to false,
-                "remove_cognac_button" to false,
                 "remove_live_location_share_button" to false,
                 "remove_call_buttons" to false,
                 "remove_camera_borders" to false
