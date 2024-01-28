@@ -207,9 +207,8 @@ enum class ConfigProperty(
         "hide_story_section",
         ConfigCategory.UI_TWEAKS,
         ConfigStateListValue(
-            listOf("hide_friend_suggestions", "hide_friends", "hide_following", "hide_for_you"),
+            listOf("hide_friends", "hide_following", "hide_for_you"),
             mutableMapOf(
-                "hide_friend_suggestions" to false,
                 "hide_friends" to false,
                 "hide_following" to false,
                 "hide_for_you" to false

@@ -61,9 +61,6 @@ class UITweaks : Feature("UITweaks", loadParams = FeatureLoadParams.ACTIVITY_CRE
 
         Hooker.hook(View::class.java, "setVisibility", HookStage.BEFORE) { methodParam ->
             val viewId = (methodParam.thisObject() as View).id
-            if (viewId == chatNoteRecordButton && hiddenElements["remove_voice_record_button"] == true) {
-                methodParam.setArg(0, View.GONE)
-            }
             if (viewId == callButton1 || viewId == callButton2) {
                 if (hiddenElements["remove_call_buttons"] == false) return@hook
                 methodParam.setArg(0, View.GONE)
@@ -94,20 +91,6 @@ class UITweaks : Feature("UITweaks", loadParams = FeatureLoadParams.ACTIVITY_CRE
                 hideStorySection(param)
             }
 
-            //mappings?
-            if (hideStorySection["hide_friend_suggestions"] == true && view.javaClass.superclass?.name?.endsWith("StackDrawLayout") == true) {
-                val layoutParams = view.layoutParams as? FrameLayout.LayoutParams ?: return@hook
-                if (layoutParams.width == -1 &&
-                    layoutParams.height == -2 &&
-                    view.javaClass.let { clazz ->
-                        clazz.methods.any { it.returnType == SpannableString::class.java} &&
-                        clazz.constructors.any { it.parameterCount == 1 && it.parameterTypes[0] == Context::class.java }
-                    }
-                ) {
-                    hideStorySection(param)
-                }
-            }
-
             if (hideStorySection["hide_following"] == true && (viewId == getIdentifier("df_small_story", "id"))
             ) {
                 hideStorySection(param)
@@ -134,27 +117,22 @@ class UITweaks : Feature("UITweaks", loadParams = FeatureLoadParams.ACTIVITY_CRE
                 }
             }
 
-            if (viewId == chatNoteRecordButton && hiddenElements["remove_voice_record_button"] == true) {
-                view.isEnabled = false
-                view.setWillNotDraw(true)
-            }
+            if ((viewId == callButtonsStub && hiddenElements["remove_call_buttons"] == true) ||
+                (getIdentifier("chat_input_bar_sharing_drawer_button", "id") == viewId && hiddenElements["remove_live_location_share_button"] == true) ||
+                (getIdentifier("chat_input_bar_sticker", "id") == viewId && hiddenElements["remove_stickers_button"] == true) ||
+                (viewId == chatNoteRecordButton && hiddenElements["remove_voice_record_button"] == true)
+            ) {
 
-            if (getIdentifier("chat_input_bar_cognac", "id") == viewId && hiddenElements["remove_cognac_button"] == true) {
-                view.visibility = View.GONE
-            }
-            if (getIdentifier("chat_input_bar_sticker", "id") == viewId && hiddenElements["remove_stickers_button"] == true) {
-                view.visibility = View.GONE
-            }
-            if (getIdentifier("chat_input_bar_sharing_drawer_button", "id") == viewId && hiddenElements["remove_live_location_share_button"] == true) {
-                param.setResult(null)
-            }
-            if (viewId == callButton1 || viewId == callButton2) {
-                if (hiddenElements["remove_call_buttons"] == false) return@hook
-                if (view.visibility == View.GONE) return@hook
-            }
-            if (viewId == callButtonsStub) {
-                if (hiddenElements["remove_call_buttons"] == false) return@hook
-                param.setResult(null)
+                view.apply {
+                    view.post {
+                        isEnabled = false
+                        setWillNotDraw(true)
+                        view.visibility = View.GONE
+                    }
+                    addOnLayoutChangeListener { view, _, _, _, _, _, _, _, _ ->
+                        view.post { view.visibility = View.GONE }
+                    }
+                }
             }
         }
     }
