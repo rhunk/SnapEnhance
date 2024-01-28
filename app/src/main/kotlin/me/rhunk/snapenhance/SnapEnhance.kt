@@ -36,7 +36,7 @@ class SnapEnhance {
             runCatching {
                 appContext.androidContext.packageManager.getApplicationInfoCompat(BuildConfig.APPLICATION_ID, PackageManager.GET_META_DATA)
             }.onFailure {
-                appContext.crash("SnapEnhance bridge service is not installed. Please download stable version from https://github.com/rhunk/SnapEnhance/releases")
+                appContext.crash("SnapEnhance app is not installed. Please download a build from github.com/rhunk/SnapEnhance")
                 return@hook
             }
 
