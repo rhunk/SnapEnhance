@@ -9,7 +9,7 @@ class PlusSubscriptionMapper : AbstractClassMapper(){
     override fun run(context: MapperContext) {
         for (clazz in context.classes) {
             if (clazz.directMethods.filter { it.name == "<init>" }.none {
-                it.parameters.size == 4 &&
+                it.parameters.size >= 4 &&
                 it.parameterTypes[0] == "I" &&
                 it.parameterTypes[1] == "I" &&
                 it.parameterTypes[2] == "J" &&
