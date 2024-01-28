@@ -65,6 +65,22 @@ class ConfigActivity : Activity() {
 
         val propertyListLayout = findViewById<ViewGroup>(R.id.property_list)
 
+        propertyListLayout.addView(
+            layoutInflater.inflate(
+                R.layout.config_activity_debug_item,
+                propertyListLayout,
+                false
+            ).apply {
+                findViewById<TextView>(R.id.debug_item_content).apply {
+                    text = Html.fromHtml(
+                        "<b>SnapEnhance Beta is available on <a href=\"https://t.me/snapenhance_ci\">Telegram</a>!</b>",
+                        Html.FROM_HTML_MODE_COMPACT
+                    )
+                    textSize = 17f
+                    movementMethod = android.text.method.LinkMovementMethod.getInstance()
+                }
+            })
+
         if (intent.getBooleanExtra("lspatched", false) ||
             applicationInfo.packageName != "me.rhunk.snapenhance" ||
             BuildConfig.DEBUG) {
