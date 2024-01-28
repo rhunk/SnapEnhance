@@ -113,6 +113,7 @@ class MessageLogger : Feature("MessageLogger",
 
         //serialize all properties of messageJsonObject and put in the message object
         messageInstance.javaClass.declaredFields.forEach { field ->
+            if (field.name != "mMessageContent" && field.name != "mMetadata") return@forEach
             field.isAccessible = true
             messageJsonObject[field.name]?.let { fieldValue ->
                 field.set(messageInstance, context.gson.fromJson(fieldValue, field.type))
