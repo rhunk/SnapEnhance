@@ -28,6 +28,7 @@ class ConfigurationOverride : Feature("Configuration Override", loadParams = Fea
 
         overrideProperty("SIG_APP_APPEARANCE_SETTING", { context.config.bool(ConfigProperty.ENABLE_APP_APPEARANCE) }, true)
         overrideProperty("SPOTLIGHT_5TH_TAB_ENABLED", { context.config.bool(ConfigProperty.DISABLE_SPOTLIGHT) }, false)
+        overrideProperty("TRANSCODING_MAX_QUALITY", { context.config.bool(ConfigProperty.FORCE_MEDIA_SOURCE_QUALITY) }, true)
 
         arrayOf("CUSTOM_AD_TRACKER_URL", "CUSTOM_AD_INIT_SERVER_URL", "CUSTOM_AD_SERVER_URL").forEach {
             overrideProperty(it, { context.config.bool(ConfigProperty.BLOCK_ADS) }, "http://127.0.0.1")
