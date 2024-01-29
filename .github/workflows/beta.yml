@@ -26,7 +26,7 @@ jobs:
       - name: Grant execute permission for gradlew
         run: chmod +x gradlew
 
-      - name: Build all
+      - name: Build
         run: ./gradlew assembleArmv8Debug
 
       - name: Build Version
@@ -70,7 +70,7 @@ jobs:
       - name: Grant execute permission for gradlew
         run: chmod +x gradlew
 
-      - name: Build all
+      - name: Build
         run: ./gradlew assembleArmv7Debug
 
       - name: Build Version
@@ -88,7 +88,7 @@ jobs:
 
       - name: Rename APK file
         run: |
-          mv app/build/outputs/apk/armv7/debug/*.apk app/build/outputs/apk/armv8/debug/snapenhance-${{ env.version }}-armv7-${{ steps.version-env.outputs.sha_short }}.apk
+          mv app/build/outputs/apk/armv7/debug/*.apk app/build/outputs/apk/armv7/debug/snapenhance-${{ env.version }}-armv7-${{ steps.version-env.outputs.sha_short }}.apk
 
       - name: Upload artifact
         uses: actions/upload-artifact@v4
@@ -114,7 +114,7 @@ jobs:
       - name: Grant execute permission for gradlew
         run: chmod +x gradlew
 
-      - name: Build all
+      - name: Build
         run: ./gradlew assembleAllDebug
 
       - name: Build Version
@@ -158,7 +158,7 @@ jobs:
       - name: Grant execute permission for gradlew
         run: chmod +x gradlew
 
-      - name: Build manager
+      - name: Build
         run: ./gradlew manager:assembleDebug
 
       - name: Upload artifact
@@ -185,8 +185,8 @@ jobs:
       - name: Grant execute permission for gradlew
         run: chmod +x gradlew
 
-      - name: Build manager
-        run: ./gradlew core:assembleDebug
+      - name: Build
+        run: ./gradlew assembleCoreDebug
 
       - name: Upload artifact
         uses: actions/upload-artifact@v4
