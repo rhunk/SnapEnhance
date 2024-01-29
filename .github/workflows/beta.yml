@@ -1,196 +1,190 @@
 name: Beta CI
 on:
   workflow_dispatch:
-      inputs:
-        ci_upload:
-          description: 'Upload to CI channel'
-          required: false
-          type: boolean
 
 jobs:
   job_armv8:
-    runs-on: macos-latest
+    runs-on: ubuntu-latest
     steps:
-      - name: Checkout repo
+      - name: Checkout Repository
         uses: actions/checkout@v4
         with:
-          submodules: 'recursive'
+          submodules: recursive
 
-      - name: set up JDK 17
+      - name: Setup JDK 21
         uses: actions/setup-java@v4
         with:
-          java-version: '17'
-          distribution: 'temurin'
+          java-version: 21
+          distribution: temurin
           cache: gradle
 
-      - name: Grant execute permission for gradlew
+      - name: Grant Execute Permission for gradlew
         run: chmod +x gradlew
 
       - name: Build
         run: ./gradlew assembleArmv8Debug
 
-      - name: Build Version
+      - name: Generate Version
         run: ./gradlew getVersion
 
-      - name: Set Environment Variables
+      - name: Set Version to Environment Variables
         id: version-env
         run: |
           echo "version=$(cat app/build/version.txt)" >> $GITHUB_ENV
           echo "sha_short=$(git rev-parse --short HEAD)" >> $GITHUB_OUTPUT
 
-      - name: Git branch name
+      - name: Git Branch Name
         id: git-branch-name
         uses: EthanSK/git-branch-name-action@main
 
-      - name: Rename APK file
+      - name: Rename APK File
         run: |
-          mv app/build/outputs/apk/armv8/debug/*.apk app/build/outputs/apk/armv8/debug/snapenhance-${{ env.version }}-armv8-${{ steps.version-env.outputs.sha_short }}.apk
+          mv app/build/outputs/apk/armv8/debug/*.apk app/build/outputs/apk/armv8/debug/SnapEnhance-${{ env.version }}-ARMv8-${{ steps.version-env.outputs.sha_short }}.apk
 
-      - name: Upload artifact
+      - name: Upload Artifact
         uses: actions/upload-artifact@v4
         with:
-          name: snapenhance-armv8-debug
+          name: SnapEnhance-ARMv8-Debug
           path: app/build/outputs/apk/armv8/debug/*.apk
-          
+
   job_armv7:
-    runs-on: macos-latest
+    runs-on: ubuntu-latest
     steps:
-      - name: Checkout repo
+      - name: Checkout Repository
         uses: actions/checkout@v4
         with:
-          submodules: 'recursive'
+          submodules: recursive
 
-      - name: set up JDK 17
+      - name: Setup JDK 21
         uses: actions/setup-java@v4
         with:
-          java-version: '17'
-          distribution: 'temurin'
+          java-version: 21
+          distribution: temurin
           cache: gradle
 
-      - name: Grant execute permission for gradlew
+      - name: Grant Execute Permission for gradlew
         run: chmod +x gradlew
 
       - name: Build
         run: ./gradlew assembleArmv7Debug
 
-      - name: Build Version
+      - name: Generate Version
         run: ./gradlew getVersion
 
-      - name: Set Environment Variables
+      - name: Set Version to Environment Variables
         id: version-env
         run: |
           echo "version=$(cat app/build/version.txt)" >> $GITHUB_ENV
           echo "sha_short=$(git rev-parse --short HEAD)" >> $GITHUB_OUTPUT
 
-      - name: Git branch name
+      - name: Git Branch Name
         id: git-branch-name
         uses: EthanSK/git-branch-name-action@main
 
-      - name: Rename APK file
+      - name: Rename APK File
         run: |
-          mv app/build/outputs/apk/armv7/debug/*.apk app/build/outputs/apk/armv7/debug/snapenhance-${{ env.version }}-armv7-${{ steps.version-env.outputs.sha_short }}.apk
+          mv app/build/outputs/apk/armv7/debug/*.apk app/build/outputs/apk/armv7/debug/SnapEnhance-${{ env.version }}-ARMv7-${{ steps.version-env.outputs.sha_short }}.apk
 
-      - name: Upload artifact
+      - name: Upload Artifact
         uses: actions/upload-artifact@v4
         with:
-          name: snapenhance-armv7-debug
+          name: SnapEnhance-ARMv7-Debug
           path: app/build/outputs/apk/armv7/debug/*.apk
 
   job_universal:
-    runs-on: macos-latest
+    runs-on: ubuntu-latest
     steps:
-      - name: Checkout repo
+      - name: Checkout Repository
         uses: actions/checkout@v4
         with:
-          submodules: 'recursive'
+          submodules: recursive
 
-      - name: set up JDK 17
+      - name: Setup JDK 21
         uses: actions/setup-java@v4
         with:
-          java-version: '17'
-          distribution: 'temurin'
+          java-version: 21
+          distribution: temurin
           cache: gradle
 
-      - name: Grant execute permission for gradlew
+      - name: Grant Execute Permission for gradlew
         run: chmod +x gradlew
 
       - name: Build
         run: ./gradlew assembleAllDebug
 
-      - name: Build Version
+      - name: Generate Version
         run: ./gradlew getVersion
 
-      - name: Set Environment Variables
+      - name: Set Version to Environment Variables
         id: version-env
         run: |
           echo "version=$(cat app/build/version.txt)" >> $GITHUB_ENV
           echo "sha_short=$(git rev-parse --short HEAD)" >> $GITHUB_OUTPUT
 
-      - name: Git branch name
+      - name: Git Branch Name
         id: git-branch-name
         uses: EthanSK/git-branch-name-action@main
 
-      - name: Rename APK files
+      - name: Rename APK File
         run: |
-          mv app/build/outputs/apk/all/debug/*.apk app/build/outputs/apk/all/debug/snapenhance-${{ env.version }}-universal-${{ steps.version-env.outputs.sha_short }}.apk
+          mv app/build/outputs/apk/all/debug/*.apk app/build/outputs/apk/all/debug/SnapEnhance-${{ env.version }}-Universal-${{ steps.version-env.outputs.sha_short }}.apk
 
-      - name: Upload universal
+      - name: Upload Artifact
         uses: actions/upload-artifact@v4
         with:
-          name: snapenhance-universal-debug
+          name: SnapEnhance-Universal-Debug
           path: app/build/outputs/apk/all/debug/*.apk
 
   job_manager:
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout repo
+      - name: Checkout Repository
         uses: actions/checkout@v4
         with:
-          submodules: 'recursive'
+          submodules: recursive
 
-      - name: set up JDK 17
+      - name: Setup JDK 21
         uses: actions/setup-java@v4
         with:
-          java-version: '17'
-          distribution: 'temurin'
+          java-version: 21
+          distribution: temurin
           cache: gradle
 
-      - name: Grant execute permission for gradlew
+      - name: Grant Execute Permission for gradlew
         run: chmod +x gradlew
 
       - name: Build
         run: ./gradlew manager:assembleDebug
 
-      - name: Upload artifact
+      - name: Upload Artifact
         uses: actions/upload-artifact@v4
         with:
-          name: manager
+          name: Manager
           path: manager/build/outputs/apk/debug/*.apk
 
   job_core:
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout repo
+      - name: Checkout Repository
         uses: actions/checkout@v4
         with:
-          submodules: 'recursive'
+          submodules: recursive
 
-      - name: set up JDK 17
+      - name: Setup JDK 21
         uses: actions/setup-java@v4
         with:
-          java-version: '17'
-          distribution: 'temurin'
+          java-version: 21
+          distribution: temurin
           cache: gradle
 
-      - name: Grant execute permission for gradlew
+      - name: Grant Execute Permission for gradlew
         run: chmod +x gradlew
 
       - name: Build
         run: ./gradlew assembleCoreDebug
 
-      - name: Upload artifact
+      - name: Upload Artifact
         uses: actions/upload-artifact@v4
         with:
-          name: core
+          name: Core
           path: app/build/outputs/apk/core/debug/*.apk
-  
