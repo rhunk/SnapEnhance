@@ -6,11 +6,11 @@
             "select_save_folder_button": "Ordner wählen"
         },
         "mappings": {
-            "dialog": "Damit SnapEnhance eine Vielzahl von SnapChat-Versionen gleichzeitig unterstützen kann, sind Zuordnungen notwendig. Dies sollte nicht länger als 5 Sekunden dauern.",
-            "generate_button": "Erstellen",
+            "dialog": "Damit SnapEnhance eine Vielzahl von Snapchat-Versionen gleichzeitig unterstützen kann, sind Zuordnungen notwendig. Dies sollte nicht länger als 5 Sekunden dauern.",
+            "generate_button": "Generieren",
             "generate_failure_no_snapchat": "SnapEnhance konnte Snapchat nicht finden, bitte versuchen Sie Snapchat neu zu installieren.",
-            "generate_failure": "Beim Erstellen der Zuordnungen ist ein Fehler aufgetreten. Bitte versuchen Sie es erneut.",
-            "generate_success": "Die Zuordnungen wurden erfolgreich erstellt."
+            "generate_failure": "Beim Generieren der Zuordnungen ist ein Fehler aufgetreten. Bitte versuchen Sie es erneut.",
+            "generate_success": "Die Zuordnungen wurden erfolgreich generiert."
         },
         "permissions": {
             "dialog": "Um fortfahren zu können, müssen Sie diese Anforderungen erfüllen:",
@@ -22,11 +22,11 @@
     },
     "manager": {
         "routes": {
-            "features": "Features",
+            "features": "Funktionen",
             "home": "Startseite",
             "home_settings": "Einstellungen",
             "home_logs": "Logs",
-            "social": "Social",
+            "social": "Sozial",
             "scripts": "Skripte",
             "tasks": "Aufgaben"
         },
@@ -71,8 +71,8 @@
     },
     "rules": {
         "modes": {
-            "blacklist": "Schwarzlisten-Modus",
-            "whitelist": "Weißlisten-Modus"
+            "blacklist": "Blacklist Modus",
+            "whitelist": "Whitlist Modus"
         },
         "properties": {
             "auto_download": {
@@ -85,9 +85,9 @@
             },
             "stealth": {
                 "name": "Heimlicher Modus",
-                "description": "Verhindert, dass jemand weiß, dass du seine Snaps/Chats oder Gespräche geöffnet hast",
+                "description": "Verhindert, dass jemand weiß, dass du seine Snaps/Chats oder Konversationen geöffnet hast",
                 "options": {
-                    "blacklist": "Vom Heimlichen Modus Ausschließen",
+                    "blacklist": "Vom Heimlichen Modus ausschließen",
                     "whitelist": "Heimlicher Modus"
                 }
             },
@@ -120,12 +120,12 @@
     },
     "actions": {
         "clean_snapchat_cache": "Snapchat-Cache leeren",
-        "clear_message_logger": "Nachrichten Logger löschen",
-        "refresh_mappings": "Mappings erneuern",
+        "clear_message_logger": "Nachrichten Logger leeren",
+        "refresh_mappings": "Mappings aktualisieren",
         "open_map": "Standort auf der Karte wählen",
         "check_for_updates": "Auf Updates überprüfen",
-        "export_chat_messages": "Chat Nachrichten Exportieren",
-        "bulk_messaging_action": "Massen Aktion",
+        "export_chat_messages": "Chat Nachrichten exportieren",
+        "bulk_messaging_action": "Massen Nachrichten Aktion",
         "export_memories": "Memories exportieren"
     },
     "features": {
@@ -137,7 +137,7 @@
         },
         "properties": {
             "downloader": {
-                "name": "Herunterlader",
+                "name": "Downloader",
                 "description": "Snapchat Medien herunterladen",
                 "properties": {
                     "save_folder": {
@@ -219,8 +219,11 @@
                         "name": "Benutzerdefiniertes Pfadformat"
                     },
                     "opera_download_button": {
-                        "description": "Fügt einen Download-Button in der oberen rechten Ecke hinzu, wenn ein Snap angezeigt wird",
+                        "description": "Fügt einen Download-Button in der oberen rechten Ecke hinzu, wenn ein Snap angezeigt wird.\nGedrückt halten um einen Download zu starten",
                         "name": "Schwebender Download Button"
+                    },
+                    "download_context_menu": {
+                        "name": "Download Kontext Menü"
                     }
                 }
             },

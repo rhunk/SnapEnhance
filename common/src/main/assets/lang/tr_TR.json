@@ -219,8 +219,12 @@
                         "name": "Özel Yol Formatı"
                     },
                     "opera_download_button": {
-                        "description": "Bir Snap görüntülerken sağ üst köşeye bir indirme düğmesi ekler",
+                        "description": "Bir Snap görüntülerken sağ üst köşeye bir indirme düğmesi ekler.\nDüğmelere uzun basıldığında indirmeye zorlar",
                         "name": "Opera İndirme Düğmesi"
+                    },
+                    "download_context_menu": {
+                        "name": "İndirme Bağlam Menüsü",
+                        "description": "Bağlam menüsünü kullanarak bir sohbetten veya hikayeden mesajları indirmenize/önizlemenize olanak tanır.\nDüğmelere uzun basmak indirmeye zorlar"
                     }
                 }
             },
@@ -517,6 +521,10 @@
                     "disable_story_sections": {
                         "name": "Hikaye Bölümlerini Devre Dışı Bırak",
                         "description": "Hikayeler sayfasından bölümleri kaldırır\nDüzgün çalışması için yenileme gerekebilir"
+                    },
+                    "disable_memories_snap_feed": {
+                        "description": "Kamerada yukarı kaydırdığınızda Snapchat'in son anıları göstermesini engeller",
+                        "name": "Anılar Snap Feed'ini Devre Dışı Bırak"
                     }
                 }
             },
@@ -580,7 +588,7 @@
                     },
                     "remaining_hours": {
                         "name": "Kalan Süre",
-                        "description": "Bildirim gösterilmeden önce kalan süre"
+                        "description": "Bildirim gösterilmeden önce kalan süre (saat)"
                     },
                     "group_notifications": {
                         "name": "Bildirimleri Grupla",
