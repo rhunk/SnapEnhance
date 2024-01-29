@@ -1,48 +1,30 @@
 name: Release CI
 on:
   workflow_dispatch:
+
 jobs:
-  build:
+  job_armv8:
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout repo
+      - name: Checkout Repository
         uses: actions/checkout@v4
         with:
-          submodules: 'recursive'
+          submodules: recursive
 
-      - name: set up JDK 17
+      - name: Setup JDK 21
         uses: actions/setup-java@v4
         with:
-          java-version: '17'
-          distribution: 'temurin'
+          java-version: 21
+          distribution: temurin
           cache: gradle
 
-      - name: Grant execute permission for gradlew
+      - name: Grant Execute Permission for gradlew
         run: chmod +x gradlew
 
-      - name: Clean Gradle Cache
-        run: ./gradlew clean
+      - name: Build
+        run: ./gradlew assembleArmv8Release
 
-      - name: Build Release APK
-        run: ./gradlew assembleRelease
-
-      - name: Sign armv7 APK
-        id: sign_armv7_app
-        uses: kevin-david/zipalign-sign-android-release@main
-        with:
-          releaseDirectory: app/build/outputs/apk/armv7/release/
-          signingKeyBase64: ${{ secrets.JAVA_KEYSTORE_DATA }}
-          alias: ${{ secrets.KEY_ALIAS }}
-          keyStorePassword: ${{ secrets.KEYSTORE_PASSWORD }}
-          keyPassword: ${{ secrets.KEY_PASSWORD }}
-
-      - name: Upload armv7 artifact
-        uses: actions/upload-artifact@v4
-        with:
-          name: app-armv7-release
-          path: ${{ steps.sign_armv7_app.outputs.signedReleaseFile }}
-
-      - name: Sign armv8 APK
+      - name: Sign ARMv8 APK
         id: sign_armv8_app
         uses: kevin-david/zipalign-sign-android-release@main
         with:
@@ -52,16 +34,72 @@ jobs:
           keyStorePassword: ${{ secrets.KEYSTORE_PASSWORD }}
           keyPassword: ${{ secrets.KEY_PASSWORD }}
 
-      - name: Upload armv8 artifact
+      - name: Upload SnapEnhance ARMv8 Release APK
         uses: actions/upload-artifact@v4
         with:
-          name: app-armv8-release
+          name: SnapEnhance-ARMv8-Release
           path: ${{ steps.sign_armv8_app.outputs.signedReleaseFile }}
+
+  job_armv7:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+        with:
+          submodules: recursive
+
+      - name: Setup JDK 21
+        uses: actions/setup-java@v4
+        with:
+          java-version: 21
+          distribution: temurin
+          cache: gradle
+
+      - name: Grant Execute Permission for gradlew
+        run: chmod +x gradlew
+
+      - name: Build
+        run: ./gradlew assembleArmv7Release
+
+      - name: Sign ARMv7 APK
+        id: sign_armv7_app
+        uses: kevin-david/zipalign-sign-android-release@main
+        with:
+          releaseDirectory: app/build/outputs/apk/armv7/release/
+          signingKeyBase64: ${{ secrets.JAVA_KEYSTORE_DATA }}
+          alias: ${{ secrets.KEY_ALIAS }}
+          keyStorePassword: ${{ secrets.KEYSTORE_PASSWORD }}
+          keyPassword: ${{ secrets.KEY_PASSWORD }}
+
+      - name: Upload SnapEnhance ARMv7 Release APK
+        uses: actions/upload-artifact@v4
+        with:
+          name: SnapEnhance-ARMv7-Release
+          path: ${{ steps.sign_armv7_app.outputs.signedReleaseFile }}
+
+  job_publish:
+    needs: [ build_armv8, build_armv7 ]
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+        with:
+          submodules: recursive
+
+      - name: Setup JDK 21
+        uses: actions/setup-java@v4
+        with:
+          java-version: 21
+          distribution: temurin
+          cache: gradle
+
+      - name: Grant Execute Permission for gradlew
+        run: chmod +x gradlew
 
       - name: Generate Version
         run: ./gradlew getVersion
 
-      - name: Set Version to Environment
+      - name: Set Version to Environment Variables
         id: version-env
         run: echo "version=$(cat app/build/version.txt)" >> $GITHUB_ENV
 
@@ -71,6 +109,6 @@ jobs:
           repo_token: "${{ secrets.GITHUB_TOKEN }}"
           prerelease: false
           files: |
-            ${{ steps.sign_armv7_app.outputs.signedReleaseFile }}
             ${{ steps.sign_armv8_app.outputs.signedReleaseFile }}
+            ${{ steps.sign_armv7_app.outputs.signedReleaseFile }}
           automatic_release_tag: v${{ env.version }}

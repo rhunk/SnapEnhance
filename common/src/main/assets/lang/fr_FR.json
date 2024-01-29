@@ -219,12 +219,8 @@
                         "name": "Format de chemin personnalisé"
                     },
                     "opera_download_button": {
-                        "description": "Ajoute un bouton de téléchargement dans le coin en haut à droite lors de la visualisation d'un Snap.\nUne longue pression sur ce bouton forcera le téléchargement",
+                        "description": "Ajoute un bouton de téléchargement dans le coin en haut à droite lors de la visualisation d'un Snap",
                         "name": "Bouton de téléchargement Opera"
-                    },
-                    "download_context_menu": {
-                        "name": "Menu de téléchargement contextuel",
-                        "description": "Vous permet de télécharger/voir les messages a partir d'une conversation ou d'une story a partir du menu contextuel.\nUne pression longue sur ce bouton forcera le téléchargement"
                     }
                 }
             },
@@ -339,10 +335,6 @@
                     "hide_story_suggestions": {
                         "name": "Cacher les suggestions de story",
                         "description": "Supprimer les suggestions de la section des stories"
-                    },
-                    "stealth_mode_indicator": {
-                        "name": "Indicateur de Mode Furtif",
-                        "description": "Ajoute un emoji 👻 à côté des conversations en mode furtif"
                     }
                 }
             },
@@ -521,9 +513,6 @@
                     "disable_story_sections": {
                         "name": "Désactiver les sections de story",
                         "description": "Supprime les sections de la page des stories\nUne actualisation peut être nécessaire pour fonctionner correctement"
-                    },
-                    "disable_memories_snap_feed": {
-                        "name": "Désactive le Fil Souvenirs Snap"
                     }
                 }
             },
@@ -587,7 +576,7 @@
                     },
                     "remaining_hours": {
                         "name": "Temps restant",
-                        "description": "Le temps restant avant que la notification soit affichée (heures)"
+                        "description": "Le temps restant avant que la notification soit affichée"
                     },
                     "group_notifications": {
                         "name": "Notifications de groupe",
