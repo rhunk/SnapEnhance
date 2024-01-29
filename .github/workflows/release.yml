@@ -78,7 +78,7 @@ jobs:
           path: ${{ steps.sign_armv7_app.outputs.signedReleaseFile }}
 
   job_publish:
-    needs: [ build_armv8, build_armv7 ]
+    needs: [ job_armv8, job_armv7 ]
     runs-on: ubuntu-latest
     steps:
       - name: Checkout Repository
