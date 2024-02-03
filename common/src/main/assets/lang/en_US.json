@@ -328,10 +328,6 @@
                         "name": "Vertical Story Viewer",
                         "description": "Enables the vertical story viewer for all stories"
                     },
-                    "friend_feed_menu_position": {
-                        "name": "Friend Feed Position Index",
-                        "description": "The position of the Friend Feed Menu component"
-                    },
                     "enable_friend_feed_menu_bar": {
                         "name": "Friend Feed Menu Bar",
                         "description": "Enables the new Friend Feed Menu Bar"

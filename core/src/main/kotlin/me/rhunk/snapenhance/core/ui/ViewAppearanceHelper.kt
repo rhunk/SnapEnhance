@@ -1,6 +1,5 @@
 package me.rhunk.snapenhance.core.ui
 
-import android.annotation.SuppressLint
 import android.app.Activity
 import android.app.AlertDialog
 import android.content.Context
@@ -21,6 +20,7 @@ import android.view.ViewGroup
 import android.widget.Switch
 import android.widget.TextView
 import me.rhunk.snapenhance.core.util.ktx.getDimens
+import me.rhunk.snapenhance.core.util.ktx.getDimensFloat
 import me.rhunk.snapenhance.core.util.ktx.getIdentifier
 import kotlin.random.Random
 
@@ -93,73 +93,66 @@ fun View.iterateParent(predicate: (View) -> Boolean) {
 
 
 object ViewAppearanceHelper {
-    private var sigColorTextPrimary: Int = 0
-    private var sigColorBackgroundSurface: Int = 0
-
-    private fun createRoundedBackground(color: Int, hasRadius: Boolean): Drawable {
+    private fun createRoundedBackground(color: Int, radius: Float, hasRadius: Boolean): Drawable {
         if (!hasRadius) return ColorDrawable(color)
-        //FIXME: hardcoded radius
         return ShapeDrawable().apply {
             paint.color = color
             shape = android.graphics.drawable.shapes.RoundRectShape(
-                floatArrayOf(20f, 20f, 20f, 20f, 20f, 20f, 20f, 20f),
+                floatArrayOf(radius, radius, radius, radius, radius, radius, radius, radius),
                 null,
                 null
             )
         }
     }
 
-    @SuppressLint("DiscouragedApi")
     fun applyTheme(component: View, componentWidth: Int? = null, hasRadius: Boolean = false, isAmoled: Boolean = true) {
         val resources = component.context.resources
-        if (sigColorBackgroundSurface == 0 || sigColorTextPrimary == 0) {
-            with(component.context.theme) {
-                sigColorTextPrimary = obtainStyledAttributes(
-                    intArrayOf(resources.getIdentifier("sigColorTextPrimary", "attr"))
-                ).getColor(0, 0)
+        val actionSheetCellHorizontalPadding = resources.getDimens("action_sheet_cell_horizontal_padding")
+        val v11ActionCellVerticalPadding = resources.getDimens("v11_action_cell_vertical_padding")
 
-                sigColorBackgroundSurface = obtainStyledAttributes(
-                    intArrayOf(resources.getIdentifier("sigColorBackgroundSurface", "attr"))
-                ).getColor(0, 0)
-            }
-        }
+        val sigColorTextPrimary = component.context.theme.obtainStyledAttributes(
+            intArrayOf(resources.getIdentifier("sigColorTextPrimary", "attr"))
+        ).getColor(0, 0)
+        val sigColorBackgroundSurface = component.context.theme.obtainStyledAttributes(
+            intArrayOf(resources.getIdentifier("sigColorBackgroundSurface", "attr"))
+        ).getColor(0, 0)
 
+        val actionSheetDefaultCellHeight = resources.getDimens("action_sheet_default_cell_height")
+        val actionSheetCornerRadius = resources.getDimensFloat("action_sheet_corner_radius")
         val snapchatFontResId = resources.getIdentifier("avenir_next_medium", "font")
-        val scalingFactor = resources.displayMetrics.densityDpi.toDouble() / 400
 
-        with(component) {
-            if (this is TextView) {
-                setTextColor(sigColorTextPrimary)
-                setShadowLayer(0F, 0F, 0F, 0)
-                gravity = Gravity.CENTER_VERTICAL
-                componentWidth?.let { width = it}
-                height = (150 * scalingFactor).toInt()
-                isAllCaps = false
-                textSize = 16f
-                typeface = resources.getFont(snapchatFontResId)
-                outlineProvider = null
-                setPadding((40 * scalingFactor).toInt(), 0, (40 * scalingFactor).toInt(), 0)
-            }
-            if (isAmoled) {
-                background = StateListDrawable().apply {
-                    addState(intArrayOf(), createRoundedBackground(color = sigColorBackgroundSurface, hasRadius))
-                    addState(intArrayOf(android.R.attr.state_pressed), createRoundedBackground(color = 0x5395026, hasRadius))
-                }
-            } else {
-                setBackgroundColor(0x0)
-            }
+        (component as? TextView)?.apply {
+            setTextColor(sigColorTextPrimary)
+            setShadowLayer(0F, 0F, 0F, 0)
+            gravity = Gravity.CENTER_VERTICAL
+            componentWidth?.let { width = it}
+            isAllCaps = false
+            minimumHeight = actionSheetDefaultCellHeight
+            textSize = 16f
+            typeface = resources.getFont(snapchatFontResId)
+            outlineProvider = null
+            setPadding(actionSheetCellHorizontalPadding, v11ActionCellVerticalPadding, actionSheetCellHorizontalPadding, v11ActionCellVerticalPadding)
         }
 
-        if (component is Switch) {
-            component.switchMinWidth = resources.getDimens("v11_switch_min_width")
-            component.trackTintList = ColorStateList(
+        if (isAmoled) {
+            component.background = StateListDrawable().apply {
+                addState(intArrayOf(), createRoundedBackground(color = sigColorBackgroundSurface, radius = actionSheetCornerRadius, hasRadius))
+                addState(intArrayOf(android.R.attr.state_pressed), createRoundedBackground(color = 0x5395026, radius = actionSheetCornerRadius, hasRadius))
+            }
+        } else {
+            component.setBackgroundColor(0x0)
+        }
+
+        (component as? Switch)?.apply {
+            switchMinWidth = resources.getDimens("v11_switch_min_width")
+            trackTintList = ColorStateList(
                 arrayOf(intArrayOf(-android.R.attr.state_checked), intArrayOf(android.R.attr.state_checked)
                 ), intArrayOf(
                     Color.parseColor("#1d1d1d"),
                     Color.parseColor("#26bd49")
                 )
             )
-            component.thumbTintList = ColorStateList(
+            thumbTintList = ColorStateList(
                 arrayOf(intArrayOf(-android.R.attr.state_checked), intArrayOf(android.R.attr.state_checked)
                 ), intArrayOf(
                     Color.parseColor("#F5F5F5"),
