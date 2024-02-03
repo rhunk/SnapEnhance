@@ -502,6 +502,10 @@
                         "name": "Block Ads",
                         "description": "Prevents Advertisements from being displayed"
                     },
+                    "disable_permission_requests": {
+                        "name": "Disable Permission Requests",
+                        "description": "Prevents Snapchat from asking for specific permissions"
+                    },
                     "disable_memories_snap_feed": {
                         "name": "Disable Memories Snap Feed",
                         "description": "Prevents Snapchat from showing recent memories when you swipe up in camera"
@@ -878,6 +882,17 @@
             "disable_cameras":{
                 "front": "Front Camera",
                 "back": "Back Camera"
+            },
+            "disable_permission_requests": {
+                "notifications": "Notifications",
+                "read_media_images": "Read Media Images",
+                "read_media_video": "Read Media Video",
+                "camera": "Camera",
+                "microphone": "Microphone",
+                "location": "Location",
+                "read_contacts": "Read Contacts",
+                "nearby_devices": "Nearby Devices",
+                "phone_calls": "Phone Calls"
             }
         }
     },
