@@ -80,6 +80,7 @@ We no longer offer official LSPatch binaries for obvious reasons. However, you'r
   - Loop Media PlayBack
   - Disable Replay In FF
   - Half Swipe Notifier
+  - Message Preview
   - Call Start Confirmation 
   - Auto Save Messages 
   - Prevent Message Sending
@@ -102,11 +103,13 @@ We no longer offer official LSPatch binaries for obvious reasons. However, you'r
   - Disable Metrics 
   - Disable Public Stories
   - Block Ads
+  - Disable Permission Request
+  - Disable Memories Snap Feed
+  - Spotlight Comments Username 
   - Bypass Video Length Restriction
   - Disable Google Play Services Dialogs 
   - Force Upload Source Quality 
   - Disable Snap Splitting
-  - Streak Reminder
 </details>
 
 <details closed>
