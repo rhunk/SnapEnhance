@@ -83,8 +83,6 @@ class EndToEndEncryption : MessagingRuleFeature(
             return
         }
 
-        context.log.verbose("created publicKey: ${publicKey.contentToString()}")
-
         sendCustomMessage(conversationId, REQUEST_PK_MESSAGE_ID) {
             addBuffer(2, publicKey)
         }

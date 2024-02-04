@@ -207,19 +207,26 @@ class LogManager(
 
     fun internalLog(tag: String, logLevel: LogLevel, message: Any?) {
         runCatching {
+            val anonymizedMessage = message.toString().let {
+                if (remoteSideContext.config.isInitialized() && anonymizeLogs)
+                    it
+                    // remove uuids
+                    .replace(Regex("[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}", RegexOption.MULTILINE), "xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx")
+                    // remove content uris
+                    .replace(Regex("content://[a-zA-Z0-9_\\-./]+"), "content://xxx")
+                    // remove file names
+                    .replace(Regex("[a-zA-Z0-9_\\-./]+\\.[a-zA-Z0-9_\\-./]+"), "xxx.xxx")
+                    else it
+            }
             val line = LogLine(
                 logLevel = logLevel,
                 dateTime = getCurrentDateTime(),
                 tag = tag,
-                message = message.toString().let {
-                    if (remoteSideContext.config.isInitialized() && anonymizeLogs)
-                        it.replace(Regex("[0-9a-f]{8}-[0-9a-f]{4}-{3}[0-9a-f]{12}", RegexOption.MULTILINE), "xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx")
-                    else it
-                }
+                message = anonymizedMessage
             )
             logFile.appendText("|$line\n", Charsets.UTF_8)
             lineAddListener(line)
-            Log.println(logLevel.priority, tag, message.toString())
+            Log.println(logLevel.priority, tag, anonymizedMessage)
         }.onFailure {
             Log.println(Log.ERROR, tag, "Failed to log message: $message")
             Log.println(Log.ERROR, tag, it.stackTraceToString())

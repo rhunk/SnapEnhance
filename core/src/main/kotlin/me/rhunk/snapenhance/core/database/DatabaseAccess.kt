@@ -1,5 +1,6 @@
 package me.rhunk.snapenhance.core.database
 
+import android.content.ContentValues
 import android.database.Cursor
 import android.database.sqlite.SQLiteDatabase
 import android.database.sqlite.SQLiteDatabase.OpenParams
@@ -55,8 +56,8 @@ class DatabaseAccess(
             )
         }.onFailure {
             context.log.error("Failed to open database ${database.fileName}!", it)
-        }.getOrNull()?.takeIf { !writeMode }?.also {
-            openedDatabases[database] = it
+        }.getOrNull()?.also {
+            if (!writeMode) openedDatabases[database] = it
         }
     }
 
@@ -367,13 +368,22 @@ class DatabaseAccess(
         }
     }
 
-    fun markFriendStoriesAsSeen(userId: String) {
+    fun setStoriesViewedState(userId: String, viewed: Boolean): Boolean {
+        var success = false
         useDatabase(DatabaseType.MAIN, writeMode = true)?.apply {
             performOperation {
-                execSQL("UPDATE StorySnap SET viewed = 1 WHERE userId = ?", arrayOf(userId))
+                success = update(
+                    "StorySnap",
+                    ContentValues().apply {
+                        put("viewed", if (viewed) 1 else 0)
+                    },
+                    "userId = ? AND viewed != ?",
+                    arrayOf(userId, if (viewed) "1" else "0")
+                ) > 0
             }
             close()
         }
+        return success
     }
 
     fun getAccessTokens(userId: String): Map<String, String>? {
