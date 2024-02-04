@@ -12,6 +12,7 @@ import me.rhunk.snapenhance.common.scripting.ui.components.NodeType
 import me.rhunk.snapenhance.common.scripting.ui.components.impl.ActionNode
 import me.rhunk.snapenhance.common.scripting.ui.components.impl.ActionType
 import me.rhunk.snapenhance.common.scripting.ui.components.impl.RowColumnNode
+import me.rhunk.snapenhance.common.scripting.ui.components.impl.TextInputNode
 import me.rhunk.snapenhance.common.ui.createComposeAlertDialog
 import org.mozilla.javascript.Function
 import org.mozilla.javascript.annotations.JSFunction
@@ -74,6 +75,12 @@ class InterfaceBuilder {
         attributes["items"] = items
         attributes["callback"] = callback
     }
+
+    fun textInput(placeholder: String, value: String, callback: (String) -> Unit) = TextInputNode().apply {
+        placeholder(placeholder)
+        value(value)
+        callback(callback)
+    }.also { nodes.add(it) }
 }
 
 
