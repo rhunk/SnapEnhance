@@ -8,5 +8,6 @@ enum class NodeType {
     BUTTON,
     SLIDER,
     LIST,
-    ACTION
+    ACTION,
+    TEXT_INPUT,
 }

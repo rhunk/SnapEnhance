@@ -328,10 +328,6 @@
                         "name": "Vertical Story Viewer",
                         "description": "Enables the vertical story viewer for all stories"
                     },
-                    "friend_feed_menu_position": {
-                        "name": "Friend Feed Position Index",
-                        "description": "The position of the Friend Feed Menu component"
-                    },
                     "enable_friend_feed_menu_bar": {
                         "name": "Friend Feed Menu Bar",
                         "description": "Enables the new Friend Feed Menu Bar"
@@ -505,6 +501,10 @@
                     "block_ads": {
                         "name": "Block Ads",
                         "description": "Prevents Advertisements from being displayed"
+                    },
+                    "disable_permission_requests": {
+                        "name": "Disable Permission Requests",
+                        "description": "Prevents Snapchat from asking for specific permissions"
                     },
                     "disable_memories_snap_feed": {
                         "name": "Disable Memories Snap Feed",
@@ -882,6 +882,17 @@
             "disable_cameras":{
                 "front": "Front Camera",
                 "back": "Back Camera"
+            },
+            "disable_permission_requests": {
+                "notifications": "Notifications",
+                "read_media_images": "Read Media Images",
+                "read_media_video": "Read Media Video",
+                "camera": "Camera",
+                "microphone": "Microphone",
+                "location": "Location",
+                "read_contacts": "Read Contacts",
+                "nearby_devices": "Nearby Devices",
+                "phone_calls": "Phone Calls"
             }
         }
     },
