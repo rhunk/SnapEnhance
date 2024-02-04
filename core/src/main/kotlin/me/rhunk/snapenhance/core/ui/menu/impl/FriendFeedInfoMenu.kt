@@ -36,6 +36,7 @@ import me.rhunk.snapenhance.core.ui.ViewAppearanceHelper
 import me.rhunk.snapenhance.core.ui.applyTheme
 import me.rhunk.snapenhance.core.ui.menu.AbstractMenu
 import me.rhunk.snapenhance.core.ui.triggerRootCloseTouchEvent
+import me.rhunk.snapenhance.core.util.ktx.vibrateLongPress
 import java.net.HttpURLConnection
 import java.net.URL
 import java.text.DateFormat
@@ -124,7 +125,7 @@ class FriendFeedInfoMenu : AbstractMenu() {
     private fun markAsSeen(conversationId: String) {
         val messaging = context.feature(Messaging::class)
         val messageIds = messaging.getFeedCachedMessageIds(conversationId)?.takeIf { it.isNotEmpty() } ?: run {
-            context.shortToast("No recent snaps found")
+            context.shortToast(context.translation["mark_as_seen.no_unseen_snaps_toast"])
             return
         }
 
@@ -329,10 +330,27 @@ class FriendFeedInfoMenu : AbstractMenu() {
             viewConsumer(Button(view.context).apply {
                 text = translation["mark_stories_as_seen_locally"]
                 applyTheme(view.width, hasRadius = true)
-                setOnClickListener {
-                    this@FriendFeedInfoMenu.context.apply {
+
+                val translations = this@FriendFeedInfoMenu.context.translation.getCategory("mark_as_seen")
+
+                this@FriendFeedInfoMenu.context.apply {
+                    setOnClickListener {
                         mainActivity?.triggerRootCloseTouchEvent()
-                        database.markFriendStoriesAsSeen(targetUser)
+                        if (database.setStoriesViewedState(targetUser, true)) {
+                            shortToast(translations["seen_toast"])
+                        } else {
+                            shortToast(translations["already_seen_toast"])
+                        }
+                    }
+                    setOnLongClickListener {
+                        context.vibrateLongPress()
+                        mainActivity?.triggerRootCloseTouchEvent()
+                        if (database.setStoriesViewedState(targetUser, false)) {
+                            shortToast(translations["unseen_toast"])
+                        } else {
+                            shortToast(translations["already_unseen_toast"])
+                        }
+                        true
                     }
                 }
             })

@@ -967,6 +967,14 @@
         "multiple_media_toast": "You can only send one media at a time"
     },
 
+    "mark_as_seen": {
+        "no_unseen_snaps_toast": "No unseen Snaps found!",
+        "seen_toast": "Marked as seen!",
+        "unseen_toast": "Marked as unseen!",
+        "already_seen_toast": "Already marked as seen!",
+        "already_unseen_toast": "Already marked as unseen!"
+    },
+
     "conversation_preview": {
         "streak_expiration": "expires in {day} days {hour} hours {minute} minutes",
         "total_messages": "Total sent/received messages: {count}",
