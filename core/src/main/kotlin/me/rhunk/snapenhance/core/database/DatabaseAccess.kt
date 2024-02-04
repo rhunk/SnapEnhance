@@ -33,7 +33,8 @@ class DatabaseAccess(
     private val openedDatabases = mutableMapOf<DatabaseType, SQLiteDatabase>()
 
     private fun useDatabase(database: DatabaseType, writeMode: Boolean = false): SQLiteDatabase? {
-        if (openedDatabases.containsKey(database) && openedDatabases[database]?.isOpen == true) {
+        // only cache read-only databases
+        if (!writeMode && openedDatabases.containsKey(database) && openedDatabases[database]?.isOpen == true) {
             return openedDatabases[database]
         }
 
@@ -54,11 +55,10 @@ class DatabaseAccess(
             )
         }.onFailure {
             context.log.error("Failed to open database ${database.fileName}!", it)
-        }.getOrNull()?.also {
+        }.getOrNull()?.takeIf { !writeMode }?.also {
             openedDatabases[database] = it
         }
     }
-
 
     private fun <T> SQLiteDatabase.performOperation(query: SQLiteDatabase.() -> T?): T? {
         return runCatching {

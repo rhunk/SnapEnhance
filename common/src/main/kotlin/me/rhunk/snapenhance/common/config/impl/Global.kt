@@ -4,6 +4,20 @@ import me.rhunk.snapenhance.common.config.ConfigContainer
 import me.rhunk.snapenhance.common.config.FeatureNotice
 
 class Global : ConfigContainer() {
+    companion object {
+        val permissionMap = mapOf(
+            "android.permission.POST_NOTIFICATIONS" to "notifications",
+            "android.permission.READ_MEDIA_IMAGES" to "read_media_images",
+            "android.permission.READ_MEDIA_VIDEO" to "read_media_video",
+            "android.permission.CAMERA" to "camera",
+            "android.permission.ACCESS_FINE_LOCATION" to "location",
+            "android.permission.RECORD_AUDIO" to "microphone",
+            "android.permission.READ_CONTACTS" to "read_contacts",
+            "android.permission.BLUETOOTH_CONNECT" to "nearby_devices",
+            "android.permission.READ_PHONE_STATE" to "phone_calls",
+        )
+    }
+
     inner class SpoofLocation : ConfigContainer(hasGlobalState = true) {
         val coordinates = mapCoordinates("coordinates", 0.0 to 0.0) { requireRestart()} // lat, long
     }
@@ -14,6 +28,7 @@ class Global : ConfigContainer() {
     val disableMetrics = boolean("disable_metrics") { requireRestart() }
     val disableStorySections = multiple("disable_story_sections", "friends", "following", "discover") { requireRestart(); requireCleanCache() }
     val blockAds = boolean("block_ads")
+    val disablePermissionRequests = multiple("disable_permission_requests", *permissionMap.values.toTypedArray()) { requireRestart(); addNotices(FeatureNotice.UNSTABLE) }
     val disableMemoriesSnapFeed = boolean("disable_memories_snap_feed")
     val spotlightCommentsUsername = boolean("spotlight_comments_username") { requireRestart() }
     val bypassVideoLengthRestriction = unique("bypass_video_length_restriction", "split", "single") { addNotices(

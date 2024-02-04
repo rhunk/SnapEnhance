@@ -9,6 +9,7 @@ import org.mozilla.javascript.Wrapper
 fun contextScope(f: Context.() -> Any?): Any? {
     val context = Context.enter()
     context.optimizationLevel = -1
+    context.languageVersion = Context.VERSION_ES6
     try {
         return context.f().let {
             if (it is Wrapper) {
