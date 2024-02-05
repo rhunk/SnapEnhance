@@ -12,7 +12,11 @@ import android.widget.CompoundButton
 import android.widget.LinearLayout
 import android.widget.ProgressBar
 import android.widget.Switch
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Surface
 import androidx.compose.runtime.remember
+import androidx.compose.ui.Modifier
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
@@ -373,12 +377,17 @@ class FriendFeedInfoMenu : AbstractMenu() {
 
                     orientation = LinearLayout.VERTICAL
                     addView(createComposeView(view.context) {
-                        ScriptInterface(interfaceBuilder = remember {
-                            interfaceManager.buildInterface(EnumScriptInterface.FRIEND_FEED_CONTEXT_MENU, mapOf(
-                                "conversationId" to conversationId,
-                                "userId" to targetUser
-                            ))
-                        } ?: return@createComposeView)
+                        Surface(
+                            modifier = Modifier.fillMaxWidth(),
+                            color = MaterialTheme.colorScheme.surface
+                        ) {
+                            ScriptInterface(interfaceBuilder = remember {
+                                interfaceManager.buildInterface(EnumScriptInterface.FRIEND_FEED_CONTEXT_MENU, mapOf(
+                                    "conversationId" to conversationId,
+                                    "userId" to targetUser
+                                ))
+                            } ?: return@Surface)
+                        }
                     })
                 })
             }
