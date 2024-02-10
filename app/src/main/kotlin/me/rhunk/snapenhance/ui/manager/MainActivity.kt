@@ -15,14 +15,8 @@ import me.rhunk.snapenhance.SharedContextHolder
 import me.rhunk.snapenhance.common.ui.AppMaterialTheme
 
 class MainActivity : ComponentActivity() {
-    private lateinit var sections: Map<EnumSection, Section>
     private lateinit var navController: NavHostController
     private lateinit var managerContext: RemoteSideContext
-
-    override fun onPostResume() {
-        super.onPostResume()
-        sections.values.forEach { it.onResumed() }
-    }
 
     override fun onNewIntent(intent: Intent) {
         super.onNewIntent(intent)
@@ -40,37 +34,30 @@ class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        val startDestination = intent.getStringExtra("route")?.let { EnumSection.fromRoute(it) } ?: EnumSection.HOME
         managerContext = SharedContextHolder.remote(this).apply {
             activity = this@MainActivity
             checkForRequirements()
         }
 
-        sections = EnumSection.entries.associateWith {
-            it.section.java.constructors.first().newInstance() as Section
-        }.onEach { (section, instance) ->
-            with(instance) {
-                enumSection = section
-                context = managerContext
-                init()
-            }
-        }
+        val routes = Routes(managerContext)
+        routes.getRoutes().forEach { it.init() }
 
         setContent {
             navController = rememberNavController()
-            val navigation = remember { Navigation(managerContext, sections, navController) }
+            val navigation = remember {
+                Navigation(managerContext, navController, routes.also {
+                    it.navController = navController
+                })
+            }
+            val startDestination = remember { intent.getStringExtra("route") ?: routes.home.routeInfo.id }
+
             AppMaterialTheme {
                 Scaffold(
                     containerColor = MaterialTheme.colorScheme.background,
                     topBar = { navigation.TopBar() },
-                    bottomBar = { navigation.NavBar() },
-                    floatingActionButton = { navigation.Fab() }
-                ) { innerPadding ->
-                    navigation.NavigationHost(
-                        innerPadding = innerPadding,
-                        startDestination = startDestination
-                    )
-                }
+                    bottomBar = { navigation.BottomBar() },
+                    floatingActionButton = { navigation.FloatingActionButton() }
+                ) { innerPadding -> navigation.Content(innerPadding, startDestination) }
             }
         }
     }

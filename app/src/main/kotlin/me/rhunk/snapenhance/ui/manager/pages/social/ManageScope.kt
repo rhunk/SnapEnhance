@@ -1,68 +1,90 @@
-package me.rhunk.snapenhance.ui.manager.sections.social
+package me.rhunk.snapenhance.ui.manager.pages.social
 
 import android.content.Intent
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.material3.Button
-import androidx.compose.material3.Card
-import androidx.compose.material3.OutlinedButton
-import androidx.compose.material3.Switch
-import androidx.compose.material3.Text
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.rounded.DeleteForever
+import androidx.compose.material3.*
+import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.navigation.NavController
+import androidx.navigation.NavBackStackEntry
+import androidx.navigation.compose.currentBackStackEntryAsState
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
-import me.rhunk.snapenhance.RemoteSideContext
 import me.rhunk.snapenhance.common.data.MessagingRuleType
 import me.rhunk.snapenhance.common.data.SocialScope
 import me.rhunk.snapenhance.common.util.snap.BitmojiSelfie
+import me.rhunk.snapenhance.ui.manager.Routes
 import me.rhunk.snapenhance.ui.util.AlertDialogs
 import me.rhunk.snapenhance.ui.util.BitmojiImage
 import me.rhunk.snapenhance.ui.util.Dialog
 import kotlin.io.encoding.Base64
 import kotlin.io.encoding.ExperimentalEncodingApi
 
-class ScopeContent(
-    private val context: RemoteSideContext,
-    private val section: SocialSection,
-    private val navController: NavController,
-    val scope: SocialScope,
-    private val id: String
-) {
+class ManageScope: Routes.Route() {
     private val dialogs by lazy { AlertDialogs(context.translation) }
     private val translation by lazy { context.translation.getCategory("manager.sections.social") }
 
-    fun deleteScope(coroutineScope: CoroutineScope) {
+    private fun deleteScope(scope: SocialScope, id: String, coroutineScope: CoroutineScope) {
         when (scope) {
             SocialScope.FRIEND -> context.modDatabase.deleteFriend(id)
             SocialScope.GROUP -> context.modDatabase.deleteGroup(id)
         }
         context.modDatabase.executeAsync {
             coroutineScope.launch {
-                section.onResumed()
-                navController.popBackStack()
+                routes.navController.popBackStack()
             }
         }
     }
 
-    @Composable
-    fun Content() {
+    override val topBarActions: @Composable (RowScope.() -> Unit) = topBarActions@{
+        val navBackStackEntry by routes.navController.currentBackStackEntryAsState()
+        var deleteConfirmDialog by remember { mutableStateOf(false) }
+        val coroutineScope = rememberCoroutineScope()
+
+        if (deleteConfirmDialog) {
+            val scope = navBackStackEntry?.arguments?.getString("scope")?.let { SocialScope.getByName(it) } ?: return@topBarActions
+            val id = navBackStackEntry?.arguments?.getString("id")!!
+
+            Dialog(onDismissRequest = {
+                deleteConfirmDialog = false
+            }) {
+                remember { AlertDialogs(context.translation) }.ConfirmDialog(
+                    title = "Are you sure you want to delete this ${scope.key.lowercase()}?",
+                    onDismiss = { deleteConfirmDialog = false },
+                    onConfirm = {
+                        deleteScope(scope, id, coroutineScope); deleteConfirmDialog = false
+                    }
+                )
+            }
+        }
+
+        IconButton(
+            onClick = { deleteConfirmDialog = true },
+        ) {
+            Icon(
+                imageVector = Icons.Rounded.DeleteForever,
+                contentDescription = null
+            )
+        }
+    }
+
+    override val content: @Composable (NavBackStackEntry) -> Unit = content@{ navBackStackEntry ->
+        val scope = SocialScope.getByName(navBackStackEntry.arguments?.getString("scope")!!)
+        val id = navBackStackEntry.arguments?.getString("id")!!
+
         Column(
             modifier = Modifier.verticalScroll(rememberScrollState())
         ) {
             when (scope) {
-                SocialScope.FRIEND -> Friend()
-                SocialScope.GROUP -> Group()
+                SocialScope.FRIEND -> Friend(id)
+                SocialScope.GROUP -> Group(id)
             }
 
             Spacer(modifier = Modifier.height(16.dp))
@@ -163,7 +185,7 @@ class ScopeContent(
 
     @OptIn(ExperimentalEncodingApi::class)
     @Composable
-    private fun Friend() {
+    private fun Friend(id: String) {
         //fetch the friend from the database
         val friend = remember { context.modDatabase.getFriendInfo(id) } ?: run {
             Text(text = translation["not_found"])
@@ -208,7 +230,9 @@ class ScopeContent(
                 horizontalArrangement = Arrangement.spacedBy(10.dp, Alignment.CenterHorizontally),
             ) {
                 Button(onClick = {
-                    navController.navigate(SocialSection.LOGGED_STORIES_ROUTE.replace("{userId}", id))
+                    routes.loggedStories.navigate {
+                        put("id", id)
+                    }
                 }) {
                     Text("Show Logged Stories")
                 }
@@ -331,7 +355,7 @@ class ScopeContent(
     }
 
     @Composable
-    private fun Group() {
+    private fun Group(id: String) {
         //fetch the group from the database
         val group = remember { context.modDatabase.getGroupInfo(id) } ?: run {
             Text(text = translation["not_found"])

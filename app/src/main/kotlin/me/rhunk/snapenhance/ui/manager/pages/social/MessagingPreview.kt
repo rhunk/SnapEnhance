@@ -1,4 +1,4 @@
-package me.rhunk.snapenhance.ui.manager.sections.social
+package me.rhunk.snapenhance.ui.manager.pages.social
 
 import android.content.Intent
 import androidx.compose.foundation.background
@@ -23,8 +23,8 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.unit.dp
+import androidx.navigation.NavBackStackEntry
 import kotlinx.coroutines.*
-import me.rhunk.snapenhance.RemoteSideContext
 import me.rhunk.snapenhance.bridge.snapclient.MessagingBridge
 import me.rhunk.snapenhance.bridge.snapclient.SessionStartListener
 import me.rhunk.snapenhance.bridge.snapclient.types.Message
@@ -38,23 +38,21 @@ import me.rhunk.snapenhance.messaging.MessagingConstraints
 import me.rhunk.snapenhance.messaging.MessagingTask
 import me.rhunk.snapenhance.messaging.MessagingTaskConstraint
 import me.rhunk.snapenhance.messaging.MessagingTaskType
+import me.rhunk.snapenhance.ui.manager.Routes
 import me.rhunk.snapenhance.ui.util.Dialog
+import java.util.SortedMap
 
-class MessagingPreview(
-    private val context: RemoteSideContext,
-    private val scope: SocialScope,
-    private val scopeId: String
-) {
+class MessagingPreview: Routes.Route() {
     private lateinit var coroutineScope: CoroutineScope
     private lateinit var messagingBridge: MessagingBridge
     private lateinit var previewScrollState: LazyListState
+
     private val myUserId by lazy { messagingBridge.myUserId }
     private val contentTypeTranslation by lazy { context.translation.getCategory("content_type") }
 
-    private var conversationId: String? = null
-    private val messages = sortedMapOf<Long, Message>() // server message id => message
+    private var messages = sortedMapOf<Long, Message>()
     private var messageSize by mutableIntStateOf(0)
-    private var lastMessageId = Long.MAX_VALUE
+    private var conversationId by mutableStateOf<String?>(null)
     private val selectedMessages = mutableStateListOf<Long>() // client message id
 
     private fun toggleSelectedMessage(messageId: Long) {
@@ -172,8 +170,7 @@ class MessagingPreview(
         }
     }
 
-    @Composable
-    fun TopBarAction() {
+    override val topBarActions: @Composable (RowScope.() -> Unit) = {
         var taskSelectionDropdown by remember { mutableStateOf(false) }
         var selectConstraintsDialog by remember { mutableStateOf(false) }
         var activeTask by remember { mutableStateOf(null as MessagingTask?) }
@@ -325,7 +322,11 @@ class MessagingPreview(
     }
 
     @Composable
-    private fun ConversationPreview() {
+    private fun ConversationPreview(
+        messages: SortedMap<Long, Message>,
+        messageSize: Int,
+        fetchNewMessages: () -> Unit
+    ) {
         DisposableEffect(Unit) {
             onDispose {
                 selectedMessages.clear()
@@ -393,65 +394,6 @@ class MessagingPreview(
         }
     }
 
-    private fun fetchNewMessages() {
-        coroutineScope.launch(Dispatchers.IO) cs@{
-            runCatching {
-                val queriedMessages = messagingBridge.fetchConversationWithMessagesPaginated(
-                    conversationId!!,
-                    100,
-                    lastMessageId
-                )
-
-                if (queriedMessages == null) {
-                    context.shortToast("Failed to fetch messages")
-                    return@cs
-                }
-
-                coroutineScope.launch {
-                    messages.putAll(queriedMessages.map { it.serverMessageId to it })
-                    messageSize = messages.size
-                    if (queriedMessages.isNotEmpty()) {
-                        lastMessageId = queriedMessages.first().clientMessageId
-                        previewScrollState.scrollToItem(queriedMessages.size - 1)
-                    }
-                }
-            }.onFailure {
-                context.shortToast("Failed to fetch messages: ${it.message}")
-            }
-            context.log.verbose("fetched ${messages.size} messages")
-        }
-    }
-
-    private fun onMessagingBridgeReady() {
-        runCatching {
-            messagingBridge = context.bridgeService!!.messagingBridge!!
-            conversationId = if (scope == SocialScope.FRIEND) messagingBridge.getOneToOneConversationId(scopeId) else scopeId
-            if (conversationId == null) {
-                context.longToast("Failed to fetch conversation id")
-                return
-            }
-            if (!messagingBridge.isSessionStarted) {
-                context.androidContext.packageManager.getLaunchIntentForPackage(
-                    Constants.SNAPCHAT_PACKAGE_NAME
-                )?.let {
-                    val mainIntent = Intent.makeRestartActivityTask(it.component).apply {
-                        putExtra(ReceiversConfig.MESSAGING_PREVIEW_EXTRA, true)
-                    }
-                    context.androidContext.startActivity(mainIntent)
-                }
-                messagingBridge.registerSessionStartListener(object: SessionStartListener.Stub() {
-                    override fun onConnected() {
-                        fetchNewMessages()
-                    }
-                })
-                return
-            }
-            fetchNewMessages()
-        }.onFailure {
-            context.longToast("Failed to initialize messaging bridge")
-            context.log.error("Failed to initialize messaging bridge", it)
-        }
-    }
 
     @Composable
     private fun LoadingRow() {
@@ -471,41 +413,113 @@ class MessagingPreview(
         }
     }
 
-    @Composable
-    fun Content() {
+    override val content: @Composable (NavBackStackEntry) -> Unit = { navBackStackEntry ->
+        val scope = remember { SocialScope.getByName(navBackStackEntry.arguments?.getString("scope")!!) }
+        val id = remember { navBackStackEntry.arguments?.getString("id")!! }
+
         previewScrollState = rememberLazyListState()
         coroutineScope = rememberCoroutineScope()
+
+        var lastMessageId by remember { mutableLongStateOf(Long.MAX_VALUE) }
         var isBridgeConnected by remember { mutableStateOf(false) }
         var hasBridgeError by remember { mutableStateOf(false) }
+
+        fun fetchNewMessages() {
+            coroutineScope.launch(Dispatchers.IO) cs@{
+                runCatching {
+                    val queriedMessages = messagingBridge.fetchConversationWithMessagesPaginated(
+                        conversationId!!,
+                        20,
+                        lastMessageId
+                    )
+
+                    if (queriedMessages == null) {
+                        context.shortToast("Failed to fetch messages")
+                        return@cs
+                    }
+
+                    withContext(Dispatchers.Main) {
+                        messages.putAll(queriedMessages.map { it.serverMessageId to it })
+                        messageSize = messages.size
+                        if (queriedMessages.isNotEmpty()) {
+                            lastMessageId = queriedMessages.first().clientMessageId
+                            delay(20)
+                            previewScrollState.scrollToItem(queriedMessages.size - 1)
+                        }
+                    }
+                }.onFailure {
+                    context.log.error("Failed to fetch messages", it)
+                    context.shortToast("Failed to fetch messages: ${it.message}")
+                }
+                context.log.verbose("fetched ${messages.size} messages")
+            }
+        }
+
+        fun onMessagingBridgeReady(scope: SocialScope, scopeId: String) {
+            context.log.verbose("onMessagingBridgeReady: $scope $scopeId")
+
+            runCatching {
+                messagingBridge = context.bridgeService!!.messagingBridge!!
+                conversationId = if (scope == SocialScope.FRIEND) messagingBridge.getOneToOneConversationId(scopeId) else scopeId
+                if (conversationId == null) {
+                    context.longToast("Failed to fetch conversation id")
+                    return
+                }
+                if (runCatching { !messagingBridge.isSessionStarted }.getOrDefault(true)) {
+                    context.androidContext.packageManager.getLaunchIntentForPackage(
+                        Constants.SNAPCHAT_PACKAGE_NAME
+                    )?.let {
+                        val mainIntent = Intent.makeRestartActivityTask(it.component).apply {
+                            putExtra(ReceiversConfig.MESSAGING_PREVIEW_EXTRA, true)
+                        }
+                        context.androidContext.startActivity(mainIntent)
+                    }
+                    messagingBridge.registerSessionStartListener(object: SessionStartListener.Stub() {
+                        override fun onConnected() {
+                            fetchNewMessages()
+                        }
+                    })
+                    return
+                }
+                fetchNewMessages()
+            }.onFailure {
+                context.longToast("Failed to initialize messaging bridge")
+                context.log.error("Failed to initialize messaging bridge", it)
+            }
+        }
+
+        LaunchedEffect(Unit) {
+            messages.clear()
+            messageSize = 0
+            conversationId = null
+
+            isBridgeConnected = context.hasMessagingBridge()
+            if (isBridgeConnected) {
+                onMessagingBridgeReady(scope, id)
+            } else {
+                SnapWidgetBroadcastReceiverHelper.create("wakeup") {}.also {
+                    context.androidContext.sendBroadcast(it)
+                }
+                coroutineScope.launch(Dispatchers.IO) {
+                    withTimeout(10000) {
+                        while (!context.hasMessagingBridge()) {
+                            delay(100)
+                        }
+                        isBridgeConnected = true
+                        onMessagingBridgeReady(scope, id)
+                    }
+                }.invokeOnCompletion {
+                    if (it != null) {
+                        hasBridgeError = true
+                    }
+                }
+            }
+        }
 
         Column(
             modifier = Modifier
                 .fillMaxSize()
         ) {
-            LaunchedEffect(Unit) {
-                isBridgeConnected = context.hasMessagingBridge()
-                if (isBridgeConnected) {
-                    onMessagingBridgeReady()
-                } else {
-                    SnapWidgetBroadcastReceiverHelper.create("wakeup") {}.also {
-                        context.androidContext.sendBroadcast(it)
-                    }
-                    coroutineScope.launch(Dispatchers.IO) {
-                        withTimeout(10000) {
-                            while (!context.hasMessagingBridge()) {
-                                delay(100)
-                            }
-                            isBridgeConnected = true
-                            onMessagingBridgeReady()
-                        }
-                    }.invokeOnCompletion {
-                        if (it != null) {
-                            hasBridgeError = true
-                        }
-                    }
-                }
-            }
-
             if (hasBridgeError) {
                 Text("Failed to connect to Snapchat through bridge service")
             }
@@ -515,7 +529,7 @@ class MessagingPreview(
             }
 
             if (isBridgeConnected && !hasBridgeError) {
-                ConversationPreview()
+                ConversationPreview(messages, messageSize, ::fetchNewMessages)
             }
         }
     }

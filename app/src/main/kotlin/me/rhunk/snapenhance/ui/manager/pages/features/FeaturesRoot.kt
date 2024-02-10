@@ -1,4 +1,4 @@
-package me.rhunk.snapenhance.ui.manager.sections.features
+package me.rhunk.snapenhance.ui.manager.pages.features
 
 import android.content.Intent
 import android.net.Uri
@@ -30,33 +30,29 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.navigation.NavBackStackEntry
 import androidx.navigation.NavGraph.Companion.findStartDestination
 import androidx.navigation.NavGraphBuilder
 import androidx.navigation.NavOptions
 import androidx.navigation.compose.composable
-import androidx.navigation.navigation
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import me.rhunk.snapenhance.common.config.*
 import me.rhunk.snapenhance.ui.manager.MainActivity
-import me.rhunk.snapenhance.ui.manager.Section
+import me.rhunk.snapenhance.ui.manager.Routes
 import me.rhunk.snapenhance.ui.util.*
 
 @OptIn(ExperimentalMaterial3Api::class)
-class FeaturesSection : Section() {
+class FeaturesRoot : Routes.Route() {
     private val alertDialogs by lazy { AlertDialogs(context.translation) }
 
     companion object {
-        const val MAIN_ROUTE = "feature_root"
         const val FEATURE_CONTAINER_ROUTE = "feature_container/{name}"
         const val SEARCH_FEATURE_ROUTE = "search_feature/{keyword}"
     }
 
-
     private var activityLauncherHelper: ActivityLauncherHelper? = null
-    private val featuresRouteName by lazy { context.translation["manager.routes.features"] }
-
     private lateinit var rememberScaffoldState: BottomSheetScaffoldState
 
     private val allContainers by lazy {
@@ -85,24 +81,14 @@ class FeaturesSection : Section() {
     }
 
     private fun navigateToMainRoot() {
-        navController.navigate(MAIN_ROUTE, NavOptions.Builder()
-            .setPopUpTo(navController.graph.findStartDestination().id, false)
+        routes.navController.navigate(routeInfo.id, NavOptions.Builder()
+            .setPopUpTo(routes.navController.graph.findStartDestination().id, false)
             .setLaunchSingleTop(true)
             .build()
         )
     }
 
-    override fun canGoBack() = sectionTopBarName() != featuresRouteName
-
-    override fun sectionTopBarName(): String {
-        navController.currentBackStackEntry?.arguments?.getString("name")?.let { routeName ->
-            val currentContainerPair = allContainers[routeName]
-            return context.translation["${currentContainerPair?.key?.propertyTranslationPath()}.name"]
-        }
-        return featuresRouteName
-    }
-
-    override fun init() {
+    override val init: () -> Unit = {
         activityLauncherHelper = ActivityLauncherHelper(context.activity!!)
     }
 
@@ -111,39 +97,39 @@ class FeaturesSection : Section() {
             //open manager if activity launcher is null
             val intent = Intent(context.androidContext, MainActivity::class.java)
             intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
-            intent.putExtra("route", enumSection.route)
+            intent.putExtra("route", routeInfo.id)
             context.androidContext.startActivity(intent)
         }
     }
 
-    override fun build(navGraphBuilder: NavGraphBuilder) {
-        navGraphBuilder.navigation(route = enumSection.route, startDestination = MAIN_ROUTE) {
-            composable(MAIN_ROUTE) {
-                Container(context.config.root)
-            }
+    override val content: @Composable (NavBackStackEntry) -> Unit = {
+        Container(context.config.root)
+    }
 
-            composable(FEATURE_CONTAINER_ROUTE, enterTransition = {
-                slideIntoContainer(AnimatedContentTransitionScope.SlideDirection.Left, animationSpec = tween(100))
-            }, exitTransition = {
-                slideOutOfContainer(AnimatedContentTransitionScope.SlideDirection.Right, animationSpec = tween(300))
-            }) { backStackEntry ->
-                backStackEntry.arguments?.getString("name")?.let { containerName ->
-                    allContainers[containerName]?.let {
-                        Container(it.value.get() as ConfigContainer)
-                    }
+    override val customComposables: NavGraphBuilder.() -> Unit = {
+        routeInfo.childIds.addAll(listOf(FEATURE_CONTAINER_ROUTE, SEARCH_FEATURE_ROUTE))
+
+        composable(FEATURE_CONTAINER_ROUTE, enterTransition = {
+            slideIntoContainer(AnimatedContentTransitionScope.SlideDirection.Left, animationSpec = tween(100))
+        }, exitTransition = {
+            slideOutOfContainer(AnimatedContentTransitionScope.SlideDirection.Right, animationSpec = tween(300))
+        }) { backStackEntry ->
+            backStackEntry.arguments?.getString("name")?.let { containerName ->
+                allContainers[containerName]?.let {
+                    Container(it.value.get() as ConfigContainer)
                 }
             }
+        }
 
-            composable(SEARCH_FEATURE_ROUTE) { backStackEntry ->
-                backStackEntry.arguments?.getString("keyword")?.let { keyword ->
-                    val properties = allProperties.filter {
-                        it.key.name.contains(keyword, ignoreCase = true) ||
-                                context.translation[it.key.propertyName()].contains(keyword, ignoreCase = true) ||
-                                context.translation[it.key.propertyDescription()].contains(keyword, ignoreCase = true)
-                    }.map { PropertyPair(it.key, it.value) }
+        composable(SEARCH_FEATURE_ROUTE) { backStackEntry ->
+            backStackEntry.arguments?.getString("keyword")?.let { keyword ->
+                val properties = allProperties.filter {
+                    it.key.name.contains(keyword, ignoreCase = true) ||
+                            context.translation[it.key.propertyName()].contains(keyword, ignoreCase = true) ||
+                            context.translation[it.key.propertyDescription()].contains(keyword, ignoreCase = true)
+                }.map { PropertyPair(it.key, it.value) }
 
-                    PropertiesView(properties)
-                }
+                PropertiesView(properties)
             }
         }
     }
@@ -262,7 +248,7 @@ class FeaturesSection : Section() {
                 val container = propertyValue.get() as ConfigContainer
 
                 registerClickCallback {
-                    navController.navigate(FEATURE_CONTAINER_ROUTE.replace("{name}", property.name))
+                    routes.navController.navigate(FEATURE_CONTAINER_ROUTE.replace("{name}", property.name))
                 }
 
                 if (!container.hasGlobalState) return
@@ -398,10 +384,10 @@ class FeaturesSection : Section() {
                     }
                     currentSearchJob?.cancel()
                     scope.launch {
-                        delay(300)
-                        navController.navigate(SEARCH_FEATURE_ROUTE.replace("{keyword}", keyword), NavOptions.Builder()
+                        delay(150)
+                        routes.navController.navigate(SEARCH_FEATURE_ROUTE.replace("{keyword}", keyword), NavOptions.Builder()
                             .setLaunchSingleTop(true)
-                            .setPopUpTo(MAIN_ROUTE, false)
+                            .setPopUpTo(routeInfo.id, false)
                             .build()
                         )
                     }.also { currentSearchJob = it }
@@ -428,13 +414,12 @@ class FeaturesSection : Section() {
         }
     }
 
-    @Composable
-    override fun TopBarActions(rowScope: RowScope) {
+    override val topBarActions: @Composable (RowScope.() -> Unit) = topBarActions@{
         var showSearchBar by remember { mutableStateOf(false) }
         val focusRequester = remember { FocusRequester() }
 
         if (showSearchBar) {
-            FeatureSearchBar(rowScope, focusRequester)
+            FeatureSearchBar(this, focusRequester)
             LaunchedEffect(true) {
                 focusRequester.requestFocus()
             }
@@ -442,18 +427,18 @@ class FeaturesSection : Section() {
 
         IconButton(onClick = {
             showSearchBar = showSearchBar.not()
-            if (!showSearchBar && currentRoute == SEARCH_FEATURE_ROUTE) {
+            if (!showSearchBar && routes.currentDestination == SEARCH_FEATURE_ROUTE) {
                 navigateToMainRoot()
             }
         }) {
             Icon(
                 imageVector = if (showSearchBar) Icons.Filled.Close
-                    else Icons.Filled.Search,
+                else Icons.Filled.Search,
                 contentDescription = null
             )
         }
 
-        if (showSearchBar) return
+        if (showSearchBar) return@topBarActions
 
         var showExportDropdownMenu by remember { mutableStateOf(false) }
         var showResetConfirmationDialog by remember { mutableStateOf(false) }
@@ -504,11 +489,13 @@ class FeaturesSection : Section() {
             )
         }
 
-        IconButton(onClick = { showExportDropdownMenu = !showExportDropdownMenu}) {
-            Icon(
-                imageVector = Icons.Filled.MoreVert,
-                contentDescription = null
-            )
+        if (context.activity != null) {
+            IconButton(onClick = { showExportDropdownMenu = !showExportDropdownMenu}) {
+                Icon(
+                    imageVector = Icons.Filled.MoreVert,
+                    contentDescription = null
+                )
+            }
         }
 
         if (showExportDropdownMenu) {
@@ -553,8 +540,7 @@ class FeaturesSection : Section() {
         )
     }
 
-    @Composable
-    override fun FloatingActionButton() {
+    override val floatingActionButton: @Composable () -> Unit = {
         val scope = rememberCoroutineScope()
         FloatingActionButton(
             onClick = {

@@ -1,4 +1,4 @@
-package me.rhunk.snapenhance.ui.manager.sections.social
+package me.rhunk.snapenhance.ui.manager.pages.social
 
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
@@ -32,7 +32,7 @@ import me.rhunk.snapenhance.common.util.snap.SnapWidgetBroadcastReceiverHelper
 
 class AddFriendDialog(
     private val context: RemoteSideContext,
-    private val section: SocialSection,
+    private val socialRoot: SocialRoot,
 ) {
 
     private val translation by lazy { context.translation.getCategory("manager.dialogs.add_friend")}
@@ -224,9 +224,7 @@ class AddFriendDialog(
                             } else {
                                 context.modDatabase.deleteGroup(group.conversationId)
                             }
-                            context.modDatabase.executeAsync {
-                                section.onResumed()
-                            }
+                            socialRoot.updateScopeLists()
                         }
                     }
 
@@ -251,9 +249,7 @@ class AddFriendDialog(
                             } else {
                                 context.modDatabase.deleteFriend(friend.userId)
                             }
-                            context.modDatabase.executeAsync {
-                                section.onResumed()
-                            }
+                            socialRoot.updateScopeLists()
                         }
                     }
                 }

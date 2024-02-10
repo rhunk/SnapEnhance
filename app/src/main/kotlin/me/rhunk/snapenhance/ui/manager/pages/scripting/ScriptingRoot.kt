@@ -1,4 +1,4 @@
-package me.rhunk.snapenhance.ui.manager.sections.scripting
+package me.rhunk.snapenhance.ui.manager.pages.scripting
 
 import android.content.Intent
 import androidx.compose.foundation.clickable
@@ -17,6 +17,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.core.net.toUri
 import androidx.documentfile.provider.DocumentFile
+import androidx.navigation.NavBackStackEntry
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
@@ -25,17 +26,17 @@ import me.rhunk.snapenhance.common.scripting.type.ModuleInfo
 import me.rhunk.snapenhance.common.scripting.ui.EnumScriptInterface
 import me.rhunk.snapenhance.common.scripting.ui.InterfaceManager
 import me.rhunk.snapenhance.common.scripting.ui.ScriptInterface
-import me.rhunk.snapenhance.ui.manager.Section
+import me.rhunk.snapenhance.ui.manager.Routes
 import me.rhunk.snapenhance.ui.util.ActivityLauncherHelper
 import me.rhunk.snapenhance.ui.util.chooseFolder
 import me.rhunk.snapenhance.ui.util.pullrefresh.PullRefreshIndicator
 import me.rhunk.snapenhance.ui.util.pullrefresh.pullRefresh
 import me.rhunk.snapenhance.ui.util.pullrefresh.rememberPullRefreshState
 
-class ScriptsSection : Section() {
+class ScriptingRoot : Routes.Route() {
     private lateinit var activityLauncherHelper: ActivityLauncherHelper
 
-    override fun init() {
+    override val init: () -> Unit = {
         activityLauncherHelper = ActivityLauncherHelper(context.activity!!)
     }
 
@@ -107,8 +108,7 @@ class ScriptsSection : Section() {
         }
     }
 
-    @Composable
-    override fun FloatingActionButton() {
+    override val floatingActionButton: @Composable () -> Unit = {
         Column(
             verticalArrangement = Arrangement.spacedBy(8.dp),
             horizontalAlignment = Alignment.End,
@@ -160,8 +160,7 @@ class ScriptsSection : Section() {
         }
     }
 
-    @Composable
-    override fun Content() {
+    override val content: @Composable (NavBackStackEntry) -> Unit = {
         var scriptModules by remember { mutableStateOf(listOf<ModuleInfo>()) }
         var scriptingFolder by remember { mutableStateOf(null as DocumentFile?) }
         val coroutineScope = rememberCoroutineScope()
@@ -289,17 +288,14 @@ class ScriptsSection : Section() {
         }
     }
 
-    @Composable
-    override fun TopBarActions(rowScope: RowScope) {
-        rowScope.apply {
-            IconButton(onClick = {
-                context.androidContext.startActivity(Intent(Intent.ACTION_VIEW).apply {
-                    data = "https://github.com/SnapEnhance/docs".toUri()
-                    flags = Intent.FLAG_ACTIVITY_NEW_TASK
-                })
-            }) {
-                Icon(imageVector = Icons.Default.LibraryBooks, contentDescription = "Documentation")
-            }
+    override val topBarActions: @Composable() (RowScope.() -> Unit) = {
+        IconButton(onClick = {
+            context.androidContext.startActivity(Intent(Intent.ACTION_VIEW).apply {
+                data = "https://github.com/SnapEnhance/docs".toUri()
+                flags = Intent.FLAG_ACTIVITY_NEW_TASK
+            })
+        }) {
+            Icon(imageVector = Icons.Default.LibraryBooks, contentDescription = "Documentation")
         }
     }
 }
