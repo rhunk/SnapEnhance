@@ -110,7 +110,6 @@ class BridgeClient(
         return runCatching {
             block()
         }.getOrElse {
-            context.log.error("failed to call service", it)
             if (it is DeadObjectException) {
                 context.softRestartApp()
             }
