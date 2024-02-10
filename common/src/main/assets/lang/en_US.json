@@ -29,6 +29,8 @@
             "home_settings": "Settings",
             "home_logs": "Logs",
             "social": "Social",
+            "manage_scope": "Manage Scope",
+            "messaging_preview": "Preview",
             "scripts": "Scripts"
         },
         "sections": {

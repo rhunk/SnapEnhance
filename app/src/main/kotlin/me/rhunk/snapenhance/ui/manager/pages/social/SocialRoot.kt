@@ -1,4 +1,4 @@
-package me.rhunk.snapenhance.ui.manager.sections.social
+package me.rhunk.snapenhance.ui.manager.pages.social
 
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.clickable
@@ -10,7 +10,6 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.RemoveRedEye
 import androidx.compose.material.icons.rounded.Add
-import androidx.compose.material.icons.rounded.DeleteForever
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -22,10 +21,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.compose.ui.window.Dialog
-import androidx.navigation.NavGraphBuilder
-import androidx.navigation.compose.composable
-import androidx.navigation.navigation
+import androidx.navigation.NavBackStackEntry
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -34,118 +30,24 @@ import me.rhunk.snapenhance.common.data.MessagingFriendInfo
 import me.rhunk.snapenhance.common.data.MessagingGroupInfo
 import me.rhunk.snapenhance.common.data.SocialScope
 import me.rhunk.snapenhance.common.util.snap.BitmojiSelfie
-import me.rhunk.snapenhance.ui.manager.Section
-import me.rhunk.snapenhance.ui.util.AlertDialogs
+import me.rhunk.snapenhance.ui.manager.Routes
 import me.rhunk.snapenhance.ui.util.BitmojiImage
 import me.rhunk.snapenhance.ui.util.pagerTabIndicatorOffset
 
-class SocialSection : Section() {
-    private lateinit var friendList: List<MessagingFriendInfo>
-    private lateinit var groupList: List<MessagingGroupInfo>
+class SocialRoot : Routes.Route() {
+    private var friendList: List<MessagingFriendInfo> by mutableStateOf(emptyList())
+    private var groupList: List<MessagingGroupInfo> by mutableStateOf(emptyList())
 
-    companion object {
-        const val MAIN_ROUTE = "social_route"
-        const val MESSAGING_PREVIEW_ROUTE = "messaging_preview/?id={id}&scope={scope}"
-        const val LOGGED_STORIES_ROUTE = "logged_stories/?userId={userId}"
+    fun updateScopeLists() {
+        context.coroutineScope.launch(Dispatchers.IO) {
+            friendList = context.modDatabase.getFriends(descOrder = true)
+            groupList = context.modDatabase.getGroups()
+        }
     }
-
-    private var currentScopeContent: ScopeContent? = null
-    private var currentMessagingPreview by mutableStateOf(null as MessagingPreview?)
 
     private val addFriendDialog by lazy {
         AddFriendDialog(context, this)
     }
-
-    //FIXME: don't reload the entire list when a friend is added/deleted
-    override fun onResumed() {
-        friendList = context.modDatabase.getFriends(descOrder = true)
-        groupList = context.modDatabase.getGroups()
-    }
-
-    override fun canGoBack() = currentRoute != MAIN_ROUTE
-
-    override fun build(navGraphBuilder: NavGraphBuilder) {
-        navGraphBuilder.navigation(route = enumSection.route, startDestination = MAIN_ROUTE) {
-            composable(MAIN_ROUTE) {
-                Content()
-            }
-
-            SocialScope.entries.forEach { scope ->
-                composable(scope.tabRoute) {
-                    val id = it.arguments?.getString("id") ?: return@composable
-                    remember {
-                        ScopeContent(
-                            context,
-                            this@SocialSection,
-                            navController,
-                            scope,
-                            id
-                        ).also { tab ->
-                            currentScopeContent = tab
-                        }
-                    }.Content()
-                }
-            }
-
-            composable(LOGGED_STORIES_ROUTE) {
-                val userId = it.arguments?.getString("userId") ?: return@composable
-                LoggedStories(context, userId)
-            }
-
-            composable(MESSAGING_PREVIEW_ROUTE) { navBackStackEntry ->
-                val id = navBackStackEntry.arguments?.getString("id") ?: return@composable
-                val scope = navBackStackEntry.arguments?.getString("scope") ?: return@composable
-                val messagePreview = remember {
-                    MessagingPreview(context, SocialScope.getByName(scope), id)
-                }
-                LaunchedEffect(key1 = id) {
-                    currentMessagingPreview = messagePreview
-                }
-                messagePreview.Content()
-                DisposableEffect(Unit) {
-                    onDispose {
-                        currentMessagingPreview = null
-                    }
-                }
-            }
-        }
-    }
-
-    @Composable
-    override fun TopBarActions(rowScope: RowScope) {
-        var deleteConfirmDialog by remember { mutableStateOf(false) }
-        val coroutineScope = rememberCoroutineScope()
-
-        if (deleteConfirmDialog) {
-            currentScopeContent?.let { scopeContent ->
-                Dialog(onDismissRequest = { deleteConfirmDialog = false }) {
-                    remember { AlertDialogs(context.translation) }.ConfirmDialog(
-                        title = "Are you sure you want to delete this ${scopeContent.scope.key.lowercase()}?",
-                        onDismiss = { deleteConfirmDialog = false },
-                        onConfirm = {
-                            scopeContent.deleteScope(coroutineScope); deleteConfirmDialog = false
-                        }
-                    )
-                }
-            }
-        }
-
-        if (currentRoute == MESSAGING_PREVIEW_ROUTE) {
-            currentMessagingPreview?.TopBarAction()
-        }
-
-        if (currentRoute == SocialScope.FRIEND.tabRoute || currentRoute == SocialScope.GROUP.tabRoute) {
-            IconButton(
-                onClick = { deleteConfirmDialog = true },
-            ) {
-                Icon(
-                    imageVector = Icons.Rounded.DeleteForever,
-                    contentDescription = null
-                )
-            }
-        }
-    }
-
 
     @Composable
     private fun ScopeList(scope: SocialScope) {
@@ -186,9 +88,10 @@ class SocialSection : Section() {
                         .fillMaxWidth()
                         .height(80.dp)
                         .clickable {
-                            navController.navigate(
-                                scope.tabRoute.replace("{id}", id)
-                            )
+                            routes.manageScope.navigate {
+                                put("id", id)
+                                put("scope", scope.key)
+                            }
                         },
                 ) {
                     Row(
@@ -275,9 +178,10 @@ class SocialSection : Section() {
                         }
 
                         FilledIconButton(onClick = {
-                            navController.navigate(
-                                MESSAGING_PREVIEW_ROUTE.replace("{id}", id).replace("{scope}", scope.key)
-                            )
+                            routes.messagingPreview.navigate {
+                                put("id", id)
+                                put("scope", scope.key)
+                            }
                         }) {
                             Icon(imageVector = Icons.Filled.RemoveRedEye, contentDescription = null)
                         }
@@ -287,10 +191,8 @@ class SocialSection : Section() {
         }
     }
 
-
     @OptIn(ExperimentalFoundationApi::class)
-    @Composable
-    override fun Content() {
+    override val content: @Composable (NavBackStackEntry) -> Unit = {
         val titles = listOf("Friends", "Groups")
         val coroutineScope = rememberCoroutineScope()
         val pagerState = rememberPagerState { titles.size }
@@ -300,6 +202,10 @@ class SocialSection : Section() {
             addFriendDialog.Content {
                 showAddFriendDialog = false
             }
+        }
+
+        LaunchedEffect(Unit) {
+            updateScopeLists()
         }
 
         Scaffold(

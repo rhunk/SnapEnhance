@@ -1,4 +1,4 @@
-package me.rhunk.snapenhance.ui.manager.sections.home
+package me.rhunk.snapenhance.ui.manager.pages.home
 
 import android.content.Intent
 import android.net.Uri
@@ -11,8 +11,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.BugReport
 import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material3.*
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.remember
+import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.scale
@@ -25,36 +24,29 @@ import androidx.compose.ui.text.font.Font
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.navigation.NavGraphBuilder
-import androidx.navigation.compose.composable
-import androidx.navigation.navigation
+import androidx.lifecycle.Lifecycle
+import androidx.navigation.NavBackStackEntry
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import me.rhunk.snapenhance.R
 import me.rhunk.snapenhance.common.BuildConfig
-import me.rhunk.snapenhance.ui.manager.Section
+import me.rhunk.snapenhance.ui.manager.Routes
 import me.rhunk.snapenhance.ui.manager.data.InstallationSummary
 import me.rhunk.snapenhance.ui.manager.data.Updater
 import me.rhunk.snapenhance.ui.util.ActivityLauncherHelper
-import java.util.Locale
+import me.rhunk.snapenhance.ui.util.OnLifecycleEvent
 
-class HomeSection : Section() {
+class HomeRoot : Routes.Route() {
     companion object {
         val cardMargin = 10.dp
-        const val HOME_ROOT = "home_root"
-        const val LOGS_SECTION_ROUTE = "home_logs"
-        const val SETTINGS_SECTION_ROUTE = "home_settings"
     }
 
-    private var installationSummary: InstallationSummary? = null
-    private var userLocale: String? = null
-    private val homeSubSection by lazy { HomeSubSection(context) }
-    private var latestUpdate: Updater.LatestRelease? = null
     private lateinit var activityLauncherHelper: ActivityLauncherHelper
 
-    override fun init() {
+    override val init: () -> Unit = {
         activityLauncherHelper = ActivityLauncherHelper(context.activity!!)
     }
 
@@ -109,90 +101,27 @@ class HomeSection : Section() {
         }
     }
 
-    override fun onResumed() {
-        if (!context.mappings.isMappingsLoaded) {
-            context.mappings.init(context.androidContext)
+    override val topBarActions: @Composable (RowScope.() -> Unit) = {
+        IconButton(onClick = {
+            routes.homeLogs.navigate()
+        }) {
+            Icon(Icons.Filled.BugReport, contentDescription = null)
         }
-        context.coroutineScope.launch {
-            userLocale = context.translation.loadedLocale.getDisplayName(Locale.getDefault())
-            runCatching {
-                installationSummary = context.installationSummary
-            }.onFailure {
-                context.longToast("SnapEnhance failed to load installation summary: ${it.message}")
-            }
-            runCatching {
-                if (!BuildConfig.DEBUG) {
-                    latestUpdate = Updater.checkForLatestRelease()
-                }
-            }.onFailure {
-                context.longToast("SnapEnhance failed to check for updates: ${it.message}")
-            }
+        IconButton(onClick = {
+            routes.settings.navigate()
+        }) {
+            Icon(Icons.Filled.Settings, contentDescription = null)
         }
     }
 
-    override fun sectionTopBarName(): String {
-        if (currentRoute == HOME_ROOT) {
-            return ""
-        }
-        return context.translation["manager.routes.$currentRoute"]
-    }
-
-    @Composable
-    override fun FloatingActionButton() {
-        if (currentRoute == LOGS_SECTION_ROUTE) {
-            homeSubSection.LogsActionButtons()
-        }
-    }
-
-    @Composable
-    override fun TopBarActions(rowScope: RowScope) {
-        rowScope.apply {
-            when (currentRoute) {
-                HOME_ROOT -> {
-                    IconButton(onClick = {
-                        navController.navigate(LOGS_SECTION_ROUTE)
-                    }) {
-                        Icon(Icons.Filled.BugReport, contentDescription = null)
-                    }
-                    IconButton(onClick = {
-                        navController.navigate(SETTINGS_SECTION_ROUTE)
-                    }) {
-                        Icon(Icons.Filled.Settings, contentDescription = null)
-                    }
-                }
-                LOGS_SECTION_ROUTE -> {
-                    homeSubSection.LogsTopBarButtons(activityLauncherHelper, navController, this)
-                }
-            }
-        }
-    }
-
-    override fun build(navGraphBuilder: NavGraphBuilder) {
-        navGraphBuilder.navigation(
-            route = enumSection.route,
-            startDestination = HOME_ROOT
-        ) {
-            composable(HOME_ROOT) {
-                Content()
-            }
-            composable(LOGS_SECTION_ROUTE) {
-                homeSubSection.LogsSection()
-            }
-            composable(SETTINGS_SECTION_ROUTE) {
-                SettingsSection(activityLauncherHelper).also { it.context = context }.Content()
-            }
-        }
-    }
-
-
-    @Composable
-    @Preview
-    override fun Content() {
+    override val content: @Composable (NavBackStackEntry) -> Unit = {
         val avenirNextFontFamily = remember {
             FontFamily(
                 Font(R.font.avenir_next_medium, FontWeight.Medium)
             )
         }
+
+        var latestUpdate by remember { mutableStateOf<Updater.LatestRelease?>(null) }
 
         Column(
             modifier = Modifier
@@ -312,7 +241,37 @@ class HomeSection : Section() {
                 }
             }
 
-            SummaryCards(installationSummary = installationSummary ?: return)
+            val coroutineScope = rememberCoroutineScope()
+            var installationSummary by remember { mutableStateOf(null as InstallationSummary?) }
+
+            fun updateInstallationSummary(scope: CoroutineScope) {
+                scope.launch(Dispatchers.IO) {
+                    runCatching {
+                        installationSummary = context.installationSummary
+                    }.onFailure {
+                        context.longToast("SnapEnhance failed to load installation summary: ${it.message}")
+                    }
+                    runCatching {
+                        if (!BuildConfig.DEBUG) {
+                            latestUpdate = Updater.checkForLatestRelease()
+                        }
+                    }.onFailure {
+                        context.longToast("SnapEnhance failed to check for updates: ${it.message}")
+                    }
+                }
+            }
+
+            OnLifecycleEvent { _, event ->
+                if (event == Lifecycle.Event.ON_RESUME) {
+                    updateInstallationSummary(coroutineScope)
+                }
+            }
+
+            LaunchedEffect(Unit) {
+                updateInstallationSummary(coroutineScope)
+            }
+
+            installationSummary?.let { SummaryCards(installationSummary = it) }
         }
     }
 }
