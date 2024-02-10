@@ -4,6 +4,7 @@ import android.app.Activity
 import android.app.Application
 import android.content.Context
 import android.content.res.Resources
+import android.os.Build
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -178,9 +179,12 @@ class SnapEnhance {
 
         lateinit var unhook: () -> Unit
         Runtime::class.java.declaredMethods.first {
-            it.name == "loadLibrary0" && it.parameterTypes.contentEquals(arrayOf(ClassLoader::class.java, Class::class.java, String::class.java))
+            it.name == "loadLibrary0" && it.parameterTypes.contentEquals(
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) arrayOf(Class::class.java, String::class.java)
+                else arrayOf(ClassLoader::class.java, String::class.java)
+            )
         }.hook(HookStage.AFTER) { param ->
-            val libName = param.arg<String>(2)
+            val libName = param.arg<String>(1)
             if (libName != "client") return@hook
             unhook()
             appContext.native.initOnce()
