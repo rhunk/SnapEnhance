@@ -108,7 +108,7 @@ class SettingsOverlay(
                     Column(
                         modifier = Modifier
                             .fillMaxSize()
-                            .padding(start = 15.dp, end = 15.dp, top = 25.dp, bottom = 25.dp)
+                            .padding(start = 12.dp, end = 12.dp, top = 10.dp, bottom = 20.dp)
                             .clip(shape = MaterialTheme.shapes.large),
                         horizontalAlignment = Alignment.CenterHorizontally,
                         verticalArrangement = Arrangement.Center
