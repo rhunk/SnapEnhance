@@ -17,7 +17,7 @@ recyclerview = "1.3.2"
 
 compose-bom = "2023.10.01"
 bcprov-jdk18on = "1.77"
-dexlib2 = "3.0.3"
+dexlib2 = "3.0.4"
 ffmpeg-kit = "5.1.LTS" # DO NOT UPDATE FFMPEG-KIT TO "5.1" it breaks stuff :3
 gson = "2.10.1"
 junit = "4.13.2"
