@@ -35,8 +35,8 @@ namespace SqliteMutexHook {
     void init() {
         auto open_database_sig = util::find_signature(
                 common::client_module.base, common::client_module.size,
-                ARM64 ? "FF FF 00 A9 3F 00 00 F9" : "8D B0 06 46 E7 48",
-                ARM64 ? -0x3C : -0x7
+                ARM64 ? "FF FF 00 A9 3F 00 00 F9" : "9A 46 90 46 78 44 89 46 05 68",
+                ARM64 ? -0x3C : -0xd
         );
         if (open_database_sig == 0) {
             LOGE("sqlite3 openDatabase sig not found");

@@ -11,8 +11,8 @@ class UnlimitedMultiSnap : Feature("UnlimitedMultiSnap", loadParams = FeatureLoa
         android.util.Pair::class.java.hookConstructor(HookStage.AFTER, {
             context.config.experimental.unlimitedMultiSnap.get()
         }) { param ->
-            val first = param.arg<Any>(0)
-            val second = param.arg<Any>(1)
+            val first = param.argNullable<Any>(0)
+            val second = param.argNullable<Any>(1)
             if (
                 first == true && // isOverTheLimit
                 second == 8 // limit

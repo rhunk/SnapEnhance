@@ -31,8 +31,8 @@ abstract class ConfigInterface : AbstractBinding("config", BindingSide.COMMON) {
     @JSFunction fun getDouble(key: String): Double? = getDouble(key, null)
     @JSFunction fun getDouble(key: String, defaultValue: Double?): Double? = get(key, defaultValue.toString())?.toDoubleOrNull() ?: defaultValue
 
-    @JSFunction fun getBoolean(key: String): Boolean? = getBoolean(key, null)
-    @JSFunction fun getBoolean(key: String, defaultValue: Boolean?): Boolean? = get(key, defaultValue.toString())?.toBoolean() ?: defaultValue
+    @JSFunction fun getBoolean(key: String): Boolean = getBoolean(key, false)
+    @JSFunction fun getBoolean(key: String, defaultValue: Boolean): Boolean = get(key, defaultValue.toString())?.toBoolean() ?: defaultValue
 
     @JSFunction fun getLong(key: String): Long? = getLong(key, null)
     @JSFunction fun getLong(key: String, defaultValue: Long?): Long? = get(key, defaultValue.toString())?.toLongOrNull() ?: defaultValue
