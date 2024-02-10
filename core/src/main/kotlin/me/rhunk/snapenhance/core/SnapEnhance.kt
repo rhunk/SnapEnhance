@@ -173,7 +173,7 @@ class SnapEnhance {
 
     private fun initNative() {
         // don't initialize native when not logged in
-        if (!appContext.database.hasArroyo()) return
+        if (appContext.androidContext.getSharedPreferences("user_session_shared_pref", 0).getString("key_user_id", null) == null) return
         if (appContext.config.experimental.nativeHooks.globalState != true) return
 
         lateinit var unhook: () -> Unit
