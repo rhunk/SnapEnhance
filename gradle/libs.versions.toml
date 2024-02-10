@@ -21,7 +21,7 @@ dexlib2 = "3.0.4"
 ffmpeg-kit = "5.1.LTS" # DO NOT UPDATE FFMPEG-KIT TO "5.1" it breaks stuff :3
 gson = "2.10.1"
 junit = "4.13.2"
-material3 = "1.1.2"
+material3 = "1.2.0"
 okhttp = "5.0.0-alpha.12"
 rhino = "1.7.14"
 
