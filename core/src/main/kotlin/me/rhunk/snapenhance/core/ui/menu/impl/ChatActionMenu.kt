@@ -19,6 +19,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import me.rhunk.snapenhance.common.data.ContentType
 import me.rhunk.snapenhance.common.ui.createComposeView
+import me.rhunk.snapenhance.common.util.ktx.copyToClipboard
 import me.rhunk.snapenhance.common.util.protobuf.ProtoReader
 import me.rhunk.snapenhance.common.util.snap.RemoteMediaResolver
 import me.rhunk.snapenhance.core.features.impl.downloader.MediaDownloader
@@ -74,7 +75,7 @@ class ChatActionMenu : AbstractMenu() {
                 setView(debugEditText(context, text))
                 setPositiveButton("OK") { dialog, _ -> dialog.dismiss() }
                 setNegativeButton("Copy") { _, _ ->
-                    this@ChatActionMenu.context.copyToClipboard(text, title)
+                    context.copyToClipboard(text, title)
                 }
             }.show()
         }

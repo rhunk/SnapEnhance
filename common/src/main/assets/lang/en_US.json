@@ -28,6 +28,8 @@
             "home": "Home",
             "home_settings": "Settings",
             "home_logs": "Logs",
+            "logger_history": "Logger History",
+            "logged_stories": "Logged Stories",
             "social": "Social",
             "manage_scope": "Manage Scope",
             "messaging_preview": "Preview",
@@ -940,6 +942,7 @@
         "spotlight": "Spotlight",
         "profile_picture": "Profile Picture",
         "story_logger": "Story Logger",
+        "message_logger": "Message Logger",
         "merged": "Merged"
     },
 
