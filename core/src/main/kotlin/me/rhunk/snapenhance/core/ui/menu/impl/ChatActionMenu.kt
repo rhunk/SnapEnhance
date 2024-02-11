@@ -2,6 +2,7 @@ package me.rhunk.snapenhance.core.ui.menu.impl
 
 import android.annotation.SuppressLint
 import android.content.Context
+import android.text.format.Formatter
 import android.view.View
 import android.view.ViewGroup
 import android.view.ViewGroup.MarginLayoutParams
@@ -19,6 +20,7 @@ import androidx.compose.ui.unit.dp
 import me.rhunk.snapenhance.common.data.ContentType
 import me.rhunk.snapenhance.common.ui.createComposeView
 import me.rhunk.snapenhance.common.util.protobuf.ProtoReader
+import me.rhunk.snapenhance.common.util.snap.RemoteMediaResolver
 import me.rhunk.snapenhance.core.features.impl.downloader.MediaDownloader
 import me.rhunk.snapenhance.core.features.impl.downloader.decoder.MessageDecoder
 import me.rhunk.snapenhance.core.features.impl.experiments.ConvertMessageLocally
@@ -36,6 +38,8 @@ import me.rhunk.snapenhance.core.util.ktx.getDimens
 import me.rhunk.snapenhance.core.util.ktx.vibrateLongPress
 import java.text.SimpleDateFormat
 import java.util.Date
+import kotlin.io.encoding.Base64
+import kotlin.io.encoding.ExperimentalEncodingApi
 
 
 @SuppressLint("DiscouragedApi")
@@ -93,7 +97,7 @@ class ChatActionMenu : AbstractMenu() {
         }
     }
 
-    @OptIn(ExperimentalLayoutApi::class)
+    @OptIn(ExperimentalLayoutApi::class, ExperimentalEncodingApi::class)
     @SuppressLint("SetTextI18n", "DiscouragedApi", "ClickableViewAccessibility")
     override fun inject(parent: ViewGroup, view: View, viewConsumer: (View) -> Unit) {
         val viewGroup = parent.parent.parent as? ViewGroup ?: return
@@ -255,6 +259,12 @@ class ChatActionMenu : AbstractMenu() {
                                             duration?.let {
                                                 append("duration: $it\n")
                                             }
+                                        }
+                                        runCatching {
+                                            val mediaHeaders = RemoteMediaResolver.getMediaHeaders(Base64.UrlSafe.decode(attachment.mediaUrlKey ?: return@runCatching))
+                                            append("content-type: ${mediaHeaders["content-type"]}\n")
+                                            append("content-length: ${Formatter.formatShortFileSize(context.androidContext, mediaHeaders["content-length"]?.toLongOrNull() ?: 0)}\n")
+                                            append("creation-date: ${mediaHeaders["last-modified"]}\n")
                                         }
                                     }.toString()
                                 }.joinToString("\n\n")

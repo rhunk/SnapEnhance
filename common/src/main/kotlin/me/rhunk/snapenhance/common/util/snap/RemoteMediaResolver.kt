@@ -2,6 +2,7 @@ package me.rhunk.snapenhance.common.util.snap
 
 import me.rhunk.snapenhance.common.Constants
 import me.rhunk.snapenhance.common.logger.AbstractLogger
+import okhttp3.Headers
 import okhttp3.OkHttpClient
 import okhttp3.Request
 import java.io.InputStream
@@ -65,5 +66,10 @@ object RemoteMediaResolver {
                 response.body.contentLength()
             )
         }
+    }
+
+    fun getMediaHeaders(protoKey: ByteArray): Headers {
+        val request = newResolveRequest(protoKey)
+        return okHttpClient.newCall(request.newBuilder().method("HEAD", null).build()).execute().headers
     }
 }
