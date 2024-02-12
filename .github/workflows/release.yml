@@ -3,7 +3,7 @@ on:
   workflow_dispatch:
 
 jobs:
-  job_armv8:
+  ARMv8-Build:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout Repository
@@ -34,13 +34,13 @@ jobs:
           keyStorePassword: ${{ secrets.KEYSTORE_PASSWORD }}
           keyPassword: ${{ secrets.KEY_PASSWORD }}
 
-      - name: Upload SnapEnhance ARMv8 Release APK
+      - name: Upload Artifact
         uses: actions/upload-artifact@v4
         with:
           name: SnapEnhance-ARMv8-Release
           path: ${{ steps.sign_armv8_app.outputs.signedReleaseFile }}
 
-  job_armv7:
+  ARMv7-Build:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout Repository
@@ -71,14 +71,14 @@ jobs:
           keyStorePassword: ${{ secrets.KEYSTORE_PASSWORD }}
           keyPassword: ${{ secrets.KEY_PASSWORD }}
 
-      - name: Upload SnapEnhance ARMv7 Release APK
+      - name: Upload Artifact
         uses: actions/upload-artifact@v4
         with:
           name: SnapEnhance-ARMv7-Release
           path: ${{ steps.sign_armv7_app.outputs.signedReleaseFile }}
 
   job_publish:
-    needs: [ job_armv8, job_armv7 ]
+    needs: [ ARMv8-Build, ARMv7-Build ]
     runs-on: ubuntu-latest
     steps:
       - name: Checkout Repository

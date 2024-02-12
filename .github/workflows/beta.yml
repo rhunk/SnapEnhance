@@ -3,7 +3,7 @@ on:
   workflow_dispatch:
 
 jobs:
-  job_armv8:
+  ARMv8-Build:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout Repository
@@ -47,7 +47,7 @@ jobs:
           name: SnapEnhance-ARMv8-Debug
           path: app/build/outputs/apk/armv8/debug/*.apk
 
-  job_armv7:
+  ARMv7-Build:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout Repository
@@ -91,7 +91,7 @@ jobs:
           name: SnapEnhance-ARMv7-Debug
           path: app/build/outputs/apk/armv7/debug/*.apk
 
-  job_universal:
+  Universal-Build:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout Repository
@@ -135,7 +135,7 @@ jobs:
           name: SnapEnhance-Universal-Debug
           path: app/build/outputs/apk/all/debug/*.apk
 
-  job_manager:
+  Manager-Build:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout Repository
@@ -162,7 +162,7 @@ jobs:
           name: Manager
           path: manager/build/outputs/apk/debug/*.apk
 
-  job_core:
+  Core-Build:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout Repository
