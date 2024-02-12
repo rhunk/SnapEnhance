@@ -158,8 +158,4 @@ class ModContext(
     fun getConfigLocale(): String {
         return _config.locale
     }
-
-    fun copyToClipboard(data: String, label: String = "Copied Text") {
-        androidContext.getSystemService(android.content.ClipboardManager::class.java).setPrimaryClip(ClipData.newPlainText(label, data))
-    }
 }

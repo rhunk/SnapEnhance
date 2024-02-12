@@ -28,6 +28,8 @@
             "home": "Home",
             "home_settings": "Settings",
             "home_logs": "Logs",
+            "logger_history": "Logger History",
+            "logged_stories": "Logged Stories",
             "social": "Social",
             "manage_scope": "Manage Scope",
             "messaging_preview": "Preview",
@@ -670,10 +672,6 @@
                         "name": "My Eyes Only Passcode Bypass",
                         "description": "Bypass the My Eyes Only passcode\nThis will only work if the passcode has been entered correctly before"
                     },
-                    "unlimited_multi_snap": {
-                        "name": "Unlimited Multi Snap",
-                        "description": "Allows you to take an Unlimited Amount of Multi Snaps"
-                    },
                     "no_friend_score_delay": {
                         "name": "No Friend Score Delay",
                         "description": "Removes the delay when viewing a Friends Score"
@@ -940,6 +938,7 @@
         "spotlight": "Spotlight",
         "profile_picture": "Profile Picture",
         "story_logger": "Story Logger",
+        "message_logger": "Message Logger",
         "merged": "Merged"
     },
 

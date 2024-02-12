@@ -183,6 +183,14 @@ class HomeSettings : Routes.Route() {
                             Text(text = "Clear")
                         }
                     }
+                    OutlinedButton(
+                        modifier = Modifier.fillMaxWidth().padding(5.dp),
+                        onClick = {
+                            routes.loggerHistory.navigate()
+                        }
+                    ) {
+                        Text(text = "View Message History")
+                    }
                 }
             }
 

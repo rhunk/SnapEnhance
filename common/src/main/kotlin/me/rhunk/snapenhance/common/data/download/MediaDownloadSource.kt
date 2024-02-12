@@ -15,6 +15,7 @@ enum class MediaDownloadSource(
     SPOTLIGHT("spotlight",  "spotlight"),
     PROFILE_PICTURE("profile_picture", "profile_picture"),
     STORY_LOGGER("story_logger", "story_logger"),
+    MESSAGE_LOGGER("message_logger", "message_logger"),
     MERGED("merged", "merged");
 
     fun matches(source: String?): Boolean {
