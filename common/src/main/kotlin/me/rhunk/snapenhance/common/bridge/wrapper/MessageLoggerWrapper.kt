@@ -12,6 +12,13 @@ import me.rhunk.snapenhance.common.util.ktx.getStringOrNull
 import java.io.File
 import java.util.UUID
 
+
+class LoggedMessage(
+    val messageId: Long,
+    val timestamp: Long,
+    val messageData: ByteArray
+)
+
 class MessageLoggerWrapper(
     val databaseFile: File
 ): MessageLoggerInterface.Stub() {
@@ -60,29 +67,24 @@ class MessageLoggerWrapper(
             runCatching { UUID.fromString(it) }.isFailure
         }) return longArrayOf()
 
-        val cursor = database.rawQuery("SELECT message_id FROM messages WHERE conversation_id IN (${
-            conversationId.joinToString(
-                ","
-            ) { "'$it'" }
-        }) ORDER BY message_id DESC LIMIT $limit", null)
-
-        val ids = mutableListOf<Long>()
-        while (cursor.moveToNext()) {
-            ids.add(cursor.getLong(0))
+        return database.rawQuery("SELECT message_id FROM messages WHERE conversation_id IN (${
+            conversationId.joinToString(",") { "'$it'" }
+        }) ORDER BY message_id DESC LIMIT $limit", null).use {
+            val ids = mutableListOf<Long>()
+            while (it.moveToNext()) {
+                ids.add(it.getLong(0))
+            }
+            ids.toLongArray()
         }
-        cursor.close()
-        return ids.toLongArray()
     }
 
     override fun getMessage(conversationId: String?, id: Long): ByteArray? {
-        val cursor = database.rawQuery("SELECT message_data FROM messages WHERE conversation_id = ? AND message_id = ?", arrayOf(conversationId, id.toString()))
-        val message: ByteArray? = if (cursor.moveToFirst()) {
-            cursor.getBlob(0)
-        } else {
-            null
+        return database.rawQuery(
+            "SELECT message_data FROM messages WHERE conversation_id = ? AND message_id = ?",
+            arrayOf(conversationId, id.toString())
+        ).use {
+            if (it.moveToFirst()) it.getBlob(0) else null
         }
-        cursor.close()
-        return message
     }
 
     override fun addMessage(conversationId: String, messageId: Long, serializedMessage: ByteArray) {
@@ -116,19 +118,17 @@ class MessageLoggerWrapper(
     }
 
     fun getStoredMessageCount(): Int {
-        val cursor = database.rawQuery("SELECT COUNT(*) FROM messages", null)
-        cursor.moveToFirst()
-        val count = cursor.getInt(0)
-        cursor.close()
-        return count
+        return database.rawQuery("SELECT COUNT(*) FROM messages", null).use {
+            it.moveToFirst()
+            it.getInt(0)
+        }
     }
 
     fun getStoredStoriesCount(): Int {
-        val cursor = database.rawQuery("SELECT COUNT(*) FROM stories", null)
-        cursor.moveToFirst()
-        val count = cursor.getInt(0)
-        cursor.close()
-        return count
+        return database.rawQuery("SELECT COUNT(*) FROM stories", null).use {
+            it.moveToFirst()
+            it.getInt(0)
+        }
     }
 
     override fun deleteMessage(conversationId: String, messageId: Long) {
@@ -173,5 +173,40 @@ class MessageLoggerWrapper(
             }
         }
         return stories
+    }
+
+    fun getAllConversations(): List<String> {
+        return database.rawQuery("SELECT DISTINCT conversation_id FROM messages", null).use {
+            val conversations = mutableListOf<String>()
+            while (it.moveToNext()) {
+                conversations.add(it.getString(0))
+            }
+            conversations
+        }
+    }
+
+    fun fetchMessages(
+        conversationId: String,
+        fromTimestamp: Long,
+        limit: Int,
+        reverseOrder: Boolean = true,
+        filter: ((LoggedMessage) -> Boolean)? = null
+    ): List<LoggedMessage> {
+        val messages = mutableListOf<LoggedMessage>()
+        database.rawQuery(
+            "SELECT * FROM messages WHERE conversation_id = ? AND added_timestamp ${if (reverseOrder) "<" else ">"} ? ORDER BY added_timestamp ${if (reverseOrder) "DESC" else "ASC"}",
+            arrayOf(conversationId, fromTimestamp.toString())
+        ).use {
+            while (it.moveToNext() && messages.size < limit) {
+                val message = LoggedMessage(
+                    messageId = it.getLongOrNull("message_id") ?: continue,
+                    timestamp = it.getLongOrNull("added_timestamp") ?: continue,
+                    messageData = it.getBlobOrNull("message_data") ?: continue
+                )
+                if (filter != null && !filter(message)) continue
+                messages.add(message)
+            }
+        }
+        return messages
     }
 }

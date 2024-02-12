@@ -1,5 +1,7 @@
 package me.rhunk.snapenhance.common.util.ktx
 
+import android.content.ClipData
+import android.content.Context
 import android.content.pm.PackageManager
 import android.content.pm.PackageManager.ApplicationInfoFlags
 import android.os.Build
@@ -11,3 +13,8 @@ fun PackageManager.getApplicationInfoCompat(packageName: String, flags: Int) =
         @Suppress("DEPRECATION")
         getApplicationInfo(packageName, flags)
     }
+
+fun Context.copyToClipboard(data: String, label: String = "Copied Text") {
+    getSystemService(android.content.ClipboardManager::class.java).setPrimaryClip(
+        ClipData.newPlainText(label, data))
+}
