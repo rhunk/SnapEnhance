@@ -1,9 +1,7 @@
 #pragma once
 
 namespace FstatHook {
-    auto fstat_original = (int (*)(int, struct stat *)) nullptr;
-
-    int fstat_hook(int fd, struct stat *buf) {
+    HOOK_DEF(int, fstat_hook, int fd, struct stat *buf) {
         char name[256];
         memset(name, 0, sizeof(name));
         snprintf(name, sizeof(name), "/proc/self/fd/%d", fd);
@@ -20,10 +18,10 @@ namespace FstatHook {
             return -1;
         }
 
-        return fstat_original(fd, buf);
+        return fstat_hook_original(fd, buf);
     }
 
     void init() {
-        DobbyHook((void *)DobbySymbolResolver("libc.so", "fstat"), (void *)fstat_hook, (void **)&fstat_original);
+        DobbyHook((void *)DobbySymbolResolver("libc.so", "fstat"), (void *)fstat_hook, (void **)&fstat_hook_original);
     }
 }

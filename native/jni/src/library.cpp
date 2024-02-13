@@ -2,7 +2,6 @@
 #include <string>
 #include <dobby.h>
 #include <vector>
-#include <android/asset_manager.h>
 
 #include "logger.h"
 #include "common.h"
@@ -24,7 +23,7 @@ void JNICALL init(JNIEnv *env, jobject clazz) {
         return;
     }
 
-    LOGD("libclient.so base=0x%0lx, size=0x%0lx", client_module.base, client_module.size);
+    LOGD("libclient.so base=0x%lx, size=0x%zx", client_module.base, client_module.size);
 
     AssetHook::init(env);
     UnaryCallHook::init(env);
