@@ -9,6 +9,7 @@
 #include "hooks/unary_call.h"
 #include "hooks/fstat_hook.h"
 #include "hooks/sqlite_mutex.h"
+#include "hooks/duplex_hook.h"
 
 void JNICALL init(JNIEnv *env, jobject clazz) {
     LOGD("Initializing native");
@@ -29,6 +30,7 @@ void JNICALL init(JNIEnv *env, jobject clazz) {
     UnaryCallHook::init(env);
     FstatHook::init();
     SqliteMutexHook::init();
+    DuplexHook::init(env);
 
     LOGD("Native initialized");
 }
