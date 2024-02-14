@@ -133,7 +133,6 @@ We no longer offer official LSPatch binaries for obvious reasons. However, you'r
   - App Passcode
   - Infinite Story Boost
   - My Eyes Only Passcode Bypass
-  - Unlimited Multi Snap
   - No Friend Score Delay
   - End-to-End Encryption
   - Enable Hidden Snapchat Plus Features
