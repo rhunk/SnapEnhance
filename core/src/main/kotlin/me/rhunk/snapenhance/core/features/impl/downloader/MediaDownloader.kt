@@ -19,6 +19,7 @@ import me.rhunk.snapenhance.common.data.MessagingRuleType
 import me.rhunk.snapenhance.common.data.download.*
 import me.rhunk.snapenhance.common.database.impl.ConversationMessage
 import me.rhunk.snapenhance.common.database.impl.FriendInfo
+import me.rhunk.snapenhance.common.util.ktx.copyToClipboard
 import me.rhunk.snapenhance.common.util.ktx.longHashCode
 import me.rhunk.snapenhance.common.util.protobuf.ProtoReader
 import me.rhunk.snapenhance.common.util.snap.BitmojiSelfie
@@ -161,7 +162,7 @@ class MediaDownloader : MessagingRuleFeature("MediaDownloader", MessagingRuleTyp
                 setTitle("Debug Media Info")
                 setView(debugEditText(context, mediaInfoText))
                 setNeutralButton("Copy") { _, _ ->
-                    this@MediaDownloader.context.copyToClipboard(mediaInfoText)
+                    context.copyToClipboard(mediaInfoText)
                 }
                 setNegativeButton("Cancel") { dialog, _ -> dialog.dismiss() }
             }.show()

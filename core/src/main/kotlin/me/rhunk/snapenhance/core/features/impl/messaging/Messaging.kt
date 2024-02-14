@@ -110,7 +110,7 @@ class Messaging : Feature("Messaging", loadParams = FeatureLoadParams.ACTIVITY_C
                     if (it.startsWith("null")) return@hook
                 }
                 context.database.getConversationType(conversationId)?.takeIf { it == 1 }?.run {
-                    lastFetchGroupConversationUUID = SnapUUID.fromString(conversationId)
+                    lastFetchGroupConversationUUID = SnapUUID(conversationId)
                 }
             }
         }
@@ -191,11 +191,16 @@ class Messaging : Feature("Messaging", loadParams = FeatureLoadParams.ACTIVITY_C
 
     fun fetchSnapchatterInfos(userIds: List<String>): List<Snapchatter> {
         val identity = identityDelegate ?: return emptyList()
+        val snapUUIDs = userIds.map {
+            it.toSnapUUID().instanceNonNull()
+        }
+
         val future = identity::class.java.methods.first {
             it.name == "fetchSnapchatterInfos"
-        }.invoke(identity, userIds.map {
-            it.toSnapUUID().instanceNonNull()
-        }) as Future<*>
+        }.let { method ->
+            if (method.parameterCount == 2) method.invoke(identity, snapUUIDs, false)
+            else method.invoke(identity, snapUUIDs)
+        } as Future<*>
 
         return (future.get() as? List<*>)?.map { Snapchatter(it) } ?: return emptyList()
     }

@@ -2,6 +2,7 @@ package me.rhunk.snapenhance
 
 import android.util.Log
 import com.google.gson.GsonBuilder
+import me.rhunk.snapenhance.common.data.FileType
 import me.rhunk.snapenhance.common.logger.AbstractLogger
 import me.rhunk.snapenhance.common.logger.LogChannel
 import me.rhunk.snapenhance.common.logger.LogLevel
@@ -119,6 +120,10 @@ class LogManager(
     private val logFolder = File(remoteSideContext.androidContext.cacheDir, "logs")
     private var logFile: File
 
+    private val uuidRegex by lazy { Regex("[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}", RegexOption.MULTILINE) }
+    private val contentUriRegex by lazy { Regex("content://[a-zA-Z0-9_\\-./]+") }
+    private val filePathRegex by lazy { Regex("([a-zA-Z0-9_\\-./]+)\\.(${FileType.entries.joinToString("|") { file -> file.fileExtension.toString() }})") }
+
     init {
         if (!logFolder.exists()) {
             logFolder.mkdirs()
@@ -130,6 +135,30 @@ class LogManager(
 
         if (System.currentTimeMillis() - remoteSideContext.sharedPreferences.getLong("last_created", 0) > LOG_LIFETIME.inWholeMilliseconds) {
             newLogFile()
+        }
+    }
+
+    fun internalLog(tag: String, logLevel: LogLevel, message: Any?) {
+        runCatching {
+            val anonymizedMessage = message.toString().let {
+                if (remoteSideContext.config.isInitialized() && anonymizeLogs)
+                    it.replace(uuidRegex, "xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx")
+                        .replace(contentUriRegex, "content://xxx")
+                        .replace(filePathRegex, "xxxxxxxx.$2")
+                else it
+            }
+            val line = LogLine(
+                logLevel = logLevel,
+                dateTime = getCurrentDateTime(),
+                tag = tag,
+                message = anonymizedMessage
+            )
+            logFile.appendText("|$line\n", Charsets.UTF_8)
+            lineAddListener(line)
+            Log.println(logLevel.priority, tag, anonymizedMessage)
+        }.onFailure {
+            Log.println(Log.ERROR, tag, "Failed to log message: $message")
+            Log.println(Log.ERROR, tag, it.stackTraceToString())
         }
     }
 
@@ -203,26 +232,5 @@ class LogManager(
 
     override fun assert(message: Any?, tag: String) {
         internalLog(tag, LogLevel.ASSERT, message)
-    }
-
-    fun internalLog(tag: String, logLevel: LogLevel, message: Any?) {
-        runCatching {
-            val line = LogLine(
-                logLevel = logLevel,
-                dateTime = getCurrentDateTime(),
-                tag = tag,
-                message = message.toString().let {
-                    if (remoteSideContext.config.isInitialized() && anonymizeLogs)
-                        it.replace(Regex("[0-9a-f]{8}-[0-9a-f]{4}-{3}[0-9a-f]{12}", RegexOption.MULTILINE), "xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx")
-                    else it
-                }
-            )
-            logFile.appendText("|$line\n", Charsets.UTF_8)
-            lineAddListener(line)
-            Log.println(logLevel.priority, tag, message.toString())
-        }.onFailure {
-            Log.println(Log.ERROR, tag, "Failed to log message: $message")
-            Log.println(Log.ERROR, tag, it.stackTraceToString())
-        }
     }
 }

@@ -25,9 +25,7 @@ import com.arthenica.ffmpegkit.Packages.getPackageName
 import me.rhunk.snapenhance.R
 import me.rhunk.snapenhance.RemoteSideContext
 import me.rhunk.snapenhance.common.ui.createComposeView
-import me.rhunk.snapenhance.ui.manager.EnumSection
 import me.rhunk.snapenhance.ui.manager.Navigation
-import me.rhunk.snapenhance.ui.manager.sections.features.FeaturesSection
 
 
 class SettingsOverlay(
@@ -55,26 +53,15 @@ class SettingsOverlay(
             dismissCallback = { navHostController.popBackStack() }
         }
 
-        val navigation = remember {
-            Navigation(
-                context,
-                mapOf(
-                    EnumSection.FEATURES to FeaturesSection().apply {
-                        enumSection = EnumSection.FEATURES
-                        context = this@SettingsOverlay.context
-                    }
-                ),
-                navHostController
-            )
-        }
+        val navigation = remember { Navigation(context, navHostController) }
 
         Scaffold(
             containerColor = MaterialTheme.colorScheme.background,
             topBar = { navigation.TopBar() }
         ) { innerPadding ->
-            navigation.NavigationHost(
-                startDestination = EnumSection.FEATURES,
-                innerPadding = innerPadding
+            navigation.Content(
+                innerPadding,
+                startDestination = navigation.routes.features.routeInfo.id
             )
         }
     }
@@ -121,7 +108,7 @@ class SettingsOverlay(
                     Column(
                         modifier = Modifier
                             .fillMaxSize()
-                            .padding(start = 15.dp, end = 15.dp, top = 25.dp, bottom = 25.dp)
+                            .padding(start = 12.dp, end = 12.dp, top = 10.dp, bottom = 20.dp)
                             .clip(shape = MaterialTheme.shapes.large),
                         horizontalAlignment = Alignment.CenterHorizontally,
                         verticalArrangement = Arrangement.Center

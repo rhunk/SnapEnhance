@@ -23,7 +23,7 @@ import me.rhunk.snapenhance.mapper.impl.CallbackMapper
 import java.io.File
 
 class SnapPreview : Feature("SnapPreview", loadParams = FeatureLoadParams.INIT_SYNC or FeatureLoadParams.ACTIVITY_CREATE_SYNC) {
-    private val mediaFileCache = mutableMapOf<String, File>() // mMediaId => mediaFile
+    private val mediaFileCache = EvictingMap<String, File>(500) // mMediaId => mediaFile
     private val bitmapCache = EvictingMap<String, Bitmap>(50) // filePath => bitmap
 
     private val isEnabled get() = context.config.userInterface.snapPreview.get()
@@ -71,13 +71,12 @@ class SnapPreview : Feature("SnapPreview", loadParams = FeatureLoadParams.INIT_S
                 val messageReader = ProtoReader(message.messageContent ?: return@chatMessage)
                 val contentType = ContentType.fromMessageContainer(messageReader.followPath(4, 4))
 
-                if (contentType != ContentType.SNAP) return@chatMessage
+                if (contentType != ContentType.SNAP || message.isSaved == 1) return@chatMessage
 
                 val mediaIdKey = messageReader.getString(4, 5, 1, 3, 2, 2) ?: return@chatMessage
 
                 event.view.addForegroundDrawable("snapPreview", ShapeDrawable(object: Shape() {
                     override fun draw(canvas: Canvas, paint: Paint) {
-                        if (canvas.height / context.resources.displayMetrics.density > 90) return
                         val bitmap = mediaFileCache[mediaIdKey]?.let { decodeMedia(it) } ?: return
 
                         canvas.drawBitmap(bitmap,

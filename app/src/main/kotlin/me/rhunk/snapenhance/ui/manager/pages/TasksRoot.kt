@@ -1,4 +1,4 @@
-package me.rhunk.snapenhance.ui.manager.sections
+package me.rhunk.snapenhance.ui.manager.pages
 
  import android.content.Intent
 import androidx.compose.foundation.border
@@ -15,12 +15,12 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.StrokeCap
-import androidx.compose.ui.tooling.preview.Preview
-import androidx.compose.ui.unit.dp
+ import androidx.compose.ui.unit.dp
 import androidx.core.net.toUri
 import androidx.documentfile.provider.DocumentFile
 import androidx.lifecycle.Lifecycle
-import kotlinx.coroutines.CoroutineScope
+ import androidx.navigation.NavBackStackEntry
+ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import me.rhunk.snapenhance.bridge.DownloadCallback
@@ -35,13 +35,13 @@ import me.rhunk.snapenhance.task.PendingTaskListener
 import me.rhunk.snapenhance.task.Task
 import me.rhunk.snapenhance.task.TaskStatus
 import me.rhunk.snapenhance.task.TaskType
-import me.rhunk.snapenhance.ui.manager.Section
-import me.rhunk.snapenhance.ui.util.OnLifecycleEvent
+ import me.rhunk.snapenhance.ui.manager.Routes
+ import me.rhunk.snapenhance.ui.util.OnLifecycleEvent
 import java.io.File
 import java.util.UUID
 import kotlin.math.absoluteValue
 
-class TasksSection : Section() {
+class TasksRoot : Routes.Route() {
     private var activeTasks by mutableStateOf(listOf<PendingTask>())
     private lateinit var recentTasks: MutableList<Task>
     private val taskSelection = mutableStateListOf<Pair<Task, DocumentFile?>>()
@@ -132,9 +132,7 @@ class TasksSection : Section() {
         }
     }
 
-
-    @Composable
-    override fun TopBarActions(rowScope: RowScope) {
+    override val topBarActions: @Composable() (RowScope.() -> Unit) = {
         var showConfirmDialog by remember { mutableStateOf(false) }
 
         if (taskSelection.size == 1 && taskSelection.firstOrNull()?.second?.exists() == true) {
@@ -386,9 +384,7 @@ class TasksSection : Section() {
         }
     }
 
-    @Preview
-    @Composable
-    override fun Content() {
+    override val content: @Composable (NavBackStackEntry) -> Unit = {
         val scrollState = rememberLazyListState()
         val scope = rememberCoroutineScope()
         recentTasks = remember { mutableStateListOf() }

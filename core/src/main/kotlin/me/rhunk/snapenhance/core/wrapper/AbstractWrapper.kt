@@ -6,7 +6,7 @@ import me.rhunk.snapenhance.core.wrapper.impl.SnapUUID
 import kotlin.reflect.KProperty
 
 abstract class AbstractWrapper(
-    protected var instance: Any?
+    protected open var instance: Any?
 ) {
     protected val uuidArrayListMapper: (Any?) -> ArrayList<SnapUUID> get() = { (it as ArrayList<*>).map { i -> SnapUUID(i) }.toCollection(ArrayList()) }
 

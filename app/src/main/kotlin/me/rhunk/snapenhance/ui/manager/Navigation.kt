@@ -10,64 +10,40 @@ import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.lerp
 import androidx.compose.ui.unit.sp
-import androidx.navigation.NavDestination
-import androidx.navigation.NavDestination.Companion.hierarchy
-import androidx.navigation.NavGraph.Companion.findStartDestination
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
+import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
+import androidx.navigation.navigation
 import me.rhunk.snapenhance.RemoteSideContext
 
-
+@OptIn(ExperimentalMaterial3Api::class)
 class Navigation(
     private val context: RemoteSideContext,
-    private val sections: Map<EnumSection, Section>,
-    private val navHostController: NavHostController
+    private val navController: NavHostController,
+    val routes: Routes = Routes(context).also {
+        it.navController = navController
+    }
 ){
     @Composable
-    fun NavigationHost(
-        startDestination: EnumSection,
-        innerPadding: PaddingValues
-    ) {
-        NavHost(
-            navHostController,
-            startDestination = startDestination.route,
-            Modifier.padding(innerPadding),
-            enterTransition = { fadeIn(tween(100)) },
-            exitTransition = { fadeOut(tween(100)) }
-        ) {
-            sections.forEach { (_, instance) ->
-                instance.navController = navHostController
-                instance.build(this)
-            }
-        }
-    }
-
-    private fun getCurrentSection(navDestination: NavDestination) = sections.firstNotNullOf { (section, instance) ->
-        if (navDestination.hierarchy.any { it.route == section.route }) {
-            instance
-        } else {
-            null
-        }
-    }
-
-    @OptIn(ExperimentalMaterial3Api::class)
-    @Composable
     fun TopBar() {
-        val navBackStackEntry by navHostController.currentBackStackEntryAsState()
-        val currentDestination = navBackStackEntry?.destination ?: return
-        val currentSection = getCurrentSection(currentDestination)
+        val navBackStackEntry by navController.currentBackStackEntryAsState()
+
+        val canGoBack = remember (navBackStackEntry) { routes.getCurrentRoute(navBackStackEntry)?.let {
+            !it.routeInfo.primary || it.routeInfo.childIds.contains(routes.currentDestination)
+        } == true }
 
         TopAppBar(title = {
-            currentSection.Title()
+            routes.getCurrentRoute(navBackStackEntry)?.title?.invoke() ?: Text(text = routes.getCurrentRoute(navBackStackEntry)?.routeInfo?.translatedKey ?: "Unknown Page")
         }, navigationIcon =  {
-            val backButtonAnimation by animateFloatAsState(if (currentSection.canGoBack()) 1f else 0f,
+            val backButtonAnimation by animateFloatAsState(if (canGoBack) 1f else 0f,
                 label = "backButtonAnimation"
             )
 
@@ -78,64 +54,87 @@ class Navigation(
                     .height(48.dp)
             ) {
                 IconButton(
-                    onClick = { navHostController.popBackStack() }
+                    onClick = {
+                        if (canGoBack) {
+                            navController.popBackStack()
+                        }
+                    }
                 ) {
                     Icon(Icons.Filled.ArrowBack, contentDescription = null)
                 }
             }
         }, actions = {
-            currentSection.TopBarActions(this)
+            routes.getCurrentRoute(navBackStackEntry)?.topBarActions?.invoke(this)
         })
     }
 
     @Composable
-    fun Fab() {
-        val navBackStackEntry by navHostController.currentBackStackEntryAsState()
-        val currentDestination = navBackStackEntry?.destination ?: return
-        val currentSection = getCurrentSection(currentDestination)
+    fun BottomBar() {
+        val navBackStackEntry by navController.currentBackStackEntryAsState()
+        val primaryRoutes = remember { routes.getRoutes().filter { it.routeInfo.primary } }
 
-        currentSection.FloatingActionButton()
-    }
-
-    @Composable
-    fun NavBar() {
         NavigationBar {
-            val navBackStackEntry by navHostController.currentBackStackEntryAsState()
-            val currentDestination = navBackStackEntry?.destination
-            sections.keys.forEach { section ->
-                fun selected() = currentDestination?.hierarchy?.any { it.route == section.route } == true
-
+            val currentRoute = routes.getCurrentRoute(navBackStackEntry)
+            primaryRoutes.forEach { route ->
                 NavigationBarItem(
                     alwaysShowLabel = false,
-                    modifier = Modifier
-                        .fillMaxHeight(),
+                    modifier = Modifier.fillMaxHeight(),
                     icon = {
-                        Icon(
-                            imageVector = section.icon,
-                            contentDescription = null
-                        )
+                        Icon(imageVector = route.routeInfo.icon, contentDescription = null)
                     },
-
                     label = {
                         Text(
                             textAlign = TextAlign.Center,
                             softWrap = false,
                             fontSize = 12.sp,
                             modifier = Modifier.wrapContentWidth(unbounded = true),
-                            text = if (selected()) context.translation["manager.routes.${section.route}"] else "",
+                            text = if (currentRoute == route) context.translation["manager.routes.${route.routeInfo.key.substringBefore("/")}"] else "",
                         )
                     },
-                    selected = selected(),
+                    selected = currentRoute == route,
                     onClick = {
-                        navHostController.navigate(section.route) {
-                            popUpTo(navHostController.graph.findStartDestination().id) {
-                                saveState = true
-                            }
-                            launchSingleTop = true
-                            restoreState = true
-                        }
+                        route.navigateReset()
                     }
                 )
+            }
+        }
+    }
+
+    @Composable
+    fun FloatingActionButton() {
+        val navBackStackEntry by navController.currentBackStackEntryAsState()
+        routes.getCurrentRoute(navBackStackEntry)?.floatingActionButton?.invoke()
+    }
+
+    @Composable
+    fun Content(paddingValues: PaddingValues, startDestination: String) {
+        NavHost(
+            navController = navController,
+            startDestination = startDestination,
+            Modifier.padding(paddingValues),
+            enterTransition = { fadeIn(tween(100)) },
+            exitTransition = { fadeOut(tween(100)) }
+        ) {
+            routes.getRoutes().filter { it.parentRoute == null }.forEach { route ->
+                val children = routes.getRoutes().filter { it.parentRoute == route }
+                if (children.isEmpty()) {
+                    composable(route.routeInfo.id) {
+                        route.content.invoke(it)
+                    }
+                    route.customComposables.invoke(this)
+                } else {
+                    navigation("main_" + route.routeInfo.id, route.routeInfo.id) {
+                        composable("main_" + route.routeInfo.id) {
+                            route.content.invoke(it)
+                        }
+                        children.forEach { child ->
+                            composable(child.routeInfo.id) {
+                                child.content.invoke(it)
+                            }
+                        }
+                        route.customComposables.invoke(this)
+                    }
+                }
             }
         }
     }

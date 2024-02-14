@@ -25,6 +25,10 @@ fun Resources.getDimens(name: String): Int {
     return getDimensionPixelSize(getIdentifier(name, "dimen"))
 }
 
+fun Resources.getDimensFloat(name: String): Float {
+    return getDimension(getIdentifier(name, "dimen"))
+}
+
 fun Resources.getStyledAttributes(name: String, theme: Theme): TypedArray {
     return getIdentifier(name, "attr").let {
         theme.obtainStyledAttributes(intArrayOf(it))
@@ -35,6 +39,7 @@ fun Resources.getDrawable(name: String, theme: Theme): Drawable {
     return getDrawable(getIdentifier(name, "drawable"), theme)
 }
 
+@SuppressLint("MissingPermission")
 fun Context.vibrateLongPress() {
     getSystemService(Vibrator::class.java).vibrate(VibrationEffect.createOneShot(50, VibrationEffect.DEFAULT_AMPLITUDE))
 }

@@ -28,7 +28,11 @@
             "home": "Home",
             "home_settings": "Settings",
             "home_logs": "Logs",
+            "logger_history": "Logger History",
+            "logged_stories": "Logged Stories",
             "social": "Social",
+            "manage_scope": "Manage Scope",
+            "messaging_preview": "Preview",
             "scripts": "Scripts"
         },
         "sections": {
@@ -328,10 +332,6 @@
                         "name": "Vertical Story Viewer",
                         "description": "Enables the vertical story viewer for all stories"
                     },
-                    "friend_feed_menu_position": {
-                        "name": "Friend Feed Position Index",
-                        "description": "The position of the Friend Feed Menu component"
-                    },
                     "enable_friend_feed_menu_bar": {
                         "name": "Friend Feed Menu Bar",
                         "description": "Enables the new Friend Feed Menu Bar"
@@ -506,6 +506,10 @@
                         "name": "Block Ads",
                         "description": "Prevents Advertisements from being displayed"
                     },
+                    "disable_permission_requests": {
+                        "name": "Disable Permission Requests",
+                        "description": "Prevents Snapchat from asking for specific permissions"
+                    },
                     "disable_memories_snap_feed": {
                         "name": "Disable Memories Snap Feed",
                         "description": "Prevents Snapchat from showing recent memories when you swipe up in camera"
@@ -614,6 +618,20 @@
                             }
                         }
                     },
+                    "session_events": {
+                        "name": "Session Events",
+                        "description": "Records session events",
+                        "properties": {
+                            "capture_duplex_events": {
+                                "name": "Capture Duplex Events",
+                                "description": "Capture presence and messaging events when a session is active"
+                            },
+                            "allow_running_in_background": {
+                                "name": "Allow Running in Background",
+                                "description": "Allows session to run in the background"
+                            }
+                        }
+                    },
                     "spoof": {
                         "name": "Spoof",
                         "description": "Spoof various information about you",
@@ -667,10 +685,6 @@
                     "meo_passcode_bypass": {
                         "name": "My Eyes Only Passcode Bypass",
                         "description": "Bypass the My Eyes Only passcode\nThis will only work if the passcode has been entered correctly before"
-                    },
-                    "unlimited_multi_snap": {
-                        "name": "Unlimited Multi Snap",
-                        "description": "Allows you to take an Unlimited Amount of Multi Snaps"
                     },
                     "no_friend_score_delay": {
                         "name": "No Friend Score Delay",
@@ -882,6 +896,17 @@
             "disable_cameras":{
                 "front": "Front Camera",
                 "back": "Back Camera"
+            },
+            "disable_permission_requests": {
+                "notifications": "Notifications",
+                "read_media_images": "Read Media Images",
+                "read_media_video": "Read Media Video",
+                "camera": "Camera",
+                "microphone": "Microphone",
+                "location": "Location",
+                "read_contacts": "Read Contacts",
+                "nearby_devices": "Nearby Devices",
+                "phone_calls": "Phone Calls"
             }
         }
     },
@@ -927,6 +952,7 @@
         "spotlight": "Spotlight",
         "profile_picture": "Profile Picture",
         "story_logger": "Story Logger",
+        "message_logger": "Message Logger",
         "merged": "Merged"
     },
 
@@ -954,6 +980,14 @@
 
     "gallery_media_send_override": {
         "multiple_media_toast": "You can only send one media at a time"
+    },
+
+    "mark_as_seen": {
+        "no_unseen_snaps_toast": "No unseen Snaps found!",
+        "seen_toast": "Marked as seen!",
+        "unseen_toast": "Marked as unseen!",
+        "already_seen_toast": "Already marked as seen!",
+        "already_unseen_toast": "Already marked as unseen!"
     },
 
     "conversation_preview": {

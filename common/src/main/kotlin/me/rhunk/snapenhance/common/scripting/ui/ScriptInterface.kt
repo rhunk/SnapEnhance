@@ -1,10 +1,12 @@
 package me.rhunk.snapenhance.common.scripting.ui
 
+import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.layout.*
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Slider
 import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextField
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -68,92 +70,117 @@ private fun DrawNode(node: Node) {
         )
     }
 
-    when (node.type) {
-        NodeType.ACTION -> {
-            when ((node as ActionNode).actionType) {
-                ActionType.LAUNCHED -> {
-                    LaunchedEffect(node.key) {
-                        runCallbackSafe {
-                            node.callback()
+    if (cachedAttributes["visibility"] != "gone") {
+        AnimatedVisibility(
+            visible = cachedAttributes["visibility"] != "invisible",
+        ) {
+            when (node.type) {
+                NodeType.ACTION -> {
+                    when ((node as ActionNode).actionType) {
+                        ActionType.LAUNCHED -> {
+                            LaunchedEffect(node.key) {
+                                runCallbackSafe {
+                                    node.callback()
+                                }
+                            }
                         }
-                    }
-                }
-                ActionType.DISPOSE -> {
-                    DisposableEffect(Unit) {
-                        onDispose {
-                            runCallbackSafe {
-                                node.callback()
+                        ActionType.DISPOSE -> {
+                            DisposableEffect(Unit) {
+                                onDispose {
+                                    runCallbackSafe {
+                                        node.callback()
+                                    }
+                                }
                             }
                         }
                     }
                 }
-            }
-        }
-        NodeType.COLUMN -> {
-            Column(
-                verticalArrangement = arrangement as? Arrangement.Vertical ?: spacing?.let { Arrangement.spacedBy(it.dp) } ?: Arrangement.Top,
-                horizontalAlignment = alignment as? Alignment.Horizontal ?: Alignment.Start,
-                modifier = rowColumnModifier
-            ) {
-                node.children.forEach { child ->
-                    DrawNode(child)
-                }
-            }
-        }
-        NodeType.ROW -> {
-            Row(
-                horizontalArrangement = arrangement as? Arrangement.Horizontal ?: spacing?.let { Arrangement.spacedBy(it.dp) } ?: Arrangement.SpaceBetween,
-                verticalAlignment = alignment as? Alignment.Vertical ?: Alignment.CenterVertically,
-                modifier = rowColumnModifier
-            ) {
-                node.children.forEach { child ->
-                    DrawNode(child)
-                }
-            }
-        }
-        NodeType.TEXT -> NodeLabel()
-        NodeType.SWITCH -> {
-            var switchState by remember {
-                mutableStateOf(cachedAttributes["state"] as Boolean)
-            }
-            Switch(
-                checked = switchState,
-                onCheckedChange = { state ->
-                    runCallbackSafe {
-                        switchState = state
-                        node.setAttribute("state", state)
-                        (cachedAttributes["callback"] as? (Boolean) -> Unit)?.let { it(state) }
+                NodeType.COLUMN -> {
+                    Column(
+                        verticalArrangement = arrangement as? Arrangement.Vertical ?: spacing?.let { Arrangement.spacedBy(it.dp) } ?: Arrangement.Top,
+                        horizontalAlignment = alignment as? Alignment.Horizontal ?: Alignment.Start,
+                        modifier = rowColumnModifier
+                    ) {
+                        node.children.forEach { child ->
+                            DrawNode(child)
+                        }
                     }
                 }
-            )
-        }
-        NodeType.SLIDER -> {
-            var sliderValue by remember {
-                mutableFloatStateOf((cachedAttributes["value"] as Int).toFloat())
-            }
-            Slider(
-                value = sliderValue,
-                onValueChange = { value ->
-                    runCallbackSafe {
-                        sliderValue = value
-                        node.setAttribute("value", value.toInt())
-                        (cachedAttributes["callback"] as? (Int) -> Unit)?.let { it(value.toInt()) }
+                NodeType.ROW -> {
+                    Row(
+                        horizontalArrangement = arrangement as? Arrangement.Horizontal ?: spacing?.let { Arrangement.spacedBy(it.dp) } ?: Arrangement.SpaceBetween,
+                        verticalAlignment = alignment as? Alignment.Vertical ?: Alignment.CenterVertically,
+                        modifier = rowColumnModifier
+                    ) {
+                        node.children.forEach { child ->
+                            DrawNode(child)
+                        }
                     }
-                },
-                valueRange = (cachedAttributes["min"] as Int).toFloat()..(cachedAttributes["max"] as Int).toFloat(),
-                steps = cachedAttributes["step"] as Int,
-            )
-        }
-        NodeType.BUTTON -> {
-            OutlinedButton(onClick = {
-                runCallbackSafe {
-                    (cachedAttributes["callback"] as? () -> Unit)?.let { it() }
                 }
-            }) {
-                NodeLabel()
+                NodeType.TEXT -> NodeLabel()
+                NodeType.SWITCH -> {
+                    var switchState by remember {
+                        mutableStateOf(cachedAttributes["state"] as Boolean)
+                    }
+                    Switch(
+                        checked = switchState,
+                        onCheckedChange = { state ->
+                            runCallbackSafe {
+                                switchState = state
+                                node.setAttribute("state", state)
+                                (cachedAttributes["callback"] as? (Boolean) -> Unit)?.let { it(state) }
+                            }
+                        }
+                    )
+                }
+                NodeType.SLIDER -> {
+                    var sliderValue by remember {
+                        mutableFloatStateOf((cachedAttributes["value"] as Int).toFloat())
+                    }
+                    Slider(
+                        value = sliderValue,
+                        onValueChange = { value ->
+                            runCallbackSafe {
+                                sliderValue = value
+                                node.setAttribute("value", value.toInt())
+                                (cachedAttributes["callback"] as? (Int) -> Unit)?.let { it(value.toInt()) }
+                            }
+                        },
+                        valueRange = (cachedAttributes["min"] as Int).toFloat()..(cachedAttributes["max"] as Int).toFloat(),
+                        steps = cachedAttributes["step"] as Int,
+                    )
+                }
+                NodeType.BUTTON -> {
+                    OutlinedButton(onClick = {
+                        runCallbackSafe {
+                            (cachedAttributes["callback"] as? () -> Unit)?.let { it() }
+                        }
+                    }) {
+                        NodeLabel()
+                    }
+                }
+                NodeType.TEXT_INPUT -> {
+                    var textInputValue by remember {
+                        mutableStateOf(cachedAttributes["value"].toString())
+                    }
+                    TextField(
+                        value = textInputValue,
+                        readOnly = cachedAttributes["readonly"] as? Boolean ?: false,
+                        singleLine = cachedAttributes["singleLine"] as? Boolean ?: true,
+                        maxLines = cachedAttributes["maxLines"] as? Int ?: 1,
+                        onValueChange = { value ->
+                            runCallbackSafe {
+                                textInputValue = value
+                                node.setAttribute("value", value)
+                                (cachedAttributes["callback"] as? (String) -> Unit)?.let { it(value) }
+                            }
+                        },
+                        placeholder = { Text(cachedAttributes["placeholder"].toString()) }
+                    )
+                }
+                else -> {}
             }
         }
-        else -> {}
     }
 }
 

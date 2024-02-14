@@ -19,6 +19,7 @@ import me.rhunk.snapenhance.core.features.impl.messaging.*
 import me.rhunk.snapenhance.core.features.impl.spying.*
 import me.rhunk.snapenhance.core.features.impl.tweaks.BypassScreenshotDetection
 import me.rhunk.snapenhance.core.features.impl.tweaks.CameraTweaks
+import me.rhunk.snapenhance.core.features.impl.tweaks.DisablePermissionRequests
 import me.rhunk.snapenhance.core.features.impl.tweaks.PreventMessageListAutoScroll
 import me.rhunk.snapenhance.core.features.impl.tweaks.UnsaveableMessages
 import me.rhunk.snapenhance.core.features.impl.ui.*
@@ -88,7 +89,6 @@ class FeatureManager(
             InfiniteStoryBoost(),
             AmoledDarkMode(),
             PinConversations(),
-            UnlimitedMultiSnap(),
             DeviceSpooferHook(),
             ClientBootstrapOverride(),
             GooglePlayServicesDialogs(),
@@ -117,6 +117,8 @@ class FeatureManager(
             SpotlightCommentsUsername(),
             OperaViewerParamsOverride(),
             StealthModeIndicator(),
+            DisablePermissionRequests(),
+            SessionEvents(),
         )
 
         initializeFeatures()

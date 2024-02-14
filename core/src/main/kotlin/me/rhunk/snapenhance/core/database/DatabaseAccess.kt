@@ -1,5 +1,6 @@
 package me.rhunk.snapenhance.core.database
 
+import android.content.ContentValues
 import android.database.Cursor
 import android.database.sqlite.SQLiteDatabase
 import android.database.sqlite.SQLiteDatabase.OpenParams
@@ -33,7 +34,8 @@ class DatabaseAccess(
     private val openedDatabases = mutableMapOf<DatabaseType, SQLiteDatabase>()
 
     private fun useDatabase(database: DatabaseType, writeMode: Boolean = false): SQLiteDatabase? {
-        if (openedDatabases.containsKey(database) && openedDatabases[database]?.isOpen == true) {
+        // only cache read-only databases
+        if (!writeMode && openedDatabases.containsKey(database) && openedDatabases[database]?.isOpen == true) {
             return openedDatabases[database]
         }
 
@@ -55,10 +57,9 @@ class DatabaseAccess(
         }.onFailure {
             context.log.error("Failed to open database ${database.fileName}!", it)
         }.getOrNull()?.also {
-            openedDatabases[database] = it
+            if (!writeMode) openedDatabases[database] = it
         }
     }
-
 
     private fun <T> SQLiteDatabase.performOperation(query: SQLiteDatabase.() -> T?): T? {
         return runCatching {
@@ -367,13 +368,22 @@ class DatabaseAccess(
         }
     }
 
-    fun markFriendStoriesAsSeen(userId: String) {
+    fun setStoriesViewedState(userId: String, viewed: Boolean): Boolean {
+        var success = false
         useDatabase(DatabaseType.MAIN, writeMode = true)?.apply {
             performOperation {
-                execSQL("UPDATE StorySnap SET viewed = 1 WHERE userId = ?", arrayOf(userId))
+                success = update(
+                    "StorySnap",
+                    ContentValues().apply {
+                        put("viewed", if (viewed) 1 else 0)
+                    },
+                    "userId = ? AND viewed != ?",
+                    arrayOf(userId, if (viewed) "1" else "0")
+                ) > 0
             }
             close()
         }
+        return success
     }
 
     fun getAccessTokens(userId: String): Map<String, String>? {

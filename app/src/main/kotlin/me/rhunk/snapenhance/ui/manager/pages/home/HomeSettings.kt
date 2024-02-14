@@ -1,4 +1,4 @@
-package me.rhunk.snapenhance.ui.manager.sections.home
+package me.rhunk.snapenhance.ui.manager.pages.home
 
 import androidx.compose.foundation.ScrollState
 import androidx.compose.foundation.clickable
@@ -15,21 +15,25 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
 import androidx.core.net.toUri
+import androidx.navigation.NavBackStackEntry
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import me.rhunk.snapenhance.common.Constants
 import me.rhunk.snapenhance.common.action.EnumAction
 import me.rhunk.snapenhance.common.bridge.types.BridgeFileType
-import me.rhunk.snapenhance.ui.manager.Section
+import me.rhunk.snapenhance.ui.manager.Routes
 import me.rhunk.snapenhance.ui.setup.Requirements
 import me.rhunk.snapenhance.ui.util.ActivityLauncherHelper
 import me.rhunk.snapenhance.ui.util.AlertDialogs
 import me.rhunk.snapenhance.ui.util.saveFile
 
-class SettingsSection(
-    private val activityLauncherHelper: ActivityLauncherHelper
-) : Section() {
+class HomeSettings : Routes.Route() {
+    private lateinit var activityLauncherHelper: ActivityLauncherHelper
     private val dialogs by lazy { AlertDialogs(context.translation) }
+
+    override val init: () -> Unit = {
+        activityLauncherHelper = ActivityLauncherHelper(context.activity!!)
+    }
 
     @Composable
     private fun RowTitle(title: String) {
@@ -102,10 +106,8 @@ class SettingsSection(
         ) { content(this) }
     }
 
-
     @OptIn(ExperimentalMaterial3Api::class)
-    @Composable
-    override fun Content() {
+    override val content: @Composable (NavBackStackEntry) -> Unit = {
         Column(
             modifier = Modifier
                 .fillMaxSize()
@@ -181,6 +183,14 @@ class SettingsSection(
                             Text(text = "Clear")
                         }
                     }
+                    OutlinedButton(
+                        modifier = Modifier.fillMaxWidth().padding(5.dp),
+                        onClick = {
+                            routes.loggerHistory.navigate()
+                        }
+                    ) {
+                        Text(text = "View Message History")
+                    }
                 }
             }
 
@@ -208,7 +218,7 @@ class SettingsSection(
                             readOnly = true,
                             modifier = Modifier.menuAnchor()
                         )
-                        
+
                         ExposedDropdownMenu(expanded = expanded, onDismissRequest = { expanded = false }) {
                             BridgeFileType.entries.forEach { fileType ->
                                 DropdownMenuItem(onClick = {

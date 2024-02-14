@@ -1,5 +1,6 @@
 package me.rhunk.snapenhance.common.scripting.ui.components
 
+@Suppress("MemberVisibilityCanBePrivate")
 open class Node(
     val type: NodeType,
 ) {
@@ -14,6 +15,10 @@ open class Node(
                 }
             }
         }
+    }
+
+    init {
+        visibility("visible")
     }
 
     fun setAttribute(key: String, value: Any?) {
@@ -48,5 +53,10 @@ open class Node(
     fun color(color: Long): Node {
         attributes["color"] = color
         return this
+    }
+
+    fun visibility(state: String) {
+        assert(state == "visible" || state == "invisible" || state == "gone") { "Invalid visibility state. Must be one of: visible, invisible, gone" }
+        attributes["visibility"] = state
     }
 }

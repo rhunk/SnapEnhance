@@ -23,7 +23,7 @@ class CoreMessaging(
     fun isPresent() = conversationManager != null
 
     @JSFunction
-    fun newSnapUUID(uuid: String) = SnapUUID.fromString(uuid)
+    fun newSnapUUID(uuid: String) = SnapUUID(uuid)
 
     @JSFunction
     fun updateMessage(
@@ -143,7 +143,7 @@ class CoreMessaging(
         message: String,
         result: (error: String?) -> Unit
     ) {
-        modContext.messageSender.sendChatMessage(listOf(SnapUUID.fromString(conversationId)), message, onSuccess = { result(null) }, onError = { result(it.toString()) })
+        modContext.messageSender.sendChatMessage(listOf(SnapUUID(conversationId)), message, onSuccess = { result(null) }, onError = { result(it.toString()) })
     }
 
     @JSFunction

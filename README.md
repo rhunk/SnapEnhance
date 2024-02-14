@@ -68,7 +68,6 @@ We no longer offer official LSPatch binaries for obvious reasons. However, you'r
   - Disable Spotlight
   - Enable Official App Appearance Settings (Darkmode)
   - Pin Conversations
-  - Multi Snap Limit bypass
   - Override Startup Page
 </details>
 

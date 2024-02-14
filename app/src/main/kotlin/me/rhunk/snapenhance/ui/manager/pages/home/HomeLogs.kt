@@ -1,4 +1,4 @@
-package me.rhunk.snapenhance.ui.manager.sections.home
+package me.rhunk.snapenhance.ui.manager.pages.home
 
 import android.net.Uri
 import androidx.compose.foundation.ScrollState
@@ -27,27 +27,74 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.navigation.NavController
+import androidx.navigation.NavBackStackEntry
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import me.rhunk.snapenhance.LogReader
-import me.rhunk.snapenhance.RemoteSideContext
 import me.rhunk.snapenhance.common.logger.LogChannel
 import me.rhunk.snapenhance.common.logger.LogLevel
+import me.rhunk.snapenhance.ui.manager.Routes
 import me.rhunk.snapenhance.ui.util.ActivityLauncherHelper
 import me.rhunk.snapenhance.ui.util.pullrefresh.PullRefreshIndicator
 import me.rhunk.snapenhance.ui.util.pullrefresh.rememberPullRefreshState
 import me.rhunk.snapenhance.ui.util.saveFile
 
-class HomeSubSection(
-    private val context: RemoteSideContext
-) {
+class HomeLogs : Routes.Route() {
     private val logListState by lazy { LazyListState(0) }
+    private lateinit var activityLauncherHelper: ActivityLauncherHelper
 
-    @Composable
-    fun LogsSection() {
+    override val init: () -> Unit = {
+        activityLauncherHelper = ActivityLauncherHelper(context.activity!!)
+    }
+
+    override val topBarActions: @Composable (RowScope.() -> Unit) = {
+        var showDropDown by remember { mutableStateOf(false) }
+
+        IconButton(onClick = {
+            showDropDown = true
+        }) {
+            Icon(Icons.Filled.MoreVert, contentDescription = null)
+        }
+
+        DropdownMenu(
+            expanded = showDropDown,
+            onDismissRequest = { showDropDown = false },
+            modifier = Modifier.align(Alignment.CenterVertically)
+        ) {
+            DropdownMenuItem(onClick = {
+                context.log.clearLogs()
+                navigate()
+                showDropDown = false
+            }, text = {
+                Text(
+                    text = context.translation["manager.sections.home.logs.clear_logs_button"]
+                )
+            })
+
+            DropdownMenuItem(onClick = {
+                activityLauncherHelper.saveFile("snapenhance-logs-${System.currentTimeMillis()}.zip", "application/zip") { uri ->
+                    context.androidContext.contentResolver.openOutputStream(Uri.parse(uri))?.use {
+                        runCatching {
+                            context.log.exportLogsToZip(it)
+                            context.longToast("Saved logs to $uri")
+                        }.onFailure {
+                            context.longToast("Failed to save logs to $uri!")
+                            context.log.error("Failed to save logs to $uri!", it)
+                        }
+                    }
+                }
+                showDropDown = false
+            }, text = {
+                Text(
+                    text = context.translation["manager.sections.home.logs.export_logs_button"]
+                )
+            })
+        }
+    }
+
+    override val content: @Composable (NavBackStackEntry) -> Unit = {
         val coroutineScope = rememberCoroutineScope()
         val clipboardManager = LocalClipboardManager.current
         var lineCount by remember { mutableIntStateOf(0) }
@@ -172,56 +219,7 @@ class HomeSubSection(
         }
     }
 
-    @Composable
-    fun LogsTopBarButtons(activityLauncherHelper: ActivityLauncherHelper, navController: NavController, rowScope: RowScope) {
-        var showDropDown by remember { mutableStateOf(false) }
-
-        IconButton(onClick = {
-            showDropDown = true
-        }) {
-            Icon(Icons.Filled.MoreVert, contentDescription = null)
-        }
-
-        rowScope.apply {
-            DropdownMenu(
-                expanded = showDropDown,
-                onDismissRequest = { showDropDown = false },
-                modifier = Modifier.align(Alignment.CenterVertically)
-            ) {
-                DropdownMenuItem(onClick = {
-                    context.log.clearLogs()
-                    navController.navigate(HomeSection.LOGS_SECTION_ROUTE)
-                    showDropDown = false
-                }, text = {
-                    Text(
-                        text = context.translation["manager.sections.home.logs.clear_logs_button"]
-                    )
-                })
-
-                DropdownMenuItem(onClick = {
-                    activityLauncherHelper.saveFile("snapenhance-logs-${System.currentTimeMillis()}.zip", "application/zip") { uri ->
-                        context.androidContext.contentResolver.openOutputStream(Uri.parse(uri))?.use {
-                            runCatching {
-                                context.log.exportLogsToZip(it)
-                                context.longToast("Saved logs to $uri")
-                            }.onFailure {
-                                context.longToast("Failed to save logs to $uri!")
-                                context.log.error("Failed to save logs to $uri!", it)
-                            }
-                        }
-                    }
-                    showDropDown = false
-                }, text = {
-                    Text(
-                        text = context.translation["manager.sections.home.logs.export_logs_button"]
-                    )
-                })
-            }
-        }
-    }
-
-    @Composable
-    fun LogsActionButtons() {
+    override val floatingActionButton: @Composable () -> Unit = {
         val coroutineScope = rememberCoroutineScope()
         Column(
             verticalArrangement = Arrangement.spacedBy(5.dp),

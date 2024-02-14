@@ -6,6 +6,7 @@ import android.content.Context
 import android.content.Intent
 import android.content.ServiceConnection
 import android.os.Build
+import android.os.DeadObjectException
 import android.os.Handler
 import android.os.HandlerThread
 import android.os.IBinder
@@ -105,66 +106,101 @@ class BridgeClient(
         exitProcess(0)
     }
 
-    fun broadcastLog(tag: String, level: String, message: String) = service.broadcastLog(tag, level, message)
+    private fun <T> safeServiceCall(block: () -> T): T {
+        return runCatching {
+            block()
+        }.getOrElse {
+            if (it is DeadObjectException) {
+                context.softRestartApp()
+            }
+            throw it
+        }
+    }
+
+    fun broadcastLog(tag: String, level: String, message: String) {
+        safeServiceCall { service.broadcastLog(tag, level, message) }
+    }
 
     //TODO: use interfaces instead of direct file access
     fun createAndReadFile(
         fileType: BridgeFileType,
         defaultContent: ByteArray
-    ): ByteArray = service.fileOperation(FileActionType.CREATE_AND_READ.ordinal, fileType.value, defaultContent)
+    ): ByteArray = safeServiceCall {
+        service.fileOperation(FileActionType.CREATE_AND_READ.ordinal, fileType.value, defaultContent)
+    }
 
-    fun readFile(fileType: BridgeFileType): ByteArray = service.fileOperation(FileActionType.READ.ordinal, fileType.value, null)
+    fun readFile(fileType: BridgeFileType): ByteArray = safeServiceCall { service.fileOperation(FileActionType.READ.ordinal, fileType.value, null) }
 
     fun writeFile(
         fileType: BridgeFileType,
         content: ByteArray?
-    ) { service.fileOperation(FileActionType.WRITE.ordinal, fileType.value, content) }
-
-    fun deleteFile(fileType: BridgeFileType) { service.fileOperation(FileActionType.DELETE.ordinal, fileType.value, null) }
-
-    fun isFileExists(fileType: BridgeFileType) = service.fileOperation(FileActionType.EXISTS.ordinal, fileType.value, null).isNotEmpty()
-
-    fun fetchLocales(userLocale: String) = service.fetchLocales(userLocale).map {
-        LocalePair(it.key, it.value)
+    ): ByteArray = safeServiceCall {
+        service.fileOperation(FileActionType.WRITE.ordinal, fileType.value, content)
     }
 
-    fun getApplicationApkPath(): String = service.getApplicationApkPath()
+    fun deleteFile(fileType: BridgeFileType) {
+        safeServiceCall {
+            service.fileOperation(FileActionType.DELETE.ordinal, fileType.value, null)
+        }
+    }
 
-    fun enqueueDownload(intent: Intent, callback: DownloadCallback) = service.enqueueDownload(intent, callback)
+    fun isFileExists(fileType: BridgeFileType) = safeServiceCall {
+        service.fileOperation(FileActionType.EXISTS.ordinal, fileType.value, null).isNotEmpty()
+    }
+
+    fun fetchLocales(userLocale: String) = safeServiceCall {
+        service.fetchLocales(userLocale).map {
+            LocalePair(it.key, it.value)
+        }
+    }
+
+    fun getApplicationApkPath(): String = safeServiceCall { service.getApplicationApkPath() }
+
+    fun enqueueDownload(intent: Intent, callback: DownloadCallback) = safeServiceCall {
+        service.enqueueDownload(intent, callback)
+    }
 
     fun sync(callback: SyncCallback) {
         if (!context.database.hasMain()) return
-        service.sync(callback)
+        safeServiceCall {
+            service.sync(callback)
+        }
     }
 
-    fun triggerSync(scope: SocialScope, id: String) = service.triggerSync(scope.key, id)
-
-    fun passGroupsAndFriends(groups: List<MessagingGroupInfo>, friends: List<MessagingFriendInfo>) = service.passGroupsAndFriends(
-        groups.mapNotNull { it.toSerialized() },
-        friends.mapNotNull { it.toSerialized() }
-    )
-
-    fun getRules(targetUuid: String): List<MessagingRuleType> {
-        return service.getRules(targetUuid).mapNotNull { MessagingRuleType.getByName(it) }
+    fun triggerSync(scope: SocialScope, id: String) = safeServiceCall {
+        service.triggerSync(scope.key, id)
     }
 
-    fun getRuleIds(ruleType: MessagingRuleType): List<String> {
-        return service.getRuleIds(ruleType.key)
+    fun passGroupsAndFriends(groups: List<MessagingGroupInfo>, friends: List<MessagingFriendInfo>) =
+        safeServiceCall {
+            service.passGroupsAndFriends(
+                groups.mapNotNull { it.toSerialized() },
+                friends.mapNotNull { it.toSerialized() }
+            )
+        }
+
+    fun getRules(targetUuid: String): List<MessagingRuleType> = safeServiceCall {
+        service.getRules(targetUuid).mapNotNull { MessagingRuleType.getByName(it) }
     }
 
-    fun setRule(targetUuid: String, type: MessagingRuleType, state: Boolean)
-        = service.setRule(targetUuid, type.key, state)
+    fun getRuleIds(ruleType: MessagingRuleType): List<String> = safeServiceCall {
+        service.getRuleIds(ruleType.key)
+    }
 
-    fun getScriptingInterface(): IScripting = service.getScriptingInterface()
+    fun setRule(targetUuid: String, type: MessagingRuleType, state: Boolean) = safeServiceCall {
+        service.setRule(targetUuid, type.key, state)
+    }
 
-    fun getE2eeInterface(): E2eeInterface = service.getE2eeInterface()
+    fun getScriptingInterface(): IScripting = safeServiceCall { service.getScriptingInterface() }
 
-    fun getMessageLogger(): MessageLoggerInterface = service.messageLogger
+    fun getE2eeInterface(): E2eeInterface = safeServiceCall { service.getE2eeInterface() }
 
-    fun registerMessagingBridge(bridge: MessagingBridge) = service.registerMessagingBridge(bridge)
+    fun getMessageLogger(): MessageLoggerInterface = safeServiceCall { service.messageLogger }
 
-    fun openSettingsOverlay() = service.openSettingsOverlay()
-    fun closeSettingsOverlay() = service.closeSettingsOverlay()
+    fun registerMessagingBridge(bridge: MessagingBridge) = safeServiceCall { service.registerMessagingBridge(bridge) }
 
-    fun registerConfigStateListener(listener: ConfigStateListener) = service.registerConfigStateListener(listener)
+    fun openSettingsOverlay() = safeServiceCall { service.openSettingsOverlay() }
+    fun closeSettingsOverlay() = safeServiceCall { service.closeSettingsOverlay() }
+
+    fun registerConfigStateListener(listener: ConfigStateListener) = safeServiceCall { service.registerConfigStateListener(listener) }
 }
