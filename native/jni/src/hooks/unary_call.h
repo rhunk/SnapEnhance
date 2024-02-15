@@ -19,14 +19,13 @@ namespace UnaryCallHook {
         } grpc_byte_buffer;
     }
 
-    static void *(*unaryCall_original)(void *, const char *, grpc::grpc_byte_buffer **, void *, void *, void *);
     static jmethodID native_lib_on_unary_call_method;
 
-    void *unaryCall_hook(void *unk1, const char *uri, grpc::grpc_byte_buffer **buffer_ptr, void *unk4, void *unk5, void *unk6) {
+    HOOK_DEF(void *, unaryCall_hook, void *unk1, const char *uri, grpc::grpc_byte_buffer **buffer_ptr, void *unk4, void *unk5, void *unk6) {
         // request without reference counter can be hooked using xposed ig
         auto slice_buffer = (*buffer_ptr)->slice_buffer;
         if (slice_buffer->ref_counter == 0) {
-            return unaryCall_original(unk1, uri, buffer_ptr, unk4, unk5, unk6);
+            return unaryCall_hook_original(unk1, uri, buffer_ptr, unk4, unk5, unk6);
         }
 
         JNIEnv *env = nullptr;
@@ -67,7 +66,7 @@ namespace UnaryCallHook {
             slice_buffer->data = (uint8_t *)((uintptr_t)new_ref_counter + ref_counter_struct_size);
         }
 
-        return unaryCall_original(unk1, uri, buffer_ptr, unk4, unk5, unk6);
+        return unaryCall_hook_original(unk1, uri, buffer_ptr, unk4, unk5, unk6);
     }
 
     void init(JNIEnv *env) {
@@ -80,9 +79,9 @@ namespace UnaryCallHook {
         native_lib_on_unary_call_method = env->GetMethodID(env->GetObjectClass(common::native_lib_object), "onNativeUnaryCall", "(Ljava/lang/String;[B)L" BUILD_NAMESPACE "/NativeRequestData;");
 
         if (unaryCall_func != 0) {
-            DobbyHook((void *)unaryCall_func, (void *)unaryCall_hook, (void **)&unaryCall_original);
+            DobbyHook((void *)unaryCall_func, (void *)unaryCall_hook, (void **)&unaryCall_hook_original);
         } else {
-            LOGE("can't find unaryCall signature");
+            LOGE("Can't find unaryCall signature");
         }
     }
 }

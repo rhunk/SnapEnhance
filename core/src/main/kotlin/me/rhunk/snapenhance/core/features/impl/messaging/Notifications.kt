@@ -193,7 +193,7 @@ class Notifications : Feature("Notifications", loadParams = FeatureLoadParams.IN
                         .toString()
                     val myUser = context.database.myUserId.let { context.database.getFriendInfo(it) } ?: return@subscribe
 
-                    context.messageSender.sendChatMessage(listOf(SnapUUID.fromString(conversationId)), input, onError = {
+                    context.messageSender.sendChatMessage(listOf(SnapUUID(conversationId)), input, onError = {
                         context.longToast("Failed to send message: $it")
                         context.coroutineScope.launch(coroutineDispatcher) {
                             appendNotificationText("Failed to send message: $it")

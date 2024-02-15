@@ -2,6 +2,8 @@
 
 #include <unistd.h>
 
+#define HOOK_DEF(ret, func, ...) ret (*func##_original)(__VA_ARGS__); ret func(__VA_ARGS__)
+
 namespace util {
     typedef struct {
         uintptr_t base;

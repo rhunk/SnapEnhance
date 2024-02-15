@@ -27,7 +27,7 @@ class UnsaveableMessages : MessagingRuleFeature(
                 if (contains(2)) {
                     return@eachBuffer
                 }
-                conversationIds.add(SnapUUID.fromBytes(getByteArray(1, 1, 1) ?: return@eachBuffer).toString())
+                conversationIds.add(SnapUUID(getByteArray(1, 1, 1) ?: return@eachBuffer).toString())
             }
 
             if (conversationIds.all { canUseRule(it) }) {

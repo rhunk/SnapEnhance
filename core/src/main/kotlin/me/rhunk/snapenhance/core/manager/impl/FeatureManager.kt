@@ -118,6 +118,7 @@ class FeatureManager(
             OperaViewerParamsOverride(),
             StealthModeIndicator(),
             DisablePermissionRequests(),
+            SessionEvents(),
         )
 
         initializeFeatures()

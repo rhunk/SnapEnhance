@@ -90,7 +90,7 @@ class EndToEndEncryption : MessagingRuleFeature(
 
     private fun sendCustomMessage(conversationId: String, messageId: Int, message: ProtoWriter.() -> Unit) {
         context.messageSender.sendCustomChatMessage(
-            listOf(SnapUUID.fromString(conversationId)),
+            listOf(SnapUUID(conversationId)),
             ContentType.CHAT,
             message = {
                 from(2) {
@@ -444,7 +444,7 @@ class EndToEndEncryption : MessagingRuleFeature(
                     hasStory = true
                     return@eachBuffer
                 }
-                conversationIds.add(SnapUUID.fromBytes(getByteArray(1, 1, 1) ?: return@eachBuffer))
+                conversationIds.add(SnapUUID(getByteArray(1, 1, 1) ?: return@eachBuffer))
             }
 
             if (hasStory) {

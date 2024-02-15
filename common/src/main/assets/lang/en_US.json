@@ -522,6 +522,14 @@
                         "name": "Bypass Video Length Restrictions",
                         "description": "Single: sends a single video\nSplit: split videos after editing"
                     },
+                    "default_video_playback_rate": {
+                        "name": "Default Video Playback Rate",
+                        "description": "Sets the default speed for the playback of videos\nValue must be between 0.1 and 4.0"
+                    },
+                    "video_playback_rate_slider": {
+                        "name": "Video Playback Rate Slider",
+                        "description": "Adds a slider in opera context menu to change the video playback rate\nNote: Changes only apply to subsequent videos"
+                    },
                     "disable_google_play_dialogs": {
                         "name": "Disable Google Play Services Dialogs",
                         "description": "Prevent Google Play Services availability dialogs from being shown"
@@ -615,6 +623,20 @@
                             "disable_bitmoji": {
                                 "name": "Disable Bitmoji",
                                 "description": "Disables Friends Profile Bitmoji"
+                            }
+                        }
+                    },
+                    "session_events": {
+                        "name": "Session Events",
+                        "description": "Records session events",
+                        "properties": {
+                            "capture_duplex_events": {
+                                "name": "Capture Duplex Events",
+                                "description": "Capture presence and messaging events when a session is active"
+                            },
+                            "allow_running_in_background": {
+                                "name": "Allow Running in Background",
+                                "description": "Allows session to run in the background"
                             }
                         }
                     },
