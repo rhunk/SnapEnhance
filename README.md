@@ -101,12 +101,14 @@ We no longer offer official LSPatch binaries for obvious reasons. However, you'r
   - Snapchat Plus 
   - Disable Confirmation Dialogs
   - Disable Metrics 
-  - Disable Public Stories
+  - Disable Story Sections 
   - Block Ads
   - Disable Permission Request
   - Disable Memories Snap Feed
   - Spotlight Comments Username 
   - Bypass Video Length Restriction
+  - Default Video Playback Rate
+  - Video Playback Rate Slider 
   - Disable Google Play Services Dialogs 
   - Force Upload Source Quality 
   - Disable Snap Splitting
@@ -127,6 +129,7 @@ We no longer offer official LSPatch binaries for obvious reasons. However, you'r
 <details closed>
   <summary>Experimental</summary>
 
+  - Session Events 
   - Device Spoof
   - Convert Message Locally
   - Story Logger
