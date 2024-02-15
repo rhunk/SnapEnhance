@@ -5,7 +5,7 @@ libsu = "5.2.2"
 guava = "33.0.0-jre"
 jsoup = "1.17.2"
 kotlin = "1.9.22"
-kotlinx-coroutines-android = "1.7.3"
+kotlinx-coroutines-android = "1.8.0"
 compose-compiler = "1.5.9"
 
 activity-ktx = "1.8.2"
