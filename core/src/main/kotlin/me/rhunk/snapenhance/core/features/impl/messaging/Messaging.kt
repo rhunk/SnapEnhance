@@ -110,7 +110,7 @@ class Messaging : Feature("Messaging", loadParams = FeatureLoadParams.ACTIVITY_C
                     if (it.startsWith("null")) return@hook
                 }
                 context.database.getConversationType(conversationId)?.takeIf { it == 1 }?.run {
-                    lastFetchGroupConversationUUID = SnapUUID.fromString(conversationId)
+                    lastFetchGroupConversationUUID = SnapUUID(conversationId)
                 }
             }
         }

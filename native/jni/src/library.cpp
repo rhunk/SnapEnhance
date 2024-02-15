@@ -2,7 +2,6 @@
 #include <string>
 #include <dobby.h>
 #include <vector>
-#include <android/asset_manager.h>
 
 #include "logger.h"
 #include "common.h"
@@ -10,6 +9,7 @@
 #include "hooks/unary_call.h"
 #include "hooks/fstat_hook.h"
 #include "hooks/sqlite_mutex.h"
+#include "hooks/duplex_hook.h"
 
 void JNICALL init(JNIEnv *env, jobject clazz) {
     LOGD("Initializing native");
@@ -24,12 +24,13 @@ void JNICALL init(JNIEnv *env, jobject clazz) {
         return;
     }
 
-    LOGD("libclient.so base=0x%0lx, size=0x%0lx", client_module.base, client_module.size);
+    LOGD("libclient.so base=0x%lx, size=0x%zx", client_module.base, client_module.size);
 
     AssetHook::init(env);
     UnaryCallHook::init(env);
     FstatHook::init();
     SqliteMutexHook::init();
+    DuplexHook::init(env);
 
     LOGD("Native initialized");
 }

@@ -33,6 +33,8 @@ class Global : ConfigContainer() {
     val spotlightCommentsUsername = boolean("spotlight_comments_username") { requireRestart() }
     val bypassVideoLengthRestriction = unique("bypass_video_length_restriction", "split", "single") { addNotices(
         FeatureNotice.BAN_RISK); requireRestart(); nativeHooks() }
+    val defaultVideoPlaybackRate = float("default_video_playback_rate", 1.0F) { requireRestart(); inputCheck = { (it.toFloatOrNull() ?: 1.0F) in 0.1F..4.0F} }
+    val videoPlaybackRateSlider = boolean("video_playback_rate_slider") { requireRestart() }
     val disableGooglePlayDialogs = boolean("disable_google_play_dialogs") { requireRestart() }
     val forceUploadSourceQuality = boolean("force_upload_source_quality") { requireRestart() }
     val disableSnapSplitting = boolean("disable_snap_splitting") { addNotices(FeatureNotice.INTERNAL_BEHAVIOR) }

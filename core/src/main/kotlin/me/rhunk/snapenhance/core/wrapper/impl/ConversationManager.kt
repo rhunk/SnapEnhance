@@ -40,7 +40,7 @@ class ConversationManager(
     fun updateMessage(conversationId: String, messageId: Long, action: MessageUpdate, onResult: CallbackResult = {}) {
         updateMessageMethod.invoke(
             instanceNonNull(),
-            SnapUUID.fromString(conversationId).instanceNonNull(),
+            SnapUUID(conversationId).instanceNonNull(),
             messageId,
             context.classCache.messageUpdateEnum.enumConstants.first { it.toString() == action.toString() },
             CallbackBuilder(getCallbackClass("Callback"))

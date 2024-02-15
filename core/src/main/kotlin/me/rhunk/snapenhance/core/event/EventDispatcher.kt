@@ -28,9 +28,11 @@ class EventDispatcher(
         context.mappings.useMapper(ViewBinderMapper::class) {
             val cachedHooks = mutableListOf<String>()
             fun cacheHook(clazz: Class<*>, block: Class<*>.() -> Unit) {
-                if (!cachedHooks.contains(clazz.name)) {
-                    clazz.block()
-                    cachedHooks.add(clazz.name)
+                synchronized(cachedHooks) {
+                    if (!cachedHooks.contains(clazz.name)) {
+                        clazz.block()
+                        cachedHooks.add(clazz.name)
+                    }
                 }
             }
 

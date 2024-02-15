@@ -6,41 +6,53 @@ import me.rhunk.snapenhance.core.wrapper.AbstractWrapper
 import java.nio.ByteBuffer
 import java.util.UUID
 
-fun String.toSnapUUID() = SnapUUID.fromString(this)
+fun String.toSnapUUID() = SnapUUID(this)
+fun ByteArray.toSnapUUID() = SnapUUID(this)
 
-class SnapUUID(obj: Any?) : AbstractWrapper(obj) {
-    private val uuidString by lazy { toUUID().toString() }
-
-    private val bytes: ByteArray get() = instanceNonNull().getObjectField("mId") as ByteArray
-
-    private fun toUUID(): UUID {
-        val buffer = ByteBuffer.wrap(bytes)
-        return UUID(buffer.long, buffer.long)
+fun UUID.toBytes(): ByteArray =
+    ByteBuffer.allocate(16).let {
+        it.putLong(this.mostSignificantBits)
+        it.putLong(this.leastSignificantBits)
+        it.array()
     }
+
+class SnapUUID(
+    private val obj: Any?
+) : AbstractWrapper(obj) {
+    private val uuidBytes by lazy {
+        when {
+            obj is String -> {
+                UUID.fromString(obj).toBytes()
+            }
+            obj is ByteArray -> {
+                assert(obj.size == 16)
+                obj
+            }
+            obj is UUID -> obj.toBytes()
+            SnapEnhance.classCache.snapUUID.isInstance(obj) -> {
+                obj?.getObjectField("mId") as ByteArray
+            }
+            else -> ByteArray(16)
+        }
+    }
+
+    private val uuidString by lazy { ByteBuffer.wrap(uuidBytes).run { UUID(long, long) }.toString() }
+
+    override var instance: Any?
+        set(_) {}
+        get() = SnapEnhance.classCache.snapUUID.getConstructor(ByteArray::class.java).newInstance(uuidBytes)
 
     override fun toString(): String {
         return uuidString
     }
 
-    fun toBytes() = bytes
+    fun toBytes() = uuidBytes
 
     override fun equals(other: Any?): Boolean {
-        return other is SnapUUID && other.uuidString == uuidString
+        return other is SnapUUID && other.uuidBytes.contentEquals(this.uuidBytes)
     }
 
-    companion object {
-        fun fromString(uuid: String): SnapUUID {
-            return fromUUID(UUID.fromString(uuid))
-        }
-        fun fromBytes(bytes: ByteArray): SnapUUID {
-            val constructor = SnapEnhance.classCache.snapUUID.getConstructor(ByteArray::class.java)
-            return SnapUUID(constructor.newInstance(bytes))
-        }
-        fun fromUUID(uuid: UUID): SnapUUID {
-            val buffer = ByteBuffer.allocate(16)
-            buffer.putLong(uuid.mostSignificantBits)
-            buffer.putLong(uuid.leastSignificantBits)
-            return fromBytes(buffer.array())
-        }
+    override fun hashCode(): Int {
+        return uuidBytes.contentHashCode()
     }
 }
