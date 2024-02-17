@@ -5,7 +5,8 @@ object BitmojiSelfie {
         val prefixUrl: String,
     ) {
         STANDARD("https://sdk.bitmoji.com/render/panel/"),
-        THREE_D("https://images.bitmoji.com/3d/render/")
+        THREE_D("https://images.bitmoji.com/3d/render/"),
+        NEW_THREE_D("https://images.bitmoji.com/3d/render/"),
     }
 
     fun getBitmojiSelfie(selfieId: String?, avatarId: String?, type: BitmojiSelfieType): String? {
@@ -15,6 +16,7 @@ object BitmojiSelfie {
         return when (type) {
             BitmojiSelfieType.STANDARD -> "${type.prefixUrl}$selfieId-$avatarId-v1.webp?transparent=1"
             BitmojiSelfieType.THREE_D -> "${type.prefixUrl}$selfieId-$avatarId-v1.webp?trim=circle"
+            BitmojiSelfieType.NEW_THREE_D -> "${type.prefixUrl}$selfieId-$avatarId-v1.webp?trim=circle&ua=1"
         }
     }
 }

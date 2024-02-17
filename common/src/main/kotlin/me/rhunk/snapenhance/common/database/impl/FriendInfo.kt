@@ -3,6 +3,7 @@ package me.rhunk.snapenhance.common.database.impl
 import android.annotation.SuppressLint
 import android.database.Cursor
 import me.rhunk.snapenhance.common.database.DatabaseObject
+import me.rhunk.snapenhance.common.util.ktx.getIntOrNull
 import me.rhunk.snapenhance.common.util.ktx.getInteger
 import me.rhunk.snapenhance.common.util.ktx.getLong
 import me.rhunk.snapenhance.common.util.ktx.getStringOrNull
@@ -32,6 +33,7 @@ data class FriendInfo(
     var usernameForSorting: String? = null,
     var friendLinkType: Int = 0,
     var postViewEmoji: String? = null,
+    var businessCategory: Int = 0,
 ) : DatabaseObject {
     val mutableUsername get() = username?.split("|")?.last()
     val firstCreatedUsername get() = username?.split("|")?.first()
@@ -61,10 +63,9 @@ data class FriendInfo(
             usernameForSorting = getStringOrNull("usernameForSorting")
             friendLinkType = getInteger("friendLinkType")
             postViewEmoji = getStringOrNull("postViewEmoji")
-            if (getColumnIndex("isPinnedBestFriend") != -1) isPinnedBestFriend =
-                getInteger("isPinnedBestFriend")
-            if (getColumnIndex("plusBadgeVisibility") != -1) plusBadgeVisibility =
-                getInteger("plusBadgeVisibility")
+            businessCategory = getIntOrNull("businessCategory") ?: 0
+            isPinnedBestFriend = getIntOrNull("isPinnedBestFriend") ?: 0
+            plusBadgeVisibility = getIntOrNull("plusBadgeVisibility") ?: 0
         }
     }
 
