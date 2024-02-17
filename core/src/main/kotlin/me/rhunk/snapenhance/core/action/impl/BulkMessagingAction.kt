@@ -235,7 +235,7 @@ class BulkMessagingAction : AbstractAction() {
                         checked = sortReverseOrder,
                         onCheckedChange = { sortReverseOrder = it },
                     )
-                    Text(text = "Reverse order", fontSize = 15.sp, fontWeight = FontWeight.Light)
+                    Text(text = "Reverse order", fontSize = 15.sp, fontWeight = FontWeight.Light, maxLines = 1, overflow = TextOverflow.Ellipsis)
                 }
             }
 
