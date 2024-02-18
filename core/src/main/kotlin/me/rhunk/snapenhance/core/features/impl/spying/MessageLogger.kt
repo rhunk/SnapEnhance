@@ -33,7 +33,7 @@ class MessageLogger : Feature("MessageLogger",
         const val DELETED_MESSAGE_COLOR = 0x6Eb71c1c
     }
 
-    private val messageLoggerInterface by lazy { context.bridgeClient.getMessageLogger() }
+    private val loggerInterface by lazy { context.bridgeClient.getMessageLogger() }
 
     val isEnabled get() = context.config.messaging.messageLogger.globalState == true
 
@@ -50,7 +50,7 @@ class MessageLogger : Feature("MessageLogger",
         val uniqueMessageId = makeUniqueIdentifier(conversationId, clientMessageId) ?: return
         fetchedMessages.remove(uniqueMessageId)
         deletedMessageCache.remove(uniqueMessageId)
-        messageLoggerInterface.deleteMessage(conversationId, uniqueMessageId)
+        loggerInterface.deleteMessage(conversationId, uniqueMessageId)
     }
 
     fun getMessageObject(conversationId: String, clientMessageId: Long): JsonObject? {
@@ -58,7 +58,7 @@ class MessageLogger : Feature("MessageLogger",
         if (deletedMessageCache.containsKey(uniqueMessageId)) {
             return deletedMessageCache[uniqueMessageId]
         }
-        return messageLoggerInterface.getMessage(conversationId, uniqueMessageId)?.let {
+        return loggerInterface.getMessage(conversationId, uniqueMessageId)?.let {
             JsonParser.parseString(it.toString(Charsets.UTF_8)).asJsonObject
         }
     }
@@ -93,7 +93,7 @@ class MessageLogger : Feature("MessageLogger",
         measureTimeMillis {
             val conversationIds = context.database.getFeedEntries(PREFETCH_FEED_COUNT).map { it.key!! }
             if (conversationIds.isEmpty()) return@measureTimeMillis
-            fetchedMessages.addAll(messageLoggerInterface.getLoggedIds(conversationIds.toTypedArray(), PREFETCH_MESSAGE_COUNT).toList())
+            fetchedMessages.addAll(loggerInterface.getLoggedIds(conversationIds.toTypedArray(), PREFETCH_MESSAGE_COUNT).toList())
         }.also { context.log.verbose("Loaded ${fetchedMessages.size} cached messages in ${it}ms") }
     }
 
@@ -124,7 +124,7 @@ class MessageLogger : Feature("MessageLogger",
 
                 threadPool.execute {
                     try {
-                        messageLoggerInterface.addMessage(conversationId, uniqueMessageIdentifier, context.gson.toJson(messageInstance).toByteArray(Charsets.UTF_8))
+                        loggerInterface.addMessage(conversationId, uniqueMessageIdentifier, context.gson.toJson(messageInstance).toByteArray(Charsets.UTF_8))
                     } catch (ignored: DeadObjectException) {}
                 }
 
@@ -135,7 +135,7 @@ class MessageLogger : Feature("MessageLogger",
             val deletedMessageObject: JsonObject = if (deletedMessageCache.containsKey(uniqueMessageIdentifier))
                 deletedMessageCache[uniqueMessageIdentifier]
             else {
-                messageLoggerInterface.getMessage(conversationId, uniqueMessageIdentifier)?.let {
+                loggerInterface.getMessage(conversationId, uniqueMessageIdentifier)?.let {
                     JsonParser.parseString(it.toString(Charsets.UTF_8)).asJsonObject
                 }
             } ?: return@subscribe

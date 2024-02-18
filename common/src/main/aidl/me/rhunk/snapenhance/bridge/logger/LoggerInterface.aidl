@@ -1,6 +1,6 @@
-package me.rhunk.snapenhance.bridge;
+package me.rhunk.snapenhance.bridge.logger;
 
-interface MessageLoggerInterface {
+interface LoggerInterface {
     /**
      * Get the ids of the messages that are logged
      * @return message ids that are logged
@@ -26,4 +26,14 @@ interface MessageLoggerInterface {
     * Add a story to the message logger database if it is not already there
     */
     boolean addStory(String userId, String url, long postedAt, long createdAt, in byte[] key, in byte[] iv);
+
+    oneway void logTrackerEvent(
+        String conversationId,
+        String conversationTitle,
+        boolean isGroup,
+        String username,
+        String userId,
+        String eventType,
+        String data
+    );
 }
