@@ -265,7 +265,7 @@ class LoggedStories : Routes.Route() {
             item {
                 LaunchedEffect(Unit) {
                     context.messageLogger.getStories(userId, lastStoryTimestamp, 20).also { result ->
-                        stories.addAll(result.values)
+                        stories.addAll(result.values.reversed())
                         result.keys.minOrNull()?.let {
                             lastStoryTimestamp = it
                         }

@@ -119,6 +119,7 @@ class FeatureManager(
             StealthModeIndicator(),
             DisablePermissionRequests(),
             SessionEvents(),
+            DefaultVolumeControls(),
         )
 
         initializeFeatures()
