@@ -538,6 +538,10 @@
                         "name": "Force Upload Source Quality",
                         "description": "Forces Snapchat to upload media in the original quality\nPlease note that this may not remove metadata from media"
                     },
+                    "default_volume_controls": {
+                        "name": "Default Volume Controls",
+                        "description": "Forces Snapchat to use system volume controls"
+                    },
                     "disable_snap_splitting": {
                         "name": "Disable Snap Splitting",
                         "description": "Prevents Snaps from being split into multiple parts\nPictures you send will turn into videos"
