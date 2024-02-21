@@ -51,6 +51,7 @@ jobs:
         with:
           name: snapenhance-armv8-debug
           path: app/build/outputs/apk/armv8/debug/*.apk
+
           
   job_armv7:
     runs-on: macos-latest
