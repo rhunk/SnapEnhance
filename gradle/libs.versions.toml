@@ -15,7 +15,7 @@ navigation-compose = "2.7.7"
 osmdroid-android = "6.1.18"
 recyclerview = "1.3.2"
 
-compose-bom = "2024.02.01"
+compose-bom = "2023.10.1"
 bcprov-jdk18on = "1.77"
 dexlib2 = "3.0.5"
 ffmpeg-kit = "5.1.LTS" # DO NOT UPDATE FFMPEG-KIT TO "5.1" it breaks stuff :3
