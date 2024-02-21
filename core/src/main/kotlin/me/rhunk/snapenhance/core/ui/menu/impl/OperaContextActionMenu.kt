@@ -8,11 +8,27 @@ import android.widget.Button
 import android.widget.LinearLayout
 import android.widget.ScrollView
 import android.widget.TextView
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.padding
+import androidx.compose.material3.Slider
+import androidx.compose.material3.Text
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableFloatStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.unit.dp
+import me.rhunk.snapenhance.common.ui.createComposeView
+import me.rhunk.snapenhance.core.features.impl.OperaViewerParamsOverride
 import me.rhunk.snapenhance.core.features.impl.downloader.MediaDownloader
 import me.rhunk.snapenhance.core.ui.applyTheme
 import me.rhunk.snapenhance.core.ui.menu.AbstractMenu
 import me.rhunk.snapenhance.core.ui.triggerCloseTouchEvent
 import me.rhunk.snapenhance.core.util.ktx.getId
+import me.rhunk.snapenhance.core.util.ktx.getIdentifier
 import me.rhunk.snapenhance.core.util.ktx.vibrateLongPress
 import me.rhunk.snapenhance.core.wrapper.impl.ScSize
 import java.text.DateFormat
@@ -127,6 +143,45 @@ class OperaContextActionMenu : AbstractMenu() {
                         setPadding(40, 10, 0, 0)
                     })
                 }
+            }
+
+            if (context.config.global.videoPlaybackRateSlider.get()) {
+                val operaViewerParamsOverride = context.feature(OperaViewerParamsOverride::class)
+
+                linearLayout.addView(createComposeView(view.context) {
+                    Column(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(10.dp)
+                    ) {
+                        var value by remember { mutableFloatStateOf(operaViewerParamsOverride.currentPlaybackRate) }
+                        Slider(
+                            value = value,
+                            onValueChange = {
+                                value = it
+                                operaViewerParamsOverride.currentPlaybackRate = it
+                            },
+                            valueRange = 0.1F..4.0F,
+                            steps = 0,
+                            modifier = Modifier.fillMaxWidth()
+                        )
+                        Text(
+                            text = "x" + value.toString().take(4),
+                            color = remember {
+                                view.context.theme.obtainStyledAttributes(
+                                    intArrayOf(view.context.resources.getIdentifier("sigColorTextPrimary", "attr"))
+                                ).getColor(0, 0).let { Color(it) }
+                            },
+                            textAlign = TextAlign.Center,
+                            modifier = Modifier.fillMaxWidth()
+                        )
+                    }
+                }.apply {
+                    layoutParams = ViewGroup.LayoutParams(
+                        ViewGroup.LayoutParams.MATCH_PARENT,
+                        ViewGroup.LayoutParams.WRAP_CONTENT
+                    )
+                })
             }
 
             if (context.config.downloader.downloadContextMenu.get()) {

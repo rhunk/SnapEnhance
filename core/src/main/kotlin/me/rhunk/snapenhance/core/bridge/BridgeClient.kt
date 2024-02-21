@@ -14,9 +14,10 @@ import de.robv.android.xposed.XposedHelpers
 import me.rhunk.snapenhance.bridge.BridgeInterface
 import me.rhunk.snapenhance.bridge.ConfigStateListener
 import me.rhunk.snapenhance.bridge.DownloadCallback
-import me.rhunk.snapenhance.bridge.MessageLoggerInterface
+import me.rhunk.snapenhance.bridge.logger.LoggerInterface
 import me.rhunk.snapenhance.bridge.SyncCallback
 import me.rhunk.snapenhance.bridge.e2ee.E2eeInterface
+import me.rhunk.snapenhance.bridge.logger.TrackerInterface
 import me.rhunk.snapenhance.bridge.scripting.IScripting
 import me.rhunk.snapenhance.bridge.snapclient.MessagingBridge
 import me.rhunk.snapenhance.common.Constants
@@ -191,11 +192,13 @@ class BridgeClient(
         service.setRule(targetUuid, type.key, state)
     }
 
-    fun getScriptingInterface(): IScripting = safeServiceCall { service.getScriptingInterface() }
+    fun getScriptingInterface(): IScripting = safeServiceCall { service.scriptingInterface }
 
-    fun getE2eeInterface(): E2eeInterface = safeServiceCall { service.getE2eeInterface() }
+    fun getE2eeInterface(): E2eeInterface = safeServiceCall { service.e2eeInterface }
 
-    fun getMessageLogger(): MessageLoggerInterface = safeServiceCall { service.messageLogger }
+    fun getMessageLogger(): LoggerInterface = safeServiceCall { service.logger }
+
+    fun getTracker(): TrackerInterface = safeServiceCall { service.tracker }
 
     fun registerMessagingBridge(bridge: MessagingBridge) = safeServiceCall { service.registerMessagingBridge(bridge) }
 

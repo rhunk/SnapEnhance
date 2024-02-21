@@ -23,8 +23,8 @@ import me.rhunk.snapenhance.bridge.BridgeService
 import me.rhunk.snapenhance.common.BuildConfig
 import me.rhunk.snapenhance.common.bridge.types.BridgeFileType
 import me.rhunk.snapenhance.common.bridge.wrapper.LocaleWrapper
+import me.rhunk.snapenhance.common.bridge.wrapper.LoggerWrapper
 import me.rhunk.snapenhance.common.bridge.wrapper.MappingsWrapper
-import me.rhunk.snapenhance.common.bridge.wrapper.MessageLoggerWrapper
 import me.rhunk.snapenhance.common.config.ModConfig
 import me.rhunk.snapenhance.e2ee.E2EEImplementation
 import me.rhunk.snapenhance.messaging.ModDatabase
@@ -69,7 +69,8 @@ class RemoteSideContext(
     val scriptManager = RemoteScriptManager(this)
     val settingsOverlay = SettingsOverlay(this)
     val e2eeImplementation = E2EEImplementation(this)
-    val messageLogger by lazy { MessageLoggerWrapper(androidContext.getDatabasePath(BridgeFileType.MESSAGE_LOGGER_DATABASE.fileName)) }
+    val messageLogger by lazy { LoggerWrapper(androidContext.getDatabasePath(BridgeFileType.MESSAGE_LOGGER_DATABASE.fileName)) }
+    val tracker = RemoteTracker(this)
 
     //used to load bitmoji selfies and download previews
     val imageLoader by lazy {
@@ -108,6 +109,7 @@ class RemoteSideContext(
             streaksReminder.init()
             scriptManager.init()
             messageLogger.init()
+            tracker.init()
             config.root.messaging.messageLogger.takeIf {
                 it.globalState == true
             }?.getAutoPurgeTime()?.let {
