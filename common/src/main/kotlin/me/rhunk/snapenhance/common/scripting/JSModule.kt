@@ -124,7 +124,7 @@ class JSModule(
                                 it.name == method.name && it.parameterTypes.zip(args ?: emptyArray()).all { (type, arg) ->
                                     type.isAssignableFrom(arg?.javaClass ?: return@all false)
                                 }
-                            }?.invoke(null, *args ?: emptyArray())
+                            }?.also { it.isAccessible = true }?.invoke(null, *args ?: emptyArray())
                         }
                     }
 
