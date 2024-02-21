@@ -26,7 +26,7 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import me.rhunk.snapenhance.bridge.DownloadCallback
 import me.rhunk.snapenhance.common.bridge.wrapper.LoggedMessage
-import me.rhunk.snapenhance.common.bridge.wrapper.MessageLoggerWrapper
+import me.rhunk.snapenhance.common.bridge.wrapper.LoggerWrapper
 import me.rhunk.snapenhance.common.data.ContentType
 import me.rhunk.snapenhance.common.data.download.*
 import me.rhunk.snapenhance.common.util.ktx.copyToClipboard
@@ -40,7 +40,7 @@ import kotlin.math.absoluteValue
 
 
 class LoggerHistoryRoot : Routes.Route() {
-    private lateinit var messageLoggerWrapper: MessageLoggerWrapper
+    private lateinit var loggerWrapper: LoggerWrapper
     private var selectedConversation by mutableStateOf<String?>(null)
     private var stringFilter by mutableStateOf("")
     private var reverseOrder by mutableStateOf(true)
@@ -182,7 +182,7 @@ class LoggerHistoryRoot : Routes.Route() {
     @OptIn(ExperimentalMaterial3Api::class)
     override val content: @Composable (NavBackStackEntry) -> Unit = {
         LaunchedEffect(Unit) {
-            messageLoggerWrapper = MessageLoggerWrapper(
+            loggerWrapper = LoggerWrapper(
                 context.androidContext.getDatabasePath("message_logger.db")
             )
         }
@@ -208,7 +208,7 @@ class LoggerHistoryRoot : Routes.Route() {
                 LaunchedEffect(Unit) {
                     conversations.clear()
                     withContext(Dispatchers.IO) {
-                        conversations.addAll(messageLoggerWrapper.getAllConversations())
+                        conversations.addAll(loggerWrapper.getAllConversations())
                     }
                 }
 
@@ -270,7 +270,7 @@ class LoggerHistoryRoot : Routes.Route() {
                     }
                     LaunchedEffect(Unit, selectedConversation, stringFilter, reverseOrder) {
                         withContext(Dispatchers.IO) {
-                            val newMessages = messageLoggerWrapper.fetchMessages(
+                            val newMessages = loggerWrapper.fetchMessages(
                                 selectedConversation ?: return@withContext,
                                 lastFetchMessageTimestamp,
                                 30,

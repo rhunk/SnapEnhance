@@ -3,10 +3,11 @@ package me.rhunk.snapenhance.common.bridge.wrapper
 import android.content.ContentValues
 import android.database.sqlite.SQLiteDatabase
 import kotlinx.coroutines.*
-import me.rhunk.snapenhance.bridge.MessageLoggerInterface
+import me.rhunk.snapenhance.bridge.logger.LoggerInterface
 import me.rhunk.snapenhance.common.data.StoryData
 import me.rhunk.snapenhance.common.util.SQLiteDatabaseHelper
 import me.rhunk.snapenhance.common.util.ktx.getBlobOrNull
+import me.rhunk.snapenhance.common.util.ktx.getIntOrNull
 import me.rhunk.snapenhance.common.util.ktx.getLongOrNull
 import me.rhunk.snapenhance.common.util.ktx.getStringOrNull
 import java.io.File
@@ -19,9 +20,20 @@ class LoggedMessage(
     val messageData: ByteArray
 )
 
-class MessageLoggerWrapper(
+class TrackerLog(
+    val timestamp: Long,
+    val conversationId: String,
+    val conversationTitle: String?,
+    val isGroup: Boolean,
+    val username: String,
+    val userId: String,
+    val eventType: String,
+    val data: String
+)
+
+class LoggerWrapper(
     val databaseFile: File
-): MessageLoggerInterface.Stub() {
+): LoggerInterface.Stub() {
     private var _database: SQLiteDatabase? = null
     @OptIn(ExperimentalCoroutinesApi::class)
     private val coroutineScope = CoroutineScope(Dispatchers.IO.limitedParallelism(1))
@@ -47,6 +59,17 @@ class MessageLoggerWrapper(
                     "url VARCHAR",
                     "encryption_key BLOB",
                     "encryption_iv BLOB"
+                ),
+                "tracker_events" to listOf(
+                    "id INTEGER PRIMARY KEY",
+                    "timestamp BIGINT",
+                    "conversation_id CHAR(36)",
+                    "conversation_title VARCHAR",
+                    "is_group BOOLEAN",
+                    "username VARCHAR",
+                    "user_id VARCHAR",
+                    "event_type VARCHAR",
+                    "data VARCHAR"
                 )
             ))
             _database = openedDatabase
@@ -158,6 +181,76 @@ class MessageLoggerWrapper(
         }
         return true
     }
+
+    override fun logTrackerEvent(
+        conversationId: String,
+        conversationTitle: String?,
+        isGroup: Boolean,
+        username: String,
+        userId: String,
+        eventType: String,
+        data: String
+    ) {
+        runBlocking {
+            withContext(coroutineScope.coroutineContext) {
+                database.insert("tracker_events", null, ContentValues().apply {
+                    put("timestamp", System.currentTimeMillis())
+                    put("conversation_id", conversationId)
+                    put("conversation_title", conversationTitle)
+                    put("is_group", isGroup)
+                    put("username", username)
+                    put("user_id", userId)
+                    put("event_type", eventType)
+                    put("data", data)
+                })
+            }
+        }
+    }
+
+    fun getLogs(
+        lastTimestamp: Long,
+        filter: ((TrackerLog) -> Boolean)? = null
+    ): List<TrackerLog> {
+        return database.rawQuery("SELECT * FROM tracker_events WHERE timestamp < ? ORDER BY timestamp DESC", arrayOf(lastTimestamp.toString())).use {
+            val logs = mutableListOf<TrackerLog>()
+            while (it.moveToNext() && logs.size < 50) {
+                val log = TrackerLog(
+                    timestamp = it.getLongOrNull("timestamp") ?: continue,
+                    conversationId = it.getStringOrNull("conversation_id") ?: continue,
+                    conversationTitle = it.getStringOrNull("conversation_title"),
+                    isGroup = it.getIntOrNull("is_group") == 1,
+                    username = it.getStringOrNull("username") ?: continue,
+                    userId = it.getStringOrNull("user_id") ?: continue,
+                    eventType = it.getStringOrNull("event_type") ?: continue,
+                    data = it.getStringOrNull("data") ?: continue
+                )
+                if (filter != null && !filter(log)) continue
+                logs.add(log)
+            }
+            logs
+        }
+    }
+
+    fun findConversation(search: String): List<String> {
+        return database.rawQuery("SELECT DISTINCT conversation_id FROM tracker_events WHERE is_group = 1 AND conversation_id LIKE ?", arrayOf("%$search%")).use {
+            val conversations = mutableListOf<String>()
+            while (it.moveToNext()) {
+                conversations.add(it.getString(0))
+            }
+            conversations
+        }
+    }
+
+    fun findUsername(search: String): List<String> {
+        return database.rawQuery("SELECT DISTINCT username FROM tracker_events WHERE username LIKE ?", arrayOf("%$search%")).use {
+            val usernames = mutableListOf<String>()
+            while (it.moveToNext()) {
+                usernames.add(it.getString(0))
+            }
+            usernames
+        }
+    }
+
 
     fun getStories(userId: String, from: Long, limit: Int = Int.MAX_VALUE): Map<Long, StoryData> {
         val stories = sortedMapOf<Long, StoryData>()

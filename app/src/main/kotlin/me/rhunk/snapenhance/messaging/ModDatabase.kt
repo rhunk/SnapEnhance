@@ -1,17 +1,17 @@
 package me.rhunk.snapenhance.messaging
 
+import android.content.ContentValues
 import android.database.sqlite.SQLiteDatabase
+import kotlinx.coroutines.runBlocking
 import me.rhunk.snapenhance.RemoteSideContext
-import me.rhunk.snapenhance.common.data.FriendStreaks
-import me.rhunk.snapenhance.common.data.MessagingFriendInfo
-import me.rhunk.snapenhance.common.data.MessagingGroupInfo
-import me.rhunk.snapenhance.common.data.MessagingRuleType
+import me.rhunk.snapenhance.common.data.*
 import me.rhunk.snapenhance.common.scripting.type.ModuleInfo
 import me.rhunk.snapenhance.common.util.SQLiteDatabaseHelper
 import me.rhunk.snapenhance.common.util.ktx.getInteger
 import me.rhunk.snapenhance.common.util.ktx.getLongOrNull
 import me.rhunk.snapenhance.common.util.ktx.getStringOrNull
 import java.util.concurrent.Executors
+import kotlin.coroutines.suspendCoroutine
 
 
 class ModDatabase(
@@ -67,6 +67,18 @@ class ModDatabase(
                 "description VARCHAR",
                 "author VARCHAR NOT NULL",
                 "enabled BOOLEAN"
+            ),
+            "tracker_rules" to listOf(
+                "id INTEGER PRIMARY KEY AUTOINCREMENT",
+                "flags INTEGER",
+                "conversation_id CHAR(36)", // nullable
+                "user_id CHAR(36)", // nullable
+            ),
+            "tracker_rules_events" to listOf(
+                "id INTEGER PRIMARY KEY AUTOINCREMENT",
+                "flags INTEGER",
+                "rule_id INTEGER",
+                "event_type VARCHAR",
             )
         ))
     }
@@ -332,5 +344,91 @@ class ModDatabase(
                 }
             }
         }
+    }
+
+    fun addTrackerRule(flags: Int, conversationId: String?, userId: String?): Int {
+        return runBlocking {
+            suspendCoroutine { continuation ->
+                executeAsync {
+                    val id = database.insert("tracker_rules", null, ContentValues().apply {
+                        put("flags", flags)
+                        put("conversation_id", conversationId)
+                        put("user_id", userId)
+                    })
+                    continuation.resumeWith(Result.success(id.toInt()))
+                }
+            }
+        }
+    }
+
+    fun addTrackerRuleEvent(ruleId: Int, flags: Int, eventType: String) {
+        executeAsync {
+            database.execSQL("INSERT INTO tracker_rules_events (flags, rule_id, event_type) VALUES (?, ?, ?)", arrayOf(
+                flags,
+                ruleId,
+                eventType
+            ))
+        }
+    }
+
+     fun getTrackerRules(conversationId: String?, userId: String?): List<TrackerRule> {
+        val rules = mutableListOf<TrackerRule>()
+
+        database.rawQuery("SELECT * FROM tracker_rules WHERE (conversation_id = ? OR conversation_id IS NULL) AND (user_id = ? OR user_id IS NULL)", arrayOf(conversationId, userId).filterNotNull().toTypedArray()).use { cursor ->
+            while (cursor.moveToNext()) {
+                rules.add(
+                    TrackerRule(
+                        id = cursor.getInteger("id"),
+                        flags = cursor.getInteger("flags"),
+                        conversationId = cursor.getStringOrNull("conversation_id"),
+                        userId = cursor.getStringOrNull("user_id")
+                    )
+                )
+            }
+        }
+        
+        return rules
+    }
+
+    fun getTrackerEvents(ruleId: Int): List<TrackerRuleEvent> {
+        val events = mutableListOf<TrackerRuleEvent>()
+        database.rawQuery("SELECT * FROM tracker_rules_events WHERE rule_id = ?", arrayOf(ruleId.toString())).use { cursor ->
+            while (cursor.moveToNext()) {
+                events.add(
+                    TrackerRuleEvent(
+                        id = cursor.getInteger("id"),
+                        flags = cursor.getInteger("flags"),
+                        eventType = cursor.getStringOrNull("event_type") ?: continue
+                    )
+                )
+            }
+        }
+        return events
+    }
+
+    fun getTrackerEvents(eventType: String): Map<TrackerRuleEvent, TrackerRule> {
+        val events = mutableMapOf<TrackerRuleEvent, TrackerRule>()
+        database.rawQuery("SELECT tracker_rules_events.id as event_id, tracker_rules_events.flags, tracker_rules_events.event_type, tracker_rules.conversation_id, tracker_rules.user_id " +
+                "FROM tracker_rules_events " +
+                "INNER JOIN tracker_rules " +
+                "ON tracker_rules_events.rule_id = tracker_rules.id " +
+                "WHERE event_type = ?", arrayOf(eventType)
+        ).use { cursor ->
+            while (cursor.moveToNext()) {
+                val trackerRule = TrackerRule(
+                    id = -1,
+                    flags = cursor.getInteger("flags"),
+                    conversationId = cursor.getStringOrNull("conversation_id"),
+                    userId = cursor.getStringOrNull("user_id")
+                )
+                val trackerRuleEvent = TrackerRuleEvent(
+                    id = cursor.getInteger("event_id"),
+                    flags = cursor.getInteger("flags"),
+                    eventType = cursor.getStringOrNull("event_type") ?: continue
+                )
+                events[trackerRuleEvent] = trackerRule
+            }
+        }
+        return events
     }
 }

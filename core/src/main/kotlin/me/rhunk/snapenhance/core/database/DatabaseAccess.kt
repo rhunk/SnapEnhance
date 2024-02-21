@@ -252,6 +252,17 @@ class DatabaseAccess(
         }
     }
 
+    fun getConversationServerMessage(conversationId: String, serverId: Long): ConversationMessage? {
+        return useDatabase(DatabaseType.ARROYO)?.performOperation {
+            readDatabaseObject(
+                ConversationMessage(),
+                "conversation_message",
+                "client_conversation_id = ? AND server_message_id = ?",
+                arrayOf(conversationId, serverId.toString())
+            )
+        }
+    }
+
     fun getConversationType(conversationId: String): Int? {
         return useDatabase(DatabaseType.ARROYO)?.performOperation {
             safeRawQuery(
