@@ -262,10 +262,6 @@
                         "name": "Ystävän syötteen valikkopainikkeet",
                         "description": "Valitse, mitkä painikkeet näytetään ystäväsyötteen valikkopalkissa"
                     },
-                    "friend_feed_menu_position": {
-                        "name": "Ystävän syötteen sijaintiindeksi",
-                        "description": "Ystäväsyöte-valikkokomponentin sijainti"
-                    },
                     "enable_friend_feed_menu_bar": {
                         "name": "Ystäväsyötteen valikkopalkki",
                         "description": "Ottaa käyttöön uuden ystäväsyötteen valikkopalkin"
@@ -439,10 +435,6 @@
                     "meo_passcode_bypass": {
                         "name": "Vain Omille Silmille- Tunnuskoodin Ohitus",
                         "description": "Ohittaa salasanan \"Vain omille silmille\" osioon\nTämä toimii vain, jos salasana on syötetty oikein aiemmin"
-                    },
-                    "unlimited_multi_snap": {
-                        "name": "Rajaton Multi Snap",
-                        "description": "Voit ottaa ja lähettää Multi Snapilla rajattoman määrän mediaa"
                     },
                     "no_friend_score_delay": {
                         "name": "Ei Snäppi-Score Viivettä",

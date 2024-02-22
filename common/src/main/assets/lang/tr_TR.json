@@ -292,10 +292,6 @@
                         "name": "Arkadaş Akışı Menü Düğmeleri",
                         "description": "Arkadaş Akışı Menü Çubuğunda hangi düğmelerin gösterileceğini seçin"
                     },
-                    "friend_feed_menu_position": {
-                        "name": "Arkadaş Akışı Pozisyonu Dizini",
-                        "description": "Arkadaş Akışı Menüsü bileşeninin konumu"
-                    },
                     "enable_friend_feed_menu_bar": {
                         "name": "Arkadaş Akışı Menü Çubuğu",
                         "description": "Yeni Arkadaş Akışı Menüsü Çubuğunu etkinleştirir"
@@ -655,10 +651,6 @@
                     "meo_passcode_bypass": {
                         "name": "My Eyes Only Şifresini Kır",
                         "description": "My Eyes Only şifresini atlayın\nBu yalnızca parola daha önce doğru girilmişse çalışacaktır"
-                    },
-                    "unlimited_multi_snap": {
-                        "name": "Sınırsız Çoklu Snap",
-                        "description": "Sınırsız Miktarda Çoklu Snap çekmenizi sağlar"
                     },
                     "no_friend_score_delay": {
                         "name": "Arkadaş Puanı Gecikmesi Yok",

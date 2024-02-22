@@ -288,10 +288,6 @@
                         "name": "Boutons dans le chat d'amis",
                         "description": "Sélectionner les boutons à afficher dans la barre de menu du fil d'amis"
                     },
-                    "friend_feed_menu_position": {
-                        "name": "Position des boutons du chat d'ami",
-                        "description": "La position des boutons du menu du fil des amis"
-                    },
                     "enable_friend_feed_menu_bar": {
                         "description": "Active la nouvelle barre de menu de flux d'amis",
                         "name": "Barre du menu du fil d'amis"
@@ -650,10 +646,6 @@
                     "infinite_story_boost": {
                         "name": "Booster de story infini",
                         "description": "Contournez le délai de Boost de Story"
-                    },
-                    "unlimited_multi_snap": {
-                        "name": "Multi Snap illimité",
-                        "description": "Vous permet d'avoir un nombre illimité de multi snap"
                     },
                     "no_friend_score_delay": {
                         "name": "Pas de délai du score d'amis",

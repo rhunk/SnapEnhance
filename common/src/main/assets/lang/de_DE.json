@@ -291,10 +291,6 @@
                         "name": "Schaltflächen für das Freunde-Feed Menü",
                         "description": "Wähle aus welche Schaltflächen in der Freunde Feed Menüleiste angezeigt werden sollen"
                     },
-                    "friend_feed_menu_position": {
-                        "name": "Positionsindex des Freunde Feeds",
-                        "description": "Die Position der Freunde Feed Komponente"
-                    },
                     "enable_friend_feed_menu_bar": {
                         "name": "Freunde Feed Menüleiste",
                         "description": "Aktiviert die neue Freunde Feed Menüleiste"
@@ -646,10 +642,6 @@
                     "meo_passcode_bypass": {
                         "name": "Passwortumgehung für privaten Bereich",
                         "description": "Umgeht das Passwort für den privaten Bereich\nFunktioniert nur, wenn das korrekte Passwort schon einmal eingegeben wurde"
-                    },
-                    "unlimited_multi_snap": {
-                        "name": "Unbegrenzte Multi-Snaps",
-                        "description": "Ermöglicht die Aufnahme einer unbegrenzten Anzahl von Multi-Snaps"
                     },
                     "no_friend_score_delay": {
                         "name": "Keine Friend Score Delay",
