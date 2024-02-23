@@ -28,7 +28,11 @@
             "home_logs": "Logs",
             "social": "Social",
             "scripts": "Scripts",
-            "tasks": "Tâches"
+            "tasks": "Tâches",
+            "logger_history": "Historique de connexion",
+            "logged_stories": "Stories enregistrées",
+            "manage_scope": "Gérer la portée",
+            "messaging_preview": "Aperçu"
         },
         "sections": {
             "home": {
@@ -519,7 +523,16 @@
                         "description": "Supprime les sections de la page des stories\nUne actualisation peut être nécessaire pour fonctionner correctement"
                     },
                     "disable_memories_snap_feed": {
-                        "name": "Désactive le Fil Souvenirs Snap"
+                        "name": "Désactive le Fil Souvenirs Snap",
+                        "description": "Empêche Snapchat d'afficher les souvenirs récents lorsque vous faites glisser vers le haut dans l'appareil photo"
+                    },
+                    "default_video_playback_rate": {
+                        "name": "Taux de lecture vidéo par défaut",
+                        "description": "Définit la vitesse par défaut pour la lecture des vidéos\nLa valeur doit être comprise entre 0,1 et 4,0"
+                    },
+                    "disable_permission_requests": {
+                        "name": "Désactiver la demande d'autorisation",
+                        "description": "Empêche Snapchat de demander des autorisations spécifiques"
                     }
                 }
             },
