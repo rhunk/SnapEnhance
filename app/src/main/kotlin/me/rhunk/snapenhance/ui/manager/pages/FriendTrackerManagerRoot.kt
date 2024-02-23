@@ -28,6 +28,7 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import me.rhunk.snapenhance.common.bridge.wrapper.TrackerLog
 import me.rhunk.snapenhance.common.data.TrackerEventType
+import me.rhunk.snapenhance.common.data.TrackerParams
 import me.rhunk.snapenhance.common.data.TrackerRule
 import me.rhunk.snapenhance.common.data.TrackerRuleEvent
 import me.rhunk.snapenhance.ui.manager.Routes
@@ -43,6 +44,7 @@ class FriendTrackerManagerRoot : Routes.Route() {
 
     private val titles = listOf("Logs", "Config Rules")
     private var currentPage by mutableIntStateOf(0)
+    private var showAddRulePopup by mutableStateOf(false)
 
     override val floatingActionButton: @Composable () -> Unit = {
         if (currentPage == 1) {
@@ -50,8 +52,11 @@ class FriendTrackerManagerRoot : Routes.Route() {
                 icon = { Icon(Icons.Default.Add, contentDescription = "Add Rule") },
                 expanded = false,
                 text = {},
-                onClick = {}
+                onClick = { showAddRulePopup = true }
             )
+        }
+        if (showAddRulePopup) {
+            AddRuleDialog()
         }
     }
 
@@ -229,6 +234,49 @@ class FriendTrackerManagerRoot : Routes.Route() {
     }
 
     @Composable
+    private fun AddRuleDialog() {
+        AlertDialog(
+            onDismissRequest = { showAddRulePopup = false },
+            title = { Text("Add Rule") },
+            text = {
+                Column {
+                    Button(onClick = {
+                        val ruleId = context.modDatabase.addTrackerRule(null, null, TrackerParams(
+                            track = true,
+                            notify = true,
+                            log = true,
+                        ))
+                        TrackerEventType.entries.forEach { eventType ->
+                            context.modDatabase.addTrackerRuleEvent(
+                                ruleId,
+                                eventType.key,
+                                TrackerParams(
+                                    track = true,
+                                    notify = true,
+                                    log = true,
+                                )
+                            )
+                        }
+                        showAddRulePopup = false
+                    }) {
+                        Text("Add Rule Test")
+                    }
+                }
+            },
+            confirmButton = {
+                Button(onClick = { showAddRulePopup = false }) {
+                    Text("Confirm")
+                }
+            },
+            dismissButton = {
+                Button(onClick = { showAddRulePopup = false }) {
+                    Text("Cancel")
+                }
+            }
+        )
+    }
+
+    @Composable
     @OptIn(ExperimentalLayoutApi::class)
     private fun ConfigRulesTab() {
         val rules = remember { mutableStateListOf<TrackerRule>() }
@@ -245,7 +293,7 @@ class FriendTrackerManagerRoot : Routes.Route() {
                     }
 
                     LaunchedEffect(rule.id) {
-                        withContext(Dispatchers.IO) {
+                        launch(Dispatchers.IO) {
                             events.addAll(context.modDatabase.getTrackerEvents(rule.id))
                         }
                     }
@@ -267,7 +315,7 @@ class FriendTrackerManagerRoot : Routes.Route() {
                                 horizontalArrangement = Arrangement.spacedBy(5.dp)
                             ) {
                                 events.forEach { event ->
-                                    Text("${event.eventType} - ${event.flags}")
+                                    Text("${event.eventType} - ${event.params}")
                                 }
                             }
                         }

@@ -59,14 +59,14 @@ class TrackerEventsResult(
 ): Parcelable {
     fun hasFlags(vararg flags: Int): Boolean {
         return rules.any { (_, ruleEvents) ->
-            ruleEvents.any { flags.all { flag -> it.flags and flag != 0 } }
+            ruleEvents.any { it.params.track }
         }
     }
 
     fun canTrackOn(conversationId: String?, userId: String?): Boolean {
         return rules.any t@{ (rule, ruleEvents) ->
             ruleEvents.any { event ->
-                if (event.flags and TrackerFlags.TRACK == 0) {
+                if (!event.params.track) {
                     return@any false
                 }
 
@@ -92,20 +92,29 @@ class TrackerEventsResult(
     }
 }
 
+@Parcelize
+data class TrackerParams(
+    var track: Boolean = false,
+    var log: Boolean = false,
+    var notify: Boolean = false,
+    var appIsActive: Boolean = false,
+    var appIsInactive: Boolean = false,
+    var isInConversation: Boolean = false,
+): Parcelable
 
 @Parcelize
 data class TrackerRule(
     val id: Int,
-    val flags: Int,
     val conversationId: String?,
-    val userId: String?
+    val userId: String?,
+    val params: TrackerParams,
 ): Parcelable
 
 @Parcelize
 data class TrackerRuleEvent(
     val id: Int,
-    val flags: Int,
     val eventType: String,
+    val params: TrackerParams,
 ): Parcelable
 
 enum class TrackerEventType(
