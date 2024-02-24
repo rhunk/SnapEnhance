@@ -6,7 +6,7 @@
             "select_save_folder_button": "Ordner wählen"
         },
         "mappings": {
-            "dialog": "Damit SnapEnhance eine Vielzahl von Snapchat-Versionen gleichzeitig unterstützen kann, sind Zuordnungen notwendig. Dies sollte nicht länger als 5 Sekunden dauern.",
+            "dialog": "Damit SnapEnhance eine Vielzahl von Snapchat-Versionen gleichzeitig unterstützen kann, sind Mappings notwendig. Dies sollte nicht länger als 5 Sekunden dauern.",
             "generate_button": "Generieren",
             "generate_failure_no_snapchat": "SnapEnhance konnte Snapchat nicht finden, bitte versuchen Sie Snapchat neu zu installieren.",
             "generate_failure": "Beim Generieren der Zuordnungen ist ein Fehler aufgetreten. Bitte versuchen Sie es erneut.",
