@@ -110,7 +110,8 @@ We no longer offer official LSPatch binaries for obvious reasons. However, you'r
   - Default Video Playback Rate
   - Video Playback Rate Slider 
   - Disable Google Play Services Dialogs 
-  - Force Upload Source Quality 
+  - Force Upload Source Quality
+  - Default Volume Controls
   - Disable Snap Splitting
 </details>
 
