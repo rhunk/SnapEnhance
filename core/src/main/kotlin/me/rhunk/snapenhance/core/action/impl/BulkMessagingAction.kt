@@ -412,7 +412,7 @@ class BulkMessagingAction : AbstractAction() {
                     onClick = {
                         showConfirmationDialog = true
                         action = {
-                            removeAction(ctx, selectedFriends.also {
+                            removeAction(ctx, selectedFriends.toList().also {
                                 selectedFriends.clear()
                             }) { removeFriend(it) }.invokeOnCompletion {
                                 context.coroutineScope.launch { refreshList() }
