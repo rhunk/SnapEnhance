@@ -1,6 +1,6 @@
 [versions]
 agp = "8.3.0"
-apksig = "8.2.2"
+apksig = "8.3.0"
 libsu = "5.2.2"
 guava = "33.0.0-jre"
 jsoup = "1.17.2"
