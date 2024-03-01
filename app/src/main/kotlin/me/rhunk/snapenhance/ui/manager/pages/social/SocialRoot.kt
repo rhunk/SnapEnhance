@@ -105,7 +105,7 @@ class SocialRoot : Routes.Route() {
                                 val group = groupList[index]
                                 Column(
                                     modifier = Modifier
-                                        .padding(10.dp)
+                                        .padding(7.dp)
                                         .fillMaxWidth()
                                         .weight(1f)
                                 ) {
@@ -137,7 +137,7 @@ class SocialRoot : Routes.Route() {
                                 )
                                 Column(
                                     modifier = Modifier
-                                        .padding(10.dp)
+                                        .padding(7.dp)
                                         .fillMaxWidth()
                                         .weight(1f)
                                 ) {
@@ -228,7 +228,7 @@ class SocialRoot : Routes.Route() {
         ) { paddingValues ->
             Column(modifier = Modifier.padding(paddingValues)) {
                 TabRow(selectedTabIndex = pagerState.currentPage, indicator = { tabPositions ->
-                    TabRowDefaults.Indicator(
+                    TabRowDefaults.SecondaryIndicator(
                         Modifier.pagerTabIndicatorOffset(
                             pagerState = pagerState,
                             tabPositions = tabPositions
