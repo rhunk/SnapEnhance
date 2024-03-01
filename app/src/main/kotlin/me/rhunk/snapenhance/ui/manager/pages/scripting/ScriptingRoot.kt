@@ -5,8 +5,8 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.LibraryBooks
 import androidx.compose.material.icons.filled.FolderOpen
-import androidx.compose.material.icons.filled.LibraryBooks
 import androidx.compose.material.icons.filled.Link
 import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material3.*
@@ -295,7 +295,7 @@ class ScriptingRoot : Routes.Route() {
                 flags = Intent.FLAG_ACTIVITY_NEW_TASK
             })
         }) {
-            Icon(imageVector = Icons.Default.LibraryBooks, contentDescription = "Documentation")
+            Icon(imageVector = Icons.AutoMirrored.Default.LibraryBooks, contentDescription = "Documentation")
         }
     }
 }

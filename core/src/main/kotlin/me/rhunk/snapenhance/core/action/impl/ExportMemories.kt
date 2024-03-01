@@ -245,7 +245,10 @@ class ExportMemories : AbstractAction() {
 
             if (exportJob != null) {
                 Text(text = "Exporting memories... (${exportProgress.second} failed)", modifier = Modifier.fillMaxWidth(), textAlign = TextAlign.Center)
-                LinearProgressIndicator(progress = exportProgress.first / 100f, Modifier.fillMaxWidth())
+                LinearProgressIndicator(
+                    progress = { exportProgress.first / 100f },
+                    modifier = Modifier.fillMaxWidth(),
+                )
                 Row(
                     modifier = Modifier.fillMaxWidth(),
                     horizontalArrangement = Arrangement.SpaceEvenly,
