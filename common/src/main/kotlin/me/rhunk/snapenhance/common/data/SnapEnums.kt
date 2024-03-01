@@ -145,7 +145,7 @@ enum class FriendLinkType(val value: Int, val shortName: String) {
 
     companion object {
         fun fromValue(value: Int): FriendLinkType {
-            return entries.firstOrNull { it.value == value } ?: MUTUAL
+            return entries.firstOrNull { it.value == value } ?: SUGGESTED
         }
     }
 }

@@ -261,10 +261,6 @@
                         "name": "Ven Feed Menu-Knapper",
                         "description": "Vælg hvilke knapper der skal vises i menulinjen Venne Feed"
                     },
-                    "friend_feed_menu_position": {
-                        "name": "Ven Feed Position Indeks",
-                        "description": "Placeringen af Venne Feed Menu komponent"
-                    },
                     "enable_friend_feed_menu_bar": {
                         "name": "Ven Feed Menu-Knapper",
                         "description": "Aktiverer den nye vennefeed menulinjen"
@@ -437,10 +433,6 @@
                     "meo_passcode_bypass": {
                         "name": "Mine Øjne Kun Kode Bypass",
                         "description": "Bypass My Eyes Only Passcode\nDette vil kun fungere, hvis adgangskoden er indtastet korrekt før"
-                    },
-                    "unlimited_multi_snap": {
-                        "name": "Ubegrænset Multi Snap",
-                        "description": "Tillader dig at tage en ubegrænset mængde Multi Snaps"
                     },
                     "no_friend_score_delay": {
                         "name": "Ingen Vennescore Forsinkelse",

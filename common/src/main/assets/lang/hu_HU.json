@@ -287,10 +287,6 @@
                         "name": "Barát hírfolyam menü gombok",
                         "description": "Annak kiválasztása hogy mely gombok jelennek meg a barát hírfolyam menüsorban"
                     },
-                    "friend_feed_menu_position": {
-                        "name": "Barát hírfolyam pozíciójának indexe",
-                        "description": "A barát hírfolyam menügombok pozíciója"
-                    },
                     "enable_friend_feed_menu_bar": {
                         "name": "Barát hírfolyam menüsor",
                         "description": "Engedélyezi az új barát hírfolyam menüsort"

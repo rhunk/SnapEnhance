@@ -28,7 +28,11 @@
             "home_logs": "Kayıtlar",
             "social": "Sosyal",
             "scripts": "Scriptler",
-            "tasks": "Görevler"
+            "tasks": "Görevler",
+            "logger_history": "Kaydedici Geçmişi",
+            "logged_stories": "Kaydedilen Hikayeler",
+            "manage_scope": "Kapsamı Yönet",
+            "messaging_preview": "Önizleme"
         },
         "sections": {
             "home": {
@@ -292,10 +296,6 @@
                         "name": "Arkadaş Akışı Menü Düğmeleri",
                         "description": "Arkadaş Akışı Menü Çubuğunda hangi düğmelerin gösterileceğini seçin"
                     },
-                    "friend_feed_menu_position": {
-                        "name": "Arkadaş Akışı Pozisyonu Dizini",
-                        "description": "Arkadaş Akışı Menüsü bileşeninin konumu"
-                    },
                     "enable_friend_feed_menu_bar": {
                         "name": "Arkadaş Akışı Menü Çubuğu",
                         "description": "Yeni Arkadaş Akışı Menüsü Çubuğunu etkinleştirir"
@@ -525,6 +525,22 @@
                     "disable_memories_snap_feed": {
                         "description": "Kamerada yukarı kaydırdığınızda Snapchat'in son anıları göstermesini engeller",
                         "name": "Anılar Snap Feed'ini Devre Dışı Bırak"
+                    },
+                    "default_video_playback_rate": {
+                        "name": "Varsayılan Video Oynatma Hızı",
+                        "description": "Videoların oynatılması için varsayılan hızı ayarlar\nDeğer 0.1 ile 4.0 arasında olmalıdır"
+                    },
+                    "video_playback_rate_slider": {
+                        "name": "Video Oynatma Hızı Kaydırıcısı",
+                        "description": "Video oynatma hızını değiştirmek için opera içerik menüsüne bir kaydırıcı ekler\nNot: Değişiklikler yalnızca sonraki videolar için geçerlidir"
+                    },
+                    "default_volume_controls": {
+                        "name": "Varsayılan Ses Kontrolleri",
+                        "description": "Snapchat'i sistem ses kontrollerini kullanmaya zorlar"
+                    },
+                    "disable_permission_requests": {
+                        "name": "İzin İsteklerini Devre Dışı Bırak",
+                        "description": "Snapchat'in belirli izinleri istemesini engeller"
                     }
                 }
             },
@@ -656,10 +672,6 @@
                         "name": "My Eyes Only Şifresini Kır",
                         "description": "My Eyes Only şifresini atlayın\nBu yalnızca parola daha önce doğru girilmişse çalışacaktır"
                     },
-                    "unlimited_multi_snap": {
-                        "name": "Sınırsız Çoklu Snap",
-                        "description": "Sınırsız Miktarda Çoklu Snap çekmenizi sağlar"
-                    },
                     "no_friend_score_delay": {
                         "name": "Arkadaş Puanı Gecikmesi Yok",
                         "description": "Arkadaş Skoru görüntülenirken yaşanan gecikmeyi kaldırır"
@@ -701,6 +713,20 @@
                     "story_logger": {
                         "description": "Arkadaş hikayelerinin bir tarihçesini sunar",
                         "name": "Hikaye Kaydedici"
+                    },
+                    "session_events": {
+                        "name": "Oturum Etkinlikleri",
+                        "description": "Oturum olaylarını kaydeder",
+                        "properties": {
+                            "capture_duplex_events": {
+                                "name": "Çift Yönlü Olayları Yakalama",
+                                "description": "Bir oturum aktifken varlık ve mesajlaşma olaylarını yakalama"
+                            },
+                            "allow_running_in_background": {
+                                "name": "Arka Planda Çalışmaya İzin Ver",
+                                "description": "Oturumun arka planda çalışmasına izin verir"
+                            }
+                        }
                     }
                 }
             },
@@ -878,6 +904,17 @@
             "disable_cameras": {
                 "front": "Ön Kamera",
                 "back": "Arka Kamera"
+            },
+            "disable_permission_requests": {
+                "read_media_images": "Medya Görsellerini Oku",
+                "microphone": "Mikrofon",
+                "read_contacts": "Kişileri Oku",
+                "nearby_devices": "Yakındaki Cihazlar",
+                "phone_calls": "Telefon Çağrıları",
+                "notifications": "Bildirimler",
+                "read_media_video": "Medya Videosunu Oku",
+                "camera": "Kamera",
+                "location": "Konum"
             }
         }
     },
@@ -1069,7 +1106,8 @@
         "none": "Hiçbiri",
         "profile_picture": "Profil Fotoğrafı",
         "story": "Hikaye",
-        "chat_media": "Sohbet Medyası"
+        "chat_media": "Sohbet Medyası",
+        "message_logger": "Mesaj Kaydedici"
     },
     "material3_strings": {
         "date_input_invalid_not_allowed": "Geçersiz tarih",
@@ -1085,5 +1123,12 @@
         "date_range_picker_scroll_to_next_month": "Sonraki ay",
         "date_range_picker_title": "Tarih aralığı seçin",
         "date_input_invalid_year_range": "Geçersiz yıl"
+    },
+    "mark_as_seen": {
+        "unseen_toast": "Görülmedi olarak işaretlendi!",
+        "already_seen_toast": "Zaten görüldü olarak işaretlendi!",
+        "already_unseen_toast": "Zaten görülmemiş olarak işaretlendi!",
+        "no_unseen_snaps_toast": "Görülmeyen Snap bulunamadı!",
+        "seen_toast": "Görüldü olarak işaretlendi!"
     }
 }

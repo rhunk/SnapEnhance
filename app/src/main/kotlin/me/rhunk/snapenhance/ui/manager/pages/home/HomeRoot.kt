@@ -271,6 +271,7 @@ class HomeRoot : Routes.Route() {
                 updateInstallationSummary(coroutineScope)
             }
 
+            Spacer(modifier = Modifier.height(20.dp))
             installationSummary?.let { SummaryCards(installationSummary = it) }
         }
     }
