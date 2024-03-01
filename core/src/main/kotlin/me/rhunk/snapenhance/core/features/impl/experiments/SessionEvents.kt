@@ -66,7 +66,7 @@ class SessionEvents : Feature("Session Events", loadParams = FeatureLoadParams.I
     private fun handleMessagingEvent(protoReader: ProtoReader) {
         // read receipts
         protoReader.followPath(12) {
-            val conversationId = getByteArray(1, 1)?.toSnapUUID().toString() ?: return@followPath
+            val conversationId = getByteArray(1, 1)?.toSnapUUID()?.toString() ?: return@followPath
 
             followPath(7) readReceipts@{
                 val senderId = getByteArray(1, 1)?.toSnapUUID()?.toString() ?: return@readReceipts
