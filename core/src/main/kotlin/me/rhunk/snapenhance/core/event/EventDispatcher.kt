@@ -186,7 +186,10 @@ class EventDispatcher(
             }
 
             if (!event.buffer.contentEquals(buffer)) {
-                param.setArg(1, ByteBuffer.wrap(event.buffer))
+                param.setArg(1, ByteBuffer.allocateDirect(event.buffer.size).apply {
+                    put(event.buffer)
+                    rewind()
+                })
             }
 
             if (event.callbacks.size == 0) {
