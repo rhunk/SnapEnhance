@@ -35,6 +35,7 @@ import org.osmdroid.views.CustomZoomButtonsController
 import org.osmdroid.views.MapView
 import org.osmdroid.views.overlay.Marker
 import org.osmdroid.views.overlay.Overlay
+import java.io.File
 
 
 class AlertDialogs(
@@ -333,12 +334,12 @@ class AlertDialogs(
         }
         val context = LocalContext.current
 
-        LaunchedEffect(Unit) {
-            Configuration.getInstance().load(context, context.getSharedPreferences("osmdroid", Context.MODE_PRIVATE))
-        }
-
         var marker by remember { mutableStateOf<Marker?>(null) }
         val mapView = remember {
+            Configuration.getInstance().apply {
+                osmdroidBasePath = File(context.cacheDir, "osmdroid")
+                load(context, context.getSharedPreferences("osmdroid", Context.MODE_PRIVATE))
+            }
             MapView(context).apply {
                 setMultiTouchControls(true)
                 zoomController.setVisibility(CustomZoomButtonsController.Visibility.NEVER)
