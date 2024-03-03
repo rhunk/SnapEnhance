@@ -16,9 +16,9 @@ import me.rhunk.snapenhance.core.util.ktx.getIdentifier
 
 @SuppressLint("DiscouragedApi")
 class MenuViewInjector : Feature("MenuViewInjector", loadParams = FeatureLoadParams.ACTIVITY_CREATE_ASYNC) {
-    @SuppressLint("ResourceType")
     override fun asyncOnActivityCreate() {
         val menuMap = arrayOf(
+            NewChatActionMenu(),
             OperaContextActionMenu(),
             OperaDownloadIconMenu(),
             SettingsGearInjector(),
@@ -75,8 +75,12 @@ class MenuViewInjector : Feature("MenuViewInjector", loadParams = FeatureLoadPar
                 return@subscribe
             }
 
-            //download in chat snaps and notes from the chat action menu
-            if (viewGroup.javaClass.name.endsWith("ActionMenuChatItemContainer")) {
+            if (childView.javaClass.name.endsWith("ChatActionMenuComponent") && context.config.experimental.newChatActionMenu.get()) {
+                (menuMap[NewChatActionMenu::class]!! as NewChatActionMenu).handle(event)
+                return@subscribe
+            }
+
+            if (viewGroup.javaClass.name.endsWith("ActionMenuChatItemContainer") && !context.config.experimental.newChatActionMenu.get()) {
                 if (viewGroup.parent == null || viewGroup.parent.parent == null) return@subscribe
                 menuMap[ChatActionMenu::class]!!.inject(viewGroup, childView, originalAddView)
                 return@subscribe

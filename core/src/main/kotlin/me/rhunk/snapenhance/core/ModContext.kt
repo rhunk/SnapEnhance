@@ -1,7 +1,6 @@
 package me.rhunk.snapenhance.core
 
 import android.app.Activity
-import android.content.ClipData
 import android.content.Context
 import android.content.Intent
 import android.content.res.Resources
@@ -30,6 +29,7 @@ import me.rhunk.snapenhance.core.manager.impl.FeatureManager
 import me.rhunk.snapenhance.core.messaging.CoreMessagingBridge
 import me.rhunk.snapenhance.core.messaging.MessageSender
 import me.rhunk.snapenhance.core.scripting.CoreScriptRuntime
+import me.rhunk.snapenhance.core.ui.InAppOverlay
 import me.rhunk.snapenhance.core.util.media.HttpServer
 import me.rhunk.snapenhance.nativelib.NativeConfig
 import me.rhunk.snapenhance.nativelib.NativeLib
@@ -64,6 +64,7 @@ class ModContext(
     val native = NativeLib()
     val scriptRuntime by lazy { CoreScriptRuntime(this, log) }
     val messagingBridge = CoreMessagingBridge(this)
+    val inAppOverlay = InAppOverlay()
 
     val isDeveloper by lazy { config.scripting.developerMode.get() }
 

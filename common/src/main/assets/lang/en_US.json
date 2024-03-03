@@ -678,6 +678,10 @@
                         "name": "Convert Message Locally",
                         "description": "Converts snaps to chat external media locally. This appears in chat download context menu"
                     },
+                    "new_chat_action_menu": {
+                        "name": "New Chat Action Menu",
+                        "description": "Use the new chat action menu drawer"
+                    },
                     "story_logger": {
                         "name": "Story Logger",
                         "description": "Provides a history of friends stories"

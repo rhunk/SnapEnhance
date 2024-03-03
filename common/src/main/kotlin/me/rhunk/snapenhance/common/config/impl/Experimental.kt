@@ -22,6 +22,7 @@ class Experimental : ConfigContainer() {
     val sessionEvents = container("session_events", SessionEventsConfig()) { requireRestart(); nativeHooks() }
     val spoof = container("spoof", Spoof()) { icon = "Fingerprint" ; addNotices(FeatureNotice.BAN_RISK); requireRestart() }
     val convertMessageLocally = boolean("convert_message_locally") { requireRestart() }
+    val newChatActionMenu = boolean("new_chat_action_menu") { requireRestart() }
     val storyLogger = boolean("story_logger") { requireRestart(); addNotices(FeatureNotice.UNSTABLE); }
     val appPasscode = string("app_passcode")
     val appLockOnResume = boolean("app_lock_on_resume")

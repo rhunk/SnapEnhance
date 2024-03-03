@@ -10,6 +10,11 @@ import android.widget.ImageView
 import android.widget.LinearLayout
 import android.widget.ProgressBar
 import android.widget.TextView
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.outlined.CheckCircle
+import androidx.compose.material.icons.outlined.Error
+import androidx.compose.material.icons.outlined.Info
+import androidx.compose.material.icons.outlined.Warning
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.async
 import kotlinx.coroutines.runBlocking
@@ -112,23 +117,39 @@ class MediaDownloader : MessagingRuleFeature("MediaDownloader", MessagingRuleTyp
                 override fun onSuccess(outputFile: String) {
                     if (!downloadLogging.contains("success")) return
                     context.log.verbose("onSuccess: outputFile=$outputFile")
-                    context.shortToast(translations.format("saved_toast", "path" to outputFile.split("/").takeLast(2).joinToString("/")))
+                    context.inAppOverlay.showStatusToast(
+                        icon = Icons.Outlined.CheckCircle,
+                        text = translations.format("saved_toast", "path" to outputFile.split("/").takeLast(2).joinToString("/")),
+                    )
                 }
 
                 override fun onProgress(message: String) {
                     if (!downloadLogging.contains("progress")) return
                     context.log.verbose("onProgress: message=$message")
-                    context.shortToast(message)
+                    context.inAppOverlay.showStatusToast(
+                        icon = Icons.Outlined.Info,
+                        text = message,
+                    )
+                    // context.shortToast(message)
                 }
 
                 override fun onFailure(message: String, throwable: String?) {
                     if (!downloadLogging.contains("failure")) return
                     context.log.verbose("onFailure: message=$message, throwable=$throwable")
                     throwable?.let {
-                        context.longToast((message + it.takeIf { it.isNotEmpty() }.orEmpty()))
+                        context.inAppOverlay.showStatusToast(
+                            icon = Icons.Outlined.Error,
+                            text = message + it.takeIf { it.isNotEmpty() }.orEmpty(),
+                        )
+                        // context.longToast((message + it.takeIf { it.isNotEmpty() }.orEmpty()))
                         return
                     }
-                    context.shortToast(message)
+
+                    context.inAppOverlay.showStatusToast(
+                        icon = Icons.Outlined.Warning,
+                        text = message,
+                    )
+                    // context.shortToast(message)
                 }
             }
         )
