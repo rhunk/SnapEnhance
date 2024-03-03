@@ -165,6 +165,7 @@ class SnapEnhance {
         measureTimeMillis {
             with(appContext) {
                 features.onActivityCreate()
+                inAppOverlay.onActivityCreate(mainActivity!!)
                 scriptRuntime.eachModule { callFunction("module.onSnapMainActivityCreate", mainActivity!!) }
             }
         }.also { time ->
