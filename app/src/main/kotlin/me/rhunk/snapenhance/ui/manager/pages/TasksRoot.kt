@@ -8,7 +8,8 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.*
+ import androidx.compose.material.icons.automirrored.filled.OpenInNew
+ import androidx.compose.material.icons.filled.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -148,7 +149,7 @@ class TasksRoot : Routes.Route() {
                         context.log.error("Failed to open file ${taskSelection.first().second}", it)
                     }
                 }) {
-                    Icon(Icons.Filled.OpenInNew, contentDescription = "Open")
+                    Icon(Icons.AutoMirrored.Filled.OpenInNew, contentDescription = "Open")
                 }
             }
         }
@@ -348,8 +349,8 @@ class TasksRoot : Routes.Route() {
                             }
                             if (taskProgress != -1) {
                                 LinearProgressIndicator(
-                                    progress = taskProgress.toFloat() / 100f,
-                                    strokeCap = StrokeCap.Round
+                                    progress = { taskProgress.toFloat() / 100f },
+                                    strokeCap = StrokeCap.Round,
                                 )
                             } else {
                                 task.extra?.let {

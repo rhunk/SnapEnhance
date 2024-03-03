@@ -5,7 +5,6 @@ import androidx.compose.animation.core.tween
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.foundation.layout.PaddingValues
-import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.wrapContentWidth
 import androidx.compose.material3.*
@@ -97,7 +96,6 @@ class Navigation(
                 NavigationBarItem(
                     selected = navBackStackEntry?.destination?.hierarchy?.any { it.route == tab.route || tabSubRoutes.contains(it.route) } == true,
                     alwaysShowLabel = false,
-                    modifier = Modifier.fillMaxHeight(),
                     icon = {
                         Icon(imageVector = tab.icon!!, contentDescription = null)
                     },

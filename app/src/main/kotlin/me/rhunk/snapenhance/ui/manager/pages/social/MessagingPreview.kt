@@ -250,11 +250,11 @@ class MessagingPreview: Routes.Route() {
                     Text("Processed ${processMessageCount.intValue} messages")
                     if (activeTask?.hasFixedGoal() == true) {
                         LinearProgressIndicator(
+                            progress = { processMessageCount.intValue.toFloat() / selectedMessages.size.toFloat() },
                             modifier = Modifier
                                 .fillMaxWidth()
                                 .padding(5.dp),
-                            progress = processMessageCount.intValue.toFloat() / selectedMessages.size.toFloat(),
-                            color = MaterialTheme.colorScheme.primary
+                            color = MaterialTheme.colorScheme.primary,
                         )
                     } else {
                         CircularProgressIndicator(

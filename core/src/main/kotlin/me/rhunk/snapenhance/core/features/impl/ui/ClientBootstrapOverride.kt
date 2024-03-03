@@ -16,6 +16,10 @@ class ClientBootstrapOverride : Feature("ClientBootstrapOverride", loadParams = 
     override fun onActivityCreate() {
         val bootstrapOverrideConfig = context.config.userInterface.bootstrapOverride
 
+        if (!clientBootstrapFolder.exists() && (bootstrapOverrideConfig.appAppearance.getNullable() != null || bootstrapOverrideConfig.homeTab.getNullable() != null)) {
+            clientBootstrapFolder.mkdirs()
+        }
+
         bootstrapOverrideConfig.appAppearance.getNullable()?.also { appearance ->
             val state = when (appearance) {
                 "always_light" -> 0

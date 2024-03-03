@@ -8,6 +8,7 @@ import android.content.res.TypedArray
 import android.graphics.drawable.Drawable
 import android.os.VibrationEffect
 import android.os.Vibrator
+import androidx.core.graphics.ColorUtils
 import me.rhunk.snapenhance.common.Constants
 
 
@@ -42,4 +43,13 @@ fun Resources.getDrawable(name: String, theme: Theme): Drawable {
 @SuppressLint("MissingPermission")
 fun Context.vibrateLongPress() {
     getSystemService(Vibrator::class.java).vibrate(VibrationEffect.createOneShot(50, VibrationEffect.DEFAULT_AMPLITUDE))
+}
+
+@SuppressLint("DiscouragedApi")
+fun Context.isDarkTheme(): Boolean {
+    return theme.obtainStyledAttributes(
+        intArrayOf(resources.getIdentifier("sigColorTextPrimary", "attr", packageName))
+    ).getColor(0, 0).let {
+        ColorUtils.calculateLuminance(it) > 0.5
+    }
 }
