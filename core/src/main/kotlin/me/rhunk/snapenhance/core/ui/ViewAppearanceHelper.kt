@@ -19,9 +19,11 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.Switch
 import android.widget.TextView
+import me.rhunk.snapenhance.core.SnapEnhance
 import me.rhunk.snapenhance.core.util.ktx.getDimens
 import me.rhunk.snapenhance.core.util.ktx.getDimensFloat
 import me.rhunk.snapenhance.core.util.ktx.getIdentifier
+import me.rhunk.snapenhance.core.wrapper.impl.composer.ComposerViewNode
 import kotlin.random.Random
 
 fun View.applyTheme(componentWidth: Int? = null, hasRadius: Boolean = false, isAmoled: Boolean = true) {
@@ -91,6 +93,16 @@ fun View.iterateParent(predicate: (View) -> Boolean) {
     }
 }
 
+fun View.getComposerViewNode(): ComposerViewNode? {
+    if (!this::class.java.isAssignableFrom(SnapEnhance.classCache.composerView)) return null
+    val composerViewNode = this::class.java.methods.firstOrNull {
+        it.name == "getComposerViewNode"
+    }?.invoke(this) ?: return null
+
+    return ComposerViewNode(composerViewNode::class.java.methods.firstOrNull {
+        it.name == "getNativeHandle"
+    }?.invoke(composerViewNode) as? Long ?: return null)
+}
 
 object ViewAppearanceHelper {
     private fun createRoundedBackground(color: Int, radius: Float, hasRadius: Boolean): Drawable {
