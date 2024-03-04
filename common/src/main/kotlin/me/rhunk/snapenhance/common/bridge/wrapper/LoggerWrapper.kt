@@ -21,6 +21,7 @@ class LoggedMessage(
 )
 
 class TrackerLog(
+    val id: Int,
     val timestamp: Long,
     val conversationId: String,
     val conversationTitle: String?,
@@ -207,6 +208,12 @@ class LoggerWrapper(
         }
     }
 
+    fun deleteTrackerLog(id: Int) {
+        coroutineScope.launch {
+            database.execSQL("DELETE FROM tracker_events WHERE id = ?", arrayOf(id.toString()))
+        }
+    }
+
     fun getLogs(
         lastTimestamp: Long,
         filter: ((TrackerLog) -> Boolean)? = null
@@ -215,6 +222,7 @@ class LoggerWrapper(
             val logs = mutableListOf<TrackerLog>()
             while (it.moveToNext() && logs.size < 50) {
                 val log = TrackerLog(
+                    id = it.getIntOrNull("id") ?: continue,
                     timestamp = it.getLongOrNull("timestamp") ?: continue,
                     conversationId = it.getStringOrNull("conversation_id") ?: continue,
                     conversationTitle = it.getStringOrNull("conversation_title"),

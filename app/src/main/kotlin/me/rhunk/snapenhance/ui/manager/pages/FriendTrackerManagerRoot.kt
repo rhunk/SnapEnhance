@@ -219,7 +219,8 @@ class FriendTrackerManagerRoot : Routes.Route() {
 
                             OutlinedIconButton(
                                 onClick = {
-
+                                    context.messageLogger.deleteTrackerLog(log.id)
+                                    logs.remove(log)
                                 }
                             ) {
                                 Icon(Icons.Default.DeleteOutline, contentDescription = "Delete")
