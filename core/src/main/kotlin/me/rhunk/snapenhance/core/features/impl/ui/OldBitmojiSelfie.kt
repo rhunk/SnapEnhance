@@ -15,6 +15,9 @@ class OldBitmojiSelfie : Feature("OldBitmojiSelfie", loadParams = FeatureLoadPar
             if (urlPrefixes.firstOrNull { event.url.startsWith(it) } == null) return@subscribe
             event.url = event.url.replace("ua=1", "") // replace ua=1 with nothing for old 3d selfies/background
 
+            if (oldBitmojiSelfie == "2d" && event.url.contains("ua=")) {
+                event.url = event.url.replace(Regex("ua=[^&]+"), "ua=0")
+            }
             // replace with old 2d selfies
             if (oldBitmojiSelfie == "2d" && event.url.contains("trim=circle")) {
                 val bitmojiPath = event.url.substringAfterLast("/").substringBeforeLast("?")
