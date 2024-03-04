@@ -9,9 +9,12 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.ErrorOutline
 import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -51,7 +54,7 @@ import javax.crypto.spec.SecretKeySpec
 import kotlin.math.absoluteValue
 
 class LoggedStories : Routes.Route() {
-    @OptIn(ExperimentalCoilApi::class)
+    @OptIn(ExperimentalCoilApi::class, ExperimentalLayoutApi::class)
     override val content: @Composable (NavBackStackEntry) -> Unit = content@{ navBackStackEntry ->
         val userId = navBackStackEntry.arguments?.getString("id") ?: return@content
 
@@ -65,9 +68,43 @@ class LoggedStories : Routes.Route() {
         var lastStoryTimestamp by remember { mutableLongStateOf(Long.MAX_VALUE) }
 
         var selectedStory by remember { mutableStateOf<StoryData?>(null) }
-        var coilCacheFile by remember { mutableStateOf<File?>(null) }
+        var coilCachedFile by remember { mutableStateOf<File?>(null) }
 
         selectedStory?.let { story ->
+            fun downloadSelectedStory(
+                inputMedia: InputMedia,
+            ) {
+                val mediaAuthor = friendInfo?.mutableUsername ?: userId
+                val uniqueHash = (selectedStory?.url ?: UUID.randomUUID().toString()).longHashCode().absoluteValue.toString(16)
+
+                DownloadProcessor(
+                    remoteSideContext = context,
+                    callback = object: DownloadCallback.Default() {
+                        override fun onSuccess(outputPath: String?) {
+                            context.shortToast("Downloaded to $outputPath")
+                        }
+
+                        override fun onFailure(message: String?, throwable: String?) {
+                            context.shortToast("Failed to download $message")
+                        }
+                    }
+                ).enqueue(DownloadRequest(
+                    inputMedias = arrayOf(inputMedia)
+                ), DownloadMetadata(
+                    mediaIdentifier = uniqueHash,
+                    outputPath = createNewFilePath(
+                        context.config.root,
+                        uniqueHash,
+                        MediaDownloadSource.STORY_LOGGER,
+                        mediaAuthor,
+                        story.createdAt
+                    ),
+                    iconUrl = null,
+                    mediaAuthor = friendInfo?.mutableUsername ?: userId,
+                    downloadSource = MediaDownloadSource.STORY_LOGGER.translate(context.translation),
+                ))
+            }
+
             Dialog(onDismissRequest = {
                 selectedStory = null
             }) {
@@ -88,13 +125,13 @@ class LoggedStories : Routes.Route() {
                             DateFormat.getDateTimeInstance().format(Date(it))
                         }}")
 
-                        Row(
+                        FlowRow(
                             modifier = Modifier.fillMaxWidth(),
                             horizontalArrangement = Arrangement.SpaceEvenly,
                         ) {
                             Button(onClick = {
                                 context.androidContext.externalCacheDir?.let { cacheDir ->
-                                    val cacheFile = coilCacheFile ?: run {
+                                    val cacheFile = coilCachedFile ?: run {
                                         context.shortToast("Failed to get file")
                                         return@Button
                                     }
@@ -118,43 +155,31 @@ class LoggedStories : Routes.Route() {
                             }
 
                             Button(onClick = {
-                                val mediaAuthor = friendInfo?.mutableUsername ?: userId
-                                val uniqueHash = (selectedStory?.url ?: UUID.randomUUID().toString()).longHashCode().absoluteValue.toString(16)
-
-                                DownloadProcessor(
-                                    remoteSideContext = context,
-                                    callback = object: DownloadCallback.Default() {
-                                        override fun onSuccess(outputPath: String?) {
-                                            context.shortToast("Downloaded to $outputPath")
-                                        }
-
-                                        override fun onFailure(message: String?, throwable: String?) {
-                                            context.shortToast("Failed to download $message")
-                                        }
-                                    }
-                                ).enqueue(DownloadRequest(
-                                    inputMedias = arrayOf(
-                                        InputMedia(
-                                            content = story.url,
-                                            type = DownloadMediaType.REMOTE_MEDIA,
-                                            encryption = story.key?.let { it to story.iv!! }?.toKeyPair()
-                                        )
+                                downloadSelectedStory(
+                                    InputMedia(
+                                        content = story.url,
+                                        type = DownloadMediaType.REMOTE_MEDIA,
+                                        encryption = story.key?.let { it to story.iv!! }?.toKeyPair()
                                     )
-                                ), DownloadMetadata(
-                                    mediaIdentifier = uniqueHash,
-                                    outputPath = createNewFilePath(
-                                        context.config.root,
-                                        uniqueHash,
-                                        MediaDownloadSource.STORY_LOGGER,
-                                        mediaAuthor,
-                                        story.createdAt
-                                    ),
-                                    iconUrl = null,
-                                    mediaAuthor = friendInfo?.mutableUsername ?: userId,
-                                    downloadSource = MediaDownloadSource.STORY_LOGGER.translate(context.translation),
-                                ))
+                                )
                             }) {
                                 Text(text = "Download")
+                            }
+
+                            if (coilCachedFile != null) {
+                                Button(onClick = {
+                                    downloadSelectedStory(
+                                        InputMedia(
+                                            content = coilCachedFile?.absolutePath ?: run {
+                                                context.shortToast("Failed to get file from cache")
+                                                return@Button
+                                            },
+                                            type = DownloadMediaType.LOCAL_MEDIA
+                                        )
+                                    )
+                                }) {
+                                    Text(text = "Save from cache")
+                                }
                             }
                         }
                     }
@@ -171,6 +196,7 @@ class LoggedStories : Routes.Route() {
             contentPadding = PaddingValues(8.dp),
         ) {
             items(stories) { story ->
+                var isFailed by remember { mutableStateOf(false) }
                 var imageBitmap by remember { mutableStateOf<ImageBitmap?>(null) }
                 val uniqueHash = remember { story.url.hashCode().absoluteValue.toString(16) }
 
@@ -195,6 +221,8 @@ class LoggedStories : Routes.Route() {
 
                         imageBitmap = bitmap?.asImageBitmap()
                         return true
+                    }.onFailure {
+                        context.log.error("Failed to open disk cache snapshot", it)
                     }
                     return false
                 }
@@ -202,9 +230,8 @@ class LoggedStories : Routes.Route() {
                 LaunchedEffect(Unit) {
                     withContext(Dispatchers.IO) {
                         withTimeout(10000L) {
-                            context.imageLoader.diskCache?.openSnapshot(uniqueHash)?.let {
-                                openDiskCacheSnapshot(it)
-                                it.close()
+                            context.imageLoader.diskCache?.openSnapshot(uniqueHash)?.use {
+                                if (!openDiskCacheSnapshot(it)) isFailed = true
                                 return@withTimeout
                             }
 
@@ -224,12 +251,12 @@ class LoggedStories : Routes.Route() {
                                             decrypted.copyTo(fos)
                                         }
                                         commitAndOpenSnapshot()?.use { snapshot ->
-                                            openDiskCacheSnapshot(snapshot)
-                                            snapshot.close()
+                                            if (!openDiskCacheSnapshot(snapshot)) isFailed = true
                                         }
                                     }
                                 }
                             }.onFailure {
+                                isFailed = true
                                 context.log.error("Failed to load story", it)
                             }
                         }
@@ -241,24 +268,34 @@ class LoggedStories : Routes.Route() {
                         .padding(8.dp)
                         .clickable {
                             selectedStory = story
-                            coilCacheFile = context.imageLoader.diskCache?.openSnapshot(uniqueHash).use {
-                                it?.data?.toFile()
-                            }
+                            coilCachedFile = context.imageLoader.diskCache
+                                ?.openSnapshot(uniqueHash)
+                                .use {
+                                    it?.data?.toFile()
+                                }
                         }
                         .heightIn(min = 128.dp),
                     horizontalAlignment = Alignment.CenterHorizontally,
                     verticalArrangement = Arrangement.Center,
                 ) {
-                    imageBitmap?.let {
-                        Card {
-                            Image(
-                                bitmap = it,
-                                modifier = Modifier.fillMaxSize(),
-                                contentDescription = null,
-                            )
+                    if (isFailed) {
+                        Icon(
+                            imageVector = Icons.Default.ErrorOutline,
+                            contentDescription = "",
+                            modifier = Modifier.size(48.dp)
+                        )
+                    } else {
+                        imageBitmap?.let {
+                            Card {
+                                Image(
+                                    bitmap = it,
+                                    modifier = Modifier.fillMaxSize(),
+                                    contentDescription = null,
+                                )
+                            }
+                        } ?: run {
+                            CircularProgressIndicator()
                         }
-                    } ?: run {
-                        CircularProgressIndicator()
                     }
                 }
             }
