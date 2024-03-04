@@ -1,6 +1,8 @@
 package me.rhunk.snapenhance.ui.manager.pages
 
 import androidx.compose.foundation.ExperimentalFoundationApi
+import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
@@ -13,6 +15,7 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
@@ -28,8 +31,9 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import me.rhunk.snapenhance.common.bridge.wrapper.TrackerLog
 import me.rhunk.snapenhance.common.data.TrackerEventType
-import me.rhunk.snapenhance.common.data.TrackerParams
 import me.rhunk.snapenhance.common.data.TrackerRule
+import me.rhunk.snapenhance.common.data.TrackerRuleAction
+import me.rhunk.snapenhance.common.data.TrackerRuleActionParams
 import me.rhunk.snapenhance.common.data.TrackerRuleEvent
 import me.rhunk.snapenhance.ui.manager.Routes
 import me.rhunk.snapenhance.ui.util.pagerTabIndicatorOffset
@@ -42,11 +46,11 @@ class FriendTrackerManagerRoot : Routes.Route() {
         CONVERSATION, USERNAME, EVENT
     }
 
-    private val titles = listOf("Logs", "Config Rules")
+    private val titles = listOf("Logs", "Rules")
     private var currentPage by mutableIntStateOf(0)
-    private var showAddRulePopup by mutableStateOf(false)
 
     override val floatingActionButton: @Composable () -> Unit = {
+        var showAddRulePopup by remember { mutableStateOf(false) }
         if (currentPage == 1) {
             ExtendedFloatingActionButton(
                 icon = { Icon(Icons.Default.Add, contentDescription = "Add Rule") },
@@ -56,7 +60,7 @@ class FriendTrackerManagerRoot : Routes.Route() {
             )
         }
         if (showAddRulePopup) {
-            AddRuleDialog()
+            EditRuleDialog(onDismiss = { showAddRulePopup = false })
         }
     }
 
@@ -185,7 +189,9 @@ class FriendTrackerManagerRoot : Routes.Route() {
             ) {
                 item {
                     if (logs.isEmpty()) {
-                        Text("No logs found", modifier = Modifier.padding(16.dp).fillMaxWidth(), textAlign = TextAlign.Center, fontWeight = FontWeight.Light)
+                        Text("No logs found", modifier = Modifier
+                            .padding(16.dp)
+                            .fillMaxWidth(), textAlign = TextAlign.Center, fontWeight = FontWeight.Light)
                     }
                 }
                 items(logs) { log ->
@@ -233,53 +239,193 @@ class FriendTrackerManagerRoot : Routes.Route() {
 
     }
 
+    @OptIn(ExperimentalLayoutApi::class, ExperimentalMaterial3Api::class)
     @Composable
-    private fun AddRuleDialog() {
+    private fun EditRuleDialog(
+        ruleId: Int? = null,
+        onDismiss: () -> Unit = {}
+    ) {
+        var currentRuleId by remember { mutableStateOf(ruleId) }
+        val events = remember { mutableStateListOf<TrackerRuleEvent>() }
+
+        LaunchedEffect(Unit) {
+            currentRuleId = ruleId ?: context.modDatabase.addTrackerRule(null, null)
+            events.addAll(context.modDatabase.getTrackerEvents(currentRuleId ?: return@LaunchedEffect).toMutableList())
+        }
+
+        fun saveRule() {
+            events.forEach { event ->
+                context.modDatabase.addOrUpdateTrackerRuleEvent(
+                    event.id.takeIf { it > -1 },
+                    currentRuleId,
+                    event.eventType,
+                    event.params,
+                    event.actions
+                )
+            }
+        }
+
+        @Composable
+        fun ActionCheckbox(
+            text: String,
+            checked: MutableState<Boolean>,
+            onChanged: (Boolean) -> Unit = {}
+        ) {
+            Row(
+                modifier = Modifier.clickable {
+                    checked.value = !checked.value
+                    onChanged(!checked.value)
+                },
+                horizontalArrangement = Arrangement.spacedBy(2.dp),
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Checkbox(
+                    modifier = Modifier.size(30.dp),
+                    checked = checked.value,
+                    onCheckedChange = {
+                        checked.value = it
+                        onChanged(it)
+                    }
+                )
+                Text(text, fontSize = 12.sp)
+            }
+        }
+
         AlertDialog(
-            onDismissRequest = { showAddRulePopup = false },
-            title = { Text("Add Rule") },
+            onDismissRequest = {
+                onDismiss()
+            },
+            title = { Text("Rule $currentRuleId") },
             text = {
-                Column {
-                    Button(onClick = {
-                        val ruleId = context.modDatabase.addTrackerRule(null, null, TrackerParams(
-                            track = true,
-                            notify = true,
-                            log = true,
-                        ))
-                        TrackerEventType.entries.forEach { eventType ->
-                            context.modDatabase.addTrackerRuleEvent(
-                                ruleId,
-                                eventType.key,
-                                TrackerParams(
-                                    track = true,
-                                    notify = true,
-                                    log = true,
-                                )
-                            )
+                Column(
+                    modifier = Modifier
+                        .fillMaxWidth(),
+                    verticalArrangement = Arrangement.spacedBy(5.dp)
+                ) {
+                    OutlinedCard(
+                        modifier = Modifier
+                            .fillMaxWidth(),
+                    ) {
+                        var currentEventType by remember { mutableStateOf(TrackerEventType.CONVERSATION_ENTER.key) }
+                        var checkedActions by remember { mutableStateOf(emptySet<TrackerRuleAction>()) }
+                        val showDropdown = remember { mutableStateOf(false) }
+
+                        Row(
+                            modifier = Modifier.fillMaxWidth()
+                                .padding(2.dp),
+                            horizontalArrangement = Arrangement.SpaceEvenly
+                        ) {
+                            ExposedDropdownMenuBox(expanded = showDropdown.value, onExpandedChange = { showDropdown.value = it }) {
+                                ElevatedButton(
+                                    onClick = { showDropdown.value = true },
+                                    modifier = Modifier.menuAnchor()
+                                ) {
+                                    Text(currentEventType)
+                                }
+                                DropdownMenu(expanded = showDropdown.value, onDismissRequest = { showDropdown.value = false }) {
+                                    TrackerEventType.entries.forEach { eventType ->
+                                        DropdownMenuItem(onClick = {
+                                            currentEventType = eventType.key
+                                            showDropdown.value = false
+                                        }, text = {
+                                            Text(eventType.key)
+                                        })
+                                    }
+                                }
+                            }
+
+                            OutlinedButton(onClick = {
+                                events.add(TrackerRuleEvent(-1, true, currentEventType, TrackerRuleActionParams(), checkedActions.toList()))
+                            }) {
+                                Text("Add")
+                            }
                         }
-                        showAddRulePopup = false
-                    }) {
-                        Text("Add Rule Test")
+
+                        FlowRow(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(2.dp),
+                        ) {
+                            TrackerRuleAction.entries.forEach { action ->
+                                ActionCheckbox(action.name, checked = remember { mutableStateOf(checkedActions.contains(action)) }) {
+                                    if (it) {
+                                        checkedActions += action
+                                    } else {
+                                        checkedActions -= action
+                                    }
+                                }
+                            }
+                        }
+                    }
+
+
+                    LazyColumn(
+                        verticalArrangement = Arrangement.spacedBy(4.dp),
+                    ) {
+                        items(events) { event ->
+                            var collapsed by remember { mutableStateOf(false) }
+                            Column(
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .clip(MaterialTheme.shapes.medium)
+                                    .background(MaterialTheme.colorScheme.secondaryContainer)
+                                    .clickable {
+                                        collapsed = !collapsed
+                                    },
+                            ) {
+                                Row(
+                                    modifier = Modifier
+                                        .fillMaxWidth()
+                                        .padding(6.dp),
+                                    horizontalArrangement = Arrangement.SpaceBetween,
+                                    verticalAlignment = Alignment.CenterVertically
+                                ) {
+                                    Text(event.eventType)
+                                    OutlinedIconButton(onClick = {
+                                        if (event.id > -1) {
+                                            context.modDatabase.deleteTrackerRuleEvent(event.id)
+                                        }
+                                        events.remove(event)
+                                    }) {
+                                        Icon(Icons.Default.DeleteOutline, contentDescription = "Delete")
+                                    }
+                                }
+                                if (collapsed) {
+                                    Text(event.actions.joinToString(", ") { it.name }, fontSize = 10.sp, fontWeight = FontWeight.Light)
+                                    ActionCheckbox(text = "Only inside conversation", checked = remember { mutableStateOf(event.params.onlyInsideConversation) }, onChanged = { event.params.onlyInsideConversation = it })
+                                    ActionCheckbox(text = "Only outside conversation", checked = remember { mutableStateOf(event.params.onlyOutsideConversation) }, onChanged = { event.params.onlyOutsideConversation = it })
+                                    ActionCheckbox(text = "Only when app active", checked = remember { mutableStateOf(event.params.onlyWhenAppActive) }, onChanged = { event.params.onlyWhenAppActive = it })
+                                    ActionCheckbox(text = "Only when app inactive", checked = remember { mutableStateOf(event.params.onlyWhenAppInactive) }, onChanged = { event.params.onlyWhenAppInactive = it })
+                                }
+                            }
+                        }
                     }
                 }
             },
             confirmButton = {
-                Button(onClick = { showAddRulePopup = false }) {
-                    Text("Confirm")
+                Button(onClick = {
+                    saveRule()
+                    onDismiss()
+                }) {
+                    Text("Save")
                 }
             },
+
             dismissButton = {
-                Button(onClick = { showAddRulePopup = false }) {
-                    Text("Cancel")
+                Button(onClick = {
+                    context.modDatabase.deleteTrackerRule(currentRuleId ?: return@Button)
+                    onDismiss()
+                }) {
+                    Text("Delete")
                 }
             }
         )
     }
 
     @Composable
-    @OptIn(ExperimentalLayoutApi::class)
     private fun ConfigRulesTab() {
         val rules = remember { mutableStateListOf<TrackerRule>() }
+        var editRuleId by remember { mutableStateOf<Int?>(null) }
 
         Column(
             modifier = Modifier.fillMaxSize()
@@ -288,19 +434,18 @@ class FriendTrackerManagerRoot : Routes.Route() {
                 modifier = Modifier.weight(1f)
             ) {
                 items(rules) { rule ->
-                    val events = remember(rule.id) {
-                        mutableStateListOf<TrackerRuleEvent>()
-                    }
+                    var eventCount by remember { mutableIntStateOf(0) }
 
-                    LaunchedEffect(rule.id) {
+                    LaunchedEffect(rule.id, editRuleId) {
                         launch(Dispatchers.IO) {
-                            events.addAll(context.modDatabase.getTrackerEvents(rule.id))
+                            eventCount = context.modDatabase.getTrackerEvents(rule.id).size
                         }
                     }
 
                     ElevatedCard(
                         modifier = Modifier
                             .fillMaxWidth()
+                            .clickable { editRuleId = rule.id }
                             .padding(5.dp)
                     ) {
                         Column(
@@ -309,23 +454,25 @@ class FriendTrackerManagerRoot : Routes.Route() {
                                 .padding(16.dp),
                             verticalArrangement = Arrangement.spacedBy(2.dp)
                         ) {
-                            Text("Rule: ${rule.id} - conversationId: ${rule.conversationId?.let { "present" } ?: "none" } - userId: ${rule.userId?.let { "present" } ?: "none"}")
-                            FlowRow(
-                                modifier = Modifier.fillMaxWidth(),
-                                horizontalArrangement = Arrangement.spacedBy(5.dp)
-                            ) {
-                                events.forEach { event ->
-                                    Text("${event.eventType} - ${event.params}")
-                                }
-                            }
+                            Text("Rule ${rule.id} ${rule.conversationId?.let { "1 conversation" } ?: "All conversations" } - ${rule.userId?.let { "1 user" } ?: "All users"}")
+                            Text("has $eventCount events")
                         }
                     }
                 }
             }
         }
 
-        LaunchedEffect(Unit) {
-            rules.addAll(context.modDatabase.getTrackerRules(null, null))
+        if (editRuleId != null) {
+            EditRuleDialog(editRuleId, onDismiss = {
+                editRuleId = null
+            })
+        }
+
+        LaunchedEffect(editRuleId != null) {
+            rules.clear()
+            launch(Dispatchers.IO) {
+                rules.addAll(context.modDatabase.getTrackerRules(null, null))
+            }
         }
     }
 
@@ -338,7 +485,7 @@ class FriendTrackerManagerRoot : Routes.Route() {
 
         Column {
             TabRow(selectedTabIndex = pagerState.currentPage, indicator = { tabPositions ->
-                TabRowDefaults.Indicator(
+                TabRowDefaults.SecondaryIndicator(
                     Modifier.pagerTabIndicatorOffset(
                         pagerState = pagerState,
                         tabPositions = tabPositions

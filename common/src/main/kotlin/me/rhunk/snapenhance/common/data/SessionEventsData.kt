@@ -44,79 +44,6 @@ enum class SessionEventType(
     SNAP_SCREEN_RECORD("snap_screen_record"),
 }
 
-object TrackerFlags {
-    const val TRACK = 1
-    const val LOG = 2
-    const val NOTIFY = 4
-    const val APP_IS_ACTIVE = 8
-    const val APP_IS_INACTIVE = 16
-    const val IS_IN_CONVERSATION = 32
-}
-
-@Parcelize
-class TrackerEventsResult(
-    private val rules: Map<TrackerRule, List<TrackerRuleEvent>>
-): Parcelable {
-    fun hasFlags(vararg flags: Int): Boolean {
-        return rules.any { (_, ruleEvents) ->
-            ruleEvents.any { it.params.track }
-        }
-    }
-
-    fun canTrackOn(conversationId: String?, userId: String?): Boolean {
-        return rules.any t@{ (rule, ruleEvents) ->
-            ruleEvents.any { event ->
-                if (!event.params.track) {
-                    return@any false
-                }
-
-                // global rule
-                if (rule.conversationId == null && rule.userId == null) {
-                    return@any true
-                }
-
-                // user rule
-                if (rule.conversationId == null && rule.userId == userId) {
-                    return@any true
-                }
-
-                // conversation rule
-                if (rule.conversationId == conversationId && rule.userId == null) {
-                    return@any true
-                }
-
-                // conversation and user rule
-                return@any rule.conversationId == conversationId && rule.userId == userId
-            }
-        }
-    }
-}
-
-@Parcelize
-data class TrackerParams(
-    var track: Boolean = false,
-    var log: Boolean = false,
-    var notify: Boolean = false,
-    var appIsActive: Boolean = false,
-    var appIsInactive: Boolean = false,
-    var isInConversation: Boolean = false,
-): Parcelable
-
-@Parcelize
-data class TrackerRule(
-    val id: Int,
-    val conversationId: String?,
-    val userId: String?,
-    val params: TrackerParams,
-): Parcelable
-
-@Parcelize
-data class TrackerRuleEvent(
-    val id: Int,
-    val eventType: String,
-    val params: TrackerParams,
-): Parcelable
-
 enum class TrackerEventType(
     val key: String
 ) {
@@ -143,3 +70,88 @@ enum class TrackerEventType(
     SNAP_SCREENSHOT("snap_screenshot"),
     SNAP_SCREEN_RECORD("snap_screen_record"),
 }
+
+
+@Parcelize
+class TrackerEventsResult(
+    val rules: Map<TrackerRule, List<TrackerRuleEvent>>
+): Parcelable {
+    fun getActions(): Map<TrackerRuleAction, TrackerRuleActionParams> {
+        return rules.flatMap {
+            it.value
+        }.fold(mutableMapOf()) { acc, ruleEvent ->
+            ruleEvent.actions.forEach { action ->
+                acc[action] = acc[action]?.merge(ruleEvent.params) ?: ruleEvent.params
+            }
+            acc
+        }
+    }
+
+    fun canTrackOn(conversationId: String?, userId: String?): Boolean {
+        return rules.any t@{ (rule, ruleEvents) ->
+            ruleEvents.any { event ->
+                if (!event.enabled) {
+                    return@any false
+                }
+
+                // global rule
+                if (rule.conversationId == null && rule.userId == null) {
+                    return@any true
+                }
+
+                // user rule
+                if (rule.conversationId == null && rule.userId == userId) {
+                    return@any true
+                }
+
+                // conversation rule
+                if (rule.conversationId == conversationId && rule.userId == null) {
+                    return@any true
+                }
+
+                // conversation and user rule
+                return@any rule.conversationId == conversationId && rule.userId == userId
+            }
+        }
+    }
+}
+
+enum class TrackerRuleAction {
+    LOG,
+    IN_APP_NOTIFICATION,
+    PUSH_NOTIFICATION,
+    CUSTOM,
+}
+
+@Parcelize
+data class TrackerRuleActionParams(
+    var onlyInsideConversation: Boolean = false,
+    var onlyOutsideConversation: Boolean = false,
+    var onlyWhenAppActive: Boolean = false,
+    var onlyWhenAppInactive: Boolean = false,
+): Parcelable {
+    fun merge(other: TrackerRuleActionParams): TrackerRuleActionParams {
+        return TrackerRuleActionParams(
+            onlyInsideConversation = onlyInsideConversation || other.onlyInsideConversation,
+            onlyOutsideConversation = onlyOutsideConversation || other.onlyOutsideConversation,
+            onlyWhenAppActive = onlyWhenAppActive || other.onlyWhenAppActive,
+            onlyWhenAppInactive = onlyWhenAppInactive || other.onlyWhenAppInactive,
+        )
+    }
+}
+
+@Parcelize
+data class TrackerRule(
+    val id: Int,
+    val conversationId: String?,
+    val userId: String?,
+): Parcelable
+
+@Parcelize
+data class TrackerRuleEvent(
+    val id: Int,
+    val enabled: Boolean,
+    val eventType: String,
+    val params: TrackerRuleActionParams,
+    val actions: List<TrackerRuleAction>
+): Parcelable

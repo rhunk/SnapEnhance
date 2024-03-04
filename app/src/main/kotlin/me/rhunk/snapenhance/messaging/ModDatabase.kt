@@ -2,6 +2,7 @@ package me.rhunk.snapenhance.messaging
 
 import android.content.ContentValues
 import android.database.sqlite.SQLiteDatabase
+import com.google.gson.reflect.TypeToken
 import kotlinx.coroutines.runBlocking
 import me.rhunk.snapenhance.RemoteSideContext
 import me.rhunk.snapenhance.common.data.*
@@ -72,13 +73,14 @@ class ModDatabase(
                 "id INTEGER PRIMARY KEY AUTOINCREMENT",
                 "conversation_id CHAR(36)", // nullable
                 "user_id CHAR(36)", // nullable
-                "params TEXT",
             ),
             "tracker_rules_events" to listOf(
                 "id INTEGER PRIMARY KEY AUTOINCREMENT",
                 "rule_id INTEGER",
+                "flags INTEGER DEFAULT 1",
                 "event_type VARCHAR",
-                "params TEXT"
+                "params TEXT",
+                "actions TEXT"
             )
         ))
     }
@@ -346,14 +348,32 @@ class ModDatabase(
         }
     }
 
-    fun addTrackerRule(conversationId: String?, userId: String?, params: TrackerParams): Int {
+    fun clearTrackerRules() {
+        runBlocking {
+            suspendCoroutine { continuation ->
+                executeAsync {
+                    database.execSQL("DELETE FROM tracker_rules")
+                    database.execSQL("DELETE FROM tracker_rules_events")
+                    continuation.resumeWith(Result.success(Unit))
+                }
+            }
+        }
+    }
+
+    fun deleteTrackerRule(ruleId: Int) {
+        executeAsync {
+            database.execSQL("DELETE FROM tracker_rules WHERE id = ?", arrayOf(ruleId))
+            database.execSQL("DELETE FROM tracker_rules_events WHERE rule_id = ?", arrayOf(ruleId))
+        }
+    }
+
+    fun addTrackerRule(conversationId: String?, userId: String?): Int {
         return runBlocking {
             suspendCoroutine { continuation ->
                 executeAsync {
                     val id = database.insert("tracker_rules", null, ContentValues().apply {
                         put("conversation_id", conversationId)
                         put("user_id", userId)
-                        put("params", context.gson.toJson(params))
                     })
                     continuation.resumeWith(Result.success(id.toInt()))
                 }
@@ -361,13 +381,40 @@ class ModDatabase(
         }
     }
 
-    fun addTrackerRuleEvent(ruleId: Int, eventType: String, params: TrackerParams) {
+    fun addOrUpdateTrackerRuleEvent(
+        ruleEventId: Int? = null,
+        ruleId: Int? = null,
+        eventType: String? = null,
+        params: TrackerRuleActionParams,
+        actions: List<TrackerRuleAction>
+    ): Int? {
+        return runBlocking {
+            suspendCoroutine { continuation ->
+                executeAsync {
+                    val id = if (ruleEventId != null) {
+                        database.execSQL("UPDATE tracker_rules_events SET params = ?, actions = ? WHERE id = ?", arrayOf(
+                            context.gson.toJson(params),
+                            context.gson.toJson(actions),
+                            ruleEventId
+                        ))
+                        ruleEventId
+                    } else {
+                        database.insert("tracker_rules_events", null, ContentValues().apply {
+                            put("rule_id", ruleId)
+                            put("event_type", eventType)
+                            put("params", context.gson.toJson(params))
+                            put("actions", context.gson.toJson(actions))
+                        }).toInt()
+                    }
+                    continuation.resumeWith(Result.success(id))
+                }
+            }
+        }
+    }
+
+    fun deleteTrackerRuleEvent(eventId: Int) {
         executeAsync {
-            database.execSQL("INSERT INTO tracker_rules_events (rule_id, event_type, params) VALUES (?, ?, ?)", arrayOf(
-                ruleId,
-                eventType,
-                context.gson.toJson(params)
-            ))
+            database.execSQL("DELETE FROM tracker_rules_events WHERE id = ?", arrayOf(eventId))
         }
     }
 
@@ -381,7 +428,6 @@ class ModDatabase(
                         id = cursor.getInteger("id"),
                         conversationId = cursor.getStringOrNull("conversation_id"),
                         userId = cursor.getStringOrNull("user_id"),
-                        params = context.gson.fromJson(cursor.getStringOrNull("params") ?: "{}", TrackerParams::class.java)
                     )
                 )
             }
@@ -398,7 +444,12 @@ class ModDatabase(
                     TrackerRuleEvent(
                         id = cursor.getInteger("id"),
                         eventType = cursor.getStringOrNull("event_type") ?: continue,
-                        params = context.gson.fromJson(cursor.getStringOrNull("params") ?: "{}", TrackerParams::class.java)
+                        enabled = cursor.getInteger("flags") == 1,
+                        params = context.gson.fromJson(cursor.getStringOrNull("params") ?: "{}", TrackerRuleActionParams::class.java),
+                        actions = context.gson.fromJson(
+                            cursor.getStringOrNull("actions") ?: "[]",
+                            object: TypeToken<List<TrackerRuleAction>>() {}.type
+                        )
                     )
                 )
             }
@@ -408,8 +459,8 @@ class ModDatabase(
 
     fun getTrackerEvents(eventType: String): Map<TrackerRuleEvent, TrackerRule> {
         val events = mutableMapOf<TrackerRuleEvent, TrackerRule>()
-        database.rawQuery("SELECT tracker_rules_events.id as event_id, tracker_rules.params as rule_params, tracker_rules_events.params as event_params," +
-                " tracker_rules_events.flags, tracker_rules_events.event_type, tracker_rules.conversation_id, tracker_rules.user_id " +
+        database.rawQuery("SELECT tracker_rules_events.id as event_id, tracker_rules_events.params as event_params," +
+                "tracker_rules_events.actions, tracker_rules_events.flags, tracker_rules_events.event_type, tracker_rules.conversation_id, tracker_rules.user_id " +
                 "FROM tracker_rules_events " +
                 "INNER JOIN tracker_rules " +
                 "ON tracker_rules_events.rule_id = tracker_rules.id " +
@@ -420,12 +471,16 @@ class ModDatabase(
                     id = -1,
                     conversationId = cursor.getStringOrNull("conversation_id"),
                     userId = cursor.getStringOrNull("user_id"),
-                    params = context.gson.fromJson(cursor.getStringOrNull("rule_params") ?: "{}", TrackerParams::class.java)
                 )
                 val trackerRuleEvent = TrackerRuleEvent(
                     id = cursor.getInteger("event_id"),
                     eventType = cursor.getStringOrNull("event_type") ?: continue,
-                    params = context.gson.fromJson(cursor.getStringOrNull("event_params") ?: "{}", TrackerParams::class.java)
+                    enabled = cursor.getInteger("flags") == 1,
+                    params = context.gson.fromJson(cursor.getStringOrNull("event_params") ?: "{}", TrackerRuleActionParams::class.java),
+                    actions = context.gson.fromJson(
+                        cursor.getStringOrNull("actions") ?: "[]",
+                        object: TypeToken<List<TrackerRuleAction>>() {}.type
+                    )
                 )
                 events[trackerRuleEvent] = trackerRule
             }

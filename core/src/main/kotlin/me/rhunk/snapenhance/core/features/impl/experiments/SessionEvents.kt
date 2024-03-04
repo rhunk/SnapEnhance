@@ -3,6 +3,8 @@ package me.rhunk.snapenhance.core.features.impl.experiments
 import android.app.Notification
 import android.app.NotificationManager
 import android.app.PendingIntent
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Info
 import me.rhunk.snapenhance.common.Constants
 import me.rhunk.snapenhance.common.data.*
 import me.rhunk.snapenhance.common.util.protobuf.ProtoReader
@@ -32,7 +34,7 @@ class SessionEvents : Feature("Session Events", loadParams = FeatureLoadParams.I
         }.getOrNull()
     }
 
-    private fun isInConversation(conversationId: String) = context.feature(Messaging::class).openedConversationUUID?.toString() == conversationId
+    private fun isInConversation(conversationId: String?) = context.feature(Messaging::class).openedConversationUUID?.toString() == conversationId
 
     private fun sendInfoNotification(id: Int = System.nanoTime().toInt(), text: String) {
         context.androidContext.getSystemService(NotificationManager::class.java).notify(
@@ -62,6 +64,46 @@ class SessionEvents : Feature("Session Events", loadParams = FeatureLoadParams.I
         context.log.verbose("volatile event\n$protoReader")
     }
 
+    private fun dispatchEvents(
+        eventType: TrackerEventType,
+        conversationId: String,
+        userId: String,
+        extras: String = ""
+    ) {
+        val feedEntry = context.database.getFeedEntryByConversationId(conversationId)
+        val conversationName = feedEntry?.feedDisplayName ?: "DMs"
+        val authorName = context.database.getFriendInfo(userId)?.mutableUsername ?: "Unknown"
+
+        context.log.verbose("$authorName $eventType in $conversationName")
+
+        getTrackedEvents(eventType)?.takeIf { it.canTrackOn(conversationId, userId) }?.getActions()?.forEach { (action, params) ->
+            if ((params.onlyWhenAppActive || action == TrackerRuleAction.IN_APP_NOTIFICATION) && context.isMainActivityPaused) return@forEach
+            if (params.onlyWhenAppInactive && !context.isMainActivityPaused) return@forEach
+            if (params.onlyInsideConversation && !isInConversation(conversationId)) return@forEach
+            if (params.onlyOutsideConversation && isInConversation(conversationId)) return@forEach
+
+            context.log.verbose("dispatching $action for $eventType in $conversationName")
+
+            when (action) {
+                TrackerRuleAction.PUSH_NOTIFICATION -> sendInfoNotification(text = "$authorName $eventType in $conversationName")
+                TrackerRuleAction.IN_APP_NOTIFICATION -> context.inAppOverlay.showStatusToast(
+                    icon = Icons.Default.Info,
+                    text = "$authorName $eventType in $conversationName"
+                )
+                TrackerRuleAction.LOG -> context.bridgeClient.getMessageLogger().logTrackerEvent(
+                    conversationId,
+                    conversationName,
+                    context.database.getConversationType(conversationId) == 1,
+                    authorName,
+                    userId,
+                    eventType.key,
+                    extras
+                )
+                else -> {}
+            }
+        }
+    }
+
     private fun onConversationPresenceUpdate(conversationId: String, userId: String, oldState: FriendPresenceState?, currentState: FriendPresenceState?) {
         context.log.verbose("presence state for $userId in conversation $conversationId\n$currentState")
 
@@ -75,40 +117,11 @@ class SessionEvents : Feature("Session Events", loadParams = FeatureLoadParams.I
             else -> null
         } ?: return
 
-        val feedEntry = context.database.getFeedEntryByConversationId(conversationId)
-        val conversationName = feedEntry?.feedDisplayName ?: "DMs"
-        val authorName = context.database.getFriendInfo(userId)?.mutableUsername ?: "Unknown"
-
-        context.log.verbose("$authorName $eventType in $conversationName")
-
-        getTrackedEvents(eventType)?.takeIf { it.canTrackOn(conversationId, userId) }?.apply {
-            if (hasFlags(TrackerFlags.APP_IS_ACTIVE) && context.isMainActivityPaused) return
-            if (hasFlags(TrackerFlags.APP_IS_INACTIVE) && !context.isMainActivityPaused) return
-            if (hasFlags(TrackerFlags.IS_IN_CONVERSATION) && !isInConversation(conversationId)) return
-            if (hasFlags(TrackerFlags.NOTIFY)) sendInfoNotification(text = "$authorName $eventType in $conversationName")
-            if (hasFlags(TrackerFlags.LOG)) {
-                context.bridgeClient.getMessageLogger().logTrackerEvent(
-                    conversationId,
-                    conversationName,
-                    context.database.getConversationType(conversationId) == 1,
-                    authorName,
-                    userId,
-                    eventType.key,
-                    ""
-                )
-            }
-        }
+        dispatchEvents(eventType, conversationId, userId)
     }
 
     private fun onConversationMessagingEvent(event: SessionEvent) {
         context.log.verbose("conversation messaging event\n${event.type} in ${event.conversationId} from ${event.authorUserId}")
-        val isConversationGroup = context.database.getConversationType(event.conversationId) == 1
-        val authorName = context.database.getFriendInfo(event.authorUserId)?.mutableUsername ?: "Unknown"
-        val conversationName = context.database.getFeedEntryByConversationId(event.conversationId)?.feedDisplayName ?: "DMs"
-
-        val conversationMessage by lazy {
-            (event as? SessionMessageEvent)?.serverMessageId?.let { context.database.getConversationServerMessage(event.conversationId, it) }
-        }
 
         val eventType = when(event.type) {
             SessionEventType.MESSAGE_READ_RECEIPTS -> TrackerEventType.MESSAGE_READ
@@ -125,36 +138,18 @@ class SessionEvents : Feature("Session Events", loadParams = FeatureLoadParams.I
             else -> return
         }
 
-        val messageEvents = arrayOf(
-            TrackerEventType.MESSAGE_READ,
-            TrackerEventType.MESSAGE_DELETED,
-            TrackerEventType.MESSAGE_REACTION_ADD,
-            TrackerEventType.MESSAGE_REACTION_REMOVE,
-            TrackerEventType.MESSAGE_SAVED,
-            TrackerEventType.MESSAGE_UNSAVED
-        )
-
-        getTrackedEvents(eventType)?.takeIf { it.canTrackOn(event.conversationId, event.authorUserId) }?.apply {
-            if (messageEvents.contains(eventType) && conversationMessage?.senderId == context.database.myUserId) return
-
-            if (hasFlags(TrackerFlags.APP_IS_ACTIVE) && context.isMainActivityPaused) return
-            if (hasFlags(TrackerFlags.APP_IS_INACTIVE) && !context.isMainActivityPaused) return
-            if (hasFlags(TrackerFlags.IS_IN_CONVERSATION) && !isInConversation(event.conversationId)) return
-            if (hasFlags(TrackerFlags.NOTIFY)) sendInfoNotification(text = "$authorName $eventType in $conversationName")
-            if (hasFlags(TrackerFlags.LOG)) {
-                context.bridgeClient.getMessageLogger().logTrackerEvent(
-                    event.conversationId,
-                    conversationName,
-                    isConversationGroup,
-                    authorName,
-                    event.authorUserId,
-                    eventType.key,
-                    messageEvents.takeIf { it.contains(eventType) }?.let {
-                        conversationMessage?.contentType?.let { ContentType.fromId(it) } ?.name
-                    } ?: ""
-                )
-            }
+        val conversationMessage by lazy {
+            (event as? SessionMessageEvent)?.serverMessageId?.let { context.database.getConversationServerMessage(event.conversationId, it) }
         }
+
+        dispatchEvents(eventType, event.conversationId, event.authorUserId, extras = conversationMessage?.takeIf {
+            eventType == TrackerEventType.MESSAGE_READ ||
+            eventType == TrackerEventType.MESSAGE_REACTION_ADD ||
+            eventType == TrackerEventType.MESSAGE_REACTION_REMOVE ||
+            eventType == TrackerEventType.MESSAGE_DELETED ||
+            eventType == TrackerEventType.MESSAGE_SAVED ||
+            eventType == TrackerEventType.MESSAGE_UNSAVED
+        }?.contentType?.let { ContentType.fromId(it).name } ?: "")
     }
 
     private fun handlePresenceEvent(protoReader: ProtoReader) {

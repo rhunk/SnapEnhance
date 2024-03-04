@@ -271,6 +271,17 @@ class HomeRoot : Routes.Route() {
                 updateInstallationSummary(coroutineScope)
             }
 
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.Center
+            ) {
+                ElevatedButton(onClick = {
+                    routes.friendTracker.navigate()
+                }) {
+                    Text(text = "Friend Tracker", fontSize = 18.sp)
+                }
+            }
+
             Spacer(modifier = Modifier.height(20.dp))
             installationSummary?.let { SummaryCards(installationSummary = it) }
         }
