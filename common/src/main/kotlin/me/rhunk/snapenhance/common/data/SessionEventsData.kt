@@ -116,11 +116,19 @@ class TrackerEventsResult(
     }
 }
 
-enum class TrackerRuleAction {
-    LOG,
-    IN_APP_NOTIFICATION,
-    PUSH_NOTIFICATION,
-    CUSTOM,
+enum class TrackerRuleAction(
+    val key: String
+) {
+    LOG("log"),
+    IN_APP_NOTIFICATION("in_app_notification"),
+    PUSH_NOTIFICATION("push_notification"),
+    CUSTOM("custom");
+
+    companion object {
+        fun fromString(value: String): TrackerRuleAction? {
+            return entries.find { it.key == value }
+        }
+    }
 }
 
 @Parcelize

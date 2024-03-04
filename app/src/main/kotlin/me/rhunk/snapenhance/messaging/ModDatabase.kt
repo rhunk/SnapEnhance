@@ -2,7 +2,7 @@ package me.rhunk.snapenhance.messaging
 
 import android.content.ContentValues
 import android.database.sqlite.SQLiteDatabase
-import com.google.gson.reflect.TypeToken
+import com.google.gson.JsonArray
 import kotlinx.coroutines.runBlocking
 import me.rhunk.snapenhance.RemoteSideContext
 import me.rhunk.snapenhance.common.data.*
@@ -394,7 +394,7 @@ class ModDatabase(
                     val id = if (ruleEventId != null) {
                         database.execSQL("UPDATE tracker_rules_events SET params = ?, actions = ? WHERE id = ?", arrayOf(
                             context.gson.toJson(params),
-                            context.gson.toJson(actions),
+                            context.gson.toJson(actions.map { it.key }),
                             ruleEventId
                         ))
                         ruleEventId
@@ -403,7 +403,7 @@ class ModDatabase(
                             put("rule_id", ruleId)
                             put("event_type", eventType)
                             put("params", context.gson.toJson(params))
-                            put("actions", context.gson.toJson(actions))
+                            put("actions", context.gson.toJson(actions.map { it.key }))
                         }).toInt()
                     }
                     continuation.resumeWith(Result.success(id))
@@ -446,10 +446,9 @@ class ModDatabase(
                         eventType = cursor.getStringOrNull("event_type") ?: continue,
                         enabled = cursor.getInteger("flags") == 1,
                         params = context.gson.fromJson(cursor.getStringOrNull("params") ?: "{}", TrackerRuleActionParams::class.java),
-                        actions = context.gson.fromJson(
-                            cursor.getStringOrNull("actions") ?: "[]",
-                            object: TypeToken<List<TrackerRuleAction>>() {}.type
-                        )
+                        actions = context.gson.fromJson(cursor.getStringOrNull("actions") ?: "[]", JsonArray::class.java).mapNotNull {
+                            TrackerRuleAction.fromString(it.asString)
+                        }
                     )
                 )
             }
@@ -477,10 +476,9 @@ class ModDatabase(
                     eventType = cursor.getStringOrNull("event_type") ?: continue,
                     enabled = cursor.getInteger("flags") == 1,
                     params = context.gson.fromJson(cursor.getStringOrNull("event_params") ?: "{}", TrackerRuleActionParams::class.java),
-                    actions = context.gson.fromJson(
-                        cursor.getStringOrNull("actions") ?: "[]",
-                        object: TypeToken<List<TrackerRuleAction>>() {}.type
-                    )
+                    actions = context.gson.fromJson(cursor.getStringOrNull("actions") ?: "[]", JsonArray::class.java).mapNotNull {
+                        TrackerRuleAction.fromString(it.asString)
+                    }
                 )
                 events[trackerRuleEvent] = trackerRule
             }
