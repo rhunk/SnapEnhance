@@ -274,7 +274,7 @@ class FriendTrackerManagerRoot : Routes.Route() {
             Row(
                 modifier = Modifier.clickable {
                     checked.value = !checked.value
-                    onChanged(!checked.value)
+                    onChanged(checked.value)
                 },
                 horizontalArrangement = Arrangement.spacedBy(2.dp),
                 verticalAlignment = Alignment.CenterVertically
@@ -396,6 +396,7 @@ class FriendTrackerManagerRoot : Routes.Route() {
                                     ActionCheckbox(text = "Only outside conversation", checked = remember { mutableStateOf(event.params.onlyOutsideConversation) }, onChanged = { event.params.onlyOutsideConversation = it })
                                     ActionCheckbox(text = "Only when app active", checked = remember { mutableStateOf(event.params.onlyWhenAppActive) }, onChanged = { event.params.onlyWhenAppActive = it })
                                     ActionCheckbox(text = "Only when app inactive", checked = remember { mutableStateOf(event.params.onlyWhenAppInactive) }, onChanged = { event.params.onlyWhenAppInactive = it })
+                                    ActionCheckbox(text = "No push notification when active", checked = remember { mutableStateOf(event.params.noPushNotificationWhenAppActive) }, onChanged = { event.params.noPushNotificationWhenAppActive = it })
                                 }
                             }
                         }

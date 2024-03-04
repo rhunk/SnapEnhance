@@ -129,6 +129,7 @@ data class TrackerRuleActionParams(
     var onlyOutsideConversation: Boolean = false,
     var onlyWhenAppActive: Boolean = false,
     var onlyWhenAppInactive: Boolean = false,
+    var noPushNotificationWhenAppActive: Boolean = false,
 ): Parcelable {
     fun merge(other: TrackerRuleActionParams): TrackerRuleActionParams {
         return TrackerRuleActionParams(
@@ -136,6 +137,7 @@ data class TrackerRuleActionParams(
             onlyOutsideConversation = onlyOutsideConversation || other.onlyOutsideConversation,
             onlyWhenAppActive = onlyWhenAppActive || other.onlyWhenAppActive,
             onlyWhenAppInactive = onlyWhenAppInactive || other.onlyWhenAppInactive,
+            noPushNotificationWhenAppActive = noPushNotificationWhenAppActive || other.noPushNotificationWhenAppActive,
         )
     }
 }

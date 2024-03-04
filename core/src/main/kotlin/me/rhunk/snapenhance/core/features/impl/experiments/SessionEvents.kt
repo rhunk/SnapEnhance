@@ -85,7 +85,10 @@ class SessionEvents : Feature("Session Events", loadParams = FeatureLoadParams.I
             context.log.verbose("dispatching $action for $eventType in $conversationName")
 
             when (action) {
-                TrackerRuleAction.PUSH_NOTIFICATION -> sendInfoNotification(text = "$authorName $eventType in $conversationName")
+                TrackerRuleAction.PUSH_NOTIFICATION -> {
+                    if (params.noPushNotificationWhenAppActive && !context.isMainActivityPaused) return@forEach
+                    sendInfoNotification(text = "$authorName $eventType in $conversationName")
+                }
                 TrackerRuleAction.IN_APP_NOTIFICATION -> context.inAppOverlay.showStatusToast(
                     icon = Icons.Default.Info,
                     text = "$authorName $eventType in $conversationName"
