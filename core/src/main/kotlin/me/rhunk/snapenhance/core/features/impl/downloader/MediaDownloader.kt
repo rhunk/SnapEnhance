@@ -76,7 +76,7 @@ class MediaDownloader : MessagingRuleFeature("MediaDownloader", MessagingRuleTyp
         context.translation.getCategory("download_processor")
     }
 
-    private fun provideDownloadManagerClient(
+    fun provideDownloadManagerClient(
         mediaIdentifier: String,
         mediaAuthor: String,
         creationTimestamp: Long? = null,

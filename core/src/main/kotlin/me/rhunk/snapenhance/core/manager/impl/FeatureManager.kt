@@ -120,6 +120,7 @@ class FeatureManager(
             DisablePermissionRequests(),
             SessionEvents(),
             DefaultVolumeControls(),
+            CallRecorder(),
         )
 
         initializeFeatures()

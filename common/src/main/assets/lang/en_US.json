@@ -686,6 +686,10 @@
                         "name": "Story Logger",
                         "description": "Provides a history of friends stories"
                     },
+                    "call_recorder": {
+                        "name": "Call Recorder",
+                        "description": "Automatically records audio calls"
+                    },
                     "app_passcode": {
                         "name": "App Passcode",
                         "description": "Sets a passcode to lock the app"
@@ -969,7 +973,8 @@
         "profile_picture": "Profile Picture",
         "story_logger": "Story Logger",
         "message_logger": "Message Logger",
-        "merged": "Merged"
+        "merged": "Merged",
+        "voice_call": "Voice Call"
     },
 
     "chat_action_menu": {
