@@ -121,6 +121,7 @@ class FeatureManager(
             SessionEvents(),
             DefaultVolumeControls(),
             CallRecorder(),
+            DisableMemoriesSnapFeed(),
         )
 
         initializeFeatures()
