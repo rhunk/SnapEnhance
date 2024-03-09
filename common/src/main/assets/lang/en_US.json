@@ -690,6 +690,16 @@
                         "name": "Call Recorder",
                         "description": "Automatically records audio calls"
                     },
+                    "account_switcher": {
+                        "name": "Account Switcher",
+                        "description": "Allows you to switch between accounts without logging out\nLong press on the search icon next to your Bitmoji profile to open the menu\nNote: this feature is experimental and will likely change in the future",
+                        "properties": {
+                            "auto_backup_current_account": {
+                                "name": "Auto Backup Current Account",
+                                "description": "Automatically backs up the current account when logging out or switching accounts"
+                            }
+                        }
+                    },
                     "app_passcode": {
                         "name": "App Passcode",
                         "description": "Sets a passcode to lock the app"

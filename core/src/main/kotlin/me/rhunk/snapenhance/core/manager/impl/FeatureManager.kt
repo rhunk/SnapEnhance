@@ -122,6 +122,7 @@ class FeatureManager(
             DefaultVolumeControls(),
             CallRecorder(),
             DisableMemoriesSnapFeed(),
+            AccountSwitcher(),
         )
 
         initializeFeatures()

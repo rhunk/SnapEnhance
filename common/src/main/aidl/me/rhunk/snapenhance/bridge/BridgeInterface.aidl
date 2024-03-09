@@ -9,6 +9,7 @@ import me.rhunk.snapenhance.bridge.logger.LoggerInterface;
 import me.rhunk.snapenhance.bridge.logger.TrackerInterface;
 import me.rhunk.snapenhance.bridge.ConfigStateListener;
 import me.rhunk.snapenhance.bridge.snapclient.MessagingBridge;
+import me.rhunk.snapenhance.bridge.AccountStorage;
 
 interface BridgeInterface {
     /**
@@ -83,6 +84,8 @@ interface BridgeInterface {
     LoggerInterface getLogger();
 
     TrackerInterface getTracker();
+
+    AccountStorage getAccountStorage();
 
     oneway void registerMessagingBridge(MessagingBridge bridge);
 

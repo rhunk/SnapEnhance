@@ -178,6 +178,7 @@ class BridgeService : Service() {
         override fun getE2eeInterface() = remoteSideContext.e2eeImplementation
         override fun getLogger() = remoteSideContext.messageLogger
         override fun getTracker() = remoteSideContext.tracker
+        override fun getAccountStorage() = remoteSideContext.accountStorage
         override fun registerMessagingBridge(bridge: MessagingBridge) {
             messagingBridge = bridge
         }

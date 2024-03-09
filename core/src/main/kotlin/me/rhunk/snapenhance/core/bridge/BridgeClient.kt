@@ -11,6 +11,7 @@ import android.os.Handler
 import android.os.HandlerThread
 import android.os.IBinder
 import de.robv.android.xposed.XposedHelpers
+import me.rhunk.snapenhance.bridge.AccountStorage
 import me.rhunk.snapenhance.bridge.BridgeInterface
 import me.rhunk.snapenhance.bridge.ConfigStateListener
 import me.rhunk.snapenhance.bridge.DownloadCallback
@@ -199,6 +200,8 @@ class BridgeClient(
     fun getMessageLogger(): LoggerInterface = safeServiceCall { service.logger }
 
     fun getTracker(): TrackerInterface = safeServiceCall { service.tracker }
+
+    fun getAccountStorage(): AccountStorage = safeServiceCall { service.accountStorage }
 
     fun registerMessagingBridge(bridge: MessagingBridge) = safeServiceCall { service.registerMessagingBridge(bridge) }
 
