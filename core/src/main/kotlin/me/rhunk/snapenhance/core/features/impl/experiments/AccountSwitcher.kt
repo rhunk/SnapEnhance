@@ -51,13 +51,13 @@ class AccountSwitcher: Feature("Account Switcher", loadParams = FeatureLoadParam
     private var exportCallback: Pair<Int, String>? = null // requestCode -> userId
     private var importRequestCode: Int? = null
 
-    private val users = mutableStateListOf<Pair<String, String>>()
-    private val isLoggingActivity get() = activity?.javaClass?.name?.endsWith("LoginSignupActivity") == true
+    private val accounts = mutableStateListOf<Pair<String, String>>()
+    private val isLoginActivity get() = activity?.javaClass?.name?.endsWith("LoginSignupActivity") == true
 
     private fun updateUsers() {
-        users.clear()
+        accounts.clear()
         runCatching {
-            users.addAll(context.bridgeClient.getAccountStorage().accounts.map { it.key to it.value })
+            accounts.addAll(context.bridgeClient.getAccountStorage().accounts.map { it.key to it.value })
         }.onFailure {
             context.log.error("Failed to update users", it)
         }
@@ -85,7 +85,7 @@ class AccountSwitcher: Feature("Account Switcher", loadParams = FeatureLoadParam
                     .weight(1f)
             ) {
                 item {
-                    if (users.isEmpty()) {
+                    if (accounts.isEmpty()) {
                         Text("No accounts found! To start, backup your current account.", modifier = Modifier
                             .padding(16.dp)
                             .padding(16.dp)
@@ -93,7 +93,7 @@ class AccountSwitcher: Feature("Account Switcher", loadParams = FeatureLoadParam
                     }
                 }
 
-                items(users) { user ->
+                items(accounts) { user ->
                     var removeAccountPopup by remember { mutableStateOf(false) }
 
                     Card(
@@ -101,17 +101,17 @@ class AccountSwitcher: Feature("Account Switcher", loadParams = FeatureLoadParam
                             .fillMaxWidth()
                             .padding(5.dp),
                         colors = CardDefaults.cardColors(
-                            containerColor = if (!isLoggingActivity && context.database.myUserId == user.first) MaterialTheme.colorScheme.surfaceBright
+                            containerColor = if (!isLoginActivity && context.database.myUserId == user.first) MaterialTheme.colorScheme.surfaceBright
                             else MaterialTheme.colorScheme.surfaceDim
                         ) ,
                         onClick = {
                             runCatching {
-                                if (!isLoggingActivity && context.database.myUserId == user.first) {
+                                if (!isLoginActivity && context.database.myUserId == user.first) {
                                     context.shortToast("Already logged in as ${user.second}")
                                     return@runCatching
                                 }
 
-                                if (!isLoggingActivity && context.config.experimental.accountSwitcher.autoBackupCurrentAccount.get()) {
+                                if (!isLoginActivity && context.config.experimental.accountSwitcher.autoBackupCurrentAccount.get()) {
                                     backupCurrentAccount()
                                 }
 
@@ -213,7 +213,7 @@ class AccountSwitcher: Feature("Account Switcher", loadParams = FeatureLoadParam
                     Text("Import account")
                 }
 
-                if (!isLoggingActivity) {
+                if (!isLoginActivity) {
                     Button(
                         modifier = Modifier
                             .fillMaxWidth(),
@@ -489,7 +489,7 @@ class AccountSwitcher: Feature("Account Switcher", loadParams = FeatureLoadParam
 
         findClass("com.snap.identity.service.ForcedLogoutBroadcastReceiver").hook("onReceive", HookStage.BEFORE) { param ->
             val intent = param.arg<Intent>(1)
-            if (isLoggingActivity) return@hook
+            if (isLoginActivity) return@hook
             if (intent.getBooleanExtra("forced", false) && !context.config.experimental.preventForcedLogout.get()) {
                 runCatching {
                     val accountStorage = context.bridgeClient.getAccountStorage()
