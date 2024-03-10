@@ -17,7 +17,6 @@ import me.rhunk.snapenhance.common.util.ktx.getInteger
 import me.rhunk.snapenhance.common.util.ktx.getStringOrNull
 import me.rhunk.snapenhance.common.util.protobuf.ProtoReader
 import me.rhunk.snapenhance.core.ModContext
-import me.rhunk.snapenhance.core.manager.Manager
 import me.rhunk.snapenhance.nativelib.NativeLib
 
 
@@ -30,7 +29,7 @@ enum class DatabaseType(
 
 class DatabaseAccess(
     private val context: ModContext
-) : Manager {
+) {
     private val openedDatabases = mutableMapOf<DatabaseType, SQLiteDatabase>()
 
     private fun useDatabase(database: DatabaseType, writeMode: Boolean = false): SQLiteDatabase? {
@@ -118,7 +117,7 @@ class DatabaseAccess(
     fun hasMain(): Boolean = useDatabase(DatabaseType.MAIN)?.isOpen == true
     fun hasArroyo(): Boolean = useDatabase(DatabaseType.ARROYO)?.isOpen == true
 
-    override fun init() {
+    fun init() {
         // perform integrity check on databases
         DatabaseType.entries.forEach { type ->
             useDatabase(type, writeMode = true)?.apply {

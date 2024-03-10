@@ -24,8 +24,8 @@ import me.rhunk.snapenhance.core.event.EventBus
 import me.rhunk.snapenhance.core.event.EventDispatcher
 import me.rhunk.snapenhance.core.features.Feature
 import me.rhunk.snapenhance.core.logger.CoreLogger
-import me.rhunk.snapenhance.core.manager.impl.ActionManager
-import me.rhunk.snapenhance.core.manager.impl.FeatureManager
+import me.rhunk.snapenhance.core.action.ActionManager
+import me.rhunk.snapenhance.core.features.FeatureManager
 import me.rhunk.snapenhance.core.messaging.CoreMessagingBridge
 import me.rhunk.snapenhance.core.messaging.MessageSender
 import me.rhunk.snapenhance.core.scripting.CoreScriptRuntime

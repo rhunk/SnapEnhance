@@ -198,7 +198,7 @@ class RemoteSideContext(
             }
         }
 
-        if (mappings.isMappingsOutdated() || !mappings.isMappingsLoaded) {
+        if (!sharedPreferences.getBoolean("debug_disable_mapper", false) && (mappings.isMappingsOutdated() || !mappings.isMappingsLoaded)) {
             requirements = requirements or Requirements.MAPPINGS
         }
 

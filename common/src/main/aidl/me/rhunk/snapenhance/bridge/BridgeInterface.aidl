@@ -94,4 +94,6 @@ interface BridgeInterface {
     oneway void closeSettingsOverlay();
 
     oneway void registerConfigStateListener(in ConfigStateListener listener);
+
+    @nullable String getDebugProp(String key, @nullable String defaultValue);
 }

@@ -202,5 +202,9 @@ class BridgeService : Service() {
         override fun registerConfigStateListener(listener: ConfigStateListener) {
             remoteSideContext.config.configStateListener = listener
         }
+
+        override fun getDebugProp(key: String, defaultValue: String?): String? {
+            return remoteSideContext.sharedPreferences.all["debug_$key"]?.toString() ?: defaultValue
+        }
     }
 }

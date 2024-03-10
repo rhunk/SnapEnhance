@@ -209,4 +209,6 @@ class BridgeClient(
     fun closeSettingsOverlay() = safeServiceCall { service.closeSettingsOverlay() }
 
     fun registerConfigStateListener(listener: ConfigStateListener) = safeServiceCall { service.registerConfigStateListener(listener) }
+
+    fun getDebugProp(name: String, defaultValue: String? = null) = safeServiceCall { service.getDebugProp(name, defaultValue) }
 }

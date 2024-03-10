@@ -1,4 +1,4 @@
-package me.rhunk.snapenhance.core.manager.impl
+package me.rhunk.snapenhance.core.action
 
 import android.content.Intent
 import me.rhunk.snapenhance.common.action.EnumAction
@@ -7,11 +7,10 @@ import me.rhunk.snapenhance.core.action.impl.BulkMessagingAction
 import me.rhunk.snapenhance.core.action.impl.CleanCache
 import me.rhunk.snapenhance.core.action.impl.ExportChatMessages
 import me.rhunk.snapenhance.core.action.impl.ExportMemories
-import me.rhunk.snapenhance.core.manager.Manager
 
 class ActionManager(
     private val modContext: ModContext,
-) : Manager {
+) {
 
     private val actions by lazy {
         mapOf(
@@ -24,9 +23,6 @@ class ActionManager(
                 this.context = modContext
             }
         }.toMap().toMutableMap()
-    }
-
-    override fun init() {
     }
 
     fun onNewIntent(intent: Intent?) {

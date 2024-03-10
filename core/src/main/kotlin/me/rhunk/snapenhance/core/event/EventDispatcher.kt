@@ -7,7 +7,6 @@ import android.view.ViewGroup.LayoutParams
 import me.rhunk.snapenhance.common.util.snap.SnapWidgetBroadcastReceiverHelper
 import me.rhunk.snapenhance.core.ModContext
 import me.rhunk.snapenhance.core.event.events.impl.*
-import me.rhunk.snapenhance.core.manager.Manager
 import me.rhunk.snapenhance.core.util.hook.HookStage
 import me.rhunk.snapenhance.core.util.hook.Hooker
 import me.rhunk.snapenhance.core.util.hook.hook
@@ -23,7 +22,7 @@ import java.nio.ByteBuffer
 
 class EventDispatcher(
     private val context: ModContext
-) : Manager {
+) {
     private fun hookViewBinder() {
         context.mappings.useMapper(ViewBinderMapper::class) {
             val cachedHooks = mutableListOf<String>()
@@ -60,8 +59,7 @@ class EventDispatcher(
 
     }
 
-
-    override fun init() {
+    fun init() {
         context.classCache.conversationManager.hook("sendMessageWithContent", HookStage.BEFORE) { param ->
             context.event.post(SendMessageWithContentEvent(
                 destinations = MessageDestinations(param.arg(0)),
