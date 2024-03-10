@@ -190,12 +190,14 @@ class SnapEnhance {
             val libName = param.arg<String>(1)
             if (libName != "client") return@hook
             unhook()
-            appContext.native.initOnce()
-            appContext.native.nativeUnaryCallCallback = { request ->
-                appContext.event.post(NativeUnaryCallEvent(request.uri, request.buffer)) {
-                    request.buffer = buffer
-                    request.canceled = canceled
+            appContext.native.initOnce {
+                nativeUnaryCallCallback = { request ->
+                    appContext.event.post(NativeUnaryCallEvent(request.uri, request.buffer)) {
+                        request.buffer = buffer
+                        request.canceled = canceled
+                    }
                 }
+                appContext.reloadNativeConfig()
             }
         }.also { unhook = { it.unhook() } }
     }

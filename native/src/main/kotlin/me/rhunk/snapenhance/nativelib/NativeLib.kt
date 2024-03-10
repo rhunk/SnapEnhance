@@ -11,13 +11,15 @@ class NativeLib {
             private set
     }
 
-    fun initOnce() {
+    fun initOnce(callback: NativeLib.() -> Unit) {
         if (initialized) throw IllegalStateException("NativeLib already initialized")
         runCatching {
             System.loadLibrary(BuildConfig.NATIVE_NAME)
-            init()
             initialized = true
+            callback(this)
+            init()
         }.onFailure {
+            initialized = false
             Log.e("SnapEnhance", "NativeLib init failed")
         }
     }

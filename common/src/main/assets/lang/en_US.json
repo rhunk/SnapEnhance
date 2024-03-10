@@ -627,6 +627,10 @@
                             "disable_bitmoji": {
                                 "name": "Disable Bitmoji",
                                 "description": "Disables Friends Profile Bitmoji"
+                            },
+                            "remap_apk": {
+                                "name": "Remap APK",
+                                "description": "Hides SnapEnhance apk path in /proc/self/maps"
                             }
                         }
                     },
