@@ -133,7 +133,10 @@ We no longer offer official LSPatch binaries for obvious reasons. However, you'r
   - Session Events 
   - Device Spoof
   - Convert Message Locally
+  - New Chat Action Menu 
   - Story Logger
+  - Call Recorder
+  - Account Switcher 
   - App Passcode
   - Infinite Story Boost
   - My Eyes Only Passcode Bypass
