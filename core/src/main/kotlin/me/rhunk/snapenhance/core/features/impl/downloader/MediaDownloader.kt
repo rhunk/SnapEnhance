@@ -543,6 +543,7 @@ class MediaDownloader : MessagingRuleFeature("MediaDownloader", MessagingRuleTyp
                     mediaAuthor = authorName,
                     friendInfo = friendInfo,
                     forceAllowDuplicate = forceAllowDuplicate,
+                    creationTimestamp = message.creationTimestamp,
                 ).downloadSingleMedia(
                     mediaData = attachment.mediaUrlKey!!,
                     mediaType = DownloadMediaType.PROTO_MEDIA,
