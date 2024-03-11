@@ -397,6 +397,20 @@ class Notifications : Feature("Notifications", loadParams = FeatureLoadParams.IN
         sendNotification(message, data, false)
     }
 
+    private fun canSendNotification(type: String): Boolean {
+        val formattedMessageType = type.replaceFirst("mischief_", "")
+            .replaceFirst("group_your_", "group_")
+            .replaceFirst("group_other_", "group_")
+
+        return context.config.messaging.notificationBlacklist.get().mapNotNull {
+            NotificationType.getByKey(it)
+        }.none {
+            it.isMatch(formattedMessageType)
+        }.also {
+            if (!it) context.log.debug("prevented notification of type $type")
+        }
+    }
+
     override fun init() {
         setupBroadcastReceiverHook()
 
@@ -414,6 +428,12 @@ class Notifications : Feature("Notifications", loadParams = FeatureLoadParams.IN
 
             val serverMessageId = extras.getString("message_id") ?: return@hook
             val notificationType = extras.getString("notification_type")?.lowercase() ?: return@hook
+
+            if (!canSendNotification(notificationType)) {
+                param.setResult(null)
+                return@hook
+            }
+
             if (!betterNotificationFilter.contains("chat_preview") && !betterNotificationFilter.contains("media_preview")) return@hook
             if (notificationType == "typing") return@hook
             param.setResult(null)
@@ -466,11 +486,7 @@ class Notifications : Feature("Notifications", loadParams = FeatureLoadParams.IN
 
                     context.log.debug("received message type: $messageType")
 
-                    val formattedMessageType = messageType.replaceFirst("mischief_", "")
-                        .replaceFirst("group_your_", "group_")
-                        .replaceFirst("group_other_", "group_")
-
-                    if (states.mapNotNull { NotificationType.getByKey(it) }.any { it.isMatch(formattedMessageType) }) {
+                    if (!canSendNotification(messageType)) {
                         param.setResult(null)
                     }
                 }
