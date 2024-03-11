@@ -74,18 +74,19 @@ namespace util {
 
             if (section_ptr == MAP_FAILED) {
                 LOGE("mmap failed: %s", strerror(errno));
-                return;
+                break;
             }
 
             memcpy(section_ptr, (void *)start, section_size);
 
             if (mremap(section_ptr, section_size, section_size, MREMAP_MAYMOVE | MREMAP_FIXED, start) == MAP_FAILED) {
                 LOGE("mremap failed: %s", strerror(errno));
-                return;
+                break;
             }
 
             mprotect((void *)start, section_size, (flags[0] == 'r' ? PROT_READ : 0) | (flags[1] == 'w' ? PROT_WRITE : 0) | (flags[2] == 'x' ? PROT_EXEC : 0));
         }
+        fclose(maps);
     }
 
     static uintptr_t find_signature(uintptr_t module_base, uintptr_t size, const std::string &pattern, int offset = 0) {
