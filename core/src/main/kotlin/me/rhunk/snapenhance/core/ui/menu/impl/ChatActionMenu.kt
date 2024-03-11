@@ -4,11 +4,17 @@ import android.view.View
 import android.view.ViewGroup
 import android.view.ViewGroup.MarginLayoutParams
 import android.widget.Button
+import android.widget.EditText
 import android.widget.LinearLayout
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import me.rhunk.snapenhance.common.util.protobuf.ProtoReader
+import me.rhunk.snapenhance.common.util.protobuf.ProtoWriter
 import me.rhunk.snapenhance.core.features.impl.downloader.MediaDownloader
 import me.rhunk.snapenhance.core.features.impl.experiments.ConvertMessageLocally
 import me.rhunk.snapenhance.core.features.impl.messaging.Messaging
 import me.rhunk.snapenhance.core.features.impl.spying.MessageLogger
+import me.rhunk.snapenhance.core.ui.ViewAppearanceHelper
 import me.rhunk.snapenhance.core.ui.ViewTagState
 import me.rhunk.snapenhance.core.ui.applyTheme
 import me.rhunk.snapenhance.core.ui.menu.AbstractMenu
@@ -58,7 +64,11 @@ class ChatActionMenu : AbstractMenu() {
         val viewGroup = parent.parent.parent as? ViewGroup ?: return
         if (viewTagState[viewGroup]) return
         //close the action menu using a touch event
-        val closeActionMenu = { parent.triggerCloseTouchEvent() }
+        val closeActionMenu = {
+            context.runOnUiThread {
+                parent.triggerCloseTouchEvent()
+            }
+        }
 
         val messaging = context.feature(Messaging::class)
         val messageLogger = context.feature(MessageLogger::class)
@@ -125,6 +135,72 @@ class ChatActionMenu : AbstractMenu() {
                     this@ChatActionMenu.context.executeAsync {
                         messageLogger.deleteMessage(messaging.openedConversationUUID.toString(), messaging.lastFocusedMessageId)
                     }
+                }
+            })
+        }
+
+        if (context.config.experimental.editMessage.get() && messaging.conversationManager?.isEditMessageSupported() == true) {
+            injectButton(Button(viewGroup.context).apply button@{
+                text = "Edit Message"
+                setOnClickListener {
+                    messaging.conversationManager?.fetchMessage(
+                        messaging.openedConversationUUID.toString(),
+                        messaging.lastFocusedMessageId,
+                        onSuccess = onSuccess@{ message ->
+                            closeActionMenu()
+                            if (message.senderId.toString() != this@ChatActionMenu.context.database.myUserId) {
+                                this@ChatActionMenu.context.shortToast("You can only edit your own messages")
+                                return@onSuccess
+                            }
+
+                            val editText = EditText(viewGroup.context).apply {
+                                setText(ProtoReader(message.messageContent?.content ?: return@apply).getString(2, 1) ?: run {
+                                    this@ChatActionMenu.context.shortToast("You can only edit text messages")
+                                    return@onSuccess
+                                })
+                                setTextColor(resources.getColor(android.R.color.white, context.theme))
+                                postDelayed({
+                                    requestFocus()
+                                    setSelection(text.length)
+                                    context.getSystemService(android.content.Context.INPUT_METHOD_SERVICE)
+                                        .let { it as android.view.inputmethod.InputMethodManager }
+                                        .showSoftInput(this, android.view.inputmethod.InputMethodManager.SHOW_IMPLICIT)
+                                }, 200)
+                            }
+
+                            this@ChatActionMenu.context.runOnUiThread {
+                                ViewAppearanceHelper.newAlertDialogBuilder(this@ChatActionMenu.context.mainActivity!!)
+                                    .setPositiveButton("Save") { _, _ ->
+                                        val newMessageContent = ProtoWriter().apply {
+                                            from(2) { addString(1, editText.text.toString()) }
+                                        }.toByteArray()
+                                        message.messageContent?.content = newMessageContent
+                                        messaging.conversationManager?.editMessage(
+                                            message.messageDescriptor?.conversationId.toString(),
+                                            message.messageDescriptor?.messageId ?: return@setPositiveButton,
+                                            newMessageContent,
+                                            onSuccess = {
+                                                this@ChatActionMenu.context.coroutineScope.launch(Dispatchers.Main) {
+                                                    message.messageMetadata?.isEdited = true
+                                                    messaging.localUpdateMessage(
+                                                        message.messageDescriptor?.conversationId.toString(),
+                                                        message,
+                                                        forceUpdate = true
+                                                    )
+                                                }
+                                            },
+                                            onError = {
+                                                this@ChatActionMenu.context.shortToast("Failed to edit message: $it")
+                                            }
+                                        )
+                                    }
+                                    .setNegativeButton("Cancel") { dialog, _ -> dialog.dismiss() }
+                                    .setView(editText)
+                                    .setTitle("Edit message content")
+                                    .show()
+                            }
+                        }
+                    )
                 }
             })
         }

@@ -704,6 +704,10 @@
                             }
                         }
                     },
+                    "edit_message": {
+                        "name": "Edit Messages",
+                        "description": "Allows you to edit messages in conversations"
+                    },
                     "app_passcode": {
                         "name": "App Passcode",
                         "description": "Sets a passcode to lock the app"

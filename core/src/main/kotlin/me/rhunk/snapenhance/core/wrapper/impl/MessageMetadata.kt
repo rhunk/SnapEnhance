@@ -20,9 +20,23 @@ class MessageMetadata(obj: Any?) : AbstractWrapper(obj){
     @get:JSGetter @set:JSSetter
     var seenBy by field("mSeenBy", uuidArrayListMapper)
     @get:JSGetter @set:JSSetter
+    var screenRecordedBy by field("mScreenRecordedBy", uuidArrayListMapper)
+    @get:JSGetter @set:JSSetter
+    var screenShottedBy by field("mScreenShottedBy", uuidArrayListMapper)
+    @get:JSGetter @set:JSSetter
     var reactions by field("mReactions") {
         (it as ArrayList<*>).map { i -> UserIdToReaction(i) }.toMutableList()
     }
     @get:JSGetter @set:JSSetter
     var isSaveable by field<Boolean>("mIsSaveable")
+    @get:JSGetter @set:JSSetter
+    var isEditable by field<Boolean>("mIsEditable")
+    @get:JSGetter @set:JSSetter
+    var isEdited by field<Boolean>("mIsEdited")
+    @get:JSGetter @set:JSSetter
+    var isErasable by field<Boolean>("mIsErasable")
+    @get:JSGetter @set:JSSetter
+    var isFriendLinkPending by field<Boolean>("mIsFriendLinkPending")
+    @get:JSGetter @set:JSSetter
+    var isReactable by field<Boolean>("mIsReactable")
 }
