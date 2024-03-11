@@ -76,7 +76,7 @@ class MenuViewInjector : Feature("MenuViewInjector", loadParams = FeatureLoadPar
                 return@subscribe
             }
 
-            if (viewGroup !is LinearLayout && childView.id == chatActionMenu && context.config.experimental.newChatActionMenu.get() && context.isDeveloper) {
+            if (viewGroup !is LinearLayout && childView.id == chatActionMenu && context.isDeveloper) {
                 event.view = LinearLayout(childView.context).apply {
                     orientation = LinearLayout.VERTICAL
                     addView(

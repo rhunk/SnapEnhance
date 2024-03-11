@@ -80,7 +80,7 @@ class NewChatActionMenu : AbstractMenu() {
                 FlowRow(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .padding(5.dp),
+                        .padding(2.dp),
                     horizontalArrangement = Arrangement.SpaceEvenly,
                 ) {
                     Button(onClick = {

@@ -34,6 +34,7 @@ class ClassMapper(
             ViewBinderMapper(),
             FriendingDataSourcesMapper(),
             OperaViewerParamsMapper(),
+            MemoriesPresenterMapper(),
         )
     }
 

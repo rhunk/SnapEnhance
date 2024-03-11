@@ -132,7 +132,6 @@ class SnapEnhance {
             }
 
             reloadConfig()
-            actionManager.init()
             initConfigListener()
             initWidgetListener()
             initNative()
@@ -175,7 +174,10 @@ class SnapEnhance {
 
     private fun initNative() {
         // don't initialize native when not logged in
-        if (appContext.androidContext.getSharedPreferences("user_session_shared_pref", 0).getString("key_user_id", null) == null) return
+        if (
+            appContext.androidContext.getSharedPreferences("user_session_shared_pref", 0).getString("key_user_id", null) == null &&
+            appContext.bridgeClient.getDebugProp("force_native_load", null) != "true"
+        ) return
         if (appContext.config.experimental.nativeHooks.globalState != true) return
 
         lateinit var unhook: () -> Unit
@@ -188,12 +190,14 @@ class SnapEnhance {
             val libName = param.arg<String>(1)
             if (libName != "client") return@hook
             unhook()
-            appContext.native.initOnce()
-            appContext.native.nativeUnaryCallCallback = { request ->
-                appContext.event.post(NativeUnaryCallEvent(request.uri, request.buffer)) {
-                    request.buffer = buffer
-                    request.canceled = canceled
+            appContext.native.initOnce {
+                nativeUnaryCallCallback = { request ->
+                    appContext.event.post(NativeUnaryCallEvent(request.uri, request.buffer)) {
+                        request.buffer = buffer
+                        request.canceled = canceled
+                    }
                 }
+                appContext.reloadNativeConfig()
             }
         }.also { unhook = { it.unhook() } }
     }

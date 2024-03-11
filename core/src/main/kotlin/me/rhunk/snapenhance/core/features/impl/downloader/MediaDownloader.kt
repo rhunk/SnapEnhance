@@ -76,7 +76,7 @@ class MediaDownloader : MessagingRuleFeature("MediaDownloader", MessagingRuleTyp
         context.translation.getCategory("download_processor")
     }
 
-    private fun provideDownloadManagerClient(
+    fun provideDownloadManagerClient(
         mediaIdentifier: String,
         mediaAuthor: String,
         creationTimestamp: Long? = null,
@@ -543,6 +543,7 @@ class MediaDownloader : MessagingRuleFeature("MediaDownloader", MessagingRuleTyp
                     mediaAuthor = authorName,
                     friendInfo = friendInfo,
                     forceAllowDuplicate = forceAllowDuplicate,
+                    creationTimestamp = message.creationTimestamp,
                 ).downloadSingleMedia(
                     mediaData = attachment.mediaUrlKey!!,
                     mediaType = DownloadMediaType.PROTO_MEDIA,

@@ -19,7 +19,7 @@ data class ConfigKeyInfo(
 data class ConfigFilter(
     val filter: (ConfigKeyInfo) -> Boolean,
     val defaultValue: (ConfigKeyInfo) -> Any?,
-    val isAppExperiment: Boolean = false
+    val isAppExperiment: Boolean?
 )
 
 class ConfigurationOverride : Feature("Configuration Override", loadParams = FeatureLoadParams.INIT_SYNC) {
@@ -67,7 +67,6 @@ class ConfigurationOverride : Feature("Configuration Override", loadParams = Fea
             arrayOf("CUSTOM_AD_TRACKER_URL", "CUSTOM_AD_INIT_SERVER_URL", "CUSTOM_AD_SERVER_URL", "INIT_PRIMARY_URL", "INIT_SHADOW_URL", "GRAPHENE_HOST").forEach {
                 overrideProperty(it, { context.config.global.blockAds.get() }, { "http://127.0.0.1" })
             }
-            overrideProperty("ENABLE_SNAP_FEED", { context.config.global.disableMemoriesSnapFeed.get() }, { false })
 
             classReference.getAsClass()?.hook(
                 getProperty.getAsString()!!,
@@ -110,7 +109,7 @@ class ConfigurationOverride : Feature("Configuration Override", loadParams = Fea
                             return@hook
                         }
                         propertyOverrides[keyInfo.name]?.let { (filter, value, isAppExperiment) ->
-                            if (!isAppExperiment || !filter(keyInfo)) return@let
+                            if (isAppExperiment != true || !filter(keyInfo)) return@let
                             param.setResult(value(keyInfo))
                         }
                     }
@@ -134,7 +133,7 @@ class ConfigurationOverride : Feature("Configuration Override", loadParams = Fea
                         }
 
                         val propertyOverride = propertyOverrides[keyInfo.name] ?: return@hook
-                        if (propertyOverride.isAppExperiment && propertyOverride.filter(keyInfo)) param.setResult(true)
+                        propertyOverride.isAppExperiment.takeIf { propertyOverride.filter(keyInfo) }?.let { param.setResult(it) }
                     }
                 }
 

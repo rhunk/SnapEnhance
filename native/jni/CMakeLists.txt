@@ -16,6 +16,7 @@ add_library(${CMAKE_PROJECT_NAME} SHARED
     )
 
 add_compile_definitions(BUILD_NAMESPACE="${BUILD_NAMESPACE}")
+add_compile_definitions(BUILD_PACKAGE="${BUILD_PACKAGE}")
 target_link_libraries(${CMAKE_PROJECT_NAME}
         android
         log

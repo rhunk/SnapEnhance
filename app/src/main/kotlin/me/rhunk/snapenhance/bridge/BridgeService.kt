@@ -178,6 +178,7 @@ class BridgeService : Service() {
         override fun getE2eeInterface() = remoteSideContext.e2eeImplementation
         override fun getLogger() = remoteSideContext.messageLogger
         override fun getTracker() = remoteSideContext.tracker
+        override fun getAccountStorage() = remoteSideContext.accountStorage
         override fun registerMessagingBridge(bridge: MessagingBridge) {
             messagingBridge = bridge
         }
@@ -200,6 +201,10 @@ class BridgeService : Service() {
 
         override fun registerConfigStateListener(listener: ConfigStateListener) {
             remoteSideContext.config.configStateListener = listener
+        }
+
+        override fun getDebugProp(key: String, defaultValue: String?): String? {
+            return remoteSideContext.sharedPreferences.all["debug_$key"]?.toString() ?: defaultValue
         }
     }
 }

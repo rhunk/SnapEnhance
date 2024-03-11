@@ -71,6 +71,7 @@ class RemoteSideContext(
     val e2eeImplementation = E2EEImplementation(this)
     val messageLogger by lazy { LoggerWrapper(androidContext.getDatabasePath(BridgeFileType.MESSAGE_LOGGER_DATABASE.fileName)) }
     val tracker = RemoteTracker(this)
+    val accountStorage = RemoteAccountStorage(this)
 
     //used to load bitmoji selfies and download previews
     val imageLoader by lazy {
@@ -197,7 +198,7 @@ class RemoteSideContext(
             }
         }
 
-        if (mappings.isMappingsOutdated() || !mappings.isMappingsLoaded) {
+        if (!sharedPreferences.getBoolean("debug_disable_mapper", false) && (mappings.isMappingsOutdated() || !mappings.isMappingsLoaded)) {
             requirements = requirements or Requirements.MAPPINGS
         }
 

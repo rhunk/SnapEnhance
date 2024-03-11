@@ -101,7 +101,7 @@ class TasksRoot : Routes.Route() {
             runCatching {
                 context.shortToast("Merging ${filesToMerge.size} files")
                 FFMpegProcessor.newFFMpegProcessor(context, pendingTask).execute(
-                    FFMpegProcessor.Request(FFMpegProcessor.Action.MERGE_MEDIA, filesToMerge, mergedFile)
+                    FFMpegProcessor.Request(FFMpegProcessor.Action.MERGE_MEDIA, filesToMerge.map { it.absolutePath }, mergedFile)
                 )
                 DownloadProcessor(context, object: DownloadCallback.Default() {
                     override fun onSuccess(outputPath: String) {

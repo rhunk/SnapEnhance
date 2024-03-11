@@ -59,7 +59,7 @@ data class FriendInfo(
             serverDisplayName = getStringOrNull("serverDisplayName")
             streakLength = getInteger("streakLength")
             streakExpirationTimestamp = getLong("streakExpiration")
-            reverseBestFriendRanking = getInteger("reverseBestFriendRanking")
+            reverseBestFriendRanking = getIntOrNull("reverseBestFriendRanking") ?: 0
             usernameForSorting = getStringOrNull("usernameForSorting")
             friendLinkType = getInteger("friendLinkType")
             postViewEmoji = getStringOrNull("postViewEmoji")
@@ -68,5 +68,4 @@ data class FriendInfo(
             plusBadgeVisibility = getIntOrNull("plusBadgeVisibility") ?: 0
         }
     }
-
 }

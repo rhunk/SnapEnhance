@@ -13,6 +13,7 @@ typedef struct {
     bool disable_bitmoji;
     bool disable_metrics;
     bool hook_asset_open;
+    bool remap_apk;
 } native_config_t;
 
 namespace common {

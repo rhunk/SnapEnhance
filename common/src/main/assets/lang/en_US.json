@@ -627,6 +627,10 @@
                             "disable_bitmoji": {
                                 "name": "Disable Bitmoji",
                                 "description": "Disables Friends Profile Bitmoji"
+                            },
+                            "remap_apk": {
+                                "name": "Remap APK",
+                                "description": "Hides SnapEnhance apk path in /proc/self/maps"
                             }
                         }
                     },
@@ -685,6 +689,24 @@
                     "story_logger": {
                         "name": "Story Logger",
                         "description": "Provides a history of friends stories"
+                    },
+                    "call_recorder": {
+                        "name": "Call Recorder",
+                        "description": "Automatically records audio calls"
+                    },
+                    "account_switcher": {
+                        "name": "Account Switcher",
+                        "description": "Allows you to switch between accounts without logging out\nLong press on the search icon next to your Bitmoji profile to open the menu\nNote: this feature is experimental and will likely change in the future",
+                        "properties": {
+                            "auto_backup_current_account": {
+                                "name": "Auto Backup Current Account",
+                                "description": "Automatically backs up the current account when logging out or switching accounts"
+                            }
+                        }
+                    },
+                    "edit_message": {
+                        "name": "Edit Messages",
+                        "description": "Allows you to edit messages in conversations"
                     },
                     "app_passcode": {
                         "name": "App Passcode",
@@ -969,7 +991,8 @@
         "profile_picture": "Profile Picture",
         "story_logger": "Story Logger",
         "message_logger": "Message Logger",
-        "merged": "Merged"
+        "merged": "Merged",
+        "voice_call": "Voice Call"
     },
 
     "chat_action_menu": {
