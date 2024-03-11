@@ -18,8 +18,10 @@ class PreventMessageSending : Feature("Prevent message sending", loadParams = Fe
             event.buffer = ProtoEditor(event.buffer).apply {
                 edit(3) {
                     // replace replayed to read receipt
-                    remove(13)
-                    addBuffer(4, byteArrayOf())
+                    if (firstOrNull(13) != null) {
+                        remove(13)
+                        addBuffer(4, byteArrayOf())
+                    }
                 }
             }.toByteArray()
         }
