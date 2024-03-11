@@ -1,6 +1,7 @@
 package me.rhunk.snapenhance.core.features.impl.experiments
 
 import android.app.Notification
+import android.app.NotificationChannel
 import android.app.NotificationManager
 import android.app.PendingIntent
 import androidx.compose.material.icons.Icons
@@ -15,6 +16,7 @@ import me.rhunk.snapenhance.core.features.impl.messaging.Messaging
 import me.rhunk.snapenhance.core.util.hook.HookStage
 import me.rhunk.snapenhance.core.util.hook.hook
 import me.rhunk.snapenhance.core.util.hook.hookConstructor
+import me.rhunk.snapenhance.core.wrapper.impl.SnapUUID
 import me.rhunk.snapenhance.core.wrapper.impl.toSnapUUID
 import me.rhunk.snapenhance.nativelib.NativeLib
 import java.lang.reflect.Method
@@ -23,6 +25,13 @@ import java.nio.ByteBuffer
 class SessionEvents : Feature("Session Events", loadParams = FeatureLoadParams.INIT_SYNC) {
     private val conversationPresenceState = mutableMapOf<String, MutableMap<String, FriendPresenceState?>>() // conversationId -> (userId -> state)
     private val tracker by lazy { context.bridgeClient.getTracker() }
+    private val notificationManager by lazy { context.androidContext.getSystemService(NotificationManager::class.java).apply {
+        createNotificationChannel(NotificationChannel(
+            "session_events",
+            "Session Events",
+            NotificationManager.IMPORTANCE_DEFAULT
+        ))
+    } }
 
     private fun getTrackedEvents(eventType: TrackerEventType): TrackerEventsResult? {
         return runCatching {
@@ -37,11 +46,11 @@ class SessionEvents : Feature("Session Events", loadParams = FeatureLoadParams.I
     private fun isInConversation(conversationId: String?) = context.feature(Messaging::class).openedConversationUUID?.toString() == conversationId
 
     private fun sendInfoNotification(id: Int = System.nanoTime().toInt(), text: String) {
-        context.androidContext.getSystemService(NotificationManager::class.java).notify(
+        notificationManager.notify(
             id,
-                Notification.Builder(
-                    context.androidContext,
-                    "general_group_generic_push_noisy_generic_push_B~LVSD2"
+            Notification.Builder(
+                context.androidContext,
+                "session_events"
                 )
                 .setSmallIcon(android.R.drawable.ic_dialog_info)
                 .setAutoCancel(true)
@@ -133,6 +142,7 @@ class SessionEvents : Feature("Session Events", loadParams = FeatureLoadParams.I
             SessionEventType.MESSAGE_REACTION_REMOVE -> TrackerEventType.MESSAGE_REACTION_REMOVE
             SessionEventType.MESSAGE_SAVED -> TrackerEventType.MESSAGE_SAVED
             SessionEventType.MESSAGE_UNSAVED -> TrackerEventType.MESSAGE_UNSAVED
+            SessionEventType.MESSAGE_EDITED -> TrackerEventType.MESSAGE_EDITED
             SessionEventType.SNAP_OPENED -> TrackerEventType.SNAP_OPENED
             SessionEventType.SNAP_REPLAYED -> TrackerEventType.SNAP_REPLAYED
             SessionEventType.SNAP_REPLAYED_TWICE -> TrackerEventType.SNAP_REPLAYED_TWICE
@@ -151,7 +161,8 @@ class SessionEvents : Feature("Session Events", loadParams = FeatureLoadParams.I
             eventType == TrackerEventType.MESSAGE_REACTION_REMOVE ||
             eventType == TrackerEventType.MESSAGE_DELETED ||
             eventType == TrackerEventType.MESSAGE_SAVED ||
-            eventType == TrackerEventType.MESSAGE_UNSAVED
+            eventType == TrackerEventType.MESSAGE_UNSAVED ||
+            eventType == TrackerEventType.MESSAGE_EDITED
         }?.contentType?.let { ContentType.fromId(it).name } ?: "")
     }
 
@@ -206,6 +217,21 @@ class SessionEvents : Feature("Session Events", loadParams = FeatureLoadParams.I
                     )
                 )
             }
+        }
+
+        protoReader.followPath(13, 1, 4) {
+            val serverMessageId = getVarInt(1) ?: return@followPath
+            val senderId = getByteArray(2, 1) ?: return@followPath
+            val conversationId = getByteArray(3, 1, 1, 1) ?: return@followPath
+
+            onConversationMessagingEvent(
+                SessionMessageEvent(
+                    SessionEventType.MESSAGE_EDITED,
+                    SnapUUID(conversationId).toString(),
+                    SnapUUID(senderId).toString(),
+                    serverMessageId
+                )
+            )
         }
 
         protoReader.followPath(6, 2) {
