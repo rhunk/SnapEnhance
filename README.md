@@ -136,7 +136,8 @@ We no longer offer official LSPatch binaries for obvious reasons. However, you'r
   - New Chat Action Menu 
   - Story Logger
   - Call Recorder
-  - Account Switcher 
+  - Account Switcher
+  - Edit Messages 
   - App Passcode
   - Infinite Story Boost
   - My Eyes Only Passcode Bypass
