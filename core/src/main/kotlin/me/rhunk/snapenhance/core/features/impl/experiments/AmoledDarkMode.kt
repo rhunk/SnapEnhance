@@ -34,7 +34,7 @@ class AmoledDarkMode : Feature("Amoled Dark Mode", loadParams = FeatureLoadParam
 
             when (array[0]) {
                 getAttribute("sigColorTextPrimary") -> {
-                    ephemeralHook("getColor", 0xFFFFFFFF.toInt())
+                    ephemeralHook("getColor", 0xFF5999FF.toInt())
                 }
                 getAttribute("sigColorBackgroundMain"),
                 getAttribute("sigColorBackgroundSurface") -> {
