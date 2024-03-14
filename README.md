@@ -56,7 +56,7 @@ We no longer offer official LSPatch binaries for obvious reasons. However, you'r
   - Hide Streak Restore
   - Hide Quick Add In Friend Feed
   - Hide Story Section 
-  - Hide UI Components (voice record button, call buttons, ...)
+  - Hide UI Components (Voice Record button, Call Buttons, ...)
   - Opera Media Quick Info
   - Old Bitmoji Selfie 
   - Disable Spotlight 
@@ -73,7 +73,7 @@ We no longer offer official LSPatch binaries for obvious reasons. However, you'r
   - Bypass Screenshot Detection 
   - Anonymous Story Viewing
   - Prevent Story Rewatch Indicator 
-  - Hide Peak-a-Peak
+  - Hide Peek-a-Peek
   - Hide Bitmoji Presence 
   - Hide Typing Notifications 
   - Unlimited Snap View Time 
@@ -250,8 +250,3 @@ Thanks to everyone involved including the [third-party libraries](https://github
 - BCH: qpu57a05kqljjadvpgjc6t894apprvth9slvlj4vpj
 - BTC: bc1qaqnfn6mauzhmx0e6kkenh2wh4r6js0vh5vel92
 - ETH: 0x0760987491e9de53A73fd87F092Bd432a227Ee92
-
-## License
-The [GNU GPL v3](https://www.gnu.org/licenses/gpl-3.0.en.html#license-text) license is a free, open-source software license that grants users the right to modify, share, and redistribute the software.
-By using this software, you agree to make the source code freely available, along with any modifications, additions, or derivatives.
-When redistributing the software, it must remain under the same [GPLv3](https://www.gnu.org/licenses/gpl-3.0.en.html#license-text) license, and any modifications should be clearly indicated as such.
