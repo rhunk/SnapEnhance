@@ -43,7 +43,6 @@ class Experimental : ConfigContainer() {
         requireRestart()
     }
     val addFriendSourceSpoof = unique("add_friend_source_spoof",
-        "added_by_quick_add",
         "added_by_username",
         "added_by_mention",
         "added_by_group_chat",

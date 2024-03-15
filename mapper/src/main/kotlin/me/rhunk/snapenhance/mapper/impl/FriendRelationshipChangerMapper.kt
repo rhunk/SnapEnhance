@@ -9,9 +9,9 @@ import java.lang.reflect.Modifier
 
 class FriendRelationshipChangerMapper : AbstractClassMapper("FriendRelationshipChanger") {
     val classReference = classReference("class")
-    val addFriendMethod = string("addFriendMethod")
 
-    val removeFriendClass = classReference("removeFriendClass")
+    val friendshipRelationshipChangerKtx = classReference("removeFriendClass")
+    val addFriendMethod = string("addFriendMethod")
     val removeFriendMethod = string("removeFriendMethod")
 
     init {
@@ -28,7 +28,6 @@ class FriendRelationshipChangerMapper : AbstractClassMapper("FriendRelationshipC
 
                 this@FriendRelationshipChangerMapper.apply {
                     classReference.set(classDef.getClassName())
-                    addFriendMethod.set(addFriendDexMethod.name)
                 }
 
                 return@mapper
@@ -45,8 +44,19 @@ class FriendRelationshipChangerMapper : AbstractClassMapper("FriendRelationshipC
                     getClass(it.parameterTypes[3])?.getClassName()?.endsWith("InteractionPlacementInfo") == true
                 } ?: continue
 
-                removeFriendClass.set(classDef.getClassName())
+                friendshipRelationshipChangerKtx.set(classDef.getClassName())
                 removeFriendMethod.set(removeFriendDexMethod.name)
+
+                val addFriendDexMethod = classDef.methods.firstOrNull {
+                    Modifier.isStatic(it.accessFlags) &&
+                            it.parameterTypes.size == 5 &&
+                            it.parameterTypes[1] == "Ljava/lang/String;" &&
+                            getClass(it.parameterTypes[2])?.isEnum() == true &&
+                            getClass(it.parameterTypes[4])?.isEnum() == true &&
+                            it.parameterTypes[5] == "I"
+                } ?: return@mapper
+
+                addFriendMethod.set(addFriendDexMethod.name)
                 return@mapper
             }
         }
