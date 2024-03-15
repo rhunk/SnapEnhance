@@ -8,6 +8,7 @@ import android.widget.ImageView
 import me.rhunk.snapenhance.core.ui.menu.AbstractMenu
 import me.rhunk.snapenhance.core.util.ktx.getDimens
 import me.rhunk.snapenhance.core.util.ktx.getDrawable
+import me.rhunk.snapenhance.core.util.ktx.getId
 import me.rhunk.snapenhance.core.util.ktx.getStyledAttributes
 
 
@@ -21,19 +22,22 @@ class SettingsGearInjector : AbstractMenu() {
 
         view.clipChildren = false
         view.addView(FrameLayout(parent.context).apply {
-            layoutParams = FrameLayout.LayoutParams(firstView.layoutParams.width, firstView.layoutParams.height).apply {
-                y = 0f
-                x = -(ngsHovaHeaderSearchIconBackgroundMarginLeft + firstView.layoutParams.width).toFloat()
+            visibility = View.GONE
+            post {
+                layoutParams = FrameLayout.LayoutParams(firstView.layoutParams.width, firstView.layoutParams.height).apply {
+                    y = 0f
+                    x = if (parent.findViewById<View>(context.resources.getId("hova_nav_map_icon")) != null) {
+                        parent.resources.displayMetrics.widthPixels - firstView.layoutParams.width - ngsHovaHeaderSearchIconBackgroundMarginLeft * 2 - (firstView.layoutParams.width).toFloat() * 2f
+                    } else {
+                        -(ngsHovaHeaderSearchIconBackgroundMarginLeft + firstView.layoutParams.width).toFloat()
+                    }
+                }
+                visibility = View.VISIBLE
             }
 
             isClickable = true
 
             setOnClickListener {
-               /* val intent = Intent().apply {
-                    setClassName(BuildConfig.APPLICATION_ID, "me.rhunk.snapenhance.ui.manager.MainActivity")
-                    putExtra("route", "features")
-                }
-                context.startActivity(intent)*/
                 this@SettingsGearInjector.context.bridgeClient.openSettingsOverlay()
             }
 
