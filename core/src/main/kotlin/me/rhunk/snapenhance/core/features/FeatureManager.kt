@@ -112,7 +112,7 @@ class FeatureManager(
             DisableConfirmationDialogs(),
             MixerStories(),
             DisableComposerModules(),
-            FideliusIndicator(),
+            MessageIndicators(),
             EditTextOverride(),
             PreventForcedLogout(),
             SuspendLocationUpdates(),
