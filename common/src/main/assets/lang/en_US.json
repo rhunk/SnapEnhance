@@ -336,9 +336,9 @@
                         "name": "Friend Feed Menu Bar",
                         "description": "Enables the new Friend Feed Menu Bar"
                     },
-                    "fidelius_indicator": {
-                        "name": "Fidelius Indicator",
-                        "description": "Adds a green circle next to messages that have been sent only to you"
+                    "message_indicators": {
+                        "name": "Message Indicators",
+                        "description": "Adds specific indicators icons to messages\nNote: indicators might not be 100% accurate"
                     },
                     "stealth_mode_indicator": {
                         "name": "Stealth Mode Indicator",
@@ -944,6 +944,11 @@
                 "read_contacts": "Read Contacts",
                 "nearby_devices": "Nearby Devices",
                 "phone_calls": "Phone Calls"
+            },
+            "message_indicators": {
+                "encryption_indicator": "Adds a \uD83D\uDD12 icon next to messages that have been sent only to you",
+                "platform_indicator": "Adds the platform icon from which a media was sent (e.g. Android, iOS, Web)",
+                "location_indicator": "Adds a \uD83D\uDCCD icon to snaps when they have been sent with location enabled"
             }
         }
     },
