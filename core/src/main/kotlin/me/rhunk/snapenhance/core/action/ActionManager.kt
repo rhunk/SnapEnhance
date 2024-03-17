@@ -31,6 +31,10 @@ class ActionManager(
         execute(EnumAction.entries.find { it.key == action } ?: return)
     }
 
+    fun onActivityCreate() {
+        actions.values.forEach { it.onActivityCreate() }
+    }
+
     fun execute(enumAction: EnumAction) {
         val action = actions[enumAction] ?: return
         action.run()

@@ -166,6 +166,7 @@ class SnapEnhance {
                 features.onActivityCreate()
                 inAppOverlay.onActivityCreate(mainActivity!!)
                 scriptRuntime.eachModule { callFunction("module.onSnapMainActivityCreate", mainActivity!!) }
+                actionManager.onActivityCreate()
             }
         }.also { time ->
             appContext.log.verbose("onActivityCreate took $time")
