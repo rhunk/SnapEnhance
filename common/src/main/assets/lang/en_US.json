@@ -134,6 +134,10 @@
             "name": "Clean Snapchat Cache",
             "description": "Cleans the Snapchat Cache"
         },
+        "manage_friend_list": {
+            "name": "Manage Friend List",
+            "description": "Import/export your friends list when backing up"
+        },
         "export_chat_messages": {
             "name": "Export Chat Messages",
             "description": "Exports conversation messages into a JSON/HTML/TXT file"
