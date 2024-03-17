@@ -57,10 +57,6 @@ class ManageFriendList : AbstractAction() {
     }
 
     override fun onActivityCreate() {
-        context.runOnUiThread {
-            context.actionManager.execute(EnumAction.MANAGE_FRIEND_LIST)
-        }
-
         context.event.subscribe(ActivityResultEvent::class) { event ->
             if (event.requestCode == pendingPickerAction?.first) {
                 val pendingAction = pendingPickerAction ?: return@subscribe
