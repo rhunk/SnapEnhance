@@ -123,6 +123,7 @@ class FeatureManager(
             DisableMemoriesSnapFeed(),
             AccountSwitcher(),
             RemoveGroupsLockedStatus(),
+            BypassMessageActionRestrictions(),
         )
 
         initializeFeatures()

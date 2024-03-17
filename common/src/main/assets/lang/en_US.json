@@ -466,6 +466,10 @@
                         "name": "Bypass Message Retention Policy",
                         "description": "Prevents messages from being deleted after viewing them"
                     },
+                    "bypass_message_action_restrictions": {
+                        "name": "Bypass Message Action Restrictions",
+                        "description": "Allows you to react to a snap without having opened it or to save an unsaveable message"
+                    },
                     "remove_groups_locked_status": {
                         "name": "Remove Groups Locked Status",
                         "description": "Allows you to view group information after being kicked"
