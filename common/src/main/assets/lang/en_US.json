@@ -270,7 +270,7 @@
                     },
                     "custom_colour": {
                         "name": "Custom Colour"
-                        "description": "Changes The Colour of Snapchat\n insert a hex Code"
+                        "description": "Changes The Colour of Snapchat\nInsert a hex Code"
                     },
                     "friend_feed_message_preview": {
                         "name": "Friend Feed Message Preview",
