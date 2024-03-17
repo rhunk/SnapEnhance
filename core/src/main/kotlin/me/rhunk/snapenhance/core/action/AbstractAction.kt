@@ -11,6 +11,8 @@ abstract class AbstractAction{
      */
     open fun run() {}
 
+    open fun onActivityCreate() {}
+
     protected open fun deleteRecursively(parent: File?) {
         if (parent == null) return
         if (parent.isDirectory) for (child in parent.listFiles()!!) deleteRecursively(

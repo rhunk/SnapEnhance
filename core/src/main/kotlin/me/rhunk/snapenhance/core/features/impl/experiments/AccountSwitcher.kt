@@ -32,6 +32,7 @@ import me.rhunk.snapenhance.common.data.FileType
 import me.rhunk.snapenhance.common.ui.AppMaterialTheme
 import me.rhunk.snapenhance.common.ui.createComposeAlertDialog
 import me.rhunk.snapenhance.common.util.snap.MediaDownloaderHelper
+import me.rhunk.snapenhance.core.event.events.impl.ActivityResultEvent
 import me.rhunk.snapenhance.core.event.events.impl.AddViewEvent
 import me.rhunk.snapenhance.core.features.Feature
 import me.rhunk.snapenhance.core.features.FeatureLoadParams
@@ -425,51 +426,10 @@ class AccountSwitcher: Feature("Account Switcher", loadParams = FeatureLoadParam
         mainDbShmFile?.delete()
     }
 
-    private fun hookActivityResult(activityClass: Class<*>) {
-        activityClass.hook("onActivityResult", HookStage.BEFORE) { param ->
-            val requestCode = param.arg<Int>(0)
-            val resultCode = param.arg<Int>(1)
-            val intent = param.arg<Intent>(2)
-
-            if (importRequestCode == requestCode) {
-                importRequestCode = null
-                if (resultCode != Activity.RESULT_OK) return@hook
-                val uri = intent.data ?: return@hook
-
-                context.coroutineScope.launch { importAccount(uri) }
-            }
-
-            if (exportCallback?.first == requestCode) {
-                val userId = exportCallback?.second
-                exportCallback = null
-                param.setResult(null)
-                if (resultCode != Activity.RESULT_OK) return@hook
-
-                context.coroutineScope.launch {
-                    runCatching {
-                        intent.data?.let { uri ->
-                            val accountDataPfd = context.bridgeClient.getAccountStorage().getAccountData(userId) ?: throw Exception("Account data not found")
-                            context.androidContext.contentResolver.openOutputStream(uri)?.use { outputStream ->
-                                ParcelFileDescriptor.AutoCloseInputStream(accountDataPfd).use {
-                                    it.copyTo(outputStream)
-                                }
-                            }
-                            context.shortToast("Account exported!")
-                        }
-                    }.onFailure {
-                        context.shortToast("Failed to export account. Check logs for more info.")
-                        context.log.error("Failed to export account", it)
-                    }
-                }
-            }
-        }
-    }
-
     override fun onActivityCreate() {
         if (context.config.experimental.accountSwitcher.globalState != true) return
 
         activity = context.mainActivity!!
-        hookActivityResult(activity!!::class.java)
         val hovaHeaderSearchIcon = activity!!.resources.getId("hova_header_search_icon")
 
         context.event.subscribe(AddViewEvent::class) { event ->
@@ -486,6 +446,41 @@ class AccountSwitcher: Feature("Account Switcher", loadParams = FeatureLoadParam
     @SuppressLint("SetTextI18n")
     override fun init() {
         if (context.config.experimental.accountSwitcher.globalState != true) return
+
+        context.event.subscribe(ActivityResultEvent::class) { event ->
+            if (importRequestCode == event.requestCode) {
+                importRequestCode = null
+                if (event.resultCode != Activity.RESULT_OK) return@subscribe
+                event.canceled = true
+                val uri = event.intent.data ?: return@subscribe
+
+                context.coroutineScope.launch { importAccount(uri) }
+            }
+
+            if (exportCallback?.first == event.requestCode) {
+                val userId = exportCallback?.second
+                exportCallback = null
+                event.canceled = true
+                if (event.resultCode != Activity.RESULT_OK) return@subscribe
+
+                context.coroutineScope.launch {
+                    runCatching {
+                        event.intent.data?.let { uri ->
+                            val accountDataPfd = context.bridgeClient.getAccountStorage().getAccountData(userId) ?: throw Exception("Account data not found")
+                            context.androidContext.contentResolver.openOutputStream(uri)?.use { outputStream ->
+                                ParcelFileDescriptor.AutoCloseInputStream(accountDataPfd).use {
+                                    it.copyTo(outputStream)
+                                }
+                            }
+                            context.shortToast("Account exported!")
+                        }
+                    }.onFailure {
+                        context.shortToast("Failed to export account. Check logs for more info.")
+                        context.log.error("Failed to export account", it)
+                    }
+                }
+            }
+        }
 
         findClass("com.snap.identity.service.ForcedLogoutBroadcastReceiver").hook("onReceive", HookStage.BEFORE) { param ->
             val intent = param.arg<Intent>(1)
@@ -508,7 +503,6 @@ class AccountSwitcher: Feature("Account Switcher", loadParams = FeatureLoadParam
         }
 
         findClass("com.snap.identity.loginsignup.ui.LoginSignupActivity").apply {
-            hookActivityResult(this)
             hook("onCreate", HookStage.AFTER) { param ->
                 activity = param.thisObject()
                 activity!!.findViewById<FrameLayout>(android.R.id.content).addView(Button(activity).apply {

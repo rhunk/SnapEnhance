@@ -130,14 +130,30 @@
     },
 
     "actions": {
-        "clean_snapchat_cache": "Clean Snapchat Cache",
-        "clear_message_logger": "Clear Message Logger",
-        "refresh_mappings": "Refresh Mappings",
-        "open_map": "Choose location on map",
-        "check_for_updates": "Check for updates",
-        "export_chat_messages": "Export Chat Messages",
-        "export_memories": "Export Memories",
-        "bulk_messaging_action": "Bulk Messaging Action"
+        "clean_snapchat_cache": {
+            "name": "Clean Snapchat Cache",
+            "description": "Cleans the Snapchat Cache"
+        },
+        "export_chat_messages": {
+            "name": "Export Chat Messages",
+            "description": "Exports conversation messages into a JSON/HTML/TXT file"
+        },
+        "export_memories": {
+            "name": "Export Memories",
+            "description": "Exports memories into a ZIP file"
+        },
+        "bulk_messaging_action": {
+            "name": "Bulk Messaging Action",
+            "description": "Performs operations such as deleting friends or mass deletion of conversations"
+        },
+        "regen_mappings": {
+            "name": "Regenerate Mappings",
+            "description": "Manually regenerate mappings"
+        },
+        "change_language": {
+            "name": "Change Language",
+            "description": "Change the language of SnapEnhance"
+        }
     },
 
     "features": {
