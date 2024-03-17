@@ -252,6 +252,10 @@
                         "name": "AMOLED Dark Mode",
                         "description": "Enables AMOLED dark mode\nMake sure Snapchats Dark mode is enabled"
                     },
+                    "custom_colour": {
+                        "name": "Custom Colour"
+                        "description": "Changes The Colour of Snapchat\n insert a hex Code"
+                    },
                     "friend_feed_message_preview": {
                         "name": "Friend Feed Message Preview",
                         "description": "Shows a preview of the last messages in the Friend Feed",
