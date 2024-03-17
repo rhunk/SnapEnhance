@@ -76,6 +76,10 @@
     },
 
     "rules": {
+        "toasts": {
+            "enabled": "{ruleName} enabled",
+            "disabled": "{ruleName} disabled"
+        },
         "modes": {
             "blacklist": "Blacklist mode",
             "whitelist": "Whitelist mode"
