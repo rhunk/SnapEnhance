@@ -1,5 +1,6 @@
 package me.rhunk.snapenhance.core.event
 
+import android.app.Activity
 import android.content.Intent
 import android.view.View
 import android.view.ViewGroup
@@ -219,6 +220,32 @@ class EventDispatcher(
                 }
 
                 methodParam.setArg(0, ByteBuffer.wrap(responseUnaryCallEvent.buffer))
+            }
+        }
+
+        arrayOf(
+            "com.snap.mushroom.MainActivity",
+            "com.snap.identity.loginsignup.ui.LoginSignupActivity"
+        ).forEach {
+            context.androidContext.classLoader.loadClass(it).hook("onActivityResult", HookStage.BEFORE) { param ->
+                val instance = param.thisObject<Activity>()
+                val requestCode = param.arg<Int>(0)
+                val resultCode = param.arg<Int>(1)
+                val intent = param.arg<Intent>(2)
+
+                context.event.post(
+                    ActivityResultEvent(
+                        activity = instance,
+                        requestCode = requestCode,
+                        resultCode = resultCode,
+                        intent = intent
+                    ).apply {
+                        adapter = param
+                    }
+                ) {
+                    if (canceled) param.setResult(null)
+                    postHookEvent()
+                }
             }
         }
 
