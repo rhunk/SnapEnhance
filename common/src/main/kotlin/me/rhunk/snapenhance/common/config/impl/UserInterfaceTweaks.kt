@@ -30,7 +30,7 @@ class UserInterfaceTweaks : ConfigContainer() {
     }
         
     val amoledDarkMode = boolean("amoled_dark_mode") { addNotices(FeatureNotice.UNSTABLE); requireRestart() }
-    val customizeUI = container("customize_ui",CustomizeUI()) { requireRestart() }
+    val customizeUI = container("customize_ui", CustomizeUI()) { requireRestart() }
     val friendFeedMessagePreview = container("friend_feed_message_preview", FriendFeedMessagePreview()) { requireRestart() }
     val snapPreview = boolean("snap_preview") { addNotices(FeatureNotice.UNSTABLE); requireRestart() }
     val bootstrapOverride = container("bootstrap_override", BootstrapOverride()) { requireRestart() }
