@@ -33,9 +33,10 @@ class UnsaveableMessages : MessagingRuleFeature(
             if (conversationIds.all { canUseRule(it) }) {
                 event.buffer = ProtoEditor(event.buffer).apply {
                     edit(4) {
-                        if ((firstOrNull(7)?.value ?: return@edit) == 2L && firstOrNull(2)?.value != ContentType.SNAP.id.toLong()) {
+                        val contentType = firstOrNull(2)?.value
+                        if (contentType != ContentType.STATUS.id.toLong()) {
                             remove(7)
-                            addVarInt(7, 3)
+                            addVarInt(7, 1) // set savePolicy to PROHIBITED
                         }
                     }
                 }.toByteArray()
