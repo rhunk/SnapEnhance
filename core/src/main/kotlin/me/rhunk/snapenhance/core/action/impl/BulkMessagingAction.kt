@@ -445,7 +445,7 @@ class BulkMessagingAction : AbstractAction() {
     private fun removeFriend(userId: String) {
         context.mappings.useMapper(FriendRelationshipChangerMapper::class) {
             val friendRelationshipChangerInstance = context.feature(AddFriendSourceSpoof::class).friendRelationshipChangerInstance!!
-            val removeMethod = removeFriendClass.getAsClass()?.methods?.first {
+            val removeMethod = friendshipRelationshipChangerKtx.getAsClass()?.methods?.first {
                 it.name == removeFriendMethod.getAsString()
             } ?: throw Exception("Failed to find removeFriend method")
 

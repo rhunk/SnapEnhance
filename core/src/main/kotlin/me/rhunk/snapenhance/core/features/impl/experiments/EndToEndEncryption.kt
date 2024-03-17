@@ -7,12 +7,16 @@ import android.graphics.drawable.ShapeDrawable
 import android.graphics.drawable.shapes.Shape
 import android.view.View
 import android.view.ViewGroup
-import android.widget.Button
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Button
+import androidx.compose.material3.Card
 import androidx.compose.material3.Text
 import androidx.compose.runtime.remember
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import me.rhunk.snapenhance.common.data.ContentType
@@ -20,6 +24,7 @@ import me.rhunk.snapenhance.common.data.MessageState
 import me.rhunk.snapenhance.common.data.MessagingRuleType
 import me.rhunk.snapenhance.common.data.RuleState
 import me.rhunk.snapenhance.common.database.impl.ConversationMessage
+import me.rhunk.snapenhance.common.ui.createComposeView
 import me.rhunk.snapenhance.common.util.protobuf.ProtoEditor
 import me.rhunk.snapenhance.common.util.protobuf.ProtoReader
 import me.rhunk.snapenhance.common.util.protobuf.ProtoWriter
@@ -197,19 +202,13 @@ class EndToEndEncryption : MessagingRuleFeature(
 
         val encryptedMessageIndicator by context.config.experimental.e2eEncryption.encryptedMessageIndicator
 
-        // hook view binder to add special buttons
-        val receivePublicKeyTag = Random.nextLong().toString(16)
-        val receiveSecretTag = Random.nextLong().toString(16)
+        val specialCard = Random.nextLong().toString(16)
 
         context.event.subscribe(BindViewEvent::class) { event ->
             event.chatMessage { conversationId, messageId ->
-                val viewGroup = event.view as ViewGroup
+                val viewGroup = event.view.parent as? ViewGroup ?: return@subscribe
 
-                viewGroup.findViewWithTag<View>(receiveSecretTag)?.also {
-                    viewGroup.removeView(it)
-                }
-
-                viewGroup.findViewWithTag<View>(receivePublicKeyTag)?.also {
+                viewGroup.findViewWithTag<View>(specialCard)?.also {
                     viewGroup.removeView(it)
                 }
 
@@ -226,31 +225,40 @@ class EndToEndEncryption : MessagingRuleFeature(
                     }
                 }
 
-                secretResponses[messageId.toLong()]?.also { secret ->
-                    viewGroup.addView(Button(context.mainActivity!!).apply {
-                        text = "Accept secret"
-                        tag = receiveSecretTag
-                        layoutParams = ViewGroup.LayoutParams(
-                            ViewGroup.LayoutParams.MATCH_PARENT,
-                            ViewGroup.LayoutParams.WRAP_CONTENT,
-                        )
-                        setOnClickListener {
-                            handleSecretResponse(conversationId, secret)
-                        }
-                    })
-                }
+                val secret = secretResponses[messageId.toLong()]
+                val publicKey = pkRequests[messageId.toLong()]
 
-                pkRequests[messageId.toLong()]?.also { publicKey ->
-                    viewGroup.addView(Button(context.mainActivity!!).apply {
-                        text = "Receive public key"
-                        tag = receivePublicKeyTag
+                if (publicKey != null || secret != null) {
+                    viewGroup.addView(createComposeView(context.mainActivity!!) {
+                        Card(
+                            modifier = Modifier.fillMaxWidth().padding(8.dp),
+                            onClick = {
+                                if (publicKey != null) {
+                                    handlePublicKeyRequest(conversationId, publicKey)
+                                }
+                                if (secret != null) {
+                                    handleSecretResponse(conversationId, secret)
+                                }
+                            }
+                        ) {
+                            Box(
+                                modifier = Modifier.fillMaxWidth().padding(5.dp),
+                                contentAlignment = Alignment.Center
+                            ) {
+                                if (publicKey != null) {
+                                    Text("Receive public key")
+                                }
+                                if (secret != null) {
+                                    Text("Accept secret")
+                                }
+                            }
+                        }
+                    }.apply {
+                        tag = specialCard
                         layoutParams = ViewGroup.LayoutParams(
                             ViewGroup.LayoutParams.MATCH_PARENT,
                             ViewGroup.LayoutParams.WRAP_CONTENT,
                         )
-                        setOnClickListener {
-                            handlePublicKeyRequest(conversationId, publicKey)
-                        }
                     })
                 }
             }

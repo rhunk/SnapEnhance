@@ -76,6 +76,10 @@
     },
 
     "rules": {
+        "toasts": {
+            "enabled": "{ruleName} enabled",
+            "disabled": "{ruleName} disabled"
+        },
         "modes": {
             "blacklist": "Blacklist mode",
             "whitelist": "Whitelist mode"
@@ -336,9 +340,9 @@
                         "name": "Friend Feed Menu Bar",
                         "description": "Enables the new Friend Feed Menu Bar"
                     },
-                    "fidelius_indicator": {
-                        "name": "Fidelius Indicator",
-                        "description": "Adds a green circle next to messages that have been sent only to you"
+                    "message_indicators": {
+                        "name": "Message Indicators",
+                        "description": "Adds specific indicators icons to messages\nNote: indicators might not be 100% accurate"
                     },
                     "stealth_mode_indicator": {
                         "name": "Stealth Mode Indicator",
@@ -461,6 +465,14 @@
                     "bypass_message_retention_policy": {
                         "name": "Bypass Message Retention Policy",
                         "description": "Prevents messages from being deleted after viewing them"
+                    },
+                    "bypass_message_action_restrictions": {
+                        "name": "Bypass Message Action Restrictions",
+                        "description": "Allows you to react to a snap without having opened it or to save an unsaveable message"
+                    },
+                    "remove_groups_locked_status": {
+                        "name": "Remove Groups Locked Status",
+                        "description": "Allows you to view group information after being kicked"
                     }
                 }
             },
@@ -881,7 +893,6 @@
                 "spotlight": "Spotlight"
             },
             "add_friend_source_spoof": {
-                "added_by_quick_add": "By Quick Add",
                 "added_by_username": "By Username",
                 "added_by_mention": "By Mention",
                 "added_by_group_chat": "By Group Chat",
@@ -945,6 +956,11 @@
                 "read_contacts": "Read Contacts",
                 "nearby_devices": "Nearby Devices",
                 "phone_calls": "Phone Calls"
+            },
+            "message_indicators": {
+                "encryption_indicator": "Adds a \uD83D\uDD12 icon next to messages that have been sent only to you",
+                "platform_indicator": "Adds the platform icon from which a media was sent (e.g. Android, iOS, Web)",
+                "location_indicator": "Adds a \uD83D\uDCCD icon to snaps when they have been sent with location enabled"
             }
         }
     },
