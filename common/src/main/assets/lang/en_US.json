@@ -461,6 +461,10 @@
                     "bypass_message_retention_policy": {
                         "name": "Bypass Message Retention Policy",
                         "description": "Prevents messages from being deleted after viewing them"
+                    },
+                    "remove_groups_locked_status": {
+                        "name": "Remove Groups Locked Status",
+                        "description": "Allows you to view group information after being kicked"
                     }
                 }
             },

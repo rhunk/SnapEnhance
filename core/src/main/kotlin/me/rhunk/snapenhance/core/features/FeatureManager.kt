@@ -16,11 +16,7 @@ import me.rhunk.snapenhance.core.features.impl.messaging.*
 import me.rhunk.snapenhance.core.features.impl.spying.HalfSwipeNotifier
 import me.rhunk.snapenhance.core.features.impl.spying.MessageLogger
 import me.rhunk.snapenhance.core.features.impl.spying.StealthMode
-import me.rhunk.snapenhance.core.features.impl.tweaks.BypassScreenshotDetection
-import me.rhunk.snapenhance.core.features.impl.tweaks.CameraTweaks
-import me.rhunk.snapenhance.core.features.impl.tweaks.DisablePermissionRequests
-import me.rhunk.snapenhance.core.features.impl.tweaks.PreventMessageListAutoScroll
-import me.rhunk.snapenhance.core.features.impl.tweaks.UnsaveableMessages
+import me.rhunk.snapenhance.core.features.impl.tweaks.*
 import me.rhunk.snapenhance.core.features.impl.ui.*
 import me.rhunk.snapenhance.core.logger.CoreLogger
 import me.rhunk.snapenhance.core.ui.menu.MenuViewInjector
@@ -126,6 +122,7 @@ class FeatureManager(
             CallRecorder(),
             DisableMemoriesSnapFeed(),
             AccountSwitcher(),
+            RemoveGroupsLockedStatus(),
         )
 
         initializeFeatures()
