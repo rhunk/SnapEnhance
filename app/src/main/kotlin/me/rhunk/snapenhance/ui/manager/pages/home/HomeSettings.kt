@@ -52,7 +52,10 @@ class HomeSettings : Routes.Route() {
                 .height(55.dp)
                 .clickable {
                     value = !value
-                    sharedPreferences.edit().putBoolean(realKey, value).apply()
+                    sharedPreferences
+                        .edit()
+                        .putBoolean(realKey, value)
+                        .apply()
                 },
             horizontalArrangement = Arrangement.SpaceBetween,
             verticalAlignment = Alignment.CenterVertically
@@ -66,7 +69,7 @@ class HomeSettings : Routes.Route() {
     }
 
     @Composable
-    private fun RowAction(title: String, requireConfirmation: Boolean = false, action: () -> Unit) {
+    private fun RowAction(key: String, requireConfirmation: Boolean = false, action: () -> Unit) {
         var confirmationDialog by remember {
             mutableStateOf(false)
         }
@@ -100,8 +103,15 @@ class HomeSettings : Routes.Route() {
             horizontalArrangement = Arrangement.SpaceBetween,
             verticalAlignment = Alignment.CenterVertically
         ) {
-            Text(text = title, modifier = Modifier.padding(start = 26.dp))
-            IconButton(onClick = { takeAction() }) {
+            Column(
+                modifier = Modifier.weight(1f),
+            ) {
+                Text(text = context.translation["actions.$key.name"], fontSize = 16.sp, fontWeight = FontWeight.Bold)
+                context.translation.getOrNull("actions.$key.description")?.let { Text(text = it, fontSize = 12.sp, maxLines = 3) }
+            }
+            IconButton(onClick = { takeAction() },
+                modifier = Modifier.padding(end = 2.dp)
+            ) {
                 Icon(
                     imageVector = Icons.AutoMirrored.Filled.OpenInNew,
                     contentDescription = null,
@@ -140,14 +150,14 @@ class HomeSettings : Routes.Route() {
         ) {
             RowTitle(title = "Actions")
             EnumAction.entries.forEach { enumAction ->
-                RowAction(title = context.translation["actions.${enumAction.key}"]) {
+                RowAction(key = enumAction.key) {
                     launchActionIntent(enumAction)
                 }
             }
-            RowAction(title = "Regenerate Mappings") {
+            RowAction(key = "regen_mappings") {
                 context.checkForRequirements(Requirements.MAPPINGS)
             }
-            RowAction(title = "Change Language") {
+            RowAction(key = "change_language") {
                 context.checkForRequirements(Requirements.LANGUAGE)
             }
             RowTitle(title = "Message Logger")

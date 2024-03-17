@@ -13,6 +13,11 @@ import android.widget.LinearLayout
 import android.widget.ProgressBar
 import android.widget.Switch
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.CheckCircleOutline
+import androidx.compose.material.icons.filled.Info
+import androidx.compose.material.icons.filled.NotInterested
+import androidx.compose.material.icons.filled.WarningAmber
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.runtime.remember
@@ -129,7 +134,10 @@ class FriendFeedInfoMenu : AbstractMenu() {
     private fun markAsSeen(conversationId: String) {
         val messaging = context.feature(Messaging::class)
         val messageIds = messaging.getFeedCachedMessageIds(conversationId)?.takeIf { it.isNotEmpty() } ?: run {
-            context.shortToast(context.translation["mark_as_seen.no_unseen_snaps_toast"])
+            context.inAppOverlay.showStatusToast(
+                Icons.Default.WarningAmber,
+                context.translation["mark_as_seen.no_unseen_snaps_toast"]
+            )
             return
         }
 
@@ -275,15 +283,16 @@ class FriendFeedInfoMenu : AbstractMenu() {
         return conversationId to focusedConversationTargetUser
     }
 
-    private fun createToggleFeature(viewConsumer: ((View) -> Unit), text: String, isChecked: () -> Boolean, toggle: (Boolean) -> Unit) {
-        val switch = Switch(context.androidContext)
-        switch.text = context.translation[text]
-        switch.isChecked = isChecked()
-        switch.applyTheme(hasRadius = true)
-        switch.setOnCheckedChangeListener { _: CompoundButton?, checked: Boolean ->
-            toggle(checked)
-        }
-        viewConsumer(switch)
+    private fun createToggleFeature(viewConsumer: ((View) -> Unit), value: String, checked: () -> Boolean, toggle: (Boolean) -> Unit) {
+        viewConsumer(Switch(context.androidContext).apply {
+            text = this@FriendFeedInfoMenu.context.translation[value]
+            isChecked = checked()
+            applyTheme(hasRadius = true)
+            isSoundEffectsEnabled = false
+            setOnCheckedChangeListener { _, checked ->
+                toggle(checked)
+            }
+        })
     }
 
     override fun inject(parent: ViewGroup, view: View, viewConsumer: ((View) -> Unit)) {
@@ -315,13 +324,22 @@ class FriendFeedInfoMenu : AbstractMenu() {
             createToggleFeature(viewConsumer,
                 ruleFeature.ruleType.translateOptionKey(ruleState.key),
                 { ruleFeature.getState(conversationId) },
-                { ruleFeature.setState(conversationId, it) }
+                {
+                    ruleFeature.setState(conversationId, it)
+                    context.inAppOverlay.showStatusToast(
+                        if (it) Icons.Default.CheckCircleOutline else Icons.Default.NotInterested,
+                        context.translation.format("rules.toasts.${if (it) "enabled" else "disabled"}", "ruleName" to context.translation[ruleFeature.ruleType.translateOptionKey(ruleState.key)]),
+                        durationMs = 1500
+                    )
+                    context.mainActivity?.triggerRootCloseTouchEvent()
+                }
             )
         }
 
         if (friendFeedMenuOptions.contains("mark_snaps_as_seen")) {
             viewConsumer(Button(view.context).apply {
                 text = translation["mark_snaps_as_seen"]
+                isSoundEffectsEnabled = false
                 applyTheme(view.width, hasRadius = true)
                 setOnClickListener {
                     this@FriendFeedInfoMenu.context.mainActivity?.triggerRootCloseTouchEvent()
@@ -334,26 +352,29 @@ class FriendFeedInfoMenu : AbstractMenu() {
             viewConsumer(Button(view.context).apply {
                 text = translation["mark_stories_as_seen_locally"]
                 applyTheme(view.width, hasRadius = true)
+                isSoundEffectsEnabled = false
 
                 val translations = this@FriendFeedInfoMenu.context.translation.getCategory("mark_as_seen")
 
                 this@FriendFeedInfoMenu.context.apply {
                     setOnClickListener {
                         mainActivity?.triggerRootCloseTouchEvent()
-                        if (database.setStoriesViewedState(targetUser, true)) {
-                            shortToast(translations["seen_toast"])
-                        } else {
-                            shortToast(translations["already_seen_toast"])
-                        }
+                        this@FriendFeedInfoMenu.context.inAppOverlay.showStatusToast(
+                            Icons.Default.Info,
+                            if (database.setStoriesViewedState(targetUser, true)) translations["seen_toast"]
+                            else translations["already_seen_toast"],
+                            durationMs = 2500
+                        )
                     }
                     setOnLongClickListener {
                         context.vibrateLongPress()
                         mainActivity?.triggerRootCloseTouchEvent()
-                        if (database.setStoriesViewedState(targetUser, false)) {
-                            shortToast(translations["unseen_toast"])
-                        } else {
-                            shortToast(translations["already_unseen_toast"])
-                        }
+                        this@FriendFeedInfoMenu.context.inAppOverlay.showStatusToast(
+                            Icons.Default.Info,
+                            if (database.setStoriesViewedState(targetUser, false)) translations["unseen_toast"]
+                            else translations["already_unseen_toast"],
+                            durationMs = 2500
+                        )
                         true
                     }
                 }

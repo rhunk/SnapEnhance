@@ -7,6 +7,7 @@ import me.rhunk.snapenhance.core.action.impl.BulkMessagingAction
 import me.rhunk.snapenhance.core.action.impl.CleanCache
 import me.rhunk.snapenhance.core.action.impl.ExportChatMessages
 import me.rhunk.snapenhance.core.action.impl.ExportMemories
+import me.rhunk.snapenhance.core.action.impl.ManageFriendList
 
 class ActionManager(
     private val modContext: ModContext,
@@ -17,6 +18,7 @@ class ActionManager(
             EnumAction.CLEAN_CACHE to CleanCache(),
             EnumAction.EXPORT_CHAT_MESSAGES to ExportChatMessages(),
             EnumAction.BULK_MESSAGING_ACTION to BulkMessagingAction(),
+            EnumAction.MANAGE_FRIEND_LIST to ManageFriendList(),
             EnumAction.EXPORT_MEMORIES to ExportMemories(),
         ).map {
             it.key to it.value.apply {
@@ -29,6 +31,10 @@ class ActionManager(
         val action = intent?.getStringExtra(EnumAction.ACTION_PARAMETER) ?: return
         intent.removeExtra(EnumAction.ACTION_PARAMETER)
         execute(EnumAction.entries.find { it.key == action } ?: return)
+    }
+
+    fun onActivityCreate() {
+        actions.values.forEach { it.onActivityCreate() }
     }
 
     fun execute(enumAction: EnumAction) {

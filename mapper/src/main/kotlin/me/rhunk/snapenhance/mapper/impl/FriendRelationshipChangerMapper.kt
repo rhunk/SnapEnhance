@@ -18,18 +18,7 @@ class FriendRelationshipChangerMapper : AbstractClassMapper("FriendRelationshipC
         mapper {
             for (classDef in classes) {
                 classDef.methods.firstOrNull { it.name == "<init>" }?.implementation?.findConstString("FriendRelationshipChangerImpl")?.takeIf { it } ?: continue
-                val addFriendDexMethod = classDef.methods.first {
-                    it.parameterTypes.size > 4 &&
-                            getClass(it.parameterTypes[1])?.isEnum() == true &&
-                            getClass(it.parameterTypes[2])?.isEnum() == true &&
-                            getClass(it.parameterTypes[3])?.isEnum() == true &&
-                            it.parameters[4].type == "Ljava/lang/String;"
-                }
-
-                this@FriendRelationshipChangerMapper.apply {
-                    classReference.set(classDef.getClassName())
-                }
-
+                classReference.set(classDef.getClassName())
                 return@mapper
             }
         }
@@ -49,11 +38,11 @@ class FriendRelationshipChangerMapper : AbstractClassMapper("FriendRelationshipC
 
                 val addFriendDexMethod = classDef.methods.firstOrNull {
                     Modifier.isStatic(it.accessFlags) &&
-                            it.parameterTypes.size == 5 &&
-                            it.parameterTypes[1] == "Ljava/lang/String;" &&
-                            getClass(it.parameterTypes[2])?.isEnum() == true &&
-                            getClass(it.parameterTypes[4])?.isEnum() == true &&
-                            it.parameterTypes[5] == "I"
+                    it.parameterTypes.size == 6 &&
+                    it.parameterTypes[1] == "Ljava/lang/String;" &&
+                    getClass(it.parameterTypes[2])?.isEnum() == true &&
+                    getClass(it.parameterTypes[4])?.isEnum() == true &&
+                    it.parameterTypes[5] == "I"
                 } ?: return@mapper
 
                 addFriendMethod.set(addFriendDexMethod.name)
