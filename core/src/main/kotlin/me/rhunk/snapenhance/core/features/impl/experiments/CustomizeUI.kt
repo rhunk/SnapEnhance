@@ -10,7 +10,7 @@ import me.rhunk.snapenhance.core.util.hook.Hooker
 import me.rhunk.snapenhance.core.util.hook.hook
 import me.rhunk.snapenhance.core.util.ktx.getIdentifier
 
-class CustomColour: Feature("Custom Colour", loadParams = FeatureLoadParams.ACTIVITY_CREATE_SYNC) {
+class customColour: Feature("Custom Colour", loadParams = FeatureLoadParams.ACTIVITY_CREATE_SYNC) {
     @SuppressLint("DiscouragedApi")
     override fun onActivityCreate() {
         if (!context.config.userInterface.CustomColour.get()) return
