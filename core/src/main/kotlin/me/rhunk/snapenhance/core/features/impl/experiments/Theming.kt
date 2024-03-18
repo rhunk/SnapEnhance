@@ -14,6 +14,9 @@ class CustomizeUi: Feature("Customize Ui", loadParams = FeatureLoadParams.ACTIVI
     @SuppressLint("DiscouragedApi")
     override fun onActivityCreate() {
         if (!context.config.userInterface.CustomizeUi.globalState != true) return
+        
+        val backgroundcolour by context.config.userInterface.CustomizeUi.backgroundcolour
+        
         val attributeCache = mutableMapOf<String, Int>()
 
         fun getAttribute(name: String): Int {
@@ -38,7 +41,7 @@ class CustomizeUi: Feature("Customize Ui", loadParams = FeatureLoadParams.ACTIVI
                 }
                 getAttribute("sigColorBackgroundMain"),
                 getAttribute("sigColorBackgroundSurface") -> {
-                    ephemeralHook("getColor", 0xFFFF7403.toInt())
+                    ephemeralHook("getColor", backgroundcolour().toInt()
                 }
                 getAttribute("actionSheetBackgroundDrawable"),
                 getAttribute("actionSheetRoundedBackgroundDrawable") -> {
