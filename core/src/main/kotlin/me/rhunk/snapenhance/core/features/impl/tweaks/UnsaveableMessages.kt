@@ -36,7 +36,7 @@ class UnsaveableMessages : MessagingRuleFeature(
                         val contentType = firstOrNull(2)?.value
                         if (contentType != ContentType.STATUS.id.toLong()) {
                             remove(7)
-                            addVarInt(7, 1) // set savePolicy to PROHIBITED
+                            addVarInt(7, if (contentType != ContentType.SNAP.id) 3 else 1) // set savePolicy to PROHIBITED only for snaps
                         }
                     }
                 }.toByteArray()
