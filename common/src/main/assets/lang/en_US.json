@@ -276,7 +276,7 @@
                         "name": "Customize UI",
                         "description": "Customize Snapchats UI",
                         "properties": {
-                            "custom_colour": {
+                            "background_colour": {
                                 "name": "Custom Colour",
                                 "description": "Changes Snapchats Colour"
                             }
