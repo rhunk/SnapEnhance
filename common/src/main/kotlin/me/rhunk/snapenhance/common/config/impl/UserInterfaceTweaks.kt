@@ -24,12 +24,12 @@ class UserInterfaceTweaks : ConfigContainer() {
         set(mutableListOf("conversation_info", MessagingRuleType.STEALTH.key))
     }
 
-    class Theming : ConfigContainer(hasGlobalState = true) {
-        val customColour = boolean("custom_colour") { addNotices(FeatureNotice.UNSTABLE); requireRestart() }       
+    inner class CustomizeUi : ConfigContainer(hasGlobalState = true) {
+        val backgroundColour = boolean("background_colour") { addNotices(FeatureNotice.UNSTABLE); requireRestart() }       
     }
         
     val amoledDarkMode = boolean("amoled_dark_mode") { addNotices(FeatureNotice.UNSTABLE); requireRestart() }
-    val theming = container("customize_ui", Theming()) { requireRestart() }
+    val customizeUi = container("customize_ui", CustomizeUi()) { requireRestart() }
     val friendFeedMessagePreview = container("friend_feed_message_preview", FriendFeedMessagePreview()) { requireRestart() }
     val snapPreview = boolean("snap_preview") { addNotices(FeatureNotice.UNSTABLE); requireRestart() }
     val bootstrapOverride = container("bootstrap_override", BootstrapOverride()) { requireRestart() }
