@@ -124,9 +124,10 @@ class FeatureManager(
             AccountSwitcher(),
             RemoveGroupsLockedStatus(),
             BypassMessageActionRestrictions(),
-            theming(),
+            Theming(),
+       
         )
-
+    
         initializeFeatures()
     }
 
