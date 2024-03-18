@@ -24,7 +24,7 @@ class UserInterfaceTweaks : ConfigContainer() {
         set(mutableListOf("conversation_info", MessagingRuleType.STEALTH.key))
     }
 
-    inner class Theming : ConfigContainer(hasGlobalState = true) {
+    class Theming : ConfigContainer(hasGlobalState = true) {
         val customColour = boolean("custom_colour") { addNotices(FeatureNotice.UNSTABLE); requireRestart() }       
     }
         
