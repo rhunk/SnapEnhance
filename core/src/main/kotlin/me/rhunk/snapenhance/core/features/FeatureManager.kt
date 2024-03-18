@@ -124,7 +124,7 @@ class FeatureManager(
             AccountSwitcher(),
             RemoveGroupsLockedStatus(),
             BypassMessageActionRestrictions(),
-            Theming(),
+            CustomizeUi(),
        
         )
     
