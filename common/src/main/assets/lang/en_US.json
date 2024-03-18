@@ -278,15 +278,15 @@
                         "properties": {
                             "background_colour": {
                                 "name": "Background Colour",
-                                "description": "Changes snapchats background colour\n Input Hex Code"
+                                "description": "Changes snapchats background colour\nInput Hex Code"
                             },
                             "text_colour": {
                                 "name": "Text Colour",
-                                "description": "Changes snapchats background colour\n Input Hex Code"
+                                "description": "Changes snapchats background colour\nInput Hex Code"
                             },
                             "main_background_colour": {
                                 "name": "Main Background Colour",
-                                "description": "Changes snapchats main background colour\n Input Hex Code"
+                                "description": "Changes snapchats main background colour\nInput Hex Code"
                             }
                         }
                     }, 
