@@ -13,7 +13,7 @@ import me.rhunk.snapenhance.core.util.ktx.getIdentifier
 class customColour: Feature("Custom Colour", loadParams = FeatureLoadParams.ACTIVITY_CREATE_SYNC) {
     @SuppressLint("DiscouragedApi")
     override fun onActivityCreate() {
-        if (!context.config.userInterface.CustomColour.get()) return
+        if (!context.config.userInterface.customColour.get()) return
         val attributeCache = mutableMapOf<String, Int>()
 
         fun getAttribute(name: String): Int {
