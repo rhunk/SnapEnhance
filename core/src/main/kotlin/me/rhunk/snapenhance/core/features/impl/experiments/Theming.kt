@@ -10,10 +10,10 @@ import me.rhunk.snapenhance.core.util.hook.Hooker
 import me.rhunk.snapenhance.core.util.hook.hook
 import me.rhunk.snapenhance.core.util.ktx.getIdentifier
 
-class customColour: Feature("Custom Colour", loadParams = FeatureLoadParams.ACTIVITY_CREATE_SYNC) {
+class CustomizeUi: Feature("Customize Ui", loadParams = FeatureLoadParams.ACTIVITY_CREATE_SYNC) {
     @SuppressLint("DiscouragedApi")
     override fun onActivityCreate() {
-        if (!context.config.userInterface.customColour.get()) return
+        if (!context.config.userInterface.CustomizeUi.globalState != true) return
         val attributeCache = mutableMapOf<String, Int>()
 
         fun getAttribute(name: String): Int {
