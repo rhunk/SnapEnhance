@@ -12,7 +12,7 @@ import me.rhunk.snapenhance.core.util.ktx.getIdentifier
 
 class CustomizeUi: Feature("Customize Ui", loadParams = FeatureLoadParams.ACTIVITY_CREATE_SYNC) {
     @SuppressLint("DiscouragedApi")
-    override fun init() {
+    override fun onActivityCreate() {
         if (!context.config.userInterface.customizeUi.globalState != true) return
         
         val backgroundColour by context.config.userInterface.customizeUi.backgroundColour
@@ -36,19 +36,11 @@ class CustomizeUi: Feature("Customize Ui", loadParams = FeatureLoadParams.ACTIVI
             }
 
             when (array[0]) {
-                getAttribute("sigColorTextPrimary") -> {
-                    ephemeralHook("getColor", 0xFF000000.toInt())
-                }
                 getAttribute("sigColorBackgroundMain"),
                 getAttribute("sigColorBackgroundSurface") -> {
-                    ephemeralHook("getColor", backgroundColour().toInt()
+                    ephemeralHook("getColor", backgroundColour.toInt())
                 }
-                getAttribute("actionSheetBackgroundDrawable"),
-                getAttribute("actionSheetRoundedBackgroundDrawable") -> {
-                    ephemeralHook("getDrawable", ColorDrawable(0xFF000000.toInt()))
-                }
-                                  }
-                                  }
-                                  }
-                                  }
-                                  }
+            }
+        }
+    }
+}
