@@ -11,14 +11,18 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Android
+import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.filled.Laptop
 import androidx.compose.material.icons.filled.LocationOn
 import androidx.compose.material.icons.filled.Lock
+import androidx.compose.material3.Text
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ColorFilter
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import me.rhunk.snapenhance.common.data.ContentType
 import me.rhunk.snapenhance.common.ui.createComposeView
 import me.rhunk.snapenhance.common.util.protobuf.ProtoReader
@@ -52,6 +56,10 @@ class MessageIndicators : Feature("Message Indicators", loadParams = FeatureLoad
                 val sentFromIosDevice = if (reader.containsPath(4, 4, 3)) !reader.containsPath(4, 4, 3, 3, 17) else reader.getVarInt(4, 4, 11, 17, 7) != null
                 val sentFromWebApp = reader.getVarInt(4, 4, *(if (reader.containsPath(4, 4, 3)) intArrayOf(3, 3, 22, 1) else intArrayOf(11, 22, 1))) == 7L
                 val sentWithLocation = reader.getVarInt(4, 4, 11, 17, 5) != null
+                val sentUsingOvfEditor = (reader.getString(4, 4, 11, 12, 1) ?: reader.getString(4, 4, 11, 13, 4, 1, 2, 12, 20, 1)) == "c13129f7-fe4a-44c4-9b9d-e0b26fee8f82"
+                val sentUsingDirectorMode = reader.followPath(4, 4, 11, 28)?.let {
+                    (it.getVarInt(1) to it.getVarInt(2)) == (0L to 0L)
+                } == true || reader.getByteArray(4, 4, 11, 13, 4, 1, 2, 12, 27, 1) != null
 
                 createComposeView(event.view.context) {
                     Box(
@@ -60,7 +68,9 @@ class MessageIndicators : Feature("Message Indicators", loadParams = FeatureLoad
                             .padding(top = 4.dp, end = 1.dp),
                         contentAlignment = Alignment.BottomEnd
                     ) {
-                        Row {
+                        Row(
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
                             if (messageIndicatorsConfig.contains("location_indicator")) {
                                 if (sentWithLocation) {
                                     Image(
@@ -89,6 +99,22 @@ class MessageIndicators : Feature("Message Indicators", loadParams = FeatureLoad
                                     colorFilter = ColorFilter.tint(Color.Green),
                                     contentDescription = null,
                                     modifier = Modifier.size(15.dp)
+                                )
+                            }
+                            if (sentUsingDirectorMode && messageIndicatorsConfig.contains("director_mode_indicator")) {
+                                Image(
+                                    imageVector = Icons.Default.Edit,
+                                    colorFilter = ColorFilter.tint(Color.Red),
+                                    contentDescription = null,
+                                    modifier = Modifier.size(15.dp)
+                                )
+                            }
+                            if (sentUsingOvfEditor && messageIndicatorsConfig.contains("ovf_editor_indicator")) {
+                                Text(
+                                    text = "OVF",
+                                    color = Color.Red,
+                                    fontWeight = FontWeight.ExtraBold,
+                                    fontSize = 10.sp,
                                 )
                             }
                         }

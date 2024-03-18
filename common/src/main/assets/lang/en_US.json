@@ -998,7 +998,9 @@
             "message_indicators": {
                 "encryption_indicator": "Adds a \uD83D\uDD12 icon next to messages that have been sent only to you",
                 "platform_indicator": "Adds the platform icon from which a media was sent (e.g. Android, iOS, Web)",
-                "location_indicator": "Adds a \uD83D\uDCCD icon to snaps when they have been sent with location enabled"
+                "location_indicator": "Adds a \uD83D\uDCCD icon to snaps when they have been sent with location enabled",
+                "ovf_editor_indicator": "Indicates if a snap has been sent using OVF Editor",
+                "director_mode_indicator": "Adds a \u270F\uFE0F icon to snaps when they have been sent using Director Mode, which can be used to send gallery images as snaps"
             }
         }
     },
