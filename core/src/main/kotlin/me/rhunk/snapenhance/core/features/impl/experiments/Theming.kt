@@ -12,10 +12,10 @@ import me.rhunk.snapenhance.core.util.ktx.getIdentifier
 
 class CustomizeUi: Feature("Customize Ui", loadParams = FeatureLoadParams.ACTIVITY_CREATE_SYNC) {
     @SuppressLint("DiscouragedApi")
-    override fun onActivityCreate() {
-        if (!context.config.UserInterfaceTweaks.CustomizeUi.globalState != true) return
+    override fun init() {
+        if (!context.config.UserInterfaceTweaks.customizeUi.globalState != true) return
         
-        val backgroundColour by context.config.userInterface.CustomizeUi.backgroundColour
+        val backgroundColour by context.config.userInterface.customizeUi.backgroundColour
         
         val attributeCache = mutableMapOf<String, Int>()
 
