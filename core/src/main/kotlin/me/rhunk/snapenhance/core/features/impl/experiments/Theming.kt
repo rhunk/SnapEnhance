@@ -15,7 +15,7 @@ class CustomizeUi: Feature("Customize Ui", loadParams = FeatureLoadParams.ACTIVI
     override fun onActivityCreate() {
         if (!context.config.userInterface.CustomizeUi.globalState != true) return
         
-        val backgroundcolour by context.config.userInterface.CustomizeUi.backgroundColour
+        val backgroundColour by context.config.userInterface.CustomizeUi.backgroundColour
         
         val attributeCache = mutableMapOf<String, Int>()
 
