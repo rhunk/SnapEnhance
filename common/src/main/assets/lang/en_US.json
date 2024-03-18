@@ -282,11 +282,11 @@
                             },
                             "text_colour": {
                                 "name": "Text Colour",
-                                "description": "Changes snapchats background colour\nInput Hex Code"
+                                "description": "Changes snapchats text colour\nInput Hex Code"
                             },
-                            "main_background_colour": {
-                                "name": "Main Background Colour",
-                                "description": "Changes snapchats main background colour\nInput Hex Code"
+                            "drawable_background_colour": {
+                                "name": "Drawable Background Colour",
+                                "description": "Changes snapchats drawable background colour\nInput Hex Code"
                             }
                         }
                     }, 
