@@ -64,9 +64,8 @@ class AutoSave : MessagingRuleFeature("Auto Save", MessagingRuleType.AUTO_SAVE, 
         }
 
         if (context.feature(StealthMode::class).canUseRule(targetConversationId)) return false
-        if (!canUseRule(targetConversationId)) return false
 
-        return true
+        return canUseRule(targetConversationId)
     }
 
     override fun asyncOnActivityCreate() {
