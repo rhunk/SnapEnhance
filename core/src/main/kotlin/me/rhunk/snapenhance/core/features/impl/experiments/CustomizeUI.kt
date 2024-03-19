@@ -18,7 +18,15 @@ class CustomizeUi: Feature("Customize_Ui", loadParams = FeatureLoadParams.ACTIVI
         val backgroundColour by context.config.userInterface.customizeUi.backgroundColour.also {
             if (it.getNullable()?.isEmpty() != false) return
         }
-        
+
+        val textColour by context.config.userInterface.customizeUi.textColour.also {
+            if (it.getNullable()?.isEmpty() != false) return
+        }
+
+        val drawablebackgroundColour by context.config.userInterface.customizeUi.drawablebackgroundColour.also {
+            if (it.getNullable()?.isEmpty() != false) return
+        }
+
         val attributeCache = mutableMapOf<String, Int>()
 
         fun getAttribute(name: String): Int {
@@ -38,9 +46,16 @@ class CustomizeUi: Feature("Customize_Ui", loadParams = FeatureLoadParams.ACTIVI
             }
 
             when (array[0]) {
+                getAttribute("sigColorTextPrimary") -> {
+                    ephemeralHook("getColor", it.get(textColour).toInt())
+                }
                 getAttribute("sigColorBackgroundMain"),
                 getAttribute("sigColorBackgroundSurface") -> {
-                    ephemeralHook("getColor", backgroundColour.toInt())
+                    ephemeralHook("getColor", it.get(backgroundColour).toInt())
+                }
+                getAttribute("actionSheetBackgroundDrawable"),
+                getAttribute("actionSheetRoundedBackgroundDrawable") -> {
+                    ephemeralHook("getDrawable", ColorDrawable(it.get(drawablebackgroundColour).toInt()))
                 }
             }
         }
