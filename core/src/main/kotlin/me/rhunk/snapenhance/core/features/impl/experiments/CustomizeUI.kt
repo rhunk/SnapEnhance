@@ -14,9 +14,9 @@ class CustomizeUi: Feature("Customize_Ui", loadParams = FeatureLoadParams.ACTIVI
     @SuppressLint("DiscouragedApi")
     override fun onActivityCreate() {
         if (context.config.userInterface.customizeUi.globalState != true) return
-        val backgroundColour = context.config.userInterface.customizeUi.backgroundColour
-        val textColour = context.config.userInterface.customizeUi.textColour
-        val drawablebackgroundColour = context.config.userInterface.customizeUi.drawablebackgroundColour
+        val backgroundColour by context.config.userInterface.customizeUi.backgroundColour
+        val textColour by context.config.userInterface.customizeUi.textColour
+        val drawablebackgroundColour by context.config.userInterface.customizeUi.drawablebackgroundColour
 
         fun getbc(name: String): Int {
             return backgroundColour.toInt()
@@ -50,7 +50,7 @@ class CustomizeUi: Feature("Customize_Ui", loadParams = FeatureLoadParams.ACTIVI
 
             when (array[0]) {
                 getAttribute("sigColorTextPrimary") -> {
-                    ephemeralHook("getColor", gettc("textColour"))
+                    ephemeralHook("getColor", (backgroundColour).toInt())
                 }
                 getAttribute("sigColorBackgroundMain"),
                 getAttribute("sigColorBackgroundSurface") -> {
