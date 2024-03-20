@@ -27,7 +27,6 @@ class CustomizeUi: Feature("Customize_Ui", loadParams = FeatureLoadParams.ACTIVI
             if (it.getNullable()?.isEmpty() != false) return
         }
 
-        
         val attributeCache = mutableMapOf<String, Int>()
 
         fun getAttribute(name: String): Int {
@@ -48,15 +47,15 @@ class CustomizeUi: Feature("Customize_Ui", loadParams = FeatureLoadParams.ACTIVI
 
             when (array[0]) {
                 getAttribute("sigColorTextPrimary") -> {
-                    ephemeralHook("getColor", get("textColour").toInt())
+                    ephemeralHook("getColor", .get("textColour").toInt())
                 }
                 getAttribute("sigColorBackgroundMain"),
                 getAttribute("sigColorBackgroundSurface") -> {
-                    ephemeralHook("getColor", get("backgroundColour").toInt())
+                    ephemeralHook("getColor", .get("backgroundColour").toInt())
                 }
                 getAttribute("actionSheetBackgroundDrawable"),
                 getAttribute("actionSheetRoundedBackgroundDrawable") -> {
-                    ephemeralHook("getDrawable", ColorDrawable(get("drawablebackgroundColour").toInt()))
+                    ephemeralHook("getDrawable", ColorDrawable(.get("drawablebackgroundColour").toInt()))
                 }
             }
         }
