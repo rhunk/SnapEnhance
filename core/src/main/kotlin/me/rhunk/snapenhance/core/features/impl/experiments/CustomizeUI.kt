@@ -13,7 +13,7 @@ import me.rhunk.snapenhance.core.util.ktx.getIdentifier
 class CustomizeUi: Feature("Customize_Ui", loadParams = FeatureLoadParams.ACTIVITY_CREATE_SYNC) {
     @SuppressLint("DiscouragedApi")
     override fun onActivityCreate() {
-        if (context.config.userInterface.customizeUi.globalState != true) return
+        if (!context.config.userInterface.customizeUi.globalState.get()) return
         val backgroundColour by context.config.userInterface.customizeUi.backgroundColour
         val textColour by context.config.userInterface.customizeUi.textColour
         val drawablebackgroundColour by context.config.userInterface.customizeUi.drawablebackgroundColour
