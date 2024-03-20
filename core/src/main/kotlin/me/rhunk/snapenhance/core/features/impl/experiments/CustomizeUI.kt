@@ -8,7 +8,7 @@ import me.rhunk.snapenhance.core.features.FeatureLoadParams
 import me.rhunk.snapenhance.core.util.hook.HookStage
 import me.rhunk.snapenhance.core.util.hook.Hooker
 import me.rhunk.snapenhance.core.util.hook.hook
-import me.rhunk.snapenhance.core.util.ktx.getIdentifie
+import me.rhunk.snapenhance.core.util.ktx.getIdentifier
 
 class CustomizeUi: Feature("Customize_Ui", loadParams = FeatureLoadParams.ACTIVITY_CREATE_SYNC) {
     @SuppressLint("DiscouragedApi")
