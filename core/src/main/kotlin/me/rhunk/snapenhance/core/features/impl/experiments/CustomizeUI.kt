@@ -50,15 +50,15 @@ class CustomizeUi: Feature("Customize_Ui", loadParams = FeatureLoadParams.ACTIVI
 
             when (array[0]) {
                 getAttribute("sigColorTextPrimary") -> {
-                    ephemeralHook("getColor", gettc.toInt())
+                    ephemeralHook("getColor", gettc("textColour").toInt())
                 }
                 getAttribute("sigColorBackgroundMain"),
                 getAttribute("sigColorBackgroundSurface") -> {
-                    ephemeralHook("getColor", getbc.toInt())
+                    ephemeralHook("getColor", getbc("backgroundColour").toInt())
                 }
                 getAttribute("actionSheetBackgroundDrawable"),
                 getAttribute("actionSheetRoundedBackgroundDrawable") -> {
-                    ephemeralHook("getDrawable", ColorDrawable(getdbc.toInt()))
+                    ephemeralHook("getDrawable", ColorDrawable(getdbc("drawablebackgroundColour").toInt()))
                 }
             }
         }
