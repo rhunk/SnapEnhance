@@ -18,16 +18,16 @@ class CustomizeUi: Feature("Customize_Ui", loadParams = FeatureLoadParams.ACTIVI
         val textColour by context.config.userInterface.customizeUi.textColour
         val drawablebackgroundColour by context.config.userInterface.customizeUi.drawablebackgroundColour
 
-        fun getbc(name: String): {
-            backgroundColour return
+        fun getbc(name: String): Int {
+            backgroundColour return;
         }
         
-        fun gettc(name: String): {
-            textColour return
+        fun gettc(name: String): Int {
+            textColour return;
         }
         
-        fun getdbc(name: String): {
-            drawablebackgroundColour return
+        fun getdbc(name: String): Int {
+            drawablebackgroundColour return;
         }
         
         val attributeCache = mutableMapOf<String, Int>()
@@ -58,7 +58,7 @@ class CustomizeUi: Feature("Customize_Ui", loadParams = FeatureLoadParams.ACTIVI
                 }
                 getAttribute("actionSheetBackgroundDrawable"),
                 getAttribute("actionSheetRoundedBackgroundDrawable") -> {
-                    ephemeralHook("getDrawable", ColorDrawable(getdbc("drawablebackgroundColour").toInt()))
+                    ephemeralHook("getDrawable", ColorDrawable(.getdbc("drawablebackgroundColour").toInt()))
                 }
             }
         }
