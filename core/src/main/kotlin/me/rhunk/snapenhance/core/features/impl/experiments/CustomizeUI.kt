@@ -14,15 +14,15 @@ class CustomizeUi: Feature("Customize_Ui", loadParams = FeatureLoadParams.ACTIVI
     @SuppressLint("DiscouragedApi")
     override fun onActivityCreate() {
         if (context.config.userInterface.customizeUi.globalState != true) return
-        fun getbc(name: int) { 
+        fun getbc(name: String): Int { 
             val backgroundColour by context.config.userInterface.customizeUi.backgroundColour
         }
         
-        fun gettc(name: int) {
+        fun gettc(name: String): Int {
             val textColour by context.config.userInterface.customizeUi.textColour
         }
 
-        fun getdbc(name: int) {
+        fun getdbc(name: String): Int {
             val drawablebackgroundColour by context.config.userInterface.customizeUi.drawablebackgroundColour
         }
         
