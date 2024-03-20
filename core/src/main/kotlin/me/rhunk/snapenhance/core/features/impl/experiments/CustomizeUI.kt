@@ -14,15 +14,15 @@ class CustomizeUi: Feature("Customize_Ui", loadParams = FeatureLoadParams.ACTIVI
     @SuppressLint("DiscouragedApi")
     override fun onActivityCreate() {
         if (context.config.userInterface.customizeUi.globalState != true) return
-        fun getbc(backgroundc: String) { 
+        fun getbc(name: String) { 
             val backgroundColour by context.config.userInterface.customizeUi.backgroundColour
         }
         
-        fun gettc(textc: String) {
+        fun gettc(name: String) {
             val textColour by context.config.userInterface.customizeUi.textColour
         }
 
-        fun getdbc(drawbc: String) {
+        fun getdbc(name: String) {
             val drawablebackgroundColour by context.config.userInterface.customizeUi.drawablebackgroundColour
         }
         
@@ -50,15 +50,15 @@ class CustomizeUi: Feature("Customize_Ui", loadParams = FeatureLoadParams.ACTIVI
 
             when (array[0]) {
                 getAttribute("sigColorTextPrimary") -> {
-                    ephemeralHook("getColor", get("textc").toInt())
+                    ephemeralHook("getColor", gettc.toInt())
                 }
                 getAttribute("sigColorBackgroundMain"),
                 getAttribute("sigColorBackgroundSurface") -> {
-                    ephemeralHook("getColor", get("backgroundc").toInt())
+                    ephemeralHook("getColor", getbc.toInt())
                 }
                 getAttribute("actionSheetBackgroundDrawable"),
                 getAttribute("actionSheetRoundedBackgroundDrawable") -> {
-                    ephemeralHook("getDrawable", ColorDrawable(get("drawbc").toInt()))
+                    ephemeralHook("getDrawable", ColorDrawable(getdbc.toInt()))
                 }
             }
         }
