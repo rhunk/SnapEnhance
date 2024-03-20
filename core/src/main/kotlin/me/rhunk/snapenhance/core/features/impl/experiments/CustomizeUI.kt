@@ -18,15 +18,15 @@ class CustomizeUi: Feature("Customize_Ui", loadParams = FeatureLoadParams.ACTIVI
         val textColour by context.config.userInterface.customizeUi.textColour
         val drawablebackgroundColour by context.config.userInterface.customizeUi.drawablebackgroundColour
 
-        fun getbc(name: String): String {
+        fun getbc(name: String): {
             backgroundColour return
         }
         
-        fun gettc(name: String): String {
+        fun gettc(name: String): {
             textColour return
         }
         
-        fun getdbc(name: String): String {
+        fun getdbc(name: String): {
             drawablebackgroundColour return
         }
         
