@@ -18,16 +18,16 @@ class CustomizeUi: Feature("Customize_Ui", loadParams = FeatureLoadParams.ACTIVI
         val textColour by context.config.userInterface.customizeUi.textColour
         val drawablebackgroundColour by context.config.userInterface.customizeUi.drawablebackgroundColour
 
-        fun getbc(name: String): Int {
-            return backgroundColour
+        fun getbc(name: String): String {
+            return; backgroundColour
         }
         
-        fun gettc(name: String): Int {
-            return textColour 
+        fun gettc(name: String): String {
+            return; textColour 
         }
         
-        fun getdbc(name: String): Int {
-            return drawablebackgroundColour
+        fun getdbc(name: String): String {
+            return; drawablebackgroundColour
         }
         
         val attributeCache = mutableMapOf<String, Int>()
