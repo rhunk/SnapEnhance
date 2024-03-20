@@ -1,5 +1,6 @@
 package me.rhunk.snapenhance.common.util.protobuf
 
+import java.nio.ByteBuffer
 import java.util.UUID
 
 data class Wire(val id: Int, val type: WireType, val value: Any) {
@@ -180,50 +181,24 @@ class ProtoReader(private val buffer: ByteArray) {
     private fun prettyPrint(tabSize: Int): String {
         val tabLine = "    ".repeat(tabSize)
         val stringBuilder = StringBuilder()
-        values.forEach { (id, wires) ->
+        values.forEach v@{ (id, wires) ->
             wires.forEach { wire ->
                 stringBuilder.append(tabLine)
                 stringBuilder.append("$id <${wire.type.name.lowercase()}> = ")
                 when (wire.type) {
                     WireType.VARINT -> stringBuilder.append("${wire.value}\n")
                     WireType.FIXED64, WireType.FIXED32 -> {
-                        //print as double, int, floating point
-                        val doubleValue = run {
-                            val bytes = wire.value as ByteArray
-                            var value = 0L
-                            for (i in bytes.indices) {
-                                value = value or ((bytes[i].toLong() and 0xFF) shl (i * 8))
-                            }
-                            value
-                        }.let {
-                            if (wire.type == WireType.FIXED32) {
-                                it.toInt()
-                            } else {
-                                it
-                            }
-                        }
-
-                        stringBuilder.append("$doubleValue/${doubleValue.toDouble().toBits().toString(16)}\n")
+                        val byteBuffer = ByteBuffer.wrap(wire.value as ByteArray).order(java.nio.ByteOrder.LITTLE_ENDIAN)
+                        val hexValue = wire.value.joinToString("") { byte -> "%02x".format(byte) }
+                        val intValue = if (wire.type == WireType.FIXED32) byteBuffer.int else byteBuffer.long
+                        byteBuffer.position(0)
+                        val decimalValue = if (wire.type == WireType.FIXED32) byteBuffer.float else byteBuffer.double
+                        stringBuilder.append("$intValue/0x$hexValue/$decimalValue\n")
                     }
                     WireType.CHUNK -> {
-                        fun printArray() {
-                            stringBuilder.append("\n")
-                            stringBuilder.append("$tabLine    ")
-                            stringBuilder.append((wire.value as ByteArray).joinToString(" ") { byte -> "%02x".format(byte) })
-                            stringBuilder.append("\n")
-                        }
-                        runCatching {
-                            val array = (wire.value as ByteArray)
-                            if (array.isEmpty()) {
-                                stringBuilder.append("empty\n")
-                                return@runCatching
-                            }
-                            //auto detect ascii strings
-                            if (array.all { it in (0x20..0x7E) || it == 0x0A.toByte() || it == 0x0D.toByte() }) {
-                                stringBuilder.append("string: ${array.toString(Charsets.UTF_8)}\n")
-                                return@runCatching
-                            }
+                        val array = (wire.value as? ByteArray) ?: return@forEach
 
+                        fun printArray() {
                             // auto detect uuids
                             if (array.size == 16) {
                                 val longs = LongArray(2)
@@ -234,6 +209,24 @@ class ProtoReader(private val buffer: ByteArray) {
                                     longs[1] = longs[1] or ((array[i].toLong() and 0xFF) shl ((15 - i) * 8))
                                 }
                                 stringBuilder.append("uuid: ${UUID(longs[0], longs[1])}\n")
+                                return
+                            }
+
+                            //auto detect ascii strings
+                            if (array.all { it in (0x20..0x7E) || it == 0x0A.toByte() || it == 0x0D.toByte() }) {
+                                stringBuilder.append("string: ${array.toString(Charsets.UTF_8)}\n")
+                                return
+                            }
+
+                            stringBuilder.append("\n")
+                            stringBuilder.append("$tabLine    ")
+                            stringBuilder.append(array.joinToString(" ") { byte -> "%02x".format(byte) })
+                            stringBuilder.append("\n")
+                        }
+
+                        runCatching {
+                            if (array.isEmpty()) {
+                                stringBuilder.append("empty\n")
                                 return@runCatching
                             }
 

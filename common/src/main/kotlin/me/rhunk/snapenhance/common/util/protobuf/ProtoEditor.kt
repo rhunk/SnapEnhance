@@ -18,7 +18,7 @@ class EditorContext(
     fun add(id: Int, content: ProtoWriter.() -> Unit) = addBuffer(id, ProtoWriter().apply(content).toByteArray())
     fun addString(id: Int, value: String) = addBuffer(id, value.toByteArray())
     fun addFixed64(id: Int, value: Long) = addWire(Wire(id, WireType.FIXED64, value))
-    fun addFixed32(id: Int, value: Int) = addWire(Wire(id, WireType.FIXED32, value))
+    fun addFixed32(id: Int, value: Float) = addWire(Wire(id, WireType.FIXED32, value.toRawBits()))
 
     fun firstOrNull(id: Int) = wires[id]?.firstOrNull()
     fun getOrNull(id: Int) = wires[id]
@@ -49,6 +49,12 @@ class EditorContext(
         }
         wires.clear()
         wires.addAll(newWires)
+    }
+
+    override fun toString(): String {
+        return ProtoWriter().apply {
+            wires.values.flatten().forEach { addWire(it) }
+        }.toByteArray().let { ProtoReader(it).toString() }
     }
 }
 
