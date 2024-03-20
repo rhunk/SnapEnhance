@@ -58,7 +58,7 @@ class CustomizeUi: Feature("Customize_Ui", loadParams = FeatureLoadParams.ACTIVI
                 }
                 getAttribute("actionSheetBackgroundDrawable"),
                 getAttribute("actionSheetRoundedBackgroundDrawable") -> {
-                    ephemeralHook("getDrawable", ColorDrawable((drawablebackgroundColour).toInt))
+                    ephemeralHook("getDrawable", ColorDrawable((drawablebackgroundColour).toInt()))
                 }
             }
         }
