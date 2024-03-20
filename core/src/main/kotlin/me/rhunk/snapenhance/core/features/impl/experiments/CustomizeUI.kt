@@ -15,15 +15,15 @@ class CustomizeUi: Feature("Customize_Ui", loadParams = FeatureLoadParams.ACTIVI
     override fun onActivityCreate() {
         if (context.config.userInterface.customizeUi.globalState != true) return
         fun getbc(name: String): Int { 
-            val backgroundColour by context.config.userInterface.customizeUi.backgroundColour
+            val backgroundColour by context.config.userInterface.customizeUi.backgroundColour return
         }
         
         fun gettc(name: String): Int {
-            val textColour by context.config.userInterface.customizeUi.textColour
+            val textColour by context.config.userInterface.customizeUi.textColour return
         }
 
         fun getdbc(name: String): Int {
-            val drawablebackgroundColour by context.config.userInterface.customizeUi.drawablebackgroundColour
+            val drawablebackgroundColour by context.config.userInterface.customizeUi.drawablebackgroundColour return
         }
         
       
