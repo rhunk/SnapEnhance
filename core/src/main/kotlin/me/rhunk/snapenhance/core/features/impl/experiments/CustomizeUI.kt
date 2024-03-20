@@ -14,19 +14,22 @@ class CustomizeUi: Feature("Customize_Ui", loadParams = FeatureLoadParams.ACTIVI
     @SuppressLint("DiscouragedApi")
     override fun onActivityCreate() {
         if (context.config.userInterface.customizeUi.globalState != true) return
+        fun getbc(backgroundc: String) { 
+            val backgroundColour by context.config.userInterface.customizeUi.backgroundColour
+        }
         
-        val backgroundColour by context.config.userInterface.customizeUi.backgroundColour.also {
-            if (it.getNullable()?.isEmpty() != false) return
+        fun gettc(textc: String) {
+            val textColour by context.config.userInterface.customizeUi.textColour
         }
 
-        val textColour by context.config.userInterface.customizeUi.textColour.also {
-            if (it.getNullable()?.isEmpty() != false) return
+        fun getdbc(drawbc: String) {
+            val drawablebackgroundColour by context.config.userInterface.customizeUi.drawablebackgroundColour
         }
-
-        val drawablebackgroundColour by context.config.userInterface.customizeUi.drawablebackgroundColour.also {
-            if (it.getNullable()?.isEmpty() != false) return
-        }
-
+        
+      
+        
+          
+        
         val attributeCache = mutableMapOf<String, Int>()
 
         fun getAttribute(name: String): Int {
@@ -47,15 +50,15 @@ class CustomizeUi: Feature("Customize_Ui", loadParams = FeatureLoadParams.ACTIVI
 
             when (array[0]) {
                 getAttribute("sigColorTextPrimary") -> {
-                    ephemeralHook("getColor", .get("textColour").toInt())
+                    ephemeralHook("getColor", get("textc").toInt())
                 }
                 getAttribute("sigColorBackgroundMain"),
                 getAttribute("sigColorBackgroundSurface") -> {
-                    ephemeralHook("getColor", .get("backgroundColour").toInt())
+                    ephemeralHook("getColor", get("backgroundc").toInt())
                 }
                 getAttribute("actionSheetBackgroundDrawable"),
                 getAttribute("actionSheetRoundedBackgroundDrawable") -> {
-                    ephemeralHook("getDrawable", ColorDrawable(.get("drawablebackgroundColour").toInt()))
+                    ephemeralHook("getDrawable", ColorDrawable(get("drawbc").toInt()))
                 }
             }
         }
