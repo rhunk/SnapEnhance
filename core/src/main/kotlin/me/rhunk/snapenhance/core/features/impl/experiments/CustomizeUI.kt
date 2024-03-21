@@ -19,7 +19,7 @@ class CustomizeUi: Feature("Customize_Ui", loadParams = FeatureLoadParams.ACTIVI
         val textColour by context.config.userInterface.customizeUi.textColour
         val drawablebackgroundColour by context.config.userInterface.customizeUi.drawablebackgroundColour
 
-        val userinputbackgroundColour = try { Color.parseColor(backgroundColour) 
+        val userinputbackgroundcolour = try { Color.parseColor(backgroundColour) 
         } catch (e: IllegalArgumentException){
             0xFF000000
         }
