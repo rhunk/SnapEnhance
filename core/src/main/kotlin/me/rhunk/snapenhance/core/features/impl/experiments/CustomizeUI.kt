@@ -19,6 +19,8 @@ class CustomizeUi: Feature("Customize_Ui", loadParams = FeatureLoadParams.ACTIVI
         val drawablebackgroundColour by context.config.userInterface.customizeUi.drawablebackgroundColour
 
         val test1 = try { Colour.parseColour(backgroundColour) 
+        } catch (e: IllegalArgumentException){
+            0
         }
         
         val attributeCache = mutableMapOf<String, Int>()
