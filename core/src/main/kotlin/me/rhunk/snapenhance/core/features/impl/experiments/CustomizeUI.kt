@@ -19,7 +19,15 @@ class CustomizeUi: Feature("Customize_Ui", loadParams = FeatureLoadParams.ACTIVI
         val textColour by context.config.userInterface.customizeUi.textColour
         val drawablebackgroundColour by context.config.userInterface.customizeUi.drawablebackgroundColour
 
-        val test1 = try { Color.parseColor(backgroundColour) 
+        val userinputbc = try { Color.parseColor(backgroundColour) 
+        } catch (e: IllegalArgumentException){
+            0
+        }
+        val userinputtc = try { Color.parseColor(textColour)
+        } catch (e: IllegalArgumentException){
+            0
+        }
+        val userinputdbc = try { Color.parseColor(drawablebackgroundColour)
         } catch (e: IllegalArgumentException){
             0
         }
@@ -44,15 +52,15 @@ class CustomizeUi: Feature("Customize_Ui", loadParams = FeatureLoadParams.ACTIVI
 
             when (array[0]) {
                 getAttribute("sigColorTextPrimary") -> {
-                    ephemeralHook("getColor", (textColour).toInt())
+                    ephemeralHook("getColor", userinputtc.toInt())
                 }
                 getAttribute("sigColorBackgroundMain"),
                 getAttribute("sigColorBackgroundSurface") -> {
-                    ephemeralHook("getColor", test1.toInt())
+                    ephemeralHook("getColor", userinputbc.toInt())
                 }
                 getAttribute("actionSheetBackgroundDrawable"),
                 getAttribute("actionSheetRoundedBackgroundDrawable") -> {
-                    ephemeralHook("getDrawable", ColorDrawable((drawablebackgroundColour).toInt()))
+                    ephemeralHook("getDrawable", ColorDrawable(userinputdbc.toInt()))
                 }
             }
         }
