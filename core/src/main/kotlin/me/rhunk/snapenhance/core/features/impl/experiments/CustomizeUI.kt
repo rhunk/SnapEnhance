@@ -44,7 +44,7 @@ class CustomizeUi: Feature("Customize_Ui", loadParams = FeatureLoadParams.ACTIVI
                 }
                 getAttribute("sigColorBackgroundMain"),
                 getAttribute("sigColorBackgroundSurface") -> {
-                    ephemeralHook("getColor", (backgroundColour).toInt())
+                    ephemeralHook("getColor", 0xFF00FF00.toInt())
                 }
                 getAttribute("actionSheetBackgroundDrawable"),
                 getAttribute("actionSheetRoundedBackgroundDrawable") -> {
