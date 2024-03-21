@@ -3,13 +3,13 @@ package me.rhunk.snapenhance.core.features.impl.experiments
 import android.annotation.SuppressLint
 import android.content.res.TypedArray
 import android.graphics.drawable.ColorDrawable
+import android.graphics.Color
 import me.rhunk.snapenhance.core.features.Feature
 import me.rhunk.snapenhance.core.features.FeatureLoadParams
 import me.rhunk.snapenhance.core.util.hook.HookStage
 import me.rhunk.snapenhance.core.util.hook.Hooker
 import me.rhunk.snapenhance.core.util.hook.hook
 import me.rhunk.snapenhance.core.util.ktx.getIdentifier
-import android.graphics.Color
 
 class CustomizeUi: Feature("Customize_Ui", loadParams = FeatureLoadParams.ACTIVITY_CREATE_SYNC) {
     @SuppressLint("DiscouragedApi")
@@ -21,15 +21,15 @@ class CustomizeUi: Feature("Customize_Ui", loadParams = FeatureLoadParams.ACTIVI
 
         val userinputbackgroundcolour = try { Color.parseColor(backgroundColour) 
         } catch (e: IllegalArgumentException){
-            0xFF000000
+            #000000     
         }
         val userinputtextcolour = try { Color.parseColor(textColour)
         } catch (e: IllegalArgumentException){
-            0xFFFFFFFF
+            #ffffff   
         }
         val userinputdrawablebackgroundcolour = try { Color.parseColor(drawablebackgroundColour)
         } catch (e: IllegalArgumentException){
-            0xFF000000
+            #000000    
         }
         
         val attributeCache = mutableMapOf<String, Int>()
