@@ -9,7 +9,7 @@ import me.rhunk.snapenhance.core.util.hook.HookStage
 import me.rhunk.snapenhance.core.util.hook.Hooker
 import me.rhunk.snapenhance.core.util.hook.hook
 import me.rhunk.snapenhance.core.util.ktx.getIdentifier
-import android.graphics.Color;
+import android.graphics.Color
 
 class CustomizeUi: Feature("Customize_Ui", loadParams = FeatureLoadParams.ACTIVITY_CREATE_SYNC) {
     @SuppressLint("DiscouragedApi")
@@ -19,15 +19,15 @@ class CustomizeUi: Feature("Customize_Ui", loadParams = FeatureLoadParams.ACTIVI
         val textColour by context.config.userInterface.customizeUi.textColour
         val drawablebackgroundColour by context.config.userInterface.customizeUi.drawablebackgroundColour
 
-        val userinputbc = try { Color.parseColor(backgroundColour) 
+        val userinputbackgroundColour = try { Color.parseColor(backgroundColour) 
         } catch (e: IllegalArgumentException){
             0
         }
-        val userinputtc = try { Color.parseColor(textColour)
+        val userinputtextcolour = try { Color.parseColor(textColour)
         } catch (e: IllegalArgumentException){
             0
         }
-        val userinputdbc = try { Color.parseColor(drawablebackgroundColour)
+        val userinputdrawablebackgroundcolour = try { Color.parseColor(drawablebackgroundColour)
         } catch (e: IllegalArgumentException){
             0
         }
@@ -52,15 +52,15 @@ class CustomizeUi: Feature("Customize_Ui", loadParams = FeatureLoadParams.ACTIVI
 
             when (array[0]) {
                 getAttribute("sigColorTextPrimary") -> {
-                    ephemeralHook("getColor", userinputtc.toInt())
+                    ephemeralHook("getColor", userinputtextcolour.toInt())
                 }
                 getAttribute("sigColorBackgroundMain"),
                 getAttribute("sigColorBackgroundSurface") -> {
-                    ephemeralHook("getColor", userinputbc.toInt())
+                    ephemeralHook("getColor", userinputbackgroundcolour.toInt())
                 }
                 getAttribute("actionSheetBackgroundDrawable"),
                 getAttribute("actionSheetRoundedBackgroundDrawable") -> {
-                    ephemeralHook("getDrawable", ColorDrawable(userinputdbc.toInt()))
+                    ephemeralHook("getDrawable", ColorDrawable(userinputdrawablebackgroundcolour.toInt()))
                 }
             }
         }
