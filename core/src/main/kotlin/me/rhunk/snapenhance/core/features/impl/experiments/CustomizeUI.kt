@@ -9,7 +9,7 @@ import me.rhunk.snapenhance.core.util.hook.HookStage
 import me.rhunk.snapenhance.core.util.hook.Hooker
 import me.rhunk.snapenhance.core.util.hook.hook
 import me.rhunk.snapenhance.core.util.ktx.getIdentifier
-import android.graphics.Color
+import android.graphics.Color;
 
 class CustomizeUi: Feature("Customize_Ui", loadParams = FeatureLoadParams.ACTIVITY_CREATE_SYNC) {
     @SuppressLint("DiscouragedApi")
@@ -24,7 +24,7 @@ class CustomizeUi: Feature("Customize_Ui", loadParams = FeatureLoadParams.ACTIVI
             0
         }
         
-        val attributeCache = mutabl.eMapOf<String, Int>()
+        val attributeCache = mutableMapOf<String, Int>()
 
         fun getAttribute(name: String): Int {
             if (attributeCache.containsKey(name)) return attributeCache[name]!!
