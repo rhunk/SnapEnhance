@@ -21,20 +21,22 @@ class CustomizeUi: Feature("Customize_Ui", loadParams = FeatureLoadParams.ACTIVI
 
         val userinputbackgroundcolour = try { Color.parseColor(backgroundColour) 
         } catch (e: IllegalArgumentException){
-            Color.parseColor(DEFAULT_BACKGROUND_COLOUR)
+            Color.parseColor(CustomizeUi.DEFAULT_BACKGROUND_COLOUR)
         }
         val userinputtextcolour = try { Color.parseColor(textColour)
         } catch (e: IllegalArgumentException){
-            Color.parseColor(DEFAULT_TEXT_COLOUR)
+            Color.parseColor(CustomizeUi.DEFAULT_TEXT_COLOUR)
         }
         val userinputdrawablebackgroundcolour = try { Color.parseColor(drawablebackgroundColour)
         } catch (e: IllegalArgumentException){
-            Color.parseColor(DEFAULT_DRAWABLE_COLOUR)
+            Color.parseColor(CustomizeUi.DEFAULT_DRAWABLE_COLOUR)
         }
         
-        private static final String DEFAULT_BACKGROUND_COLOUR = "#FFFFFF";
-        private Static final String DEFAULT_TEXT_COLOUR = "#000000";
-        private Static final String DEFAULT_DRAWABLE_COLOUR = "#FFFFFF";
+        private companion object {
+            const val DEFAULT_BACKGROUND_COLOUR = "#FFFFFF";
+            const val DEFAULT_TEXT_COLOUR = "#000000";
+            const val DEFAULT_DRAWABLE_COLOUR = "#FFFFFF";
+        }
         
         val attributeCache = mutableMapOf<String, Int>()
 
