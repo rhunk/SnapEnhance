@@ -62,13 +62,13 @@ class CustomizeUi: Feature("Customize_Ui", loadParams = FeatureLoadParams.ACTIVI
                 getAttribute("actionSheetRoundedBackgroundDrawable") -> {
                     ephemeralHook("getDrawable", ColorDrawable(userinputdrawablebackgroundcolour.toInt()))
                 }
-               
-                private companion object {
-                    const val DEFAULT_BACKGROUND_COLOUR = "#FFFFFF";
-                    const val DEFAULT_TEXT_COLOUR = "#000000";
-                    const val DEFAULT_DRAWABLE_COLOUR = "#FFFFFF";
-                }
             }
         }
     }
+    companion object {
+        const val DEFAULT_BACKGROUND_COLOUR = "#FFFFFF";
+        const val DEFAULT_TEXT_COLOUR = "#000000";
+        const val DEFAULT_DRAWABLE_COLOUR = "#FFFFFF";
+    }
 }
+                
