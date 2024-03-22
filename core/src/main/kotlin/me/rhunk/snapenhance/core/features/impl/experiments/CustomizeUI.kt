@@ -21,15 +21,15 @@ class CustomizeUi: Feature("Customize_Ui", loadParams = FeatureLoadParams.ACTIVI
 
         val userinputbackgroundcolour = try { Color.parseColor(backgroundColour) 
         } catch (e: IllegalArgumentException){
-            #000000     
+            0  
         }
         val userinputtextcolour = try { Color.parseColor(textColour)
         } catch (e: IllegalArgumentException){
-            #ffffff   
+            0
         }
         val userinputdrawablebackgroundcolour = try { Color.parseColor(drawablebackgroundColour)
         } catch (e: IllegalArgumentException){
-            #000000    
+            0
         }
         
         val attributeCache = mutableMapOf<String, Int>()
