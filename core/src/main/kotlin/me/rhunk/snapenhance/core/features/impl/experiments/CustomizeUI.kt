@@ -32,12 +32,6 @@ class CustomizeUi: Feature("Customize_Ui", loadParams = FeatureLoadParams.ACTIVI
             Color.parseColor(CustomizeUi.DEFAULT_DRAWABLE_COLOUR)
         }
         
-        private companion object {
-            const val DEFAULT_BACKGROUND_COLOUR = "#FFFFFF";
-            const val DEFAULT_TEXT_COLOUR = "#000000";
-            const val DEFAULT_DRAWABLE_COLOUR = "#FFFFFF";
-        }
-        
         val attributeCache = mutableMapOf<String, Int>()
 
         fun getAttribute(name: String): Int {
@@ -67,6 +61,12 @@ class CustomizeUi: Feature("Customize_Ui", loadParams = FeatureLoadParams.ACTIVI
                 getAttribute("actionSheetBackgroundDrawable"),
                 getAttribute("actionSheetRoundedBackgroundDrawable") -> {
                     ephemeralHook("getDrawable", ColorDrawable(userinputdrawablebackgroundcolour.toInt()))
+                }
+               
+                private companion object {
+                    const val DEFAULT_BACKGROUND_COLOUR = "#FFFFFF";
+                    const val DEFAULT_TEXT_COLOUR = "#000000";
+                    const val DEFAULT_DRAWABLE_COLOUR = "#FFFFFF";
                 }
             }
         }
