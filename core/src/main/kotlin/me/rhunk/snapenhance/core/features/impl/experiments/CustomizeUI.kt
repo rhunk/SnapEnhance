@@ -28,7 +28,7 @@ class CustomizeUi: Feature("Customize_Ui", loadParams = FeatureLoadParams.ACTIVI
         }
         
         val textColour by context.config.userInterface.customizeUi.textColour
-        val effectiveTextColour = if(textcolour.isEmpty()) {
+        val effectiveTextColour = if(textColour.isEmpty()) {
             Color.parseColor("#2bff00")
         }else {
             try {
