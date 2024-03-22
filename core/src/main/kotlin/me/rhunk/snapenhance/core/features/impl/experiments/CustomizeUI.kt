@@ -15,23 +15,40 @@ class CustomizeUi: Feature("Customize_Ui", loadParams = FeatureLoadParams.ACTIVI
     @SuppressLint("DiscouragedApi")
     override fun onActivityCreate() {
         if (context.config.userInterface.customizeUi.globalState != true) return
+        
         val backgroundColour by context.config.userInterface.customizeUi.backgroundColour
-        val textColour by context.config.userInterface.customizeUi.textColour
-        val drawablebackgroundColour by context.config.userInterface.customizeUi.drawablebackgroundColour
-
-        val userinputbackgroundcolour = try { Color.parseColor(backgroundColour) 
-        } catch (e: IllegalArgumentException){
-            Color.parseColor(CustomizeUi.DEFAULT_BACKGROUND_COLOUR)
-        }
-        val userinputtextcolour = try { Color.parseColor(textColour)
-        } catch (e: IllegalArgumentException){
-            Color.parseColor(CustomizeUi.DEFAULT_TEXT_COLOUR)
-        }
-        val userinputdrawablebackgroundcolour = try { Color.parseColor(drawablebackgroundColour)
-        } catch (e: IllegalArgumentException){
-            Color.parseColor(CustomizeUi.DEFAULT_DRAWABLE_COLOUR)
+        val effectiveBackgroundColour = if(backgroundColour.isEmpty()) {
+            "#ff0000"
+        }else {
+            try {
+                Color.parseColor(backgroundColour)
+            }catch (e: IllegalArgumentException){
+                "#1803ff"
+            }
         }
         
+        val textColour by context.config.userInterface.customizeUi.textColour
+        val effectiveTextColour = if(textcolour.isEmpty()) {
+            "#2bff00"
+        }else {
+            try {
+                Color.parseColor(textColour)
+            }catch (e: IllegalArgumentException){
+                "#ffa200"
+            }
+        }
+        
+        val drawablebackgroundColour by context.config.userInterface.customizeUi.drawablebackgroundColour
+        val effectiveDrawableBackgroundColour = if(drawablebackgroundColour.isEmpty()) {
+            "#ae00ff"
+        }else {
+            try {
+                Color.parseColor(drawablebackgroundColour)
+            }catch (e: IllegalArgumentException){
+                "#ff0090"
+            }
+        }
+
         val attributeCache = mutableMapOf<String, Int>()
 
         fun getAttribute(name: String): Int {
@@ -52,23 +69,19 @@ class CustomizeUi: Feature("Customize_Ui", loadParams = FeatureLoadParams.ACTIVI
 
             when (array[0]) {
                 getAttribute("sigColorTextPrimary") -> {
-                    ephemeralHook("getColor", userinputtextcolour.toInt())
+                    ephemeralHook("getColor", effectiveTextColour.toInt())
                 }
                 getAttribute("sigColorBackgroundMain"),
                 getAttribute("sigColorBackgroundSurface") -> {
-                    ephemeralHook("getColor", userinputbackgroundcolour.toInt())
+                    ephemeralHook("getColor", effectiveBackgroundColour.toInt())
                 }
                 getAttribute("actionSheetBackgroundDrawable"),
                 getAttribute("actionSheetRoundedBackgroundDrawable") -> {
-                    ephemeralHook("getDrawable", ColorDrawable(userinputdrawablebackgroundcolour.toInt()))
+                    ephemeralHook("getDrawable", ColorDrawable(effectiveDrawableBackgroundColour.toInt()))
                 }
             }
         }
     }
-    companion object {
-        const val DEFAULT_BACKGROUND_COLOUR = "#FFFFFF";
-        const val DEFAULT_TEXT_COLOUR = "#000000";
-        const val DEFAULT_DRAWABLE_COLOUR = "#FFFFFF";
-    }
 }
+
                 
