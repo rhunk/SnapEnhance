@@ -526,19 +526,35 @@
                 "name": "Global",
                 "description": "Tweak Global Snapchat Settings",
                 "properties": {
-                    "spoofLocation": {
-                        "name": "Location",
-                        "description": "Spoof your location",
+                    "better_location": {
+                        "name": "Better Location",
+                        "description": "Enhances the Snapchat Location",
                         "properties": {
+                            "spoof_location": {
+                                "name": "Spoof Location",
+                                "description": "Spoofs your location to a specified one"
+                            },
                             "coordinates": {
                                 "name": "Coordinates",
-                                "description": "Set the coordinates"
+                                "description": "Set the coordinates of the spoofed location"
+                            },
+                            "always_update_location": {
+                                "name": "Always Update Location",
+                                "description": "Force Snapchat to update location even if no GPS data is received"
+                            },
+                            "suspend_location_updates": {
+                                "name": "Suspend Location Updates",
+                                "description": "Adds a button in map settings to suspend location updates"
+                            },
+                            "spoof_battery_level": {
+                                "name": "Spoof Battery Level",
+                                "description": "Spoofs the battery level of your device on map\nValue must be between 0 and 100"
+                            },
+                            "spoof_headphones": {
+                                "name": "Spoof Headphones",
+                                "description": "Spoofs the status of listening to music on map"
                             }
                         }
-                    },
-                    "suspend_location_updates": {
-                        "name": "Suspend Location Updates",
-                        "description": "Adds a button in map settings to suspend location updates"
                     },
                     "snapchat_plus": {
                         "name": "Snapchat Plus",

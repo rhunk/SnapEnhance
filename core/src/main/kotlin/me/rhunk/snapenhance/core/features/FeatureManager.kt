@@ -85,7 +85,6 @@ class FeatureManager(
             MediaQualityLevelOverride(),
             MeoPasscodeBypass(),
             AppPasscode(),
-            LocationSpoofer(),
             CameraTweaks(),
             InfiniteStoryBoost(),
             AmoledDarkMode(),
@@ -127,7 +126,7 @@ class FeatureManager(
             RemoveGroupsLockedStatus(),
             BypassMessageActionRestrictions(),
             CustomizeUi(),
-       
+            BetterLocation(),
         )
     
         initializeFeatures()
