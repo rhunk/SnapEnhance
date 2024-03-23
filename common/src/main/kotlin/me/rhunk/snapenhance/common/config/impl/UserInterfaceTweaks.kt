@@ -25,9 +25,11 @@ class UserInterfaceTweaks : ConfigContainer() {
     }
 
     inner class CustomizeUi : ConfigContainer(hasGlobalState = true) {
-        val backgroundColour = string("background_colour") { addNotices(FeatureNotice.UNSTABLE); requireRestart()}
         val textColour = string("text_colour") { addNotices(FeatureNotice.UNSTABLE); requireRestart()}
-        val drawablebackgroundColour = string("drawable_background_colour") { addNotices(FeatureNotice.UNSTABLE); requireRestart()}
+        val backgroundColour = string("background_colour") { addNotices(FeatureNotice.UNSTABLE); requireRestart()}
+        val backgroundColoursurface = string("background_colour_Surface") { addNotices(FeatureNotice.UNSTABLE); requireRestart()}
+        val ActionMenubackgroundColour = string("Action_Menu_background_colour") { addNotices(FeatureNotice.UNSTABLE); requireRestart()}
+        val ActionMenuRoundbackgroundColour = string("Action_Menu_Round_Background_Colour") { addNotices(FeatureNotice.UNSTABLE); requireRestart()}
     }
         
     val amoledDarkMode = boolean("amoled_dark_mode") { addNotices(FeatureNotice.UNSTABLE); requireRestart() }
@@ -36,7 +38,7 @@ class UserInterfaceTweaks : ConfigContainer() {
     val snapPreview = boolean("snap_preview") { addNotices(FeatureNotice.UNSTABLE); requireRestart() }
     val bootstrapOverride = container("bootstrap_override", BootstrapOverride()) { requireRestart() }
     val mapFriendNameTags = boolean("map_friend_nametags") { requireRestart() }
-    val preventMessageListAutoScroll = boolean("prevent_message_list_auto_scroll") { requireRestart(); addNotices(FeatureNotice.UNSTABLE) }
+    val preventMessageListAutoScroll = b1oolean("prevent_message_list_auto_scroll") { requireRestart(); addNotices(FeatureNotice.UNSTABLE) }
     val streakExpirationInfo = boolean("streak_expiration_info") { requireRestart() }
     val hideFriendFeedEntry = boolean("hide_friend_feed_entry") { requireRestart() }
     val hideStreakRestore = boolean("hide_streak_restore") { requireRestart() }
