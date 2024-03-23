@@ -27,9 +27,9 @@ class UserInterfaceTweaks : ConfigContainer() {
     inner class CustomizeUi : ConfigContainer(hasGlobalState = true) {
         val textColour = string("text_colour") { addNotices(FeatureNotice.UNSTABLE); requireRestart()}
         val backgroundColour = string("background_colour") { addNotices(FeatureNotice.UNSTABLE); requireRestart()}
-        val backgroundColoursurface = string("background_colour_Surface") { addNotices(FeatureNotice.UNSTABLE); requireRestart()}
-        val actionMenubackgroundColour = string("Action_Menu_background_colour") { addNotices(FeatureNotice.UNSTABLE); requireRestart()}
-        val actionMenuRoundbackgroundColour = string("Action_Menu_Round_Background_Colour") { addNotices(FeatureNotice.UNSTABLE); requireRestart()}
+        val backgroundColoursurface = string("background_colour_surface") { addNotices(FeatureNotice.UNSTABLE); requireRestart()}
+        val actionMenubackgroundColour = string("action_menu_background_colour") { addNotices(FeatureNotice.UNSTABLE); requireRestart()}
+        val actionMenuRoundbackgroundColour = string("action_menu_round_background_colour") { addNotices(FeatureNotice.UNSTABLE); requireRestart()}
     }
         
     val amoledDarkMode = boolean("amoled_dark_mode") { addNotices(FeatureNotice.UNSTABLE); requireRestart() }
