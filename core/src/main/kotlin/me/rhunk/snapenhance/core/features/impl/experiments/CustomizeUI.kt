@@ -15,6 +15,16 @@ class CustomizeUi: Feature("Customize_Ui", loadParams = FeatureLoadParams.ACTIVI
     @SuppressLint("DiscouragedApi")
     override fun onActivityCreate() {
         if (context.config.userInterface.customizeUi.globalState != true) return
+        val textColour by context.config.userInterface.customizeUi.textColour
+        val effectiveTextColour = if(textColour.isEmpty()) {
+            Color.parseColor("#ffffff")
+        }else {
+            try {
+                Color.parseColor(textColour)
+            }catch (e: IllegalArgumentException){
+                Color.parseColor("#ffffff")
+            }
+        }
         
         val backgroundColour by context.config.userInterface.customizeUi.backgroundColour
         val effectiveBackgroundColour = if(backgroundColour.isEmpty()) {
@@ -27,23 +37,34 @@ class CustomizeUi: Feature("Customize_Ui", loadParams = FeatureLoadParams.ACTIVI
             }
         }
         
-        val textColour by context.config.userInterface.customizeUi.textColour
-        val effectiveTextColour = if(textColour.isEmpty()) {
-            Color.parseColor("#ffffff")
-        }else {
-            try {
-                Color.parseColor(textColour)
-            }catch (e: IllegalArgumentException){
-                Color.parseColor("#ffffff")
-            }
-        }
-        
-        val drawablebackgroundColour by context.config.userInterface.customizeUi.drawablebackgroundColour
-        val effectiveDrawableBackgroundColour = if(drawablebackgroundColour.isEmpty()) {
+        val backgroundColoursurface by context.config.userInterface.customizeUi.backgroundColoursurface
+        val effectivebackgroundColoursurface = if(backgroundColoursurface.isEmpty()) {
             Color.parseColor("#000000")
         }else {
             try {
-                Color.parseColor(drawablebackgroundColour)
+                Color.parseColor(backgroundColoursurface)
+            }catch (e: IllegalArgumentException){
+                Color.parseColor("#000000")
+            }
+        }
+        
+        val actionMenubackgroundColour by context.config.userInterface.customizeUi.actionMenubackgroundColour
+        val effectiveactionMenubackgroundColour = if(actionMenubackgroundColour.isEmpty()) {
+            Color.parseColor("#000000")
+        }else {
+            try {
+                Color.parseColor(actionMenubackgroundColour)
+            }catch (e: IllegalArgumentException){
+                Color.parseColor("#000000")
+            }
+        }
+        
+        val actionMenuRoundbackgroundColour by context.config.userInterface.customizeUi.actionMenuRoundbackgroundColour
+        val effectiveactionMenuRoundbackgroundColour = if(actionMenuRoundbackgroundColour.isEmpty()) {
+            Color.parseColor("#000000")
+        }else {
+            try {
+                Color.parseColor(actionMenuRoundbackgroundColour)
             }catch (e: IllegalArgumentException){
                 Color.parseColor("#000000")
             }
@@ -71,13 +92,21 @@ class CustomizeUi: Feature("Customize_Ui", loadParams = FeatureLoadParams.ACTIVI
                 getAttribute("sigColorTextPrimary") -> {
                     ephemeralHook("getColor", effectiveTextColour.toInt())
                 }
-                getAttribute("sigColorBackgroundMain"),
-                getAttribute("sigColorBackgroundSurface") -> {
+                
+                getAttribute("sigColorBackgroundMain") -> {
                     ephemeralHook("getColor", effectiveBackgroundColour.toInt())
                 }
-                getAttribute("actionSheetBackgroundDrawable"),
+                
+                getAttribute("sigColorBackgroundSurface") -> {
+                    ephemeralHook("getColor", effectivebackgroundColoursurface.toInt())
+                }
+                
+                getAttribute("actionSheetBackgroundDrawable") -> {
+                    ephemeralHook("getDrawable", ColorDrawable(effectiveactionMenubackgroundColour.toInt()))
+                }
+                
                 getAttribute("actionSheetRoundedBackgroundDrawable") -> {
-                    ephemeralHook("getDrawable", ColorDrawable(effectiveDrawableBackgroundColour.toInt()))
+                    ephemeralHook("getDrawable", ColorDrawable(effectiveactionMenuRoundbackgroundColour.toInt()))
                 }
             }
         }
