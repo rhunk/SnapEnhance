@@ -291,10 +291,10 @@
                             "action_menu_background_colour": {
                                 "name": "Action Menu Background Colour",
                                 "description": "Changes snapchats action menu background colour\nInput Hex Code"
-                            }
+                            },
                             "action_menu_round_background_colour": {
                                 "name": "Action Menu Round Background Colour",
-                                "description": "Changes snapchats action Menu round background colour\nInput Hex Code"
+                                "description": "Changes snapchats action menu round background colour\nInput Hex Code"
                             }
                         }
                     },
