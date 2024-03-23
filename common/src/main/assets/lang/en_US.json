@@ -276,20 +276,28 @@
                         "name": "Customize UI",
                         "description": "Customize Snapchats UI",
                         "properties": {
-                            "background_colour": {
-                                "name": "Background Colour",
-                                "description": "Changes snapchats background colour\nInput Hex Code"
-                            },
                             "text_colour": {
                                 "name": "Text Colour",
                                 "description": "Changes snapchats text colour\nInput Hex Code"
                             },
-                            "drawable_background_colour": {
-                                "name": "Drawable Background Colour",
-                                "description": "Changes snapchats drawable background colour\nInput Hex Code"
+                            "background_colour": {
+                                "name": "Background Colour",
+                                "description": "Changes snapchats background colour\nInput Hex Code"
+                            },
+                            "background_colour_surface": {
+                                "name": "Background Surface Colour",
+                                "description": "Changes snapchats Background Surface colour\nInput Hex Code"
+                            },
+                            "action_menu_background_colour": {
+                                "name": "Action Menu Background Colour",
+                                "description": "Changes snapchats action menu background colour\nInput Hex Code"
+                            }
+                            "action_menu_round_background_colour": {
+                                "name": "Action Menu Round Background Colour",
+                                "description": "Changes snapchats action Menu round background colour\nInput Hex Code"
                             }
                         }
-                    }, 
+                    },
                     "friend_feed_message_preview": {
                         "name": "Friend Feed Message Preview",
                         "description": "Shows a preview of the last messages in the Friend Feed",
