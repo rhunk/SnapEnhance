@@ -18,34 +18,34 @@ class CustomizeUi: Feature("Customize_Ui", loadParams = FeatureLoadParams.ACTIVI
         
         val backgroundColour by context.config.userInterface.customizeUi.backgroundColour
         val effectiveBackgroundColour = if(backgroundColour.isEmpty()) {
-            Color.parseColor("#ff0000")
+            Color.parseColor("#000000")
         }else {
             try {
                 Color.parseColor(backgroundColour)
             }catch (e: IllegalArgumentException){
-                Color.parseColor("#1803ff")
+                Color.parseColor("#000000")
             }
         }
         
         val textColour by context.config.userInterface.customizeUi.textColour
         val effectiveTextColour = if(textColour.isEmpty()) {
-            Color.parseColor("#2bff00")
+            Color.parseColor("#ffffff")
         }else {
             try {
                 Color.parseColor(textColour)
             }catch (e: IllegalArgumentException){
-                Color.parseColor("#ffa200")
+                Color.parseColor("#ffffff")
             }
         }
         
         val drawablebackgroundColour by context.config.userInterface.customizeUi.drawablebackgroundColour
         val effectiveDrawableBackgroundColour = if(drawablebackgroundColour.isEmpty()) {
-            Color.parseColor("#ae00ff")
+            Color.parseColor("#000000")
         }else {
             try {
                 Color.parseColor(drawablebackgroundColour)
             }catch (e: IllegalArgumentException){
-                Color.parseColor("#ff0090")
+                Color.parseColor("#000000")
             }
         }
 
