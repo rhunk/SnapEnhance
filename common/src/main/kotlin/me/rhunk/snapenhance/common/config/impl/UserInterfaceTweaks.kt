@@ -28,8 +28,8 @@ class UserInterfaceTweaks : ConfigContainer() {
         val textColour = string("text_colour") { addNotices(FeatureNotice.UNSTABLE); requireRestart()}
         val backgroundColour = string("background_colour") { addNotices(FeatureNotice.UNSTABLE); requireRestart()}
         val backgroundColoursurface = string("background_colour_Surface") { addNotices(FeatureNotice.UNSTABLE); requireRestart()}
-        val ActionMenubackgroundColour = string("Action_Menu_background_colour") { addNotices(FeatureNotice.UNSTABLE); requireRestart()}
-        val ActionMenuRoundbackgroundColour = string("Action_Menu_Round_Background_Colour") { addNotices(FeatureNotice.UNSTABLE); requireRestart()}
+        val actionMenubackgroundColour = string("Action_Menu_background_colour") { addNotices(FeatureNotice.UNSTABLE); requireRestart()}
+        val actionMenuRoundbackgroundColour = string("Action_Menu_Round_Background_Colour") { addNotices(FeatureNotice.UNSTABLE); requireRestart()}
     }
         
     val amoledDarkMode = boolean("amoled_dark_mode") { addNotices(FeatureNotice.UNSTABLE); requireRestart() }
