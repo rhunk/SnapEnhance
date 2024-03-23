@@ -478,7 +478,6 @@ class Notifications : Feature("Notifications", loadParams = FeatureLoadParams.IN
         }
 
         findClass("com.google.firebase.messaging.FirebaseMessagingService").run {
-            val states by context.config.messaging.notificationBlacklist
             methods.first { it.declaringClass == this && it.returnType == Void::class.javaPrimitiveType && it.parameterCount == 1 && it.parameterTypes[0] == Intent::class.java }
                 .hook(HookStage.BEFORE) { param ->
                     val intent = param.argNullable<Intent>(0) ?: return@hook

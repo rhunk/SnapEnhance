@@ -4,6 +4,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 import me.rhunk.snapenhance.core.ModContext
+import me.rhunk.snapenhance.core.features.impl.COFOverride
 import me.rhunk.snapenhance.core.features.impl.ConfigurationOverride
 import me.rhunk.snapenhance.core.features.impl.MixerStories
 import me.rhunk.snapenhance.core.features.impl.OperaViewerParamsOverride
@@ -76,6 +77,7 @@ class FeatureManager(
             AutoSave(),
             UITweaks(),
             ConfigurationOverride(),
+            COFOverride(),
             UnsaveableMessages(),
             SendOverride(),
             UnlimitedSnapViewTime(),
@@ -83,7 +85,6 @@ class FeatureManager(
             MediaQualityLevelOverride(),
             MeoPasscodeBypass(),
             AppPasscode(),
-            LocationSpoofer(),
             CameraTweaks(),
             InfiniteStoryBoost(),
             AmoledDarkMode(),
@@ -124,6 +125,7 @@ class FeatureManager(
             AccountSwitcher(),
             RemoveGroupsLockedStatus(),
             BypassMessageActionRestrictions(),
+            BetterLocation(),
         )
 
         initializeFeatures()

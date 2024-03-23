@@ -18,11 +18,15 @@ class Global : ConfigContainer() {
         )
     }
 
-    inner class SpoofLocation : ConfigContainer(hasGlobalState = true) {
-        val coordinates = mapCoordinates("coordinates", 0.0 to 0.0) { requireRestart()} // lat, long
+    inner class BetterLocation : ConfigContainer(hasGlobalState = true) {
+        val spoofLocation = boolean("spoof_location") { requireRestart() }
+        val coordinates = mapCoordinates("coordinates", 0.0 to 0.0) // lat, long
+        val alwaysUpdateLocation = boolean("always_update_location") { requireRestart() }
+        val suspendLocationUpdates = boolean("suspend_location_updates") { requireRestart() }
+        val spoofBatteryLevel = string("spoof_battery_level") { requireRestart(); inputCheck = { it.isEmpty() || it.toIntOrNull() in 0..100 } }
+        val spoofHeadphones = boolean("spoof_headphones") { requireRestart() }
     }
-    val spoofLocation = container("spoofLocation", SpoofLocation())
-    val suspendLocationUpdates = boolean("suspend_location_updates") { requireRestart() }
+    val betterLocation = container("better_location", BetterLocation())
     val snapchatPlus = boolean("snapchat_plus") { requireRestart() }
     val disableConfirmationDialogs = multiple("disable_confirmation_dialogs", "remove_friend", "block_friend", "ignore_friend", "hide_friend", "hide_conversation", "clear_conversation") { requireRestart() }
     val disableMetrics = boolean("disable_metrics") { requireRestart() }
