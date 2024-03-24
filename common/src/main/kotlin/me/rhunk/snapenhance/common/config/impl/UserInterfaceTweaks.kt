@@ -25,11 +25,11 @@ class UserInterfaceTweaks : ConfigContainer() {
     }
 
     inner class CustomizeUi : ConfigContainer(hasGlobalState = true) {
-        val textColour = string("text_colour") { addNotices(FeatureNotice.UNSTABLE); requireRestart()}
-        val backgroundColour = string("background_colour") { addNotices(FeatureNotice.UNSTABLE); requireRestart()}
-        val backgroundColoursurface = string("background_colour_surface") { addNotices(FeatureNotice.UNSTABLE); requireRestart()}
-        val actionMenubackgroundColour = string("action_menu_background_colour") { addNotices(FeatureNotice.UNSTABLE); requireRestart()}
-        val actionMenuRoundbackgroundColour = string("action_menu_round_background_colour") { addNotices(FeatureNotice.UNSTABLE); requireRestart()}
+        val textColour = string("text_colour") { addNotices(FeatureNotice.UNSTABLE, FeatureNotice.BAN_RISK, FeatureNotice.INTERNAL_BEHAVIOR); requireRestart()}
+        val backgroundColour = string("background_colour") { addNotices(FeatureNotice.UNSTABLE, FeatureNotice.BAN_RISK, FeatureNotice.INTERNAL_BEHAVIOR); requireRestart()}
+        val backgroundColoursurface = string("background_colour_surface") { addNotices(FeatureNotice.UNSTABLE, FeatureNotice.BAN_RISK, FeatureNotice.INTERNAL_BEHAVIO); requireRestart()}
+        val actionMenubackgroundColour = string("action_menu_background_colour") { addNotices(FeatureNotice.UNSTABLE, FeatureNotice.BAN_RISK, FeatureNotice.INTERNAL_BEHAVIOR); requireRestart()}
+        val actionMenuRoundbackgroundColour = string("action_menu_round_background_colour") { addNotices(FeatureNotice.UNSTABLE, FeatureNotice.BAN_RISK, FeatureNotice.INTERNAL_BEHAVIOR); requireRestart()}
     }
         
     val amoledDarkMode = boolean("amoled_dark_mode") { addNotices(FeatureNotice.UNSTABLE); requireRestart() }
