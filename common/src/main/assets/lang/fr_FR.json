@@ -122,16 +122,6 @@
             }
         }
     },
-    "actions": {
-        "clean_snapchat_cache": "Effacer le cache Snapchat",
-        "clear_message_logger": "Effacer les journeaux des messages",
-        "refresh_mappings": "Actualiser les mappages",
-        "open_map": "Choisir un emplacement sur la carte",
-        "check_for_updates": "Vérifier les mises à jour",
-        "export_chat_messages": "Exporter les messages du chat",
-        "export_memories": "Exporter les Souvenirs",
-        "bulk_messaging_action": "Action de messagerie en masse"
-    },
     "features": {
         "notices": {
             "unstable": "⚠️ Instable",
@@ -295,10 +285,6 @@
                     "enable_friend_feed_menu_bar": {
                         "description": "Active la nouvelle barre de menu de flux d'amis",
                         "name": "Barre du menu du fil d'amis"
-                    },
-                    "fidelius_indicator": {
-                        "name": "Indicateur Fidelius",
-                        "description": "Ajoute un cercle vert à côté des messages qui n'ont été envoyés qu'à vous"
                     },
                     "hide_settings_gear": {
                         "name": "Masquer la roue des paramètres",
@@ -464,16 +450,6 @@
                 "name": "Global",
                 "description": "Modifier les paramètres globaux de Snapchat",
                 "properties": {
-                    "spoofLocation": {
-                        "name": "Localisation",
-                        "description": "Falsifier votre localisation",
-                        "properties": {
-                            "coordinates": {
-                                "name": "Coordonnées",
-                                "description": "Définir les coordonnées"
-                            }
-                        }
-                    },
                     "snapchat_plus": {
                         "name": "Snapchat Plus",
                         "description": "Activer les fonctionnalités de Snapchat Plus\nCertaines fonctionnalités côté serveur peuvent ne pas fonctionner"
@@ -505,10 +481,6 @@
                     "disable_confirmation_dialogs": {
                         "name": "Désactiver les fenêtres de confirmation",
                         "description": "Confirme automatiquement les actions sélectionnées"
-                    },
-                    "suspend_location_updates": {
-                        "name": "Suspendre les mises à jour de localisation",
-                        "description": "Ajout d'un bouton dans les paramètres de la Snap Map pour suspendre les mises à jour de la localisation"
                     },
                     "spotlight_comments_username": {
                         "name": "Nom d'utilisateur des commentaires Spotlight",
@@ -843,7 +815,6 @@
                 "added_by_mention": "Par mention",
                 "added_by_group_chat": "Par groupe de discussion",
                 "added_by_username": "Par nom d'utilisateur",
-                "added_by_quick_add": "Par ajout rapide",
                 "added_by_qr_code": "Par QR Code"
             },
             "disable_confirmation_dialogs": {

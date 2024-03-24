@@ -102,14 +102,6 @@
             }
         }
     },
-    "actions": {
-        "clean_snapchat_cache": "Tyhjennä Snapchatin Välimuisti",
-        "clear_message_logger": "Tyhjennä Viestiloki",
-        "refresh_mappings": "Päivitä Kartoitukset",
-        "open_map": "Valitse sijainti kartalta",
-        "check_for_updates": "Tarkista päivitykset",
-        "export_chat_messages": "Vie Chat-viestit"
-    },
     "features": {
         "notices": {
             "unstable": "⚠ Epävakaa",
@@ -326,16 +318,6 @@
                 "name": "Globaali",
                 "description": "Säädä Globaaleja Snapchatin Asetuksia",
                 "properties": {
-                    "spoofLocation": {
-                        "name": "Sijainti",
-                        "description": "Väärennä sijaintisi",
-                        "properties": {
-                            "coordinates": {
-                                "name": "Koordinaatit",
-                                "description": "Aseta koordinaatit"
-                            }
-                        }
-                    },
                     "snapchat_plus": {
                         "name": "Snapchat Plus",
                         "description": "Ota käyttöön Snapchat Plus ominaisuudet\nJotkin palvelinpohjaiset ominaisuudet eivät välttämättä toimi"

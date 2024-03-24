@@ -118,16 +118,6 @@
             }
         }
     },
-    "actions": {
-        "clean_snapchat_cache": "Snapchat-Cache leeren",
-        "clear_message_logger": "Nachrichten Logger leeren",
-        "refresh_mappings": "Mappings aktualisieren",
-        "open_map": "Standort auf der Karte wählen",
-        "check_for_updates": "Auf Updates überprüfen",
-        "export_chat_messages": "Chat Nachrichten exportieren",
-        "bulk_messaging_action": "Massen Nachrichten Aktion",
-        "export_memories": "Memories exportieren"
-    },
     "features": {
         "notices": {
             "unstable": "⚠ Instabil",
@@ -295,10 +285,6 @@
                         "name": "Freunde Feed Menüleiste",
                         "description": "Aktiviert die neue Freunde Feed Menüleiste"
                     },
-                    "fidelius_indicator": {
-                        "name": "Indikator für Einzigartigkeit",
-                        "description": "Zeigt einen grünen Kreis neben Nachrichten, die nur an Sie gesendet wurden"
-                    },
                     "hide_settings_gear": {
                         "name": "Symbol für Einstellungen ausblenden",
                         "description": "Blendet das SnapEnhance-Einstellungssymbol im Chat-Tab aus"
@@ -455,16 +441,6 @@
                 "name": "Global",
                 "description": "Globale Snapchat-Einstellungen anpassen",
                 "properties": {
-                    "spoofLocation": {
-                        "name": "Standort",
-                        "description": "Fälsch deinen Standort",
-                        "properties": {
-                            "coordinates": {
-                                "name": "Koordinaten",
-                                "description": "Koordinaten festlegen"
-                            }
-                        }
-                    },
                     "snapchat_plus": {
                         "name": "Snapchat Plus",
                         "description": "Aktiviert Snapchat Plus Funktionen\nEinige serverseitige Funktionen funktionieren möglicherweise nicht"
@@ -496,10 +472,6 @@
                     "disable_confirmation_dialogs": {
                         "name": "Bestätigungsdialoge deaktivieren",
                         "description": "Bestätigt automatisch ausgewählte Aktionen"
-                    },
-                    "suspend_location_updates": {
-                        "name": "Standortaktualisierungen aussetzen",
-                        "description": "Fügt einen Button in den Karteneinstellungen hinzu, um Standortaktualisierungen auszusetzen"
                     },
                     "spotlight_comments_username": {
                         "name": "Spotlight Kommentare Benutzername",
@@ -801,8 +773,7 @@
                 "added_by_mention": "Durch Erwähnung",
                 "added_by_group_chat": "Per Gruppenchat",
                 "added_by_qr_code": "Per QR-Code",
-                "added_by_community": "Per Community",
-                "added_by_quick_add": "Durch Schnelles Hinzufügen"
+                "added_by_community": "Per Community"
             },
             "bypass_video_length_restriction": {
                 "single": "Einzelnes Medium",

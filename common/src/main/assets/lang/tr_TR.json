@@ -122,16 +122,6 @@
             }
         }
     },
-    "actions": {
-        "clean_snapchat_cache": "Snapchat Önbelleğini Temizle",
-        "clear_message_logger": "Mesaj Kaydediciyi Temizle",
-        "refresh_mappings": "Eşlemeleri Yenile",
-        "open_map": "Harita üzerinde konum seçin",
-        "check_for_updates": "Güncellemeleri denetle",
-        "export_chat_messages": "Sohbet Mesajlarını Dışa Aktar",
-        "bulk_messaging_action": "Toplu Mesajlaşma Eylemi",
-        "export_memories": "Anıları Dışa Aktar"
-    },
     "features": {
         "notices": {
             "unstable": "⚠ Stabil Değil",
@@ -300,10 +290,6 @@
                         "name": "Arkadaş Akışı Menü Çubuğu",
                         "description": "Yeni Arkadaş Akışı Menüsü Çubuğunu etkinleştirir"
                     },
-                    "fidelius_indicator": {
-                        "name": "Fidelius Göstergesi",
-                        "description": "Sadece size gönderilen mesajların yanına yeşil bir nokta ekler"
-                    },
                     "hide_settings_gear": {
                         "name": "Ayarlar Dişlisini Gizle",
                         "description": "Arkadaş akışındaki SnapEnhance Ayarları Dişlisini gizler"
@@ -464,16 +450,6 @@
                 "name": "Genel",
                 "description": "Genel Snapchat Ayarlarını Değiştirin",
                 "properties": {
-                    "spoofLocation": {
-                        "name": "Konum",
-                        "description": "Konumunuzu taklit edin",
-                        "properties": {
-                            "coordinates": {
-                                "name": "Koordinatlar",
-                                "description": "Koordinatları ayarlayın"
-                            }
-                        }
-                    },
                     "snapchat_plus": {
                         "name": "Snapchat Plus",
                         "description": "Snapchat Plus özelliklerini etkinleştirir\nBazı Sunucu taraflı özellikler çalışmayabilir"
@@ -505,10 +481,6 @@
                     "disable_confirmation_dialogs": {
                         "name": "Onay İletişim Kutularını Devre Dışı Bırak",
                         "description": "Seçilen eylemleri otomatik olarak onaylar"
-                    },
-                    "suspend_location_updates": {
-                        "name": "Konum Güncellemelerini Askıya Al",
-                        "description": "Harita ayarlarına konum güncellemelerini askıya almak için bir düğme ekler"
                     },
                     "spotlight_comments_username": {
                         "name": "Spotlight Yorumlar Kullanıcı Adı",
@@ -844,8 +816,7 @@
                 "added_by_mention": "Bahsetmeye Göre",
                 "added_by_group_chat": "Grup Sohbetine Göre",
                 "added_by_qr_code": "QR Kodu'na Göre",
-                "added_by_community": "Topluluğa Göre",
-                "added_by_quick_add": "Hızlı Ekle tarafından"
+                "added_by_community": "Topluluğa Göre"
             },
             "bypass_video_length_restriction": {
                 "single": "Tek medya",

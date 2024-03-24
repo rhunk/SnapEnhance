@@ -118,16 +118,6 @@
             }
         }
     },
-    "actions": {
-        "clean_snapchat_cache": "A Snapchat gyorsítótárának ürítése",
-        "clear_message_logger": "Üzenetnapló Törlése",
-        "refresh_mappings": "Hozzárendelések frissítése",
-        "open_map": "Válassz egy helyet a térképen",
-        "check_for_updates": "Frissítés keresése",
-        "export_chat_messages": "Chat üzenetek exportálása",
-        "export_memories": "Emlékek exportálása",
-        "bulk_messaging_action": "Tömeges üzenetküldési művelet"
-    },
     "features": {
         "notices": {
             "unstable": "⚠ Instabil",
@@ -331,10 +321,6 @@
                         "description": "Visszahozza a Bitmoji szelfiket a régebbi Snapchat verziókból",
                         "name": "Régi Bitmoji szelfi"
                     },
-                    "fidelius_indicator": {
-                        "name": "Fidelius jelző",
-                        "description": "Zöld kört ad hozzá a csak Önnek küldött üzenetek mellé"
-                    },
                     "hide_story_suggestions": {
                         "name": "Történet javaslatok elrejtése",
                         "description": "Eltávolítja a javaslatokat a Történetek oldalról"
@@ -454,16 +440,6 @@
             "global": {
                 "name": "Globális",
                 "properties": {
-                    "spoofLocation": {
-                        "name": "Tartózkodási hely",
-                        "description": "Tartózkodási helyed hamisítása",
-                        "properties": {
-                            "coordinates": {
-                                "name": "Koordináták",
-                                "description": "Koordináták beállítása"
-                            }
-                        }
-                    },
                     "snapchat_plus": {
                         "name": "Snapchat Plusz",
                         "description": "Engedélyezi a Snapchat Plusz funkciókat\nNéhány szerver oldali funkció lehetséges hogy nem működik"
