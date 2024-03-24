@@ -58,5 +58,6 @@ body:
         - label: "I have provided a detailed description of the issue."
         - label: "I have attached a log if deemed neccessary."
         - label: "This issue is not a duplicate."
+        - label: "I'm using V2. (1.2.6 IS DEPRECATED UPDATE SNAPENHANCE)"
     validations:
       required: true
