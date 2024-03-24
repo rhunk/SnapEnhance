@@ -760,6 +760,10 @@
                         "name": "New Chat Action Menu",
                         "description": "Use the new chat action menu drawer"
                     },
+                    "media_file_picker": {
+                        "name": "Media File Picker",
+                        "description": "Allows you to pick any video/audio file from the gallery"
+                    },
                     "story_logger": {
                         "name": "Story Logger",
                         "description": "Provides a history of friends stories"

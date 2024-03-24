@@ -119,7 +119,11 @@ class MediaDownloader : MessagingRuleFeature("MediaDownloader", MessagingRuleTyp
                     context.log.verbose("onSuccess: outputFile=$outputFile")
                     context.inAppOverlay.showStatusToast(
                         icon = Icons.Outlined.CheckCircle,
-                        text = translations.format("saved_toast", "path" to outputFile.split("/").takeLast(2).joinToString("/")),
+                        text = translations.format("saved_toast", "path" to outputFile.split("/").takeLast(2).joinToString("/")).also {
+                            if (context.isMainActivityPaused) {
+                                context.shortToast(it)
+                            }
+                        },
                     )
                 }
 
@@ -130,18 +134,22 @@ class MediaDownloader : MessagingRuleFeature("MediaDownloader", MessagingRuleTyp
                         icon = Icons.Outlined.Info,
                         text = message,
                     )
-                    // context.shortToast(message)
+                    if (context.isMainActivityPaused) {
+                        context.shortToast(message)
+                    }
                 }
 
                 override fun onFailure(message: String, throwable: String?) {
                     if (!downloadLogging.contains("failure")) return
                     context.log.verbose("onFailure: message=$message, throwable=$throwable")
+                    if (context.isMainActivityPaused) {
+                        context.shortToast(message)
+                    }
                     throwable?.let {
                         context.inAppOverlay.showStatusToast(
                             icon = Icons.Outlined.Error,
                             text = message + it.takeIf { it.isNotEmpty() }.orEmpty(),
                         )
-                        // context.longToast((message + it.takeIf { it.isNotEmpty() }.orEmpty()))
                         return
                     }
 
@@ -149,7 +157,6 @@ class MediaDownloader : MessagingRuleFeature("MediaDownloader", MessagingRuleTyp
                         icon = Icons.Outlined.Warning,
                         text = message,
                     )
-                    // context.shortToast(message)
                 }
             }
         )
@@ -596,7 +603,7 @@ class MediaDownloader : MessagingRuleFeature("MediaDownloader", MessagingRuleTyp
 
         if (!isPreview) {
             if (decodedAttachments.size == 1 ||
-                context.mainActivity == null // we can't show alert dialogs when it downloads from a notification, so it downloads the first one
+                context.isMainActivityPaused // we can't show alert dialogs when it downloads from a notification, so it downloads the first one
             ) {
                 downloadMessageAttachments(friendInfo, message, authorName,
                     listOf(decodedAttachments.first()),

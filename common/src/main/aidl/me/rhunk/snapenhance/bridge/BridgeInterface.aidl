@@ -41,6 +41,11 @@ interface BridgeInterface {
     oneway void enqueueDownload(in Intent intent, DownloadCallback callback);
 
     /**
+     * File conversation
+     */
+    @nullable ParcelFileDescriptor convertMedia(in ParcelFileDescriptor input, String inputExtension, String outputExtension, @nullable String audioCodec, @nullable String videoCodec);
+
+    /**
     * Get rules for a given user or conversation
     * @return list of rules (MessagingRuleType)
     */

@@ -127,6 +127,7 @@ class FeatureManager(
             BypassMessageActionRestrictions(),
             CustomizeUi(),
             BetterLocation(),
+            MediaFilePicker(),
         )
     
         initializeFeatures()

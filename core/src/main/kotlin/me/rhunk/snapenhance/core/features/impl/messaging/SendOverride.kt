@@ -7,6 +7,7 @@ import me.rhunk.snapenhance.core.event.events.impl.NativeUnaryCallEvent
 import me.rhunk.snapenhance.core.event.events.impl.SendMessageWithContentEvent
 import me.rhunk.snapenhance.core.features.Feature
 import me.rhunk.snapenhance.core.features.FeatureLoadParams
+import me.rhunk.snapenhance.core.features.impl.experiments.MediaFilePicker
 import me.rhunk.snapenhance.core.messaging.MessageSender
 import me.rhunk.snapenhance.core.ui.ViewAppearanceHelper
 import me.rhunk.snapenhance.nativelib.NativeLib
@@ -134,10 +135,8 @@ class SendOverride : Feature("Send Override", loadParams = FeatureLoadParams.INI
 
                             "NOTE" -> {
                                 localMessageContent.contentType = ContentType.NOTE
-                                val mediaDuration =
-                                    messageProtoReader.getVarInt(3, 3, 5, 1, 1, 15) ?: 0
                                 localMessageContent.content =
-                                    MessageSender.audioNoteProto(mediaDuration)
+                                    MessageSender.audioNoteProto(messageProtoReader.getVarInt(3, 3, 5, 1, 1, 15) ?: context.feature(MediaFilePicker::class).lastMediaDuration ?: 0)
                             }
                         }
 
