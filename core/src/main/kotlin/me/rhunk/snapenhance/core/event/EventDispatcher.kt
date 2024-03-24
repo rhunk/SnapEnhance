@@ -231,7 +231,7 @@ class EventDispatcher(
                 val instance = param.thisObject<Activity>()
                 val requestCode = param.arg<Int>(0)
                 val resultCode = param.arg<Int>(1)
-                val intent = param.arg<Intent>(2)
+                val intent = param.argNullable<Intent>(2) ?: return@hook
 
                 context.event.post(
                     ActivityResultEvent(

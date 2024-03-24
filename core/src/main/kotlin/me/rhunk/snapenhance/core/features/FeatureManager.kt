@@ -126,6 +126,7 @@ class FeatureManager(
             RemoveGroupsLockedStatus(),
             BypassMessageActionRestrictions(),
             BetterLocation(),
+            MediaFilePicker(),
         )
 
         initializeFeatures()
