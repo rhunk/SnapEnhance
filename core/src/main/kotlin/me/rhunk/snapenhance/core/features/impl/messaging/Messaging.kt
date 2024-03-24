@@ -20,6 +20,7 @@ import me.rhunk.snapenhance.core.wrapper.impl.Snapchatter
 import me.rhunk.snapenhance.core.wrapper.impl.toSnapUUID
 import me.rhunk.snapenhance.mapper.impl.CallbackMapper
 import me.rhunk.snapenhance.mapper.impl.FriendsFeedEventDispatcherMapper
+import java.util.UUID
 import java.util.concurrent.Future
 
 class Messaging : Feature("Messaging", loadParams = FeatureLoadParams.ACTIVITY_CREATE_SYNC or FeatureLoadParams.INIT_ASYNC or FeatureLoadParams.INIT_SYNC) {
@@ -93,7 +94,12 @@ class Messaging : Feature("Messaging", loadParams = FeatureLoadParams.ACTIVITY_C
         })
     }
 
-    fun localUpdateMessage(conversationId: String, message: Message) {
+    fun localUpdateMessage(conversationId: String, message: Message, forceUpdate: Boolean = false) {
+        if (forceUpdate) {
+            message.messageMetadata?.screenRecordedBy = ArrayList<SnapUUID>(message.messageMetadata?.screenRecordedBy ?: emptyList()).apply {
+                add(SnapUUID(UUID.randomUUID().toString()))
+            }
+        }
         conversationManagerDelegate?.let {
             it::class.java.methods.first { method ->
                 method.name == "onConversationUpdated"

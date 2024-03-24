@@ -40,6 +40,7 @@ class MenuViewInjector : Feature("MenuViewInjector", loadParams = FeatureLoadPar
         val componentsHolder = context.resources.getIdentifier("components_holder", "id")
         val feedNewChat = context.resources.getIdentifier("feed_new_chat", "id")
         val contextMenuButtonIconView = context.resources.getIdentifier("context_menu_button_icon_view", "id")
+        val chatActionMenu = context.resources.getIdentifier("chat_action_menu", "id")
 
         context.event.subscribe(AddViewEvent::class) { event ->
             val originalAddView: (View) -> Unit = {
@@ -73,6 +74,16 @@ class MenuViewInjector : Feature("MenuViewInjector", loadParams = FeatureLoadPar
             if (event.parent.id == componentsHolder && childView.id == feedNewChat) {
                 menuMap[SettingsGearInjector::class]!!.inject(viewGroup, childView, originalAddView)
                 return@subscribe
+            }
+
+            if (viewGroup !is LinearLayout && childView.id == chatActionMenu && context.isDeveloper) {
+                event.view = LinearLayout(childView.context).apply {
+                    orientation = LinearLayout.VERTICAL
+                    addView(
+                        (menuMap[NewChatActionMenu::class]!! as NewChatActionMenu).createDebugInfoView(childView.context)
+                    )
+                    addView(event.view)
+                }
             }
 
             if (childView.javaClass.name.endsWith("ChatActionMenuComponent") && context.config.experimental.newChatActionMenu.get()) {

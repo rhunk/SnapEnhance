@@ -159,4 +159,20 @@ class ConversationManager(
             .override("onError") { onError(it.arg<Any>(0).toString()) }.build()
         getOneOnOneConversationIds.invoke(instanceNonNull(), userIds.map { it.toSnapUUID().instanceNonNull() }.toMutableList(), callback)
     }
+
+    fun editMessage(conversationId: String, messageId: Long, content: ByteArray, onSuccess: () -> Unit, onError: (error: String) -> Unit) {
+        val editMessageMethod = instanceNonNull()::class.java.methods.first { it.name == "editMessage" }
+        editMessageMethod.invoke(instanceNonNull(), editMessageMethod.parameterTypes[0].dataBuilder {
+            set("mConversationId", conversationId.toSnapUUID().instanceNonNull())
+            set("mMessageId", messageId)
+        }, editMessageMethod.parameterTypes[1].dataBuilder {
+            set("mContent", content)
+            set("mMentionInfo", null)
+        }, CallbackBuilder(getCallbackClass("Callback"))
+            .override("onSuccess") { onSuccess() }
+            .override("onError") { onError(it.arg<Any>(0).toString()) }.build()
+        )
+    }
+
+    fun isEditMessageSupported() = instanceNonNull()::class.java.methods.any { it.name == "editMessage" }
 }

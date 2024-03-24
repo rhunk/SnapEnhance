@@ -1,56 +1,34 @@
 package me.rhunk.snapenhance.core.ui.menu.impl
 
-import android.annotation.SuppressLint
-import android.content.Context
-import android.text.format.Formatter
 import android.view.View
 import android.view.ViewGroup
 import android.view.ViewGroup.MarginLayoutParams
 import android.widget.Button
+import android.widget.EditText
 import android.widget.LinearLayout
-import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.ExperimentalLayoutApi
-import androidx.compose.foundation.layout.FlowRow
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.padding
-import androidx.compose.material3.Button
-import androidx.compose.material3.Text
-import androidx.compose.ui.Modifier
-import androidx.compose.ui.unit.dp
-import me.rhunk.snapenhance.common.data.ContentType
-import me.rhunk.snapenhance.common.ui.createComposeView
-import me.rhunk.snapenhance.common.util.ktx.copyToClipboard
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 import me.rhunk.snapenhance.common.util.protobuf.ProtoReader
-import me.rhunk.snapenhance.common.util.snap.RemoteMediaResolver
+import me.rhunk.snapenhance.common.util.protobuf.ProtoWriter
 import me.rhunk.snapenhance.core.features.impl.downloader.MediaDownloader
-import me.rhunk.snapenhance.core.features.impl.downloader.decoder.MessageDecoder
 import me.rhunk.snapenhance.core.features.impl.experiments.ConvertMessageLocally
 import me.rhunk.snapenhance.core.features.impl.messaging.Messaging
 import me.rhunk.snapenhance.core.features.impl.spying.MessageLogger
 import me.rhunk.snapenhance.core.ui.ViewAppearanceHelper
 import me.rhunk.snapenhance.core.ui.ViewTagState
 import me.rhunk.snapenhance.core.ui.applyTheme
-import me.rhunk.snapenhance.core.ui.debugEditText
 import me.rhunk.snapenhance.core.ui.menu.AbstractMenu
 import me.rhunk.snapenhance.core.ui.triggerCloseTouchEvent
 import me.rhunk.snapenhance.core.util.hook.HookStage
 import me.rhunk.snapenhance.core.util.hook.hook
 import me.rhunk.snapenhance.core.util.ktx.getDimens
 import me.rhunk.snapenhance.core.util.ktx.vibrateLongPress
-import java.text.SimpleDateFormat
-import java.util.Date
-import kotlin.io.encoding.Base64
-import kotlin.io.encoding.ExperimentalEncodingApi
 
 
-@SuppressLint("DiscouragedApi")
 class ChatActionMenu : AbstractMenu() {
     private val viewTagState = ViewTagState()
-
     private val defaultGap by lazy { context.resources.getDimens("default_gap") }
-
     private val chatActionMenuItemMargin by lazy { context.resources.getDimens("chat_action_menu_item_margin") }
-
     private val actionMenuItemHeight by lazy { context.resources.getDimens("action_menu_item_height") }
 
     private fun createContainer(viewGroup: ViewGroup): LinearLayout {
@@ -68,29 +46,13 @@ class ChatActionMenu : AbstractMenu() {
         }
     }
 
-    private fun debugAlertDialog(context: Context, title: String, text: String) {
-        this@ChatActionMenu.context.runOnUiThread {
-            ViewAppearanceHelper.newAlertDialogBuilder(context).apply {
-                setTitle(title)
-                setView(debugEditText(context, text))
-                setPositiveButton("OK") { dialog, _ -> dialog.dismiss() }
-                setNegativeButton("Copy") { _, _ ->
-                    context.copyToClipboard(text, title)
-                }
-            }.show()
-        }
-    }
-
-    private val lastFocusedMessage
-        get() = context.database.getConversationMessageFromId(context.feature(Messaging::class).lastFocusedMessageId)
-
     override fun init() {
         runCatching {
             if (!context.config.downloader.downloadContextMenu.get() && context.config.messaging.messageLogger.globalState != true && !context.isDeveloper) return
             context.androidContext.classLoader.loadClass("com.snap.messaging.chat.features.actionmenu.ActionMenuChatItemContainer")
                 .hook("onMeasure", HookStage.BEFORE) { param ->
                     param.setArg(1,
-                        View.MeasureSpec.makeMeasureSpec((context.resources.displayMetrics.heightPixels * 0.35).toInt(), View.MeasureSpec.AT_MOST)
+                        View.MeasureSpec.makeMeasureSpec((context.resources.displayMetrics.heightPixels * 0.25).toInt(), View.MeasureSpec.AT_MOST)
                     )
                 }
         }.onFailure {
@@ -98,13 +60,15 @@ class ChatActionMenu : AbstractMenu() {
         }
     }
 
-    @OptIn(ExperimentalLayoutApi::class, ExperimentalEncodingApi::class)
-    @SuppressLint("SetTextI18n", "DiscouragedApi", "ClickableViewAccessibility")
     override fun inject(parent: ViewGroup, view: View, viewConsumer: (View) -> Unit) {
         val viewGroup = parent.parent.parent as? ViewGroup ?: return
         if (viewTagState[viewGroup]) return
         //close the action menu using a touch event
-        val closeActionMenu = { parent.triggerCloseTouchEvent() }
+        val closeActionMenu = {
+            context.runOnUiThread {
+                parent.triggerCloseTouchEvent()
+            }
+        }
 
         val messaging = context.feature(Messaging::class)
         val messageLogger = context.feature(MessageLogger::class)
@@ -175,6 +139,72 @@ class ChatActionMenu : AbstractMenu() {
             })
         }
 
+        if (context.config.experimental.editMessage.get() && messaging.conversationManager?.isEditMessageSupported() == true) {
+            injectButton(Button(viewGroup.context).apply button@{
+                text = "Edit Message"
+                setOnClickListener {
+                    messaging.conversationManager?.fetchMessage(
+                        messaging.openedConversationUUID.toString(),
+                        messaging.lastFocusedMessageId,
+                        onSuccess = onSuccess@{ message ->
+                            closeActionMenu()
+                            if (message.senderId.toString() != this@ChatActionMenu.context.database.myUserId) {
+                                this@ChatActionMenu.context.shortToast("You can only edit your own messages")
+                                return@onSuccess
+                            }
+
+                            val editText = EditText(viewGroup.context).apply {
+                                setText(ProtoReader(message.messageContent?.content ?: return@apply).getString(2, 1) ?: run {
+                                    this@ChatActionMenu.context.shortToast("You can only edit text messages")
+                                    return@onSuccess
+                                })
+                                setTextColor(resources.getColor(android.R.color.white, context.theme))
+                                postDelayed({
+                                    requestFocus()
+                                    setSelection(text.length)
+                                    context.getSystemService(android.content.Context.INPUT_METHOD_SERVICE)
+                                        .let { it as android.view.inputmethod.InputMethodManager }
+                                        .showSoftInput(this, android.view.inputmethod.InputMethodManager.SHOW_IMPLICIT)
+                                }, 200)
+                            }
+
+                            this@ChatActionMenu.context.runOnUiThread {
+                                ViewAppearanceHelper.newAlertDialogBuilder(this@ChatActionMenu.context.mainActivity!!)
+                                    .setPositiveButton("Save") { _, _ ->
+                                        val newMessageContent = ProtoWriter().apply {
+                                            from(2) { addString(1, editText.text.toString()) }
+                                        }.toByteArray()
+                                        message.messageContent?.content = newMessageContent
+                                        messaging.conversationManager?.editMessage(
+                                            message.messageDescriptor?.conversationId.toString(),
+                                            message.messageDescriptor?.messageId ?: return@setPositiveButton,
+                                            newMessageContent,
+                                            onSuccess = {
+                                                this@ChatActionMenu.context.coroutineScope.launch(Dispatchers.Main) {
+                                                    message.messageMetadata?.isEdited = true
+                                                    messaging.localUpdateMessage(
+                                                        message.messageDescriptor?.conversationId.toString(),
+                                                        message,
+                                                        forceUpdate = true
+                                                    )
+                                                }
+                                            },
+                                            onError = {
+                                                this@ChatActionMenu.context.shortToast("Failed to edit message: $it")
+                                            }
+                                        )
+                                    }
+                                    .setNegativeButton("Cancel") { dialog, _ -> dialog.dismiss() }
+                                    .setView(editText)
+                                    .setTitle("Edit message content")
+                                    .show()
+                            }
+                        }
+                    )
+                }
+            })
+        }
+
         if (context.config.experimental.convertMessageLocally.get()) {
             injectButton(Button(viewGroup.context).apply {
                 text = this@ChatActionMenu.context.translation["chat_action_menu.convert_message"]
@@ -202,108 +232,6 @@ class ChatActionMenu : AbstractMenu() {
             })
         }
 
-        if (context.isDeveloper) {
-            val composeDebugView = createComposeView(viewGroup.context) {
-                FlowRow(
-                    modifier = Modifier.fillMaxWidth().padding(5.dp),
-                    horizontalArrangement = Arrangement.spacedBy(3.dp)
-                ) {
-                    Button(onClick = {
-                        val arroyoMessage = lastFocusedMessage ?: return@Button
-                        debugAlertDialog(viewGroup.context,
-                            "Message Info",
-                            StringBuilder().apply {
-                                runCatching {
-                                    append("conversation_id: ${arroyoMessage.clientConversationId}\n")
-                                    append("sender_id: ${arroyoMessage.senderId}\n")
-                                    append("client_id: ${arroyoMessage.clientMessageId}, server_id: ${arroyoMessage.serverMessageId}\n")
-                                    append("content_type: ${ContentType.fromId(arroyoMessage.contentType)} (${arroyoMessage.contentType})\n")
-                                    append("parsed_content_type: ${
-                                        ContentType.fromMessageContainer(
-                                            ProtoReader(arroyoMessage.messageContent!!).followPath(4, 4)
-                                        ).let { "$it (${it?.id})" }}\n")
-                                    append("creation_timestamp: ${
-                                        SimpleDateFormat.getDateTimeInstance().format(
-                                            Date(arroyoMessage.creationTimestamp)
-                                        )} (${arroyoMessage.creationTimestamp})\n")
-                                    append("read_timestamp: ${SimpleDateFormat.getDateTimeInstance().format(
-                                        Date(arroyoMessage.readTimestamp)
-                                    )} (${arroyoMessage.readTimestamp})\n")
-                                    append("ml_deleted: ${messageLogger.isMessageDeleted(arroyoMessage.clientConversationId!!, arroyoMessage.clientMessageId.toLong())}, ")
-                                    append("ml_stored: ${messageLogger.getMessageObject(arroyoMessage.clientConversationId!!, arroyoMessage.clientMessageId.toLong()) != null}\n")
-                                }
-                            }.toString()
-                        )
-                    }) {
-                        Text("Info")
-                    }
-                    Button(onClick = {
-                        val arroyoMessage = lastFocusedMessage ?: return@Button
-                        messaging.conversationManager?.fetchMessage(arroyoMessage.clientConversationId!!, arroyoMessage.clientMessageId.toLong(), onSuccess = { message ->
-                            val decodedAttachments = MessageDecoder.decode(message.messageContent!!)
-
-                            debugAlertDialog(
-                                viewGroup.context,
-                                "Media References",
-                                decodedAttachments.mapIndexed { index, attachment ->
-                                    StringBuilder().apply {
-                                        append("---- media $index ----\n")
-                                        append("resolveProto: ${attachment.mediaUrlKey}\n")
-                                        append("type: ${attachment.type}\n")
-                                        attachment.attachmentInfo?.apply {
-                                            encryption?.let {
-                                                append("encryption:\n  - key: ${it.key}\n  - iv: ${it.iv}\n")
-                                            }
-                                            resolution?.let {
-                                                append("resolution: ${it.first}x${it.second}\n")
-                                            }
-                                            duration?.let {
-                                                append("duration: $it\n")
-                                            }
-                                        }
-                                        runCatching {
-                                            val mediaHeaders = RemoteMediaResolver.getMediaHeaders(Base64.UrlSafe.decode(attachment.mediaUrlKey ?: return@runCatching))
-                                            append("content-type: ${mediaHeaders["content-type"]}\n")
-                                            append("content-length: ${Formatter.formatShortFileSize(context.androidContext, mediaHeaders["content-length"]?.toLongOrNull() ?: 0)}\n")
-                                            append("creation-date: ${mediaHeaders["last-modified"]}\n")
-                                        }
-                                    }.toString()
-                                }.joinToString("\n\n")
-                            )
-                        })
-                    }) {
-                        Text("Refs")
-                    }
-                    Button(onClick = {
-                        val message = lastFocusedMessage ?: return@Button
-                        debugAlertDialog(
-                            viewGroup.context,
-                            "Arroyo proto",
-                            message.messageContent?.let { ProtoReader(it) }?.toString() ?: "empty"
-                        )
-                    }) {
-                        Text("Arroyo proto")
-                    }
-                    Button(onClick = {
-                        val arroyoMessage = lastFocusedMessage ?: return@Button
-                        messaging.conversationManager?.fetchMessage(arroyoMessage.clientConversationId!!, arroyoMessage.clientMessageId.toLong(), onSuccess = { message ->
-                            debugAlertDialog(
-                                viewGroup.context,
-                                "Message proto",
-                                message.messageContent?.content?.let { ProtoReader(it) }?.toString() ?: "empty"
-                            )
-                        }, onError = {
-                            this@ChatActionMenu.context.shortToast("Failed to fetch message: $it")
-                        })
-                    }) {
-                        Text("Message proto")
-                    }
-                }
-            }
-            viewGroup.addView(createContainer(viewGroup).apply {
-                addView(composeDebugView)
-            })
-        }
 
         viewGroup.addView(buttonContainer)
     }

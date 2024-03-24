@@ -11,6 +11,7 @@ class Experimental : ConfigContainer() {
 
     class NativeHooks : ConfigContainer(hasGlobalState = true) {
         val disableBitmoji = boolean("disable_bitmoji")
+        val remapApk = boolean("remap_apk") { addNotices(FeatureNotice.UNSTABLE) }
     }
 
     class E2EEConfig : ConfigContainer(hasGlobalState = true) {
@@ -18,12 +19,20 @@ class Experimental : ConfigContainer() {
         val forceMessageEncryption = boolean("force_message_encryption")
     }
 
+    class AccountSwitcherConfig : ConfigContainer(hasGlobalState = true) {
+        val autoBackupCurrentAccount = boolean("auto_backup_current_account", defaultValue = true)
+    }
+
     val nativeHooks = container("native_hooks", NativeHooks()) { icon = "Memory"; requireRestart() }
     val sessionEvents = container("session_events", SessionEventsConfig()) { requireRestart(); nativeHooks() }
     val spoof = container("spoof", Spoof()) { icon = "Fingerprint" ; addNotices(FeatureNotice.BAN_RISK); requireRestart() }
     val convertMessageLocally = boolean("convert_message_locally") { requireRestart() }
     val newChatActionMenu = boolean("new_chat_action_menu") { requireRestart() }
+    val mediaFilePicker = boolean("media_file_picker") { requireRestart(); addNotices(FeatureNotice.UNSTABLE) }
     val storyLogger = boolean("story_logger") { requireRestart(); addNotices(FeatureNotice.UNSTABLE); }
+    val callRecorder = boolean("call_recorder") { requireRestart(); addNotices(FeatureNotice.UNSTABLE); }
+    val accountSwitcher = container("account_switcher", AccountSwitcherConfig()) { requireRestart(); addNotices(FeatureNotice.UNSTABLE) }
+    val editMessage = boolean("edit_message") { requireRestart(); addNotices(FeatureNotice.BAN_RISK) }
     val appPasscode = string("app_passcode")
     val appLockOnResume = boolean("app_lock_on_resume")
     val infiniteStoryBoost = boolean("infinite_story_boost")
@@ -35,7 +44,6 @@ class Experimental : ConfigContainer() {
         requireRestart()
     }
     val addFriendSourceSpoof = unique("add_friend_source_spoof",
-        "added_by_quick_add",
         "added_by_username",
         "added_by_mention",
         "added_by_group_chat",

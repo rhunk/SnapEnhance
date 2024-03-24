@@ -15,7 +15,6 @@ void JNICALL init(JNIEnv *env, jobject clazz) {
     LOGD("Initializing native");
     using namespace common;
 
-    native_config = new native_config_t;
     native_lib_object = env->NewGlobalRef(clazz);
     client_module = util::get_module("libclient.so");
 
@@ -32,6 +31,10 @@ void JNICALL init(JNIEnv *env, jobject clazz) {
     SqliteMutexHook::init();
     DuplexHook::init(env);
 
+    if (native_config->remap_apk) {
+        util::remap_sections(BUILD_PACKAGE);
+    }
+
     LOGD("Native initialized");
 }
 
@@ -43,6 +46,7 @@ void JNICALL load_config(JNIEnv *env, jobject _, jobject config_object) {
     native_config->disable_bitmoji = GET_CONFIG_BOOL("disableBitmoji");
     native_config->disable_metrics = GET_CONFIG_BOOL("disableMetrics");
     native_config->hook_asset_open = GET_CONFIG_BOOL("hookAssetOpen");
+    native_config->remap_apk = GET_CONFIG_BOOL("remapApk");
 }
 
 void JNICALL lock_database(JNIEnv *env, jobject _, jstring database_name, jobject runnable) {

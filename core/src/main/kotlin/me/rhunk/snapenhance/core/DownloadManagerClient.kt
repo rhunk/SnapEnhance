@@ -31,7 +31,7 @@ class DownloadManagerClient (
                     )
                 ),
                 dashOptions = DashOptions(offsetTime, duration),
-                flags = DownloadRequest.Flags.IS_DASH_PLAYLIST
+                flags = DownloadRequest.Flags.DASH_PLAYLIST
             )
         )
     }
@@ -64,6 +64,24 @@ class DownloadManagerClient (
             DownloadRequest(
                 inputMedias = arrayOf(original, overlay),
                 flags = DownloadRequest.Flags.MERGE_OVERLAY
+            )
+        )
+    }
+
+    fun downloadStream(
+        streamUrl: String,
+        audioStreamFormat: AudioStreamFormat
+    ) {
+        enqueueDownloadRequest(
+            DownloadRequest(
+                inputMedias = arrayOf(
+                    InputMedia(
+                        content = streamUrl,
+                        type = DownloadMediaType.REMOTE_MEDIA
+                    )
+                ),
+                flags = DownloadRequest.Flags.AUDIO_STREAM,
+                audioStreamFormat = audioStreamFormat
             )
         )
     }

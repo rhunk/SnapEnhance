@@ -1,12 +1,10 @@
-package me.rhunk.snapenhance.core.manager.impl
+package me.rhunk.snapenhance.core.features
 
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 import me.rhunk.snapenhance.core.ModContext
-import me.rhunk.snapenhance.core.features.Feature
-import me.rhunk.snapenhance.core.features.FeatureLoadParams
-import me.rhunk.snapenhance.core.features.MessagingRuleFeature
+import me.rhunk.snapenhance.core.features.impl.COFOverride
 import me.rhunk.snapenhance.core.features.impl.ConfigurationOverride
 import me.rhunk.snapenhance.core.features.impl.MixerStories
 import me.rhunk.snapenhance.core.features.impl.OperaViewerParamsOverride
@@ -16,25 +14,27 @@ import me.rhunk.snapenhance.core.features.impl.downloader.ProfilePictureDownload
 import me.rhunk.snapenhance.core.features.impl.experiments.*
 import me.rhunk.snapenhance.core.features.impl.global.*
 import me.rhunk.snapenhance.core.features.impl.messaging.*
-import me.rhunk.snapenhance.core.features.impl.spying.*
-import me.rhunk.snapenhance.core.features.impl.tweaks.BypassScreenshotDetection
-import me.rhunk.snapenhance.core.features.impl.tweaks.CameraTweaks
-import me.rhunk.snapenhance.core.features.impl.tweaks.DisablePermissionRequests
-import me.rhunk.snapenhance.core.features.impl.tweaks.PreventMessageListAutoScroll
-import me.rhunk.snapenhance.core.features.impl.tweaks.UnsaveableMessages
+import me.rhunk.snapenhance.core.features.impl.spying.HalfSwipeNotifier
+import me.rhunk.snapenhance.core.features.impl.spying.MessageLogger
+import me.rhunk.snapenhance.core.features.impl.spying.StealthMode
+import me.rhunk.snapenhance.core.features.impl.tweaks.*
 import me.rhunk.snapenhance.core.features.impl.ui.*
 import me.rhunk.snapenhance.core.logger.CoreLogger
-import me.rhunk.snapenhance.core.manager.Manager
 import me.rhunk.snapenhance.core.ui.menu.MenuViewInjector
 import kotlin.reflect.KClass
 import kotlin.system.measureTimeMillis
 
 class FeatureManager(
     private val context: ModContext
-) : Manager {
+) {
     private val features = mutableMapOf<KClass<out Feature>, Feature>()
 
     private fun register(vararg featureList: Feature) {
+        if (context.bridgeClient.getDebugProp("disable_feature_loading") == "true") {
+            context.log.warn("Feature loading is disabled")
+            return
+        }
+
         runBlocking {
             featureList.forEach { feature ->
                 launch(Dispatchers.IO) {
@@ -58,7 +58,7 @@ class FeatureManager(
 
     fun getRuleFeatures() = features.values.filterIsInstance<MessagingRuleFeature>().sortedBy { it.ruleType.ordinal }
 
-    override fun init() {
+    fun init() {
         register(
             EndToEndEncryption(),
             ScopeSync(),
@@ -77,6 +77,7 @@ class FeatureManager(
             AutoSave(),
             UITweaks(),
             ConfigurationOverride(),
+            COFOverride(),
             UnsaveableMessages(),
             SendOverride(),
             UnlimitedSnapViewTime(),
@@ -84,7 +85,6 @@ class FeatureManager(
             MediaQualityLevelOverride(),
             MeoPasscodeBypass(),
             AppPasscode(),
-            LocationSpoofer(),
             CameraTweaks(),
             InfiniteStoryBoost(),
             AmoledDarkMode(),
@@ -109,7 +109,7 @@ class FeatureManager(
             DisableConfirmationDialogs(),
             MixerStories(),
             DisableComposerModules(),
-            FideliusIndicator(),
+            MessageIndicators(),
             EditTextOverride(),
             PreventForcedLogout(),
             SuspendLocationUpdates(),
@@ -120,6 +120,13 @@ class FeatureManager(
             DisablePermissionRequests(),
             SessionEvents(),
             DefaultVolumeControls(),
+            CallRecorder(),
+            DisableMemoriesSnapFeed(),
+            AccountSwitcher(),
+            RemoveGroupsLockedStatus(),
+            BypassMessageActionRestrictions(),
+            BetterLocation(),
+            MediaFilePicker(),
         )
 
         initializeFeatures()
@@ -171,7 +178,7 @@ class FeatureManager(
         }
     }
 
-    override fun onActivityCreate() {
+    fun onActivityCreate() {
         measureTimeMillis {
             initFeatures(
                 FeatureLoadParams.ACTIVITY_CREATE_SYNC,

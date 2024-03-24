@@ -4,6 +4,7 @@ import de.robv.android.xposed.XC_MethodHook
 import de.robv.android.xposed.XposedBridge
 import java.lang.reflect.Member
 import java.lang.reflect.Method
+import java.lang.reflect.Modifier
 
 object Hooker {
     inline fun newMethodHook(
@@ -166,7 +167,7 @@ fun Member.hook(
 ): XC_MethodHook.Unhook = Hooker.hook(this, stage, filter, consumer)
 
 fun Array<Method>.hookAll(stage: HookStage, param: (HookAdapter) -> Unit) {
-    filter { it.declaringClass != Object::class.java }.forEach {
+    filter { it.declaringClass != Object::class.java && !Modifier.isAbstract(it.modifiers) }.forEach {
         it.hook(stage, param)
     }
 }

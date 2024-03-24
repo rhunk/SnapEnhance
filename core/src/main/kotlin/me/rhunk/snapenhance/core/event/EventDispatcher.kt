@@ -1,5 +1,6 @@
 package me.rhunk.snapenhance.core.event
 
+import android.app.Activity
 import android.content.Intent
 import android.view.View
 import android.view.ViewGroup
@@ -7,7 +8,6 @@ import android.view.ViewGroup.LayoutParams
 import me.rhunk.snapenhance.common.util.snap.SnapWidgetBroadcastReceiverHelper
 import me.rhunk.snapenhance.core.ModContext
 import me.rhunk.snapenhance.core.event.events.impl.*
-import me.rhunk.snapenhance.core.manager.Manager
 import me.rhunk.snapenhance.core.util.hook.HookStage
 import me.rhunk.snapenhance.core.util.hook.Hooker
 import me.rhunk.snapenhance.core.util.hook.hook
@@ -23,7 +23,7 @@ import java.nio.ByteBuffer
 
 class EventDispatcher(
     private val context: ModContext
-) : Manager {
+) {
     private fun hookViewBinder() {
         context.mappings.useMapper(ViewBinderMapper::class) {
             val cachedHooks = mutableListOf<String>()
@@ -60,8 +60,7 @@ class EventDispatcher(
 
     }
 
-
-    override fun init() {
+    fun init() {
         context.classCache.conversationManager.hook("sendMessageWithContent", HookStage.BEFORE) { param ->
             context.event.post(SendMessageWithContentEvent(
                 destinations = MessageDestinations(param.arg(0)),
@@ -221,6 +220,32 @@ class EventDispatcher(
                 }
 
                 methodParam.setArg(0, ByteBuffer.wrap(responseUnaryCallEvent.buffer))
+            }
+        }
+
+        arrayOf(
+            "com.snap.mushroom.MainActivity",
+            "com.snap.identity.loginsignup.ui.LoginSignupActivity"
+        ).forEach {
+            context.androidContext.classLoader.loadClass(it).hook("onActivityResult", HookStage.BEFORE) { param ->
+                val instance = param.thisObject<Activity>()
+                val requestCode = param.arg<Int>(0)
+                val resultCode = param.arg<Int>(1)
+                val intent = param.argNullable<Intent>(2) ?: return@hook
+
+                context.event.post(
+                    ActivityResultEvent(
+                        activity = instance,
+                        requestCode = requestCode,
+                        resultCode = resultCode,
+                        intent = intent
+                    ).apply {
+                        adapter = param
+                    }
+                ) {
+                    if (canceled) param.setResult(null)
+                    postHookEvent()
+                }
             }
         }
 

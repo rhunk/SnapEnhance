@@ -253,8 +253,8 @@ class DownloadProcessor (
                     remoteSideContext.config.root.downloader.forceVoiceNoteFormat.getNullable()?.let { format ->
                         val outputFile = File.createTempFile("voice_note", ".$format")
                         newFFMpegProcessor(pendingTask).execute(FFMpegProcessor.Request(
-                            action = FFMpegProcessor.Action.AUDIO_CONVERSION,
-                            inputs = listOf(media.file),
+                            action = FFMpegProcessor.Action.CONVERSION,
+                            inputs = listOf(media.file.absolutePath),
                             output = outputFile
                         ))
                         media.file.delete()
@@ -291,7 +291,7 @@ class DownloadProcessor (
             runCatching {
                 newFFMpegProcessor(pendingTask).execute(FFMpegProcessor.Request(
                     action = FFMpegProcessor.Action.DOWNLOAD_DASH,
-                    inputs = listOf(dashPlaylistFile),
+                    inputs = listOf(dashPlaylistFile.absolutePath),
                     output = outputFile,
                     startTime = dashOptions.offsetTime,
                     duration = dashOptions.duration
@@ -357,6 +357,22 @@ class DownloadProcessor (
             }
 
             runCatching {
+                if (downloadRequest.isAudioStream) {
+                    val streamUrl = downloadRequest.inputMedias.first().content
+                    val outputFile = File.createTempFile("audio_stream", ".mp3")
+
+                    callbackOnProgress("Downloading audio stream")
+                    pendingTask.updateProgress("Downloading audio stream")
+                    newFFMpegProcessor(pendingTask).execute(FFMpegProcessor.Request(
+                        action = FFMpegProcessor.Action.DOWNLOAD_AUDIO_STREAM,
+                        inputs = listOf(streamUrl),
+                        output = outputFile,
+                        audioStreamFormat = downloadRequest.audioStreamFormat
+                    ))
+                    saveMediaToGallery(pendingTask, outputFile, downloadMetadata)
+                    return@launch
+                }
+
                 //first download all input medias into cache
                 val downloadedMedias = downloadInputMedias(pendingTask, downloadRequest).map {
                     it.key to DownloadedFile(it.value, FileType.fromFile(it.value))
@@ -406,7 +422,7 @@ class DownloadProcessor (
 
                         newFFMpegProcessor(pendingTask).execute(FFMpegProcessor.Request(
                             action = FFMpegProcessor.Action.MERGE_OVERLAY,
-                            inputs = listOf(renamedMedia),
+                            inputs = listOf(renamedMedia.absolutePath),
                             output = mergedOverlay,
                             overlay = renamedOverlayMedia
                         ))

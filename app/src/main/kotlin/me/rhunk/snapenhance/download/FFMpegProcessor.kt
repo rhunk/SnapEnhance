@@ -1,5 +1,6 @@
 package me.rhunk.snapenhance.download
 
+import android.media.AudioFormat
 import android.media.MediaMetadataRetriever
 import com.arthenica.ffmpegkit.FFmpegKit
 import com.arthenica.ffmpegkit.FFmpegSession
@@ -9,6 +10,7 @@ import kotlinx.coroutines.suspendCancellableCoroutine
 import me.rhunk.snapenhance.LogManager
 import me.rhunk.snapenhance.RemoteSideContext
 import me.rhunk.snapenhance.common.config.impl.DownloaderConfig
+import me.rhunk.snapenhance.common.data.download.AudioStreamFormat
 import me.rhunk.snapenhance.common.logger.LogLevel
 import me.rhunk.snapenhance.task.PendingTask
 import java.io.File
@@ -61,17 +63,22 @@ class FFMpegProcessor(
     enum class Action {
         DOWNLOAD_DASH,
         MERGE_OVERLAY,
-        AUDIO_CONVERSION,
-        MERGE_MEDIA
+        CONVERSION,
+        MERGE_MEDIA,
+        DOWNLOAD_AUDIO_STREAM,
     }
 
     data class Request(
         val action: Action,
-        val inputs: List<File>,
+        val inputs: List<String>,
         val output: File,
         val overlay: File? = null, //only for MERGE_OVERLAY
         val startTime: Long? = null, //only for DOWNLOAD_DASH
-        val duration: Long? = null //only for DOWNLOAD_DASH
+        val duration: Long? = null, //only for DOWNLOAD_DASH
+        val audioStreamFormat: AudioStreamFormat? = null, //only for DOWNLOAD_AUDIO_STREAM
+
+        var videoCodec: String? = null,
+        var audioCodec: String? = null,
     )
 
 
@@ -113,8 +120,8 @@ class FFMpegProcessor(
         }
 
         val inputArguments = ArgumentList().apply {
-            args.inputs.forEach { file ->
-                this += "-i" to file.absolutePath
+            args.inputs.forEach { path ->
+                this += "-i" to path
             }
         }
 
@@ -138,19 +145,26 @@ class FFMpegProcessor(
                 inputArguments += "-i" to args.overlay!!.absolutePath
                 outputArguments += "-filter_complex" to "\"[0]scale2ref[img][vid];[img]setsar=1[img];[vid]nullsink;[img][1]overlay=(W-w)/2:(H-h)/2,scale=2*trunc(iw*sar/2):2*trunc(ih/2)\""
             }
-            Action.AUDIO_CONVERSION -> {
+            Action.CONVERSION -> {
                 if (ffmpegOptions.customAudioCodec.isEmpty()) {
                     outputArguments -= "-c:a"
                 }
-                if (ffmpegOptions.customVideoCodec.isEmpty()) {
-                    outputArguments -= "-c:v"
+                outputArguments -= "-c:v"
+                args.videoCodec?.let {
+                    outputArguments += "-c:v" to it
+                } ?: run {
+                    outputArguments += "-vn"
+                }
+                args.audioCodec?.let {
+                    outputArguments -= "-c:a"
+                    outputArguments += "-c:a" to it
                 }
             }
             Action.MERGE_MEDIA -> {
                 inputArguments.clear()
                 val filesInfo = args.inputs.mapNotNull { file ->
                     runCatching {
-                        MediaMetadataRetriever().apply { setDataSource(file.absolutePath) }
+                        MediaMetadataRetriever().apply { setDataSource(file) }
                     }.getOrNull()?.let { file to it }
                 }
 
@@ -173,7 +187,7 @@ class FFMpegProcessor(
                         containsNoSound = true
                         filterSecondPart.append("[v$index][${filesInfo.size}]")
                     }
-                    inputArguments += "-i" to file.absolutePath
+                    inputArguments += "-i" to file
                 }
 
                 if (containsNoSound) {
@@ -193,6 +207,18 @@ class FFMpegProcessor(
                 outputArguments += "-map" to "\"[vout]\""
 
                 filesInfo.forEach { it.second.close() }
+            }
+            Action.DOWNLOAD_AUDIO_STREAM -> {
+                outputArguments.clear()
+                globalArguments += "-f" to when (args.audioStreamFormat!!.encoding) {
+                    AudioFormat.ENCODING_PCM_8BIT -> "u8"
+                    AudioFormat.ENCODING_PCM_16BIT -> "s16le"
+                    AudioFormat.ENCODING_PCM_FLOAT -> "f32le"
+                    AudioFormat.ENCODING_PCM_32BIT -> "s32le"
+                    else -> throw IllegalArgumentException("Unsupported audio encoding")
+                }
+                globalArguments += "-ar" to args.audioStreamFormat!!.sampleRate.toString()
+                globalArguments += "-ac" to args.audioStreamFormat!!.channels.toString()
             }
         }
         outputArguments += args.output.absolutePath

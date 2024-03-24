@@ -5,18 +5,15 @@ import android.content.ComponentName
 import android.content.Context
 import android.content.Intent
 import android.content.ServiceConnection
-import android.os.Build
-import android.os.DeadObjectException
-import android.os.Handler
-import android.os.HandlerThread
-import android.os.IBinder
+import android.os.*
 import de.robv.android.xposed.XposedHelpers
+import me.rhunk.snapenhance.bridge.AccountStorage
 import me.rhunk.snapenhance.bridge.BridgeInterface
 import me.rhunk.snapenhance.bridge.ConfigStateListener
 import me.rhunk.snapenhance.bridge.DownloadCallback
-import me.rhunk.snapenhance.bridge.logger.LoggerInterface
 import me.rhunk.snapenhance.bridge.SyncCallback
 import me.rhunk.snapenhance.bridge.e2ee.E2eeInterface
+import me.rhunk.snapenhance.bridge.logger.LoggerInterface
 import me.rhunk.snapenhance.bridge.logger.TrackerInterface
 import me.rhunk.snapenhance.bridge.scripting.IScripting
 import me.rhunk.snapenhance.bridge.snapclient.MessagingBridge
@@ -155,10 +152,20 @@ class BridgeClient(
         }
     }
 
-    fun getApplicationApkPath(): String = safeServiceCall { service.getApplicationApkPath() }
+    fun getApplicationApkPath(): String = safeServiceCall { service.applicationApkPath }
 
     fun enqueueDownload(intent: Intent, callback: DownloadCallback) = safeServiceCall {
         service.enqueueDownload(intent, callback)
+    }
+
+    fun convertMedia(
+        input: ParcelFileDescriptor,
+        inputExtension: String,
+        outputExtension: String,
+        audioCodec: String?,
+        videoCodec: String?
+    ): ParcelFileDescriptor? = safeServiceCall {
+        service.convertMedia(input, inputExtension, outputExtension, audioCodec, videoCodec)
     }
 
     fun sync(callback: SyncCallback) {
@@ -200,10 +207,14 @@ class BridgeClient(
 
     fun getTracker(): TrackerInterface = safeServiceCall { service.tracker }
 
+    fun getAccountStorage(): AccountStorage = safeServiceCall { service.accountStorage }
+
     fun registerMessagingBridge(bridge: MessagingBridge) = safeServiceCall { service.registerMessagingBridge(bridge) }
 
     fun openSettingsOverlay() = safeServiceCall { service.openSettingsOverlay() }
     fun closeSettingsOverlay() = safeServiceCall { service.closeSettingsOverlay() }
 
     fun registerConfigStateListener(listener: ConfigStateListener) = safeServiceCall { service.registerConfigStateListener(listener) }
+
+    fun getDebugProp(name: String, defaultValue: String? = null) = safeServiceCall { service.getDebugProp(name, defaultValue) }
 }

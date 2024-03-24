@@ -24,6 +24,7 @@ android {
             cmake {
                 arguments += listOf(
                     "-DOBFUSCATED_NAME=$nativeName",
+                    "-DBUILD_PACKAGE=${rootProject.ext["applicationId"]}",
                     "-DBUILD_NAMESPACE=${namespace!!.replace(".", "/")}"
                 )
             }

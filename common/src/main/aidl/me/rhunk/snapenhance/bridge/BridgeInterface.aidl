@@ -9,6 +9,7 @@ import me.rhunk.snapenhance.bridge.logger.LoggerInterface;
 import me.rhunk.snapenhance.bridge.logger.TrackerInterface;
 import me.rhunk.snapenhance.bridge.ConfigStateListener;
 import me.rhunk.snapenhance.bridge.snapclient.MessagingBridge;
+import me.rhunk.snapenhance.bridge.AccountStorage;
 
 interface BridgeInterface {
     /**
@@ -38,6 +39,11 @@ interface BridgeInterface {
      * Enqueue a download
      */
     oneway void enqueueDownload(in Intent intent, DownloadCallback callback);
+
+    /**
+     * File conversation
+     */
+    @nullable ParcelFileDescriptor convertMedia(in ParcelFileDescriptor input, String inputExtension, String outputExtension, @nullable String audioCodec, @nullable String videoCodec);
 
     /**
     * Get rules for a given user or conversation
@@ -84,6 +90,8 @@ interface BridgeInterface {
 
     TrackerInterface getTracker();
 
+    AccountStorage getAccountStorage();
+
     oneway void registerMessagingBridge(MessagingBridge bridge);
 
     oneway void openSettingsOverlay();
@@ -91,4 +99,6 @@ interface BridgeInterface {
     oneway void closeSettingsOverlay();
 
     oneway void registerConfigStateListener(in ConfigStateListener listener);
+
+    @nullable String getDebugProp(String key, @nullable String defaultValue);
 }

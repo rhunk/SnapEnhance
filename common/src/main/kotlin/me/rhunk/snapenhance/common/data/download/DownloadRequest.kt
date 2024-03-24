@@ -6,6 +6,8 @@ import java.util.Locale
 
 
 data class DashOptions(val offsetTime: Long, val duration: Long?)
+data class AudioStreamFormat(val channels: Int, val sampleRate: Int, val encoding: Int)
+
 data class InputMedia(
     val content: String,
     val type: DownloadMediaType,
@@ -17,18 +19,23 @@ data class InputMedia(
 class DownloadRequest(
     val inputMedias: Array<InputMedia>,
     val dashOptions: DashOptions? = null,
+    val audioStreamFormat: AudioStreamFormat? = null,
     private val flags: Int = 0,
 ) {
     object Flags {
         const val MERGE_OVERLAY = 1
-        const val IS_DASH_PLAYLIST = 2
+        const val DASH_PLAYLIST = 2
+        const val AUDIO_STREAM = 4
     }
 
     val isDashPlaylist: Boolean
-        get() = flags and Flags.IS_DASH_PLAYLIST != 0
+        get() = flags and Flags.DASH_PLAYLIST != 0
 
     val shouldMergeOverlay: Boolean
         get() = flags and Flags.MERGE_OVERLAY != 0
+
+    val isAudioStream: Boolean
+        get() = flags and Flags.AUDIO_STREAM != 0
 }
 
 fun String.sanitizeForPath(): String {

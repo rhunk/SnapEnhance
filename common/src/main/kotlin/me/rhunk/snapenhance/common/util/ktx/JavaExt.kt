@@ -1,6 +1,8 @@
 package me.rhunk.snapenhance.common.util.ktx
 
 import java.lang.reflect.Field
+import java.lang.reflect.ParameterizedType
+import java.lang.reflect.Type
 
 fun String.longHashCode(): Long {
     var h = 1125899906842597L
@@ -33,4 +35,8 @@ inline fun Class<*>.findFieldsToString(instance: Any? = null, once: Boolean = fa
             return@findFields false
         }
     }
+}
+
+fun Type.getTypeArguments(): List<Class<*>> {
+    return (this as? ParameterizedType)?.actualTypeArguments?.mapNotNull { it as? Class<*> } ?: emptyList()
 }

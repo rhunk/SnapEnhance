@@ -7,13 +7,13 @@ import me.rhunk.snapenhance.core.event.events.impl.NativeUnaryCallEvent
 import me.rhunk.snapenhance.core.event.events.impl.SendMessageWithContentEvent
 import me.rhunk.snapenhance.core.features.Feature
 import me.rhunk.snapenhance.core.features.FeatureLoadParams
+import me.rhunk.snapenhance.core.features.impl.experiments.MediaFilePicker
 import me.rhunk.snapenhance.core.messaging.MessageSender
 import me.rhunk.snapenhance.core.ui.ViewAppearanceHelper
 import me.rhunk.snapenhance.nativelib.NativeLib
 
 class SendOverride : Feature("Send Override", loadParams = FeatureLoadParams.INIT_SYNC) {
     private var isLastSnapSavable = false
-    private val arroyoMessageContainerPath = intArrayOf(4, 4)
     private val typeNames by lazy {
         mutableListOf(
             "ORIGINAL",
@@ -31,20 +31,14 @@ class SendOverride : Feature("Send Override", loadParams = FeatureLoadParams.INI
     override fun init() {
         context.event.subscribe(NativeUnaryCallEvent::class) { event ->
             if (event.uri != "/messagingcoreservice.MessagingCoreService/CreateContentMessage") return@subscribe
-            val protoEditor = ProtoEditor(event.buffer)
-
-            if (isLastSnapSavable && ProtoReader(event.buffer).containsPath(*arroyoMessageContainerPath, 11)) {
-                protoEditor.edit(*arroyoMessageContainerPath, 11, 5, 2) {
-                    remove(8)
-                    addBuffer(6, byteArrayOf())
-                }
-                //make snaps savable in chat
+            if (isLastSnapSavable) {
+                val protoEditor = ProtoEditor(event.buffer)
                 protoEditor.edit(4) {
                     remove(7)
                     addVarInt(7, 3)
                 }
+                event.buffer = protoEditor.toByteArray()
             }
-            event.buffer = protoEditor.toByteArray()
         }
 
         val stripSnapMetadata = context.config.messaging.stripMediaMetadata.get()
@@ -141,10 +135,8 @@ class SendOverride : Feature("Send Override", loadParams = FeatureLoadParams.INI
 
                             "NOTE" -> {
                                 localMessageContent.contentType = ContentType.NOTE
-                                val mediaDuration =
-                                    messageProtoReader.getVarInt(3, 3, 5, 1, 1, 15) ?: 0
                                 localMessageContent.content =
-                                    MessageSender.audioNoteProto(mediaDuration)
+                                    MessageSender.audioNoteProto(messageProtoReader.getVarInt(3, 3, 5, 1, 1, 15) ?: context.feature(MediaFilePicker::class).lastMediaDuration ?: 0)
                             }
                         }
 
