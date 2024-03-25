@@ -120,6 +120,10 @@
                 },
                 "description": "Mesajların diğer kişiler tarafından sohbete kaydedilmesini önler"
             }
+        },
+        "toasts": {
+            "enabled": "{ruleName} etkin",
+            "disabled": "{ruleName} devre dışı"
         }
     },
     "features": {
@@ -329,6 +333,10 @@
                     "stealth_mode_indicator": {
                         "name": "Gizli Mod Göstergesi",
                         "description": "Gizli modundaki konuşmaların yanına bir 👻 emojisi ekler"
+                    },
+                    "message_indicators": {
+                        "name": "Mesaj Göstergeleri",
+                        "description": "Mesajlara belirli gösterge simgeleri ekler\nNot: göstergeler %100 doğru olmayabilir"
                     }
                 }
             },
@@ -443,6 +451,14 @@
                     "loop_media_playback": {
                         "name": "Medya Oynatmayı Döngüye Al",
                         "description": "Snap'leri / Hikayeleri görüntülerken medya oynatmayı döngüye alır"
+                    },
+                    "bypass_message_action_restrictions": {
+                        "name": "Mesaj Eylemi Kısıtlamalarını Atla",
+                        "description": "Bir snap'i açmadan tepki vermenizi veya kaydedilemeyen bir mesajı kaydetmenizi sağlar"
+                    },
+                    "remove_groups_locked_status": {
+                        "name": "Grupların Kilitli Durumunu Kaldır",
+                        "description": "Atıldıktan sonra grup bilgilerini görüntülemenizi sağlar"
                     }
                 }
             },
@@ -513,6 +529,36 @@
                     "disable_permission_requests": {
                         "name": "İzin İsteklerini Devre Dışı Bırak",
                         "description": "Snapchat'in belirli izinleri istemesini engeller"
+                    },
+                    "better_location": {
+                        "description": "Snapchat Konumunu İyileştirir",
+                        "properties": {
+                            "spoof_location": {
+                                "name": "Sahte Konum",
+                                "description": "Konumunuzu belirli bir konumla değiştirir"
+                            },
+                            "coordinates": {
+                                "description": "Sahte konumun koordinatlarını ayarlayın",
+                                "name": "Koordinatlar"
+                            },
+                            "always_update_location": {
+                                "name": "Konumu Her Zaman Güncelle",
+                                "description": "GPS verisi alınmasa bile Snapchat'i konumu güncellemeye zorlama"
+                            },
+                            "suspend_location_updates": {
+                                "name": "Konum Güncellemelerini Askıya Al",
+                                "description": "Harita ayarlarına konum güncellemelerini askıya almak için bir düğme ekler"
+                            },
+                            "spoof_battery_level": {
+                                "name": "Sahte Pil Seviyesi",
+                                "description": "Cihazınızın pil seviyesini harita üzerinde gösterir\nDeğer 0 ile 100 arasında olmalıdır"
+                            },
+                            "spoof_headphones": {
+                                "name": "Sahte Kulaklıklar",
+                                "description": "Harita üzerinde müzik dinleme durumunu taklit eder"
+                            }
+                        },
+                        "name": "Daha İyi Konum"
                     }
                 }
             },
@@ -595,6 +641,10 @@
                             "disable_bitmoji": {
                                 "name": "Bitmoji'yi Devre Dışı Bırak",
                                 "description": "Arkadaş Profili Bitmoji'sini devre dışı bırakır"
+                            },
+                            "remap_apk": {
+                                "name": "Yeniden Eşleme APK",
+                                "description": "SnapEnhance apk yolunu /proc/self/maps içinde gizler"
                             }
                         }
                     },
@@ -699,6 +749,32 @@
                                 "description": "Oturumun arka planda çalışmasına izin verir"
                             }
                         }
+                    },
+                    "new_chat_action_menu": {
+                        "description": "Yeni sohbet eylem menüsü çekmecesini kullanın",
+                        "name": "Yeni Sohbet Eylem Menüsü"
+                    },
+                    "media_file_picker": {
+                        "name": "Medya Dosyası Seçici",
+                        "description": "Galeriden herhangi bir video/ses dosyası seçmenizi sağlar"
+                    },
+                    "call_recorder": {
+                        "description": "Sesli aramaları otomatik olarak kaydeder",
+                        "name": "Arama Kaydedici"
+                    },
+                    "account_switcher": {
+                        "name": "Hesap Değiştirici",
+                        "description": "Oturumu kapatmadan hesaplar arasında geçiş yapmanızı sağlar\nMenüyü açmak için Bitmoji profilinizin yanındaki arama simgesine uzun basın\nNot: bu özellik deneyseldir ve muhtemelen gelecekte değişecektir",
+                        "properties": {
+                            "auto_backup_current_account": {
+                                "name": "Mevcut Hesabı Otomatik Olarak Yedekle",
+                                "description": "Oturumu kapatırken veya hesap değiştirirken mevcut hesabı otomatik olarak yedekler"
+                            }
+                        }
+                    },
+                    "edit_message": {
+                        "name": "Mesajları Düzenle",
+                        "description": "Görüşmelerdeki mesajları düzenlemenizi sağlar"
                     }
                 }
             },
@@ -886,6 +962,13 @@
                 "read_media_video": "Medya Videosunu Oku",
                 "camera": "Kamera",
                 "location": "Konum"
+            },
+            "message_indicators": {
+                "encryption_indicator": "Sadece size gönderilen mesajların yanına bir 🔒 simgesi ekler",
+                "platform_indicator": "Medyanın gönderildiği platform simgesini ekler (örn. Android, iOS, Web)",
+                "ovf_editor_indicator": "OVF Editor kullanılarak bir snap gönderilip gönderilmediğini gösterir",
+                "director_mode_indicator": "Galeri görüntülerini snap olarak göndermek için kullanılabilen Yönetmen Modu kullanılarak gönderildiklerinde snap'lere bir ✏️ simgesi ekler",
+                "location_indicator": "Konum etkinleştirilerek gönderildiklerinde snap'lere bir 📍 simgesi ekler"
             }
         }
     },
@@ -1078,7 +1161,8 @@
         "profile_picture": "Profil Fotoğrafı",
         "story": "Hikaye",
         "chat_media": "Sohbet Medyası",
-        "message_logger": "Mesaj Kaydedici"
+        "message_logger": "Mesaj Kaydedici",
+        "voice_call": "Sesli Arama"
     },
     "material3_strings": {
         "date_input_invalid_not_allowed": "Geçersiz tarih",
@@ -1101,5 +1185,35 @@
         "already_unseen_toast": "Zaten görülmemiş olarak işaretlendi!",
         "no_unseen_snaps_toast": "Görülmeyen Snap bulunamadı!",
         "seen_toast": "Görüldü olarak işaretlendi!"
+    },
+    "actions": {
+        "clean_snapchat_cache": {
+            "name": "Snapchat Önbelleğini Temizle",
+            "description": "Snapchat Önbelleğini Temizler"
+        },
+        "manage_friend_list": {
+            "name": "Arkadaş Listesini Yönet",
+            "description": "Yedekleme yaparken arkadaş listenizi içe/dışa aktarın"
+        },
+        "export_chat_messages": {
+            "name": "Sohbet Mesajlarını Dışa Aktar",
+            "description": "Konuşma mesajlarını bir JSON/HTML/TXT dosyasına aktarır"
+        },
+        "export_memories": {
+            "name": "Anıları Dışa Aktar",
+            "description": "Anıları bir ZIP dosyasına aktarır"
+        },
+        "bulk_messaging_action": {
+            "name": "Toplu Mesajlaşma Eylemi",
+            "description": "Arkadaş silme veya konuşmaları toplu silme gibi işlemleri gerçekleştirir"
+        },
+        "regen_mappings": {
+            "name": "Eşlemeleri Yeniden Oluştur",
+            "description": "Eşlemeleri manuel olarak yeniden oluşturma"
+        },
+        "change_language": {
+            "name": "Dili Değiştir",
+            "description": "SnapEnhance'in dilini değiştir"
+        }
     }
 }
