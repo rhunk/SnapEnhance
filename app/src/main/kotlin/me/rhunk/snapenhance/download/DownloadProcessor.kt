@@ -253,7 +253,7 @@ class DownloadProcessor (
                     remoteSideContext.config.root.downloader.forceVoiceNoteFormat.getNullable()?.let { format ->
                         val outputFile = File.createTempFile("voice_note", ".$format")
                         newFFMpegProcessor(pendingTask).execute(FFMpegProcessor.Request(
-                            action = FFMpegProcessor.Action.AUDIO_CONVERSION,
+                            action = FFMpegProcessor.Action.CONVERSION,
                             inputs = listOf(media.file.absolutePath),
                             output = outputFile
                         ))

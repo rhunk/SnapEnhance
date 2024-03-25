@@ -3,6 +3,8 @@ package me.rhunk.snapenhance.bridge
 import android.app.Service
 import android.content.Intent
 import android.os.IBinder
+import android.os.ParcelFileDescriptor
+import kotlinx.coroutines.runBlocking
 import me.rhunk.snapenhance.RemoteSideContext
 import me.rhunk.snapenhance.SharedContextHolder
 import me.rhunk.snapenhance.bridge.snapclient.MessagingBridge
@@ -15,6 +17,11 @@ import me.rhunk.snapenhance.common.data.SocialScope
 import me.rhunk.snapenhance.common.logger.LogLevel
 import me.rhunk.snapenhance.common.util.toParcelable
 import me.rhunk.snapenhance.download.DownloadProcessor
+import me.rhunk.snapenhance.download.FFMpegProcessor
+import me.rhunk.snapenhance.task.Task
+import me.rhunk.snapenhance.task.TaskType
+import java.io.File
+import java.util.UUID
 import kotlin.system.measureTimeMillis
 
 class BridgeService : Service() {
@@ -129,6 +136,61 @@ class BridgeService : Service() {
                 remoteSideContext = remoteSideContext,
                 callback = callback
             ).onReceive(intent)
+        }
+
+        override fun convertMedia(
+            input: ParcelFileDescriptor?,
+            inputExtension: String,
+            outputExtension: String,
+            audioCodec: String?,
+            videoCodec: String?
+        ): ParcelFileDescriptor? {
+            return runBlocking {
+                val taskId = UUID.randomUUID().toString()
+                val inputFile = File.createTempFile(taskId, ".$inputExtension", remoteSideContext.androidContext.cacheDir)
+
+                runCatching {
+                    ParcelFileDescriptor.AutoCloseInputStream(input).use { inputStream ->
+                        inputFile.outputStream().use { outputStream ->
+                            inputStream.copyTo(outputStream)
+                        }
+                    }
+                }.onFailure {
+                    remoteSideContext.log.error("Failed to copy input file", it)
+                    inputFile.delete()
+                    return@runBlocking null
+                }
+                val cachedFile = File.createTempFile(taskId, ".$outputExtension", remoteSideContext.androidContext.cacheDir)
+
+                val pendingTask = remoteSideContext.taskManager.createPendingTask(
+                    Task(
+                        type = TaskType.DOWNLOAD,
+                        title = "Media conversion",
+                        author = null,
+                        hash = taskId
+                    )
+                )
+                runCatching {
+                    FFMpegProcessor.newFFMpegProcessor(remoteSideContext, pendingTask).execute(
+                        FFMpegProcessor.Request(
+                            action = FFMpegProcessor.Action.CONVERSION,
+                            inputs = listOf(inputFile.absolutePath),
+                            output = cachedFile,
+                            videoCodec = videoCodec,
+                            audioCodec = audioCodec
+                        )
+                    )
+                    pendingTask.success()
+                    return@runBlocking ParcelFileDescriptor.open(cachedFile, ParcelFileDescriptor.MODE_READ_ONLY)
+                }.onFailure {
+                    pendingTask.fail(it.message ?: "Failed to convert video")
+                    remoteSideContext.log.error("Failed to convert video", it)
+                }
+
+                inputFile.delete()
+                cachedFile.delete()
+                null
+            }
         }
 
         override fun getRules(uuid: String): List<String> {

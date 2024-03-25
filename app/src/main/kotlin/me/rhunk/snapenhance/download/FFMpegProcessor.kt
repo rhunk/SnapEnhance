@@ -63,7 +63,7 @@ class FFMpegProcessor(
     enum class Action {
         DOWNLOAD_DASH,
         MERGE_OVERLAY,
-        AUDIO_CONVERSION,
+        CONVERSION,
         MERGE_MEDIA,
         DOWNLOAD_AUDIO_STREAM,
     }
@@ -76,6 +76,9 @@ class FFMpegProcessor(
         val startTime: Long? = null, //only for DOWNLOAD_DASH
         val duration: Long? = null, //only for DOWNLOAD_DASH
         val audioStreamFormat: AudioStreamFormat? = null, //only for DOWNLOAD_AUDIO_STREAM
+
+        var videoCodec: String? = null,
+        var audioCodec: String? = null,
     )
 
 
@@ -142,12 +145,19 @@ class FFMpegProcessor(
                 inputArguments += "-i" to args.overlay!!.absolutePath
                 outputArguments += "-filter_complex" to "\"[0]scale2ref[img][vid];[img]setsar=1[img];[vid]nullsink;[img][1]overlay=(W-w)/2:(H-h)/2,scale=2*trunc(iw*sar/2):2*trunc(ih/2)\""
             }
-            Action.AUDIO_CONVERSION -> {
+            Action.CONVERSION -> {
                 if (ffmpegOptions.customAudioCodec.isEmpty()) {
                     outputArguments -= "-c:a"
                 }
-                if (ffmpegOptions.customVideoCodec.isEmpty()) {
-                    outputArguments -= "-c:v"
+                outputArguments -= "-c:v"
+                args.videoCodec?.let {
+                    outputArguments += "-c:v" to it
+                } ?: run {
+                    outputArguments += "-vn"
+                }
+                args.audioCodec?.let {
+                    outputArguments -= "-c:a"
+                    outputArguments += "-c:a" to it
                 }
             }
             Action.MERGE_MEDIA -> {
