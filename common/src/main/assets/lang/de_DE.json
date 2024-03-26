@@ -28,7 +28,9 @@
             "home_logs": "Logs",
             "social": "Sozial",
             "scripts": "Skripte",
-            "tasks": "Aufgaben"
+            "tasks": "Aufgaben",
+            "logger_history": "Logs Verlauf",
+            "logged_stories": "Geloggte Storys"
         },
         "sections": {
             "home": {
