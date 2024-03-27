@@ -1,8 +1,147 @@
 name: Release CI
 on:
   workflow_dispatch:
+    inputs:
+      prerelease:
+        description: 'Mark as Pre-release'
+        required: false
+        type: boolean
+      publish:
+        description: 'Publish release'
+        required: false
+        type: boolean
+        default: true
 jobs:
-  build:
+  job_armv8:
+    runs-on: macos-latest
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v4
+        with:
+          submodules: 'recursive'
+
+      - name: set up JDK 17
+        uses: actions/setup-java@v4
+        with:
+          java-version: '17'
+          distribution: 'temurin'
+          cache: gradle
+
+      - name: Grant execute permission for gradlew
+        run: chmod +x gradlew
+
+      - name: Build
+        run: ./gradlew assembleArmv8Release
+        
+      - name: Sign APK
+        id: sign_app
+        uses: kevin-david/zipalign-sign-android-release@main
+        with:
+          releaseDirectory: app/build/outputs/apk/armv8/release/
+          signingKeyBase64: ${{ secrets.JAVA_KEYSTORE_DATA }}
+          alias: ${{ secrets.KEYSTORE_ALIAS }}
+          keyStorePassword: ${{ secrets.KEYSTORE_PASSWORD }}
+          keyPassword: ${{ secrets.KEY_PASSWORD }}
+
+      - name: Delete unsigned file
+        run: |
+          cd app/build/outputs/apk/armv8/release/
+          shopt -s extglob
+          rm !(*-signed*)
+      
+      - name: Upload artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: snapenhance-armv8-release
+          path: app/build/outputs/apk/armv8/release/*.apk
+          
+  job_armv7:
+    runs-on: macos-latest
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v4
+        with:
+          submodules: 'recursive'
+
+      - name: set up JDK 17
+        uses: actions/setup-java@v4
+        with:
+          java-version: '17'
+          distribution: 'temurin'
+          cache: gradle
+
+      - name: Grant execute permission for gradlew
+        run: chmod +x gradlew
+
+      - name: Build
+        run: ./gradlew assembleArmv7Release
+
+      - name: Sign APK
+        id: sign_app
+        uses: kevin-david/zipalign-sign-android-release@main
+        with:
+          releaseDirectory: app/build/outputs/apk/armv7/release/
+          signingKeyBase64: ${{ secrets.JAVA_KEYSTORE_DATA }}
+          alias: ${{ secrets.KEYSTORE_ALIAS }}
+          keyStorePassword: ${{ secrets.KEYSTORE_PASSWORD }}
+          keyPassword: ${{ secrets.KEY_PASSWORD }}
+
+      - name: Delete unsigned file
+        run: |
+          cd app/build/outputs/apk/armv7/release/
+          shopt -s extglob
+          rm !(*-signed*)
+
+      - name: Upload artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: snapenhance-armv7-release
+          path: app/build/outputs/apk/armv7/release/*.apk
+
+  job_universal:
+    runs-on: macos-latest
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v4
+        with:
+          submodules: 'recursive'
+
+      - name: set up JDK 17
+        uses: actions/setup-java@v4
+        with:
+          java-version: '17'
+          distribution: 'temurin'
+          cache: gradle
+
+      - name: Grant execute permission for gradlew
+        run: chmod +x gradlew
+
+      - name: Build
+        run: ./gradlew assembleAllRelease
+        
+      - name: Sign APK
+        id: sign_app
+        uses: kevin-david/zipalign-sign-android-release@main
+        with:
+          releaseDirectory: app/build/outputs/apk/all/release/
+          signingKeyBase64: ${{ secrets.JAVA_KEYSTORE_DATA }}
+          alias: ${{ secrets.KEYSTORE_ALIAS }}
+          keyStorePassword: ${{ secrets.KEYSTORE_PASSWORD }}
+          keyPassword: ${{ secrets.KEY_PASSWORD }}
+
+      - name: Delete unsigned file
+        run: |
+          cd app/build/outputs/apk/all/release/
+          shopt -s extglob
+          rm !(*-signed*)
+
+      - name: Upload universal
+        uses: actions/upload-artifact@v4
+        with:
+          name: snapenhance-universal-release
+          path: app/build/outputs/apk/all/release/*.apk
+
+  job_manager:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout repo
@@ -20,57 +159,71 @@ jobs:
       - name: Grant execute permission for gradlew
         run: chmod +x gradlew
 
-      - name: Clean Gradle Cache
-        run: ./gradlew clean
+      - name: Build
+        run: ./gradlew manager:assembleRelease
 
-      - name: Build Release APK
-        run: ./gradlew assembleRelease
-
-      - name: Sign armv7 APK
-        id: sign_armv7_app
+      - name: Sign APK
+        id: sign_app
         uses: kevin-david/zipalign-sign-android-release@main
         with:
-          releaseDirectory: app/build/outputs/apk/armv7/release/
+          releaseDirectory: manager/build/outputs/apk/release/
           signingKeyBase64: ${{ secrets.JAVA_KEYSTORE_DATA }}
-          alias: ${{ secrets.KEY_ALIAS }}
+          alias: ${{ secrets.KEYSTORE_ALIAS }}
           keyStorePassword: ${{ secrets.KEYSTORE_PASSWORD }}
           keyPassword: ${{ secrets.KEY_PASSWORD }}
 
-      - name: Upload armv7 artifact
+      - name: Delete unsigned file
+        run: |
+          cd manager/build/outputs/apk/release/
+          shopt -s extglob
+          rm !(*-signed*)
+
+      - name: Upload artifact
         uses: actions/upload-artifact@v4
         with:
-          name: app-armv7-release
-          path: ${{ steps.sign_armv7_app.outputs.signedReleaseFile }}
+          name: manager
+          path: manager/build/outputs/apk/release/*.apk
 
-      - name: Sign armv8 APK
-        id: sign_armv8_app
-        uses: kevin-david/zipalign-sign-android-release@main
+  job_release:
+    runs-on: ubuntu-latest
+    if: ${{ inputs.publish == true }}
+    needs: [job_armv8, job_armv7, job_universal, job_manager]
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v4
         with:
-          releaseDirectory: app/build/outputs/apk/armv8/release/
-          signingKeyBase64: ${{ secrets.JAVA_KEYSTORE_DATA }}
-          alias: ${{ secrets.KEY_ALIAS }}
-          keyStorePassword: ${{ secrets.KEYSTORE_PASSWORD }}
-          keyPassword: ${{ secrets.KEY_PASSWORD }}
+          submodules: 'recursive'
 
-      - name: Upload armv8 artifact
-        uses: actions/upload-artifact@v4
+      - name: set up JDK 17
+        uses: actions/setup-java@v4
         with:
-          name: app-armv8-release
-          path: ${{ steps.sign_armv8_app.outputs.signedReleaseFile }}
+          java-version: '17'
+          distribution: 'temurin'
+          cache: gradle
 
-      - name: Generate Version
+      - name: Grant execute permission for gradlew
+        run: chmod +x gradlew
+
+      - name: Generate version
         run: ./gradlew getVersion
 
-      - name: Set Version to Environment
+      - name: Set Environment Variables
         id: version-env
-        run: echo "version=$(cat app/build/version.txt)" >> $GITHUB_ENV
+        run: |
+          echo "version=$(cat app/build/version.txt)" >> $GITHUB_ENV
+          echo "sha_short=$(git rev-parse --short HEAD)" >> $GITHUB_OUTPUT
+
+      - name: Download artifacts
+        uses: actions/download-artifact@v4
+        with:
+          path: bins/
+          merge-multiple: true
 
       - name: Publish APK
         uses: marvinpinto/action-automatic-releases@latest
         with:
           repo_token: "${{ secrets.GITHUB_TOKEN }}"
-          prerelease: false
-          files: |
-            ${{ steps.sign_armv7_app.outputs.signedReleaseFile }}
-            ${{ steps.sign_armv8_app.outputs.signedReleaseFile }}
+          prerelease: ${{ inputs.prerelease }}
+          files: bins/*.apk
           automatic_release_tag: v${{ env.version }}
+
