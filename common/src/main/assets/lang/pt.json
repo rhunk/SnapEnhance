@@ -34,5 +34,17 @@
         "negative": "Não",
         "cancel": "Cancelar",
         "open": "Abrir"
+    },
+    "setup": {
+        "dialogs": {
+            "select_save_folder_button": "Selecione a pasta",
+            "select_language": "Selecione o idioma",
+            "save_folder": "SnapEnhance requer permissões de armazenamento para baixar e salvar mídia do Snapchat.\nEscolha o local para onde a mídia deve ser baixada."
+        },
+        "mappings": {
+            "generate_button": "Gerar",
+            "dialog": "Para suportar dinamicamente uma ampla variedade de versões do Snapchat, os mapeamentos são necessários para que o SnapEnhance funcione corretamente. Isso não deve levar mais de 5 segundos.",
+            "generate_failure_no_snapchat": "O SnapEnhance não conseguiu detectar o Snapchat. Tente reinstalar o Snapchat."
+        }
     }
 }

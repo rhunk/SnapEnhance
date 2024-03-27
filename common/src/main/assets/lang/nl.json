@@ -102,14 +102,6 @@
             }
         }
     },
-    "actions": {
-        "clean_snapchat_cache": "Snapchat cache opschonen",
-        "clear_message_logger": "Wis Berichten Logger",
-        "refresh_mappings": "Vernieuw Mappings",
-        "open_map": "Kies locatie op de kaart",
-        "check_for_updates": "Controleer op updates",
-        "export_chat_messages": "Exporteer chatberichten"
-    },
     "features": {
         "notices": {
             "unstable": "⚠️ Onstabiel",
