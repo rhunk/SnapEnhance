@@ -38,7 +38,8 @@ class ModDatabase(
         SQLiteDatabaseHelper.createTablesFromSchema(database, mapOf(
             "friends" to listOf(
                 "id INTEGER PRIMARY KEY AUTOINCREMENT",
-                "userId VARCHAR UNIQUE",
+                "userId CHAR(36) UNIQUE",
+                "dmConversationId VARCHAR(36)",
                 "displayName VARCHAR",
                 "mutableUsername VARCHAR",
                 "bitmojiId VARCHAR",
@@ -46,7 +47,7 @@ class ModDatabase(
             ),
             "groups" to listOf(
                 "id INTEGER PRIMARY KEY AUTOINCREMENT",
-                "conversationId VARCHAR UNIQUE",
+                "conversationId CHAR(36) UNIQUE",
                 "name VARCHAR",
                 "participantsCount INTEGER"
             ),
@@ -89,13 +90,7 @@ class ModDatabase(
         return database.rawQuery("SELECT * FROM groups", null).use { cursor ->
             val groups = mutableListOf<MessagingGroupInfo>()
             while (cursor.moveToNext()) {
-                groups.add(
-                    MessagingGroupInfo(
-                        conversationId = cursor.getStringOrNull("conversationId")!!,
-                        name = cursor.getStringOrNull("name")!!,
-                        participantsCount = cursor.getInteger("participantsCount")
-                    )
-                )
+                groups.add(MessagingGroupInfo.fromCursor(cursor))
             }
             groups
         }
@@ -106,22 +101,7 @@ class ModDatabase(
             val friends = mutableListOf<MessagingFriendInfo>()
             while (cursor.moveToNext()) {
                 runCatching {
-                    friends.add(
-                        MessagingFriendInfo(
-                            userId = cursor.getStringOrNull("userId")!!,
-                            displayName = cursor.getStringOrNull("displayName"),
-                            mutableUsername = cursor.getStringOrNull("mutableUsername")!!,
-                            bitmojiId = cursor.getStringOrNull("bitmojiId"),
-                            selfieId = cursor.getStringOrNull("selfieId"),
-                            streaks = cursor.getLongOrNull("expirationTimestamp")?.let {
-                                FriendStreaks(
-                                    notify = cursor.getInteger("notify") == 1,
-                                    expirationTimestamp = it,
-                                    length = cursor.getInteger("length")
-                                )
-                            }
-                        )
-                    )
+                    friends.add(MessagingFriendInfo.fromCursor(cursor))
                 }.onFailure {
                     context.log.error("Failed to parse friend", it)
                 }
@@ -149,9 +129,10 @@ class ModDatabase(
         executeAsync {
             try {
                 database.execSQL(
-                    "INSERT OR REPLACE INTO friends (userId, displayName, mutableUsername, bitmojiId, selfieId) VALUES (?, ?, ?, ?, ?)",
+                    "INSERT OR REPLACE INTO friends (userId, dmConversationId, displayName, mutableUsername, bitmojiId, selfieId) VALUES (?, ?, ?, ?, ?, ?)",
                     arrayOf(
                         friend.userId,
+                        friend.dmConversationId,
                         friend.displayName,
                         friend.mutableUsername,
                         friend.bitmojiId,
@@ -210,20 +191,14 @@ class ModDatabase(
     fun getFriendInfo(userId: String): MessagingFriendInfo? {
         return database.rawQuery("SELECT * FROM friends LEFT OUTER JOIN streaks ON friends.userId = streaks.id WHERE userId = ?", arrayOf(userId)).use { cursor ->
             if (!cursor.moveToFirst()) return@use null
-            MessagingFriendInfo(
-                userId = cursor.getStringOrNull("userId")!!,
-                displayName = cursor.getStringOrNull("displayName"),
-                mutableUsername = cursor.getStringOrNull("mutableUsername")!!,
-                bitmojiId = cursor.getStringOrNull("bitmojiId"),
-                selfieId = cursor.getStringOrNull("selfieId"),
-                streaks = cursor.getLongOrNull("expirationTimestamp")?.let {
-                    FriendStreaks(
-                        notify = cursor.getInteger("notify") == 1,
-                        expirationTimestamp = it,
-                        length = cursor.getInteger("length")
-                    )
-                }
-            )
+            MessagingFriendInfo.fromCursor(cursor)
+        }
+    }
+
+    fun findFriend(conversationId: String): MessagingFriendInfo? {
+        return database.rawQuery("SELECT * FROM friends WHERE dmConversationId = ?", arrayOf(conversationId)).use { cursor ->
+            if (!cursor.moveToFirst()) return@use null
+            MessagingFriendInfo.fromCursor(cursor)
         }
     }
 
@@ -245,11 +220,7 @@ class ModDatabase(
     fun getGroupInfo(conversationId: String): MessagingGroupInfo? {
         return database.rawQuery("SELECT * FROM groups WHERE conversationId = ?", arrayOf(conversationId)).use { cursor ->
             if (!cursor.moveToFirst()) return@use null
-            MessagingGroupInfo(
-                conversationId = cursor.getStringOrNull("conversationId")!!,
-                name = cursor.getStringOrNull("name")!!,
-                participantsCount = cursor.getInteger("participantsCount")
-            )
+            MessagingGroupInfo.fromCursor(cursor)
         }
     }
 
