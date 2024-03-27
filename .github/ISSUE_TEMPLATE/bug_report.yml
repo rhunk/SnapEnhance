@@ -1,6 +1,6 @@
 name: "Bug report"
 description: "Report an issue to help the project improve."
-title: "TITLE"
+title: "..."
 labels:
   - "bug"
 body:
