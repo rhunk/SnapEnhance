@@ -274,7 +274,7 @@
                     },
                     "customize_ui": {
                         "name": "Colours",
-                        "description": "Customize Snapchats Colours\nMake sure Snapchats Dark mode is enabled",
+                        "description": "Customize Snapchats Colours",
                         "properties": {
                             "text_colour": {
                                 "name": "Text Colour",
