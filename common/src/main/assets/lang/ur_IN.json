@@ -113,14 +113,6 @@
             }
         }
     },
-    "actions": {
-        "clean_snapchat_cache": "سنیپ‌چیٹ کیش صاف کریں",
-        "clear_message_logger": "پیغام لاگر صاف کریں",
-        "refresh_mappings": "تصاویر کو تازہ کریں",
-        "open_map": "نقشہ پر مقام منتخب کریں",
-        "check_for_updates": "اپ ڈیٹس کی جانچ کاری کریں",
-        "export_chat_messages": "چیٹ میسیجز ایکسپورٹ کریں"
-    },
     "features": {
         "notices": {
             "unstable": "⚠ غیر مستحکم",
@@ -337,16 +329,6 @@
                 "name": "عالمی",
                 "description": "عالمی سنیپ چیٹ کی ترتیبات تبدیل کریں",
                 "properties": {
-                    "spoofLocation": {
-                        "name": "مقام",
-                        "description": "آپ کا مقام فریب کریں",
-                        "properties": {
-                            "coordinates": {
-                                "name": "کوآرڈینیٹس",
-                                "description": "کوآرڈینیٹس تعین کریں"
-                            }
-                        }
-                    },
                     "snapchat_plus": {
                         "name": "سنیپ چیٹ پلس",
                         "description": "سنیپ چیٹ پلس فیچرز کو فعال کرتا ہے\nکچھ سرور-سائیڈ فیچرز ممکن ہے کام نہ کریں"

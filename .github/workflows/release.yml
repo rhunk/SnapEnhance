@@ -39,7 +39,7 @@ jobs:
         with:
           releaseDirectory: app/build/outputs/apk/armv8/release/
           signingKeyBase64: ${{ secrets.JAVA_KEYSTORE_DATA }}
-          alias: ${{ secrets.KEYSTORE_ALIAS }}
+          alias: ${{ secrets.KEY_ALIAS }}
           keyStorePassword: ${{ secrets.KEYSTORE_PASSWORD }}
           keyPassword: ${{ secrets.KEY_PASSWORD }}
 
@@ -82,7 +82,7 @@ jobs:
         with:
           releaseDirectory: app/build/outputs/apk/armv7/release/
           signingKeyBase64: ${{ secrets.JAVA_KEYSTORE_DATA }}
-          alias: ${{ secrets.KEYSTORE_ALIAS }}
+          alias: ${{ secrets.KEY_ALIAS }}
           keyStorePassword: ${{ secrets.KEYSTORE_PASSWORD }}
           keyPassword: ${{ secrets.KEY_PASSWORD }}
 
@@ -125,7 +125,7 @@ jobs:
         with:
           releaseDirectory: app/build/outputs/apk/all/release/
           signingKeyBase64: ${{ secrets.JAVA_KEYSTORE_DATA }}
-          alias: ${{ secrets.KEYSTORE_ALIAS }}
+          alias: ${{ secrets.KEY_ALIAS }}
           keyStorePassword: ${{ secrets.KEYSTORE_PASSWORD }}
           keyPassword: ${{ secrets.KEY_PASSWORD }}
 
@@ -168,7 +168,7 @@ jobs:
         with:
           releaseDirectory: manager/build/outputs/apk/release/
           signingKeyBase64: ${{ secrets.JAVA_KEYSTORE_DATA }}
-          alias: ${{ secrets.KEYSTORE_ALIAS }}
+          alias: ${{ secrets.KEY_ALIAS }}
           keyStorePassword: ${{ secrets.KEYSTORE_PASSWORD }}
           keyPassword: ${{ secrets.KEY_PASSWORD }}
 
@@ -226,4 +226,5 @@ jobs:
           prerelease: ${{ inputs.prerelease }}
           files: bins/*.apk
           automatic_release_tag: v${{ env.version }}
+
 
