@@ -261,6 +261,7 @@ class SnapEnhance {
             val friends = feedEntries.filter { it.friendUserId != null }.map {
                 MessagingFriendInfo(
                     it.friendUserId!!,
+                    appContext.database.getConversationLinkFromUserId(it.friendUserId!!)?.clientConversationId,
                     it.friendDisplayName,
                     it.friendDisplayUsername!!.split("|")[1],
                     it.bitmojiAvatarId,
@@ -279,6 +280,7 @@ class SnapEnhance {
                 return appContext.database.getFriendInfo(uuid)?.let {
                     MessagingFriendInfo(
                         userId = it.userId!!,
+                        dmConversationId = appContext.database.getConversationLinkFromUserId(it.userId!!)?.clientConversationId,
                         displayName = it.displayName,
                         mutableUsername = it.mutableUsername!!,
                         bitmojiId = it.bitmojiAvatarId,

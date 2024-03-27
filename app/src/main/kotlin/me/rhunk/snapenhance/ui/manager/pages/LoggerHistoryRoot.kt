@@ -17,6 +17,7 @@ import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.pointer.pointerInput
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavBackStackEntry
@@ -36,6 +37,8 @@ import me.rhunk.snapenhance.core.features.impl.downloader.decoder.DecodedAttachm
 import me.rhunk.snapenhance.core.features.impl.downloader.decoder.MessageDecoder
 import me.rhunk.snapenhance.download.DownloadProcessor
 import me.rhunk.snapenhance.ui.manager.Routes
+import java.nio.ByteBuffer
+import java.util.UUID
 import kotlin.math.absoluteValue
 
 
@@ -45,12 +48,15 @@ class LoggerHistoryRoot : Routes.Route() {
     private var stringFilter by mutableStateOf("")
     private var reverseOrder by mutableStateOf(true)
 
-    private inline fun decodeMessage(message: LoggedMessage, result: (contentType: ContentType, messageReader: ProtoReader, attachments: List<DecodedAttachment>) -> Unit) {
+    private inline fun decodeMessage(message: LoggedMessage, result: (senderId: String?, contentType: ContentType, messageReader: ProtoReader, attachments: List<DecodedAttachment>) -> Unit) {
         runCatching {
             val messageObject = JsonParser.parseString(String(message.messageData, Charsets.UTF_8)).asJsonObject
+            val senderId = messageObject.getAsJsonObject("mSenderId")?.getAsJsonArray("mId")?.map { it.asByte }?.toByteArray()?.let {
+                ByteBuffer.wrap(it).run { UUID(long, long) }.toString()
+            }
             val messageContent = messageObject.getAsJsonObject("mMessageContent")
             val messageReader = messageContent.getAsJsonArray("mContent").map { it.asByte }.toByteArray().let { ProtoReader(it) }
-            result(ContentType.fromMessageContainer(messageReader) ?: ContentType.UNKNOWN, messageReader, MessageDecoder.decode(messageContent))
+            result(senderId, ContentType.fromMessageContainer(messageReader) ?: ContentType.UNKNOWN, messageReader, MessageDecoder.decode(messageContent))
         }.onFailure {
             context.log.error("Failed to decode message", it)
         }
@@ -119,23 +125,32 @@ class LoggerHistoryRoot : Routes.Route() {
 
                 LaunchedEffect(Unit, message) {
                     runCatching {
-                        decodeMessage(message) { contentType, messageReader, attachments ->
+                        decodeMessage(message) { senderId, contentType, messageReader, attachments ->
+                            val senderUsername = senderId?.let { context.modDatabase.getFriendInfo(it)?.mutableUsername } ?: "unknown sender"
+
+                            @Composable
+                            fun ContentHeader() {
+                                Text("$senderUsername (${contentType.toString().lowercase()})", modifier = Modifier.padding(end = 4.dp), fontWeight = FontWeight.ExtraLight)
+                            }
+
                             if (contentType == ContentType.CHAT) {
                                 val content = messageReader.getString(2, 1) ?: "[empty chat message]"
                                 contentView = {
-                                    Text(content, modifier = Modifier
-                                        .fillMaxWidth()
-                                        .pointerInput(Unit) {
-                                            detectTapGestures(onLongPress = {
-                                                context.androidContext.copyToClipboard(content)
+                                    Column {
+                                        Text(content, modifier = Modifier
+                                            .fillMaxWidth()
+                                            .pointerInput(Unit) {
+                                                detectTapGestures(onLongPress = {
+                                                    context.androidContext.copyToClipboard(content)
+                                                })
                                             })
-                                        })
+                                        ContentHeader()
+                                    }
                                 }
                                 return@runCatching
                             }
                             contentView = {
                                 Column column@{
-                                    Text("[$contentType]")
                                     if (attachments.isEmpty()) return@column
 
                                     FlowRow(
@@ -164,6 +179,7 @@ class LoggerHistoryRoot : Routes.Route() {
                                             }
                                         }
                                     }
+                                    ContentHeader()
                                 }
                             }
                         }
@@ -194,8 +210,15 @@ class LoggerHistoryRoot : Routes.Route() {
                 expanded = expanded,
                 onExpandedChange = { expanded = it },
             ) {
+                fun formatConversationId(conversationId: String?): String? {
+                    if (conversationId == null) return null
+                    return context.modDatabase.getGroupInfo(conversationId)?.name?.let { "Group $it" } ?: context.modDatabase.findFriend(conversationId)?.let {
+                        "Friend " + (it.displayName?.let { name -> "$name (${it.mutableUsername})" } ?: it.mutableUsername)
+                    } ?: conversationId
+                }
+
                 OutlinedTextField(
-                    value = selectedConversation ?: "Select a conversation",
+                    value = remember(selectedConversation) { formatConversationId(selectedConversation) ?: "Select a conversation" },
                     onValueChange = {},
                     readOnly = true,
                     modifier = Modifier
@@ -213,12 +236,12 @@ class LoggerHistoryRoot : Routes.Route() {
                 }
 
                 ExposedDropdownMenu(expanded = expanded, onDismissRequest = { expanded = false }) {
-                    conversations.forEach { conversation ->
+                    conversations.forEach { conversationId ->
                         DropdownMenuItem(onClick = {
-                            selectedConversation = conversation
+                            selectedConversation = conversationId
                             expanded = false
                         }, text = {
-                            Text(conversation)
+                            Text(remember(conversationId) { formatConversationId(conversationId) ?: "Unknown conversation" })
                         })
                     }
                 }
@@ -278,7 +301,7 @@ class LoggerHistoryRoot : Routes.Route() {
                             ) { messageData ->
                                 if (stringFilter.isEmpty()) return@fetchMessages true
                                 var isMatch = false
-                                decodeMessage(messageData) { contentType, messageReader, _ ->
+                                decodeMessage(messageData) { _,  contentType, messageReader, _ ->
                                     if (contentType == ContentType.CHAT) {
                                         val content = messageReader.getString(2, 1) ?: return@decodeMessage
                                         isMatch = content.contains(stringFilter, ignoreCase = true)
@@ -312,6 +335,7 @@ class LoggerHistoryRoot : Routes.Route() {
                 value = searchValue,
                 onValueChange = { keyword ->
                     searchValue = keyword
+                    stringFilter = keyword
                 },
                 keyboardActions = KeyboardActions(onDone = { focusRequester.freeFocus() }),
                 modifier = Modifier
@@ -329,11 +353,6 @@ class LoggerHistoryRoot : Routes.Route() {
                     cursorColor = MaterialTheme.colorScheme.primary
                 )
             )
-            ElevatedButton(onClick = {
-                stringFilter = searchValue
-            }) {
-                Text("Search")
-            }
 
             LaunchedEffect(Unit) {
                 focusRequester.requestFocus()
