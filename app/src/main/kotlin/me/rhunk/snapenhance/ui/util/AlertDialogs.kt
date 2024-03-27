@@ -2,6 +2,7 @@ package me.rhunk.snapenhance.ui.util
 
 import android.content.Context
 import android.view.MotionEvent
+import android.widget.Toast
 import androidx.compose.foundation.ScrollState
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
@@ -175,6 +176,7 @@ class AlertDialogs(
     @Composable
     fun KeyboardInputDialog(property: PropertyPair<*>, dismiss: () -> Unit = {}) {
         val focusRequester = remember { FocusRequester() }
+        val context = LocalContext.current
 
         DefaultDialogCard {
             var fieldValue by remember {
@@ -215,7 +217,7 @@ class AlertDialogs(
                 }
                 Button(onClick = {
                     if (fieldValue.text.isNotEmpty() && property.key.params.inputCheck?.invoke(fieldValue.text) == false) {
-                        dismiss()
+                        Toast.makeText(context, "Invalid input! Make sure you entered a valid value.", Toast.LENGTH_SHORT).show() //TODO: i18n
                         return@Button
                     }
 
