@@ -1,8 +1,13 @@
 package me.rhunk.snapenhance.common.data
 
+import android.database.Cursor
 import android.os.Parcelable
 import kotlinx.parcelize.Parcelize
 import me.rhunk.snapenhance.common.config.FeatureNotice
+import me.rhunk.snapenhance.common.util.ktx.getIntOrNull
+import me.rhunk.snapenhance.common.util.ktx.getInteger
+import me.rhunk.snapenhance.common.util.ktx.getLongOrNull
+import me.rhunk.snapenhance.common.util.ktx.getStringOrNull
 import kotlin.time.Duration.Companion.hours
 
 
@@ -71,17 +76,48 @@ data class MessagingGroupInfo(
     val conversationId: String,
     val name: String,
     val participantsCount: Int
-): Parcelable
+): Parcelable {
+    companion object {
+        fun fromCursor(cursor: Cursor): MessagingGroupInfo {
+            return MessagingGroupInfo(
+                conversationId = cursor.getStringOrNull("conversationId")!!,
+                name = cursor.getStringOrNull("name")!!,
+                participantsCount = cursor.getInteger("participantsCount")
+            )
+        }
+    }
+}
 
 @Parcelize
 data class MessagingFriendInfo(
     val userId: String,
+    val dmConversationId: String?,
     val displayName: String?,
     val mutableUsername: String,
     val bitmojiId: String?,
     val selfieId: String?,
     var streaks: FriendStreaks?,
-): Parcelable
+): Parcelable {
+    companion object {
+        fun fromCursor(cursor: Cursor): MessagingFriendInfo {
+            return MessagingFriendInfo(
+                userId = cursor.getStringOrNull("userId")!!,
+                dmConversationId = cursor.getStringOrNull("dmConversationId"),
+                displayName = cursor.getStringOrNull("displayName"),
+                mutableUsername = cursor.getStringOrNull("mutableUsername")!!,
+                bitmojiId = cursor.getStringOrNull("bitmojiId"),
+                selfieId = cursor.getStringOrNull("selfieId"),
+                streaks = cursor.getLongOrNull("expirationTimestamp")?.let {
+                    FriendStreaks(
+                        notify = cursor.getIntOrNull("notify") == 1,
+                        expirationTimestamp = it,
+                        length = cursor.getIntOrNull("length") ?: 0
+                    )
+                }
+            )
+        }
+    }
+}
 
 class StoryData(
     val url: String,
