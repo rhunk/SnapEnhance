@@ -137,10 +137,6 @@
         "properties": {
             "user_interface": {
                 "properties": {
-                    "fidelius_indicator": {
-                        "name": "ഫിഡെലിയസ് സൂചകം",
-                        "description": "നിങ്ങൾക്ക് മാത്രം അയച്ച സന്ദേശങ്ങൾക്ക് അടുത്തായി ഒരു പച്ച സർക്കിൾ ചേർക്കുന്നു"
-                    },
                     "streak_expiration_info": {
                         "description": "സ്ട്രീക്ക് കൗണ്ടറിന് അടുത്തായി ഒരു സ്ട്രീക്ക് എക്‌സ്‌പറേഷൻ ടൈമർ കാണിക്കുന്നു",
                         "name": "സ്ട്രീക്ക് കാലഹരണപ്പെടൽ വിവരം കാണിക്കുക"
@@ -265,16 +261,6 @@
             },
             "global": {
                 "properties": {
-                    "spoofLocation": {
-                        "properties": {
-                            "coordinates": {
-                                "description": "കോർഡിനേറ്റുകൾ സജ്ജമാക്കുക",
-                                "name": "കോർഡിനേറ്റുകൾ"
-                            }
-                        },
-                        "description": "നിങ്ങളുടെ സ്ഥാനം കബളിപ്പിക്കുക",
-                        "name": "സ്ഥാനം"
-                    },
                     "disable_confirmation_dialogs": {
                         "name": "സ്ഥിരീകരണ ഡയലോഗുകൾ പ്രവർത്തനരഹിതമാക്കുക",
                         "description": "തിരഞ്ഞെടുത്ത പ്രവർത്തനങ്ങൾ സ്വയമേവ സ്ഥിരീകരിക്കുന്നു"
@@ -286,10 +272,6 @@
                     "disable_snap_splitting": {
                         "name": "സ്നാപ്പ് വിഭജനം പ്രവർത്തനരഹിതമാക്കുക",
                         "description": "Snaps ഒന്നിലധികം ഭാഗങ്ങളായി വിഭജിക്കപ്പെടുന്നത് തടയുന്നു\nനിങ്ങൾ അയയ്ക്കുന്ന ചിത്രങ്ങൾ വീഡിയോകളായി മാറും"
-                    },
-                    "suspend_location_updates": {
-                        "name": "ലൊക്കേഷൻ അപ്‌ഡേറ്റുകൾ താൽക്കാലികമായി നിർത്തുക",
-                        "description": "ലൊക്കേഷൻ അപ്ഡേറ്റുകൾ താൽക്കാലികമായി നിർത്താൻ മാപ്പ് ക്രമീകരണങ്ങളിൽ ഒരു ബട്ടൺ ചേർക്കുന്നു"
                     },
                     "spotlight_comments_username": {
                         "name": "സ്പോട്ട്ലൈറ്റ് അഭിപ്രായങ്ങളുടെ ഉപയോക്തൃനാമം",
@@ -774,7 +756,6 @@
                 "added_by_group_chat": "ഗ്രൂപ്പ് ചാറ്റ് വഴി",
                 "added_by_qr_code": "QR കോഡ് വഴി",
                 "added_by_community": "കമ്മ്യൂണിറ്റി പ്രകാരം",
-                "added_by_quick_add": "ദ്രുത കൂട്ടിച്ചേർക്കൽ വഴി",
                 "added_by_username": "ഉപയോക്തൃനാമം പ്രകാരം"
             },
             "bypass_video_length_restriction": {
@@ -820,16 +801,6 @@
                 "always_dark": "എപ്പോഴും ഇരുട്ട്"
             }
         }
-    },
-    "actions": {
-        "export_chat_messages": "ചാറ്റ് സന്ദേശങ്ങൾ കയറ്റുമതി ചെയ്യുക",
-        "check_for_updates": "അപ്ഡേറ്റുകൾക്കായി പരിശോധിക്കുക",
-        "clean_snapchat_cache": "Snapchat കാഷെ വൃത്തിയാക്കുക",
-        "export_memories": "ഓർമ്മകൾ കയറ്റുമതി ചെയ്യുക",
-        "bulk_messaging_action": "ബൾക്ക് മെസേജിംഗ് ആക്ഷൻ",
-        "refresh_mappings": "മാപ്പിംഗുകൾ പുതുക്കുക",
-        "clear_message_logger": "സന്ദേശ ലോഗർ മായ്‌ക്കുക",
-        "open_map": "മാപ്പിൽ ലൊക്കേഷൻ തിരഞ്ഞെടുക്കുക"
     },
     "content_type": {
         "NOTE": "ഓഡിയോ കുറിപ്പ്",

@@ -102,14 +102,6 @@
             }
         }
     },
-    "actions": {
-        "clean_snapchat_cache": "Ryd Snapchat-Cache",
-        "clear_message_logger": "Ryd Beskedlogger",
-        "refresh_mappings": "Opdater Tilføjelser",
-        "open_map": "Vælg placering på kort",
-        "check_for_updates": "Tjek for opdateringer",
-        "export_chat_messages": "Eksportér Chatbeskeder"
-    },
     "features": {
         "notices": {
             "unstable": "⚠️ Ustabil",
@@ -325,16 +317,6 @@
                 "name": "Global",
                 "description": "Tweak Globale Snapchat-Indstillinger",
                 "properties": {
-                    "spoofLocation": {
-                        "name": "Placering",
-                        "description": "Spoof din placering",
-                        "properties": {
-                            "coordinates": {
-                                "name": "Koordinater",
-                                "description": "Sæt koordinaterne"
-                            }
-                        }
-                    },
                     "snapchat_plus": {
                         "name": "Snapchat Plus",
                         "description": "Aktiverer Snapchat Plus-funktioner\nNogle server-sidede funktioner fungerer muligvis ikke"
