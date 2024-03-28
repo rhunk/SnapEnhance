@@ -62,7 +62,7 @@ We no longer offer official LSPatch binaries for obvious reasons. However, you'r
   - Disable Spotlight 
   - Hide Settings Gear
   - Vertical Story Viewer 
-  - Fidelius Indicator
+  - Message Indicators 
   - Stealth Mode Indicator 
   - Edit Text Override
 </details>  
@@ -91,12 +91,14 @@ We no longer offer official LSPatch binaries for obvious reasons. However, you'r
   - Gallery Media Send Override
   - Strip Media Metadata
   - Bypass Message Retention Policy
+  - Bypass Message Action Restrictions
+  - Remove Groups Locked Status 
  </details>
 
 <details closed>
   <summary>Global</summary>
  
-  - Location
+  - Better Location
   - Suspend Location Updates 
   - Snapchat Plus 
   - Disable Confirmation Dialogs
@@ -133,7 +135,8 @@ We no longer offer official LSPatch binaries for obvious reasons. However, you'r
   - Session Events 
   - Device Spoof
   - Convert Message Locally
-  - New Chat Action Menu 
+  - New Chat Action Menu
+  - Media File Picker 
   - Story Logger
   - Call Recorder
   - Account Switcher
